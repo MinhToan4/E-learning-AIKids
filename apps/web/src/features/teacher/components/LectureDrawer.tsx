@@ -13,10 +13,11 @@
  *   4. Sáng tạo — practice kind + instruction
  *   5. Thử tài — check question, options, answer
  */
-import { useState, useCallback, useEffect, useId, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useId, useRef, useDeferredValue, useMemo } from 'react'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
-import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, ChevronRight, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown, ZoomIn, Star, Maximize2, Minimize2, Smartphone, Tablet, Monitor, RotateCcw, Pause, ArrowRight } from 'lucide-react'
+import { Button } from '@/shared/components/ui/Button'
+import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, ChevronRight, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown, ZoomIn, Star, Maximize2, Minimize2, Smartphone, Tablet, Monitor, RotateCcw, Pause, ArrowRight, Award, Compass, AlertTriangle, Link2, Wand2, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import {
   api,
   type LessonSixStageJourney,
@@ -36,6 +37,8 @@ import {
   AIKI_RULE_STAGE_KINDS,
   detectLessonFormat, isAikiRuleLesson, type LessonFormat,
   type LectureDraft,
+  type LessonAccessMode,
+  type LessonAccessConfig,
   type LearnCardDraft,
   type LearnVisualItemDraft,
   type DialogueLine,
@@ -43,6 +46,8 @@ import {
   type StageCompareData,
   type ContentBlockType,
   type StageBlockItem,
+  type JourneyStageDefinition,
+  resolveCourseJourneyStages,
   getActiveModules,
   getStageBlocks,
   createFourKeysBlock,
@@ -62,6 +67,14 @@ import { StudentStageBlocksView } from '@/features/lesson/components/StudentStag
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 import type { CurriculumGameConfig } from '@/features/lesson/lib/curriculum-game'
+import { CreativeNotebookEngine } from '@/features/lesson/components/creative-engine/engines/CreativeNotebookEngine'
+import { DEFAULT_NOTEBOOK_CONFIGS, findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import {
+  LectureDrawerHeader,
+  LectureDrawerGameTab,
+  LectureDrawerExerciseTab,
+  type Section,
+} from './lecture-drawer'
 
 type Props = {
   courseId: string
@@ -81,8 +94,6 @@ type Props = {
   onDirtyChange?: (dirty: boolean) => void
 }
 
-type Section = 'basics' | 'content' | 'game' | 'practice' | 'check' | 'stage-0' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5'
-
 const AIKI_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
   { id: 'stage-0', label: '1. Tình huống', icon: <Clapperboard size={14} /> },
@@ -92,15 +103,8 @@ const AIKI_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'stage-4', label: '5. Chốt', icon: <Trophy size={14} /> },
 ]
 
-export const ISLAND_6_STAGE_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
-  { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
-  { id: 'stage-0', label: '1. 🎯 Mục tiêu (Ảnh)', icon: <Target size={14} /> },
-  { id: 'stage-1', label: '2. ❓ Xác nhận (1 câu hỏi)', icon: <HelpCircle size={14} /> },
-  { id: 'stage-2', label: '3. 🎬 Video bài học', icon: <Clapperboard size={14} /> },
-  { id: 'stage-3', label: '4. 📝 Bài test thử tài', icon: <BrainCircuit size={14} /> },
-  { id: 'stage-4', label: '5. 🎨 Thực hành (AI Studio)', icon: <Palette size={14} /> },
-  { id: 'stage-5', label: '6. 🏆 Màn kết thúc', icon: <Trophy size={14} /> },
-]
+export { ISLAND_6_STAGE_SECTIONS } from './lecture-drawer'
+
 
 const STANDARD_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
@@ -127,46 +131,120 @@ export const ISLAND_6_STAGE_NAMES = [
   '6. 🏆 Màn kết thúc',
 ] as const
 
-export const DEFAULT_PRACTICE_PARTS: SixStagePracticePartDef[] = [
-  { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', emoji: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
-  { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', emoji: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-  { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖', emoji: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-  { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', emoji: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
+import {
+  DEFAULT_PRACTICE_PARTS,
+  DEFAULT_FOUR_KEYS_OPTIONS,
+  DEFAULT_LOCKED_FEATURES,
+  DEFAULT_EXPRESSIONS,
+  DEFAULT_STYLE_PRISM_OPTIONS,
+  DEFAULT_PROMPT_DOCTOR_CASE,
+  DEFAULT_LAYER_STACKING_OPTIONS,
+  DEFAULT_CARD_FORGE_OPTIONS,
+  suggestFourKeysForSubject,
+  Stage5CreativeEngineEditor,
+  PracticePartsAndFourKeysEditor,
+} from './engine-editors'
+
+export {
+  DEFAULT_PRACTICE_PARTS,
+  DEFAULT_FOUR_KEYS_OPTIONS,
+  DEFAULT_LOCKED_FEATURES,
+  DEFAULT_EXPRESSIONS,
+  DEFAULT_STYLE_PRISM_OPTIONS,
+  DEFAULT_PROMPT_DOCTOR_CASE,
+  DEFAULT_LAYER_STACKING_OPTIONS,
+  DEFAULT_CARD_FORGE_OPTIONS,
+  suggestFourKeysForSubject,
+  Stage5CreativeEngineEditor,
+  PracticePartsAndFourKeysEditor,
+}
+
+export const ENGINE_DEFAULT_MOTTOS: Record<string, string> = {
+  'magic-keys': '4 Chìa khóa vạn năng: Xanh (Cái gì) · Vàng (Trông như thế nào) · Cam (Đang làm gì) · Đỏ (Ở đâu). Đủ 4 chìa là hết đoán bừa!',
+  'style-prism': 'Lăng kính phù thủy: Giữ nguyên chủ thể, đổi màu phong cách nghệ thuật diệu kỳ!',
+  'prompt-doctor': 'Bác sĩ AKI: Bắt bệnh tranh lỗi, kê đơn thuốc thẻ chữ chữa lành chuẩn xác!',
+  'layer-stacking': '3 Tầng sân khấu: Tách bạch Hậu cảnh, Ngôi sao 1/3 và Tiền cảnh cho bức tranh có chiều sâu!',
+  'identity-lock': 'Khóa mật mã ADN: Giữ vững nhân vật bất biến qua muôn vàn biểu cảm thần thái!',
+  'card-forge': 'Xưởng đúc thẻ bài: Kết hợp Hệ nguyên tố và Tuyệt chiêu để tôi luyện thẻ bài huyền thoại!',
+  'creative-notebook': 'Hãy viết bằng chính suy nghĩ của cậu! AI sẽ giúp cậu trang trí sau, còn câu chuyện này là của riêng cậu!',
+}
+
+export interface CreativeEngineOption {
+  mode: string
+  title: string
+  shortName: string
+  icon: string
+  desc: string
+  activeBorder: string
+  badgeBg: string
+}
+
+export const CREATIVE_ENGINES: CreativeEngineOption[] = [
+  {
+    mode: 'magic-keys',
+    title: '4 Chìa Khóa Ma Thuật',
+    shortName: '4 Chìa Khóa',
+    icon: '🔑',
+    desc: 'Ai? + Trông thế nào? + Làm gì? + Ở đâu?',
+    activeBorder: 'border-brand-500 ring-2 ring-brand-400 bg-white',
+    badgeBg: 'bg-brand-600',
+  },
+  {
+    mode: 'style-prism',
+    title: 'Lăng Kính Phù Thủy',
+    shortName: 'Lăng Kính',
+    icon: '🔮',
+    desc: 'Xoay 4 phong cách: Đất nặn, Màu nước, 3D, Dân gian',
+    activeBorder: 'border-purple-500 ring-2 ring-purple-400 bg-white',
+    badgeBg: 'bg-purple-600',
+  },
+  {
+    mode: 'prompt-doctor',
+    title: 'Bác Sĩ Câu Lệnh',
+    shortName: 'Bác Sĩ AKI',
+    icon: '🩺',
+    desc: 'Bắt bệnh tranh lỗi & kê đơn thuốc thẻ chữ',
+    activeBorder: 'border-rose-500 ring-2 ring-rose-400 bg-white',
+    badgeBg: 'bg-rose-600',
+  },
+  {
+    mode: 'layer-stacking',
+    title: '3 Tầng Sân Khấu',
+    shortName: '3 Tầng',
+    icon: '🎭',
+    desc: 'Hậu cảnh - Ngôi sao 1/3 - Tiền cảnh',
+    activeBorder: 'border-emerald-500 ring-2 ring-emerald-400 bg-white',
+    badgeBg: 'bg-emerald-600',
+  },
+  {
+    mode: 'identity-lock',
+    title: 'Khóa Mật Mã & Biểu Cảm',
+    shortName: 'Khóa Mật Mã',
+    icon: '🔒',
+    desc: 'Khóa 3 ADN nhân vật & xoay 6 biểu cảm',
+    activeBorder: 'border-cyan-500 ring-2 ring-cyan-400 bg-white',
+    badgeBg: 'bg-cyan-600',
+  },
+  {
+    mode: 'card-forge',
+    title: 'Xưởng Đúc Thẻ Bài TCG',
+    shortName: 'Đúc Thẻ Bài',
+    icon: '🃏',
+    desc: 'Hệ nguyên tố, khung pha lê, chỉ số HP/ATK',
+    activeBorder: 'border-amber-500 ring-2 ring-amber-400 bg-white',
+    badgeBg: 'bg-amber-600',
+  },
+  {
+    mode: 'creative-notebook',
+    title: 'Sổ Tay Sáng Tạo Ba Lô',
+    shortName: 'Sổ Tay Ba Lô',
+    icon: '🎒',
+    desc: 'Lập hồ sơ, viết cốt truyện, phân cảnh storyboard cất Ba Lô',
+    activeBorder: 'border-amber-500 ring-2 ring-amber-400 bg-white',
+    badgeBg: 'bg-amber-600',
+  },
 ]
 
-export const DEFAULT_FOUR_KEYS_OPTIONS: SixStageFourKeysOptions = {
-  what: ['Cốc sứ trắng', 'Cái xe đạp', 'Cuốn sổ tay', 'Đồng hồ để bàn cổ'],
-  how: ['men bóng mẻ miệng', 'màu xanh mini xinh xắn', 'bìa da nâu cổ điển', 'vỏ đồng sáng bóng'],
-  action: ['đang bốc khói nghi ngút', 'đang dựng chân chống', 'đang mở sẵn trang giấy', 'đang tích tắc báo thức'],
-  where: ['trên bàn gỗ mộc', 'bên hiên cửa sổ nắng', 'trong phòng đọc ấm áp', 'trên kệ đầu giường'],
-}
-
-export function suggestFourKeysForSubject(subjectName: string): {
-  parts: SixStagePracticePartDef[]
-  fourKeys: SixStageFourKeysOptions
-} {
-  const norm = (subjectName || '').toLowerCase()
-  if (norm.includes('mèo') || norm.includes('cat')) {
-    return {
-      parts: [
-        { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
-        { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', emoji: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
-        { partNumber: 3, title: 'Mèo Bắt Bướm Nắng Vàng', icon: '🦋', emoji: '🦋', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
-        { partNumber: 4, title: 'Mèo Trèo Cây Cau', icon: '🌳', emoji: '🌳', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
-      ],
-      fourKeys: {
-        what: ['Mèo mướp vàng', 'Mèo tam thể', 'Mèo Ba Tư lông xù', 'Mèo con mắt biếc'],
-        how: ['béo tròn bụ bẫm', 'lông vàng óng ả', 'tai vểnh mắt tròn', 'đeo nơ đỏ xinh'],
-        action: ['đang ngủ cuộn tròn', 'đang vờn bóng len', 'đang rình bắt bướm', 'đang sưởi nắng ấm'],
-        where: ['trên ghế mây êm ái', 'bên bậu cửa sổ', 'giữa thảm cỏ hoa', 'trong giỏ len ấm áp'],
-      },
-    }
-  }
-  return {
-    parts: DEFAULT_PRACTICE_PARTS,
-    fourKeys: DEFAULT_FOUR_KEYS_OPTIONS,
-  }
-}
 
 const AVAILABLE_MODULES = [
   { id: 'course-text', label: 'Nội Dung Bài Học', icon: '📖', desc: 'Khối nội dung chuẩn cho khóa học 6 chặng' },
@@ -174,7 +252,8 @@ const AVAILABLE_MODULES = [
   { id: 'text', label: 'Đoạn văn bản (Textbox)', icon: '📖', desc: 'Thêm một đoạn văn bản hoặc tiêu đề mới' },
   { id: 'layout-callout', label: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung vàng ghi chú bí kíp bỏ túi' },
   { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '🔤', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
-  { id: 'layout-split', label: '2 Cột Chữ + Media', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
+  { id: 'layout-split', label: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
+  { id: 'layout-two-text', label: '2 Cột: 2 Văn Bản Song Song', icon: '📄', desc: 'Hai cột văn bản song song không kèm ảnh' },
   { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Lưới 3 thẻ ví dụ trực quan' },
   { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '🔑', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
   { id: 'layout-confirm-option', label: 'Phương Án Lựa Chọn (A, B, C...)', icon: '🔘', desc: 'Phương án trắc nghiệm xác nhận mục tiêu (Chữ + Ảnh)' },
@@ -207,15 +286,72 @@ function goalLines(value: string) {
 const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
 const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
 
+const FOUR_KEYS_METADATA = [
+  { label: 'CÁI GÌ', sub: 'Ai, đồ vật gì', tone: 'sky' as const, keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
+  { label: 'TRÔNG THẾ NÀO', sub: 'Màu sắc, hình dáng', tone: 'sun' as const, keyImage: '/assets/aiki-keys/key_how_yellow.jpg' },
+  { label: 'ĐANG LÀM GÌ', sub: 'Hành động', tone: 'coral' as const, keyImage: '/assets/aiki-keys/key_action_orange.jpg' },
+  { label: 'Ở ĐÂU', sub: 'Bối cảnh, nơi chốn', tone: 'rose' as const, keyImage: '/assets/aiki-keys/key_where_pink.jpg' },
+] as const
+
 function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
-  const defaults = ['Cái gì?', 'Trông như thế nào?', 'Đang làm gì?', 'Ở đâu?']
+  const COLOR_NAME_MAP: Record<string, { tone: 'sky' | 'sun' | 'coral' | 'rose'; image: string }> = {
+    'xanh sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
+    'sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
+    'vàng sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
+    'sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
+    'cam mango': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
+    'coral': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
+    'hồng gum': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
+    'rose': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
+  }
+
   return Array.from({ length: 4 }, (_, index) => {
+    const defaultMeta = FOUR_KEYS_METADATA[index] || FOUR_KEYS_METADATA[0]
     const value = keyPoints[index] || ''
     const separator = value.indexOf(':')
+
+    let rawPrefix = separator > 0 ? value.slice(0, separator).trim() : value.trim()
+    const rawText = separator > 0 ? value.slice(separator + 1).trim() : ''
+
+    // Bóc tách nếu có màu sắc cũ trong ngoặc: VD "(Xanh Sky)"
+    let detectedTone: 'sky' | 'sun' | 'coral' | 'rose' = defaultMeta.tone
+    let detectedImage: string = defaultMeta.keyImage
+
+    const colorMatch = rawPrefix.match(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i)
+    if (colorMatch) {
+      const colorKey = colorMatch[1].toLowerCase()
+      if (COLOR_NAME_MAP[colorKey]) {
+        detectedTone = COLOR_NAME_MAP[colorKey].tone
+        detectedImage = COLOR_NAME_MAP[colorKey].image
+      }
+      rawPrefix = rawPrefix.replace(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i, '').trim()
+    }
+
+    // Bóc tách tên và phụ đề gợi ý: VD "CÁI GÌ (Ai, đồ vật gì)"
+    const subMatch = rawPrefix.match(/^(.*?)(?:\s*\((.*?)\))?$/)
+    let parsedLabel = subMatch && subMatch[1] ? subMatch[1].trim() : (rawPrefix || defaultMeta.label)
+    let parsedSub = subMatch && subMatch[2] ? subMatch[2].trim() : defaultMeta.sub
+
+    // Nếu parsedSub là tên màu sắc sót lại
+    if (parsedSub && COLOR_NAME_MAP[parsedSub.toLowerCase()]) {
+      const matched = COLOR_NAME_MAP[parsedSub.toLowerCase()]
+      detectedTone = matched.tone
+      detectedImage = matched.image
+      parsedSub = defaultMeta.sub
+    }
+
+    if (parsedLabel.toUpperCase() === 'TRÔNG NHƯ THẾ NÀO') {
+      parsedLabel = 'TRÔNG THẾ NÀO'
+    } else if (parsedLabel === 'Cái gì?') {
+      parsedLabel = defaultMeta.label
+    }
+
     return {
-      label: separator > 0 ? value.slice(0, separator).trim() : defaults[index],
-      text: separator > 0 ? value.slice(separator + 1).trim() : value,
-      tone: (['sky', 'sun', 'coral', 'brand'] as const)[index],
+      label: parsedLabel || defaultMeta.label,
+      sub: parsedSub || defaultMeta.sub,
+      text: rawText,
+      tone: detectedTone,
+      keyImage: detectedImage,
     }
   })
 }
@@ -406,11 +542,45 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
       })
     }
+  } else if (draft.customJourneyStages && draft.customJourneyStages.length >= 3) {
+    const totalCustom = Math.min(7, draft.customJourneyStages.length)
+    while (sourceCards.length < totalCustom) {
+      const index = sourceCards.length
+      sourceCards.push({
+        id: draft.customJourneyStages[index]?.id || `custom-stage-${index + 1}`,
+        title: draft.customJourneyStages[index]?.title || `Chặng ${index + 1}`,
+        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
+      })
+    }
   }
+  let initialSlug = draft.slug || (draft as any).metadata?.slug || ''
+  if (!initialSlug && draft.id) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(draft.id)
+    if (!isUUID) {
+      initialSlug = draft.id
+    } else {
+      const curriculum = findIslandCurriculum(draft as any)
+      initialSlug = curriculum?.slug || slugifyAuthoringId(draft.title || '')
+    }
+  } else if (!initialSlug && draft.title) {
+    initialSlug = slugifyAuthoringId(draft.title)
+  }
+
+  const rawAccess = (draft as any).access ?? (draft as any).metadata?.access
+  const access: LessonAccessConfig = {
+    mode: rawAccess?.mode ?? 'inherit',
+    minPlanTier: rawAccess?.minPlanTier ?? 0,
+    trialBadge: rawAccess?.trialBadge ?? 'Học thử',
+    lockedReason: rawAccess?.lockedReason ?? '',
+  }
+
   return {
     ...draft,
+    access,
+    slug: initialSlug,
     lessonFormat: format,
     sixStageJourney,
+    customJourneyStages: draft.customJourneyStages,
     practiceConfigText: draft.practiceConfigText ?? '',
     learnCards: sourceCards.map((card, index) => {
       const sourceVisualItems = Array.isArray(card.visualItems) ? card.visualItems : []
@@ -464,11 +634,64 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
   }
 }
 
-function StudentBasicsPreview({ draft }: { draft: LectureDraft }) {
+export function CollapsedPreviewRail({
+  onExpand,
+  label = 'HỌC SINH SẼ THẤY',
+}: {
+  onExpand: () => void
+  label?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onExpand}
+      className="w-14 shrink-0 sticky top-4 h-[calc(100vh-10rem)] min-h-[420px] rounded-3xl border-2 border-sky-200 bg-white/95 shadow-clay-xs hover:border-sky-400 hover:bg-sky-50/60 cursor-pointer flex flex-col items-center justify-between py-4 px-1 select-none group transition-all"
+      title="Mở rộng xem trước màn học sinh"
+      aria-label="Mở rộng xem trước màn học sinh"
+    >
+      {/* Đỉnh: Nút PanelRightOpen màu sky */}
+      <span className="flex size-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 group-hover:bg-sky-100 group-hover:scale-110 shadow-2xs transition">
+        <PanelRightOpen size={16} />
+      </span>
+
+      {/* Thân giữa: Icon Eye + Dòng chữ dọc mềm mại HỌC SINH SẼ THẤY */}
+      <div className="flex flex-col items-center gap-2 text-sky-800">
+        <Eye size={16} className="text-sky-600 group-hover:scale-110 transition shrink-0" />
+        <span
+          className="text-[10px] font-black tracking-widest text-sky-900 group-hover:text-sky-700 transition"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          {label}
+        </span>
+      </div>
+
+      {/* Đáy: Icon Smartphone + chữ PREVIEW */}
+      <div className="flex flex-col items-center gap-1 text-slate-400 group-hover:text-sky-600 transition">
+        <Smartphone size={13} className="shrink-0" />
+        <span className="text-[9px] font-black tracking-wider">PREVIEW</span>
+      </div>
+    </button>
+  )
+}
+
+export const StudentBasicsPreview = React.memo(function StudentBasicsPreview({ draft, onCollapse }: { draft: LectureDraft; onCollapse?: () => void }) {
   const goals = goalLines(draft.goalsText)
   return (
     <aside className="ui-card h-fit p-4 lg:sticky lg:top-4" aria-label="Xem trước thông tin trạm trên màn học sinh">
-      <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-sky-700"><Eye size={16} /> Học sinh sẽ thấy</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-sky-700"><Eye size={16} /> Học sinh sẽ thấy</p>
+        {onCollapse && (
+          <button
+            type="button"
+            onClick={onCollapse}
+            className="flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg transition cursor-pointer"
+            title="Thu gọn cột xem trước"
+          >
+            <PanelRightClose size={13} />
+            <span>Thu gọn</span>
+          </button>
+        )}
+      </div>
       <div className="mt-3 rounded-3xl border-2 border-brand-200 bg-brand-50 p-5 text-center shadow-sm">
         <p className="font-display text-xl leading-tight text-brand-800">{draft.hook.trim() || 'Câu hỏi khởi động sẽ xuất hiện tại đây'}</p>
       </div>
@@ -486,9 +709,9 @@ function StudentBasicsPreview({ draft }: { draft: LectureDraft }) {
       <p className="mt-3 text-xs font-semibold leading-relaxed text-muted">Nên dùng một câu hỏi tò mò và 3 mục tiêu có thể quan sát được. Mỗi mục tiêu bắt đầu bằng động từ: nhận biết, giải thích, tạo, so sánh hoặc tự kiểm tra.</p>
     </aside>
   )
-}
+})
 
-function StudentLearnPreview({ draft }: { draft: LectureDraft }) {
+const StudentLearnPreview = React.memo(function StudentLearnPreview({ draft }: { draft: LectureDraft }) {
   const cards = draft.learnCards.length ? draft.learnCards : defaultLearnCards(draft.concept, draft.example)
   return (
     <aside className="ui-card h-fit p-4 lg:sticky lg:top-4" aria-label="Xem trước nội dung khám phá trên màn học sinh">
@@ -529,7 +752,7 @@ function StudentLearnPreview({ draft }: { draft: LectureDraft }) {
       </div>
     </aside>
   )
-}
+})
 
 function getBlockIcon(type: ContentBlockType): string {
   switch (type) {
@@ -599,423 +822,10 @@ function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
   }
 }
 
-function PracticePartsAndFourKeysEditor({
-  practice,
-  onChange,
-  showToast,
-}: {
-  practice: SixStagePractice
-  onChange: (patch: Partial<SixStagePractice>) => void
-  showToast: (msg: string, type?: 'info' | 'success' | 'error') => void
-}) {
-  const parts: SixStagePracticePartDef[] = (practice.practiceParts && practice.practiceParts.length > 0)
-    ? practice.practiceParts
-    : DEFAULT_PRACTICE_PARTS
+// Stage 5 Practice Engine Editor: PracticePartsAndFourKeysEditor & Stage5CreativeEngineEditor
+// are imported from ./engine-editors (supporting all 6 creative engines).
 
-  const fourKeys: SixStageFourKeysOptions = practice.fourKeysOptions || DEFAULT_FOUR_KEYS_OPTIONS
-
-  const [inputWhat, setInputWhat] = useState('')
-  const [inputHow, setInputHow] = useState('')
-  const [inputAction, setInputAction] = useState('')
-  const [inputWhere, setInputWhere] = useState('')
-
-  const handleAddTag = (category: keyof SixStageFourKeysOptions, text: string, setInput: (v: string) => void) => {
-    const trimmed = text.trim()
-    if (!trimmed) return
-    const currentList = fourKeys[category] || []
-    if (currentList.includes(trimmed)) {
-      showToast(`Thẻ "${trimmed}" đã có trong danh sách`, 'info')
-      setInput('')
-      return
-    }
-    const nextList = [...currentList, trimmed]
-    onChange({
-      fourKeysOptions: {
-        ...fourKeys,
-        [category]: nextList,
-      },
-    })
-    setInput('')
-  }
-
-  const handleRemoveTag = (category: keyof SixStageFourKeysOptions, indexToRemove: number) => {
-    const currentList = fourKeys[category] || []
-    const nextList = currentList.filter((_, idx) => idx !== indexToRemove)
-    onChange({
-      fourKeysOptions: {
-        ...fourKeys,
-        [category]: nextList,
-      },
-    })
-  }
-
-  const handleUpdatePart = (index: number, patch: Partial<SixStagePracticePartDef>) => {
-    const nextParts = [...parts]
-    nextParts[index] = { ...nextParts[index], ...patch }
-    onChange({ practiceParts: nextParts })
-  }
-
-  const handleAddPart = () => {
-    if (parts.length >= 6) {
-      showToast('Đã đạt giới hạn tối đa 6 món đồ', 'info')
-      return
-    }
-    const nextNumber = parts.length + 1
-    const nextParts: SixStagePracticePartDef[] = [
-      ...parts,
-      {
-        partNumber: nextNumber,
-        title: `Món đồ thứ ${nextNumber}`,
-        icon: '🎨',
-        emoji: '🎨',
-      },
-    ]
-    onChange({ practiceParts: nextParts })
-  }
-
-  const handleRemovePart = (indexToRemove: number) => {
-    if (parts.length <= 1) {
-      showToast('Phải có ít nhất 1 món đồ thực hành', 'info')
-      return
-    }
-    const nextParts = parts
-      .filter((_, idx) => idx !== indexToRemove)
-      .map((p, idx) => ({ ...p, partNumber: idx + 1 }))
-    onChange({ practiceParts: nextParts })
-  }
-
-  const handleLoadDefaultParts = () => {
-    onChange({ practiceParts: DEFAULT_PRACTICE_PARTS })
-    showToast('✅ Đã nạp 4 món đồ thực hành mặc định', 'success')
-  }
-
-  const handleSuggestFourKeys = () => {
-    const suggested = suggestFourKeysForSubject(practice.subjectName)
-    onChange({
-      practiceParts: suggested.parts,
-      fourKeysOptions: suggested.fourKeys,
-    })
-    showToast('🪄 Đã gợi ý bộ thẻ 4 Chìa Khóa và món đồ chuẩn theo bài!', 'success')
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* ── 1. Món đồ bé vẽ (Practice Parts) ────────────────────────── */}
-      <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/50 p-4 space-y-3 shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-200/70 pb-2.5">
-          <div>
-            <h4 className="text-xs font-black uppercase text-brand-950 flex items-center gap-1.5">
-              <span>🎒 Món đồ bé vẽ trong bài (Practice Parts)</span>
-              <span className="rounded-full bg-brand-200 text-brand-900 px-2 py-0.5 text-[10px] font-black">
-                {parts.length} món
-              </span>
-            </h4>
-            <p className="text-[11px] font-medium text-brand-800 mt-0.5">
-              Học sinh sẽ thực hành vẽ lần lượt từng món đồ này (1..4) bằng câu lệnh 4 Chìa Khóa.
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={handleLoadDefaultParts}
-              className="rounded-xl border border-brand-300 bg-white px-2.5 py-1 text-xs font-black text-brand-700 shadow-2xs hover:bg-brand-50 transition cursor-pointer"
-            >
-              🔄 Nạp 4 món mặc định
-            </button>
-            <button
-              type="button"
-              onClick={handleAddPart}
-              className="rounded-xl border border-brand-400 bg-brand-600 px-2.5 py-1 text-xs font-black text-white shadow-2xs hover:bg-brand-700 transition cursor-pointer flex items-center gap-1"
-            >
-              <Plus size={13} />
-              <span>Thêm món</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {parts.map((part, pIdx) => (
-            <div
-              key={part.partNumber || pIdx}
-              className="rounded-xl border border-border bg-white p-2.5 flex items-center gap-2 shadow-2xs hover:border-brand-300 transition"
-            >
-              <span className="size-6 rounded-lg bg-brand-100 text-brand-900 font-black text-[10px] grid place-items-center shrink-0">
-                #{part.partNumber || pIdx + 1}
-              </span>
-              <input
-                type="text"
-                value={part.emoji || part.icon || '🎨'}
-                onChange={(e) => handleUpdatePart(pIdx, { emoji: e.target.value, icon: e.target.value })}
-                title="Icon hoặc Emoji"
-                className="w-10 text-center rounded-lg border border-border bg-slate-50 px-1.5 py-1 text-sm shrink-0"
-              />
-              <input
-                type="text"
-                value={part.title}
-                onChange={(e) => handleUpdatePart(pIdx, { title: e.target.value })}
-                placeholder={`Tên món đồ ${pIdx + 1}...`}
-                className="flex-1 min-w-0 rounded-lg border border-border bg-page px-2 py-1 text-xs font-bold text-slate-800"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemovePart(pIdx)}
-                title="Xóa món đồ này"
-                className="size-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 grid place-items-center transition shrink-0 cursor-pointer"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── 2. Ngân hàng thẻ 4 Chìa Khóa (4-Key Option Cards) ────────── */}
-      <div className="rounded-2xl border-2 border-brand-200 bg-white p-4 space-y-3.5 shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-2.5">
-          <div>
-            <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-              <span>🔑 Ngân Hàng Thẻ 4 Chìa Khóa (AI Studio Magic Keys)</span>
-              <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-black">
-                Hallmark SSOT
-              </span>
-            </h4>
-            <p className="text-[11px] font-medium text-slate-600 mt-0.5">
-              Học sinh bấm chọn các thẻ này ở Bàn phím Ma Thuật để ghép thành câu lệnh hoàn chỉnh.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleSuggestFourKeys}
-            className="rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer flex items-center gap-1.5"
-          >
-            <Sparkles size={13} className="text-brand-600" />
-            <span>🪄 Gợi ý thẻ 4 Chìa Khóa theo bài</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Khay 1: Cái gì? (Sky Blue) */}
-          <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/70 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-sky-900 flex items-center gap-1">
-                🔑 1. Cái gì? (Chủ thể / Đồ vật)
-              </span>
-              <span className="rounded-full bg-sky-500 text-white text-[9px] font-black px-1.5 py-0.2">
-                {(fourKeys.what || []).length} thẻ
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-sky-200">
-              {(fourKeys.what || []).map((tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-300 px-2 py-0.5 rounded-lg shadow-2xs"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag('what', tIdx)}
-                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {(fourKeys.what || []).length === 0 && (
-                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={inputWhat}
-                onChange={(e) => setInputWhat(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag('what', inputWhat, setInputWhat)
-                  }
-                }}
-                placeholder="VD: Cốc sứ trắng, Cái xe đạp..."
-                className="flex-1 min-w-0 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-xs font-semibold text-sky-950 placeholder:text-sky-300"
-              />
-              <button
-                type="button"
-                onClick={() => handleAddTag('what', inputWhat, setInputWhat)}
-                className="rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
-              >
-                + Thêm
-              </button>
-            </div>
-          </div>
-
-          {/* Khay 2: Trông thế nào? (Sun Yellow) */}
-          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/70 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-amber-900 flex items-center gap-1">
-                🔑 2. Trông thế nào? (Hình dáng / Màu sắc)
-              </span>
-              <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2">
-                {(fourKeys.how || []).length} thẻ
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-amber-200">
-              {(fourKeys.how || []).map((tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg shadow-2xs"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag('how', tIdx)}
-                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {(fourKeys.how || []).length === 0 && (
-                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={inputHow}
-                onChange={(e) => setInputHow(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag('how', inputHow, setInputHow)
-                  }
-                }}
-                placeholder="VD: men bóng mẻ miệng, màu xanh mini..."
-                className="flex-1 min-w-0 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-950 placeholder:text-amber-300"
-              />
-              <button
-                type="button"
-                onClick={() => handleAddTag('how', inputHow, setInputHow)}
-                className="rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
-              >
-                + Thêm
-              </button>
-            </div>
-          </div>
-
-          {/* Khay 3: Đang làm gì? (Mint Green) */}
-          <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-emerald-900 flex items-center gap-1">
-                🔑 3. Đang làm gì? (Hành động)
-              </span>
-              <span className="rounded-full bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.2">
-                {(fourKeys.action || []).length} thẻ
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-emerald-200">
-              {(fourKeys.action || []).map((tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-lg shadow-2xs"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag('action', tIdx)}
-                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {(fourKeys.action || []).length === 0 && (
-                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={inputAction}
-                onChange={(e) => setInputAction(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag('action', inputAction, setInputAction)
-                  }
-                }}
-                placeholder="VD: đang bốc khói nghi ngút, đang chạy bon bon..."
-                className="flex-1 min-w-0 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300"
-              />
-              <button
-                type="button"
-                onClick={() => handleAddTag('action', inputAction, setInputAction)}
-                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
-              >
-                + Thêm
-              </button>
-            </div>
-          </div>
-
-          {/* Khay 4: Ở đâu? (Coral Red) */}
-          <div className="rounded-2xl border-2 border-rose-300 bg-rose-50/70 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-rose-900 flex items-center gap-1">
-                🔑 4. Ở đâu? (Bối cảnh / Vị trí)
-              </span>
-              <span className="rounded-full bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2">
-                {(fourKeys.where || []).length} thẻ
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-rose-200">
-              {(fourKeys.where || []).map((tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded-lg shadow-2xs"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag('where', tIdx)}
-                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {(fourKeys.where || []).length === 0 && (
-                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={inputWhere}
-                onChange={(e) => setInputWhere(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag('where', inputWhere, setInputWhere)
-                  }
-                }}
-                placeholder="VD: trên bàn gỗ mộc, bên cửa sổ..."
-                className="flex-1 min-w-0 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-950 placeholder:text-rose-300"
-              />
-              <button
-                type="button"
-                onClick={() => handleAddTag('where', inputWhere, setInputWhere)}
-                className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
-              >
-                + Thêm
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export function PracticeWorkflowStepsAccordion({
+export const PracticeWorkflowStepsAccordion = React.memo(function PracticeWorkflowStepsAccordion({
   workflowSteps,
   onChange,
 }: {
@@ -1102,25 +912,33 @@ export function PracticeWorkflowStepsAccordion({
       )}
     </div>
   )
-}
+})
 
 export type PreviewViewportMode = 'mobile' | 'tablet' | 'pc' | 'full'
 
-export function StudentStagePreview({
+export const StudentStagePreview = React.memo(function StudentStagePreview({
   card,
   stageIndex,
   isIsland,
   sixStageJourney,
   stageCard,
+  viewport: propViewport,
+  hideHeaderToolbar,
+  onCollapse,
 }: {
   card?: LearnCardDraft
   stageIndex: number
   isIsland?: boolean
   sixStageJourney?: LessonSixStageJourney
   stageCard?: LearnCardDraft
+  viewport?: PreviewViewportMode
+  hideHeaderToolbar?: boolean
+  onCollapse?: () => void
 }) {
   const [zoomedImage, setZoomedImage] = useState<{ url: string; title?: string } | null>(null)
-  const [viewport, setViewport] = useState<PreviewViewportMode>('mobile')
+  const [internalViewport, setInternalViewport] = useState<PreviewViewportMode>('mobile')
+  const activeViewport = propViewport ?? internalViewport
+  const setViewport = setInternalViewport
   const [isFullscreen, setIsFullscreen] = useState(false)
   const { showToast } = useToast()
 
@@ -1134,6 +952,10 @@ export function StudentStagePreview({
   const [activeHow, setActiveHow] = useState<string | null>(null)
   const [activeAction, setActiveAction] = useState<string | null>(null)
   const [activeWhere, setActiveWhere] = useState<string | null>(null)
+  const [activeStylePrism, setActiveStylePrism] = useState<string | null>(null)
+  const [activeCure, setActiveCure] = useState<string | null>(null)
+  const [activeExpression, setActiveExpression] = useState<string | null>(null)
+  const [activeCardElement, setActiveCardElement] = useState<string | null>(null)
 
   // Lắng nghe phím Escape để đóng toàn màn hình
   useEffect(() => {
@@ -1161,7 +983,7 @@ export function StudentStagePreview({
             <SixStageGoalStage
               goal={sixStageJourney.stage1_goal}
               fourKeys={sixStageJourney.stage1_goal.keyPoints.length >= 4 || sixStageJourney.stage1_goal.title.toLowerCase().includes('chìa khoá')}
-              compact={isMobile || !isFs}
+              compact={isMobile}
               showContinue={false}
               onImageClick={(image) => setZoomedImage(image)}
             />
@@ -1363,212 +1185,215 @@ export function StudentStagePreview({
               setPreviewVideoSeekSec(sec)
             }
 
-            return (
-              <div className="space-y-3">
-                {/* Header Banner */}
-                <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 sm:p-3.5 shadow-sm">
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[10px] font-black uppercase text-purple-700 flex items-center gap-1">
-                      🎬 Chặng 3: Video bài giảng
-                    </span>
-                    <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
-                      {videoChapters.length} Mốc kiến thức
-                    </span>
-                  </div>
-                  <h4 className="font-display text-sm sm:text-base font-black text-purple-950">
-                    {sixStageJourney.stage3_video.title || 'Video bài giảng 4 Chìa Khóa'}
-                  </h4>
-                </div>
+            const isDesktopVideoLayout = vp === 'pc' || vp === 'full'
 
-                {/* Khung Video Canvas Player */}
-                <div className="aspect-video w-full rounded-2xl bg-slate-900 grid place-items-center text-white relative overflow-hidden shadow-md max-h-[420px] border-2 border-slate-800">
-                  {sixStageJourney.stage3_video.posterUrl && (
-                    <img
-                      src={sixStageJourney.stage3_video.posterUrl}
-                      alt="Poster"
-                      className="absolute inset-0 w-full h-full object-cover opacity-60"
-                    />
-                  )}
-                  <div className="relative z-10 flex flex-col items-center gap-2.5 text-center p-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsPlayingPreviewVideo(!isPlayingPreviewVideo)}
-                      className="size-14 sm:size-16 rounded-full bg-brand-500/90 text-white hover:bg-brand-500 hover:scale-105 active:scale-95 transition-all shadow-clay grid place-items-center border-2 border-white/50 cursor-pointer"
-                      title={isPlayingPreviewVideo ? "Tạm dừng preview" : "Phát video preview"}
-                    >
-                      {isPlayingPreviewVideo ? (
-                        <Pause size={28} className="fill-white" />
-                      ) : (
-                        <Play size={28} className="fill-white ml-1" />
-                      )}
-                    </button>
-                    <div className="flex items-center gap-2 bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold tracking-wide text-white border border-white/20">
-                      <span>Thời lượng: {totalDurationSec}s</span>
-                      <span>•</span>
-                      <span className="text-amber-400 font-mono">
-                        Đang ở: {Math.floor(previewVideoSeekSec / 60)}:{String(previewVideoSeekSec % 60).padStart(2, '0')}
+            return (
+              <div className={cn("w-full", isDesktopVideoLayout ? "grid grid-cols-1 lg:grid-cols-12 gap-5 items-start" : "space-y-3")}>
+                {/* Cột trái: Header Banner, Video Canvas Player, Stepper */}
+                <div className={isDesktopVideoLayout ? "lg:col-span-8 space-y-3" : "space-y-3"}>
+                  {/* Header Banner */}
+                  <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 sm:p-3.5 shadow-sm">
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-[10px] font-black uppercase text-purple-700 flex items-center gap-1">
+                        🎬 Chặng 3: Video bài giảng
+                      </span>
+                      <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
+                        {videoChapters.length} Mốc kiến thức
                       </span>
                     </div>
+                    <h4 className="font-display text-sm sm:text-base font-black text-purple-950">
+                      {sixStageJourney.stage3_video.title || 'Video bài giảng 4 Chìa Khóa'}
+                    </h4>
                   </div>
-                </div>
 
-                {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN (Golden Milestone Stepper Bar) */}
-                <div
-                  data-testid="video-timeline-stepper"
-                  className="w-full rounded-2xl bg-amber-50/90 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    {/* Nút Play / tua đầu */}
-                    <button
-                      type="button"
-                      data-testid="video-timeline-play-btn"
-                      onClick={() => handleSeekPreviewVideo((previewVideoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-                      className="size-8 sm:size-9 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
-                      aria-label="Tua lại từ đầu hoặc sang mốc tiếp theo"
-                      title="Tua lại từ đầu"
-                    >
-                      <Play size={18} className="translate-x-0.5 fill-white" />
-                    </button>
-
-                    {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
-                    <div className="relative flex-1 py-1">
-                      <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
-                          style={{
-                            width: `${Math.min(100, Math.max(4, (((previewVideoSeekSec || 0) / totalDurationSec) * 100)))}%`,
-                          }}
-                        />
-
-                        {/* Numbered Chapter Markers */}
-                        {videoChapters.map((m, idx) => {
-                          const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
-                          const isPassed = (previewVideoSeekSec || 0) >= m.startSec
-                          const isCurrent = currentChapterIndex === idx
-                          return (
-                            <button
-                              key={idx}
-                              type="button"
-                              data-testid={`video-chapter-node-${idx + 1}`}
-                              onClick={() => handleSeekPreviewVideo(m.startSec)}
-                              className={cn(
-                                'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs sm:text-sm select-none transition-all duration-200 cursor-pointer',
-                                isCurrent
-                                  ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
-                                  : isPassed
-                                    ? 'bg-amber-400 text-amber-950 font-black'
-                                    : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
-                              )}
-                              style={{ left: `${posPercent}%` }}
-                              title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
-                            >
-                              {idx + 1}
-                            </button>
-                          )
-                        })}
+                  {/* Khung Video Canvas Player */}
+                  <div className="aspect-video w-full rounded-2xl bg-slate-900 grid place-items-center text-white relative overflow-hidden shadow-md max-h-[460px] border-2 border-slate-800">
+                    {sixStageJourney.stage3_video.posterUrl && (
+                      <img
+                        src={sixStageJourney.stage3_video.posterUrl}
+                        alt="Poster"
+                        className="absolute inset-0 w-full h-full object-cover opacity-60"
+                      />
+                    )}
+                    <div className="relative z-10 flex flex-col items-center gap-2.5 text-center p-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsPlayingPreviewVideo(!isPlayingPreviewVideo)}
+                        className="size-14 sm:size-16 rounded-full bg-brand-500/90 text-white hover:bg-brand-500 hover:scale-105 active:scale-95 transition-all shadow-clay grid place-items-center border-2 border-white/50 cursor-pointer"
+                        title={isPlayingPreviewVideo ? "Tạm dừng preview" : "Phát video preview"}
+                      >
+                        {isPlayingPreviewVideo ? (
+                          <Pause size={28} className="fill-white" />
+                        ) : (
+                          <Play size={28} className="fill-white ml-1" />
+                        )}
+                      </button>
+                      <div className="flex items-center gap-2 bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold tracking-wide text-white border border-white/20">
+                        <span>Thời lượng: {totalDurationSec}s</span>
+                        <span>•</span>
+                        <span className="text-amber-400 font-mono">
+                          Đang ở: {Math.floor(previewVideoSeekSec / 60)}:{String(previewVideoSeekSec % 60).padStart(2, '0')}
+                        </span>
                       </div>
                     </div>
-
-                    <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
-                      {Math.floor((previewVideoSeekSec || 0) / 60)}:{String((previewVideoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
-                    </span>
                   </div>
 
-                  {/* Hàng nút phụ & tên mốc đang xem */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-amber-200/60 text-xs sm:text-sm">
-                    <div className="flex items-center gap-2">
+                  {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN (Golden Milestone Stepper Bar) */}
+                  <div
+                    data-testid="video-timeline-stepper"
+                    className="w-full rounded-2xl bg-amber-50/90 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      {/* Nút Play / tua đầu */}
                       <button
                         type="button"
-                        onClick={() => handleSeekPreviewVideo(0)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                        title="Xem lại từ đầu"
+                        data-testid="video-timeline-play-btn"
+                        onClick={() => handleSeekPreviewVideo((previewVideoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
+                        className="size-8 sm:size-9 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
+                        aria-label="Tua lại từ đầu hoặc sang mốc tiếp theo"
+                        title="Tua lại từ đầu"
                       >
-                        <RotateCcw size={13} className="text-amber-700" />
-                        <span>Xem lại video</span>
+                        <Play size={18} className="translate-x-0.5 fill-white" />
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => showToast(`🔊 AKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                        title="Nghe AKI giảng bài"
-                      >
-                        <Volume2 size={13} className="text-brand-600" />
-                        <span>Nghe AKI giảng</span>
-                      </button>
+                      {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
+                      <div className="relative flex-1 py-1">
+                        <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
+                            style={{
+                              width: `${Math.min(100, Math.max(4, (((previewVideoSeekSec || 0) / totalDurationSec) * 100)))}%`,
+                            }}
+                          />
+
+                          {/* Numbered Chapter Markers */}
+                          {videoChapters.map((m, idx) => {
+                            const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
+                            const isPassed = (previewVideoSeekSec || 0) >= m.startSec
+                            const isCurrent = currentChapterIndex === idx
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                data-testid={`video-chapter-node-${idx + 1}`}
+                                onClick={() => handleSeekPreviewVideo(m.startSec)}
+                                className={cn(
+                                  'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs sm:text-sm select-none transition-all duration-200 cursor-pointer',
+                                  isCurrent
+                                    ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
+                                    : isPassed
+                                      ? 'bg-amber-400 text-amber-950 font-black'
+                                      : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
+                                )}
+                                style={{ left: `${posPercent}%` }}
+                                title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
+                              >
+                                {idx + 1}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
+                        {Math.floor((previewVideoSeekSec || 0) / 60)}:{String((previewVideoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* Hàng nút phụ & tên mốc đang xem */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-amber-200/60 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSeekPreviewVideo(0)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+                          title="Xem lại từ đầu"
+                        >
+                          <RotateCcw size={13} className="text-amber-700" />
+                          <span>Xem lại video</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => showToast(`🔊 AKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+                          title="Nghe AKI giảng bài"
+                        >
+                          <Volume2 size={13} className="text-brand-600" />
+                          <span>Nghe AKI giảng</span>
+                        </button>
+                      </div>
+
                       {currentChapter && (
-                        <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg border border-brand-200">
-                          <span>🎯 Mốc {currentChapterIndex + 1}:</span>
-                          <span className="max-w-[200px] truncate">{currentChapter.label}</span>
-                        </span>
+                        <div className="sr-only">
+                          <span>🎯 Mốc {currentChapterIndex + 1}: {currentChapter.label}</span>
+                          <span>Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!</span>
+                        </div>
                       )}
-                      <span className="hidden sm:inline text-xs sm:text-sm text-amber-800/80 italic">
-                        Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!
-                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Danh sách phân đoạn chi tiết */}
-                {videoChapters.length > 0 && (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-3 space-y-1.5 shadow-2xs">
-                    <p className="text-[10px] font-black uppercase text-slate-600 flex items-center justify-between">
-                      <span>Phân đoạn mốc bài học ({videoChapters.length}):</span>
-                      <span className="text-[9px] font-medium text-slate-400">Bấm mốc để tua</span>
-                    </p>
-                    {videoChapters.map((ts, idx) => {
-                      const isActive = currentChapterIndex === idx
-                      return (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleSeekPreviewVideo(ts.startSec)}
-                          className={cn(
-                            "w-full flex items-center justify-between text-xs font-semibold py-1.5 px-2 rounded-xl transition cursor-pointer text-left",
-                            isActive
-                              ? "bg-amber-100/70 text-amber-950 font-bold border border-amber-300/80"
-                              : "text-slate-700 hover:bg-slate-50 border border-transparent"
-                          )}
-                        >
-                          <span className="flex items-center gap-1.5 truncate">
-                            <span className={cn(
-                              "size-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
-                              isActive ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-600"
-                            )}>
-                              {idx + 1}
+                {/* Cột phải: Danh sách phân đoạn chi tiết bài học & Cụm nút điều hướng */}
+                <div className={isDesktopVideoLayout ? "lg:col-span-4 space-y-3" : "space-y-3"}>
+                  {/* Danh sách phân đoạn chi tiết */}
+                  {videoChapters.length > 0 && (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-3 space-y-1.5 shadow-2xs">
+                      <p className="text-[10px] font-black uppercase text-slate-600 flex items-center justify-between">
+                        <span>Phân đoạn mốc bài học ({videoChapters.length}):</span>
+                        <span className="text-[9px] font-medium text-slate-400">Bấm mốc để tua</span>
+                      </p>
+                      {videoChapters.map((ts, idx) => {
+                        const isActive = currentChapterIndex === idx
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleSeekPreviewVideo(ts.startSec)}
+                            className={cn(
+                              "w-full flex items-center justify-between text-xs font-semibold py-1.5 px-2 rounded-xl transition cursor-pointer text-left",
+                              isActive
+                                ? "bg-amber-100/70 text-amber-950 font-bold border border-amber-300/80"
+                                : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                            )}
+                          >
+                            <span className="flex items-center gap-1.5 truncate">
+                              <span className={cn(
+                                "size-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
+                                isActive ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-600"
+                              )}>
+                                {idx + 1}
+                              </span>
+                              <span className="truncate">{ts.label}</span>
                             </span>
-                            <span className="truncate">{ts.label}</span>
-                          </span>
-                          <span className="text-slate-400 font-mono text-[10px] shrink-0 ml-2">
-                            {Math.floor(ts.startSec / 60)}:{String(ts.startSec % 60).padStart(2, '0')} - {Math.floor((ts.endSec || totalDurationSec) / 60)}:{String((ts.endSec || totalDurationSec) % 60).padStart(2, '0')}
-                          </span>
-                        </button>
-                      )
-                    })}
+                            <span className="text-slate-400 font-mono text-[10px] shrink-0 ml-2">
+                              {Math.floor(ts.startSec / 60)}:{String(ts.startSec % 60).padStart(2, '0')} - {Math.floor((ts.endSec || totalDurationSec) / 60)}:{String((ts.endSec || totalDurationSec) % 60).padStart(2, '0')}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Footer chuyển chặng */}
+                  <div className="shrink-0 flex justify-between items-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => showToast('Học sinh bấm: Quay lại câu đố (Chặng 2)', 'info')}
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                    >
+                      Quay lại câu đố
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => showToast('Học sinh bấm: Làm bài test thử tài (Chặng 4)', 'info')}
+                      className="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white cursor-pointer transition-all"
+                    >
+                      <span>📝 Làm bài test thử tài →</span>
+                      <ArrowRight size={14} />
+                    </button>
                   </div>
-                )}
-
-                {/* Footer chuyển chặng */}
-                <div className="shrink-0 flex justify-between items-center pt-1">
-                  <button
-                    type="button"
-                    onClick={() => showToast('Học sinh bấm: Quay lại câu đố (Chặng 2)', 'info')}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                  >
-                    Quay lại câu đố
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => showToast('Học sinh bấm: Làm bài test thử tài (Chặng 4)', 'info')}
-                    className="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white cursor-pointer transition-all"
-                  >
-                    <span>📝 Làm bài test thử tài →</span>
-                    <ArrowRight size={14} />
-                  </button>
                 </div>
               </div>
             )
@@ -1614,6 +1439,7 @@ export function StudentStagePreview({
 
             const fourKeys = sixStageJourney.stage5_practice.fourKeysOptions || DEFAULT_FOUR_KEYS_OPTIONS
 
+            const currentEngineMode = sixStageJourney.stage5_practice.creativeEngineMode || 'magic-keys'
             const currentWhat = activeWhat || fourKeys.what?.[0] || 'Cái cốc sứ trắng'
             const currentHow = activeHow || fourKeys.how?.[0] || 'men bóng mẻ miệng'
             const currentAction = activeAction || fourKeys.action?.[0] || 'đang bốc khói nghi ngút'
@@ -1624,7 +1450,13 @@ export function StudentStagePreview({
                 <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-3 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-black uppercase text-brand-700 flex items-center gap-1">
-                      🎨 Xưởng Sáng Tạo AI Kids
+                      {currentEngineMode === 'creative-notebook' ? '🎒 Sổ Tay Sáng Tạo Ba Lô (Text Engine)' :
+                       currentEngineMode === 'style-prism' ? '🔮 Lăng Kính Phù Thủy' :
+                       currentEngineMode === 'prompt-doctor' ? '🩺 Bác Sĩ AKI' :
+                       currentEngineMode === 'layer-stacking' ? '🎭 3 Tầng Sân Khấu' :
+                       currentEngineMode === 'identity-lock' ? '🔒 Khóa Mật Mã & Biểu Cảm' :
+                       currentEngineMode === 'card-forge' ? '🃏 Xưởng Đúc Thẻ Bài TCG' :
+                       '🎨 Xưởng Sáng Tạo AI Kids'}
                     </span>
                     <h4 className="font-display text-sm sm:text-base font-black text-brand-950 mt-0.5">
                       {sixStageJourney.stage5_practice.subjectName || 'Chủ thể bài thực hành'}
@@ -1635,11 +1467,38 @@ export function StudentStagePreview({
                   </span>
                 </div>
 
-                {/* 3 Cột của Xưởng Sáng Tạo AI Kids - Dàn ngang chuẩn Desktop khi xem PC/Tablet */}
-                <div className={cn(
-                  "grid gap-3.5",
-                  isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
-                )}>
+                {currentEngineMode === 'creative-notebook' ? (
+                  <div className="w-full">
+                    <CreativeNotebookEngine
+                      className={!isWide ? "!flex !flex-col" : undefined}
+                      characterName={sixStageJourney.stage5_practice.subjectName || 'Hồ sơ nhân vật'}
+                      selectedSubject={sixStageJourney.stage5_practice.subjectName}
+                      lessonId={stageCard?.id || card?.id || '3.1'}
+                      currentPrompt=""
+                      notebookConfig={
+                        sixStageJourney.stage5_practice.notebookConfig ||
+                        findIslandCurriculum({
+                          id: stageCard?.id || card?.id,
+                          slug: stageCard?.id || card?.id,
+                          title: sixStageJourney.stage5_practice.subjectName,
+                        })?.journey?.stage5_practice?.notebookConfig ||
+                        DEFAULT_NOTEBOOK_CONFIGS['3.1']
+                      }
+                      onPromptChange={() => {}}
+                      onSubmitNotebook={() => {
+                        showToast('🎒 Đã cất tác phẩm vào Ba Lô Sáng Tạo!', 'success')
+                      }}
+                      onSaveDraft={() => {
+                        showToast('Đã lưu bản nháp Sổ Tay Ba Lô!', 'info')
+                      }}
+                    />
+                  </div>
+                ) : (
+                  /* 3 Cột của Xưởng Sáng Tạo AI Kids - Dàn ngang chuẩn Desktop khi xem PC/Tablet */
+                  <div className={cn(
+                    "grid gap-3.5",
+                    isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
+                  )}>
                   {/* Cột 1: Danh sách các thẻ món đồ bé vẽ */}
                   <div className="flex flex-col gap-2 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
@@ -1688,146 +1547,450 @@ export function StudentStagePreview({
                     </div>
                   </div>
 
-                  {/* Cột 2: Bàn phím 4 Chìa Khóa Ma Thuật */}
-                  <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
-                    <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        🎹 Bàn phím 4 Chìa Khóa
-                      </span>
-                      <span className="text-[9px] font-black text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full">
-                        SSOT
-                      </span>
+                  {/* Cột 2: Bàn phím Thực hành Tương ứng Engine đang chọn */}
+                  {currentEngineMode === 'style-prism' ? (() => {
+                    const styles = (sixStageJourney.stage5_practice.stylePrismOptions && sixStageJourney.stage5_practice.stylePrismOptions.length > 0)
+                      ? sixStageJourney.stage5_practice.stylePrismOptions
+                      : DEFAULT_STYLE_PRISM_OPTIONS
+                    const currentActiveStyle = activeStylePrism || styles[0]?.name || 'Đất nặn Claymation'
+
+                    return (
+                      <div className="flex flex-col gap-2.5 rounded-2xl border border-purple-200 bg-purple-50/70 p-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-purple-200/60 pb-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-900 flex items-center gap-1">
+                            🔮 Lăng Kính Phong Cách
+                          </span>
+                          <span className="text-[9px] font-black text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded-full">
+                            {styles.length === 4 ? '4 Phong Cách' : `${styles.length} Phong Cách`}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          {styles.map((style) => {
+                            const isSelected = currentActiveStyle === style.name
+                            return (
+                              <div
+                                key={style.id}
+                                onClick={() => setActiveStylePrism(style.name)}
+                                className={cn(
+                                  "rounded-xl p-2.5 border transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer",
+                                  isSelected
+                                    ? "border-purple-500 bg-white ring-2 ring-purple-300"
+                                    : "border-purple-200 bg-white/80 hover:bg-white"
+                                )}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <span className="size-8 rounded-lg bg-purple-100 border border-purple-200 grid place-items-center text-sm shrink-0">
+                                    {style.icon || '🎨'}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <span className="text-[11px] font-black text-purple-950 block truncate">
+                                      {style.name}
+                                    </span>
+                                    <span className="text-[9px] font-medium text-slate-500 block truncate">
+                                      {style.desc}
+                                    </span>
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <span className="rounded bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 shrink-0">
+                                    ĐANG CHỌN
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        <div className="rounded-xl border border-purple-200 bg-white p-2.5 shadow-2xs">
+                          <span className="text-[8px] font-black uppercase text-purple-600 block mb-1">✨ Câu lệnh biến hóa:</span>
+                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                            ✨ <span className="text-purple-700 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chủ thể'}</span>, phong cách <span className="text-purple-900 font-black">{currentActiveStyle}</span>
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })() : currentEngineMode === 'prompt-doctor' ? (() => {
+                    const doctorCase = sixStageJourney.stage5_practice.promptDoctorCase || DEFAULT_PROMPT_DOCTOR_CASE
+                    const cures = (doctorCase.cureCards && doctorCase.cureCards.length > 0)
+                      ? doctorCase.cureCards
+                      : DEFAULT_PROMPT_DOCTOR_CASE.cureCards
+                    const currentActiveCure = activeCure || cures[0] || 'Kê đơn 5 ngón tay đầy đủ chuẩn xác'
+
+                    return (
+                      <div className="flex flex-col gap-2.5 rounded-2xl border border-rose-200 bg-rose-50/70 p-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-rose-200/60 pb-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-rose-900 flex items-center gap-1">
+                            🩺 Bác Sĩ AKI Bắt Bệnh
+                          </span>
+                          <span className="text-[9px] font-black text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded-full">
+                            Kê Đơn Thuốc
+                          </span>
+                        </div>
+
+                        <div className="rounded-xl border border-rose-200 bg-white p-2.5 shadow-2xs">
+                          <div className="flex items-center gap-1 text-[9px] font-black text-rose-700 mb-0.5">
+                            <AlertTriangle size={12} />
+                            <span>HỒ SƠ BỆNH ÁN TRANH HỎNG{doctorCase.caseTitle ? `: ${doctorCase.caseTitle}` : ''}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-700 font-bold leading-relaxed">
+                            {doctorCase.symptom || 'Tranh vẽ chú mèo thiếu mất tai và bàn tay bị biến dạng chỉ có 3 ngón tay! Bé hãy kê đơn thuốc chữa lành nhé!'}
+                          </p>
+                          {doctorCase.originalPrompt && (
+                            <p className="text-[9px] font-mono text-rose-800 bg-rose-50 rounded px-1.5 py-0.5 mt-1 truncate">
+                              Câu lệnh lỗi: {doctorCase.originalPrompt}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-black uppercase text-rose-900 block">💊 Tủ thuốc thẻ chữ chữa lành:</span>
+                          {cures.map((cure, cIdx) => {
+                            const isSelected = currentActiveCure === cure
+                            return (
+                              <button
+                                key={cIdx}
+                                type="button"
+                                onClick={() => setActiveCure(cure)}
+                                className={cn(
+                                  "w-full rounded-xl p-2 border text-left transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer",
+                                  isSelected
+                                    ? "border-rose-500 bg-rose-500 text-white font-bold"
+                                    : "border-rose-200 bg-white text-rose-950 hover:bg-rose-50 font-semibold"
+                                )}
+                              >
+                                <span className="text-[10px]">{cure}</span>
+                                {isSelected && <Check size={12} className="shrink-0" />}
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        <div className="rounded-xl border border-rose-200 bg-white p-2.5 shadow-2xs">
+                          <span className="text-[8px] font-black uppercase text-rose-600 block mb-1">✨ Đơn thuốc đã kê:</span>
+                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                            ✨ <span className="text-rose-700 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chủ thể'}</span> + <span className="text-emerald-700 font-black">{currentActiveCure}</span>
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })() : currentEngineMode === 'layer-stacking' ? (() => {
+                    const layers = sixStageJourney.stage5_practice.layerStackingOptions || DEFAULT_LAYER_STACKING_OPTIONS
+                    const bgList = (layers.background && layers.background.length > 0) ? layers.background : DEFAULT_LAYER_STACKING_OPTIONS.background
+                    const heroList = (layers.hero && layers.hero.length > 0) ? layers.hero : DEFAULT_LAYER_STACKING_OPTIONS.hero
+                    const fgList = (layers.foreground && layers.foreground.length > 0) ? layers.foreground : DEFAULT_LAYER_STACKING_OPTIONS.foreground
+
+                    return (
+                      <div className="flex flex-col gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-900 flex items-center gap-1">
+                            🎭 3 Tầng Sân Khấu
+                          </span>
+                          <span className="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-full">
+                            Bố Cục 1/3
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="rounded-xl border border-emerald-200 bg-white p-2">
+                            <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🌄 Tầng 1: Hậu cảnh (Background)</span>
+                            <div className="text-[10px] font-bold text-slate-700 bg-emerald-50/60 rounded-md p-1.5">
+                              {bgList[0]}
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-emerald-400 bg-emerald-100/60 p-2 ring-1 ring-emerald-300">
+                            <span className="text-[9px] font-black text-emerald-950 uppercase block mb-1">⭐ Tầng 2: Ngôi sao 1/3 (Center)</span>
+                            <div className="text-[10px] font-black text-emerald-900 bg-white rounded-md p-1.5">
+                              {heroList[0] || `${sixStageJourney.stage5_practice.subjectName || 'Nhân vật chính'} ở vị trí điểm vàng 1/3`}
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-emerald-200 bg-white p-2">
+                            <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🌿 Tầng 3: Tiền cảnh (Foreground)</span>
+                            <div className="text-[10px] font-bold text-slate-700 bg-emerald-50/60 rounded-md p-1.5">
+                              {fgList[0]}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-emerald-200 bg-white p-2.5 shadow-2xs">
+                          <span className="text-[8px] font-black uppercase text-emerald-700 block mb-1">✨ Bố cục không gian ghép:</span>
+                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                            ✨ <span className="text-emerald-800 font-extrabold">{heroList[0] || (sixStageJourney.stage5_practice.subjectName || 'Nhân vật')}</span>, hậu cảnh {bgList[0]}, tiền cảnh {fgList[0]}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })() : currentEngineMode === 'identity-lock' ? (() => {
+                    const lockedFeats = (sixStageJourney.stage5_practice.lockedFeatures && sixStageJourney.stage5_practice.lockedFeatures.length > 0)
+                      ? sixStageJourney.stage5_practice.lockedFeatures
+                      : DEFAULT_LOCKED_FEATURES
+                    const expressions = (sixStageJourney.stage5_practice.expressionOptions && sixStageJourney.stage5_practice.expressionOptions.length > 0)
+                      ? sixStageJourney.stage5_practice.expressionOptions
+                      : DEFAULT_EXPRESSIONS
+                    const currentActiveExpr = activeExpression || expressions[0] || '😊 Cười tít mắt vui vẻ'
+
+                    return (
+                      <div className="flex flex-col gap-2.5 rounded-2xl border border-cyan-200 bg-cyan-50/70 p-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-cyan-200/60 pb-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-cyan-900 flex items-center gap-1">
+                            🔒 Khóa Mật Mã & Biểu Cảm
+                          </span>
+                          <span className="text-[9px] font-black text-cyan-700 bg-cyan-100 px-1.5 py-0.2 rounded-full">
+                            ADN Nhân Vật
+                          </span>
+                        </div>
+
+                        <div className="rounded-xl border border-cyan-200 bg-white p-2">
+                          <span className="text-[9px] font-black text-cyan-900 uppercase block mb-1">🔒 3 Mật mã ADN bất biến:</span>
+                          <div className="space-y-1">
+                            {lockedFeats.slice(0, 3).map((feat, fIdx) => (
+                              <div key={fIdx} className="text-[9.5px] font-bold text-cyan-950 bg-cyan-50/80 rounded px-2 py-0.5 border border-cyan-100 flex items-center gap-1">
+                                <span>🔒</span>
+                                <span>{feat}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-cyan-200 bg-white p-2">
+                          <span className="text-[9px] font-black text-cyan-900 uppercase block mb-1">🎡 Bánh xe {expressions.length} biểu cảm:</span>
+                          <div className="grid grid-cols-2 gap-1">
+                            {expressions.map((expr, idx) => {
+                              const isSelected = currentActiveExpr === expr
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setActiveExpression(expr)}
+                                  className={cn(
+                                    "text-[9.5px] font-bold px-2 py-1 rounded-md border transition cursor-pointer text-left truncate",
+                                    isSelected
+                                      ? "bg-cyan-500 text-white border-cyan-600 shadow-2xs"
+                                      : "bg-white text-cyan-950 border-cyan-200 hover:bg-cyan-50"
+                                  )}
+                                >
+                                  {expr}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-cyan-200 bg-white p-2.5 shadow-2xs">
+                          <span className="text-[8px] font-black uppercase text-cyan-600 block mb-1">✨ Câu lệnh khóa ADN:</span>
+                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                            ✨ <span className="text-cyan-800 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Nhân vật'}</span> (Khóa 3 ADN), biểu cảm <span className="text-cyan-950 font-black">{currentActiveExpr}</span>
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })() : currentEngineMode === 'card-forge' ? (() => {
+                    const cardForge = sixStageJourney.stage5_practice.cardForgeOptions || DEFAULT_CARD_FORGE_OPTIONS
+                    const elements = (cardForge.elements && cardForge.elements.length > 0) ? cardForge.elements : DEFAULT_CARD_FORGE_OPTIONS.elements
+                    const stats = cardForge.stats || DEFAULT_CARD_FORGE_OPTIONS.stats
+                    const cardBorder = cardForge.cardBorder || DEFAULT_CARD_FORGE_OPTIONS.cardBorder
+                    const currentActiveElement = activeCardElement || elements[0]?.name || 'Hệ Hỏa (Lửa Đỏ)'
+
+                    return (
+                      <div className="flex flex-col gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/70 p-3 shadow-2xs">
+                        <div className="flex items-center justify-between border-b border-amber-200/60 pb-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 flex items-center gap-1">
+                            🃏 Xưởng Đúc Thẻ Bài TCG
+                          </span>
+                          <span className="text-[9px] font-black text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded-full">
+                            Chiến Tướng
+                          </span>
+                        </div>
+
+                        <div className="rounded-xl border border-amber-200 bg-white p-2">
+                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">⚡ Hệ Nguyên Tố:</span>
+                          <div className="grid grid-cols-2 gap-1">
+                            {elements.map((elem, idx) => {
+                              const isSelected = currentActiveElement === elem.name
+                              return (
+                                <button
+                                  key={elem.id || idx}
+                                  type="button"
+                                  onClick={() => setActiveCardElement(elem.name)}
+                                  className={cn(
+                                    "text-[9.5px] font-bold px-2 py-1 rounded-md border transition cursor-pointer text-left flex items-center gap-1",
+                                    isSelected
+                                      ? "bg-amber-500 text-white border-amber-600 shadow-2xs"
+                                      : "bg-white text-amber-950 border-amber-200 hover:bg-amber-50"
+                                  )}
+                                >
+                                  <span>{elem.icon}</span>
+                                  <span className="truncate">{elem.name}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-amber-200 bg-white p-2">
+                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">📊 Chỉ số chiến đấu & Khung thẻ:</span>
+                          <div className="flex items-center justify-around gap-1 text-[10px] font-black py-1 bg-amber-50 rounded-lg">
+                            <span className="text-rose-600">⚔️ ATK: {stats.atk}</span>
+                            <span className="text-sky-600">🛡️ DEF: 6</span>
+                            <span className="text-purple-600">🔮 MP: 6</span>
+                          </div>
+                          <div className="mt-1 text-[9px] text-center font-bold text-amber-800 bg-amber-100/60 rounded px-1.5 py-0.5">
+                            ✨ Khung {cardBorder} ma thuật lấp lánh
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-amber-200 bg-white p-2.5 shadow-2xs">
+                          <span className="text-[8px] font-black uppercase text-amber-700 block mb-1">✨ Thẻ bài TCG đúc hoàn thành:</span>
+                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                            ✨ Thẻ bài TCG <span className="text-amber-900 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chiến Tướng'}</span>, <span className="text-amber-800 font-black">{currentActiveElement}</span>, ATK {stats.atk} DEF 6 MP 6
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })() : (
+                    /* Mặc định: Bàn phím 4 Chìa Khóa Ma Thuật */
+                    <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                          🎹 Bàn phím 4 Chìa Khóa
+                        </span>
+                        <span className="text-[9px] font-black text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full">
+                          SSOT
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {/* 1. Cái gì */}
+                        <div className="rounded-xl border border-sky-200 bg-sky-50/80 p-2">
+                          <span className="text-[9px] font-black text-sky-900 uppercase block mb-1">🔑 1. Cái gì?</span>
+                          <div className="flex flex-wrap gap-1">
+                            {(fourKeys.what || []).map((t, idx) => {
+                              const isSelected = currentWhat === t
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setActiveWhat(t)}
+                                  className={cn(
+                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                    isSelected
+                                      ? "bg-sky-500 text-white border-sky-600 shadow-2xs ring-1 ring-sky-300"
+                                      : "bg-white text-sky-900 border-sky-200 hover:bg-sky-100/70"
+                                  )}
+                                >
+                                  {t}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 2. Trông thế nào */}
+                        <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-2">
+                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">🔑 2. Trông thế nào?</span>
+                          <div className="flex flex-wrap gap-1">
+                            {(fourKeys.how || []).map((t, idx) => {
+                              const isSelected = currentHow === t
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setActiveHow(t)}
+                                  className={cn(
+                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                    isSelected
+                                      ? "bg-amber-500 text-white border-amber-600 shadow-2xs ring-1 ring-amber-300"
+                                      : "bg-white text-amber-900 border-amber-200 hover:bg-amber-100/70"
+                                  )}
+                                >
+                                  {t}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 3. Đang làm gì */}
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2">
+                          <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🔑 3. Đang làm gì?</span>
+                          <div className="flex flex-wrap gap-1">
+                            {(fourKeys.action || []).map((t, idx) => {
+                              const isSelected = currentAction === t
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setActiveAction(t)}
+                                  className={cn(
+                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                    isSelected
+                                      ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs ring-1 ring-emerald-300"
+                                      : "bg-white text-emerald-900 border-emerald-200 hover:bg-emerald-100/70"
+                                  )}
+                                >
+                                  {t}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 4. Ở đâu */}
+                        <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-2">
+                          <span className="text-[9px] font-black text-rose-900 uppercase block mb-1">🔑 4. Ở đâu?</span>
+                          <div className="flex flex-wrap gap-1">
+                            {(fourKeys.where || []).map((t, idx) => {
+                              const isSelected = currentWhere === t
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setActiveWhere(t)}
+                                  className={cn(
+                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                    isSelected
+                                      ? "bg-rose-500 text-white border-rose-600 shadow-2xs ring-1 ring-rose-300"
+                                      : "bg-white text-rose-900 border-rose-200 hover:bg-rose-100/70"
+                                  )}
+                                >
+                                  {t}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Câu lệnh đang ghép thời gian thực */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[8px] font-black uppercase text-slate-500 block">✨ Câu lệnh đang ghép:</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveWhat(null)
+                              setActiveHow(null)
+                              setActiveAction(null)
+                              setActiveWhere(null)
+                            }}
+                            className="flex items-center gap-0.5 text-[9px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                            title="Đặt lại câu lệnh"
+                          >
+                            <RotateCcw size={9} />
+                            <span>Đặt lại</span>
+                          </button>
+                        </div>
+                        <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                          ✨ <span className="text-sky-700 font-extrabold">{currentWhat}</span> +{' '}
+                          <span className="text-amber-700 font-extrabold">{currentHow}</span> +{' '}
+                          <span className="text-emerald-700 font-extrabold">{currentAction}</span> +{' '}
+                          <span className="text-rose-700 font-extrabold">{currentWhere}</span>
+                        </p>
+                      </div>
                     </div>
-
-                    <div className="space-y-2">
-                      {/* 1. Cái gì */}
-                      <div className="rounded-xl border border-sky-200 bg-sky-50/80 p-2">
-                        <span className="text-[9px] font-black text-sky-900 uppercase block mb-1">🔑 1. Cái gì?</span>
-                        <div className="flex flex-wrap gap-1">
-                          {(fourKeys.what || []).map((t, idx) => {
-                            const isSelected = currentWhat === t
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => setActiveWhat(t)}
-                                className={cn(
-                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                  isSelected
-                                    ? "bg-sky-500 text-white border-sky-600 shadow-2xs ring-1 ring-sky-300"
-                                    : "bg-white text-sky-900 border-sky-200 hover:bg-sky-100/70"
-                                )}
-                              >
-                                {t}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* 2. Trông thế nào */}
-                      <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-2">
-                        <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">🔑 2. Trông thế nào?</span>
-                        <div className="flex flex-wrap gap-1">
-                          {(fourKeys.how || []).map((t, idx) => {
-                            const isSelected = currentHow === t
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => setActiveHow(t)}
-                                className={cn(
-                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                  isSelected
-                                    ? "bg-amber-500 text-white border-amber-600 shadow-2xs ring-1 ring-amber-300"
-                                    : "bg-white text-amber-900 border-amber-200 hover:bg-amber-100/70"
-                                )}
-                              >
-                                {t}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* 3. Đang làm gì */}
-                      <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2">
-                        <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🔑 3. Đang làm gì?</span>
-                        <div className="flex flex-wrap gap-1">
-                          {(fourKeys.action || []).map((t, idx) => {
-                            const isSelected = currentAction === t
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => setActiveAction(t)}
-                                className={cn(
-                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                  isSelected
-                                    ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs ring-1 ring-emerald-300"
-                                    : "bg-white text-emerald-900 border-emerald-200 hover:bg-emerald-100/70"
-                                )}
-                              >
-                                {t}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* 4. Ở đâu */}
-                      <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-2">
-                        <span className="text-[9px] font-black text-rose-900 uppercase block mb-1">🔑 4. Ở đâu?</span>
-                        <div className="flex flex-wrap gap-1">
-                          {(fourKeys.where || []).map((t, idx) => {
-                            const isSelected = currentWhere === t
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => setActiveWhere(t)}
-                                className={cn(
-                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                  isSelected
-                                    ? "bg-rose-500 text-white border-rose-600 shadow-2xs ring-1 ring-rose-300"
-                                    : "bg-white text-rose-900 border-rose-200 hover:bg-rose-100/70"
-                                )}
-                              >
-                                {t}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Câu lệnh đang ghép thời gian thực */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-2xs">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[8px] font-black uppercase text-slate-500 block">✨ Câu lệnh đang ghép:</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveWhat(null)
-                            setActiveHow(null)
-                            setActiveAction(null)
-                            setActiveWhere(null)
-                          }}
-                          className="flex items-center gap-0.5 text-[9px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
-                          title="Đặt lại câu lệnh"
-                        >
-                          <RotateCcw size={9} />
-                          <span>Đặt lại</span>
-                        </button>
-                      </div>
-                      <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                        ✨ <span className="text-sky-700 font-extrabold">{currentWhat}</span> +{' '}
-                        <span className="text-amber-700 font-extrabold">{currentHow}</span> +{' '}
-                        <span className="text-emerald-700 font-extrabold">{currentAction}</span> +{' '}
-                        <span className="text-rose-700 font-extrabold">{currentWhere}</span>
-                      </p>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Cột 3: Khung tranh AI Canvas & Thông tin AKI */}
                   <div className="flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
@@ -1891,36 +2054,148 @@ export function StudentStagePreview({
                     </button>
                   </div>
                 </div>
+                )}
               </div>
             )
           })()}
 
-          {/* Chặng 5: Completion */}
+          {/* Chặng 6: Completion (Màn kết thúc chuẩn 100% giao diện học sinh) */}
           {stageIndex === 5 && (
-            <div className="space-y-3 text-center">
-              <div className="rounded-2xl border-2 border-sun-300 bg-sun-50 p-4 shadow-sm">
-                <div className="size-14 rounded-full bg-sun-100 border-2 border-sun-300 grid place-items-center mx-auto text-2xl shadow-sm">
-                  🏆
+            <div data-testid="stage-5-complete" className="w-full max-w-full flex flex-col gap-4 text-left">
+              <div className={cn("grid gap-4 sm:gap-5 items-stretch w-full max-w-full", isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12")}>
+                {/* Cột 1 (lg:col-span-6): Balo Sáng Tạo & Tác phẩm kiệt xuất */}
+                <div className={cn("flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3.5 sm:p-4 min-w-0 max-w-full overflow-hidden", !isMobile && "lg:col-span-6")}>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-black text-amber-900 uppercase tracking-wider mb-2 min-w-0">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <Award size={16} className="text-amber-600 shrink-0" />
+                      <span>Tác phẩm kiệt xuất vừa cất vào Balo</span>
+                    </span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black shrink-0">
+                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                      <span>{sixStageJourney.stage6_completion.rewardBadge.name || 'Huy hiệu bài học'}</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
+                    <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
+                      <img
+                        src={
+                          sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
+                          sixStageJourney.stage1_goal.imageUrl ||
+                          '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                        }
+                        alt="Kiệt tác của bé"
+                        className="size-full object-cover cursor-pointer group-hover:scale-102 transition-transform duration-300"
+                        onClick={() => {
+                          const url =
+                            sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
+                            sixStageJourney.stage1_goal.imageUrl ||
+                            '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                          if (url) setZoomedImage({ url, title: 'Tác phẩm kiệt xuất của bé' })
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url =
+                            sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
+                            sixStageJourney.stage1_goal.imageUrl ||
+                            '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                          if (url) setZoomedImage({ url, title: 'Tác phẩm kiệt xuất của bé' })
+                        }}
+                        className="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                        title="Xem ảnh phóng to"
+                      >
+                        <span>🔍 Phóng to</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 truncate">
+                    &ldquo;{sixStageJourney.stage1_goal.title || 'Tác phẩm sáng tạo AI Kids'}&rdquo;
+                  </p>
                 </div>
-                <h4 className="font-display text-base font-black text-sun-950 mt-2">{sixStageJourney.stage6_completion.title}</h4>
-                <p className="text-xs font-semibold text-slate-700 mt-1 leading-relaxed">
-                  {sixStageJourney.stage6_completion.congratsMessage}
-                </p>
-                <div className="mt-3 inline-flex items-center gap-3 bg-white px-3 py-1.5 rounded-full border border-sun-200 shadow-2xs">
-                  <span className="text-xs font-extrabold text-amber-600 flex items-center gap-1">
-                    <Star size={14} className="fill-amber-500 text-amber-500" />
-                    +{sixStageJourney.stage6_completion.rewardBadge.stars} Sao
-                  </span>
-                  <span className="text-xs font-extrabold text-brand-600">
-                    +{sixStageJourney.stage6_completion.rewardBadge.xp} XP
-                  </span>
+
+                {/* Cột 2 (lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Nút điều hướng */}
+                <div className={cn("flex flex-col justify-center gap-3 text-center sm:gap-3.5 min-w-0 max-w-full", !isMobile && "lg:col-span-6 lg:text-left")}>
+                  <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start">
+                    <Trophy size={13} className="text-amber-600" />
+                    <span>Chặng 6: Hoàn thành bài học</span>
+                  </div>
+
+                  {/* Vinh danh: Cúp vàng đất nặn 3D Hallmark Soft Clay + 3 Sao vàng */}
+                  <div className="flex items-center justify-center gap-3.5 lg:justify-start">
+                    <div className="relative shrink-0">
+                      <img
+                        src="/assets/trophy-clay-gold.png"
+                        alt="Cúp Vàng Sáng Tạo"
+                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-clay select-none hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                      <div
+                        data-testid="stage6-trophy-xp-badge"
+                        className="absolute -top-1.5 -right-2 bg-brand-500 text-white text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full shadow-clay-xs flex items-center gap-0.5 z-10"
+                      >
+                        <Sparkles size={11} />
+                        +{sixStageJourney.stage6_completion.rewardBadge.xp || 50} XP
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: sixStageJourney.stage6_completion.rewardBadge.stars || 3 }).map((_, starIdx) => (
+                        <Star
+                          key={starIdx}
+                          size={22}
+                          className="fill-amber-400 text-amber-500 drop-shadow-md animate-pulse"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tiêu đề & Lời chúc mừng */}
+                  <div className="space-y-1">
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
+                      {sixStageJourney.stage6_completion.title}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                      {sixStageJourney.stage6_completion.congratsMessage}
+                    </p>
+                  </div>
+
+                  {/* Cụm Nút điều hướng kết thúc */}
+                  <div className="flex flex-col gap-2 w-full pt-1">
+                    {sixStageJourney.stage6_completion.nextLessonSlug ? (
+                      <Button
+                        variant="primary"
+                        className="w-full py-2.5 text-xs sm:text-sm font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <span>👉 Khám Phá Bài Tiếp Theo 🚀</span>
+                      </Button>
+                    ) : null}
+
+                    <Button
+                      variant="secondary"
+                      className="w-full py-2 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Compass size={15} />
+                      <span>🗺️ Trở Về Bản Đồ Đảo</span>
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className="w-full py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <RotateCcw size={13} />
+                      <span>🔄 Học Lại Bài Này</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
-              {sixStageJourney.stage6_completion.nextLessonSlug && (
-                <div className="rounded-xl border border-slate-200 bg-white p-2 text-xs font-bold text-slate-600">
-                  Bài tiếp theo: <span className="font-mono text-brand-600">{sixStageJourney.stage6_completion.nextLessonSlug}</span>
-                </div>
-              )}
             </div>
           )}
 
@@ -1929,6 +2204,7 @@ export function StudentStagePreview({
               <StudentStageBlocksView
                 card={{ ...stageCard, contentBlocks: getStageBlocks(stageCard, stageIndex).filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) }}
                 stageIndex={stageIndex}
+                isMobile={isMobile}
               />
             </div>
           )}
@@ -1939,78 +2215,95 @@ export function StudentStagePreview({
     return (
       <aside className="ui-card min-w-0 h-fit overflow-hidden p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
         {/* Header Preview với Viewport Selector */}
-        <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
-          <div className="flex items-center justify-between gap-2">
-            <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-              <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
-            </p>
-            <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
-              Chặng {stageIndex + 1}/6
-            </span>
-          </div>
-
-          {/* Thanh công cụ Viewport Selector trên header preview */}
-          <div className="flex items-center justify-between gap-1.5 pt-0.5">
-            <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[10.5px]">
-              <button
-                type="button"
-                onClick={() => setViewport('mobile')}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
-                  viewport === 'mobile' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                )}
-                title="Xem dạng Mobile (375px)"
-              >
-                <Smartphone size={12} />
-                <span>Mobile</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewport('tablet')}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
-                  viewport === 'tablet' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                )}
-                title="Xem dạng iPad (768px)"
-              >
-                <Tablet size={12} />
-                <span>iPad</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewport('pc')}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
-                  viewport === 'pc' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                )}
-                title="Xem dạng PC (1024px+)"
-              >
-                <Monitor size={12} />
-                <span>PC</span>
-              </button>
+        {!hideHeaderToolbar && (
+          <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
+            <div className="flex items-center justify-between gap-2">
+              <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
+                <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
+              </p>
+              <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
+                Chặng {stageIndex + 1}/6
+              </span>
             </div>
 
-            {/* Nút nổi bật: ⛶ Toàn màn hình */}
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-600 to-brand-600 hover:from-sky-700 hover:to-brand-700 text-white px-2.5 py-1 text-[10.5px] font-black shadow-2xs transition active:scale-95 cursor-pointer shrink-0"
-              title="Phóng to toàn màn hình (Fullscreen Modal)"
-            >
-              <Maximize2 size={13} />
-              <span>Toàn màn hình</span>
-            </button>
+            {/* Thanh công cụ Viewport Selector trên header preview */}
+            <div className="flex items-center justify-between gap-1.5 pt-0.5">
+              <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[10.5px]">
+                <button
+                  type="button"
+                  onClick={() => setViewport('mobile')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'mobile' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng Mobile (375px)"
+                >
+                  <Smartphone size={12} />
+                  <span>Mobile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewport('tablet')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'tablet' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng iPad (768px)"
+                >
+                  <Tablet size={12} />
+                  <span>iPad</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewport('pc')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'pc' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng PC (1024px+)"
+                >
+                  <Monitor size={12} />
+                  <span>PC</span>
+                </button>
+              </div>
+
+              {/* Nút nổi bật: ⛶ Toàn màn hình */}
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-600 to-brand-600 hover:from-sky-700 hover:to-brand-700 text-white px-2.5 py-1 text-[10.5px] font-black shadow-2xs transition active:scale-95 cursor-pointer shrink-0"
+                title="Phóng to toàn màn hình (Fullscreen Modal)"
+              >
+                <Maximize2 size={13} />
+                <span>Toàn màn hình</span>
+              </button>
+              {onCollapse && !hideHeaderToolbar && (
+                <button
+                  type="button"
+                  onClick={onCollapse}
+                  className="flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 text-[10.5px] font-bold transition cursor-pointer shrink-0"
+                  title="Thu gọn cột xem trước"
+                >
+                  <PanelRightClose size={12} />
+                  <span>Thu gọn</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Nội dung xem trước Inline */}
         <div className={cn(
-          "mt-3 transition-all",
-          viewport === 'mobile' && "max-w-[385px] mx-auto",
-          viewport === 'tablet' && "w-full overflow-x-auto",
-          viewport === 'pc' && "w-full overflow-x-auto"
+          hideHeaderToolbar
+            ? "w-full transition-all text-left"
+            : cn(
+                "mt-3 transition-all",
+                activeViewport === 'mobile' && "max-w-[385px] mx-auto preview-viewport-mobile",
+                activeViewport === 'tablet' && "w-full overflow-x-auto",
+                activeViewport === 'pc' && "w-full overflow-x-auto"
+              )
         )}>
-          {renderIslandStageContent(false, viewport)}
+          {renderIslandStageContent(false, activeViewport)}
         </div>
 
         {/* Chế độ Xem Trước Toàn Màn Hình (Fullscreen Modal Preview) */}
@@ -2045,7 +2338,7 @@ export function StudentStagePreview({
                   onClick={() => setViewport('mobile')}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
-                    viewport === 'mobile'
+                    activeViewport === 'mobile'
                       ? "bg-brand-500 text-white font-black shadow-xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
                   )}
@@ -2061,7 +2354,7 @@ export function StudentStagePreview({
                   onClick={() => setViewport('tablet')}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
-                    viewport === 'tablet'
+                    activeViewport === 'tablet'
                       ? "bg-brand-500 text-white font-black shadow-xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
                   )}
@@ -2077,7 +2370,7 @@ export function StudentStagePreview({
                   onClick={() => setViewport('pc')}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
-                    viewport === 'pc'
+                    activeViewport === 'pc'
                       ? "bg-brand-500 text-white font-black shadow-xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
                   )}
@@ -2093,7 +2386,7 @@ export function StudentStagePreview({
                   onClick={() => setViewport('full')}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
-                    viewport === 'full'
+                    activeViewport === 'full'
                       ? "bg-brand-500 text-white font-black shadow-xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
                   )}
@@ -2119,27 +2412,27 @@ export function StudentStagePreview({
 
             {/* Vùng chứa nội dung xem trước (Canvas area) */}
             <div className="flex-1 bg-slate-100/70 p-4 sm:p-6 overflow-y-auto flex justify-center items-start">
-              {viewport === 'mobile' ? (
-                <div className="w-[375px] max-w-full rounded-[2.5rem] border-[6px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col shrink-0 my-auto sm:my-0">
+              {activeViewport === 'mobile' ? (
+                <div className="w-[375px] max-w-full rounded-[2.5rem] border-[6px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col shrink-0 my-auto sm:my-0 preview-viewport-mobile">
                   {/* Tai thỏ / Dynamic Island / rãnh loa thoại */}
                   <div className="h-5 flex justify-center items-center py-1 bg-slate-100 border-b border-slate-200 shrink-0">
                     <div className="w-16 h-1 rounded-full bg-slate-300" />
                   </div>
                   {/* Vùng xem trước bên trong điện thoại có scroll */}
                   <div className="overflow-y-auto max-h-[75vh] p-3 text-left">
-                    {renderIslandStageContent(true, viewport)}
+                    {renderIslandStageContent(true, activeViewport)}
                   </div>
                 </div>
-              ) : viewport === 'tablet' ? (
+              ) : activeViewport === 'tablet' ? (
                 <div className="w-[768px] max-w-full rounded-2xl border-4 border-slate-300 bg-white shadow-xl overflow-hidden p-4 shrink-0">
-                  {renderIslandStageContent(true, viewport)}
+                  {renderIslandStageContent(true, activeViewport)}
                 </div>
               ) : (
                 <div className={cn(
                   "w-full rounded-2xl border-2 border-slate-200 bg-white shadow-lg p-6 shrink-0",
-                  viewport === 'full' ? "max-w-[1600px]" : "max-w-[1240px]"
+                  activeViewport === 'full' ? "max-w-[1600px]" : "max-w-[1240px]"
                 )}>
-                  {renderIslandStageContent(true, viewport)}
+                  {renderIslandStageContent(true, activeViewport)}
                 </div>
               )}
             </div>
@@ -2166,18 +2459,10 @@ export function StudentStagePreview({
   const stageName = AIKI_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
   const stageBlocks = getStageBlocks(card, stageIndex)
 
-  return (
-    <aside className="ui-card h-fit p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-          <Eye size={15} /> Xem trước học sinh
-        </p>
-        <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
-          Chặng {stageIndex + 1}/5
-        </span>
-      </div>
-
-      <article className={`mt-3 rounded-2xl border-2 p-4 shadow-sm ${presentation.tone}`}>
+  const renderAikiStageContent = (isFs: boolean, vp: PreviewViewportMode) => {
+    const isMobile = vp === 'mobile'
+    return (
+    <article className={cn("rounded-2xl border-2 p-4 shadow-sm", presentation.tone, isFs ? "w-full" : "mt-3")}>
         <div className="flex items-center justify-between gap-2">
           <span className="grid size-9 place-items-center rounded-xl bg-white/80">
             <KindIcon size={20} aria-hidden="true" />
@@ -2238,19 +2523,26 @@ export function StudentStagePreview({
               }
 
               if (block.type === 'layout-split') {
+                const isTwoText = block.columns === 2 && !block.imageUrl
                 return (
-                  <div key={block.id} className="grid grid-cols-2 gap-2 rounded-xl border border-current/15 bg-white/70 p-2.5 items-center">
+                  <div key={block.id} className={cn("rounded-xl border border-current/15 bg-white/70 p-2.5 items-center", isMobile ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-2")}>
                     <div>
                       {block.title && <h4 className="font-display text-xs font-bold text-text">{block.title}</h4>}
                       <p className="text-[11px] font-semibold text-text mt-0.5">{block.body || 'Nội dung giải thích...'}</p>
                     </div>
-                    <div className="overflow-hidden rounded-lg aspect-video bg-slate-100 border border-slate-200 grid place-items-center">
-                      {block.imageUrl ? (
-                        <img src={block.imageUrl} alt={block.imageAlt || 'Media'} className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
-                      ) : (
-                        <span className="text-[10px] font-bold text-muted">Ảnh / Media</span>
-                      )}
-                    </div>
+                    {isTwoText ? (
+                      <div>
+                        <p className="text-[11px] font-semibold text-text mt-0.5">{block.tip || 'Nội dung cột phải...'}</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-hidden rounded-lg aspect-video bg-slate-100 border border-slate-200 grid place-items-center">
+                        {block.imageUrl ? (
+                          <img src={block.imageUrl} alt={block.imageAlt || 'Media'} className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                        ) : (
+                          <span className="text-[10px] font-bold text-muted">Ảnh / Media</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               }
@@ -2260,11 +2552,29 @@ export function StudentStagePreview({
                 return (
                   <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-2.5">
                     {block.title && <h4 className="font-display text-xs font-black text-text mb-1.5">{block.title}</h4>}
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className={cn("grid gap-1.5", isMobile ? "grid-cols-1" : "grid-cols-3")}>
                       {items.map((item, vIdx) => (
                         <div key={vIdx} className="rounded-lg border border-brand-200 bg-brand-50/70 p-1.5 text-center">
                           <p className="text-[10px] font-black text-brand-900 truncate">{item.label}</p>
                           <p className="text-[9px] font-semibold text-brand-800 line-clamp-2 mt-0.5">{item.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-four-keys') {
+                const items = (block.visualItems && block.visualItems.length > 0) ? block.visualItems : card.visualItems
+                return (
+                  <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-2.5">
+                    {block.title && <h4 className="font-display text-xs font-black text-text mb-1.5">{block.title}</h4>}
+                    <div className={cn("grid gap-1.5", isMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-4")}>
+                      {items.map((item, vIdx) => (
+                        <div key={vIdx} className="rounded-lg border border-amber-200 bg-amber-50/70 p-1.5 text-center">
+                          <span className="inline-block rounded bg-amber-200 px-1 text-[8px] font-black text-amber-900">🔑 Khóa {vIdx + 1}</span>
+                          <p className="text-[10px] font-black text-amber-950 truncate mt-0.5">{item.label}</p>
+                          <p className="text-[9px] font-semibold text-amber-800 line-clamp-2">{item.text}</p>
                         </div>
                       ))}
                     </div>
@@ -2277,7 +2587,7 @@ export function StudentStagePreview({
                 return (
                   <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-2.5">
                     {block.title && <h4 className="font-display text-xs font-black text-text mb-1.5">{block.title}</h4>}
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className={cn("grid gap-1.5", isMobile ? "grid-cols-1" : "grid-cols-3")}>
                       {items.map((item, vIdx) => (
                         <div key={vIdx} className="rounded-lg border border-sky-200 bg-sky-50/70 p-1.5 text-center">
                           <span className="inline-block rounded bg-sky-200 px-1 text-[8px] font-black text-sky-900">Cảnh {vIdx + 1}</span>
@@ -2306,7 +2616,7 @@ export function StudentStagePreview({
 
               if (block.type === 'versus-ab') {
                 return (
-                  <div key={block.id} className="grid grid-cols-2 gap-2">
+                  <div key={block.id} className={cn("grid gap-2", isMobile ? "grid-cols-1" : "grid-cols-2")}>
                     <div className="rounded-xl border border-amber-200 bg-white p-2 text-center">
                       <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
                         {card.optionLabels?.[0] || 'Tranh A: Zico'}
@@ -2360,7 +2670,7 @@ export function StudentStagePreview({
 
               if (block.type === 'compare') {
                 return (
-                  <div key={block.id} className="grid grid-cols-2 gap-2">
+                  <div key={block.id} className={cn("grid gap-2", isMobile ? "grid-cols-1" : "grid-cols-2")}>
                     <div className="rounded-xl border border-slate-200 bg-white p-2 text-center">
                       <span className="text-[10px] font-black text-slate-800">
                         🤖 {card.compareData?.leftTitle || 'Trợ lý AI'}
@@ -2442,7 +2752,7 @@ export function StudentStagePreview({
                         <p className="text-[10px] font-black uppercase text-brand-800">
                           📷 Ảnh minh họa bổ sung ({additionalImgs.length}):
                         </p>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className={cn("grid gap-2", isMobile ? "grid-cols-1" : "grid-cols-2")}>
                           {additionalImgs.map((imgItem, imgIdx) => (
                             <div key={imgItem.id || imgIdx} className="group relative overflow-hidden rounded-xl border border-emerald-100 bg-white/95 p-1 text-center shadow-2xs">
                               {imgItem.url ? (
@@ -2510,40 +2820,249 @@ export function StudentStagePreview({
           </div>
         )}
       </article>
+    )
+  }
 
-      {/* Modal phóng to ảnh */}
-      {zoomedImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4"
-          onClick={() => setZoomedImage(null)}
-        >
-          <div
-            className="relative max-h-[85vh] max-w-2xl w-full rounded-2xl bg-white p-4 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-border/80">
-              <span className="text-xs font-black text-text truncate">{zoomedImage.title || 'Xem ảnh phóng to'}</span>
+    return (
+      <aside className="ui-card min-w-0 h-fit overflow-hidden p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
+        {/* Header Preview với Viewport Selector */}
+        {!hideHeaderToolbar && (
+          <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
+            <div className="flex items-center justify-between gap-2">
+              <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
+                <Eye size={15} /> Xem trước học sinh (10 Quy Tắc)
+              </p>
+              <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
+                Chặng {stageIndex + 1}/5
+              </span>
+            </div>
+
+            {/* Thanh công cụ Viewport Selector trên header preview */}
+            <div className="flex items-center justify-between gap-1.5 pt-0.5">
+              <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[10.5px]">
+                <button
+                  type="button"
+                  onClick={() => setViewport('mobile')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'mobile' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng Mobile (375px)"
+                >
+                  <Smartphone size={12} />
+                  <span>Mobile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewport('tablet')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'tablet' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng iPad (768px)"
+                >
+                  <Tablet size={12} />
+                  <span>iPad</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewport('pc')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                    activeViewport === 'pc' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  title="Xem dạng PC (1024px+)"
+                >
+                  <Monitor size={12} />
+                  <span>PC</span>
+                </button>
+              </div>
+
+              {/* Nút nổi bật: ⛶ Toàn màn hình */}
               <button
                 type="button"
-                onClick={() => setZoomedImage(null)}
-                className="grid size-7 place-items-center rounded-lg hover:bg-slate-100 text-muted hover:text-text cursor-pointer"
+                onClick={() => setIsFullscreen(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-600 to-brand-600 hover:from-sky-700 hover:to-brand-700 text-white px-2.5 py-1 text-[10.5px] font-black shadow-2xs transition active:scale-95 cursor-pointer shrink-0"
+                title="Phóng to toàn màn hình (Fullscreen Modal)"
               >
-                <X size={15} />
+                <Maximize2 size={13} />
+                <span>Toàn màn hình</span>
               </button>
-            </div>
-            <div className="mt-3 flex items-center justify-center max-h-[70vh] overflow-auto">
-              <img
-                src={zoomedImage.url}
-                alt={zoomedImage.title || 'Ảnh phóng to'}
-                className="max-h-[68vh] w-auto object-contain rounded-xl shadow-md"
-              />
+              {onCollapse && !hideHeaderToolbar && (
+                <button
+                  type="button"
+                  onClick={onCollapse}
+                  className="flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 text-[10.5px] font-bold transition cursor-pointer shrink-0"
+                  title="Thu gọn cột xem trước"
+                >
+                  <PanelRightClose size={12} />
+                  <span>Thu gọn</span>
+                </button>
+              )}
             </div>
           </div>
+        )}
+
+        {/* Nội dung xem trước Inline */}
+        <div className={cn(
+          hideHeaderToolbar
+            ? "w-full transition-all text-left"
+            : cn(
+                "mt-3 transition-all",
+                activeViewport === 'mobile' && "max-w-[385px] mx-auto preview-viewport-mobile",
+                activeViewport === 'tablet' && "w-full overflow-x-auto",
+                activeViewport === 'pc' && "w-full overflow-x-auto"
+              )
+        )}>
+          {renderAikiStageContent(false, activeViewport)}
         </div>
-      )}
-    </aside>
-  )
-}
+
+        {/* Chế độ Xem Trước Toàn Màn Hình (Fullscreen Modal Preview) */}
+        {isFullscreen && (
+          <div
+            className="fixed inset-0 z-50 flex flex-col bg-slate-900/25 backdrop-blur-md animate-in fade-in duration-200"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Xem trước toàn màn hình: ${stageName}`}
+          >
+            {/* Thanh điều khiển trên cùng (Header Modal nền trắng Soft Clay) */}
+            <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/80 bg-white/95 px-4 sm:px-6 text-slate-900 shadow-2xs z-10">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600 border border-sky-200 shrink-0">
+                  <Eye size={18} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-sm font-black text-slate-900 truncate flex items-center gap-2">
+                    <span>👁️ Xem Trước Trải Nghiệm Học Sinh:</span>
+                    <span className="text-brand-600 truncate">{stageName}</span>
+                  </h2>
+                  <span className="text-[11px] font-medium text-slate-500 block truncate">
+                    Mười Quy Tắc Vàng · Chặng {stageIndex + 1}/5
+                  </span>
+                </div>
+              </div>
+
+              {/* Bộ nút chuyển kích thước xem thử */}
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200/80">
+                <button
+                  type="button"
+                  onClick={() => setViewport('mobile')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    activeViewport === 'mobile'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Điện thoại (375px)"
+                >
+                  <Smartphone size={14} />
+                  <span className="hidden md:inline">📱 Điện thoại 375px</span>
+                  <span className="md:hidden">375px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('tablet')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    activeViewport === 'tablet'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình iPad / Máy tính bảng (768px)"
+                >
+                  <Tablet size={14} />
+                  <span className="hidden md:inline">📱 iPad / Tablet 768px</span>
+                  <span className="md:hidden">768px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('pc')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    activeViewport === 'pc'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Máy tính PC (1200px)"
+                >
+                  <Monitor size={14} />
+                  <span className="hidden md:inline">💻 Máy tính PC 1200px</span>
+                  <span className="md:hidden">1200px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('full')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    activeViewport === 'full'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Tràn viền (100%)"
+                >
+                  <Maximize2 size={14} />
+                  <span className="hidden md:inline">🖥️ Full màn hình 100%</span>
+                  <span className="md:hidden">100%</span>
+                </button>
+              </div>
+
+              {/* Nút đóng Esc */}
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                className="flex items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 text-xs border border-slate-200 transition cursor-pointer shadow-xs shrink-0"
+                title="Đóng chế độ xem trước (Esc)"
+              >
+                <X size={15} />
+                <span className="hidden sm:inline">✕ Đóng (Esc)</span>
+              </button>
+            </header>
+
+            {/* Vùng chứa nội dung xem trước (Canvas area) */}
+            <div className="flex-1 bg-slate-100/70 p-4 sm:p-6 overflow-y-auto flex justify-center items-start">
+              {activeViewport === 'mobile' ? (
+                <div className="w-[375px] max-w-full rounded-[2.5rem] border-[6px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col shrink-0 my-auto sm:my-0 preview-viewport-mobile">
+                  {/* Tai thỏ / rãnh loa thoại */}
+                  <div className="h-5 flex justify-center items-center py-1 bg-slate-100 border-b border-slate-200 shrink-0">
+                    <div className="w-16 h-1 rounded-full bg-slate-300" />
+                  </div>
+                  {/* Vùng xem trước bên trong điện thoại có scroll */}
+                  <div className="overflow-y-auto max-h-[75vh] p-3 text-left">
+                    {renderAikiStageContent(true, activeViewport)}
+                  </div>
+                </div>
+              ) : activeViewport === 'tablet' ? (
+                <div className="w-[768px] max-w-full rounded-2xl border-4 border-slate-300 bg-white shadow-xl overflow-hidden p-4 shrink-0">
+                  {renderAikiStageContent(true, activeViewport)}
+                </div>
+              ) : (
+                <div className={cn(
+                  "w-full rounded-2xl border-2 border-slate-200 bg-white shadow-lg p-6 shrink-0",
+                  activeViewport === 'full' ? "max-w-[1600px]" : "max-w-[1240px]"
+                )}>
+                  {renderAikiStageContent(true, activeViewport)}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modal phóng to ảnh */}
+        {zoomedImage && (
+          <AdventureModal
+            open={!!zoomedImage}
+            onClose={() => setZoomedImage(null)}
+            title={zoomedImage.title || 'Chi tiết ảnh'}
+          >
+            <img src={zoomedImage.url} alt="Chi tiết" className="w-full h-auto rounded-xl" />
+          </AdventureModal>
+        )}
+      </aside>
+    )
+})
 
 function practiceKindLabel(kind: string) {
   return PRACTICE_OPTIONS.find((option) => option.id === kind)?.label ?? 'Kiểu thực hành cũ'
@@ -2628,29 +3147,151 @@ function PracticeKindPreview({ draft, compact = false }: { draft: LectureDraft; 
   )
 }
 
-function FullStationPreview({ draft, gameConfig }: { draft: LectureDraft; gameConfig: CurriculumGameConfig }) {
-  const isAiki = detectLessonFormat(draft.learnCards) === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards)
-  const [activeAikiStage, setActiveAikiStage] = useState<number>(0)
+function FullStationPreview({
+  draft,
+  gameConfig,
+  isIslandCourse,
+}: {
+  draft: LectureDraft
+  gameConfig: CurriculumGameConfig
+  isIslandCourse?: boolean
+}) {
+  const deferredDraft = useDeferredValue(draft)
+  const isAiki = detectLessonFormat(deferredDraft.learnCards) === 'aiki-rule-5steps' || isAikiRuleLesson(deferredDraft.learnCards)
+  const isCustomJourney = Boolean(deferredDraft.customJourneyStages && deferredDraft.customJourneyStages.length >= 3)
+  const isIsland = Boolean(isIslandCourse || detectLessonFormat(deferredDraft.learnCards) === 'aiki-island-6steps' || deferredDraft.sixStageJourney)
+  const [activeStage, setActiveStage] = useState<number>(0)
   const [previewSection, setPreviewSection] = useState<Section>('basics')
-  const goals = goalLines(draft.goalsText)
-  const steps = goalLines(draft.practiceStepsText)
-  const criteria = goalLines(draft.successCriteriaText)
+  const [viewport, setViewport] = useState<PreviewViewportMode>('pc')
+  const goals = goalLines(deferredDraft.goalsText)
+  const steps = goalLines(deferredDraft.practiceStepsText)
+  const criteria = goalLines(deferredDraft.successCriteriaText)
 
-  if (isAiki) {
-    const defaultCards = createAikiRuleLearnCards()
-    const card = draft.learnCards[activeAikiStage] ?? defaultCards[activeAikiStage]
-    const stageIcons = ['🎬', '🖼️', '📜', '⚖️', '🏆']
+  const renderViewportToolbar = () => (
+    <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl bg-slate-100 p-2 border border-slate-200/80">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-black text-slate-700 flex items-center gap-1.5 ml-1">
+          <Eye size={14} className="text-brand-600" /> Chế độ xem thiết bị:
+        </span>
+      </div>
+      <div className="flex items-center gap-1 flex-wrap">
+        <button
+          type="button"
+          onClick={() => setViewport('mobile')}
+          className={cn(
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer",
+            viewport === 'mobile'
+              ? "bg-brand-500 text-white shadow-xs font-black"
+              : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/60"
+          )}
+          title="Xem dạng Điện thoại (375px)"
+        >
+          <Smartphone size={14} />
+          <span className="hidden sm:inline">📱 Mobile 375px</span>
+          <span className="sm:hidden">Mobile</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewport('tablet')}
+          className={cn(
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer",
+            viewport === 'tablet'
+              ? "bg-brand-500 text-white shadow-xs font-black"
+              : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/60"
+          )}
+          title="Xem dạng iPad / Máy tính bảng (768px)"
+        >
+          <Tablet size={14} />
+          <span className="hidden sm:inline">📱 iPad / Tablet 768px</span>
+          <span className="sm:hidden">Tablet</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewport('pc')}
+          className={cn(
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer",
+            viewport === 'pc'
+              ? "bg-brand-500 text-white shadow-xs font-black"
+              : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/60"
+          )}
+          title="Xem dạng Máy tính PC (1200px)"
+        >
+          <Monitor size={14} />
+          <span className="hidden sm:inline">💻 Máy tính PC</span>
+          <span className="sm:hidden">PC</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewport('full')}
+          className={cn(
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer",
+            viewport === 'full'
+              ? "bg-brand-500 text-white shadow-xs font-black"
+              : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/60"
+          )}
+          title="Xem dạng Tràn viền (100%)"
+        >
+          <Maximize2 size={14} />
+          <span className="hidden sm:inline">🖥️ Full 100%</span>
+          <span className="sm:hidden">Full</span>
+        </button>
+      </div>
+    </div>
+  )
+
+  const wrapInViewport = (children: React.ReactNode) => {
+    if (viewport === 'mobile') {
+      return (
+        <div className="w-[375px] max-w-full mx-auto rounded-[2.5rem] border-[6px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col my-3 text-left preview-viewport-mobile">
+          <div className="h-5 flex justify-center items-center py-1 bg-slate-100 border-b border-slate-200 shrink-0">
+            <div className="w-16 h-1 rounded-full bg-slate-300" />
+          </div>
+          <div className="station-preview-scroll overflow-y-auto max-h-[58vh] sm:max-h-[62vh] p-3 text-left">
+            {children}
+          </div>
+        </div>
+      )
+    }
+
+    if (viewport === 'tablet') {
+      return (
+        <div className="w-[768px] max-w-full mx-auto rounded-2xl border-4 border-slate-300 bg-white shadow-xl overflow-hidden p-3 sm:p-4 my-3 text-left">
+          <div className="station-preview-scroll overflow-y-auto max-h-[58vh] sm:max-h-[62vh] pr-1 text-left">
+            {children}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className={cn(
+        "w-full mx-auto rounded-2xl border-2 border-slate-200 bg-white shadow-sm p-3 sm:p-5 my-3 text-left",
+        viewport === 'full' ? "max-w-full" : "max-w-[1200px]"
+      )}>
+        <div className="station-preview-scroll overflow-y-auto max-h-[58vh] sm:max-h-[62vh] pr-1 text-left">
+          {children}
+        </div>
+      </div>
+    )
+  }
+
+  if (isIsland) {
+    const currentJourney = deferredDraft.sixStageJourney || resolveIslandSixStageJourney(deferredDraft as any)
+    const islandCard = deferredDraft.learnCards[activeStage]
+    const stageIcons = ['🎯', '🎬', '🔍', '✍️', '🎨', '🏆']
     return (
       <div className="text-left">
-        {/* Navigation 5 chặng AIKI */}
-        <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-brand-200 bg-brand-50/70 p-2" aria-label="Chọn chặng AIKI muốn xem trước">
-          {AIKI_STAGE_NAMES.map((name, index) => {
-            const isSelected = activeAikiStage === index
+        {renderViewportToolbar()}
+
+        {/* Navigation 6 chặng Đảo */}
+        <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-brand-200 bg-brand-50/70 p-2" aria-label="Chọn chặng Đảo muốn xem trước">
+          {ISLAND_6_STAGE_NAMES.map((name, index) => {
+            const isSelected = activeStage === index
             return (
               <button
                 key={name}
                 type="button"
-                onClick={() => setActiveAikiStage(index)}
+                onClick={() => setActiveStage(index)}
                 aria-current={isSelected ? 'page' : undefined}
                 className={cn(
                   'flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3.5 text-xs font-black transition cursor-pointer',
@@ -2660,45 +3301,121 @@ function FullStationPreview({ draft, gameConfig }: { draft: LectureDraft; gameCo
                 )}
               >
                 <span>{stageIcons[index]}</span>
-                <span>{name}</span>
+                <span>Chặng {index + 1}: {name}</span>
               </button>
             )
           })}
         </nav>
 
-        {/* Nội dung xem trước chặng học sinh */}
-        <div className="station-preview-scroll overflow-y-auto pr-1">
-          {card && <StudentStagePreview card={card} stageIndex={activeAikiStage} />}
+        {wrapInViewport(
+          <div>
+            <StudentStagePreview
+              stageIndex={activeStage}
+              isIsland={true}
+              sixStageJourney={currentJourney}
+              stageCard={islandCard}
+              viewport={viewport}
+              hideHeaderToolbar={true}
+            />
 
-          {/* Điều hướng chuyển chặng */}
-          <div className="mt-4 flex items-center justify-between border-t border-border/80 pt-3">
-            <button
-              type="button"
-              disabled={activeAikiStage === 0}
-              onClick={() => setActiveAikiStage((prev) => Math.max(0, prev - 1))}
-              className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
-            >
-              ← Chặng trước
-            </button>
-            <span className="text-xs font-black text-brand-800">
-              Chặng {activeAikiStage + 1} / 5
-            </span>
-            <button
-              type="button"
-              disabled={activeAikiStage === 4}
-              onClick={() => setActiveAikiStage((prev) => Math.min(4, prev + 1))}
-              className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
-            >
-              Chặng tiếp theo →
-            </button>
+            {/* Điều hướng chuyển chặng */}
+            <div className="mt-4 flex items-center justify-between border-t border-border/80 pt-3">
+              <button
+                type="button"
+                disabled={activeStage === 0}
+                onClick={() => setActiveStage((prev) => Math.max(0, prev - 1))}
+                className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
+              >
+                ← Chặng trước
+              </button>
+              <span className="text-xs font-black text-brand-800">
+                Chặng {activeStage + 1} / 6
+              </span>
+              <button
+                type="button"
+                disabled={activeStage === 5}
+                onClick={() => setActiveStage((prev) => Math.min(5, prev + 1))}
+                className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
+              >
+                Chặng tiếp theo →
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+      </div>
+    )
+  }
+
+  if (isAiki || isCustomJourney) {
+    const customStages = resolveCourseJourneyStages(undefined, deferredDraft.lessonFormat, deferredDraft.customJourneyStages)
+    const totalStages = customStages.length
+    const defaultCards = createAikiRuleLearnCards()
+    const card = deferredDraft.learnCards[activeStage] ?? defaultCards[activeStage]
+    const stageIcons = ['🎬', '🖼️', '📜', '⚖️', '🏆', '🎨', '🌟']
+    return (
+      <div className="text-left">
+        {renderViewportToolbar()}
+
+        {/* Navigation các chặng */}
+        <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-brand-200 bg-brand-50/70 p-2" aria-label="Chọn chặng muốn xem trước">
+          {customStages.map((stage, index) => {
+            const isSelected = activeStage === index
+            return (
+              <button
+                key={stage.id || index}
+                type="button"
+                onClick={() => setActiveStage(index)}
+                aria-current={isSelected ? 'page' : undefined}
+                className={cn(
+                  'flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3.5 text-xs font-black transition cursor-pointer',
+                  isSelected
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'text-brand-900 bg-white/80 hover:bg-white border border-brand-200/60'
+                )}
+              >
+                <span>{stageIcons[index % stageIcons.length]}</span>
+                <span>{stage.index + 1}. {stage.shortTitle || stage.title}</span>
+              </button>
+            )
+          })}
+        </nav>
+
+        {wrapInViewport(
+          <div>
+            {card && <StudentStagePreview card={card} stageIndex={activeStage} viewport={viewport} hideHeaderToolbar={true} />}
+
+            {/* Điều hướng chuyển chặng */}
+            <div className="mt-4 flex items-center justify-between border-t border-border/80 pt-3">
+              <button
+                type="button"
+                disabled={activeStage === 0}
+                onClick={() => setActiveStage((prev) => Math.max(0, prev - 1))}
+                className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
+              >
+                ← Chặng trước
+              </button>
+              <span className="text-xs font-black text-brand-800">
+                Chặng {activeStage + 1} / {totalStages}
+              </span>
+              <button
+                type="button"
+                disabled={activeStage === totalStages - 1}
+                onClick={() => setActiveStage((prev) => Math.min(totalStages - 1, prev + 1))}
+                className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
+              >
+                Chặng tiếp theo →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
 
   return (
     <div className="text-left">
+      {renderViewportToolbar()}
+
       <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-border bg-white p-2" aria-label="Chọn phần muốn xem trước">
         {STANDARD_SECTIONS.map((section) => (
           <button
@@ -2716,79 +3433,82 @@ function FullStationPreview({ draft, gameConfig }: { draft: LectureDraft; gameCo
         ))}
       </nav>
 
-      <div className="station-preview-scroll grid gap-4 overflow-y-auto pr-1">
-      {previewSection === 'basics' && <section className="rounded-3xl border-2 border-brand-200 bg-brand-50 p-5 text-center">
-        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Câu hỏi mở trạm</p>
-        <h3 className="mt-2 font-display text-2xl text-brand-900">{draft.hook.trim() || 'Chưa có câu hỏi khởi động'}</h3>
-        <div className="mt-4 grid gap-2 sm:grid-cols-3">
-          {(goals.length ? goals : ['Chưa có mục tiêu học tập']).map((goal, index) => (
-            <div key={`${index}-${goal}`} className="rounded-2xl bg-white px-3 py-3 text-sm font-bold text-text shadow-sm">
-              <span className="mr-2 text-coral-600">{index + 1}.</span>{goal}
+      {wrapInViewport(
+        <div className="grid gap-4">
+          {previewSection === 'basics' && <section className="rounded-3xl border-2 border-brand-200 bg-brand-50 p-5 text-center">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Câu hỏi mở trạm</p>
+            <h3 className="mt-2 font-display text-2xl text-brand-900">{deferredDraft.hook.trim() || 'Chưa có câu hỏi khởi động'}</h3>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {(goals.length ? goals : ['Chưa có mục tiêu học tập']).map((goal, index) => (
+                <div key={`${index}-${goal}`} className="rounded-2xl bg-white px-3 py-3 text-sm font-bold text-text shadow-sm">
+                  <span className="mr-2 text-coral-600">{index + 1}.</span>{goal}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>}
+          </section>}
 
-      {previewSection === 'content' && <StudentLearnPreview draft={draft} />}
+          {previewSection === 'content' && <StudentLearnPreview draft={deferredDraft} />}
 
-      {previewSection === 'game' && (
-        <div className="ui-card p-5">
-          <div className="mb-4">
-            <div className="companion-bubble" style={{ maxWidth: 'none', width: '100%' }}>
-              <p className="text-sm font-bold">{draft.gameInstruction || 'Chơi một lượt để ghi nhớ ý chính của bài!'}</p>
+          {previewSection === 'game' && (
+            <div className="ui-card p-5">
+              <div className="mb-4">
+                <div className="companion-bubble" style={{ maxWidth: 'none', width: '100%' }}>
+                  <p className="text-sm font-bold">{deferredDraft.gameInstruction || 'Chơi một lượt để ghi nhớ ý chính của bài!'}</p>
+                </div>
+              </div>
+              <CurriculumGame
+                gameType={deferredDraft.gameType}
+                gameConfig={gameConfig}
+                instruction={deferredDraft.gameInstruction}
+                outcome={deferredDraft.gameOutcome}
+                onComplete={() => undefined}
+              />
+              <p className="mt-4 rounded-xl bg-sun-50 px-3 py-3 text-center text-xs font-semibold text-sun-900">Chế độ xem trước: giáo viên có thể chơi thử, nhưng kết quả không được ghi vào tiến độ học sinh.</p>
             </div>
-          </div>
-          <CurriculumGame
-            gameType={draft.gameType}
-            gameConfig={gameConfig}
-            instruction={draft.gameInstruction}
-            outcome={draft.gameOutcome}
-            onComplete={() => undefined}
-          />
-          <p className="mt-4 rounded-xl bg-sun-50 px-3 py-3 text-center text-xs font-semibold text-sun-900">Chế độ xem trước: giáo viên có thể chơi thử, nhưng kết quả không được ghi vào tiến độ học sinh.</p>
+          )}
+
+          {previewSection === 'practice' && <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,.85fr)]">
+            <div className="grid gap-4">
+            <section className="rounded-3xl border-2 border-mint-200 bg-mint-50 p-5">
+              <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-mint-700"><Palette size={16} /> Tự tay làm</p>
+              <h3 className="mt-2 font-display text-xl text-text">{deferredDraft.product || 'Chưa đặt tên sản phẩm'}</h3>
+              <p className="mt-2 whitespace-pre-line text-sm font-semibold leading-relaxed text-text">{deferredDraft.practiceInstruction || 'Chưa có hướng dẫn thực hành.'}</p>
+              {steps.length > 0 && <ol className="mt-3 grid gap-2">{steps.map((step, index) => <li key={step} className="rounded-xl bg-white px-3 py-2 text-xs font-bold"><span className="mr-2 text-mint-700">{index + 1}.</span>{step}</li>)}</ol>}
+              {criteria.length > 0 && <div className="mt-3 rounded-xl border border-mint-200 bg-white p-3 text-xs font-semibold"><strong>Con tự kiểm tra:</strong> {criteria.join(' · ')}</div>}
+            </section>
+            <PracticeKindPreview draft={deferredDraft} />
+            </div>
+            <aside className="rounded-3xl border-2 border-border bg-white p-5">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Sau khi làm xong</p>
+              <p className="mt-3 text-sm font-bold leading-relaxed text-text">Câu hỏi nhìn lại: {deferredDraft.reflectionPrompt || 'Chưa có câu hỏi giúp học sinh tự nhìn lại sản phẩm.'}</p>
+              <p className="mt-3 rounded-xl bg-sun-50 px-3 py-3 text-xs font-semibold text-sun-900">Sản phẩm được lưu riêng tư và chỉ chia sẻ khi có luồng duyệt phù hợp.</p>
+            </aside>
+          </div>}
+
+          {previewSection === 'check' && <section className="rounded-3xl border-2 border-coral-200 bg-coral-50 p-5">
+            <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-coral-700"><HelpCircle size={16} /> Thử thách cuối trạm</p>
+            <p className="mt-2 text-sm font-bold text-text">{deferredDraft.checkQuestions.length || (deferredDraft.checkQuestion ? 1 : 0)} câu hỏi kiểm tra · Học sinh cần hoàn thành trước khi nhận thưởng.</p>
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              {(deferredDraft.checkQuestions.length ? deferredDraft.checkQuestions : deferredDraft.checkQuestion ? [{ prompt: deferredDraft.checkQuestion, options: [deferredDraft.checkOption1, deferredDraft.checkOption2, deferredDraft.checkOption3].filter(Boolean), answer: Number(deferredDraft.correctIndex), explain: deferredDraft.checkExplain }] : []).map((question, index) => (
+                <article key={`${index}-${question.prompt}`} className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="font-extrabold text-text">{index + 1}. {question.prompt}</p>
+                  <div className="mt-3 grid gap-2">{question.options.map((option, optionIndex) => <div key={`${optionIndex}-${option}`} className="rounded-xl border border-border px-3 py-2 text-sm font-semibold">{String.fromCharCode(65 + optionIndex)}. {option}</div>)}</div>
+                  {question.explain && <p className="mt-3 text-xs font-semibold text-muted">Phản hồi sau khi trả lời: {question.explain}</p>}
+                </article>
+              ))}
+            </div>
+          </section>}
         </div>
       )}
-
-      {previewSection === 'practice' && <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,.85fr)]">
-        <div className="grid gap-4">
-        <section className="rounded-3xl border-2 border-mint-200 bg-mint-50 p-5">
-          <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-mint-700"><Palette size={16} /> Tự tay làm</p>
-          <h3 className="mt-2 font-display text-xl text-text">{draft.product || 'Chưa đặt tên sản phẩm'}</h3>
-          <p className="mt-2 whitespace-pre-line text-sm font-semibold leading-relaxed text-text">{draft.practiceInstruction || 'Chưa có hướng dẫn thực hành.'}</p>
-          {steps.length > 0 && <ol className="mt-3 grid gap-2">{steps.map((step, index) => <li key={step} className="rounded-xl bg-white px-3 py-2 text-xs font-bold"><span className="mr-2 text-mint-700">{index + 1}.</span>{step}</li>)}</ol>}
-          {criteria.length > 0 && <div className="mt-3 rounded-xl border border-mint-200 bg-white p-3 text-xs font-semibold"><strong>Con tự kiểm tra:</strong> {criteria.join(' · ')}</div>}
-        </section>
-        <PracticeKindPreview draft={draft} />
-        </div>
-        <aside className="rounded-3xl border-2 border-border bg-white p-5">
-          <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Sau khi làm xong</p>
-          <p className="mt-3 text-sm font-bold leading-relaxed text-text">Câu hỏi nhìn lại: {draft.reflectionPrompt || 'Chưa có câu hỏi giúp học sinh tự nhìn lại sản phẩm.'}</p>
-          <p className="mt-3 rounded-xl bg-sun-50 px-3 py-3 text-xs font-semibold text-sun-900">Sản phẩm được lưu riêng tư và chỉ chia sẻ khi có luồng duyệt phù hợp.</p>
-        </aside>
-      </div>}
-
-      {previewSection === 'check' && <section className="rounded-3xl border-2 border-coral-200 bg-coral-50 p-5">
-        <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-coral-700"><HelpCircle size={16} /> Thử thách cuối trạm</p>
-        <p className="mt-2 text-sm font-bold text-text">{draft.checkQuestions.length || (draft.checkQuestion ? 1 : 0)} câu hỏi kiểm tra · Học sinh cần hoàn thành trước khi nhận thưởng.</p>
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">
-          {(draft.checkQuestions.length ? draft.checkQuestions : draft.checkQuestion ? [{ prompt: draft.checkQuestion, options: [draft.checkOption1, draft.checkOption2, draft.checkOption3].filter(Boolean), answer: Number(draft.correctIndex), explain: draft.checkExplain }] : []).map((question, index) => (
-            <article key={`${index}-${question.prompt}`} className="rounded-2xl bg-white p-4 shadow-sm">
-              <p className="font-extrabold text-text">{index + 1}. {question.prompt}</p>
-              <div className="mt-3 grid gap-2">{question.options.map((option, optionIndex) => <div key={`${optionIndex}-${option}`} className="rounded-xl border border-border px-3 py-2 text-sm font-semibold">{String.fromCharCode(65 + optionIndex)}. {option}</div>)}</div>
-              {question.explain && <p className="mt-3 text-xs font-semibold text-muted">Phản hồi sau khi trả lời: {question.explain}</p>}
-            </article>
-          ))}
-        </div>
-      </section>}
-      </div>
     </div>
   )
 }
 
-function emptyDraft(): LectureDraft {
+export function emptyDraft(): LectureDraft {
   return {
-    id: '', title: '', skill: '', hook: '',
+    id: '', slug: '', title: '', skill: '', hook: '',
     practiceKind: 'journal', videoUrl: '',
+    access: { mode: 'inherit', minPlanTier: 0, trialBadge: 'Học thử' },
     concept: '', example: '', learnCards: defaultLearnCards(),
     reward: '', duration: '',
     goalsText: '',
@@ -2829,6 +3549,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   )
   const initialDraftRef = useRef(normalizeLectureDraft(lecture ?? emptyDraft(), courseId))
   const [draft, setDraft] = useState<LectureDraft>(() => initialDraftRef.current)
+  const deferredDraft = useDeferredValue(draft)
   const [activeSection, setActiveSection] = useState<Section>('basics')
   const [quizQuestions, setQuizQuestions] = useState<EditableQuestion[]>([])
   const [showBankPicker, setShowBankPicker] = useState(false)
@@ -2898,9 +3619,20 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     window.speechSynthesis.speak(utterance)
   }, [previewSpeakingIndex, showToast])
 
+  const getAutoBadge = useCallback((): string => {
+    const stationMatch = draft.title?.match(/Trạm\s+(\d+)/i)
+    if (stationMatch) return `Trạm ${stationMatch[1]}`
+    const idMatch = (lecture?.id || draft.id || '').match(/bai-(\d+)-(\d+)/i)
+    if (idMatch) return `Trạm ${idMatch[2]}`
+    const titleMatch = draft.title?.match(/Bài\s+\d+\.(\d+)/i)
+    if (titleMatch) return `Trạm ${titleMatch[1]}`
+    return 'Trạm 1'
+  }, [draft.title, draft.id, lecture?.id])
+
   const [confirmClose, setConfirmClose] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [showInlinePreview, setShowInlinePreview] = useState(true)
+  const [isEngineSelectorExpanded, setIsEngineSelectorExpanded] = useState<boolean>(false)
   const draftStorageKey = `aikids:teacher-lecture-draft:${courseId}:${lecture?.id || 'new'}`
   const [recovery, setRecovery] = useState<{ savedAt: string; draft: LectureDraft } | null>(() => {
     if (readOnly) return null
@@ -2915,6 +3647,35 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   const isEdit = !!lecture
   const readiness = lectureDraftReadiness(draft)
   const dirty = !readOnly && JSON.stringify(draft) !== JSON.stringify(initialDraftRef.current)
+
+  // Đồng bộ draft khi lecture prop thay đổi (hỗ trợ chuyển trạm tức thì mà không cần remount drawer)
+  const currentLectureId = lecture?.id
+  const prevLectureIdRef = useRef(currentLectureId)
+  useEffect(() => {
+    if (currentLectureId !== prevLectureIdRef.current) {
+      prevLectureIdRef.current = currentLectureId
+      const nextDraft = normalizeLectureDraft(lecture ?? emptyDraft(), courseId)
+      initialDraftRef.current = nextDraft
+      setDraft(nextDraft)
+      setActiveSection('basics')
+      if (nextDraft.checkQuestions && nextDraft.checkQuestions.length > 0) {
+        setQuizQuestions(nextDraft.checkQuestions.map((q, idx) => ({
+          id: q.id ?? `q-${idx}`,
+          prompt: q.prompt,
+          options: q.options,
+          answer: q.answer,
+          explanation: q.explain,
+          tags: [],
+          ageMin: 6,
+          ageMax: 11,
+          difficulty: 'steady',
+          imageUrl: null,
+        })))
+      } else {
+        setQuizQuestions([])
+      }
+    }
+  }, [currentLectureId, lecture, courseId])
 
   useEffect(() => {
     onDirtyChange?.(dirty)
@@ -2931,22 +3692,28 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   useEffect(() => {
     if (readOnly || !dirty || recovery) return
     const timer = window.setTimeout(() => {
-      window.sessionStorage.setItem(draftStorageKey, JSON.stringify({ savedAt: new Date().toISOString(), draft }))
+      try {
+        window.sessionStorage.setItem(draftStorageKey, JSON.stringify({ savedAt: new Date().toISOString(), draft }))
+      } catch {}
     }, 600)
     return () => window.clearTimeout(timer)
   }, [draft, dirty, draftStorageKey, readOnly, recovery])
 
   useEffect(() => {
-    if ((isIslandCourse || lessonFormat === 'aiki-island-6steps' || lessonFormat === 'aiki-rule-5steps') && (activeSection === 'content' || activeSection === 'game' || activeSection === 'practice' || activeSection === 'check')) {
+    const isCustom = Boolean(draft.customJourneyStages && draft.customJourneyStages.length >= 3)
+    if ((isIslandCourse || lessonFormat === 'aiki-island-6steps' || lessonFormat === 'aiki-rule-5steps' || isCustom) && (activeSection === 'content' || activeSection === 'game' || activeSection === 'practice' || activeSection === 'check')) {
       setActiveSection('stage-0')
     }
-  }, [isIslandCourse, lessonFormat, activeSection])
+  }, [isIslandCourse, lessonFormat, activeSection, draft.customJourneyStages])
 
   useEffect(() => {
     if (lessonFormat === 'standard' && activeSection.startsWith('stage-')) {
+      if (draft.customJourneyStages && draft.customJourneyStages.length >= 3) {
+        return
+      }
       setActiveSection('content')
     }
-  }, [lessonFormat, activeSection])
+  }, [lessonFormat, activeSection, draft.customJourneyStages])
 
   const requestClose = useCallback(() => {
     if (dirty) setConfirmClose(true)
@@ -2964,6 +3731,20 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       return next
     })
   }, [isEdit, readOnly])
+
+  const updateAccess = useCallback((patch: Partial<LessonAccessConfig>) => {
+    if (readOnly) return
+    setDraft((d) => ({
+      ...d,
+      access: {
+        mode: d.access?.mode ?? 'inherit',
+        minPlanTier: d.access?.minPlanTier ?? 0,
+        trialBadge: d.access?.trialBadge ?? 'Học thử',
+        lockedReason: d.access?.lockedReason ?? '',
+        ...patch,
+      },
+    }))
+  }, [readOnly])
 
   const updateLearnCard = useCallback((index: number, patch: Partial<LearnCardDraft>) => {
     if (readOnly) return
@@ -3106,7 +3887,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           goalText: textBlock?.body ?? '',
           imageUrl: imageBlock?.imageUrl ?? journey.stage1_goal.imageUrl,
           speech: voiceBlock?.readText ?? journey.stage1_goal.speech,
-          keyPoints: keysBlock?.visualItems?.slice(0, 4).map((item) => `${item.label}: ${item.text}`) ?? [],
+          keyPoints: keysBlock?.visualItems?.slice(0, 4).map((item) => `${item.label}${item.sub ? ` (${item.sub})` : ''}: ${item.text}`) ?? [],
         },
       }))
     }
@@ -3179,7 +3960,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       return
     }
 
-    // 1. Nếu là Game Engine
+    // 1. Nếu là Game Engine Bài Học
     if (['data-runner', 'truth-patrol', 'battle-math', 'blockly'].includes(blockId)) {
       const defaultInstructions: Record<string, string> = {
         'data-runner': 'Thu thập các gói dữ liệu sạch và né tránh thông tin sai lệch!',
@@ -3202,6 +3983,32 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         setActiveSection('game')
       }
       showToast(`Đã chọn Game Engine: ${gameTitles[blockId] || blockId}`, 'success')
+      return
+    }
+
+    // 1.1. Nếu là Creative Engine Thực Hành Sáng Tạo (7 Chế Độ Game Thực Hành)
+    const CREATIVE_ENGINE_BLOCK_MAP: Record<string, { mode: string; title: string }> = {
+      'practice-ai-studio': { mode: 'magic-keys', title: '4 Chìa Khóa Ma Thuật' },
+      'practice-style-prism': { mode: 'style-prism', title: 'Lăng Kính Phù Thủy' },
+      'practice-prompt-doctor': { mode: 'prompt-doctor', title: 'Bác Sĩ Câu Lệnh' },
+      'practice-layer-stacking': { mode: 'layer-stacking', title: '3 Tầng Sân Khấu' },
+      'practice-identity-lock': { mode: 'identity-lock', title: 'Khóa Mật Mã & Biểu Cảm' },
+      'practice-card-forge': { mode: 'card-forge', title: 'Xưởng Đúc Thẻ Bài TCG' },
+      'practice-creative-notebook': { mode: 'creative-notebook', title: 'Sổ Tay Sáng Tạo Ba Lô' },
+    }
+
+    if (CREATIVE_ENGINE_BLOCK_MAP[blockId]) {
+      const { mode, title } = CREATIVE_ENGINE_BLOCK_MAP[blockId]
+      updateSixStage((j) => ({
+        ...j,
+        stage5_practice: {
+          ...j.stage5_practice,
+          creativeEngineMode: mode,
+          ...(mode === 'creative-notebook' ? { practiceParts: [] } : {}),
+        },
+      }))
+      setActiveSection('stage-4')
+      showToast(`Đã chuyển sang Game Engine Thực Hành: ${title}!`, 'success')
       return
     }
 
@@ -3280,6 +4087,17 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         imageUrl: '',
       }
       showToast('Đã thêm Bố cục 2 Cột Chữ + Media!', 'success')
+    } else if (blockId === 'layout-two-text') {
+      newBlock = {
+        id: `blk-two-text-${timestamp}`,
+        type: 'layout-split',
+        title: '2 Cột: 2 Văn Bản Song Song',
+        columns: 2,
+        body: 'Nội dung cột trái...',
+        tip: 'Nội dung cột phải...',
+        imageUrl: '',
+      }
+      showToast('Đã thêm Bố cục 2 Cột Văn Bản!', 'success')
     } else if (blockId === 'layout-grid') {
       newBlock = {
         id: `blk-grid-${timestamp}`,
@@ -3560,17 +4378,32 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           draft.learnCards.slice(0, 6).map((card, index) => [`stage-${index}`, card.contentBlocks ?? []])
         ),
       } : undefined
+      if (finalJourney?.stage5_practice) {
+        const p = finalJourney.stage5_practice
+        if ((p.creativeEngineMode || 'magic-keys') === 'magic-keys' && p.fourKeysOptions) {
+          const fk = p.fourKeysOptions
+          const autoLocked = [fk.what?.[0], fk.how?.[0], fk.action?.[0], fk.where?.[0]].filter(Boolean) as string[]
+          if (autoLocked.length > 0 && (!p.lockedFeatures || p.lockedFeatures.length === 0)) {
+            p.lockedFeatures = autoLocked
+          }
+        }
+        if (!p.badge?.trim()) {
+          p.badge = getAutoBadge()
+        }
+      }
       const payload = {
         courseId,
         id: draft.id,
+        slug: (draft as any).slug || draft.id,
         title: draft.title,
-        skill: draft.skill,
-        hook: draft.hook,
-        goals: draft.goalsText.split('\n').map((s) => s.trim()).filter(Boolean),
+        skill: draft.skill || draft.title,
+        hook: draft.hook || draft.title,
+        access: draft.access,
+        goals: draft.goalsText ? draft.goalsText.split('\n').map((s) => s.trim()).filter(Boolean) : [draft.title],
         concept: draft.concept,
         example: draft.example,
         learnCards: serializeLearnCardsForHub(draft.learnCards),
-        videoUrl: draft.videoUrl || null,
+        videoUrl: isIslandCourse ? (finalJourney?.stage3_video?.videoUrl || draft.videoUrl || null) : (draft.videoUrl || null),
         reward: draft.reward,
         duration: draft.duration,
         practiceKind: draft.practiceKind,
@@ -3578,7 +4411,9 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         sixStageJourney: finalJourney,
         metadata: {
           ...(draft as any).metadata,
+          slug: (draft as any).slug || draft.id,
           sixStageJourney: finalJourney,
+          access: draft.access,
         },
         gameType: draft.gameType,
         gameConfig: {
@@ -3733,7 +4568,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     borderRadius: '1rem', border: '1px solid #e2e8f0',
   } : {
     position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 401,
-    width: '100%', maxWidth: '700px',
+    width: '100%', maxWidth: showInlinePreview ? 'min(1280px, 100vw)' : '700px',
     background: '#f8fafc',
     borderLeft: '1px solid #e2e8f0',
     display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -3743,172 +4578,58 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   const body = (
     <>
       <div style={containerStyle}>
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1rem 1.5rem',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#fff',
-          flexShrink: 0,
-        }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#0f172a' }}>
-                {readOnly ? 'Xem trạm học' : isEdit ? 'Chỉnh sửa trạm học' : 'Tạo trạm học mới'}
-              </div>
-              {readOnly && (
-                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#92400e', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '0.375rem', padding: '0.125rem 0.5rem' }}>
-                  Chỉ xem
-                </span>
-              )}
-              {!readOnly && isEdit && archived && (
-                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#ea580c', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '0.375rem', padding: '0.125rem 0.5rem' }}>
-                  Đang ẩn
-                </span>
-              )}
-            </div>
-            {draft.title && (
-              <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.125rem' }}>
-                {draft.title}
-              </div>
-            )}
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs font-bold text-muted">Cấu trúc trạm học:</span>
-              <select
-                disabled={readOnly || isIslandCourse}
-                value={lessonFormat}
-                onChange={(e) => {
-                  const format = e.target.value as LessonFormat
-                  setLessonFormat(format)
-                  if (format === 'aiki-rule-5steps') {
-                    if (!isAikiRuleLesson(draft.learnCards)) {
-                      setDraft((d) => ({ ...d, lessonFormat: format, learnCards: createAikiRuleLearnCards() }))
-                    } else {
-                      setDraft((d) => ({ ...d, lessonFormat: format }))
-                    }
-                    setActiveSection('stage-0')
-                  } else {
-                    setDraft((d) => ({ ...d, lessonFormat: format }))
-                    setActiveSection('content')
-                  }
-                }}
-                className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-3 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                {isIslandCourse ? (
-                  <option value="aiki-island-6steps">Khóa học · 6 chặng Mục tiêu → Hoàn thành</option>
-                ) : (
-                  <>
-                    <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước riêng</option>
-                    <option value="standard">Khám phá tiêu chuẩn</option>
-                  </>
-                )}
-              </select>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <button
-              type="button"
-              onClick={() => setShowFullPreview(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-extrabold text-brand-700 hover:bg-brand-100"
-            >
-              <Eye size={14} /> Xem toàn bộ
-            </button>
-            {isIslandCourse && activeSection.startsWith('stage-') && (
-              <button
-                type="button"
-                onClick={() => setShowInlinePreview((value) => !value)}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-extrabold transition',
-                  showInlinePreview
-                    ? 'border-sky-300 bg-sky-100 text-sky-900'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-                )}
-                aria-pressed={showInlinePreview}
-              >
-                <Split size={14} /> {showInlinePreview ? 'Ẩn xem trước' : 'Xem song song'}
-              </button>
-            )}
-            {/* Progress indicator — chỉ có nghĩa khi edit/create, ẩn khi chỉ xem */}
-            {!readOnly && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: '#64748b' }}>
-                <span style={{ color: readiness.complete ? '#10b981' : '#f97316', fontWeight: 700 }}>
-                  {readiness.completed}/{readiness.total}
-                </span>
-                <span>bước</span>
-              </div>
-            )}
-            {/* WHY: Ẩn archive buttons hoàn toàn khi readOnly=true — tránh 403. */}
-            {!readOnly && isEdit && (
-              archived ? (
-                <button
-                  type="button"
-                  onClick={onRestore}
-                  style={{ padding: '0.375rem 0.75rem', border: '1px solid #6ee7b7', background: '#ecfdf5', borderRadius: '0.5rem', color: '#059669', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  ↩ Khôi phục
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onArchive}
-                  style={{ padding: '0.375rem 0.75rem', border: '1px solid #fca5a5', background: '#fff1f2', borderRadius: '0.5rem', color: '#dc2626', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer' }}
-                >
-                  🗃 Ẩn bài
-                </button>
-              )
-            )}
-            <button
-              type="button"
-              id={`${uid}-drawer-close`}
-              onClick={requestClose}
-              style={{ padding: '0.5rem', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '0.5rem', color: '#64748b', cursor: 'pointer' }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-
-        {/* Section tabs */}
-        <div className="overflow-x-auto scroll-smooth flex items-center gap-1.5 px-4 py-2 bg-white border-b border-border shrink-0 custom-scrollbar">
-          {(isIslandCourse ? ISLAND_6_STAGE_SECTIONS : (lessonFormat === 'aiki-rule-5steps' ? AIKI_SECTIONS : STANDARD_SECTIONS)).map((section) => {
-            const isActive = activeSection === section.id
-            const complete = sectionStatus(section.id)
-            return (
-              <button
-                key={section.id}
-                type="button"
-                onClick={() => setActiveSection(section.id)}
-                className={cn(
-                  "shrink-0 min-w-max flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap",
-                  isActive
-                    ? "bg-brand-50 text-brand-700 border-2 border-brand-300 shadow-2xs font-black"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
-                )}
-              >
-                {complete
-                  ? <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                  : <Circle size={13} className={cn("shrink-0", isActive ? "text-brand-500" : "text-slate-300")} />
-                }
-                <span>{section.label}</span>
-                {!complete && sectionMissing(section.id).length > 0 && (
-                  <span className="grid min-w-5 place-items-center rounded-full bg-sun-100 px-1 text-[10px] font-extrabold text-warning shrink-0">
-                    {sectionMissing(section.id).length}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {recovery && (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sun-200 bg-sun-50 px-6 py-3 text-sm">
-            <div><strong className="text-sun-900">Có bản nháp chưa lưu</strong><span className="ml-2 text-muted">lúc {new Date(recovery.savedAt).toLocaleString('vi-VN')}</span></div>
-            <div className="flex gap-2">
-              <button type="button" className="rounded-lg border border-border bg-white px-3 py-2 text-xs font-bold" onClick={() => { window.sessionStorage.removeItem(draftStorageKey); setRecovery(null) }}>Bỏ bản nháp</button>
-              <button type="button" className="rounded-lg bg-brand-600 px-3 py-2 text-xs font-extrabold text-white" onClick={() => { setDraft(recovery.draft); setRecovery(null); showToast('Đã khôi phục nội dung đang soạn', 'success') }}>Khôi phục</button>
-            </div>
-          </div>
-        )}
+        <LectureDrawerHeader
+          uid={uid}
+          draft={draft}
+          isEdit={isEdit}
+          readOnly={readOnly}
+          archived={archived}
+          isIslandCourse={isIslandCourse}
+          lessonFormat={lessonFormat}
+          customJourneyStages={draft.customJourneyStages}
+          activeSection={activeSection}
+          readiness={readiness}
+          showInlinePreview={showInlinePreview}
+          recovery={recovery}
+          draftStorageKey={draftStorageKey}
+          onRestore={onRestore}
+          onArchive={onArchive}
+          onRequestClose={requestClose}
+          onShowFullPreview={() => setShowFullPreview(true)}
+          onToggleInlinePreview={() => setShowInlinePreview((value) => !value)}
+          onFormatChange={(format) => {
+            setLessonFormat(format)
+            if (format === 'aiki-rule-5steps') {
+              if (!isAikiRuleLesson(draft.learnCards)) {
+                setDraft((d) => ({ ...d, lessonFormat: format, learnCards: createAikiRuleLearnCards() }))
+              } else {
+                setDraft((d) => ({ ...d, lessonFormat: format }))
+              }
+              setActiveSection('stage-0')
+            } else {
+              setDraft((d) => ({ ...d, lessonFormat: format }))
+              if (draft.customJourneyStages && draft.customJourneyStages.length >= 3 && activeSection.startsWith('stage-')) {
+                // keep current active stage
+              } else {
+                setActiveSection('content')
+              }
+            }
+          }}
+          onSelectSection={(sec) => setActiveSection(sec)}
+          onDiscardRecovery={() => {
+            window.sessionStorage.removeItem(draftStorageKey)
+            setRecovery(null)
+          }}
+          onApplyRecovery={() => {
+            if (recovery) {
+              setDraft(recovery.draft)
+              setRecovery(null)
+              showToast('Đã khôi phục nội dung đang soạn', 'success')
+            }
+          }}
+          sectionStatus={sectionStatus}
+          sectionMissing={sectionMissing}
+        />
 
         {/* Content area — scrollable */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem', background: '#f8fafc' }}>
@@ -3923,87 +4644,268 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
           {/* ── BASICS ── */}
           {activeSection === 'basics' && (
-            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,.85fr)]">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-3 text-sm font-semibold leading-relaxed text-sky-900">
-                <strong>Thông tin trạm định hướng toàn bộ bài học.</strong> Câu hỏi khởi động, mục tiêu, game, thực hành và thử thách phải cùng kiểm tra một nội dung.
-              </div>
-              <FormRow label="Tên trạm học *">
-                <input
-                  type="text" id={`${uid}-title`}
-                  value={draft.title}
-                  readOnly={readOnly}
-                  onChange={(e) => set('title', e.target.value)}
-                  placeholder="VD: AI học từ dữ liệu như thế nào?"
-                  style={inputStyle}
-                />
-              </FormRow>
-              <FormRow label="Đường dẫn (slug) *" hint="Tự động từ tên, có thể chỉnh">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>/</span>
-                  <input
-                    type="text" id={`${uid}-slug`}
-                    value={draft.id}
-                    readOnly={readOnly}
-                    onChange={(e) => set('id', e.target.value)}
-                    placeholder="ten-bai-hoc"
-                    style={{ ...inputStyle, flex: 1 }}
-                  />
-                </div>
-                {draft.id && !/^[a-z0-9-]{3,64}$/.test(draft.id) && (
-                  <div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>
-                    ⚠️ Chỉ dùng chữ thường, số và gạch ngang (3–64 ký tự)
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-10 place-items-center rounded-xl bg-brand-600 text-white shadow-xs">
+                    <BookOpen size={20} />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-lg text-brand-950">Thông tin trạm học</h3>
+                    <p className="mt-0.5 text-xs font-semibold text-brand-800">
+                      Định hướng toàn bộ bài học: tiêu đề, đường dẫn, mục tiêu và kỹ năng trọng tâm.
+                    </p>
                   </div>
-                )}
-              </FormRow>
-              <FormRow label="Kỹ năng trọng tâm *">
-                <input
-                  type="text" value={draft.skill}
-                  readOnly={readOnly}
-                  onChange={(e) => set('skill', e.target.value)}
-                  placeholder="VD: Hiểu cách AI học từ dữ liệu"
-                  style={inputStyle}
-                />
-              </FormRow>
-              <FormRow label="Câu hỏi khởi động *" hint="Hook kích thích tò mò">
-                <textarea
-                  value={draft.hook}
-                  readOnly={readOnly}
-                  onChange={(e) => set('hook', e.target.value)}
-                  placeholder="VD: Làm thế nào một cỗ máy có thể nhận ra khuôn mặt bạn?"
-                  rows={3} style={textareaStyle}
-                />
-              </FormRow>
-              <FormRow label="Hôm nay con sẽ đạt được gì? *" hint="Mỗi mục tiêu 1 dòng">
-                <textarea
-                  value={draft.goalsText}
-                  readOnly={readOnly}
-                  onChange={(e) => set('goalsText', e.target.value)}
-                  placeholder={"Hiểu AI học từ dữ liệu\nPhân biệt dữ liệu tốt và xấu\nBiết tại sao dữ liệu đa dạng quan trọng"}
-                  rows={4} style={textareaStyle}
-                />
-              </FormRow>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <FormRow label="Thời lượng">
-                  <input type="text" readOnly={readOnly} value={draft.duration} onChange={(e) => set('duration', e.target.value)} placeholder="VD: 30 phút" style={inputStyle} />
-                </FormRow>
-                <FormRow label="Phần thưởng">
-                  <input type="text" readOnly={readOnly} value={draft.reward} onChange={(e) => set('reward', e.target.value)} placeholder="VD: Huy hiệu Nhà Khoa Học" style={inputStyle} />
-                </FormRow>
-              </div>
-              <FormRow label="Video bài học">
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <Youtube size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                  <input
-                    type="url" readOnly={readOnly} value={draft.videoUrl}
-                    onChange={(e) => set('videoUrl', e.target.value)}
-                    placeholder="https://youtube.com/..."
-                    style={{ ...inputStyle, flex: 1 }}
-                  />
                 </div>
-              </FormRow>
               </div>
-              <StudentBasicsPreview draft={draft} />
+
+              <div className={cn('grid items-start gap-5 transition-all', showInlinePreview ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,.85fr)]' : 'lg:grid-cols-[minmax(0,1fr)_56px]')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <FormRow label="Tên trạm học *">
+                    <input
+                      type="text" id={`${uid}-title`}
+                      value={draft.title}
+                      readOnly={readOnly}
+                      onChange={(e) => set('title', e.target.value)}
+                      placeholder="VD: Bài 1.2 — Bốn chiếc chìa khoá"
+                      style={inputStyle}
+                    />
+                  </FormRow>
+                  <FormRow label="Đường dẫn (slug) *" hint="VD: bai-1-1-mot-tu-hay-nam-tu">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>/</span>
+                      <input
+                        type="text" id={`${uid}-slug`}
+                        value={(draft as any).slug ?? ''}
+                        readOnly={readOnly}
+                        onChange={(e) => set('slug', e.target.value)}
+                        placeholder="ten-bai-hoc"
+                        style={{ ...inputStyle, flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => set('slug', slugifyAuthoringId(draft.title))}
+                        className="rounded-lg bg-sky-100 px-2.5 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-200 transition whitespace-nowrap cursor-pointer"
+                        title="Tự sinh đường dẫn không dấu từ tên trạm học"
+                      >
+                        ⚡ Tự tạo
+                      </button>
+                    </div>
+                    {(draft as any).slug && !/^[a-z0-9-]{3,64}$/.test((draft as any).slug) && (
+                      <div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>
+                        ⚠️ Chỉ dùng chữ thường, số và gạch ngang (3–64 ký tự)
+                      </div>
+                    )}
+                  </FormRow>
+                  <FormRow label="Kỹ năng trọng tâm *">
+                    <input
+                      type="text" value={draft.skill}
+                      readOnly={readOnly}
+                      onChange={(e) => set('skill', e.target.value)}
+                      placeholder="VD: Hiểu cách AI học từ dữ liệu"
+                      style={inputStyle}
+                    />
+                  </FormRow>
+                  <FormRow label="Khẩu hiệu / Lời dẫn khởi động *" hint="Khẩu hiệu ngắn gọn hoặc câu hỏi kích thích tò mò">
+                    <textarea
+                      value={draft.hook}
+                      readOnly={readOnly}
+                      onChange={(e) => set('hook', e.target.value)}
+                      placeholder="VD: Tả càng rõ, AKI vẽ càng đúng!"
+                      rows={3} style={textareaStyle}
+                    />
+                  </FormRow>
+                  <FormRow label="Mục tiêu bài học đạt được *" hint="Hôm nay con sẽ đạt được gì? - Mỗi mục tiêu cốt lõi 1 dòng">
+                    <textarea
+                      value={draft.goalsText}
+                      readOnly={readOnly}
+                      onChange={(e) => set('goalsText', e.target.value)}
+                      placeholder={"Hiểu AI học từ dữ liệu\nPhân biệt dữ liệu tốt và xấu\nBiết tại sao dữ liệu đa dạng quan trọng"}
+                      rows={4} style={textareaStyle}
+                    />
+                  </FormRow>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <FormRow label="Thời lượng">
+                      <input type="text" readOnly={readOnly} value={draft.duration} onChange={(e) => set('duration', e.target.value)} placeholder="VD: 30 phút" style={inputStyle} />
+                    </FormRow>
+                    <FormRow label="Phần thưởng trạm học">
+                      <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 font-medium leading-relaxed">
+                        <span className="text-base shrink-0">⭐</span>
+                        <span>Đánh giá 1–3 Sao (tương ứng 30/60/100 XP) tự động theo 6 bước học tập (Lý thuyết, Bài test, AI Studio).</span>
+                      </div>
+                    </FormRow>
+                  </div>
+                  {isIslandCourse ? (
+                    <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 shadow-sm">
+                      <p className="text-xs font-bold leading-relaxed text-sky-800 flex items-start gap-2">
+                        <span className="text-base shrink-0">💡</span>
+                        <span>
+                          <strong>Lưu ý:</strong> Đối với bài học Đảo AIKids, Video bài giảng, ảnh bìa và các phân đoạn mốc thời gian được biên soạn trực tiếp tại <strong>Chặng 3 (Video bài học)</strong>.
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <FormRow label="Video bài học">
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <Youtube size={16} color="#ef4444" style={{ flexShrink: 0 }} />
+                        <input
+                          type="url" readOnly={readOnly} value={draft.videoUrl}
+                          onChange={(e) => set('videoUrl', e.target.value)}
+                          placeholder="https://youtube.com/..."
+                          style={{ ...inputStyle, flex: 1 }}
+                        />
+                      </div>
+                    </FormRow>
+                  )}
+
+                  {/* Card điều khiển Quyền truy cập & Học thử */}
+                  <div className="rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="grid size-8 place-items-center rounded-xl bg-amber-100 text-amber-700 font-bold text-sm">
+                          🛡️
+                        </span>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900">Quyền truy cập & Học thử</h4>
+                          <p className="text-xs text-slate-500">Cấu hình chế độ mở khóa và học thử riêng cho bài học này</p>
+                        </div>
+                      </div>
+                      <span className={cn(
+                        'rounded-full px-2.5 py-0.5 text-xs font-bold',
+                        (draft.access?.mode ?? 'inherit') === 'inherit' && 'bg-amber-100 text-amber-800',
+                        draft.access?.mode === 'free_trial' && 'bg-emerald-100 text-emerald-800',
+                        draft.access?.mode === 'plan_required' && 'bg-indigo-100 text-indigo-800',
+                        draft.access?.mode === 'locked' && 'bg-rose-100 text-rose-800',
+                      )}>
+                        {(draft.access?.mode ?? 'inherit') === 'inherit' && '🟡 Kế thừa'}
+                        {draft.access?.mode === 'free_trial' && '🟢 Học thử'}
+                        {draft.access?.mode === 'plan_required' && '🔒 Gói 129k'}
+                        {draft.access?.mode === 'locked' && '⛔ Đang khóa'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {/* 1. inherit */}
+                      <button
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => updateAccess({ mode: 'inherit', minPlanTier: 0 })}
+                        className={cn(
+                          'flex flex-col items-start rounded-xl border-2 p-3 text-left transition cursor-pointer',
+                          (draft.access?.mode ?? 'inherit') === 'inherit'
+                            ? 'border-amber-400 bg-amber-50/70 shadow-xs'
+                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900">
+                          <span>🟡</span> Kế thừa từ Khóa học
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-600 leading-snug">
+                          Theo chính sách chung của Khóa học (Free hoặc Yêu cầu gói).
+                        </p>
+                      </button>
+
+                      {/* 2. free_trial */}
+                      <button
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => updateAccess({ mode: 'free_trial', minPlanTier: 0, trialBadge: draft.access?.trialBadge || 'Học thử' })}
+                        className={cn(
+                          'flex flex-col items-start rounded-xl border-2 p-3 text-left transition cursor-pointer',
+                          draft.access?.mode === 'free_trial'
+                            ? 'border-emerald-500 bg-emerald-50 shadow-xs'
+                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-emerald-900">
+                          <span>🟢</span> Cho phép Học Thử Miễn Phí
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-600 leading-snug">
+                          Học sinh được học miễn phí bài này ngay cả khi chưa mua gói.
+                        </p>
+                      </button>
+
+                      {/* 3. plan_required */}
+                      <button
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => updateAccess({ mode: 'plan_required', minPlanTier: 1 })}
+                        className={cn(
+                          'flex flex-col items-start rounded-xl border-2 p-3 text-left transition cursor-pointer',
+                          draft.access?.mode === 'plan_required'
+                            ? 'border-indigo-500 bg-indigo-50 shadow-xs'
+                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-indigo-900">
+                          <span>🔒</span> Yêu cầu Gói Thuê Bao
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-600 leading-snug">
+                          Tier 1: Yêu cầu Gói Hội Viên AIKids 129k để mở khóa bài học này.
+                        </p>
+                      </button>
+
+                      {/* 4. locked */}
+                      <button
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => updateAccess({ mode: 'locked' })}
+                        className={cn(
+                          'flex flex-col items-start rounded-xl border-2 p-3 text-left transition cursor-pointer',
+                          draft.access?.mode === 'locked'
+                            ? 'border-rose-400 bg-rose-50 shadow-xs'
+                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-rose-900">
+                          <span>⛔</span> Tạm khóa
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-600 leading-snug">
+                          Tạm khóa bài học với thông báo tùy chỉnh cho học sinh.
+                        </p>
+                      </button>
+                    </div>
+
+                    {/* Extra config fields based on mode */}
+                    {draft.access?.mode === 'free_trial' && (
+                      <div className="mt-3 pt-3 border-t border-emerald-100">
+                        <label className="block text-xs font-bold text-emerald-900 mb-1">
+                          Huy hiệu học thử (Trial Badge):
+                        </label>
+                        <input
+                          type="text"
+                          disabled={readOnly}
+                          value={draft.access?.trialBadge ?? 'Học thử'}
+                          onChange={(e) => updateAccess({ trialBadge: e.target.value })}
+                          placeholder="VD: Học thử, Trải nghiệm miễn phí..."
+                          className="w-full rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-emerald-500"
+                        />
+                      </div>
+                    )}
+
+                    {draft.access?.mode === 'locked' && (
+                      <div className="mt-3 pt-3 border-t border-rose-100">
+                        <label className="block text-xs font-bold text-rose-900 mb-1">
+                          Lý do tạm khóa hiển thị cho học sinh:
+                        </label>
+                        <input
+                          type="text"
+                          disabled={readOnly}
+                          value={draft.access?.lockedReason ?? ''}
+                          onChange={(e) => updateAccess({ lockedReason: e.target.value })}
+                          placeholder="VD: Bài học đang được giáo viên cập nhật..."
+                          className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-rose-500"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {showInlinePreview ? (
+                  <StudentBasicsPreview draft={deferredDraft} onCollapse={() => setShowInlinePreview(false)} />
+                ) : (
+                  <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
+                )}
+              </div>
             </div>
           )}
 
@@ -4015,7 +4917,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
 
             return (
-              <div className={cn('grid min-w-0 items-start gap-5', showInlinePreview && 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]')}>
+              <div className={cn('grid min-w-0 items-start gap-5 transition-all', showInlinePreview ? 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]' : 'xl:grid-cols-[minmax(0,1fr)_56px]')}>
                 <div className="flex min-w-0 flex-col gap-4">
                   {/* Header chặng 6 bước */}
                   <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
@@ -4456,78 +5358,206 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
                   {stageIndex === 4 && (
                     <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-black uppercase text-slate-700">Tên chủ thể tranh (Subject Name)</label>
-                          <input
-                            type="text"
-                            value={currentJourney.stage5_practice.subjectName}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => ({ ...j, stage5_practice: { ...j.stage5_practice, subjectName: val } }))
-                            }}
-                            className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-bold text-text"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-black uppercase text-slate-700">Huy hiệu bài (Badge)</label>
-                          <input
-                            type="text"
-                            value={currentJourney.stage5_practice.badge}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => ({ ...j, stage5_practice: { ...j.stage5_practice, badge: val } }))
-                            }}
-                            className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="block text-xs font-black uppercase text-slate-700">Khẩu hiệu / Thần chú của AKI (Motto)</label>
-                          <button
-                            type="button"
-                            onClick={() => previewAikiVoice(4, currentJourney.stage5_practice.akiMotto)}
-                            className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
-                          >
-                            <Volume2 size={13} />
-                            <span>Nghe thử giọng AKI</span>
-                          </button>
+                      {/* BỘ CHUYỂN ĐỔI GAME ENGINE THỰC HÀNH SÁNG TẠO (CREATIVE ENGINE SELECTOR) */}
+                      {(() => {
+                        const selectedEngineMode = currentJourney.stage5_practice.creativeEngineMode || 'magic-keys'
+                        const currentEngine = CREATIVE_ENGINES.find((e) => e.mode === selectedEngineMode) || CREATIVE_ENGINES[0]
+
+                        return (
+                          <div className="rounded-2xl border-2 border-brand-200 bg-gradient-to-r from-brand-50/90 via-purple-50/50 to-amber-50/60 p-4 shadow-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                              {/* Bên trái */}
+                              <div className="flex items-center flex-wrap gap-2">
+                                <span className="text-base">🎨</span>
+                                <h4 className="font-display text-xs sm:text-sm font-black text-brand-950 uppercase tracking-wide">
+                                  Game Engine Thực Hành:
+                                </h4>
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-brand-200/80 px-2.5 py-0.5 text-[11px] font-bold text-brand-900 shadow-2xs">
+                                  <span>{currentEngine.icon}</span> <span>{currentEngine.title}</span>
+                                </span>
+                                <span className="rounded-full bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 shadow-2xs uppercase tracking-wider">
+                                  Đang dùng
+                                </span>
+                              </div>
+
+                              {/* Bên phải */}
+                              <button
+                                type="button"
+                                onClick={() => setIsEngineSelectorExpanded(!isEngineSelectorExpanded)}
+                                className="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-xl border border-brand-300/80 bg-white/90 px-3 py-1.5 text-xs font-black text-brand-900 hover:bg-white hover:border-brand-400 active:scale-95 transition shadow-2xs cursor-pointer"
+                              >
+                                <span>{isEngineSelectorExpanded ? 'Thu gọn' : 'Đổi Game Engine'}</span>
+                                {isEngineSelectorExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                              </button>
+                            </div>
+
+                            {/* Vùng nội dung chi tiết (Mô tả và lưới 7 nút) */}
+                            {isEngineSelectorExpanded && (
+                              <div className="animate-in fade-in duration-200 pt-3 border-t border-brand-200/60 mt-3 space-y-3">
+                                <p className="text-[11px] font-medium text-slate-600">
+                                  Chuyển đổi linh hoạt giữa 7 cơ chế chơi — Mọi nội dung (chủ thể, huy hiệu, thần chú AKI, món đồ bé vẽ) đều được tự động đồng bộ và giữ nguyên trọn vẹn!
+                                </p>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2">
+                                  {CREATIVE_ENGINES.map((eng) => {
+                                    const isSelected = selectedEngineMode === eng.mode
+                                    return (
+                                      <button
+                                        key={eng.mode}
+                                        type="button"
+                                        onClick={() => {
+                                          const currentMotto = (currentJourney.stage5_practice.akiMotto || '').trim()
+                                          const isDefaultOrEmpty =
+                                            !currentMotto ||
+                                            Object.values(ENGINE_DEFAULT_MOTTOS).some(
+                                              (motto) => motto.trim() === currentMotto
+                                            )
+                                          const nextMotto = isDefaultOrEmpty
+                                            ? ENGINE_DEFAULT_MOTTOS[eng.mode] || currentMotto
+                                            : currentMotto
+
+                                          updateSixStage((j) => {
+                                            const nextPractice = {
+                                              ...j.stage5_practice,
+                                              creativeEngineMode: eng.mode,
+                                              akiMotto: nextMotto,
+                                              ...(eng.mode === 'creative-notebook' ? { practiceParts: [], notebookConfig: j.stage5_practice.notebookConfig || DEFAULT_NOTEBOOK_CONFIGS['3.1'] } : {}),
+                                            }
+                                            if (eng.mode === 'magic-keys' && nextPractice.fourKeysOptions) {
+                                              const fk = nextPractice.fourKeysOptions
+                                              const autoLocked = [
+                                                fk.what?.[0],
+                                                fk.how?.[0],
+                                                fk.action?.[0],
+                                                fk.where?.[0],
+                                              ].filter(Boolean) as string[]
+                                              if (autoLocked.length > 0) {
+                                                nextPractice.lockedFeatures = autoLocked
+                                              }
+                                            }
+                                            return {
+                                              ...j,
+                                              stage5_practice: nextPractice,
+                                            }
+                                          })
+                                          showToast(`Đã chọn Game Engine Thực Hành: ${eng.title}!`, 'success')
+                                        }}
+                                        className={cn(
+                                          'flex flex-col items-center text-center p-2.5 rounded-xl border transition cursor-pointer select-none relative',
+                                          isSelected
+                                            ? cn(eng.activeBorder, 'shadow-clay-sm')
+                                            : 'border-border/70 bg-white/70 hover:bg-white hover:border-slate-300'
+                                        )}
+                                      >
+                                        {isSelected && (
+                                          <span className={cn(
+                                            'absolute -top-2 left-1/2 -translate-x-1/2 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-2xs whitespace-nowrap',
+                                            eng.badgeBg
+                                          )}>
+                                            ĐANG CHỌN
+                                          </span>
+                                        )}
+                                        <span className="text-xl mb-1 mt-0.5">{eng.icon}</span>
+                                        <span className="text-[11px] font-black text-slate-900 block leading-tight">
+                                          {eng.shortName}
+                                        </span>
+                                        <span className="text-[9px] font-medium text-slate-500 mt-1 line-clamp-2 leading-snug">
+                                          {eng.desc}
+                                        </span>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()}
+
+                      {/* Khối Lời dẫn thử thách của AKI (Challenge Prompt) */}
+                      <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/50 via-white to-indigo-50/30 p-4 shadow-clay-sm space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                            <span>🎯 Lời dẫn thử thách của AKI (Challenge Prompt)</span>
+                            <span className="text-[10px] font-normal lowercase text-slate-400">
+                              (lời dặn dò giao nhiệm vụ cho bé khi vào xưởng vẽ)
+                            </span>
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const mode = currentJourney.stage5_practice.creativeEngineMode || 'magic-keys'
+                                const defaultMotto = ENGINE_DEFAULT_MOTTOS[mode] || ENGINE_DEFAULT_MOTTOS['magic-keys']
+                                updateSixStage((j) => ({
+                                  ...j,
+                                  stage5_practice: { ...j.stage5_practice, akiMotto: defaultMotto },
+                                }))
+                                showToast('Đã nạp lời dẫn thử thách chuẩn của Engine!', 'success')
+                              }}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+                              title="Nạp lại lời dẫn chuẩn tương ứng với engine đang chọn"
+                            >
+                              <Wand2 size={11} />
+                              <span>🪄 Lời dẫn chuẩn</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                previewAikiVoice(
+                                  4,
+                                  currentJourney.stage5_practice.akiMotto ||
+                                    ENGINE_DEFAULT_MOTTOS[currentJourney.stage5_practice.creativeEngineMode || 'magic-keys']
+                                )
+                              }
+                              className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
+                            >
+                              <Volume2 size={11} />
+                              <span>Nghe thử giọng AKI</span>
+                            </button>
+                          </div>
                         </div>
                         <textarea
                           rows={2}
-                          value={currentJourney.stage5_practice.akiMotto}
+                          value={currentJourney.stage5_practice.akiMotto ?? ''}
+                          placeholder={ENGINE_DEFAULT_MOTTOS[currentJourney.stage5_practice.creativeEngineMode || 'magic-keys']}
                           onChange={(e) => {
                             const val = e.target.value
                             updateSixStage((j) => ({ ...j, stage5_practice: { ...j.stage5_practice, akiMotto: val } }))
                           }}
-                          className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text italic"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-black uppercase text-slate-700">5 Chi tiết vàng khóa cố định (mỗi dòng 1 chi tiết)</label>
-                        <textarea
-                          rows={3}
-                          value={currentJourney.stage5_practice.lockedFeatures.join('\n')}
-                          onChange={(e) => {
-                            const lines = e.target.value.split('\n').map((s) => s.trim()).filter(Boolean)
-                            updateSixStage((j) => ({ ...j, stage5_practice: { ...j.stage5_practice, lockedFeatures: lines } }))
-                          }}
-                          className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
+                          className="w-full rounded-xl border border-sky-200/80 bg-white p-2.5 text-xs font-semibold text-slate-800 italic placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200/50 shadow-inner"
                         />
                       </div>
 
-                      {/* Cấu hình Món đồ bé vẽ & Ngân hàng thẻ 4 Chìa Khóa */}
-                      <PracticePartsAndFourKeysEditor
+                      {/* Cấu hình Món đồ bé vẽ & CMS Động theo Game Engine Thực Hành */}
+                      <Stage5CreativeEngineEditor
                         practice={currentJourney.stage5_practice}
                         onChange={(patch) => {
-                          updateSixStage((j) => ({
-                            ...j,
-                            stage5_practice: {
+                          updateSixStage((j) => {
+                            const nextPractice = {
                               ...j.stage5_practice,
                               ...patch,
-                            },
-                          }))
+                            }
+                            // Tự động đồng bộ lockedFeatures khi ở magic-keys nếu fourKeysOptions thay đổi
+                            if ((nextPractice.creativeEngineMode || 'magic-keys') === 'magic-keys') {
+                              const fk = nextPractice.fourKeysOptions
+                              if (fk) {
+                                const autoLocked = [
+                                  fk.what?.[0],
+                                  fk.how?.[0],
+                                  fk.action?.[0],
+                                  fk.where?.[0],
+                                ].filter(Boolean) as string[]
+                                if (autoLocked.length > 0 && (!nextPractice.lockedFeatures?.length || patch.fourKeysOptions)) {
+                                  nextPractice.lockedFeatures = autoLocked
+                                }
+                              }
+                            }
+                            return {
+                              ...j,
+                              stage5_practice: nextPractice,
+                            }
+                          })
                         }}
                         showToast={showToast}
                       />
@@ -4574,6 +5604,100 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                           className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
                         />
                       </div>
+
+                      {/* Cấu hình Ảnh kiệt tác trong Balo / Ảnh huy hiệu */}
+                      <div>
+                        <label className="block text-xs font-black uppercase text-slate-700">
+                          Ảnh kiệt tác trong Balo / Ảnh huy hiệu (iconUrl)
+                        </label>
+                        <div className="mt-1.5 flex gap-2">
+                          <input
+                            type="text"
+                            value={currentJourney.stage6_completion.rewardBadge.iconUrl || ''}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              updateSixStage((j) => ({
+                                ...j,
+                                stage6_completion: {
+                                  ...j.stage6_completion,
+                                  rewardBadge: { ...j.stage6_completion.rewardBadge, iconUrl: val },
+                                },
+                              }))
+                            }}
+                            placeholder="https://... hoặc tải ảnh lên (mặc định lấy ảnh Chặng 1 nếu để trống)"
+                            className="flex-1 rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
+                          />
+                          <label className="flex items-center gap-1 rounded-xl bg-brand-50 border border-brand-200 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-100 cursor-pointer shrink-0">
+                            <span>📤 Tải ảnh</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0]
+                                if (!file) return
+                                try {
+                                  const res = await uploadCmsCourseMedia({ file, purpose: 'island_stage6_badge', questId: lecture?.id })
+                                  if (res?.url) {
+                                    updateSixStage((j) => ({
+                                      ...j,
+                                      stage6_completion: {
+                                        ...j.stage6_completion,
+                                        rewardBadge: { ...j.stage6_completion.rewardBadge, iconUrl: res.url },
+                                      },
+                                    }))
+                                    showToast('Đã tải ảnh huy hiệu/kiệt tác lên thành công!', 'success')
+                                  }
+                                } catch (err) {
+                                  showToast(`Lỗi tải ảnh: ${err instanceof Error ? err.message : 'Không xác định'}`, 'error')
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-500 font-medium">
+                          💡 Mặc định hiển thị ảnh mục tiêu Chặng 1 ({currentJourney.stage1_goal.imageUrl ? 'đã có' : 'chưa có'}) nếu để trống.
+                        </p>
+                        {(currentJourney.stage6_completion.rewardBadge.iconUrl || currentJourney.stage1_goal.imageUrl) && (
+                          <div className="mt-2 flex items-center gap-3 p-2 bg-amber-50/60 rounded-xl border border-amber-200/80">
+                            <div className="relative w-20 aspect-[4/3] rounded-lg overflow-hidden border border-amber-300 bg-white shrink-0">
+                              <img
+                                src={currentJourney.stage6_completion.rewardBadge.iconUrl || currentJourney.stage1_goal.imageUrl}
+                                alt="Xem trước ảnh kiệt tác/huy hiệu"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="text-xs space-y-0.5 min-w-0 flex-1">
+                              <p className="font-bold text-slate-700 truncate">
+                                {currentJourney.stage6_completion.rewardBadge.iconUrl ? 'Ảnh huy hiệu riêng' : 'Ảnh kế thừa từ Chặng 1 (Mục tiêu)'}
+                              </p>
+                              <p className="text-[11px] text-slate-500 truncate font-mono">
+                                {currentJourney.stage6_completion.rewardBadge.iconUrl || currentJourney.stage1_goal.imageUrl}
+                              </p>
+                            </div>
+                            {currentJourney.stage6_completion.rewardBadge.iconUrl && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateSixStage((j) => ({
+                                    ...j,
+                                    stage6_completion: {
+                                      ...j.stage6_completion,
+                                      rewardBadge: { ...j.stage6_completion.rewardBadge, iconUrl: '' },
+                                    },
+                                  }))
+                                  showToast('Đã xóa ảnh huy hiệu tùy chỉnh (sẽ dùng ảnh Chặng 1)', 'info')
+                                }}
+                                className="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer shrink-0"
+                                title="Xóa ảnh tùy chỉnh, dùng lại ảnh Chặng 1"
+                              >
+                                ✕ Bỏ ảnh riêng
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="block text-xs font-black uppercase text-slate-700">Tên huy hiệu</label>
@@ -4666,17 +5790,17 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         <h4 className="text-sm font-black text-sky-950">Canvas nội dung của chặng</h4>
                         <p className="text-xs font-semibold text-sky-800">Kéo block từ thư viện bên trái, thả vào đúng vị trí và sắp xếp theo thứ tự học sinh sẽ học.</p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         {stageIndex === 1 && !readOnly && (
                           <button
                             type="button"
                             onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer active:scale-95"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
                           >
-                            <Plus size={14} /> + Thêm phương án
+                            <Plus size={14} className="shrink-0" /> + Thêm phương án
                           </button>
                         )}
-                        <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
+                        <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800 shrink-0 whitespace-nowrap">{islandBlocks.length} block</span>
                       </div>
                     </div>
 
@@ -4686,9 +5810,9 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         <button
                           type="button"
                           onClick={() => handleAddModule(stageIndex === 1 ? 'layout-confirm-option' : stageIndex === 2 ? 'video' : 'layout-text', stageIndex)}
-                          className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100 cursor-pointer"
+                          className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100 cursor-pointer shrink-0 whitespace-nowrap"
                         >
-                          <Plus size={14} /> {stageIndex === 1 ? 'Tạo phương án đầu tiên' : 'Tạo block đầu tiên'}
+                          <Plus size={14} className="shrink-0" /> {stageIndex === 1 ? 'Tạo phương án đầu tiên' : 'Tạo block đầu tiên'}
                         </button>
                       </div>
                     )}
@@ -4749,12 +5873,12 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                   </div>
 
                   {/* Nút Điều hướng Chặng */}
-                  <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
+                  <div className="mt-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
                     {stageIndex > 0 ? (
                       <button
                         type="button"
                         onClick={() => setActiveSection(`stage-${stageIndex - 1}` as Section)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[48%] truncate"
                       >
                         ← Chặng trước: {ISLAND_6_STAGE_NAMES[stageIndex - 1]}
                       </button>
@@ -4762,7 +5886,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       <button
                         type="button"
                         onClick={() => setActiveSection('basics')}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[48%] truncate"
                       >
                         ← Thông tin trạm
                       </button>
@@ -4772,7 +5896,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       <button
                         type="button"
                         onClick={() => setActiveSection(`stage-${stageIndex + 1}` as Section)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[50%] truncate"
                       >
                         Chặng tiếp theo: {ISLAND_6_STAGE_NAMES[stageIndex + 1]} ➔
                       </button>
@@ -4782,7 +5906,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         onClick={handleSave}
                         disabled={saving || !readiness.complete}
                         className={cn(
-                          "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95",
+                          "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate",
                           readiness.complete ? "bg-emerald-600 hover:bg-emerald-700 cursor-pointer" : "bg-slate-300 cursor-not-allowed opacity-70"
                         )}
                       >
@@ -4793,37 +5917,55 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 </div>
 
                 {/* Live preview Đảo 6 chặng */}
-                {showInlinePreview && (
-                  <StudentStagePreview
-                    stageIndex={stageIndex}
-                    isIsland={true}
-                    sixStageJourney={currentJourney}
-                    stageCard={islandCard}
-                  />
+                {showInlinePreview ? (() => {
+                  const deferredJourney = deferredDraft.sixStageJourney || resolveIslandSixStageJourney(deferredDraft as any)
+                  const deferredIslandCard = deferredDraft.learnCards[stageIndex]
+                  return (
+                    <StudentStagePreview
+                      stageIndex={stageIndex}
+                      isIsland={true}
+                      sixStageJourney={deferredJourney}
+                      stageCard={deferredIslandCard}
+                      onCollapse={() => setShowInlinePreview(false)}
+                    />
+                  )
+                })() : (
+                  <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
                 )}
               </div>
             )
           })()}
 
-          {/* ── AIKI RULE STAGE (1 of 5) ── */}
-          {!isIslandCourse && lessonFormat === 'aiki-rule-5steps' && activeSection.startsWith('stage-') && (() => {
+          {/* ── AIKI RULE / CUSTOM STAGES (3 to 7) ── */}
+          {!isIslandCourse && (lessonFormat === 'aiki-rule-5steps' || activeSection.startsWith('stage-')) && (() => {
             const stageIndex = parseInt(activeSection.replace('stage-', ''), 10)
+            const customStages = resolveCourseJourneyStages(courseId, lessonFormat, draft.customJourneyStages)
+            const totalStages = customStages.length
             const defaultCards = createAikiRuleLearnCards()
             const card = draft.learnCards[stageIndex] ?? defaultCards[stageIndex]
             if (!card) return null
             const stageBlocks = getStageBlocks(card, stageIndex)
 
-            const stageInfo = [
+            const fallbackIcons = [Clapperboard, BrainCircuit, Lightbulb, ScanSearch, Trophy, Sparkles, Award]
+            const ruleStageInfo = [
               { title: '1. Tình huống', icon: Clapperboard, desc: 'Mở đầu bằng câu chuyện/tình huống gần gũi kích thích sự tò mò.' },
               { title: '2. Câu đố AIKI', icon: BrainCircuit, desc: 'Thử thách trực giác: Trẻ quan sát 2 tranh vẽ A và B để chọn ra tranh độc nhất.' },
               { title: '3. Quy tắc', icon: Lightbulb, desc: 'Đúc kết bài học thành 1 quy tắc cốt lõi, dễ nhớ cho trẻ.' },
               { title: '4. Giải thích', icon: ScanSearch, desc: 'So sánh trực quan 2 mặt: Kho dữ liệu sao chép của AI vs Não sáng tạo của con.' },
               { title: '5. Chốt', icon: Trophy, desc: 'Tổng kết và trao huy hiệu/lời động viên tự hào cho bé.' },
-            ][stageIndex] ?? { title: card.title, icon: Lightbulb, desc: '' }
+            ]
+            const stageDef = customStages[stageIndex]
+            const stageInfo = stageDef
+              ? {
+                  title: `${stageDef.index + 1}. ${stageDef.shortTitle || stageDef.title}`,
+                  icon: fallbackIcons[stageIndex % fallbackIcons.length] ?? Lightbulb,
+                  desc: stageDef.desc || card.tip || '',
+                }
+              : (ruleStageInfo[stageIndex] ?? { title: card.title, icon: Lightbulb, desc: '' })
             const StageIcon = stageInfo.icon
 
             return (
-              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]">
+              <div className={cn('grid min-w-0 items-start gap-5 transition-all', showInlinePreview ? 'xl:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]' : 'xl:grid-cols-[minmax(0,1fr)_56px]')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {/* Header chặng */}
                   <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
@@ -4835,7 +5977,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="rounded-md bg-brand-200 px-1.5 py-0.5 text-[10px] font-black text-brand-900 uppercase">
-                              Chặng {stageIndex + 1}/5
+                              Chặng {stageIndex + 1}/{totalStages}
                             </span>
                             <h3 className="font-display text-lg text-brand-950">{stageInfo.title}</h3>
                           </div>
@@ -5037,33 +6179,33 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                   )}
 
                   
-{/* Nút Chặng trước & Chặng tiếp theo ở cuối màn hình */}
-                  <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
+                  {/* Nút Chặng trước & Chặng tiếp theo ở cuối màn hình */}
+                  <div className="mt-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
                     {stageIndex > 0 ? (
                       <button
                         type="button"
                         onClick={() => setActiveSection(`stage-${stageIndex - 1}` as Section)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[48%] truncate cursor-pointer"
                       >
-                        ← Chặng trước: {AIKI_STAGE_NAMES[stageIndex - 1]}
+                        ← Chặng trước: {customStages[stageIndex - 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex - 1] || `Chặng ${stageIndex}`}
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setActiveSection('basics')}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[48%] truncate cursor-pointer"
                       >
                         ← Thông tin trạm
                       </button>
                     )}
 
-                    {stageIndex < 4 ? (
+                    {stageIndex < totalStages - 1 ? (
                       <button
                         type="button"
                         onClick={() => setActiveSection(`stage-${stageIndex + 1}` as Section)}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate cursor-pointer"
                       >
-                        Chặng tiếp theo: {AIKI_STAGE_NAMES[stageIndex + 1]} ➔
+                        Chặng tiếp theo: {customStages[stageIndex + 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex + 1] || `Chặng ${stageIndex + 2}`} ➔
                       </button>
                     ) : (
                       <button
@@ -5071,7 +6213,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         onClick={handleSave}
                         disabled={saving || !readiness.complete}
                         className={cn(
-                          "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95",
+                          "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate",
                           readiness.complete ? "bg-emerald-600 hover:bg-emerald-700 cursor-pointer" : "bg-slate-300 cursor-not-allowed opacity-70"
                         )}
                       >
@@ -5082,7 +6224,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 </div>
 
                 {/* Live preview */}
-                <StudentStagePreview card={card} stageIndex={stageIndex} />
+                {showInlinePreview ? (() => {
+                  const deferredCard = deferredDraft.learnCards[stageIndex] ?? card
+                  return (
+                    <StudentStagePreview
+                      card={deferredCard}
+                      stageIndex={stageIndex}
+                      onCollapse={() => setShowInlinePreview(false)}
+                    />
+                  )
+                })() : (
+                  <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
+                )}
               </div>
             )
           })()}
@@ -5749,216 +6902,31 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
               ))}
               {!readOnly && <button type="button" onClick={addLearnCard} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sky-300 bg-sky-50 px-4 text-sm font-extrabold text-sky-700"><Plus size={18} /> Thêm khối Khám phá</button>}
               </div>
-              <StudentLearnPreview draft={draft} />
+              <StudentLearnPreview draft={deferredDraft} />
             </div>
           )}
 
           {/* ── GAME ── */}
           {lessonFormat === 'standard' && activeSection === 'game' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              {/* Game selector */}
-              <div>
-                <div style={sectionLabelStyle}>Chọn hoạt động Thử cùng Mee</div>
-                <GameSelector
-                  disabled={readOnly}
-                  gameType={draft.gameType}
-                  gameMode={draft.gameMode}
-                  gameAllowedTypes={draft.gameAllowedTypes}
-                  onChangeGameType={(t) => set('gameType', t)}
-                  onChangeGameMode={(m) => set('gameMode', m)}
-                  onChangeAllowedTypes={(types) => set('gameAllowedTypes', types)}
-                />
-              </div>
-
-              {/* Difficulty */}
-              <FormRow label="Độ khó">
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {GAME_DIFFICULTIES.map((d) => (
-                    <button
-                      key={d.id}
-                      type="button"
-                      disabled={readOnly}
-                      onClick={() => set('gameDifficulty', d.id as 'gentle' | 'steady' | 'challenge')}
-                      style={{
-                        flex: 1, padding: '0.5rem 0.25rem', borderRadius: '0.625rem', cursor: readOnly ? 'default' : 'pointer', transition: 'all 0.2s',
-                        background: draft.gameDifficulty === d.id ? '#ede9fe' : '#fff',
-                        color: draft.gameDifficulty === d.id ? '#6d28d9' : '#64748b',
-                        fontSize: '0.8125rem', fontWeight: draft.gameDifficulty === d.id ? 700 : 500,
-                        border: draft.gameDifficulty === d.id ? '1.5px solid #8b5cf6' : '1.5px solid #e2e8f0',
-                      }}
-                    >
-                      <div>{d.label}</div>
-                      <div style={{ fontSize: '0.6875rem', opacity: 0.7 }}>{d.description}</div>
-                    </button>
-                  ))}
-                </div>
-              </FormRow>
-
-              {/* Hướng dẫn và mục tiêu */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <FormRow label="Hướng dẫn chơi *">
-                  <textarea readOnly={readOnly} value={draft.gameInstruction} onChange={(e) => set('gameInstruction', e.target.value)} placeholder="Học sinh cần làm gì trong game?" rows={3} style={textareaStyle} />
-                </FormRow>
-                <FormRow label="Mục tiêu game *">
-                  <textarea readOnly={readOnly} value={draft.gameOutcome} onChange={(e) => set('gameOutcome', e.target.value)} placeholder="Học sinh đạt được gì khi chơi?" rows={3} style={textareaStyle} />
-                </FormRow>
-              </div>
-
-              {/* ── Math-kids: question count + quiz builder ── */}
-              {needsQuizConfig && (
-                <div>
-                  {/* WHY: questionCount per-bài — bài dễ dùng ít câu, bài khó dùng nhiều câu */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <div style={sectionLabelStyle}>Câu hỏi trắc nghiệm (AI Quiz)</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: '#64748b', whiteSpace: 'nowrap' }}>
-                        Số câu:
-                        <input
-                          type="number"
-                          readOnly={readOnly}
-                          min={1} max={30}
-                          value={draft.questionCount}
-                          onChange={(e) => set('questionCount', Math.max(1, Math.min(30, parseInt(e.target.value) || 6)))}
-                          style={{
-                            width: '4rem', padding: '0.25rem 0.5rem',
-                            border: '1.5px solid #e2e8f0', borderRadius: '0.375rem',
-                            fontSize: '0.875rem', textAlign: 'center',
-                            background: '#fff', color: '#0f172a',
-                            outline: 'none',
-                          }}
-                        />
-                      </label>
-                      {!readOnly && (
-                        <button
-                          type="button"
-                          onClick={() => setShowBankPicker(true)}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: '0.375rem',
-                            padding: '0.375rem 0.875rem', borderRadius: '0.5rem',
-                            background: '#ede9fe', color: '#6d28d9',
-                            fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer',
-                            border: '1px solid #c4b5fd',
-                          }}
-                        >
-                          <BookMarked size={13} /> Chọn từ ngân hàng
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <QuizQuestionBuilder
-                    readOnly={readOnly}
-                    questions={quizQuestions}
-                    onChange={setQuizQuestions}
-                  />
-                </div>
-              )}
-
-              {/* ── Catalog game config ── */}
-              {needsCatalogConfig && catalogGameType && (
-                <div>
-                  <div style={sectionLabelStyle}>
-                    Cấu hình {catalogGameType === 'data-runner' ? '🏃 Data Runner' : '🚀 Truth Patrol'}
-                  </div>
-                  <CatalogGameBuilder
-                    readOnly={readOnly}
-                    gameType={catalogGameType}
-                    value={draft.gameStructuredText}
-                    onChange={(raw) => set('gameStructuredText', raw)}
-                  />
-                </div>
-              )}
-            </div>
+            <LectureDrawerGameTab
+              readOnly={readOnly}
+              draft={draft}
+              quizQuestions={quizQuestions}
+              onChangeDraft={set}
+              onChangeQuizQuestions={setQuizQuestions}
+              onOpenBankPicker={() => setShowBankPicker(true)}
+            />
           )}
 
-          {/* ── PRACTICE ── */}
-          {lessonFormat === 'standard' && activeSection === 'practice' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ padding: '0.75rem 1rem', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '0.625rem', fontSize: '0.8125rem', color: '#065f46' }}>
-                <strong>Tự tay làm phải dùng kiến thức vừa học.</strong> Học sinh cần biết làm gì, tạo ra sản phẩm nào, tự kiểm tra theo tiêu chí nào và lưu sản phẩm riêng tư.
-              </div>
-              <FormRow label="Kiểu thực hành *">
-                {!PRACTICE_OPTIONS.some((option) => option.id === draft.practiceKind) && (
-                  <div className="mb-3 rounded-xl border border-sun-200 bg-sun-50 px-4 py-3 text-sm font-semibold text-sun-900" role="alert">
-                    Kiểu cũ <strong>{draft.practiceKind}</strong> chưa có trình biên soạn dữ liệu an toàn. Hãy chọn một kiểu được hỗ trợ bên dưới trước khi lưu lại trạm.
-                  </div>
-                )}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.5rem' }}>
-                  {PRACTICE_OPTIONS.map((opt) => {
-                    const active = draft.practiceKind === opt.id
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        disabled={readOnly}
-                        onClick={() => set('practiceKind', opt.id)}
-                        style={{
-                          padding: '0.625rem 0.75rem', borderRadius: '0.625rem', cursor: readOnly ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s',
-                          background: active ? '#ede9fe' : '#fff',
-                          border: active ? '1.5px solid #8b5cf6' : '1.5px solid #e2e8f0',
-                          color: active ? '#6d28d9' : '#475569',
-                        }}
-                      >
-                        <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{opt.label}</div>
-                        <div style={{ fontSize: '0.6875rem', opacity: 0.7, marginTop: '0.125rem' }}>{opt.description}</div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </FormRow>
-              <PracticeKindPreview draft={draft} compact />
-              <FormRow label="Hướng dẫn thực hành *">
-                <textarea readOnly={readOnly} value={draft.practiceInstruction} onChange={(e) => set('practiceInstruction', e.target.value)} placeholder="Mô tả nhiệm vụ học sinh cần làm..." rows={4} style={textareaStyle} />
-              </FormRow>
-              <FormRow label="Sản phẩm học sinh tạo ra *">
-                <input type="text" readOnly={readOnly} value={draft.product} onChange={(e) => set('product', e.target.value)} placeholder="VD: Bức tranh về AI trong tương lai" style={inputStyle} />
-              </FormRow>
-              {draft.practiceKind === 'ordering' && (
-                <FormRow label="Các thẻ cần sắp xếp *">
-                  <textarea
-                    readOnly={readOnly}
-                    value={draft.practiceConfigText}
-                    onChange={(e) => set('practiceConfigText', e.target.value)}
-                    placeholder={'Mỗi dòng theo mẫu: Tiêu đề | Mô tả\nNhận nhiều ví dụ | AI xem dữ liệu đã chuẩn bị.\nTìm mẫu | AI tìm dấu hiệu thường lặp lại.\nCon người kiểm tra | Con người xem bằng chứng trước khi dùng.'}
-                    rows={7}
-                    style={textareaStyle}
-                  />
-                  <p className="mt-2 text-xs font-semibold text-muted">Thứ tự giáo viên nhập là đáp án đúng. Học sinh sẽ nhận danh sách đã đảo và kéo thả để sắp xếp.</p>
-                </FormRow>
-              )}
-              <FormRow label="Các bước học sinh thực hiện *">
-                <textarea readOnly={readOnly} value={draft.practiceStepsText} onChange={(e) => set('practiceStepsText', e.target.value)} placeholder={'Mỗi dòng là một bước ngắn, ví dụ:\nNhắc lại dấu hiệu vừa học\nTạo bản đầu tiên\nĐối chiếu và sửa sản phẩm\nKiểm tra riêng tư trước khi lưu'} rows={6} style={textareaStyle} />
-              </FormRow>
-              <FormRow label="Tiêu chí sản phẩm đạt chuẩn *">
-                <textarea readOnly={readOnly} value={draft.successCriteriaText} onChange={(e) => set('successCriteriaText', e.target.value)} placeholder={'Mỗi dòng là một tiêu chí học sinh tự kiểm tra\nSản phẩm thể hiện đúng kiến thức của trạm\nCó bằng chứng hoặc lý do lựa chọn\nKhông chứa thông tin riêng tư'} rows={5} style={textareaStyle} />
-              </FormRow>
-              <FormRow label="Câu hỏi nhìn lại *">
-                <input type="text" readOnly={readOnly} value={draft.reflectionPrompt} onChange={(e) => set('reflectionPrompt', e.target.value)} placeholder="Con đã sửa điểm nào sau khi tự kiểm tra? Vì sao?" style={inputStyle} />
-              </FormRow>
-            </div>
-          )}
-
-          {/* ── CHECK ── */}
-          {lessonFormat === 'standard' && activeSection === 'check' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{
-                padding: '0.75rem 1rem',
-                background: '#f0f9ff',
-                border: '1px solid #bae6fd',
-                borderRadius: '0.625rem',
-                fontSize: '0.8125rem',
-                color: '#0369a1',
-              }}>
-                <strong>Thử thách cuối trạm</strong> kiểm tra học sinh đã đạt đúng các mục tiêu phía trên.
-                Mỗi câu hỏi có thể có từ <strong>2–6 đáp án</strong>. Câu hỏi trong game được cấu hình ở phần <strong>Thử cùng Mee</strong>.
-              </div>
-
-              {/* Multi-question check builder */}
-              <CheckQuestionBuilder
-                readOnly={readOnly}
-                questions={draft.checkQuestions}
-                onChange={(qs) => set('checkQuestions', qs)}
-              />
-            </div>
+          {/* ── PRACTICE & CHECK ── */}
+          {lessonFormat === 'standard' && (activeSection === 'practice' || activeSection === 'check') && (
+            <LectureDrawerExerciseTab
+              readOnly={readOnly}
+              draft={draft}
+              activeSubSection={activeSection as 'practice' | 'check'}
+              onChangeDraft={set}
+              practicePreview={<PracticeKindPreview draft={draft} compact />}
+            />
           )}
         </div>
 
@@ -6049,7 +7017,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         onClose={() => setShowFullPreview(false)}
         actions={<button type="button" className="btn-primary" onClick={() => setShowFullPreview(false)}>Tiếp tục biên soạn</button>}
       >
-        <FullStationPreview draft={draft} gameConfig={buildGameConfigForSave()} />
+        <FullStationPreview draft={draft} gameConfig={buildGameConfigForSave()} isIslandCourse={isIslandCourse} />
       </AdventureModal>
     </>
   )

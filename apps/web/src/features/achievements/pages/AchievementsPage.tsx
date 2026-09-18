@@ -363,7 +363,7 @@ export function AchievementsPage() {
   )
 }
 
-function AchievementJourneyModal({ series, onClose }: { series: AchievementSeries | null; onClose: () => void }) {
+export function AchievementJourneyModal({ series, onClose }: { series: AchievementSeries | null; onClose: () => void }) {
   if (!series) return null
   const unlockedCount = series.items.filter((item) => item.unlocked).length
   const nextItem = series.items.find((item) => !item.unlocked)

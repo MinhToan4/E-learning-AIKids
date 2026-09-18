@@ -10,16 +10,11 @@
  * RBAC: teacher (full write) + admin (read-only on class operations)
  */
 import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode, Suspense, lazy } from 'react'
-import { Search, AlertCircle, RefreshCw, Puzzle, ListOrdered, Sparkles, Plus, ChevronDown, ChevronRight } from 'lucide-react'
+import { Search, AlertCircle, RefreshCw, Puzzle, ListOrdered, Sparkles, Plus, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Target, Columns2, Image, BookOpen } from 'lucide-react'
 
-type FeatureBlockItem = {
-  id: string
-  name: string
-  icon: string
-  desc: string
-  badge?: string
-  color: string
-}
+import { FeatureBlockHoverPreview } from '../components/FeatureBlockHoverPreview'
+import type { FeatureBlockItem } from '../types'
+export type { FeatureBlockItem }
 
 export const FEATURE_BLOCKS_CATEGORIES: Array<{
   category: string
@@ -27,65 +22,37 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
   items: FeatureBlockItem[]
 }> = [
   {
-    category: 'Khối Chuẩn Khóa Học',
-    icon: '🧱',
-    items: [
-      { id: 'course-text', name: 'Nội Dung Bài Học', icon: '📖', desc: 'Tiêu đề, nội dung và ghi nhớ của chặng', badge: 'Khóa học', color: 'border-brand-200 bg-brand-50/80 text-brand-950' },
-      { id: 'course-four-keys', name: 'Bộ 4 Chìa Khóa', icon: '🔑', desc: 'Một bộ gồm Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Khóa học', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-    ],
-  },
-  {
-    category: 'Kể Chuyện & Bài Giảng',
-    icon: '📚',
-    items: [
-      { id: 'versus-ab', name: '2 Ảnh Đối Đầu A/B', icon: '🖼️', desc: 'Chọn tranh đúng sai, đối kháng A/B', badge: 'Hot', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-      { id: 'dialogue', name: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Hội thoại bong bóng Zico / Sonet / AIKI', badge: 'Mới', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
-      { id: 'compare', name: 'Bảng So Sánh 2 Cột', icon: '⚖️', desc: 'Đối chiếu AI vs Bộ não sáng tạo', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
-      { id: 'poster', name: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Banner quy tắc to bản, lưu về máy', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
-      { id: 'gallery', name: 'Bộ Sưu Tập Ảnh', icon: '📸', desc: 'Minh họa đa ảnh kèm chú thích chi tiết', color: 'border-teal-200 bg-teal-50/80 text-teal-950' },
-      { id: 'video', name: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube tự phát', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
-      { id: 'voice', name: 'Giọng Đọc & Lipsync', icon: '🎙️', desc: 'Mèo AIKI đọc bài với cử chỉ ngộ nghĩnh', color: 'border-rose-200 bg-rose-50/80 text-rose-950' },
-    ],
-  },
-  {
-    category: 'Bố Cục & Văn Bản',
+    category: 'Bố Cục & Cột Nội Dung',
     icon: '📐',
     items: [
-      { id: 'layout-text', name: '1 Cột Tập Trung', icon: '📖', desc: 'Văn bản lớn ở giữa', color: 'border-slate-200 bg-slate-50/80 text-slate-950' },
-      { id: 'layout-split', name: '2 Cột Chữ + Media', icon: '📰', desc: 'Chữ bên trái, ảnh bên phải', badge: 'Chuẩn', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
-      { id: 'layout-grid', name: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Phân loại ví dụ/ý tưởng', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
-      { id: 'layout-four-keys', name: 'Bố Cục 4 Chìa Khóa', icon: '🔑', desc: '4 ô Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Template', color: 'border-sky-200 bg-gradient-to-r from-sky-50 via-amber-50 to-rose-50 text-slate-950' },
-      { id: 'layout-callout', name: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung bo cong nhấn mạnh', badge: 'Mẹo', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-      { id: 'layout-storyboard', name: 'Chuỗi Storyboard', icon: '🎬', desc: '3 cảnh tuần tự', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
-      { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '🔤', desc: 'Toán học trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
+      { id: 'layout-text', name: '1 Cột Văn Bản (Full Width)', icon: '📖', desc: 'Văn bản lớn ở giữa màn hình hoặc toàn chiều rộng', color: 'border-slate-200 bg-slate-50/80 text-slate-950' },
+      { id: 'layout-split', name: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '📰', desc: 'Chữ bên trái, ảnh bên phải', badge: 'Chuẩn', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
+      { id: 'layout-two-text', name: '2 Cột: 2 Văn Bản Song Song', icon: '📄', desc: 'Hai cột văn bản song song không kèm ảnh', badge: '2 Cột', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
+      { id: 'layout-grid', name: '3 Cột: Lưới 3 Ô Thẻ (Grid 3)', icon: '🍱', desc: 'Phân loại ví dụ hoặc 3 ý tưởng', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
+      { id: 'layout-four-keys', name: '1 Ảnh + 4 Thẻ Chìa Khóa / Đặc Điểm', icon: '🔑', desc: 'Bộ 4 chìa khóa: Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Trọng tâm', color: 'border-amber-200 bg-gradient-to-r from-sky-50 via-amber-50 to-rose-50 text-slate-950' },
+      { id: 'practice-workflow', name: 'Quy Trình 4 Bước Thao Tác', icon: '🪜', desc: 'Bốn bước thao tác có thể sắp xếp', badge: 'Thực hành', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
     ],
   },
   {
-    category: 'Game Engine Bài Học',
-    icon: '🎮',
+    category: 'Hình Ảnh & Đa Phương Tiện',
+    icon: '🖼️',
     items: [
-      { id: 'data-runner', name: 'Data Runner', icon: '🏃', desc: 'Chạy vượt chướng ngại vật nhặt từ khóa', badge: 'Engine', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
-      { id: 'truth-patrol', name: 'Truth Patrol', icon: '🚀', desc: 'Bắn thiên thạch fake news / quét sự thật', badge: 'Engine', color: 'border-cyan-200 bg-cyan-50/80 text-cyan-950' },
-      { id: 'battle-math', name: 'Battle Math', icon: '⚔️', desc: 'Đấu trí toán học thần tốc cùng AIKI', badge: 'Engine', color: 'border-violet-200 bg-violet-50/80 text-violet-950' },
-      { id: 'blockly', name: 'Blockly Code', icon: '🧩', desc: 'Lập trình kéo thả logic tư duy máy tính', badge: 'Engine', color: 'border-orange-200 bg-orange-50/80 text-orange-950' },
+      { id: 'versus-ab', name: '2 Ảnh Đối Đầu A/B (So Sánh Tranh)', icon: '🖼️', desc: 'Chọn tranh đúng sai, đối kháng A/B', badge: 'Hot', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+      { id: 'images', name: 'Bộ Sưu Tập Ảnh (Gallery)', icon: '📸', desc: 'Minh họa đa ảnh kèm chú thích chi tiết', color: 'border-teal-200 bg-teal-50/80 text-teal-950' },
+      { id: 'video', name: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube tự phát có mốc tua', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
+      { id: 'voice', name: 'Giọng Đọc Mèo AIKI & Lipsync', icon: '🎙️', desc: 'Mèo AIKI đọc bài với cử chỉ ngộ nghĩnh', color: 'border-rose-200 bg-rose-50/80 text-rose-950' },
     ],
   },
   {
-    category: 'Game Engine Thực Hành',
-    icon: '🎨',
+    category: 'Khối Tương Tác & Sư Phạm',
+    icon: '💡',
     items: [
-      { id: 'practice-brief', name: 'Đề Bài Thực Hành', icon: '🎯', desc: 'Mục tiêu, sản phẩm và chi tiết bắt buộc', badge: 'Thực hành', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-      { id: 'practice-workflow', name: 'Quy Trình 4 Bước', icon: '🪜', desc: 'Bốn bước thao tác có thể sắp xếp', badge: 'Thực hành', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
-      { id: 'practice-ai-studio', name: 'Xưởng Tạo Tranh AI', icon: '🎨', desc: 'Game engine ghép 4 chìa khóa và tạo sản phẩm', badge: 'Engine', color: 'border-brand-200 bg-brand-50/80 text-brand-950' },
-    ],
-  },
-  {
-    category: 'Luyện Tập & Đánh Giá',
-    icon: '🎯',
-    items: [
-      { id: 'quiz', name: 'Câu Đố Trắc Nghiệm', icon: '❓', desc: 'Kiểm tra nhanh kiến thức vừa khám phá', color: 'border-pink-200 bg-pink-50/80 text-pink-950' },
-      { id: 'ordering', name: 'Kéo Thả Thứ Tự', icon: '🔄', desc: 'Sắp xếp quy trình và các bước thực hiện', color: 'border-yellow-200 bg-yellow-50/80 text-yellow-950' },
-      { id: 'pledge', name: 'Bản Cam Kết Hiệp Sĩ', icon: '🛡️', desc: 'Lời hứa danh dự của Hiệp Sĩ Sáng Tạo AI', badge: 'Ý nghĩa', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
+      { id: 'layout-callout', name: 'Hộp Ghi Nhớ Nổi Bật (Callout)', icon: '💡', desc: 'Khung bo cong nhấn mạnh thông điệp, mẹo học', badge: 'Mẹo', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+      { id: 'compare', name: 'Bảng So Sánh 2 Cột (AI vs Con Người)', icon: '⚖️', desc: 'Đối chiếu AI vs Bộ não sáng tạo của con', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
+      { id: 'dialogue', name: 'Kịch Bản Comic Phân Vai', icon: '💬', desc: 'Hội thoại bong bóng Zico / Sonet / AIKI', badge: 'Mới', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
+      { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '🔤', desc: 'Toán học & tư duy công thức trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
+      { id: 'poster', name: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Banner quy tắc to bản phong cách cuộn giấy', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
+      { id: 'layout-confirm-option', name: 'Thẻ Phương Án Trả Lời (A/B/C)', icon: '🔘', desc: 'Phương án trả lời câu hỏi: Ảnh đơn hoặc Text + Ảnh', badge: 'Khóa học', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
     ],
   },
 ]
@@ -103,8 +70,6 @@ import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, programArtworkHint } from '@/shared/config/assets'
 import { CourseFormModal } from '../components/CourseFormModal'
-import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
-import type { AikiRule } from '@/features/rules/types'
 import { TeacherFeedbackPanel } from '../components/TeacherFeedbackPanel'
 import { CourseVisualRoadmap } from '../components/CourseVisualRoadmap'
 import { CurriculumBreadcrumbs, type CurriculumLevel } from '../components/CurriculumBreadcrumbs'
@@ -117,9 +82,6 @@ const LectureDrawer = lazy(() =>
 )
 const ScriptCourseGeneratorModal = lazy(() =>
   import('../components/ScriptCourseGeneratorModal').then((m) => ({ default: m.ScriptCourseGeneratorModal }))
-)
-const RuleAuthoringDrawer = lazy(() =>
-  import('@/features/rules/components/RuleAuthoringDrawer').then((m) => ({ default: m.RuleAuthoringDrawer }))
 )
 import type { ScriptAnalysisResult } from '../lib/script-analyzer'
 import {
@@ -208,6 +170,9 @@ type CourseLectures = {
   status: string
   ageTrack?: string
   courseKey?: string
+  curriculumKey?: string
+  regionOrder?: number
+  slug?: string
   scopeType?: 'global' | 'organization' | 'personal'
   programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
   tagline?: string
@@ -218,6 +183,8 @@ type CourseLectures = {
   outcomes?: string[]
   credential?: string
   finalAssessment?: string
+  badgeRewardId?: string
+  issuerTitle?: string
   regionUnlockMode?: 'sequential' | 'parallel'
   readOnly?: boolean
   isGatekeeper?: boolean
@@ -247,10 +214,28 @@ function normalizeCourseLectures(value: unknown): CourseLectures | null {
     title: typeof source.title === 'string' && source.title.trim() ? source.title : 'Khóa học chưa đặt tên',
     shortTitle: typeof source.shortTitle === 'string' ? source.shortTitle : '',
     status: typeof source.status === 'string' ? source.status : 'soon',
+    curriculumKey: typeof source.curriculumKey === 'string' ? source.curriculumKey : undefined,
+    regionOrder: typeof source.regionOrder === 'number' ? source.regionOrder : undefined,
+    slug: typeof source.slug === 'string' ? source.slug : undefined,
     lectures: Array.isArray(source.lectures)
       ? source.lectures.filter((lecture): lecture is Lecture => Boolean(lecture && typeof lecture === 'object' && typeof lecture.id === 'string'))
       : [],
   }
+}
+
+const LEGACY_3_REGIONS_SLUGS = new Set(['thung-lung-ai', 'dao-ke-chuyen', 'day-nui-sang-tao'])
+
+function getRegionSortKey(r: CourseLectures): number {
+  const t = (r.title || '').toLowerCase()
+  const k = (r.courseKey || r.id || r.slug || '').toLowerCase()
+  if (t.includes('mười quy tắc') || t.includes('10 quy tắc') || k.includes('rules') || k.includes('quy-tac')) return 0
+  if (t.includes('module 1') || t.includes('thám hiểm') || k.includes('island-1') || k.includes('tham-hiem')) return 1
+  if (t.includes('module 2') || t.includes('hoạ sĩ') || t.includes('hoa si') || k.includes('island-2') || k.includes('hoa-si')) return 2
+  if (t.includes('module 3') || t.includes('nhân vật') || t.includes('nhan vat') || k.includes('island-3') || k.includes('nhan-vat')) return 3
+  if (t.includes('module 4') || t.includes('truyện tranh') || t.includes('truyen tranh') || k.includes('island-4') || k.includes('truyen-tranh')) return 4
+  if (t.includes('module 5') || t.includes('trò chơi') || t.includes('tro choi') || k.includes('island-5') || k.includes('tro-choi')) return 5
+  if (typeof r.regionOrder === 'number') return r.regionOrder
+  return 999
 }
 
 /** Chặn dữ liệu import thiếu mảng làm sập toàn bộ CMS; quyền ghi vẫn do Hub kiểm soát. */
@@ -266,6 +251,63 @@ export function normalizeCurriculumPayload(payload: CurriculumPayload): { course
         const regions = Array.isArray(source.regions)
           ? source.regions.map(normalizeCourseLectures).filter((course): course is CourseLectures => Boolean(course))
           : []
+
+        const isFoundationProgram =
+          source.id === 'aikids-ai-foundation' ||
+          (typeof source.title === 'string' && source.title.includes('Nền tảng AI Kids'))
+
+        if (isFoundationProgram) {
+          const activeRegions: CourseLectures[] = []
+          const legacyRegions: CourseLectures[] = []
+
+          for (const region of regions) {
+            const slug = region.slug || region.courseKey || region.id || ''
+            const isLegacy =
+              LEGACY_3_REGIONS_SLUGS.has(slug) ||
+              region.curriculumKey === 'aikids-3-regions-v1' ||
+              (typeof region.title === 'string' &&
+                (region.title.includes('Thung lũng AI') ||
+                  region.title.includes('Đảo kể chuyện') ||
+                  region.title.includes('Dãy núi sáng tạo')))
+
+            if (isLegacy) {
+              legacyRegions.push(region)
+            } else {
+              activeRegions.push(region)
+            }
+          }
+
+          activeRegions.sort((a, b) => getRegionSortKey(a) - getRegionSortKey(b))
+
+          const mainProgram: LearningProgram = {
+            ...source,
+            id: source.id,
+            title: typeof source.title === 'string' && source.title.trim() ? source.title : 'Nền tảng AI Kids',
+            description: typeof source.description === 'string' ? source.description : '',
+            source: source.source === 'workspace' || source.source === 'creator_marketplace' ? source.source : 'aikid_official',
+            unlockMode: source.unlockMode === 'parallel' ? 'parallel' : 'sequential',
+            readOnly: Boolean(source.readOnly),
+            regions: activeRegions,
+          }
+
+          const result: LearningProgram[] = [mainProgram]
+
+          if (legacyRegions.length > 0) {
+            const legacyProgram: LearningProgram = {
+              id: 'aikids-legacy-archive',
+              title: 'Chương trình Cũ (Lưu trữ)',
+              description: 'Các khoá học và trạm kiến thức phiên bản cũ được lưu trữ.',
+              source: 'aikid_official',
+              unlockMode: 'parallel',
+              readOnly: true,
+              regions: legacyRegions,
+            }
+            result.push(legacyProgram)
+          }
+
+          return result
+        }
+
         const program: LearningProgram = {
           ...source,
           id: source.id,
@@ -355,6 +397,31 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
+const MINI_RAIL_CATEGORIES: Array<{
+  name: string
+  icon: typeof Columns2
+  color: string
+  short: string
+  alias?: string
+}> = [
+  { name: 'Bố Cục & Cột Nội Dung', icon: Columns2, color: 'text-sky-600', short: 'Bố cục' },
+  { name: 'Hình Ảnh & Đa Phương Tiện', icon: Image, color: 'text-purple-600', short: 'Media' },
+  { name: 'Khối Tương Tác & Sư Phạm', icon: Sparkles, color: 'text-amber-600', short: 'Tương tác' },
+]
+
+function getCategorySvgIcon(categoryName: string, size = 14) {
+  switch (categoryName) {
+    case 'Bố Cục & Cột Nội Dung':
+      return <Columns2 size={size} className="text-sky-600" />
+    case 'Hình Ảnh & Đa Phương Tiện':
+      return <Image size={size} className="text-purple-600" />
+    case 'Khối Tương Tác & Sư Phạm':
+      return <Sparkles size={size} className="text-amber-600" />
+    default:
+      return <Sparkles size={size} className="text-brand-600" />
+  }
+}
+
 // WHY: ErrorPanel dùng thay toast cho lỗi API nghiêm trọng —
 // toast tự biến mất trong 3s, user không kịp đọc khi tab trống.
 function ErrorPanel({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -402,11 +469,33 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // ── Stats state ───────────────────────────────────────────
   const [stats, setStats] = useState<ClassStats | null>(null)
 
+  const coursesRef = useRef(courses)
+  coursesRef.current = courses
+  const studentsRef = useRef(students)
+  studentsRef.current = students
+  const statsRef = useRef(stats)
+  statsRef.current = stats
+
   // ── Drawer / Modal state ──────────────────────────────────
   // WHY: Dùng drawer thay vì form inline để giáo viên thấy danh sách trong khi edit
   const [drawerMode, setDrawerMode] = useState<'none' | 'create' | 'edit'>('none')
   const [drawerLecture, setDrawerLecture] = useState<Lecture | null>(null)
-  const [sidebarAuthoringMode, setSidebarAuthoringMode] = useState<'blocks' | 'stations'>('blocks')
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('aikids_teacher_sidebar_collapsed') === 'true'
+    } catch {
+      return false
+    }
+  })
+  const toggleSidebarCollapsed = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem('aikids_teacher_sidebar_collapsed', String(next))
+      } catch {}
+      return next
+    })
+  }
   const [lectureDraftDirty, setLectureDraftDirty] = useState(false)
   const [pendingLectureAction, setPendingLectureAction] = useState<(() => void) | null>(null)
   const [courseModalMode, setCourseModalMode] = useState<'none' | 'create' | 'edit'>('none')
@@ -414,18 +503,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [courseReadiness, setCourseReadiness] = useState<CourseReadiness | null>(null)
   const [checkingCourse, setCheckingCourse] = useState(false)
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    'Kể Chuyện & Bài Giảng': true,
-    'Bố Cục & Văn Bản': true,
-    'Mini-Game Engine': false,
-    'Luyện Tập & Đánh Giá': false,
+    'Bố Cục & Cột Nội Dung': true,
+    'Hình Ảnh & Đa Phương Tiện': true,
+    'Khối Tương Tác & Sư Phạm': true,
   })
   const toggleCategory = useCallback((catName: string) => {
     setOpenCategories((prev) => ({ ...prev, [catName]: !prev[catName] }))
   }, [])
-
-  // ── Golden Rules CMS Drawer State ─────────────────────────
-  const [selectedRuleForDrawer, setSelectedRuleForDrawer] = useState<AikiRule | null>(null)
-  const [showRulePickerModal, setShowRulePickerModal] = useState(false)
+  const [hoveredBlock, setHoveredBlock] = useState<{ item: FeatureBlockItem; rect: DOMRect; category?: string } | null>(null)
 
   // ── AI Script Generator state ─────────────────────────────
   const [showScriptModal, setShowScriptModal] = useState(false)
@@ -532,12 +617,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const lectures = activeCourse?.lectures ?? []
   const isCurrentCourseRule = isAikiRulesCourse(activeCourse)
 
-  const openRuleDrawerForStation = useCallback((stationIndex: number) => {
-    const safeIdx = Math.max(0, Math.min(9, stationIndex))
-    const rule = AIKI_RULES_DATA[safeIdx] || AIKI_RULES_DATA[0]
-    setSelectedRuleForDrawer(rule)
-  }, [])
-
   // ── Filtered arrays (client-side search) ────────────────────
   const filteredStudents = useMemo(() => {
     if (!studentSearch) return students
@@ -639,7 +718,16 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   }, [])
 
   const runLoad = useCallback(async () => {
-    setLoading(true)
+    // SWR (Stale-While-Revalidate): Nếu đã có dữ liệu trước đó, không set loading = true gây giật màn hình
+    const hasExistingData = (tab === 'class' || tab === 'feedback')
+      ? studentsRef.current.length > 0
+      : tab === 'stats'
+        ? statsRef.current !== null
+        : coursesRef.current.length > 0
+
+    if (!hasExistingData) {
+      setLoading(true)
+    }
     setLoadError(null)
     try {
       if (tab === 'class' || tab === 'feedback') await loadClass()
@@ -1002,6 +1090,26 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     })
   }
 
+  const handleOpenRuleCourse = useCallback(() => {
+    const ruleCourse = courses.find((c) => isAikiRulesCourse(c))
+      || programs.flatMap((p) => p.regions).find((r) => isAikiRulesCourse(r))
+    if (!ruleCourse) return
+    const parentProg = programs.find((p) => p.regions.some((r) => r.id === ruleCourse.id))
+    runLectureAction(() => {
+      if (parentProg) {
+        setSelectedProgramId(parentProg.id)
+        setLearningSpaceFilter(parentProg.source)
+        learningSpaceFilterRef.current = parentProg.source
+        setSelectedCourseId(ruleCourse.id)
+        setSearchParams({ programId: parentProg.id, courseId: ruleCourse.id }, { replace: true })
+      } else {
+        setSelectedCourseId(ruleCourse.id)
+        setSearchParams({ courseId: ruleCourse.id }, { replace: true })
+      }
+      closeLectureEditor()
+    })
+  }, [courses, programs, runLectureAction, closeLectureEditor, setSearchParams])
+
   const currentLevel = useMemo<CurriculumLevel>(() => {
     if (drawerMode !== 'none' && selectedCourseId) return 4
     if (selectedProgramId && selectedCourseId) return 3
@@ -1075,7 +1183,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               setCourseModalCourse(null)
             }}
             onOpenScriptGenerator={() => setShowScriptModal(true)}
-            onOpenRulePicker={() => setShowRulePickerModal(true)}
+            onOpenRulePicker={handleOpenRuleCourse}
           />
         )}
 
@@ -1179,17 +1287,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       Đảo Tiên Quyết: Mười Quy Tắc Vàng của Xưởng sáng tạo
                     </h3>
                     <p className="text-xs font-semibold text-amber-800 mt-0.5">
-                      Vùng 1 cửa ngõ bắt buộc. Bấm vào từng trạm bên dưới để mở Form biên soạn Quy Tắc tinh gọn (RuleAuthoringDrawer).
+                      Vùng 1 cửa ngõ bắt buộc. Bấm vào từng trạm bên dưới để mở Focus Studio biên soạn trạm quy tắc.
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowRulePickerModal(true)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400 bg-amber-500 px-3.5 py-2 text-xs font-black text-white hover:bg-amber-600 transition shadow-xs cursor-pointer"
-                >
-                  <span>📜 Chọn trong 10 Quy Tắc Vàng</span>
-                </button>
               </div>
             )}
 
@@ -1199,11 +1300,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               stations={lectures}
               readOnly={!!activeCourse.readOnly}
               onSelectStation={(stationId) => {
-                if (isCurrentCourseRule) {
-                  const stIdx = lectures.findIndex((l) => l.id === stationId)
-                  openRuleDrawerForStation(stIdx >= 0 ? stIdx : 0)
-                  return
-                }
                 const target = lectures.find((l) => l.id === stationId)
                 if (target) {
                   runLectureAction(() => {
@@ -1213,11 +1309,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 }
               }}
               onAddStation={() => {
-                if (isCurrentCourseRule) {
-                  const nextIdx = Math.min(9, lectures.length)
-                  openRuleDrawerForStation(nextIdx)
-                  return
-                }
                 runLectureAction(() => {
                   setDrawerMode('create')
                   setDrawerLecture(null)
@@ -1259,39 +1350,70 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
         {/* CẤP 4: Focus Studio Soạn Trạm (Áp dụng Lazy Loading LectureDrawer) */}
         {currentLevel === 4 && selectedCourseId && (
-          <div className="grid items-start gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
-            {/* Sidebar Trái: Khối tính năng hoặc Danh sách trạm */}
-            <aside className="w-full max-w-[320px] shrink-0 sticky top-20 h-[calc(100vh-6rem)] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white/95 shadow-clay-xs backdrop-blur-xs overflow-hidden" aria-label="Thanh công cụ Focus Studio">
-              <div className="border-b border-border bg-brand-50/60 p-3 shrink-0">
-                <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-border">
+          <div className={cn("grid items-start gap-4 transition-all duration-300", isSidebarCollapsed ? "md:grid-cols-[56px_minmax(0,1fr)]" : "md:grid-cols-[320px_minmax(0,1fr)]")}>
+            {/* Sidebar Trái: Khối tính năng */}
+            <aside className={cn("shrink-0 sticky top-20 h-[calc(100vh-6rem)] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white/95 shadow-clay-xs backdrop-blur-xs overflow-hidden transition-all duration-300", isSidebarCollapsed ? "w-14 max-w-[56px]" : "w-full max-w-[320px]")} aria-label="Thanh công cụ Focus Studio">
+              {isSidebarCollapsed ? (
+                <div className="flex flex-col items-center py-3 gap-2.5 h-full bg-brand-50/50">
                   <button
                     type="button"
-                    onClick={() => setSidebarAuthoringMode('blocks')}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
-                      sidebarAuthoringMode === 'blocks' ? "bg-white text-brand-700 shadow-xs" : "text-muted hover:text-text"
-                    )}
+                    onClick={toggleSidebarCollapsed}
+                    className="p-2 rounded-xl bg-white border border-brand-200 text-brand-700 hover:bg-brand-50 shadow-2xs transition cursor-pointer"
+                    title="Mở rộng menu Khối Tính Năng"
+                    aria-label="Mở rộng menu Khối Tính Năng"
                   >
-                    <Puzzle size={13} />
-                    <span>🧩 Khối Tính Năng</span>
+                    <PanelLeftOpen size={16} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setSidebarAuthoringMode('stations')}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
-                      sidebarAuthoringMode === 'stations' ? "bg-white text-brand-700 shadow-xs" : "text-muted hover:text-text"
-                    )}
-                  >
-                    <ListOrdered size={13} />
-                    <span>📑 Trạm ({lectures.length})</span>
-                  </button>
+                  <div className="w-8 h-px bg-border/80 my-0.5" />
+                  <div className="flex flex-col items-center gap-2 w-full px-1">
+                    {MINI_RAIL_CATEGORIES.map((cat) => {
+                      const Icon = cat.icon
+                      return (
+                        <button
+                          key={cat.name}
+                          type="button"
+                          onClick={() => {
+                            setOpenCategories((prev) => ({
+                              ...prev,
+                              [cat.name]: true,
+                              ...(cat.alias ? { [cat.alias]: true } : {}),
+                            }))
+                            setIsSidebarCollapsed(false)
+                          }}
+                          className="group relative flex size-9 items-center justify-center rounded-xl bg-white border border-border/80 shadow-2xs hover:border-brand-300 hover:bg-brand-50/80 hover:scale-105 transition cursor-pointer"
+                          title={`${cat.name} (Click để mở rộng)`}
+                          aria-label={cat.name}
+                        >
+                          <Icon size={16} className={cn(cat.color, "transition group-hover:scale-110")} />
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="border-b border-border bg-brand-50/60 px-3.5 py-2.5 shrink-0 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="grid size-7 place-items-center rounded-lg bg-brand-600 text-white shadow-2xs shrink-0">
+                        <Puzzle size={15} />
+                      </span>
+                      <h3 className="font-extrabold text-xs text-brand-950 truncate tracking-wide">
+                        🧩 Khối Tính Năng
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={toggleSidebarCollapsed}
+                      className="p-1.5 rounded-xl text-slate-500 hover:text-brand-800 hover:bg-white border border-transparent hover:border-border transition cursor-pointer shrink-0 shadow-2xs"
+                      title="Thu gọn menu khối tính năng"
+                      aria-label="Thu gọn menu khối tính năng"
+                    >
+                      <PanelLeftClose size={16} />
+                    </button>
+                  </div>
 
-              {sidebarAuthoringMode === 'blocks' ? (
-                /* Thư viện khối tính năng kéo thả */
-                <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2.5 p-2 custom-scrollbar" aria-label="Thư viện khối tính năng">
+                  {/* Thư viện khối tính năng kéo thả */}
+                  <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2.5 p-2 custom-scrollbar" aria-label="Thư viện khối tính năng">
                   <div className="rounded-lg border border-brand-200 bg-brand-50/70 p-2 text-xs text-brand-900 shadow-2xs shrink-0">
                     <p className="font-extrabold flex items-center gap-1 text-[10px] uppercase tracking-wider text-brand-900">
                       <Sparkles size={11} className="text-brand-600" />
@@ -1303,10 +1425,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   </div>
 
                   {FEATURE_BLOCKS_CATEGORIES.map((category) => {
-                    const isOpen = openCategories[category.category] ?? category.category === 'Khối Chuẩn Khóa Học'
-                    const visibleItems = isCurrentCourseRule
-                      ? category.items
-                      : category.items.filter((item) => item.id !== 'voice')
+                    const isOpen = openCategories[category.category] ?? true
+                    const visibleItems = category.items
                     return (
                       <div key={category.category} className="rounded-xl border border-border/80 bg-white/80 overflow-hidden shadow-2xs">
                         <button
@@ -1315,7 +1435,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                           className="w-full flex items-center justify-between gap-1.5 px-2.5 py-1.5 text-left bg-slate-50 hover:bg-slate-100/90 transition cursor-pointer border-b border-border/40"
                         >
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="text-xs shrink-0">{category.icon}</span>
+                            <span className="shrink-0">{getCategorySvgIcon(category.category, 14)}</span>
                             <span className="text-[10px] font-black text-slate-800 uppercase tracking-wide truncate">
                               {category.category}
                             </span>
@@ -1335,9 +1455,18 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                                 key={item.id}
                                 draggable
                                 onDragStart={(e) => {
+                                  setHoveredBlock(null)
                                   e.dataTransfer.setData('text/plain', item.id)
                                   e.dataTransfer.effectAllowed = 'copy'
                                 }}
+                                onMouseEnter={(e) => {
+                                  setHoveredBlock({
+                                    item,
+                                    rect: e.currentTarget.getBoundingClientRect(),
+                                    category: category.category,
+                                  })
+                                }}
+                                onMouseLeave={() => setHoveredBlock(null)}
                                 className={cn(
                                   "group min-h-[46px] py-1.5 px-2.5 rounded-xl border flex items-center justify-between gap-2 hover:shadow-xs transition cursor-grab active:cursor-grabbing hover:scale-[1.01]",
                                   item.color
@@ -1378,37 +1507,16 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     )
                   })}
                 </div>
-              ) : (
-                /* Danh sách các trạm trong sidebar */
-                <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2 p-2 custom-scrollbar">
-                  {lectures.map((l, i) => (
-                    <button
-                      key={l.id}
-                      type="button"
-                      onClick={() => {
-                        if (isCurrentCourseRule) {
-                          openRuleDrawerForStation(i)
-                          return
-                        }
-                        runLectureAction(() => {
-                          setDrawerMode('edit')
-                          setDrawerLecture(l)
-                        })
-                      }}
-                      className={cn(
-                        "w-full text-left p-2 rounded-xl text-xs font-bold transition cursor-pointer border",
-                        drawerLecture?.id === l.id
-                          ? "bg-brand-50 border-brand-300 text-brand-900 shadow-2xs"
-                          : "bg-white border-border/70 hover:bg-slate-50 text-slate-700"
-                      )}
-                    >
-                      <span className="block text-[10px] text-muted font-black">Trạm {i + 1}</span>
-                      <span className="block truncate font-extrabold text-slate-900">{l.title}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </aside>
+
+              {/* Card xem trước bố cục mini và hướng dẫn sư phạm khi hover vào khối tính năng */}
+              <FeatureBlockHoverPreview
+                block={hoveredBlock?.item ?? null}
+                anchorRect={hoveredBlock?.rect ?? null}
+                categoryName={hoveredBlock?.category}
+              />
+            </>
+          )}
+        </aside>
 
             {/* Nội dung chính Focus Studio */}
             <main className="min-w-0 flex flex-col gap-3">
@@ -1432,11 +1540,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       value={drawerLecture?.id ?? ''}
                       onChange={(e) => {
                         const targetId = e.target.value
-                        if (isCurrentCourseRule) {
-                          const stIdx = lectures.findIndex((l) => l.id === targetId)
-                          openRuleDrawerForStation(stIdx >= 0 ? stIdx : 0)
-                          return
-                        }
                         const target = lectures.find((l) => l.id === targetId)
                         if (target) {
                           runLectureAction(() => {
@@ -1507,7 +1610,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 }
               >
                 <LectureDrawer
-                  key={drawerMode === 'edit' ? (drawerLecture?.id ?? '__edit__') : '__new__'}
+                  key={selectedCourseId ? `${selectedCourseId}-${drawerMode}` : '__drawer__'}
                   inline
                   courseId={selectedCourseId}
                   readOnly={!!activeCourse?.readOnly}
@@ -1703,8 +1806,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   const tabTitles: Record<TeacherTab, string> = {
     class: 'Lớp học & Học sinh',
-    courses: 'Creator Studio · Lộ trình & Biên soạn trạm',
-    lectures: 'Creator Studio · Lộ trình & Biên soạn trạm',
+    courses: 'CMS · XƯỞNG SOẠN THẢO TRẠM HỌC (Quests & Blocks)',
+    lectures: 'CMS · XƯỞNG SOẠN THẢO TRẠM HỌC (Quests & Blocks)',
     stats: 'Thống kê & Phân tích học tập',
     feedback: 'AI Nhận xét & Báo cáo phụ huynh',
   }
@@ -1718,7 +1821,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // Nhóm 2: Studio Sáng Tạo & Bán Khóa Học Riêng (Creator Studio)
   const creatorStudioNavTabs = [
-    { key: 'courses', label: 'Lộ trình & Soạn trạm', path: '/teacher/courses', icon: CmsCoursesIcon, desc: 'Biên soạn trạm học, AI Script Studio & Canvas kéo thả' },
+    { key: 'courses', label: 'Xưởng Soạn Trạm Học', path: '/teacher/courses', icon: CmsLecturesIcon, desc: 'Biên soạn trạm học, AI Script Studio & Canvas kéo thả' },
   ] as const
 
   function tabContent() {
@@ -1735,87 +1838,109 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     }
   }
 
+  const isCurriculumWorkspace = tab === 'courses' || tab === 'lectures'
+
   return (
     <div className="flex flex-col gap-5">
-      {/* Page header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-wide text-sky-500">
-            {tab === 'courses' || tab === 'lectures'
-              ? 'CMS · Studio Sáng Tạo & Biên Soạn Khóa Học'
-              : 'CMS · Giảng Dạy & Lớp Học (AiKid Chính Thức)'}
+      {/* Page header: Hallmark Soft-Clay Hero Banner */}
+      <header className="rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-0.5 text-xs font-black text-sky-700">
+              <BookOpen size={13} /> {isCurriculumWorkspace ? 'XƯỞNG SOẠN THẢO BÀI GIẢNG 3 CẤP' : 'KHÔNG GIAN GIẢNG VIÊN & LỚP HỌC'}
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              {tabTitles[tab] || 'Studio'}
+            </span>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-black text-text tracking-tight">
+            {isCurriculumWorkspace
+              ? 'Xưởng Soạn Thảo Trạm Học (Quests & Blocks)'
+              : tabTitles[tab]}
+          </h1>
+          <p className="text-xs text-muted max-w-2xl">
+            {isCurriculumWorkspace
+              ? 'Biên soạn nội dung bài giảng, kịch bản trạm học tương tác và kiểm duyệt chất lượng bài học AIKids.'
+              : 'Theo dõi tình hình học tập, quản lý học sinh, giao bài tập và đồng hành cùng phụ huynh.'}
           </p>
-          <h1 className="font-display text-2xl text-text">{tabTitles[tab]}</h1>
         </div>
 
-        {/* Thanh tab inline trên đầu trang: Phân định rõ 2 phân hệ */}
+        {/* Thanh điều hướng Header: Phân định rạch ròi 2 phân hệ độc lập */}
         <nav aria-label="Điều hướng CMS Giảng viên" className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/80 bg-white/95 p-1.5 shadow-2xs backdrop-blur-xs">
-          {/* Nhóm 1: Giảng Dạy & Lớp Học */}
-          <div className="flex items-center gap-1 rounded-xl bg-slate-50/90 p-1 border border-border/60">
-            <span className="hidden xl:inline-block px-2 text-[10px] font-black uppercase tracking-wider text-slate-500">
-              🏫 Giảng Dạy
-            </span>
-            {teachingNavTabs.map((item) => {
-              const Icon = item.icon
-              const isActive = tab === item.key
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => navigate(item.path)}
-                  title={item.desc}
-                  className={cn(
-                    'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer',
-                    isActive
-                      ? 'bg-brand-500 text-white shadow-xs'
-                      : 'text-muted hover:bg-white hover:text-text'
-                  )}
-                >
-                  <Icon size={16} aria-hidden="true" />
-                  <span>{item.label}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Vách ngăn phân cách giữa 2 phân hệ */}
-          <div className="hidden sm:block h-6 w-px bg-border/80 my-auto" />
-
-          {/* Nhóm 2: Studio Sáng Tạo & Bán Khóa Học Riêng (Creator Studio) */}
-          <div className="flex items-center gap-1 rounded-xl bg-amber-50/70 p-1 border border-amber-200/80">
-            <span className="hidden xl:inline-block px-2 text-[10px] font-black uppercase tracking-wider text-amber-700">
-              🎨 Creator Studio
-            </span>
-            {creatorStudioNavTabs.map((item) => {
-              const Icon = item.icon
-              const isActive = tab === 'courses' || tab === 'lectures'
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => navigate(item.path)}
-                  title={item.desc}
-                  className={cn(
-                    'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer',
-                    isActive
-                      ? 'bg-amber-500 text-white shadow-xs'
-                      : 'text-amber-900 hover:bg-white hover:text-amber-950'
-                  )}
-                >
-                  <Icon size={16} aria-hidden="true" />
-                  <span>{item.label}</span>
-                  <span className={cn(
-                    "rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase",
-                    isActive ? "bg-white text-amber-900" : "bg-amber-200/80 text-amber-900"
-                  )}>
-                    Studio
-                  </span>
-                </button>
-              )
-            })}
-          </div>
+          {isCurriculumWorkspace ? (
+            /* Phân hệ 1: Studio Biên Soạn — Chỉ phục vụ tạo bài giảng, lộ trình & trạm học */
+            <div className="flex items-center gap-1.5 flex-wrap rounded-xl bg-amber-50/70 p-1 border border-amber-200/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setCourseModalMode('create')
+                  setCourseModalCourse(null)
+                }}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-white text-amber-900 border border-amber-200 hover:bg-amber-100 shadow-2xs"
+              >
+                <span>+ Tạo Khóa Học Mới</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowScriptModal(true)}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-amber-500 text-white shadow-2xs hover:bg-amber-600"
+              >
+                <span>✨ AI Tạo Kịch Bản</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenRuleCourse}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-white text-amber-900 border border-amber-200 hover:bg-amber-100 shadow-2xs"
+              >
+                <span>📜 10 Quy Tắc Vàng</span>
+              </button>
+              <div className="hidden sm:block h-6 w-px bg-amber-200/80 mx-1" />
+              <button
+                type="button"
+                onClick={() => navigate('/teacher/class')}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer text-amber-900 hover:bg-white/80 hover:text-amber-950"
+                title="Chuyển sang phân hệ Quản lý Lớp học & Học sinh"
+              >
+                <span>🏫 Sang Quản lý Lớp học</span>
+              </button>
+            </div>
+          ) : (
+            /* Phân hệ 2: Quản Lý Lớp Học & Học Sinh — Chuyên theo dõi tiến độ, thống kê, báo cáo phụ huynh */
+            <div className="flex items-center gap-1 flex-wrap rounded-xl bg-slate-50/90 p-1 border border-border/60">
+              {teachingNavTabs.map((item) => {
+                const Icon = item.icon
+                const isActive = tab === item.key
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => navigate(item.path)}
+                    title={item.desc}
+                    className={cn(
+                      'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer',
+                      isActive
+                        ? 'bg-brand-500 text-white shadow-xs'
+                        : 'text-muted hover:bg-white hover:text-text'
+                    )}
+                  >
+                    <Icon size={16} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </button>
+                )
+              })}
+              <div className="hidden sm:block h-6 w-px bg-border/80 mx-1" />
+              <button
+                type="button"
+                onClick={() => navigate('/teacher/courses')}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer text-brand-700 hover:bg-brand-50 hover:text-brand-900"
+                title="Chuyển sang phân hệ Studio Biên Soạn Bài Giảng"
+              >
+                <span>🎨 Sang Studio Biên Soạn</span>
+              </button>
+            </div>
+          )}
         </nav>
-      </div>
+      </header>
 
       {/* Tab content */}
       {tabContent()}
@@ -1886,11 +2011,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       const lecture = lectures.find((item) => item.id === station.id)
                       if (!lecture) return
                       setCourseReadiness(null)
-                      if (isCurrentCourseRule) {
-                        const stIdx = lectures.findIndex((l) => l.id === station.id)
-                        openRuleDrawerForStation(stIdx >= 0 ? stIdx : 0)
-                        return
-                      }
                       runLectureAction(() => { setDrawerLecture(lecture); setDrawerMode('edit') })
                     }}
                   >
@@ -1928,6 +2048,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 outcomesText: (courseModalCourse.outcomes ?? []).join('\n'),
                 credential: courseModalCourse.credential ?? '',
                 finalAssessment: courseModalCourse.finalAssessment ?? '',
+                badgeRewardId: (courseModalCourse as any)?.badgeRewardId ?? 'badge-title-explorer',
+                issuerTitle: (courseModalCourse as any)?.issuerTitle ?? 'AI Kids Creator Academy',
               }
             : null
           }
@@ -1937,57 +2059,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           }}
           onClose={() => { setCourseModalMode('none'); setCourseModalCourse(null) }}
         />
-      )}
-
-      {/* ── Rule Picker Modal (Chọn 1 trong 10 Quy Tắc để soạn) ────────── */}
-      {showRulePickerModal && (
-        <AdventureModal
-          open={showRulePickerModal}
-          title="🛡️ Chọn Quy Tắc Vàng để biên soạn (10 Quy Tắc AIKid)"
-          onClose={() => setShowRulePickerModal(false)}
-        >
-          <div className="space-y-3 p-1">
-            <p className="text-xs text-slate-600 font-medium">
-              Chọn quy tắc cần cập nhật video bài giảng, kịch bản đọc của AKI, poster hoặc bộ câu hỏi ôn tập 2 câu:
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2 max-h-[60vh] overflow-y-auto pr-1">
-              {AIKI_RULES_DATA.map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  onClick={() => {
-                    setShowRulePickerModal(false)
-                    setSelectedRuleForDrawer(r)
-                  }}
-                  className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-amber-400 hover:bg-amber-50/60 transition-all cursor-pointer shadow-2xs"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 font-black text-xs text-amber-900">
-                    {r.id}
-                  </span>
-                  <div>
-                    <span className="text-[10px] font-black uppercase text-amber-700">{r.code}</span>
-                    <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-1">{r.shortTitle}</h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{r.goal}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </AdventureModal>
-      )}
-
-      {/* ── RuleAuthoringDrawer (Lazy) ─────────────────────────── */}
-      {selectedRuleForDrawer && (
-        <Suspense fallback={null}>
-          <RuleAuthoringDrawer
-            rule={selectedRuleForDrawer}
-            isOpen={!!selectedRuleForDrawer}
-            onClose={() => setSelectedRuleForDrawer(null)}
-            onSave={(updatedRule) => {
-              showToast(`✅ Đã lưu Quy tắc ${updatedRule.id}: ${updatedRule.shortTitle}`, 'success')
-            }}
-          />
-        </Suspense>
       )}
 
       {/* ── ScriptCourseGeneratorModal (Lazy) ────────────────────── */}

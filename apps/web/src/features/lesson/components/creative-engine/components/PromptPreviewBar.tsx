@@ -2,7 +2,7 @@ import React from 'react'
 import { RotateCcw } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { playInstantSound } from '../../LessonInteractiveSidebar'
-import type { CreativeBlock } from '../types'
+import type { CreativeBlock, CreativeEngineMode } from '../types'
 
 export interface PromptPreviewBarProps {
   blocks?: CreativeBlock[]
@@ -13,6 +13,7 @@ export interface PromptPreviewBarProps {
   stepQuickPrompt?: string
   stepQuickLabel?: string
   onQuickPromptClick?: (prompt: string) => void
+  mode?: CreativeEngineMode
 }
 
 export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
@@ -24,6 +25,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
   stepQuickPrompt,
   stepQuickLabel,
   onQuickPromptClick,
+  mode = 'magic-keys',
 }) => {
   const handleReset = () => {
     playInstantSound('click')
@@ -42,7 +44,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
     <div
       data-testid="prompt-preview-bar"
       className={cn(
-        'flex flex-col justify-center gap-1.5 bg-linear-to-r from-amber-50/90 via-white to-amber-50/80 border-2 border-amber-200/90 rounded-2xl px-3 py-2 shadow-clay-xs text-left transition-all min-h-[66px]',
+        'flex flex-col justify-center gap-1.5 bg-linear-to-r from-amber-50/90 via-white to-amber-50/80 border-2 border-amber-200/90 rounded-2xl px-3 py-2 shadow-clay-xs text-left transition-all min-h-[58px] sm:min-h-[64px]',
         className
       )}
     >
@@ -53,7 +55,13 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
           <span>Câu lệnh:</span>
           {blocks.length > 0 && (
             <span className="text-[10px] font-bold text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded-md border border-amber-200">
-              {blocks.length}/4 Chìa Khóa
+              {mode === 'magic-keys'
+                ? `${blocks.length}/4 Chìa Khóa`
+                : mode === 'prompt-doctor'
+                ? blocks.length >= 2
+                  ? 'Đã kê đơn thuốc ✨'
+                  : 'Chờ kê đơn thuốc 📋'
+                : `${blocks.length} Thẻ ghép`}
             </span>
           )}
         </div>
@@ -99,7 +107,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
         {blocks && blocks.length > 0 ? (
           <div
             data-testid="prompt-linked-blocks"
-            className="flex flex-wrap items-baseline gap-1 py-0.5"
+            className="flex flex-wrap items-baseline gap-1 py-0.5 max-h-[72px] sm:max-h-[82px] overflow-y-auto pr-1 scrollbar-thin [scrollbar-width:thin]"
           >
             {blocks.map((block, idx) => {
               const isFirst = idx === 0
@@ -108,6 +116,8 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
                 'color-shape': 'bg-amber-100/90 text-amber-950 border-amber-300',
                 action: 'bg-emerald-100/90 text-emerald-950 border-emerald-300',
                 context: 'bg-rose-100/90 text-rose-950 border-rose-300',
+                modifier: 'bg-purple-100/90 text-purple-950 border-purple-300',
+                expression: 'bg-amber-100/90 text-amber-950 border-amber-300',
               }
               const colorClass =
                 colorMap[block.category] || 'bg-amber-100/90 text-amber-950 border-amber-300'
@@ -123,15 +133,26 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
                   <span
                     data-testid={`prompt-block-chip-${block.id || idx}`}
                     className={cn(
-                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold text-xs sm:text-[13px] transition-all hover:scale-102 shadow-2xs',
+                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold text-[11px] sm:text-xs max-w-[260px] sm:max-w-[340px] truncate transition-all hover:scale-102 shadow-2xs',
                       colorClass
                     )}
-                    title={`Chìa Khóa ${keyNumber}: ${block.text || block.label}`}
+                    title={
+                      mode === 'magic-keys'
+                        ? `Chìa Khóa ${keyNumber}: ${block.text || block.label}`
+                        : mode === 'prompt-doctor'
+                        ? block.category === 'subject'
+                          ? `Bệnh án câu lệnh cũ: ${block.text || block.label}`
+                          : `Đơn thuốc chữa lành: ${block.text || block.label}`
+                        : block.label || block.text
+                    }
                   >
                     <span className="text-[10px] opacity-75 font-black shrink-0">
-                      🔑 {keyNumber}
+                      {mode === 'magic-keys' && `🔑 ${keyNumber}`}
+                      {mode === 'prompt-doctor' && block.category === 'subject' && '📜 Bệnh án: '}
+                      {mode === 'prompt-doctor' && block.category !== 'subject' && '💊 Đơn thuốc: '}
+                      {mode !== 'magic-keys' && mode !== 'prompt-doctor' && (block.icon || '✨')}
                     </span>
-                    <span className="leading-snug">{block.text || block.label}</span>
+                    <span className="leading-snug truncate">{block.text || block.label}</span>
                   </span>
                 </React.Fragment>
               )

@@ -8,13 +8,31 @@
  * Validation readiness từ courseDraftReadiness.
  */
 import { useState, useId } from 'react'
-import { X, CheckCircle2, Circle, AlertCircle } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import {
+  X, CheckCircle2, Circle, AlertCircle,
+  Award, Check, Sparkles, ShieldCheck,
+} from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useToast } from '@/shared/hooks/useToast'
+import { rewardBadgeThumbnail } from '../../achievements/achievement-badge-assets'
 import {
   courseDraftReadiness, slugifyAuthoringId,
   type CourseDraft,
 } from '../lib/authoring'
+
+export const RECOGNITION_BADGES = [
+  { id: 'badge-title-explorer', name: 'Nhà Thám Hiểm Nhí', desc: 'Dành cho bé chinh phục khám phá' },
+  { id: 'badge-title-first-light', name: 'Ánh Sáng Đầu Tiên', desc: 'Bắt đầu hành trình công nghệ' },
+  { id: 'badge-title-star-keeper', name: 'Người Giữ Sao', desc: 'Chăm chỉ hoàn thành xuất sắc' },
+  { id: 'badge-title-firestarter', name: 'Ngọn Lửa Sáng Tạo', desc: 'Ý tưởng đột phá, truyền cảm hứng' },
+  { id: 'badge-title-young-legend', name: 'Huyền Thoại Nhí', desc: 'Tinh thông kỹ năng đỉnh cao' },
+  { id: 'badge-title-idea-hunter', name: 'Thợ Săn Ý Tưởng AI', desc: 'Làm chủ công cụ AI Studio' },
+  { id: 'badge-title-world-architect', name: 'Kiến Trúc Sư Thế Giới', desc: 'Tạo lập dự án toàn diện' },
+  { id: 'badge-title-curious-seeker', name: 'Tò Mò Học Hỏi', desc: 'Không ngừng đặt câu hỏi' },
+  { id: 'badge-code-comet', name: 'Sao Chổi Lập Trình', desc: 'Tư duy logic & giải thuật' },
+  { id: 'badge-kind-collaborator', name: 'Đồng Đội Tuyệt Vời', desc: 'Hợp tác & chia sẻ cùng bạn' },
+] as const
 
 type Props = {
   course: {
@@ -31,7 +49,10 @@ type Props = {
     outcomesText: string
     credential: string
     finalAssessment: string
+    badgeRewardId?: string
+    issuerTitle?: string
     isGatekeeper?: boolean
+    accessPolicy?: 'free' | 'plan_required' | 'paid' | string
   } | null   // null = create mode
   hasExistingGatekeeper?: boolean
   onSaved: (courseId?: string) => void
@@ -45,11 +66,18 @@ function emptyDraft(): CourseDraft {
     id: '', title: '', shortTitle: '', tagline: '', description: '',
     productLabel: '', ageTrack: '', courseKey: '', durationLabel: '',
     skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
+    badgeRewardId: 'badge-title-explorer',
+    issuerTitle: 'AI Kids Creator Academy',
   }
 }
 
 export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved, onClose }: Props) {
   const [draft, setDraft] = useState<CourseDraft>(() => course ? { ...course } : emptyDraft())
+  const [accessPolicy, setAccessPolicy] = useState<'free' | 'plan_required' | 'paid'>(() => {
+    const raw = (course as any)?.accessPolicy
+    if (raw === 'plan_required' || raw === 'paid') return raw
+    return 'free'
+  })
   const [isGatekeeper, setIsGatekeeper] = useState<boolean>(() => {
     if (course?.id === 'aiki-rules' || course?.title?.toLowerCase().includes('quy tắc')) return true
     return false
@@ -61,11 +89,27 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
 
   const isEdit = !!course
   const automaticCredential = `Chứng nhận hoàn thành ${draft.shortTitle.trim() || draft.title.trim() || 'giáo trình'}`
-  const automaticCompletion = 'Hoàn thành tất cả các trạm bắt buộc và nộp sản phẩm cuối giáo trình.'
+  const defaultFinalAssessment = 'Hoàn thành tất cả các trạm bắt buộc và nộp sản phẩm cuối giáo trình.'
+
+  // Quản lý state cho Tab 3: Hoàn thành & Vinh danh
+  const [isCustomCredential, setIsCustomCredential] = useState<boolean>(() => {
+    if (!course?.credential) return false
+    const auto = `Chứng nhận hoàn thành ${course.shortTitle?.trim() || course.title?.trim() || 'giáo trình'}`
+    return course.credential.trim() !== '' && course.credential.trim() !== auto
+  })
+  const [customCredential, setCustomCredential] = useState<string>(() => course?.credential || automaticCredential)
+  const [badgeRewardId, setBadgeRewardId] = useState<string>(() => course?.badgeRewardId || 'badge-title-explorer')
+  const [finalAssessment, setFinalAssessment] = useState<string>(() => course?.finalAssessment || defaultFinalAssessment)
+  const [issuerTitle, setIssuerTitle] = useState<string>(() => course?.issuerTitle || 'AI Kids Creator Academy')
+
+  const effectiveCredential = isCustomCredential ? (customCredential.trim() || automaticCredential) : automaticCredential
+
   const readiness = courseDraftReadiness({
     ...draft,
-    credential: automaticCredential,
-    finalAssessment: automaticCompletion,
+    credential: effectiveCredential,
+    finalAssessment,
+    badgeRewardId,
+    issuerTitle,
   })
 
   function set<K extends keyof CourseDraft>(key: K, value: CourseDraft[K]) {
@@ -92,9 +136,12 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
         durationLabel: draft.durationLabel || undefined,
         skills: draft.skillsText.split('\n').map((s) => s.trim()).filter(Boolean),
         outcomes: draft.outcomesText.split('\n').map((s) => s.trim()).filter(Boolean),
-        credential: automaticCredential,
-        finalAssessment: automaticCompletion,
+        credential: isCustomCredential ? customCredential : automaticCredential,
+        finalAssessment,
+        badgeRewardId,
+        issuerTitle,
         isGatekeeper,
+        accessPolicy,
       }
 
       if (isEdit) {
@@ -123,27 +170,29 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
   const TABS = [
     { id: 'basics' as const, label: 'Trang giới thiệu', step: readiness.steps[0] },
     { id: 'outcomes' as const, label: 'Mục tiêu & sản phẩm', step: readiness.steps[1] },
-    { id: 'recognition' as const, label: 'Hoàn thành', step: readiness.steps[2] },
+    { id: 'recognition' as const, label: 'Hoàn thành & Vinh danh', step: readiness.steps[2] },
   ]
 
-  return (
+  const modalContent = (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 500,
+      position: 'fixed', inset: 0, zIndex: 9999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(6px)', padding: '1rem',
+      background: 'rgba(15,23,42,0.3)', padding: '1rem',
+      overflowY: 'auto',
     }}>
       <div style={{
-        width: '100%', maxWidth: '600px', maxHeight: '90vh',
+        width: '100%', maxWidth: '720px', maxHeight: 'min(92vh, 850px)',
         borderRadius: '1.25rem', overflow: 'hidden',
         background: '#fff',
         border: '1px solid #e2e8f0',
         boxShadow: '0 20px 60px rgba(15,23,42,0.18)',
         display: 'flex', flexDirection: 'column',
+        margin: 'auto',
       }}>
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1.25rem 1.5rem', borderBottom: '1px solid #e2e8f0',
+          padding: '1.25rem 1.5rem', borderBottom: '1px solid #e2e8f0', flexShrink: 0,
           background: '#f8fafc',
         }}>
           <div>
@@ -190,7 +239,7 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem', background: '#f8fafc' }}>
+        <div style={{ flex: '1 1 0%', minHeight: 0, overflowY: 'auto', padding: '1.25rem 1.5rem', background: '#f8fafc' }}>
           {/* Missing fields alert */}
           {(readiness.steps.find((s) => s.id === (activeTab === 'basics' ? 'basics' : activeTab === 'outcomes' ? 'outcomes' : 'recognition'))?.missing?.length ?? 0) > 0 && (
             <div style={{
@@ -284,6 +333,85 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
                 </div>
               </div>
 
+              {/* Cấu hình Quyền truy cập khóa học (Access Policy) */}
+              <div style={{
+                padding: '0.875rem', borderRadius: '0.75rem',
+                background: '#f8fafc', border: '1px solid #cbd5e1',
+                marginBottom: '0.25rem',
+              }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                  Chính Sách Quyền Truy Cập (Access Policy) *
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                  {/* Option 1: Free */}
+                  <button
+                    type="button"
+                    onClick={() => setAccessPolicy('free')}
+                    style={{
+                      padding: '0.625rem 0.5rem', borderRadius: '0.5rem', textAlign: 'center',
+                      border: accessPolicy === 'free' ? '2px solid #10b981' : '1px solid #e2e8f0',
+                      background: accessPolicy === 'free' ? '#ecfdf5' : '#fff',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#065f46' }}>
+                      🎁 Miễn phí (Free)
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#047857', marginTop: '0.125rem' }}>
+                      Mở tự do cho học sinh
+                    </div>
+                  </button>
+
+                  {/* Option 2: Plan Required */}
+                  <button
+                    type="button"
+                    onClick={() => setAccessPolicy('plan_required')}
+                    style={{
+                      padding: '0.625rem 0.5rem', borderRadius: '0.5rem', textAlign: 'center',
+                      border: accessPolicy === 'plan_required' ? '2px solid #6366f1' : '1px solid #e2e8f0',
+                      background: accessPolicy === 'plan_required' ? '#eef2ff' : '#fff',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#3730a3' }}>
+                      🔒 Gói Hội Viên
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#4338ca', marginTop: '0.125rem' }}>
+                      Yêu cầu Subscription
+                    </div>
+                  </button>
+
+                  {/* Option 3: Paid */}
+                  <button
+                    type="button"
+                    onClick={() => setAccessPolicy('paid')}
+                    style={{
+                      padding: '0.625rem 0.5rem', borderRadius: '0.5rem', textAlign: 'center',
+                      border: accessPolicy === 'paid' ? '2px solid #f59e0b' : '1px solid #e2e8f0',
+                      background: accessPolicy === 'paid' ? '#fef3c7' : '#fff',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#92400e' }}>
+                      🏷️ Mua lẻ (Paid)
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#b45309', marginTop: '0.125rem' }}>
+                      Thanh toán theo khóa
+                    </div>
+                  </button>
+                </div>
+
+                {accessPolicy === 'plan_required' && (
+                  <div style={{
+                    marginTop: '0.625rem', padding: '0.625rem 0.75rem', borderRadius: '0.5rem',
+                    background: '#eef2ff', border: '1px solid #c7d2fe',
+                    color: '#3730a3', fontSize: '0.75rem', lineHeight: 1.5,
+                  }}>
+                    💡 <strong>Gợi ý Gói Hội Viên AIKids 129k:</strong> Khóa học sẽ yêu cầu học sinh đăng ký <strong>Gói Hội Viên AIKids 129k</strong> để mở khóa các bài học (ngoại trừ các bài được cấu hình Học Thử miễn phí).
+                  </div>
+                )}
+              </div>
+
               <FormField label="Tên vùng/khóa học *">
                 <input type="text" value={draft.title} onChange={(e) => set('title', e.target.value)} placeholder="VD: AI Nhí — Tập 1: Khám Phá Thế Giới AI" style={inputStyle} />
               </FormField>
@@ -346,16 +474,287 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
           {/* ── RECOGNITION ── */}
           {activeTab === 'recognition' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <div className="rounded-2xl border border-mint-200 bg-mint-50 p-4">
-                <p className="text-xs font-extrabold uppercase tracking-wide text-success">Chứng nhận tự động</p>
-                <p className="mt-2 font-display text-xl text-text">{automaticCredential}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted">Hệ thống tự điền tên học sinh, giáo trình và ngày hoàn thành khi học sinh đạt đủ điều kiện.</p>
+              {/* 1. Tên Chứng Chỉ */}
+              <div style={{
+                padding: '1rem', borderRadius: '0.875rem',
+                background: '#f8fafc', border: '1px solid #e2e8f0',
+                display: 'flex', flexDirection: 'column', gap: '0.625rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    📜 Tên Chứng Chỉ Số Trao Tặng *
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomCredential(false)}
+                      style={{
+                        padding: '0.3125rem 0.625rem', borderRadius: '0.5rem',
+                        fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                        border: !isCustomCredential ? '1.5px solid #6366f1' : '1px solid #cbd5e1',
+                        background: !isCustomCredential ? '#eef2ff' : '#fff',
+                        color: !isCustomCredential ? '#4338ca' : '#64748b',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      Dùng tên tự động
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCustomCredential(true)
+                        if (!customCredential.trim()) setCustomCredential(automaticCredential)
+                      }}
+                      style={{
+                        padding: '0.3125rem 0.625rem', borderRadius: '0.5rem',
+                        fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                        border: isCustomCredential ? '1.5px solid #6366f1' : '1px solid #cbd5e1',
+                        background: isCustomCredential ? '#eef2ff' : '#fff',
+                        color: isCustomCredential ? '#4338ca' : '#64748b',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      Tự đặt tên chứng chỉ riêng
+                    </button>
+                  </div>
+                </div>
+
+                {isCustomCredential ? (
+                  <input
+                    type="text"
+                    value={customCredential}
+                    onChange={(e) => setCustomCredential(e.target.value)}
+                    placeholder="VD: Chứng chỉ Chuyên Gia Nhí Sáng Tạo AI"
+                    style={inputStyle}
+                  />
+                ) : (
+                  <div style={{
+                    padding: '0.625rem 0.75rem', borderRadius: '0.625rem',
+                    background: '#ecfdf5', border: '1px solid #a7f3d0',
+                    color: '#065f46', fontSize: '0.8125rem', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  }}>
+                    <Check size={14} color="#059669" />
+                    <span>{automaticCredential}</span>
+                  </div>
+                )}
               </div>
-              <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
-                <p className="text-sm font-extrabold text-sky-700">Điều kiện hệ thống</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">{automaticCompletion}</p>
+
+              {/* 2. Huy Hiệu Vinh Danh (Achievement Badge Picker) */}
+              <div style={{
+                padding: '1rem', borderRadius: '0.875rem',
+                background: '#f8fafc', border: '1px solid #e2e8f0',
+                display: 'flex', flexDirection: 'column', gap: '0.625rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Award size={16} color="#6366f1" />
+                    <span>Huy Hiệu Vinh Danh (Achievement Badge) *</span>
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    Huy hiệu Soft-Clay 3D chính thức
+                  </span>
+                </div>
+                <div style={{
+                  display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(125px, 1fr))',
+                  gap: '0.625rem', maxHeight: '220px', overflowY: 'auto', padding: '0.25rem',
+                }}>
+                  {RECOGNITION_BADGES.map((b) => {
+                    const isSelected = badgeRewardId === b.id
+                    const thumb = rewardBadgeThumbnail(b.id)
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setBadgeRewardId(b.id)}
+                        style={{
+                          position: 'relative',
+                          padding: '0.625rem 0.5rem',
+                          borderRadius: '0.75rem',
+                          border: isSelected ? '2px solid #6366f1' : '1.5px solid #e2e8f0',
+                          background: isSelected ? '#eef2ff' : '#fff',
+                          boxShadow: isSelected ? '0 4px 12px rgba(99, 102, 241, 0.18)' : '0 1px 2px rgba(0,0,0,0.03)',
+                          cursor: 'pointer',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {isSelected && (
+                          <div style={{
+                            position: 'absolute', top: 4, right: 4,
+                            width: 18, height: 18, borderRadius: '50%',
+                            background: '#6366f1', color: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <Check size={12} strokeWidth={3} />
+                          </div>
+                        )}
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={b.name}
+                            style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.12))' }}
+                          />
+                        ) : (
+                          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Award size={22} color="#6366f1" />
+                          </div>
+                        )}
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? '#312e81' : '#1e293b', marginTop: '0.375rem', lineHeight: 1.25 }}>
+                          {b.name}
+                        </span>
+                        <span style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: '0.125rem', lineHeight: 1.25 }}>
+                          {b.desc}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-              <p className="text-xs leading-relaxed text-muted">Giáo viên không cần cấu hình thủ công. Số trạm thực tế và trạng thái hoàn thành được backend kiểm tra khi cấp chứng nhận.</p>
+
+              {/* 3. Tiêu Chuẩn Hoàn Thành */}
+              <div style={{
+                padding: '1rem', borderRadius: '0.875rem',
+                background: '#f8fafc', border: '1px solid #e2e8f0',
+                display: 'flex', flexDirection: 'column', gap: '0.625rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>
+                    🎯 Tiêu Chuẩn Hoàn Thành *
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Chọn nhanh hoặc tùy chỉnh</span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                  {[
+                    { label: '100% trạm bắt buộc', text: 'Hoàn thành 100% các trạm học bắt buộc trong giáo trình.' },
+                    { label: '100% trạm + 1 tác phẩm AI Studio', text: 'Hoàn thành 100% các trạm học bắt buộc và nộp ít nhất 1 tác phẩm sáng tạo từ AI Studio.' },
+                    { label: '100% trạm + Test cuối khóa (≥ 80%)', text: 'Hoàn thành 100% các trạm học và đạt tối thiểu 80% điểm bài kiểm tra cuối khóa.' },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setFinalAssessment(preset.text)}
+                      style={{
+                        padding: '0.3125rem 0.625rem', borderRadius: '0.5rem',
+                        fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                        border: finalAssessment === preset.text ? '1.5px solid #6366f1' : '1px solid #cbd5e1',
+                        background: finalAssessment === preset.text ? '#eef2ff' : '#fff',
+                        color: finalAssessment === preset.text ? '#4338ca' : '#475569',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      ⚡ {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  value={finalAssessment}
+                  onChange={(e) => setFinalAssessment(e.target.value)}
+                  placeholder="Nhập tiêu chuẩn hoàn thành khóa học..."
+                  rows={2}
+                  style={textareaStyle}
+                />
+              </div>
+
+              {/* 4. Đơn Vị Cấp Chứng Nhận */}
+              <FormField label="🏛️ Đơn Vị Cấp Chứng Nhận *" hint="Hiển thị trên chứng nhận số">
+                <input
+                  type="text"
+                  value={issuerTitle}
+                  onChange={(e) => setIssuerTitle(e.target.value)}
+                  placeholder="AI Kids Creator Academy"
+                  style={inputStyle}
+                />
+              </FormField>
+
+              {/* 5. Mô Phỏng Chứng Nhận Số (Live Certificate Preview) */}
+              <div style={{
+                padding: '1.125rem',
+                borderRadius: '1rem',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%)',
+                border: '2px solid #e0e7ff',
+                boxShadow: '0 8px 24px rgba(99, 102, 241, 0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+                display: 'flex', flexDirection: 'column', gap: '0.75rem',
+                position: 'relative',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0e7ff', paddingBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Sparkles size={16} color="#eab308" />
+                    <span style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6366f1' }}>
+                      Chứng Nhận Số Kỹ Thuật Số (Mô Phỏng Thực Tế)
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', color: '#059669', background: '#ecfdf5', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontWeight: 600 }}>
+                    <ShieldCheck size={12} /> Đã xác thực trên hệ thống
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{
+                    width: 68, height: 68, flexShrink: 0,
+                    borderRadius: '1rem',
+                    background: 'radial-gradient(circle, #f5f3ff 0%, #ede9fe 100%)',
+                    border: '1.5px solid #ddd6fe',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(124, 58, 237, 0.12)',
+                  }}>
+                    {rewardBadgeThumbnail(badgeRewardId) ? (
+                      <img
+                        src={rewardBadgeThumbnail(badgeRewardId)}
+                        alt="Huy hiệu vinh danh"
+                        style={{ width: 52, height: 52, objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <Award size={36} color="#6366f1" />
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+                      Trao tặng: <span style={{ color: '#0f172a', fontWeight: 700 }}>Nguyễn Minh Triết</span> (Học sinh mẫu)
+                    </div>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1e1b4b', marginTop: '0.125rem', lineHeight: 1.3 }}>
+                      {effectiveCredential}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.25rem', lineHeight: 1.35 }}>
+                      Tiêu chuẩn: {finalAssessment}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    width: 58, height: 58, flexShrink: 0,
+                    borderRadius: '0.5rem', border: '1px solid #cbd5e1',
+                    background: '#fff', padding: '3px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#334155" strokeWidth="2">
+                      <rect x="3" y="3" width="7" height="7" rx="1" />
+                      <rect x="14" y="3" width="7" height="7" rx="1" />
+                      <rect x="3" y="14" width="7" height="7" rx="1" />
+                      <rect x="14" y="14" width="3" height="3" />
+                      <rect x="18" y="18" width="3" height="3" />
+                      <rect x="18" y="14" width="3" height="3" />
+                      <rect x="14" y="18" width="3" height="3" />
+                    </svg>
+                    <span style={{ fontSize: '0.4375rem', color: '#94a3b8', marginTop: 1, fontWeight: 700 }}>QR VERIFIED</span>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  borderTop: '1px solid #e0e7ff', paddingTop: '0.5rem',
+                  fontSize: '0.75rem', color: '#64748b',
+                }}>
+                  <div>
+                    Đơn vị cấp: <strong style={{ color: '#312e81' }}>{issuerTitle || 'AI Kids Creator Academy'}</strong>
+                  </div>
+                  <div style={{ fontStyle: 'italic', fontSize: '0.6875rem', color: '#6366f1' }}>
+                    Hệ Thống LMS AIKids Verified
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -399,6 +798,8 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
       </div>
     </div>
   )
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent
 }
 
 function FormField({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {

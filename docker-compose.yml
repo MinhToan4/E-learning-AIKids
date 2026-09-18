@@ -26,8 +26,10 @@ services:
       # Local dev:    http://host.docker.internal:5100  (default — reaches hub on your machine)
       # Same-network: http://storymee-hub:5100          (when hub runs in same Docker network)
       STORYMEE_HUB_UPSTREAM: ${STORYMEE_HUB_UPSTREAM:-http://host.docker.internal:5100}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
       interval: 30s
       timeout: 5s
       retries: 3

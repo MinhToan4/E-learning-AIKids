@@ -41,10 +41,8 @@ export type AsmoExamSubmissionResult = {
   newAchievements?: string[]
 }
 
-async function loadSampleExams(): Promise<AsmoExam[]> {
-  const { ASMO_SAMPLE_EXAMS } = await import('@/features/asmo/data/asmo-sample-exams')
-  return ASMO_SAMPLE_EXAMS
-}
+import { ASMO_SAMPLE_EXAMS_META } from '@/features/asmo/data/asmo-sample-exams-meta'
+import { loadExamById, loadExamsForGrade } from '@/features/asmo/data/asmo-grade-loader'
 
 function filterSampleExams(exams: AsmoExam[], filters?: AsmoExamFilter): AsmoExam[] {
   if (!filters) return exams
@@ -224,7 +222,14 @@ export async function listAsmoExams(filters?: AsmoExamFilter): Promise<AsmoExam[
     // Backend offline / network fallback
   }
 
-  return filterSampleExams(await loadSampleExams(), filters)
+  // If a specific grade is filtered, load only that grade's dataset
+  if (filters?.grade !== undefined) {
+    const gradeExams = await loadExamsForGrade(filters.grade)
+    return filterSampleExams(gradeExams, filters)
+  }
+
+  // Otherwise return metadata list (only 47 KB instead of 6.5 MB monolith)
+  return filterSampleExams(ASMO_SAMPLE_EXAMS_META, filters)
 }
 
 /**
@@ -243,11 +248,12 @@ export async function getAsmoExam(examId: string): Promise<AsmoExam> {
     // Backend offline / network fallback
   }
 
-  const sampleExams = await loadSampleExams()
-  const local = sampleExams.find((e) => e.id === examId)
+  // Dynamically load only the chunk for this exam's grade
+  const local = await loadExamById(examId)
   if (local) return local
 
-  return sampleExams[0]
+  const defaultGrade = await loadExamsForGrade(1)
+  return defaultGrade[0]
 }
 
 /**
@@ -269,7 +275,8 @@ export async function submitAsmoExam(
     // Backend offline / network fallback
   }
 
-  return localGradeExam(await loadSampleExams(), examId, payload)
+  const exam = (await loadExamById(examId)) || (await loadExamsForGrade(1))[0]
+  return localGradeExam([exam], examId, payload)
 }
 
 export const asmoApi = {

@@ -11,6 +11,7 @@ const applicationFiles = globSync('**/*.{ts,tsx}', {
     '**/*.test.tsx',
     'shared/lib/api.ts',
     'shared/lib/gateway-normalizers.ts',
+    'shared/lib/normalizers/**',
     'shared/lib/api-route-tree.ts',
   ],
 })
@@ -45,6 +46,7 @@ describe('application API route coverage', () => {
       'features/teacher/components/TeacherFeedbackPanel.tsx',
       'features/parent/components/ParentTeacherFeedbackSection.tsx',
       'features/parent/hooks/useParentFeedbackBadge.ts',
+      'features/parent/components/ParentSubscriptionCheckoutModal.tsx',
       'features/backpack/pages/BackpackPage.tsx',
     ])
     const violations = applicationFiles.flatMap((file) => {

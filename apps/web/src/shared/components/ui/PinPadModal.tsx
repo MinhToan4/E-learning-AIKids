@@ -110,7 +110,7 @@ export function PinPadModal({
       aria-modal="true"
       aria-labelledby="pin-title"
     >
-      <div className="ui-card relative w-full max-w-md overflow-hidden rounded-t-3xl p-5 shadow-clay sm:rounded-3xl">
+      <div className="ui-card relative w-full max-w-md overflow-hidden rounded-t-3xl p-5 pb-[max(1.25rem,calc(1rem+env(safe-area-inset-bottom,0px)))] shadow-clay sm:rounded-3xl sm:pb-5">
         <img src={designerAssets.catPoses.guide} alt="" aria-hidden="true" className="pointer-events-none absolute -right-5 top-4 z-0 w-24 rotate-6 opacity-90 drop-shadow-sm" />
         <div className="relative z-10 mb-4 flex items-center gap-3 pr-16">
           {avatarContent && (

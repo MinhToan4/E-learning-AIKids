@@ -69,4 +69,58 @@ describe('SixStageGoalStage', () => {
 
     act(() => root.unmount())
   })
+
+  it('renders sequential vertical flow with Hero Row banner and 4-column responsive grid', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    let continued = false
+    act(() =>
+      root.render(
+        <SixStageGoalStage
+          goal={goal}
+          fourKeys
+          showContinue
+          onContinue={() => {
+            continued = true
+          }}
+        />
+      )
+    )
+
+    // Hero Row banner
+    const heroBanner = container.querySelector('.max-w-2xl')
+    expect(heroBanner).not.toBeNull()
+    expect(heroBanner?.className).toContain('aspect-[16/9]')
+    expect(heroBanner?.className).toContain('rounded-3xl')
+
+    // 4-column responsive grid on desktop / 2-column on tablet
+    const grid = container.querySelector('.lg\\:grid-cols-4')
+    expect(grid).not.toBeNull()
+    expect(grid?.className).toContain('sm:grid-cols-2')
+
+    // Next button
+    const btn = container.querySelector('button')
+    expect(btn?.textContent).toContain('👉 Đã hiểu mục tiêu! Đi tiếp nào ✨')
+    act(() => {
+      btn?.click()
+    })
+    expect(continued).toBe(true)
+
+    act(() => root.unmount())
+  })
+
+  it('renders single-column grid in compact mode', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    act(() => root.render(<SixStageGoalStage goal={goal} fourKeys compact showContinue={false} />))
+
+    const grid = container.querySelector('.grid-cols-1')
+    expect(grid).not.toBeNull()
+    expect(grid?.className).not.toContain('lg:grid-cols-4')
+
+    act(() => root.unmount())
+  })
 })
+

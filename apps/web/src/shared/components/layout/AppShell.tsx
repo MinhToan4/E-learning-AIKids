@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState, useSyncExternalStore } from 'react'
+import { Fragment, Suspense, useEffect, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { prefetchRoute } from '@/app/route-prefetch'
@@ -26,8 +26,8 @@ import { NavHomeIcon, NavProfileIcon, NavWorldIcon } from '@/shared/components/i
 import {
   KidBackpackImageIcon,
   KidBadgeImageIcon,
-  KidEventImageIcon,
   KidCreativeImageIcon,
+  KidEventImageIcon,
   KidHomeImageIcon,
   KidProfileImageIcon,
   KidProgressImageIcon,
@@ -59,6 +59,7 @@ type RoleNavItem = {
   end?: boolean
   badge?: boolean
   action?: boolean
+  group?: string
 }
 
 type StudentFeatureTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
@@ -178,30 +179,26 @@ function MobileLogoutButton() {
 
 // ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav: StudentNavItem[] = [
-  { to: '/home',        label: 'Nhà',     icon: KidHomeImageIcon, tone: 'brand' },
-  { to: '/world',       label: 'Học',     icon: KidWorldImageIcon, tone: 'sky' },
-  { to: '/lab/mee-cat', label: 'Lab Mee', icon: KidCreativeImageIcon, tone: 'sky' },
+  { to: '/home',     label: 'Nhà',     icon: KidHomeImageIcon,     tone: 'brand' },
+  { to: '/world',    label: 'Học',     icon: KidWorldImageIcon,    tone: 'sky' },
   { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
-  { to: '/rules',        label: 'Quy tắc',  icon: KidBadgeImageIcon, tone: 'sun' },
-  { to: '/asmo',         label: 'Olympic 3D', icon: KidBadgeImageIcon, tone: 'sky' },
-  { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon, tone: 'coral' },
+  { to: '/asmo',         label: 'Olympic 3D',  icon: KidBadgeImageIcon,     tone: 'sky' },
+  { to: '/events',       label: 'Sự kiện',      icon: KidEventImageIcon,     tone: 'coral' },
   { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
-  { to: '/community',    label: 'Cộng đồng', icon: KidProfileImageIcon, tone: 'mint' },
-  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon, tone: 'sun' },
-  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon, tone: 'sun' },
-  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon, tone: 'brand' },
+  { to: '/community',    label: 'Cộng đồng',   icon: KidProfileImageIcon,   tone: 'mint' },
+  { to: '/achievements', label: 'Huy hiệu',    icon: KidBadgeImageIcon,     tone: 'sun' },
+  { to: '/backpack',     label: 'Ba lô',       icon: KidBackpackImageIcon,  tone: 'sun' },
+  { to: '/profile',      label: 'Hồ sơ',       icon: KidProfileImageIcon,   tone: 'brand' },
 ]
 // Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
 const studentNav: StudentNavItem[] = [
-  ...studentPinnedNav.slice(0, 2),
-  { to: '/rules',        label: 'Quy tắc',  icon: KidBadgeImageIcon, tone: 'sun' },
-  ...studentPinnedNav.slice(2),
-  ...studentDrawerNav.slice(1, 2),
-  ...studentDrawerNav.slice(3, 4),
+  ...studentPinnedNav,
+  ...studentDrawerNav.slice(0, 1),
   ...studentDrawerNav.slice(2, 3),
-  ...studentDrawerNav.slice(4),
+  ...studentDrawerNav.slice(1, 2),
+  ...studentDrawerNav.slice(3),
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -228,7 +225,19 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   )
   return (
     <nav className="role-nav" aria-label="Điều hướng khu vực">
-      {managementItems.map(renderItem)}
+      {managementItems.map((item, index) => {
+        const showHeader = Boolean(item.group && (index === 0 || managementItems[index - 1].group !== item.group))
+        return (
+          <Fragment key={item.to}>
+            {showHeader && (
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted px-3 mt-3 mb-1">
+                {item.group}
+              </p>
+            )}
+            {renderItem(item)}
+          </Fragment>
+        )
+      })}
       {actionItems.length > 0 && <div className="mx-3 mt-2 border-t border-border pt-3"><p className="mb-2 px-2 text-[11px] font-extrabold uppercase tracking-wider text-muted">Chế độ của con</p>{actionItems.map(renderItem)}</div>}
     </nav>
   )
@@ -438,24 +447,34 @@ function AdminDrawer({
         <p className="admin-drawer-title">{menuTitle}</p>
 
         <nav className="admin-drawer-grid" aria-label={menuAriaLabel}>
-          {nav.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              onPointerEnter={() => prefetchRoute(to)}
-              onFocus={() => prefetchRoute(to)}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
-              }
-            >
-              <span className="admin-drawer-icon" aria-hidden="true">
-                <Icon size={24} />
-              </span>
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {nav.map((item, index) => {
+            const showHeader = Boolean(item.group && (index === 0 || nav[index - 1].group !== item.group))
+            const { to, label, icon: Icon, end } = item
+            return (
+              <Fragment key={to}>
+                {showHeader && (
+                  <p className="col-span-full text-[10px] font-extrabold uppercase tracking-wider text-muted px-3 mt-3 mb-1 text-left">
+                    {item.group}
+                  </p>
+                )}
+                <NavLink
+                  to={to}
+                  end={end}
+                  onPointerEnter={() => prefetchRoute(to)}
+                  onFocus={() => prefetchRoute(to)}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
+                  }
+                >
+                  <span className="admin-drawer-icon" aria-hidden="true">
+                    <Icon size={24} />
+                  </span>
+                  <span>{label}</span>
+                </NavLink>
+              </Fragment>
+            )
+          })}
           <button
             type="button"
             onClick={() => void handleLogout()}
@@ -685,10 +704,8 @@ export function AppShell() {
         tone="teacher"
         nav={[
           { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'Trạm học', icon: CmsLecturesIcon },
-          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
+          { to: '/teacher/class', label: 'Quản lý Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon },
         ]}
       />
     )
@@ -702,11 +719,8 @@ export function AppShell() {
         tone="teacher"
         nav={[
           { to: '/teacher', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher/class', label: 'Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/feedback', label: 'Nhận xét', icon: CmsFeedbackIcon },
-          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'Trạm học', icon: CmsLecturesIcon },
-          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
+          { to: '/teacher/class', label: 'Quản lý Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon },
         ]}
       />
     )
@@ -714,21 +728,31 @@ export function AppShell() {
 
   if (user?.role === 'admin') {
     const allNav: RoleNavItem[] = [
-      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-      { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
-      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
-      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
-      { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-      { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon },
-      { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
-      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon },
-      { to: '/admin/ai', label: 'Điều phối AI', icon: CmsAiIcon },
-      { to: '/teacher/courses', label: 'Biên soạn', icon: CmsCoursesIcon },
+      // 📊 VẬN HÀNH & GIÁM SÁT
+      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true, group: '📊 VẬN HÀNH & GIÁM SÁT' },
+      { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon, group: '📊 VẬN HÀNH & GIÁM SÁT' },
+      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon, group: '📊 VẬN HÀNH & GIÁM SÁT' },
+
+      // 👥 NGƯỜI DÙNG & PHÂN QUYỀN
+      { to: '/admin/users', label: 'Học sinh & Tài khoản', icon: CmsUsersIcon, group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN' },
+      { to: '/admin/roles', label: 'Vai trò & Phân quyền', icon: CmsClassesIcon, group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN' },
+
+      // 🎓 ĐÀO TẠO & KHÓA HỌC
+      { to: '/admin/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
+      { to: '/admin/classes', label: 'Quản lý Lớp học', icon: CmsClassesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
+      { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
+
+      // 💳 TÀI CHÍNH & KINH DOANH
+      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon, group: '💳 TÀI CHÍNH & KINH DOANH' },
+
+      // 🤖 CÔNG NGHỆ & AI STUDIO
+      { to: '/admin/ai', label: 'Điều phối AI', icon: CmsAiIcon, group: '🤖 CÔNG NGHỆ & AI STUDIO' },
+      { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon, group: '🤖 CÔNG NGHỆ & AI STUDIO' },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [
       { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+      { to: '/admin/users', label: 'Học sinh & Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
     ]
     return (

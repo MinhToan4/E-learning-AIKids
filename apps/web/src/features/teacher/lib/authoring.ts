@@ -30,6 +30,8 @@ export type CourseDraft = {
   outcomesText: string
   credential: string
   finalAssessment: string
+  badgeRewardId?: string
+  issuerTitle?: string
 }
 
 // WHY: CheckQuestion — 1 câu hỏi trong phần "Thử tài" (có thể có nhiều câu, mỗi câu 2-6 đáp án).
@@ -77,7 +79,9 @@ export type StageCompareData = {
 export type LearnVisualItemDraft = {
   label: string
   text: string
-  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral' | 'rose'
+  sub?: string // Phụ đề gợi ý cho bé: VD "Ai, đồ vật gì", "Màu sắc, hình dáng", v.v.
+  keyImage?: string // Ảnh chìa khóa tương ứng
   shot?: string
   duration?: string
   sound?: string
@@ -108,7 +112,7 @@ export interface StageBlockItem {
   title?: string
   body?: string
   tip?: string
-  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral' | 'rose'
   imageUrl?: string
   imageAlt?: string
   videoUrl?: string
@@ -118,6 +122,7 @@ export interface StageBlockItem {
   optionLabels?: [string, string] | string[]
   optionDescs?: [string, string] | string[]
   dialogueLines?: DialogueLine[]
+  dialoguePairs?: StageCompareData
   compareImages?: { left: string; right: string }
   compareData?: {
     leftTitle?: string
@@ -128,19 +133,39 @@ export interface StageBlockItem {
     rightImage?: string
     rows?: Array<{ aspect: string; left: string; right: string }>
   }
+  readOnlyType?: boolean
+  selectedSubtype?: 'zico-sonet' | 'custom'
+  isHero?: boolean
+  columns?: 2 | 3
+  isCorrect?: boolean
+  correctFeedback?: string
+  incorrectFeedback?: string
+  choiceItems?: {
+    id: string
+    title: string
+    description?: string
+    isCorrect?: boolean
+    feedback?: string
+    imageUrl?: string
+  }[]
+  questionPrompt?: string
+  options?: {
+    label: string
+    imageUrl?: string
+    isCorrect?: boolean
+  }[]
   additionalImages?: StageImageItem[]
   posterText?: string
   posterRuleNumber?: number
   gesture?: string
   readText?: string
-  isCorrect?: boolean
 }
 
 export const FOUR_KEYS_DEFAULT_ITEMS: LearnVisualItemDraft[] = [
-  { label: 'Cái gì?', text: 'Nhân vật hoặc đồ vật chính', tone: 'sky' },
-  { label: 'Trông như thế nào?', text: 'Màu sắc, hình dáng và đặc điểm', tone: 'sun' },
-  { label: 'Đang làm gì?', text: 'Hành động đang diễn ra', tone: 'coral' },
-  { label: 'Ở đâu?', text: 'Bối cảnh hoặc địa điểm', tone: 'brand' },
+  { label: 'CÁI GÌ', text: 'Nhân vật hoặc đồ vật chính', tone: 'sky', sub: 'Ai, đồ vật gì', keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
+  { label: 'TRÔNG THẾ NÀO', text: 'Màu sắc, hình dáng và đặc điểm', tone: 'sun', sub: 'Màu sắc, hình dáng', keyImage: '/assets/aiki-keys/key_how_yellow.jpg' },
+  { label: 'ĐANG LÀM GÌ', text: 'Hành động đang diễn ra', tone: 'coral', sub: 'Hành động', keyImage: '/assets/aiki-keys/key_action_orange.jpg' },
+  { label: 'Ở ĐÂU', text: 'Bối cảnh hoặc địa điểm', tone: 'rose', sub: 'Bối cảnh, nơi chốn', keyImage: '/assets/aiki-keys/key_where_pink.jpg' },
 ]
 
 /** Tạo bản sao độc lập để CMS có thể sửa/kéo thả mà không làm đổi template gốc. */
@@ -149,8 +174,8 @@ export function createFourKeysBlock(id = `blk-four-keys-${Date.now()}`): StageBl
     id,
     type: 'layout-four-keys',
     title: 'Bốn chiếc chìa khóa mở câu lệnh',
-    body: 'Ghép đủ bốn chìa khóa để AI hiểu đúng ý tưởng của con.',
-    tip: 'Cái gì · Trông như thế nào · Đang làm gì · Ở đâu',
+    body: '',
+    tip: '',
     visualItems: FOUR_KEYS_DEFAULT_ITEMS.map((item) => ({ ...item })),
   }
 }
@@ -186,6 +211,82 @@ export type LearnCardDraft = {
 }
 
 export type LessonFormat = 'standard' | 'aiki-rule-5steps' | 'aiki-island-6steps'
+
+export type JourneyStageDefinition = {
+  id: string
+  index: number
+  title: string
+  shortTitle: string
+  iconName?: string
+  desc?: string
+}
+
+export const STANDARD_ISLAND_6_STAGES: JourneyStageDefinition[] = [
+  { id: 'stage-0', index: 0, title: '1. 🎯 Mục tiêu', shortTitle: 'Mục tiêu', iconName: 'Target', desc: '1. 🎯 Mục tiêu bài học (Ảnh minh họa)' },
+  { id: 'stage-1', index: 1, title: '2. ❓ Xác nhận', shortTitle: 'Khởi động', iconName: 'HelpCircle', desc: '2. ❓ Xác nhận (1 câu hỏi khởi động)' },
+  { id: 'stage-2', index: 2, title: '3. 🎬 Video', shortTitle: 'Video', iconName: 'Film', desc: '3. 🎬 Video bài giảng YouTube / MP4' },
+  { id: 'stage-3', index: 3, title: '4. 🧩 Trắc nghiệm', shortTitle: 'Câu hỏi', iconName: 'MessageCircleQuestion', desc: '4. 🧩 Bộ câu hỏi trắc nghiệm kiểm tra' },
+  { id: 'stage-4', index: 4, title: '5. 🎨 Thực hành', shortTitle: 'Thực hành', iconName: 'Palette', desc: '5. 🎨 Kịch bản thực hành AI Studio' },
+  { id: 'stage-5', index: 5, title: '6. 🏆 Kết thúc', shortTitle: 'Kết thúc', iconName: 'Trophy', desc: '6. 🏆 Màn kết thúc, trao sao & huy hiệu' },
+]
+
+export const STANDARD_RULE_5_STAGES: JourneyStageDefinition[] = [
+  { id: 'stage-0', index: 0, title: '1. Tình huống', shortTitle: 'Tình huống', iconName: 'Clapperboard', desc: '1. Tình huống câu chuyện mở đầu' },
+  { id: 'stage-1', index: 1, title: '2. Câu đố AIKI', shortTitle: 'Câu đố', iconName: 'BrainCircuit', desc: '2. Câu đố suy luận AIKI tương tác' },
+  { id: 'stage-2', index: 2, title: '3. Quy tắc Vàng', shortTitle: 'Quy tắc', iconName: 'Lightbulb', desc: '3. Quy tắc cốt lõi cần ghi nhớ' },
+  { id: 'stage-3', index: 3, title: '4. Giải thích', shortTitle: 'Giải thích', iconName: 'ScanSearch', desc: '4. Giải thích chi tiết và ví dụ thực tế' },
+  { id: 'stage-4', index: 4, title: '5. Bản Cam Kết', shortTitle: 'Cam kết', iconName: 'Trophy', desc: '5. Chốt bài học, tặng sao và vinh danh' },
+]
+
+export const STANDARD_COURSE_4_STAGES: JourneyStageDefinition[] = [
+  { id: 'stage-0', index: 0, title: '1. Khám phá', shortTitle: 'Khám phá', iconName: 'Clapperboard', desc: '1. Khám phá kiến thức bài học' },
+  { id: 'stage-1', index: 1, title: '2. Trò chơi', shortTitle: 'Trò chơi', iconName: 'Gamepad2', desc: '2. Trò chơi tương tác cùng Mee' },
+  { id: 'stage-2', index: 2, title: '3. Sáng tạo', shortTitle: 'Sáng tạo', iconName: 'BookmarkCheck', desc: '3. Tự tay sáng tạo & thực hành' },
+  { id: 'stage-3', index: 3, title: '4. Thử tài', shortTitle: 'Thử tài', iconName: 'Trophy', desc: '4. Thử thách & đánh giá năng lực' },
+]
+
+export function resolveCourseJourneyStages(
+  courseId?: string,
+  format?: LessonFormat,
+  customStages?: JourneyStageDefinition[]
+): JourneyStageDefinition[] {
+  // 1. Cho phép tùy biến tự do từ 3 đến 7 chặng nếu mảng customStages được cung cấp và có >= 3 phần tử
+  if (Array.isArray(customStages) && customStages.length >= 3) {
+    const clampedStages = customStages.slice(0, 7)
+    return clampedStages.map((st, idx) => ({
+      id: st.id || `stage-${idx}`,
+      index: idx,
+      title: st.title || `Chặng ${idx + 1}`,
+      shortTitle: st.shortTitle || st.title || `Chặng ${idx + 1}`,
+      iconName: st.iconName,
+      desc: st.desc || st.title || `Chặng ${idx + 1}`,
+    }))
+  }
+
+  // 2. Khóa Quy Tắc (aiki-rule-5steps): 5 chặng chuẩn
+  const isRule =
+    format === 'aiki-rule-5steps' ||
+    Boolean(courseId && (courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule')))
+  if (isRule) {
+    return [...STANDARD_RULE_5_STAGES]
+  }
+
+  // 3. Khóa Đảo (aiki-island-6steps): 6 chặng chuẩn
+  const isIsland =
+    format === 'aiki-island-6steps' ||
+    !format ||
+    Boolean(courseId && (courseId.toLowerCase().startsWith('dao-') || courseId.toLowerCase().includes('island')))
+  if (isIsland && format !== 'standard') {
+    return [...STANDARD_ISLAND_6_STAGES]
+  }
+
+  // 4. Khóa chuẩn / tùy biến: fallback an toàn
+  if (format === 'standard') {
+    return [...STANDARD_COURSE_4_STAGES]
+  }
+
+  return [...STANDARD_ISLAND_6_STAGES]
+}
 
 export const AIKI_RULE_STAGE_KINDS = [
   'situation',
@@ -459,16 +560,28 @@ export function serializeLearnCardsForHub(cards: LearnCardDraft[]): LearnCardDra
   })
 }
 
+export type LessonAccessMode = 'inherit' | 'free_trial' | 'plan_required' | 'locked'
+
+export type LessonAccessConfig = {
+  mode: LessonAccessMode
+  minPlanTier: number
+  trialBadge?: string
+  lockedReason?: string
+}
+
 export type LectureDraft = {
   id: string
+  slug?: string
   questId?: string
   title: string
   skill: string
   hook: string
   practiceKind: string
+  access?: LessonAccessConfig
   lessonFormat?: LessonFormat
   metadata?: Record<string, unknown>
   sixStageJourney?: LessonSixStageJourney
+  customJourneyStages?: JourneyStageDefinition[]
   videoUrl: string
   concept: string
   example: string
@@ -679,15 +792,15 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const basicsStep = step('basics', 'Thông tin trạm', [
     [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
     [hasLength(draft.title, 3), 'Tên bài học'],
-    [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
-    [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
-    [
-      isIsland
-        ? lines(draft.goalsText).length >= 1
-        : lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)),
-      isIsland ? 'Ít nhất 1 mục tiêu rõ ràng' : 'Ít nhất 3 mục tiêu rõ ràng',
-    ],
-    [videoIsValid, 'Liên kết video HTTPS'],
+    ...(isIsland ? [] : ([
+      [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
+      [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
+      [
+        lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)),
+        'Ít nhất 3 mục tiêu rõ ràng',
+      ],
+      [videoIsValid, 'Liên kết video HTTPS'],
+    ] as [boolean, string][])),
   ])
 
   if (isIsland) {

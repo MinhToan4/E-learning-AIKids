@@ -224,4 +224,170 @@ describe('StageBlockItemCard Component — layout-confirm-option Block', () => {
     expect(text).not.toContain('https://')
     expect(text).not.toContain('Chọn nhanh')
   })
+
+  it('renders layout-four-keys without Lời dẫn and Câu ghi nhớ, and provides color chips and sub inputs', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    const updateBlockItem = vi.fn()
+    const fourKeysBlock: StageBlockItem = {
+      id: 'course-goal-four-keys',
+      type: 'layout-four-keys',
+      title: 'Bốn chiếc chìa khóa mở câu lệnh',
+      body: 'Lời dẫn không được render',
+      tip: 'Câu ghi nhớ không được render',
+      visualItems: [
+        { label: 'CÁI GÌ (Xanh Sky)', text: 'một cái cốc', sub: 'Ai, đồ vật gì', tone: 'sky', keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
+        { label: 'TRÔNG THẾ NÀO', text: 'sứ trắng', sub: 'Màu sắc, hình dáng', tone: 'sun', keyImage: '/assets/aiki-keys/key_how_yellow.jpg' },
+      ],
+    }
+
+    act(() => {
+      root?.render(
+        <StageBlockItemCard
+          block={fourKeysBlock}
+          bIdx={0}
+          totalBlocks={1}
+          stageIndex={0}
+          card={mockCard}
+          stageBlocks={[fourKeysBlock]}
+          draggingBlockIdx={null}
+          dragOverBlockIdx={null}
+          setDraggingBlockIdx={vi.fn()}
+          setDragOverBlockIdx={vi.fn()}
+          setIsTrashDragOver={vi.fn()}
+          moveBlock={vi.fn()}
+          removeBlock={vi.fn()}
+          updateStageBlocks={vi.fn()}
+          updateBlockItem={updateBlockItem}
+          updateLearnCard={vi.fn()}
+          uploadingStageMedia={null}
+          setUploadingStageMedia={vi.fn()}
+          uploadLearnCardMedia={vi.fn()}
+          uploadAdditionalImageItem={vi.fn()}
+          previewAikiVoice={vi.fn()}
+          previewSpeakingIndex={null}
+          speakTextPreview={vi.fn()}
+          courseId="dao-1"
+          handleAddModule={vi.fn()}
+          stageInfo={{ title: 'Mục tiêu bài học', icon: () => null, desc: 'Chặng 1' }}
+          inputStyle={{}}
+          textareaStyle={{}}
+          showToast={vi.fn()}
+        />
+      )
+    })
+
+    const text = container.textContent || ''
+    // Không được chứa các label trường thừa
+    expect(text).not.toContain('Lời dẫn')
+    expect(text).not.toContain('Câu ghi nhớ')
+
+    // Hiển thị badge số thứ tự
+    expect(text).toContain('[1]')
+    expect(text).toContain('[2]')
+
+    // Input placeholders
+    const inputs = container.querySelectorAll('input')
+    const placeholders = Array.from(inputs).map((input) => input.getAttribute('placeholder'))
+    expect(placeholders).toContain('Tên chìa khóa (VD: CÁI GÌ)')
+    expect(placeholders).toContain('Phụ đề gợi ý (VD: Ai, đồ vật gì)')
+    expect(placeholders).toContain("Ví dụ mẫu (VD: 'một cái cốc')")
+
+    // Cleaned label: "CÁI GÌ (Xanh Sky)" được làm sạch thành "CÁI GÌ" trong input
+    const labelInput = Array.from(inputs).find((inp) => inp.getAttribute('placeholder') === 'Tên chìa khóa (VD: CÁI GÌ)') as HTMLInputElement
+    expect(labelInput.value).toBe('CÁI GÌ')
+
+    // Nút chip màu mini: 4 presets (Xanh Sky, Vàng Sun, Cam Mango, Hồng Gum)
+    const colorButtons = container.querySelectorAll('button[title="Vàng Sun"]')
+    expect(colorButtons.length).toBeGreaterThanOrEqual(1)
+
+    // Click đổi màu sang Vàng Sun
+    act(() => {
+      ;(colorButtons[0] as HTMLButtonElement).click()
+    })
+
+    expect(updateBlockItem).toHaveBeenCalledWith(
+      0,
+      'course-goal-four-keys',
+      expect.objectContaining({
+        visualItems: expect.arrayContaining([
+          expect.objectContaining({
+            tone: 'sun',
+            keyImage: '/assets/aiki-keys/key_how_yellow.jpg',
+          }),
+        ]),
+      })
+    )
+  })
+
+  it('verifies that header action buttons and badges have shrink-0, whitespace-nowrap, and title is truncated', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    const longTitleBlock: StageBlockItem = {
+      id: 'block-long-title',
+      type: 'text',
+      title: 'MỤC TIÊU BÀI HỌC: BÀI 1.2 — BỐN CHIẾC CHÌA KHOÁ MỞ KHÓA VẠN VẬT SIÊU DÀI KHÔNG BAO GIỜ BỊ ĐÈ NÚT',
+      body: 'Nội dung văn bản',
+    }
+
+    act(() => {
+      root?.render(
+        <StageBlockItemCard
+          block={longTitleBlock}
+          bIdx={0}
+          totalBlocks={1}
+          stageIndex={0}
+          card={mockCard}
+          stageBlocks={[longTitleBlock]}
+          draggingBlockIdx={null}
+          dragOverBlockIdx={null}
+          setDraggingBlockIdx={vi.fn()}
+          setDragOverBlockIdx={vi.fn()}
+          setIsTrashDragOver={vi.fn()}
+          moveBlock={vi.fn()}
+          removeBlock={vi.fn()}
+          updateStageBlocks={vi.fn()}
+          updateBlockItem={vi.fn()}
+          updateLearnCard={vi.fn()}
+          uploadingStageMedia={null}
+          setUploadingStageMedia={vi.fn()}
+          uploadLearnCardMedia={vi.fn()}
+          uploadAdditionalImageItem={vi.fn()}
+          previewAikiVoice={vi.fn()}
+          previewSpeakingIndex={null}
+          speakTextPreview={vi.fn()}
+          courseId="dao-1"
+          handleAddModule={vi.fn()}
+          stageInfo={{ title: 'Mục tiêu', icon: () => null, desc: 'Chặng 1' }}
+          inputStyle={{}}
+          textareaStyle={{}}
+          showToast={vi.fn()}
+        />
+      )
+    })
+
+    // Header title element has truncate and min-w-0 flex-1
+    const titleEl = container.querySelector('h4')
+    expect(titleEl).not.toBeNull()
+    expect(titleEl?.className).toContain('truncate')
+    expect(titleEl?.className).toContain('min-w-0')
+    expect(titleEl?.className).toContain('flex-1')
+
+    // Collapse / Edit button has shrink-0 and whitespace-nowrap
+    const buttons = container.querySelectorAll('button')
+    const toggleBtn = Array.from(buttons).find((b) => b.textContent?.includes('Thu gọn') || b.textContent?.includes('Chỉnh sửa'))
+    expect(toggleBtn).toBeDefined()
+    expect(toggleBtn?.className).toContain('shrink-0')
+    expect(toggleBtn?.className).toContain('whitespace-nowrap')
+
+    // Delete block button has shrink-0 and whitespace-nowrap
+    const deleteBtn = Array.from(buttons).find((b) => b.getAttribute('title') === 'Xóa khối')
+    expect(deleteBtn).toBeDefined()
+    expect(deleteBtn?.className).toContain('shrink-0')
+    expect(deleteBtn?.className).toContain('whitespace-nowrap')
+  })
 })

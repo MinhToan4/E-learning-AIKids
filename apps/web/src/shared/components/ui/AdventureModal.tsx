@@ -107,10 +107,10 @@ export function AdventureModal({
         {showMascot && <AikidModalCatCharacter className="adventure-modal-mascot" />}
         <div className="adventure-modal-content">
           {eyebrow && <p className="adventure-modal-eyebrow">{eyebrow}</p>}
-          <h2 id={titleId} className="font-display text-3xl font-extrabold leading-tight text-text sm:text-4xl">
+          <h2 id={titleId} className="font-display text-3xl font-extrabold leading-tight text-text sm:text-4xl break-words">
             {title}
           </h2>
-          {description && <p id={descriptionId} className="mt-2 text-base font-semibold leading-relaxed text-muted">{description}</p>}
+          {description && <p id={descriptionId} className="mt-2 text-base font-semibold leading-relaxed text-muted break-words">{description}</p>}
           {artwork && <div className="adventure-modal-artwork">{artwork}</div>}
           {children && <div className="adventure-modal-body">{children}</div>}
           {actions && <div className="adventure-modal-actions">{actions}</div>}

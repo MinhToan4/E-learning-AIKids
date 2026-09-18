@@ -29,70 +29,8 @@ import type { AikiRuleQuestion } from '@/features/rules/types'
 export type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 export type PoseType = MeeTutorPose
 
-let sharedAudioCtx: AudioContext | null = null
-
-function getAudioContext(): AudioContext | null {
-  try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (!AudioCtx) return null
-    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
-      sharedAudioCtx = new AudioCtx()
-    }
-    if (sharedAudioCtx.state === 'suspended') {
-      void sharedAudioCtx.resume()
-    }
-    return sharedAudioCtx
-  } catch {
-    return null
-  }
-}
-
-// Web Audio API zero-latency feedback sounds (<5ms)
-export function playInstantSound(type: 'correct' | 'wrong' | 'click' | 'star') {
-  try {
-    const ctx = getAudioContext()
-    if (!ctx) return
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-
-    if (type === 'correct') {
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime) // C5
-      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12) // G5
-      gain.gain.setValueAtTime(0.25, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.3)
-    } else if (type === 'wrong') {
-      osc.type = 'triangle'
-      osc.frequency.setValueAtTime(320, ctx.currentTime)
-      osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.18)
-      gain.gain.setValueAtTime(0.2, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.25)
-    } else if (type === 'star') {
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime) // E5
-      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.15) // C6
-      gain.gain.setValueAtTime(0.3, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.35)
-    } else {
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(440, ctx.currentTime)
-      gain.gain.setValueAtTime(0.1, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.08)
-    }
-  } catch {
-    // AudioContext blocked or not allowed yet
-  }
-}
+export { playInstantSound } from '@/features/lesson/lib/lesson-sound'
+import { playInstantSound } from '@/features/lesson/lib/lesson-sound'
 
 export interface InteractiveRiddle {
   id: string
@@ -455,54 +393,76 @@ export function LessonInteractiveSidebar({
   return (
     <aside
       className={cn(
-        'lesson-guide-panel relative w-full shrink-0 overflow-hidden rounded-3xl border-2 border-brand-200 bg-white/95 p-3 sm:p-4 shadow-clay backdrop-blur-md transition-all duration-300 flex flex-col justify-between',
-        collapsed ? 'w-[68px] sm:w-[76px]' : 'w-full xl:max-h-full xl:h-full',
+        'lesson-guide-panel relative shrink-0 overflow-hidden rounded-3xl border-2 border-brand-200 bg-white/95 shadow-clay backdrop-blur-md transition-all duration-300 flex flex-col justify-between',
+        collapsed
+          ? 'w-[76px] sm:w-[84px] p-2 sm:p-2.5 hover:shadow-clay-hover hover:border-brand-300 active:scale-[0.98] cursor-pointer select-none'
+          : 'w-full xl:max-h-full xl:h-full p-3 sm:p-4',
         className,
       )}
+      onClick={collapsed ? () => setCollapsed(false) : undefined}
       aria-labelledby="lesson-interactive-sidebar-title"
     >
       {collapsed ? (
-        /* Collapsed minimal state */
-        <div className="flex flex-col items-center gap-3 py-1">
-          <button
-            type="button"
-            className="group relative cursor-pointer"
-            onClick={() => setCollapsed(false)}
-            title="Mở rộng bảng tương tác"
-          >
-            {hideMascot || hideMascotAvatar ? (
-              <div className="size-12 sm:size-14 rounded-2xl bg-amber-100 border-2 border-amber-300 grid place-items-center text-amber-800 shadow-xs hover:scale-105 transition-transform">
-                <Sparkles size={24} className="text-amber-600" />
-              </div>
-            ) : (
-              <>
-                <MeeTutorAvatar
-                  pose={dynamicPose}
-                  className="size-12 sm:size-14 transition-transform group-hover:scale-110"
-                  isSpeaking={isSpeaking}
-                  speechText={coachSpeech}
-                  gesture={gesture}
-                  onSpeechEnd={() => setIsSpeaking(false)}
-                />
-                <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-mint-500 border-2 border-white shadow-2xs" />
-              </>
-            )}
-          </button>
-          <span className="font-display text-xs font-black text-brand-800">
-            {hideMascot ? 'Quy Tắc' : 'AKI AI'}
-          </span>
-          <div className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
-            <Star className="size-3 fill-amber-400 text-amber-500" />
-            <span>{liveStars}</span>
+        /* Collapsed minimal state - Soft Clay / Hallmark UI */
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setCollapsed(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setCollapsed(false)
+            }
+          }}
+          className="flex flex-col items-center justify-between h-full min-h-[380px] sm:min-h-[420px] py-1 gap-3 w-full cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-2xl"
+          title="Bấm để mở rộng hỗ trợ AKI"
+          aria-label="Mở rộng bảng hỗ trợ AKI"
+        >
+          {/* Top: Avatar Mascot AKI */}
+          <div className="flex flex-col items-center gap-1.5 pt-1">
+            <div className="relative group">
+              {hideMascotAvatar ? (
+                <div className="size-12 sm:size-14 rounded-2xl bg-amber-100 border-2 border-amber-300 grid place-items-center text-amber-800 shadow-xs group-hover:scale-105 transition-transform">
+                  <Sparkles size={24} className="text-amber-600" />
+                </div>
+              ) : (
+                <div className="relative">
+                  <MeeTutorAvatar
+                    pose={dynamicPose}
+                    className="size-12 sm:size-14 transition-transform group-hover:scale-110 drop-shadow-md"
+                    isSpeaking={isSpeaking}
+                    speechText={coachSpeech}
+                    gesture={gesture}
+                    onSpeechEnd={() => setIsSpeaking(false)}
+                  />
+                  <span
+                    className="absolute -bottom-0.5 -right-0.5 size-3.5 sm:size-4 rounded-full bg-mint-500 ring-2 ring-white shadow-xs"
+                    title="Trợ lý AKI sẵn sàng"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Tag nhận diện Soft Clay */}
+            <span className="font-display text-[10px] sm:text-[11px] font-black text-brand-800 tracking-tight text-center whitespace-nowrap px-1.5 py-0.5 rounded-full bg-brand-50 border border-brand-100 shadow-2xs">
+              Hỗ trợ AKI
+            </span>
           </div>
-          <button
-            type="button"
-            onClick={() => setCollapsed(false)}
-            className="grid size-9 sm:size-10 place-items-center rounded-2xl border-2 border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 hover:scale-105 transition shadow-xs cursor-pointer"
-            aria-label="Mở rộng sidebar"
-          >
-            <ChevronLeft size={18} />
-          </button>
+
+          {/* Middle: Khối sao tiến độ */}
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-amber-800 bg-amber-50 border-2 border-amber-300 px-2 py-0.5 rounded-full shadow-xs whitespace-nowrap">
+              <span>⭐</span>
+              <span>{liveStars}/3</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-500 tracking-tight">Tiến độ</span>
+          </div>
+
+          {/* Bottom: Nút mở rộng ở chân (Pill Soft Clay màu brand với icon ChevronLeft kèm chữ "Mở") */}
+          <div className="flex items-center justify-center gap-1 w-full py-2 px-1.5 rounded-2xl border-2 border-brand-300 bg-brand-500 text-white font-black text-xs shadow-clay group-hover:bg-brand-600 transition-colors">
+            <ChevronLeft size={16} className="shrink-0" />
+            <span className="tracking-wide">Mở</span>
+          </div>
         </div>
       ) : (
         /* Expanded full interactive state */
@@ -983,12 +943,15 @@ export function LessonInteractiveSidebar({
                     checked={hasCommitted}
                     onChange={() => {
                       playInstantSound('star')
+                      if (!hasCommitted) {
+                        onRewardStar?.()
+                      }
                       onToggleCommit()
                     }}
                     className="size-5 rounded text-mint-600 focus:ring-mint-400 cursor-pointer"
                   />
                   <span className="text-xs sm:text-sm font-bold text-slate-800">
-                    Con hứa luôn nghĩ ý tưởng của mình trước khi nhờ AI ✨
+                    Con hứa luôn nghĩ ý tưởng của mình trước khi nhờ AI ✨ (+1 ⭐)
                   </span>
                 </label>
               )}

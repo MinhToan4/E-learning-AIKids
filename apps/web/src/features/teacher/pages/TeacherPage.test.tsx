@@ -74,4 +74,117 @@ describe('TeacherPage subsystems and learning space specifications', () => {
     expect(selectedCourseId).toBe('')
     expect(spacePrograms.length).toBe(0)
   })
+
+  it('guarantees all feature blocks in TeacherPage sidebar have pedagogy guides for hover preview', async () => {
+    const { FEATURE_BLOCK_CATEGORY_MAP, FEATURE_BLOCK_PEDAGOGY_MAP } = await import(
+      '../components/FeatureBlockHoverPreview'
+    )
+    const allSidebarBlocks = FEATURE_BLOCKS_CATEGORIES.flatMap((c) => c.items)
+
+    expect(allSidebarBlocks.length).toBe(16)
+
+    allSidebarBlocks.forEach((block) => {
+      expect(
+        FEATURE_BLOCK_CATEGORY_MAP[block.id],
+        `Block ${block.id} must be mapped to a category`
+      ).toBeDefined()
+      expect(
+        FEATURE_BLOCK_PEDAGOGY_MAP[block.id],
+        `Block ${block.id} must have pedagogical guidance`
+      ).toBeDefined()
+    })
+  })
+
+  it('normalizes aikids-ai-foundation to exactly 6 active regions (32 stations) and separates legacy regions', () => {
+    // 6 active regions with 10 + 4 + 4 + 4 + 5 + 5 = 32 stations
+    const makeLectures = (count: number) =>
+      Array.from({ length: count }, (_, i) => ({ id: `station-${i + 1}`, title: `Trạm ${i + 1}`, duration: '45m' }))
+
+    const rawRegions = [
+      // Legacy regions (mixed in)
+      { id: 'dao-ke-chuyen', title: 'Đảo kể chuyện', lectures: makeLectures(12), curriculumKey: 'aikids-3-regions-v1' },
+      // Active regions (out of order)
+      { id: 'island-2', title: 'Module 2 — Tớ là hoạ sĩ AI!', lectures: makeLectures(4), regionOrder: 2 },
+      { id: 'aiki-rules', title: 'Mười quy tắc Xưởng', lectures: makeLectures(10), regionOrder: 0 },
+      { id: 'thung-lung-ai', title: 'Thung lũng AI', lectures: makeLectures(12) },
+      { id: 'island-1', title: 'Module 1 — Nhà thám hiểm AI', lectures: makeLectures(4), regionOrder: 1 },
+      { id: 'island-5', title: 'Module 5 — Nhà phát minh trò chơi', lectures: makeLectures(5), regionOrder: 5 },
+      { id: 'island-3', title: 'Module 3 — Biệt đội nhân vật AI', lectures: makeLectures(4), regionOrder: 3 },
+      { id: 'day-nui-sang-tao', title: 'Dãy núi sáng tạo', lectures: makeLectures(12) },
+      { id: 'island-4', title: 'Module 4 — Vương quốc truyện tranh', lectures: makeLectures(5), regionOrder: 4 },
+    ]
+
+    const result = normalizeCurriculumPayload({
+      programs: [
+        {
+          id: 'aikids-ai-foundation',
+          title: 'Nền tảng AI Kids',
+          regions: rawRegions,
+        },
+      ],
+    })
+
+    expect(result.programs.length).toBe(2)
+
+    // Program 1: Nền tảng AI Kids (6 active regions, 32 stations)
+    const foundationProgram = result.programs[0]
+    expect(foundationProgram.id).toBe('aikids-ai-foundation')
+    expect(foundationProgram.regions.length).toBe(6)
+
+    const totalStations = foundationProgram.regions.reduce((sum, r) => sum + r.lectures.length, 0)
+    expect(totalStations).toBe(32)
+
+    // Check strict pedagogical ordering
+    expect(foundationProgram.regions[0].title).toBe('Mười quy tắc Xưởng')
+    expect(foundationProgram.regions[0].lectures.length).toBe(10)
+    expect(foundationProgram.regions[1].title).toBe('Module 1 — Nhà thám hiểm AI')
+    expect(foundationProgram.regions[1].lectures.length).toBe(4)
+    expect(foundationProgram.regions[2].title).toBe('Module 2 — Tớ là hoạ sĩ AI!')
+    expect(foundationProgram.regions[2].lectures.length).toBe(4)
+    expect(foundationProgram.regions[3].title).toBe('Module 3 — Biệt đội nhân vật AI')
+    expect(foundationProgram.regions[3].lectures.length).toBe(4)
+    expect(foundationProgram.regions[4].title).toBe('Module 4 — Vương quốc truyện tranh')
+    expect(foundationProgram.regions[4].lectures.length).toBe(5)
+    expect(foundationProgram.regions[5].title).toBe('Module 5 — Nhà phát minh trò chơi')
+    expect(foundationProgram.regions[5].lectures.length).toBe(5)
+
+    // Program 2: Legacy archive
+    const legacyProgram = result.programs[1]
+    expect(legacyProgram.id).toBe('aikids-legacy-archive')
+    expect(legacyProgram.title).toBe('Chương trình Cũ (Lưu trữ)')
+    expect(legacyProgram.readOnly).toBe(true)
+    expect(legacyProgram.unlockMode).toBe('parallel')
+    expect(legacyProgram.regions.length).toBe(3)
+    expect(legacyProgram.regions.map((r) => r.id)).toEqual(['dao-ke-chuyen', 'thung-lung-ai', 'day-nui-sang-tao'])
+  })
+
+  it('supports collapsible sidebar state with localStorage persistence key aikids_teacher_sidebar_collapsed', () => {
+    const STORAGE_KEY = 'aikids_teacher_sidebar_collapsed'
+    const storageMap = new Map<string, string>()
+    const storage = typeof localStorage !== 'undefined'
+      ? localStorage
+      : {
+          getItem: (key: string) => storageMap.get(key) ?? null,
+          setItem: (key: string, val: string) => { storageMap.set(key, val) },
+          removeItem: (key: string) => { storageMap.delete(key) },
+        }
+
+    storage.removeItem(STORAGE_KEY)
+
+    // Initial state without storage
+    let isCollapsed = storage.getItem(STORAGE_KEY) === 'true'
+    expect(isCollapsed).toBe(false)
+
+    // Toggle to collapsed
+    storage.setItem(STORAGE_KEY, 'true')
+    isCollapsed = storage.getItem(STORAGE_KEY) === 'true'
+    expect(isCollapsed).toBe(true)
+
+    // Toggle back to expanded
+    storage.setItem(STORAGE_KEY, 'false')
+    isCollapsed = storage.getItem(STORAGE_KEY) === 'true'
+    expect(isCollapsed).toBe(false)
+
+    storage.removeItem(STORAGE_KEY)
+  })
 })

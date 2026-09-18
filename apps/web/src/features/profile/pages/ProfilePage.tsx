@@ -13,7 +13,6 @@ import {
   KidProfileWorkImageIcon,
 } from '@/shared/components/icons/KidImageIcons'
 import { api, type AchievementRow } from '@/shared/lib/api'
-import type { RewardKind } from '@/shared/lib/creation/rewards'
 import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
@@ -106,11 +105,8 @@ export function ProfilePage() {
   useEffect(() => {
     let active = true
     const loadVersion = equipmentMutationVersion.current
-    void Promise.all([
-      loadProfileOverview(),
-      api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook'),
-    ])
-      .then(([overview, rewardState]) => {
+    loadProfileOverview()
+      .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
         setAchievements(overview.achievements.filter((row) => row.unlocked))
@@ -160,9 +156,8 @@ export function ProfilePage() {
 
         if (user && equipmentMutationVersion.current === loadVersion) {
           // The equipment mutation and this read share one projection. The
-          // aggregate profile overview may be cached and must not overwrite a
-          // wardrobe change that was just confirmed by the rewards endpoint.
-          const synced = rewardEquipmentFromRows(rewardState.equipment)
+          // aggregate profile overview contains the latest equipment from storybook.
+          const synced = rewardEquipmentFromRows(overview.equipment)
           const serverEquipment = syncRewardEquipment(user.id, synced)
           setEquipment(serverEquipment)
         }

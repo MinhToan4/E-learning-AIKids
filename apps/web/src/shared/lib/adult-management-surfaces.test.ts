@@ -97,8 +97,8 @@ describe('adult management surfaces', () => {
     const shell = read('shared/components/layout/AppShell.tsx')
     const teacher = read('features/teacher/pages/TeacherPage.tsx')
 
-    expect(shell).toContain("to: '/teacher/courses', label: 'Biên soạn'")
-    expect(shell).toContain("to: '/teacher/lectures', label: 'Trạm học'")
+    expect(shell).toContain("to: '/teacher/courses', label: 'Xưởng Soạn Trạm Học'")
+    expect(shell).not.toContain("to: '/teacher/lectures'")
     expect(teacher).toContain('setSearchParams({ programId: nextProgramId, courseId: nextCourseId }, { replace: true })')
   })
 })

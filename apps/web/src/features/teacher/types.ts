@@ -55,6 +55,9 @@ export type CourseLectures = {
   status: string
   ageTrack?: string
   courseKey?: string
+  curriculumKey?: string
+  regionOrder?: number
+  slug?: string
   scopeType?: 'global' | 'organization' | 'personal'
   programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
   tagline?: string

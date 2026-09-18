@@ -9,24 +9,30 @@ type Job = {
   errorMessage?: string | null
 }
 
-async function defaultWorkspace(): Promise<string> {
+async function defaultWorkspace(): Promise<string | undefined> {
   const cached = localStorage.getItem('storymee_active_ip_id')
   if (cached) return cached
-  // fallback: gọi API như cũ
-  const result = await api<{workspaces: Array<{ipId: string}>; defaultIpId?: string | null}>('/api/v1/account/workspaces')
-  const ipId = result.defaultIpId ?? result.workspaces[0]?.ipId
-  if (!ipId) {
-    const created = await api<{ipId?: string; id?: string}>('/api/v1/account/workspaces', {
-      method: 'POST',
-      body: JSON.stringify({ name: 'Không gian của tôi' }),
-    })
-    const id = created.ipId ?? created.id
-    if (!id) throw new Error('Failed to get or create workspace')
-    localStorage.setItem('storymee_active_ip_id', id)
-    return id
+  try {
+    const result = await api<any>('/api/v1/account/workspaces')
+    const data = result?.data ?? result
+    const ipId = data?.defaultIpId ?? data?.workspaces?.[0]?.ipId ?? data?.childWorkspaces?.[0]?.workspaces?.[0]?.ipId
+    if (!ipId) {
+      const created = await api<any>('/api/v1/account/workspaces', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Không gian của tôi' }),
+      })
+      const createdData = created?.data ?? created
+      const id = createdData?.ipId ?? createdData?.id
+      if (!id) return undefined
+      localStorage.setItem('storymee_active_ip_id', id)
+      return id
+    }
+    localStorage.setItem('storymee_active_ip_id', ipId)
+    return ipId
+  } catch (error) {
+    console.warn('[CreativeAPI] Failed to resolve default workspace, continuing with server default:', error)
+    return undefined
   }
-  localStorage.setItem('storymee_active_ip_id', ipId)
-  return ipId
 }
 
 function outputUrls(value: Job['outputUrls']): string[] {
@@ -49,7 +55,8 @@ async function waitForJob(jobId: string): Promise<Job> {
   }
   const delays = [1_000, 1_500, 2_000, 2_500, 3_000]
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const job = await api<Job>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
+    const res = await api<any>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
+    const job = (res?.data ?? res) as Job
     const status = String(job.status ?? '').toLowerCase()
     if (['done', 'success', 'completed'].includes(status)) return job
     if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
@@ -108,13 +115,18 @@ async function waitForJobStream(jobId: string): Promise<Job> {
 async function createJob(
   jobType: 'image' | 'llm',
   inputParams: Record<string, unknown>,
+  ipId?: string
 ) {
-  const ipId = await defaultWorkspace()
-  const created = await api<Job>('/api/v1/jobs', {
+  const finalIpId = ipId ?? (await defaultWorkspace())
+  const payload: Record<string, unknown> = { jobType, inputParams }
+  if (finalIpId) payload.ipId = finalIpId
+
+  const created = await api<any>('/api/v1/jobs', {
     method: 'POST',
-    body: JSON.stringify({ jobType, ipId, inputParams }),
+    body: JSON.stringify(payload),
   })
-  const id = created.id ?? created.jobId
+  const data = created?.data ?? created
+  const id = data?.id ?? data?.jobId ?? created?.id ?? created?.jobId
   if (!id) throw new Error('Không nhận được Job ID từ StoryMee.')
   return waitForJob(id)
 }
@@ -122,11 +134,15 @@ async function createJob(
 export async function generateCreativeImage(input: {
   prompt: string
   imageDataUrl?: string
+  refImageUrl?: string
   provider?: string // 'gflow' | 'google-flow'
   aspectRatio?: string
   modelId?: string
+  ipId?: string
 }): Promise<string> {
+  const provider = input.provider || 'gflow'
   const references: string[] = []
+
   if (input.imageDataUrl) {
     const [header, encoded = ''] = input.imageDataUrl.split(',', 2)
     const mime = header.match(/^data:([^;]+)/)?.[1] ?? 'image/png'
@@ -147,22 +163,56 @@ export async function generateCreativeImage(input: {
     const url = uploaded.url ?? uploaded.imageUrl
     if (url) references.push(url)
   }
+
+  // Xử lý refImageUrl: Nếu là URL cục bộ (e.g. /assets/...), tải lên media CDN để AI Worker có thể truy cập
+  if (input.refImageUrl) {
+    if (input.refImageUrl.startsWith('http://') || input.refImageUrl.startsWith('https://')) {
+      references.push(input.refImageUrl)
+    } else if (typeof window !== 'undefined') {
+      try {
+        const blob = await fetchRemoteBlob(input.refImageUrl)
+        const form = new FormData()
+        form.append('file', blob, 'aikids-reference.jpg')
+        form.append('temporary', '1')
+        form.append('assetType', 'aikids-reference')
+        const uploaded = await api<{ url?: string; imageUrl?: string }>(
+          '/api/v1/media/upload?temporary=1&assetType=aikids-reference',
+          { method: 'POST', body: form },
+        )
+        const url = uploaded.url ?? uploaded.imageUrl
+        if (url) references.push(url)
+      } catch (err) {
+        console.warn('[CreativeAPI] Failed to upload local refImageUrl to media CDN:', err)
+      }
+    }
+  }
+
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error('Creative generation timeout (60s)')), 60000)
   )
+
+  const jobParams: Record<string, unknown> = {
+    prompt: input.prompt,
+    provider,
+    model_id: input.modelId || 'NARWHAL',
+    aspect_ratio: input.aspectRatio || '1:1',
+    ...(references.length
+      ? {
+          reference_image_url: references[0],
+          reference_image_urls: references,
+        }
+      : input.refImageUrl
+      ? {
+          reference_image_url: input.refImageUrl,
+          reference_image_urls: [input.refImageUrl],
+        }
+      : {}),
+  }
+
+  console.log('[CreativeAPI] Creating image job with params:', jobParams)
+
   const job = await Promise.race([
-    createJob('image', {
-      prompt: input.prompt,
-      provider: input.provider,
-      model_id: input.modelId || 'NARWHAL',
-      aspect_ratio: input.aspectRatio || '1:1',
-      ...(references.length
-        ? {
-            reference_image_url: references[0],
-            reference_image_urls: references,
-          }
-        : {}),
-    }),
+    createJob('image', jobParams, input.ipId),
     timeoutPromise,
   ])
   const url = outputUrls(job.outputUrls)[0]

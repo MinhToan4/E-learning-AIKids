@@ -45,14 +45,14 @@ describe('AikiRuleVideoPlayer', () => {
   it('renders YouTube iframe when rule.videoUrl is a valid YouTube link', () => {
     const ruleWithYoutube = {
       ...AIKI_RULES_DATA[0],
-      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      videoUrl: 'https://www.youtube.com/watch?v=NMdHhsLY5jc',
     }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, { rule: ruleWithYoutube })
     )
 
     expect(markup).toContain('<iframe')
-    expect(markup).toContain('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ')
+    expect(markup).toContain('https://www.youtube-nocookie.com/embed/NMdHhsLY5jc')
     expect(markup).toContain('enablejsapi=1')
     expect(markup).toContain('playsinline=1')
   })
@@ -60,7 +60,7 @@ describe('AikiRuleVideoPlayer', () => {
   it('renders pause quiz prompt over YouTube iframe when on stage 1 without answer', () => {
     const ruleWithYoutube = {
       ...AIKI_RULES_DATA[0],
-      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      videoUrl: 'https://www.youtube.com/watch?v=NMdHhsLY5jc',
     }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, {
@@ -77,13 +77,39 @@ describe('AikiRuleVideoPlayer', () => {
   it('hides pause quiz prompt when correct answer is selected on stage 1', () => {
     const ruleWithYoutube = {
       ...AIKI_RULES_DATA[0],
-      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      videoUrl: 'https://www.youtube.com/watch?v=NMdHhsLY5jc',
     }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, {
         rule: ruleWithYoutube,
         activeSlideIndex: 1,
         selectedAnswer: 1,
+      })
+    )
+
+    expect(markup).not.toContain('Tạm dừng câu đố!')
+  })
+
+  it('hides pause quiz prompt when custom correctIndex question answer is selected on stage 1', () => {
+    const ruleWithYoutube = {
+      ...AIKI_RULES_DATA[0],
+      videoUrl: 'https://www.youtube.com/watch?v=NMdHhsLY5jc',
+    }
+    const customQuestions = [{
+      id: 'q1',
+      prompt: 'Test prompt',
+      options: ['Option A', 'Option B'],
+      correctIndex: 0,
+      hint: 'Hint',
+      retryFeedback: 'Retry',
+      successFeedback: 'Success',
+    }]
+    const markup = renderToStaticMarkup(
+      createElement(AikiRuleVideoPlayer, {
+        rule: ruleWithYoutube,
+        activeSlideIndex: 1,
+        questions: customQuestions,
+        selectedAnswer: 0,
       })
     )
 

@@ -74,7 +74,6 @@ import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
-import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import {
   resolvePracticeReview,
   type PracticePreview,
@@ -87,6 +86,11 @@ import {
 } from '@/features/lesson/lib/offline-learning'
 import { LessonInteractiveSidebar } from '@/features/lesson/components/LessonInteractiveSidebar'
 import type { Phase, PoseType } from '@/features/lesson/components/LessonInteractiveSidebar'
+import { LessonCelebrationModal } from '@/features/lesson/components/LessonCelebrationModal'
+import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
+import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
+import { useAuth } from '@/shared/store/auth'
+import { LessonNavigationHeader } from '@/features/lesson/components/LessonNavigationHeader'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
@@ -288,6 +292,7 @@ export function LessonPage() {
   const [maxUnlockedPhase, setMaxUnlockedPhase] = useState<Phase>('learn')
   const [aikiRuleStage, setAikiRuleStage] = useState(0)
   const [aikiQuizAnswer, setAikiQuizAnswer] = useState<number | null>(null)
+  const [aikiQuizAnswerCorrect, setAikiQuizAnswerCorrect] = useState(false)
   const [zoomedImage, setZoomedImage] = useState<ZoomImageData | null>(null)
   const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
   const [hasAcknowledgedRule, setHasAcknowledgedRule] = useState(false)
@@ -297,9 +302,9 @@ export function LessonPage() {
   const [isSidebarSpeaking, setIsSidebarSpeaking] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('aikids_lesson_sidebar_collapsed') !== 'false'
+      return localStorage.getItem('aikids_lesson_sidebar_collapsed') === 'true'
     } catch {
-      return true
+      return false
     }
   })
   const toggleSidebarCollapse = (collapsed: boolean) => {
@@ -330,6 +335,10 @@ export function LessonPage() {
     playSituation,
     stop: stopSituationNarrator,
   } = useAikiSituationNarrator()
+  const user = useAuth((s) => s.user)
+  const isParent = user?.role === 'parent'
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false)
+  const [isParentGateOpen, setIsParentGateOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [parts, setParts] = useState<PromptParts>({})
@@ -378,14 +387,6 @@ export function LessonPage() {
     setAikiRuleStage(index)
   }, [])
 
-  const handleSelectOption = useCallback((idx: number) => {
-    setAikiQuizAnswer(idx)
-    if (idx === 1) {
-      setStarBurst({ id: Date.now(), count: 1 })
-      setLiveStars((prev) => Math.min(3, prev + 1))
-    }
-  }, [])
-
   const handlePlayStateChange = useCallback((playing: boolean) => {
     setIsVideoPlaying(playing)
   }, [])
@@ -423,6 +424,8 @@ export function LessonPage() {
     setOfflineManifest(null)
     setQuest(null)
     setAikiRuleStage(0)
+    setAikiQuizAnswer(null)
+    setAikiQuizAnswerCorrect(false)
     setZoomedImage(null)
     setIsPosterModalOpen(false)
     setHasAcknowledgedRule(false)
@@ -540,16 +543,24 @@ export function LessonPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          const cached = await cachedOfflineManifest(questId)
-          if (cached) {
-            setOfflineManifest(cached)
-            queueOfflineProgress(questId, {
-              percent: 10,
-              positionSeconds: 0,
-              sectionId: 'offline-open',
-            })
+          const isPaywall =
+            (e instanceof ApiError && (e.status === 402 || e.code === 'COURSE_PURCHASE_REQUIRED' || e.code === 'LMS_ENTITLEMENT_REQUIRED' || e.code === 'CREDITS_EXHAUSTED')) ||
+            (e instanceof Error && /entitlement|purchase|paid|402/i.test(e.message))
+
+          if (isPaywall) {
+            setIsPaywallOpen(true)
           } else {
-            setError(e instanceof Error ? e.message : 'Không mở được trạm')
+            const cached = await cachedOfflineManifest(questId)
+            if (cached) {
+              setOfflineManifest(cached)
+              queueOfflineProgress(questId, {
+                percent: 10,
+                positionSeconds: 0,
+                sectionId: 'offline-open',
+              })
+            } else {
+              setError(e instanceof Error ? e.message : 'Không mở được trạm')
+            }
           }
         }
       } finally {
@@ -683,6 +694,20 @@ export function LessonPage() {
     return AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
   }, [isAikiRuleJourney, ruleId])
 
+  const handleSelectOption = useCallback(
+    (idx: number) => {
+      const targetQuestion = ruleData?.questions?.[0]
+      const isCorrect = targetQuestion ? idx === targetQuestion.correctIndex : idx === 1
+      setAikiQuizAnswer(idx)
+      if (isCorrect) {
+        setAikiQuizAnswerCorrect(true)
+        setStarBurst({ id: Date.now(), count: 1 })
+        setLiveStars((prev) => Math.max(prev, 1))
+      }
+    },
+    [ruleData],
+  )
+
   const hydratedLearnCards = useMemo(() => {
     if (!quest) return []
     if (isAikiRuleJourney && quest.learnCards.length === 0 && ruleData) {
@@ -775,22 +800,33 @@ export function LessonPage() {
       completeRule(ruleId)
     }
     setBusy(true)
+    const earnedRuleStars = (aikiQuizAnswerCorrect ? 1 : 0) + (hasAcknowledgedRule ? 1 : 0) + (hasCommitted ? 1 : 0)
+    const finalStars = Math.max(1, earnedRuleStars)
+    const xpMap: Record<number, number> = { 1: 30, 2: 60, 3: 100 }
+    const earnedXp = xpMap[finalStars] || 100
+    const celebrationMsg = isIslandJourney
+      ? `Xuất sắc! Con đã hoàn thành ${quest.title} và nhận ${finalStars} Sao (+${earnedXp} XP)!`
+      : finalStars === 3
+        ? `Xuất sắc! Con đạt trọn 3 Sao và nhận +${earnedXp} XP! Chào mừng Hiệp Sĩ Sáng Tạo AIKI! 🎉`
+        : finalStars === 2
+          ? `Rất tốt! Con đạt 2 Sao và nhận +${earnedXp} XP! Cùng tiến lên trạm tiếp theo nhé! 🌟`
+          : `Hoan hô! Con đã hoàn thành trạm và nhận +${earnedXp} XP! Cùng cố gắng giành 3 Sao nhé! ⭐`
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     try {
       const checkRes = await learningApi.submitCheck(quest.id, { answers: [] })
-      setLiveStars(checkRes.stars)
+      setLiveStars(finalStars)
       setCheckResult({
         ...checkRes,
+        stars: finalStars,
+        message: celebrationMsg,
         nextQuestId: checkRes.nextQuestId || nextRuleTarget,
       })
       setPhase('done')
     } catch {
-      setLiveStars(3)
+      setLiveStars(finalStars)
       setCheckResult({
-        stars: 3,
-        message: isIslandJourney
-          ? `Xuất sắc! Con đã hoàn thành ${quest.title} và nhận trọn 3 Sao!`
-          : 'Xuất sắc! Con đã trở thành Hiệp Sĩ Sáng Tạo và nắm vững Quy Tắc Vàng AIKI!',
+        stars: finalStars,
+        message: celebrationMsg,
         nextQuestId: nextRuleTarget,
       })
       setPhase('done')
@@ -1407,6 +1443,39 @@ export function LessonPage() {
     )
   }
 
+  if (isPaywallOpen && !quest) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center p-6 text-center">
+        <CoursePaywallModal
+          open={isPaywallOpen}
+          courseTitle={routeCourseId || effectiveCourseId}
+          onClose={() => {
+            setIsPaywallOpen(false)
+            navigate(effectiveCourseId ? `/world/${effectiveCourseId}` : '/world')
+          }}
+          onContinueFree={() => {
+            setIsPaywallOpen(false)
+            navigate('/world')
+          }}
+          onUpgrade={() => {
+            if (isParent) {
+              navigate('/parent/learning?upgrade=aikids_official_129k')
+            } else {
+              setIsParentGateOpen(true)
+            }
+          }}
+        />
+        {isParentGateOpen && (
+          <ParentGateModal
+            open={isParentGateOpen}
+            onClose={() => setIsParentGateOpen(false)}
+            redirectTo="/parent/learning?upgrade=aikids_official_129k"
+          />
+        )}
+      </div>
+    )
+  }
+
   if (error && !quest) {
     return (
       <div className="ui-card page-enter p-6">
@@ -1487,223 +1556,22 @@ export function LessonPage() {
           isAikiRuleJourney ? "w-full xl:w-[68%] gap-1.5 sm:gap-2 xl:overflow-hidden" : "gap-3 overflow-hidden"
         )}>
           {/* ── Flatten Header Không Dùng Box Lồng Nhau ─────────────────────── */}
-          {phase !== 'practice' && (
-            isAikiRuleJourney ? (
-              /* HÀNG 1 (Header trên cùng): Trái có nút Quay lại, Badge, Tiêu đề đầy đủ to rõ; Phải có Badge 3 Sao + Nút Thu gọn/Bảng tương tác */
-              <header className="shrink-0 flex items-center justify-between gap-2 px-1 py-0.5 min-h-[36px] sm:min-h-[38px] w-full">
-                {/* Trái: Nút [← Bản đồ] + Badge [Trạm X · Quy tắc] + Tiêu đề đầy đủ quest.title (to rõ, font lớn text-base sm:text-lg font-black text-slate-900, không bị truncate chèn ép) */}
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/world/${effectiveCourseId}`)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3 py-1 text-xs sm:text-sm font-black text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
-                    title="Quay lại bản đồ"
-                  >
-                    <ChevronLeft size={16} aria-hidden="true" />
-                    <span>Bản đồ</span>
-                  </button>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 border border-brand-200 px-2.5 sm:px-3 py-1 text-xs font-black text-brand-800 uppercase tracking-wider shadow-2xs shrink-0">
-                    <Sparkles size={13} className="text-brand-600" />
-                    <span>Trạm {quest.order || 1} · Quy tắc</span>
-                  </span>
-                  <h1 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
-                    {quest.title}
-                  </h1>
-                </div>
-
-                {/* Phải: Badge [⭐ 3 Sao] + Nút [⛶ Thu gọn/Bảng tương tác] (chuyển sang sr-only bảo toàn test & trợ năng) */}
-                <div className="sr-only">
-                  <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
-                    <Star className="size-3.5 fill-amber-400 text-amber-500" />
-                    <span>3 Sao</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
-                    className="sr-only"
-                    title={isSidebarCollapsed ? "Hiển thị bảng tương tác" : "Thu gọn bảng tương tác"}
-                  >
-                    <span>
-                      {isSidebarCollapsed ? "⛶ Bảng tương tác" : "⛶ Thu gọn"}
-                    </span>
-                  </button>
-                </div>
-              </header>
-            ) : is5StageJourney ? (
-              <header className="shrink-0 flex flex-col gap-2 px-1">
-              {/* Tầng 1: Meta Tag & Huy Hiệu Mục Tiêu & Nút Mở Rộng */}
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/world/${effectiveCourseId}`)}
-                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer"
-                    title="Quay lại bản đồ"
-                  >
-                    <ChevronLeft size={16} aria-hidden="true" />
-                    <span>Bản đồ</span>
-                  </button>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 border border-brand-200 px-3 py-1 text-xs font-black text-brand-800 uppercase tracking-wider shadow-2xs">
-                    <Sparkles size={13} className="text-brand-600" />
-                    {isIslandJourney
-                      ? `🏝️ ${(quest as any).courseTitle || (quest.courseId?.startsWith('dao-') ? `ĐẢO ${quest.courseId.replace('dao-', '').toUpperCase()}` : 'ĐẢO AIKIDS')} · BÀI ${quest.order || ''}`
-                      : `Trạm ${quest.order || 1} · Quy tắc sáng tạo`}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-mint-50 border border-mint-200 px-3 py-1 text-xs font-black text-mint-800 shadow-2xs">
-                    <span className="size-2 rounded-full bg-mint-500 animate-pulse" />
-                    Chặng {aikiRuleStage + 1} / {Math.max(5, hydratedLearnCards.length)}: {AIKI_RULE_STAGE_METAS[aikiRuleStage]?.shortLabel || AIKI_RULE_STAGE_METAS[aikiRuleStage]?.label || `Chặng ${aikiRuleStage + 1}`}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95",
-                      isSidebarCollapsed
-                        ? "bg-brand-500 border-brand-600 text-white hover:bg-brand-600 ring-2 ring-brand-200"
-                        : "bg-white border-brand-200 text-brand-800 hover:bg-brand-50"
-                    )}
-                    title={isSidebarCollapsed ? "Hiển thị trợ lý Mèo Mee bên cạnh" : "Mở rộng toàn màn hình không gian học"}
-                  >
-                    <span>{isSidebarCollapsed ? "📖 Hiện Trợ Lý Mee" : "↔️ Mở Rộng Không Gian Học"}</span>
-                  </button>
-
-                  {/* Hộp Thưởng Mục Tiêu (sr-only bảo toàn trợ năng & test) */}
-                  <div className="sr-only">
-                    <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
-                      <span className="text-xs font-black">⭐ 3 Sao</span>
-                      <span className="text-amber-300">•</span>
-                      <span className="flex items-center gap-1 text-xs font-black">
-                        <span>🏆</span>
-                        <span>Hiệp Sĩ AIKI</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tầng 2: Tiêu Đề Trạm Hoàn Chỉnh Lớn Nổi Bật (100% Chiều Rộng, TUYỆT ĐỐI KHÔNG CÓ TRUNCATE) */}
-              <h1 className="mt-1 font-display text-2xl sm:text-3xl lg:text-4xl font-black text-text leading-tight">
-                {quest.title}
-              </h1>
-
-              {/* Tầng 3: Story Stream Step Tracker Tinh Gọn (5 nấc tròn nhỏ kết nối nhau bằng đường kẻ mềm mại) */}
-              <div className="mt-2 flex items-center justify-between gap-2 overflow-x-auto hidden-scrollbar py-1">
-                <div className="flex items-center gap-1 sm:gap-2 flex-1 max-w-2xl" aria-label={`Tiến độ chặng ${aikiRuleStage + 1} trên 5`}>
-                  {[
-                    { label: 'Tình huống', num: '1' },
-                    { label: 'Câu đố', num: '2' },
-                    { label: 'Quy tắc', num: '3' },
-                    { label: 'Giải thích', num: '4' },
-                    { label: 'Chốt', num: '5' },
-                  ].map((step, stageIdx) => {
-                    const isDone = stageIdx < aikiRuleStage
-                    const isActive = stageIdx === aikiRuleStage
-                    return (
-                      <React.Fragment key={stageIdx}>
-                        <button
-                          type="button"
-                          onClick={() => setAikiRuleStage(stageIdx)}
-                          className={cn(
-                            "flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shrink-0 shadow-2xs",
-                            isActive
-                              ? "bg-brand-500 text-white ring-2 ring-brand-200 shadow-sm scale-105"
-                              : isDone
-                                ? "bg-mint-500 text-white hover:bg-mint-600"
-                                : "bg-white border border-slate-200 text-slate-500 hover:border-brand-300"
-                          )}
-                          title={`Chặng ${stageIdx + 1}: ${step.label}`}
-                        >
-                          <span className={cn(
-                            "size-4 sm:size-4.5 rounded-full grid place-items-center text-[10px] font-black",
-                            isActive ? "bg-white text-brand-700" : isDone ? "bg-mint-600 text-white" : "bg-slate-100 text-slate-600"
-                          )}>
-                            {isDone ? '✓' : step.num}
-                          </span>
-                          <span className="hidden sm:inline">{step.label}</span>
-                        </button>
-                        {stageIdx < 4 && (
-                          <div className={cn(
-                            "h-1 flex-1 min-w-3 sm:min-w-6 rounded-full transition-colors",
-                            stageIdx < aikiRuleStage ? "bg-mint-500" : "bg-slate-200"
-                          )} />
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
-                </div>
-                <span className="text-xs font-black text-brand-700 shrink-0 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full shadow-2xs">
-                  {Math.round(((aikiRuleStage + 1) / 5) * 100)}%
-                </span>
-              </div>
-            </header>
-          ) : (
-          <div className="ui-card p-4 shrink-0">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/world/${effectiveCourseId}`)}
-                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer"
-                    title="Quay lại bản đồ"
-                  >
-                    <ChevronLeft size={15} aria-hidden="true" />
-                    <span>Bản đồ</span>
-                  </button>
-                  <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
-                </div>
-                <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black leading-tight text-text">{quest.title}</h1>
-                {practiceStation?.product && (
-                  <p className="mt-1 text-xs font-semibold text-muted">
-                    Sản phẩm của trạm: <strong className="text-text">{practiceStation.product}</strong>
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95",
-                    isSidebarCollapsed
-                      ? "bg-brand-500 border-brand-600 text-white hover:bg-brand-600 ring-2 ring-brand-200"
-                      : "bg-white border-brand-200 text-brand-800 hover:bg-brand-50"
-                  )}
-                  title={isSidebarCollapsed ? "Hiển thị trợ lý Mèo Mee bên cạnh" : "Mở rộng toàn màn hình không gian học"}
-                >
-                  <span>{isSidebarCollapsed ? "📖 Hiện Trợ Lý Mee" : "↔️ Mở Rộng Không Gian Học"}</span>
-                </button>
-                {phase !== 'done' && liveStars > 0 && (
-                  <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
-                    <span className="lesson-star-rack-label">Sao của trạm</span>
-                    {[1, 2, 3].map((star) => (
-                      <Star
-                        key={star}
-                        size={28}
-                        className={cn(
-                          'lesson-star-placeholder',
-                          star <= liveStars && 'lesson-star-earned',
-                        )}
-                        aria-hidden="true"
-                      />
-                    ))}
-                    {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
-                      <span
-                        key={`${starBurst.id}-${index}`}
-                        className="lesson-star-fly"
-                        aria-hidden="true"
-                      >
-                        ⭐
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            
+          <LessonNavigationHeader
+            phase={phase}
+            isAikiRuleJourney={isAikiRuleJourney}
+            is5StageJourney={is5StageJourney}
+            isIslandJourney={isIslandJourney}
+            quest={quest}
+            aikiRuleStage={aikiRuleStage}
+            hydratedLearnCardsCount={hydratedLearnCards.length}
+            isSidebarCollapsed={isSidebarCollapsed}
+            onToggleSidebarCollapse={toggleSidebarCollapse}
+            onNavigateBack={() => navigate(`/world/${effectiveCourseId}`)}
+            onSelectAikiRuleStage={(idx) => setAikiRuleStage(idx)}
+            practiceStation={practiceStation}
+            liveStars={liveStars}
+            starBurst={starBurst}
+          >
             {/* ── Horizontal Phase Nav ──────────────────────────────── */}
             <nav className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t-2 border-border/50 w-full">
               {PHASES.map((p, idx) => {
@@ -1711,7 +1579,7 @@ export function LessonPage() {
                 const currentIdx = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
                 const isUnlocked = idx <= maxIdx
                 const isActive = idx === currentIdx
-                
+
                 return (
                   <button
                     key={p.id}
@@ -1740,9 +1608,7 @@ export function LessonPage() {
                 )
               })}
             </nav>
-          </div>
-          )
-        )}
+          </LessonNavigationHeader>
 
       <main className={cn(
         "min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pr-1",
@@ -1910,6 +1776,7 @@ export function LessonPage() {
                     onAcknowledgeRule={() => {
                       setHasAcknowledgedRule(true)
                       setStarBurst({ id: Date.now(), count: 1 })
+                      setLiveStars((prev) => Math.max(prev, aikiQuizAnswerCorrect ? 2 : 1))
                       setManualMeeCue({
                         key: Date.now(),
                         text: "Xuất sắc! Con đã nắm trọn Quy tắc Vàng này rồi!",
@@ -1922,6 +1789,7 @@ export function LessonPage() {
                       setHasCommitted((prev) => !prev)
                       if (!hasCommitted) {
                         setStarBurst({ id: Date.now(), count: 1 })
+                        setLiveStars(3)
                         setManualMeeCue({
                           key: Date.now(),
                           text: isIslandJourney ? "Tuyệt vời! Con đã hoàn thành xuất sắc bài học này!" : "Tuyệt vời! Chào mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!",
@@ -2059,8 +1927,6 @@ export function LessonPage() {
                 }
                 characterName={studioCharacterName}
                 lockedFeatures={studioLockedFeatures}
-                initialAttemptsLeft={6}
-                maxAttempts={6}
                 studentStars={liveStars || 42}
                 onBackToLesson={() => setPhase('learn')}
                 onReplayVideo={() => {
@@ -2759,122 +2625,27 @@ export function LessonPage() {
         </div>
       )}
 
-      {phase === 'done' && checkResult && (
-        <AdventureModal
-          open
-          tone={checkResult.stars > 0 ? 'celebration' : 'guidance'}
-          eyebrow={checkResult.stars > 0 ? 'Trạm đã hoàn thành' : 'Mee vẫn ở đây cùng con'}
-          title={checkResult.stars > 0 ? 'Con đã chinh phục trạm!' : 'Mình thử thêm một lần nhé'}
-          description={checkResult.message}
-          className="lesson-completion-modal"
-          artwork={
-            <div className="lesson-result-visual">
-              <div className="stars-row flex items-center justify-center gap-2" aria-label={`${checkResult.stars} sao`}>
-                {[1, 2, 3].map((i) => (
-                  <Star
-                    key={i}
-                    size={48}
-                    className={cn('result-star-slot', i <= checkResult.stars && 'result-star-earned')}
-                    aria-hidden="true"
-                  />
-                ))}
-              </div>
-              {checkResult.stars > 0 && quest.reward && (
-                <div className="lesson-result-reward">
-                  <span className="lesson-result-reward-icon" aria-hidden="true">
-                    <Trophy size={27} strokeWidth={2.5} />
-                  </span>
-                  <span className="min-w-0 text-left">
-                    <span className="block text-xs font-extrabold uppercase tracking-wide text-sun-700">Phần thưởng mới</span>
-                    <strong className="mt-0.5 block text-sm leading-snug text-text">{quest.reward}</strong>
-                  </span>
-                </div>
-              )}
-            </div>
-          }
-        >
-
-          {/* Reflect the authored learning outcomes back to the child. This is
-              API content, so the celebration stays accurate for every lesson. */}
-          {checkResult.stars > 0 && quest.goals.length > 0 && (
-            <section className="w-full max-w-lg rounded-2xl border-2 border-mint-200 bg-mint-50 px-4 py-3 text-left" aria-labelledby="completed-goals-title">
-              <p id="completed-goals-title" className="text-xs font-extrabold uppercase tracking-wider text-mint-700">
-                Hôm nay con đã học được
-              </p>
-              <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-                {quest.goals.slice(0, 4).map((goal) => (
-                  <li key={goal} className="flex items-start gap-2 text-sm font-bold leading-snug text-text">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-white text-mint-700" aria-hidden="true">
-                      <Check size={14} strokeWidth={3} />
-                    </span>
-                    <span>{goal}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* New achievements */}
-          {checkResult.newAchievements && checkResult.newAchievements.length > 0 && (
-            <div className="rounded-2xl bg-sun-100 border border-sun-200 px-4 py-3 w-full max-w-sm">
-              <p className="text-sm font-extrabold text-warning">
-                🏆 Huy hiệu mới: {checkResult.newAchievements.join(', ')}
-              </p>
-            </div>
-          )}
-
-          {/* Course credential */}
-          {checkResult.courseCredential && (
-            <div className="rounded-3xl border-2 border-sun-200 bg-gradient-to-br from-sun-100 to-coral-50 px-5 py-4 w-full max-w-sm">
-              <p className="font-display text-xl">🎓 Hoàn thành khóa học!</p>
-              <p className="mt-1 text-sm font-bold">{checkResult.courseCredential}</p>
-              <p className="mt-1 text-xs text-muted">
-                AI Kids Creator Academy · Riêng tư & bảo mật
-              </p>
-            </div>
-          )}
-
-          {/* Action buttons */}
-          <div className="flex flex-wrap justify-center gap-3">
-            {checkResult.nextQuestId && (
-              <Button onClick={() => navigate(`/world/${effectiveCourseId}/lesson/${checkResult.nextQuestId}`)}>
-                <Play size={18} aria-hidden="true" />
-                Trạm tiếp theo
-              </Button>
-            )}
-            <Button variant="secondary" onClick={() => navigate(`/world/${effectiveCourseId}`)}>
-              <NavWorldIcon size={18} aria-hidden="true" />
-              Về bản đồ
-            </Button>
-            {checkResult.stars < 3 && (
-              <Button
-                onClick={() => {
-                  setReviewMode(false)
-                  setAnswers({})
-                  setAnswerFeedback({})
-                  setLiveStars(0)
-                  setStarBurst(null)
-                  setError(null)
-                  setPhase('check')
-                }}
-              >
-                <Star size={18} aria-hidden="true" />
-                {checkResult.stars === 0 ? 'Thử lại để nhận sao' : 'Thử lại để nâng sao'}
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setReviewMode(true)
-                setPhase('learn')
-                setAnswers({})
-              }}
-            >
-              Xem lại bài
-            </Button>
-          </div>
-        </AdventureModal>
-      )}
+      <LessonCelebrationModal
+        open={phase === 'done'}
+        checkResult={checkResult}
+        quest={quest}
+        onNextQuest={(nextId) => navigate(`/world/${effectiveCourseId}/lesson/${nextId}`)}
+        onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
+        onRetry={() => {
+          setReviewMode(false)
+          setAnswers({})
+          setAnswerFeedback({})
+          setLiveStars(0)
+          setStarBurst(null)
+          setError(null)
+          setPhase('check')
+        }}
+        onReview={() => {
+          setReviewMode(true)
+          setPhase('learn')
+          setAnswers({})
+        }}
+      />
       </main>
       </div>
 
@@ -2922,10 +2693,20 @@ export function LessonPage() {
           onSeekVideo={(sec) => setVideoSeekTarget({ sec, token: Date.now() })}
           seekExplainSec={38}
           hasAcknowledgedRule={hasAcknowledgedRule}
-          onAcknowledgeRule={() => setHasAcknowledgedRule(true)}
+          onAcknowledgeRule={() => {
+            setHasAcknowledgedRule(true)
+            setStarBurst({ id: Date.now(), count: 1 })
+            setLiveStars((prev) => Math.max(prev, aikiQuizAnswerCorrect ? 2 : 1))
+          }}
           onOpenPosterModal={() => setIsPosterModalOpen(true)}
           hasCommitted={hasCommitted}
-          onToggleCommit={() => setHasCommitted((prev) => !prev)}
+          onToggleCommit={() => {
+            setHasCommitted((prev) => !prev)
+            if (!hasCommitted) {
+              setStarBurst({ id: Date.now(), count: 1 })
+              setLiveStars(3)
+            }
+          }}
           onAikiFinish={() => void handleAikiFinish()}
           busy={busy}
         />
@@ -2934,7 +2715,7 @@ export function LessonPage() {
       {/* ── BẢNG TƯƠNG TÁC QUY TẮC AIKI (DESKTOP: CỘT PHẢI, MÀN HÌNH NHỎ: DƯỚI VIDEO) ── */}
       {isAikiRuleJourney && (
         <LessonInteractiveSidebar
-          hideMascot={true}
+          hideMascot={false}
           isCollapsed={isSmallScreen ? false : isSidebarCollapsed}
           onToggleCollapse={toggleSidebarCollapse}
           isVideoPlaying={isVideoPlaying}
@@ -2977,13 +2758,14 @@ export function LessonPage() {
           seekExplainSec={38}
           onAikiFinishAllQuestions={() => {
             setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.min(3, prev + 1))
+            setLiveStars((prev) => Math.max(prev, 1))
             setAikiRuleStage(2)
           }}
           hasAcknowledgedRule={hasAcknowledgedRule}
           onAcknowledgeRule={() => {
             setHasAcknowledgedRule(true)
             setStarBurst({ id: Date.now(), count: 1 })
+            setLiveStars((prev) => Math.max(prev, aikiQuizAnswerCorrect ? 2 : 1))
             setManualMeeCue({
               key: Date.now(),
               text: 'Xuất sắc! Con đã nắm trọn Quy tắc Vàng này rồi!',
@@ -2996,6 +2778,7 @@ export function LessonPage() {
             setHasCommitted((prev) => !prev)
             if (!hasCommitted) {
               setStarBurst({ id: Date.now(), count: 1 })
+              setLiveStars(3)
               setManualMeeCue({
                 key: Date.now(),
                 text: 'Tuyệt vời! Chào mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!',
@@ -3020,6 +2803,30 @@ export function LessonPage() {
         ruleBody={hydratedLearnCards[2]?.body || visibleLearnCards[0]?.body || 'Nghĩ ra ý tưởng của riêng mình trước, sau đó mới dùng AI để làm cho ý tưởng phong phú hơn!'}
         ruleTip={hydratedLearnCards[2]?.tip || visibleLearnCards[0]?.tip}
       />
+
+      <CoursePaywallModal
+        open={isPaywallOpen}
+        courseTitle={quest?.title || routeCourseId || effectiveCourseId}
+        onClose={() => setIsPaywallOpen(false)}
+        onContinueFree={() => {
+          setIsPaywallOpen(false)
+          navigate('/world')
+        }}
+        onUpgrade={() => {
+          if (isParent) {
+            navigate('/parent/learning?upgrade=aikids_official_129k')
+          } else {
+            setIsParentGateOpen(true)
+          }
+        }}
+      />
+      {isParentGateOpen && (
+        <ParentGateModal
+          open={isParentGateOpen}
+          onClose={() => setIsParentGateOpen(false)}
+          redirectTo="/parent/learning?upgrade=aikids_official_129k"
+        />
+      )}
     </div>
   )
 }

@@ -11,9 +11,32 @@ type PublicFirebaseConfig = {
   appId: string
 }
 
+function staticConfig(): PublicFirebaseConfig | null {
+  const runtime = typeof window !== 'undefined' ? window.__AIKIDS_RUNTIME_CONFIG__?.firebaseConfig : undefined
+  if (runtime && runtime.apiKey && runtime.projectId) {
+    return runtime
+  }
+  const envApiKey = import.meta.env.VITE_FIREBASE_API_KEY?.trim()
+  const envProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim()
+  if (envApiKey && envProjectId) {
+    return {
+      apiKey: envApiKey,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim() || `${envProjectId}.firebaseapp.com`,
+      projectId: envProjectId,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim() || `${envProjectId}.appspot.com`,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim() || '',
+      appId: import.meta.env.VITE_FIREBASE_APP_ID?.trim() || '',
+    }
+  }
+  return null
+}
+
 let configPromise: Promise<PublicFirebaseConfig | null> | null = null
 
 async function publicConfig(): Promise<PublicFirebaseConfig | null> {
+  const staticConf = staticConfig()
+  if (staticConf) return staticConf
+
   configPromise ??= api<{
     enabled: boolean
     config: PublicFirebaseConfig | null

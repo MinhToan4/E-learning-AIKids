@@ -62,7 +62,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('lesson always tells the child the goal, product and four-step rhythm', () => {
-    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    const lesson = read('features/lesson/pages/LessonPage.tsx') + read('features/lesson/components/LessonNavigationHeader.tsx')
     const sidebar = read('features/lesson/components/LeftPhaseSidebar.tsx')
     expect(lesson).toContain('Hôm nay con sẽ')
     expect(lesson).toContain('Sản phẩm của trạm')
@@ -137,7 +137,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).toContain('student-bottom-nav')
     expect(shell).toContain('admin-drawer-sheet')
     expect(shell).toContain('KidWorldImageIcon')
-    expect(shell).toContain("{ to: '/lab/mee-cat', label: 'Lab Mee'")
+    expect(shell).not.toContain("{ to: '/lab/mee-cat', label: 'Lab Mee'")
     expect(shell).toContain('KidStorybookImageIcon')
     expect(shell).toContain('<SidebarLogoutButton />')
     expect(shell).toContain('<MobileLogoutButton />')

@@ -43,7 +43,7 @@ export function WelcomePage() {
               Bắt đầu ngay
             </Link>
             <a
-              href="https://play.aikid.vn/login"
+              href="https://play.aikid.vn"
               className="ui-btn ui-btn-secondary"
             >
               AI Studio

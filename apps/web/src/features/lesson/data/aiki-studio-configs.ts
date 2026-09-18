@@ -74,6 +74,7 @@ export interface AikiStudioConfig {
     | 'board-game-arena'
     | 'generic'
   maxTurnsPerItem?: number
+  notebookConfig?: any
 }
 
 export function createDefaultPracticeWorkflow(config: {

@@ -55,6 +55,8 @@ export function AikiRuleVideoPlayer({
   const isWaitingQuizRef = useRef(false)
   const [quizNotice, setQuizNotice] = useState(false)
 
+  const correctIdx = questions?.[0]?.correctIndex ?? 1
+
   // Resolve YouTube video if available
   const videoSource = useMemo(() => resolveLectureVideo(rule.videoUrl), [rule.videoUrl])
   const youtubeEmbedSrc = useMemo(() => {
@@ -93,7 +95,8 @@ export function AikiRuleVideoPlayer({
     const nextIndex = Math.min(Math.floor(curSec / slideDuration), totalSlides - 1)
 
     // Auto pause cứng tại Chặng 1 (15s) cho câu đố nếu chưa trả lời đúng
-    const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+    const correctIdx = questions?.[0]?.correctIndex ?? 1
+    const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
     if (curSec >= 15 && !isAnswerCorrect) {
       isWaitingQuizRef.current = true
       postToYouTube('pauseVideo')
@@ -113,7 +116,7 @@ export function AikiRuleVideoPlayer({
       setCurrentSlideIndex(nextIndex)
       onSlideChange?.(nextIndex)
     }
-  }, [currentSlideIndex, onSlideChange, rule.durationSec, rule.slides.length, selectedAnswer, postToYouTube])
+  }, [currentSlideIndex, onSlideChange, rule.durationSec, rule.slides.length, selectedAnswer, postToYouTube, questions])
 
   // 2-way sync: Listen to YouTube IFrame API messages (onStateChange, infoDelivery)
   useEffect(() => {
@@ -128,7 +131,7 @@ export function AikiRuleVideoPlayer({
       }
       if (!data || typeof data !== 'object') return
 
-      const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+      const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
 
       // Handle onStateChange
       if (data.event === 'onStateChange') {
@@ -168,7 +171,7 @@ export function AikiRuleVideoPlayer({
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [syncTimeAndStage, selectedAnswer, postToYouTube])
+  }, [syncTimeAndStage, selectedAnswer, postToYouTube, correctIdx])
 
   // Polling getCurrentTime every 500ms when isPlaying === true for YouTube
   useEffect(() => {
@@ -182,16 +185,16 @@ export function AikiRuleVideoPlayer({
 
   // When child selects answer: correct -> resume video immediately, wrong -> stay paused
   useEffect(() => {
-    if (selectedAnswer === 1 || selectedAnswer === '1') {
+    if (selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)) {
       isWaitingQuizRef.current = false
       postToYouTube('playVideo')
       setIsPlaying(true)
-    } else if (selectedAnswer === 0 || selectedAnswer === '0') {
+    } else if (selectedAnswer !== null && selectedAnswer !== undefined) {
       isWaitingQuizRef.current = true
       postToYouTube('pauseVideo')
       setIsPlaying(false)
     }
-  }, [selectedAnswer, postToYouTube])
+  }, [selectedAnswer, postToYouTube, correctIdx])
 
   // Sync with external activeSlideIndex if provided (2-way sync - TUYỆT ĐỐI KHÔNG tự tiện kích hoạt play gây loop)
   useEffect(() => {
@@ -232,7 +235,7 @@ export function AikiRuleVideoPlayer({
       setCurrentSlideIndex(nextIndex)
       onSlideChange?.(nextIndex)
 
-      const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+      const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
       if (targetSec < 15) {
         isWaitingQuizRef.current = false
       } else if (nextIndex === 1 && !isAnswerCorrect) {
@@ -249,7 +252,7 @@ export function AikiRuleVideoPlayer({
         postToYouTube('playVideo')
       }
     }
-  }, [seekTarget, rule.durationSec, rule.slides.length, onSlideChange, postToYouTube, selectedAnswer])
+  }, [seekTarget, rule.durationSec, rule.slides.length, onSlideChange, postToYouTube, selectedAnswer, correctIdx])
 
   // Fallback timer simulation for canvas animation when not YouTube
   useEffect(() => {
@@ -266,7 +269,7 @@ export function AikiRuleVideoPlayer({
           const slideDuration = rule.durationSec / totalSlides
           const nextIndex = Math.min(Math.floor(nextTime / slideDuration), totalSlides - 1)
 
-          const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+          const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
           if (nextTime >= 15 && !isAnswerCorrect) {
             isWaitingQuizRef.current = true
             setIsPlaying(false)
@@ -286,7 +289,7 @@ export function AikiRuleVideoPlayer({
       }, 1000)
     }
     return () => clearInterval(interval)
-  }, [isPlaying, videoSource?.kind, rule.durationSec, rule.slides.length, currentSlideIndex, onSlideChange, selectedAnswer])
+  }, [isPlaying, videoSource?.kind, rule.durationSec, rule.slides.length, currentSlideIndex, onSlideChange, selectedAnswer, correctIdx])
 
   // Text-to-speech helper (AKI voice)
   const speakText = (text: string) => {
@@ -313,7 +316,7 @@ export function AikiRuleVideoPlayer({
   }
 
   const togglePlayPause = () => {
-    const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+    const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
     if (!isPlaying) {
       if ((currentSlideIndex === 1 || elapsedSec >= 15) && isWaitingQuizRef.current && !isAnswerCorrect) {
         setQuizNotice(true)
@@ -341,7 +344,7 @@ export function AikiRuleVideoPlayer({
     setCurrentSlideIndex(nextIndex)
     onSlideChange?.(nextIndex)
 
-    const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+    const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
     if (target < 15) {
       isWaitingQuizRef.current = false
     } else if (nextIndex === 1 && !isAnswerCorrect) {
@@ -657,7 +660,7 @@ export function AikiRuleVideoPlayer({
                   allowFullScreen
                   onLoad={() => postToYouTube('listening')}
                 />
-                {(currentSlideIndex === 1 || quizNotice) && (selectedAnswer !== 1 && selectedAnswer !== '1') && (
+                {(currentSlideIndex === 1 || quizNotice) && (selectedAnswer !== correctIdx && selectedAnswer !== String(correctIdx)) && (
                   <div className="absolute inset-x-0 bottom-3 sm:bottom-4 z-20 mx-auto max-w-lg px-3 sm:px-4 pointer-events-auto">
                     <div className="rounded-2xl bg-white/95 border-2 border-brand-400 p-2.5 sm:p-3 shadow-clay flex items-center gap-2 animate-bounce">
                       <Sparkles className="size-5 text-amber-500 shrink-0" />
@@ -677,7 +680,7 @@ export function AikiRuleVideoPlayer({
                   <button
                     type="button"
                     onClick={() => {
-                      const isAnswerCorrect = selectedAnswer === 1 || selectedAnswer === '1'
+                      const isAnswerCorrect = selectedAnswer === correctIdx || selectedAnswer === String(correctIdx)
                       if ((currentSlideIndex === 1 || elapsedSec >= 15) && isWaitingQuizRef.current && !isAnswerCorrect) {
                         setQuizNotice(true)
                         setTimeout(() => setQuizNotice(false), 3000)
@@ -692,7 +695,7 @@ export function AikiRuleVideoPlayer({
                   </button>
                 )}
 
-                {quizNotice && (selectedAnswer !== 1 && selectedAnswer !== '1') && (
+                {quizNotice && (selectedAnswer !== correctIdx && selectedAnswer !== String(correctIdx)) && (
                   <div className="absolute inset-x-0 bottom-3 sm:bottom-4 z-30 mx-auto max-w-lg px-3 sm:px-4 pointer-events-auto">
                     <div className="rounded-2xl bg-amber-400 text-amber-950 border-2 border-amber-500 p-2.5 sm:p-3 shadow-clay flex items-center justify-center gap-2 animate-bounce">
                       <Sparkles className="size-5 text-amber-950 shrink-0" />

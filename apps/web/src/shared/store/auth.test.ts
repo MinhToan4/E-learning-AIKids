@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   api: vi.fn(),
   clearAccessToken: vi.fn(),
+  clearApiCache: vi.fn(),
   disconnectFirebaseSession: vi.fn().mockResolvedValue(undefined),
   signInWithFirebasePassword: vi.fn().mockResolvedValue('firebase-id-token'),
   registerWithFirebasePassword: vi.fn(),
@@ -13,6 +14,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/shared/lib/api', () => ({
   api: mocks.api,
   clearAccessToken: mocks.clearAccessToken,
+  clearApiCache: mocks.clearApiCache,
 }))
 
 vi.mock('@/shared/lib/firebase-client', () => ({
@@ -242,7 +244,39 @@ describe('auth store', () => {
     expect(useAuth.getState().user).toBeNull()
     expect(useAuth.getState().error).toContain('hết hạn')
     expect(mocks.clearAccessToken).toHaveBeenCalled()
+    expect(mocks.clearApiCache).toHaveBeenCalled()
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
+  })
+
+  it('clears API cache and session tokens upon logout', async () => {
+    useAuth.setState({
+      user: {
+        id: 'adult-1',
+        role: 'parent',
+        email: 'parent@example.test',
+        nickname: 'Parent',
+        avatarId: null,
+        level: 1,
+        xp: 0,
+        onboarded: true,
+        goal: null,
+        parentId: null,
+        classId: null,
+      },
+      access: null,
+      activeContext: null,
+    })
+
+    mocks.api.mockResolvedValueOnce({})
+
+    await useAuth.getState().logout()
+
+    expect(useAuth.getState().user).toBeNull()
+    expect(mocks.clearAccessToken).toHaveBeenCalled()
+    expect(mocks.clearApiCache).toHaveBeenCalled()
+    expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
+    expect(mocks.disconnectFirebaseSession).toHaveBeenCalled()
+    expect(mocks.api).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
   })
 
   it('creates the credential in Firebase and sends only its token to core Account', async () => {

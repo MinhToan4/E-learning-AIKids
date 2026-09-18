@@ -6,6 +6,10 @@ import {
   applyGatekeeperRules,
   getAikiCourseSortOrder,
   sortAikiCourses,
+  formatCourseTitle,
+  getIslandBadge,
+  AIKI_ISLAND_BADGES,
+  WORLD_REGIONS,
   FORCE_UNLOCK_ALL_ISLANDS,
   type PathwayCourse,
 } from './WorldPage'
@@ -210,4 +214,52 @@ describe('AI Kids Learning Roadmap Order (Module 0 / Quy tắc đầu tiên > M1
   })
 })
 
+describe('Island Badges & Title Formatting (ĐẢO TIÊN QUYẾT -> ĐẢO TRÒ CHƠI, bỏ tiền tố Module)', () => {
+  it('formats course titles by stripping Module 0..5 prefixes and keeping course name', () => {
+    expect(formatCourseTitle('Module 0 — Mười quy tắc của Xưởng sáng tạo')).toBe('Mười quy tắc của Xưởng sáng tạo')
+    expect(formatCourseTitle('Module 1 — Nhà thám hiểm AI')).toBe('Nhà thám hiểm AI')
+    expect(formatCourseTitle('Module 2 — Tớ là hoạ sĩ AI!')).toBe('Tớ là hoạ sĩ AI!')
+    expect(formatCourseTitle('Module 3 — Biệt đội nhân vật AI')).toBe('Biệt đội nhân vật AI')
+    expect(formatCourseTitle('Module 4 — Vương quốc truyện tranh AI')).toBe('Vương quốc truyện tranh AI')
+    expect(formatCourseTitle('Module 5 — Nhà phát minh trò chơi AI')).toBe('Nhà phát minh trò chơi AI')
+    expect(formatCourseTitle('Module 1: Nhà thám hiểm AI')).toBe('Nhà thám hiểm AI')
+    expect(formatCourseTitle('Đảo 1: Nhà thám hiểm AI')).toBe('Nhà thám hiểm AI')
+  })
 
+  it('provides correct island badge names matching Module 0 -> 5', () => {
+    expect(AIKI_ISLAND_BADGES).toEqual([
+      'ĐẢO TIÊN QUYẾT',
+      'ĐẢO KHÁM PHÁ',
+      'ĐẢO HOẠ SĨ',
+      'ĐẢO NHÂN VẬT',
+      'ĐẢO TRUYỆN TRANH',
+      'ĐẢO TRÒ CHƠI',
+    ])
+
+    expect(getIslandBadge({ id: 'aiki-rules', title: 'Mười quy tắc của Xưởng sáng tạo' }, 0)).toBe('ĐẢO TIÊN QUYẾT')
+    expect(getIslandBadge({ id: 'dao-1-tham-hiem', title: 'Nhà thám hiểm AI' }, 1)).toBe('ĐẢO KHÁM PHÁ')
+    expect(getIslandBadge({ id: 'dao-2-hoa-si', title: 'Tớ là hoạ sĩ AI!' }, 2)).toBe('ĐẢO HOẠ SĨ')
+    expect(getIslandBadge({ id: 'dao-3-nhan-vat', title: 'Biệt đội nhân vật AI' }, 3)).toBe('ĐẢO NHÂN VẬT')
+    expect(getIslandBadge({ id: 'dao-4-truyen-tranh', title: 'Vương quốc truyện tranh AI' }, 4)).toBe('ĐẢO TRUYỆN TRANH')
+    expect(getIslandBadge({ id: 'dao-5-tro-choi', title: 'Nhà phát minh trò chơi AI' }, 5)).toBe('ĐẢO TRÒ CHƠI')
+  })
+
+  it('WORLD_REGIONS names match the new island naming schema', () => {
+    expect(WORLD_REGIONS.map((r) => r.name)).toEqual([
+      'Đảo Tiên Quyết',
+      'Đảo Khám Phá',
+      'Đảo Hoạ Sĩ',
+      'Đảo Nhân Vật',
+      'Đảo Truyện Tranh',
+      'Đảo Trò Chơi',
+    ])
+  })
+})
+
+describe('WorldPage module cache management', () => {
+  it('exports clearWorldPageCache function to clear cached pathway and progress', async () => {
+    const { clearWorldPageCache } = await import('./WorldPage')
+    expect(typeof clearWorldPageCache).toBe('function')
+    expect(() => clearWorldPageCache()).not.toThrow()
+  })
+})

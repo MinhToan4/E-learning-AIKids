@@ -295,18 +295,6 @@ export function ParentPage({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">
-            Phụ huynh
-          </p>
-          <h1 className="font-display text-2xl md:text-3xl">
-            Xin chào, {(user?.nickname || user?.name) ?? 'Ba / Mẹ'}
-          </h1>
-        </div>
-      </div>
-
       {/* Only the active route owns effects and server state. */}
       {tab === 'dashboard' && <DashboardTab />}
       {tab === 'kids' && <KidsTab />}
@@ -389,16 +377,35 @@ function PlanTab() {
   return (
     <div className="flex flex-col gap-4">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <header className="ui-card p-5">
-        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-          Gói học gia đình
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Gói học gia đình
+            </span>
+          </div>
+        </div>
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+          Chọn gói học phù hợp
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
+          Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc. Chương trình là nội dung; chỉ vùng đã đăng ký mới xuất hiện trong lộ trình của con.
         </p>
-        <h2 className="font-display text-2xl">Chọn gói phù hợp</h2>
-        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted">Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc. Chương trình là nội dung; chỉ vùng đã đăng ký mới xuất hiện trong lộ trình của con.</p>
         {sub && (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-mint-50 p-4"><p className="text-xs font-extrabold uppercase tracking-wide text-success">Gói hiện tại</p><p className="mt-1 font-display text-xl">{sub.planName}</p><p className="mt-1 text-sm text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p></div>
-            <div className="rounded-2xl bg-brand-50 p-4"><p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Quyền học</p><p className="mt-1 font-display text-xl">{sub.maxOpenCoursesPerChild} vùng / con</p><p className="mt-1 text-sm text-muted">Vùng đã hoàn thành vẫn được giữ tiến độ khi đổi gói.</p></div>
+            <div className="rounded-2xl border border-mint-200/80 bg-mint-50/60 p-4 shadow-2xs">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-success">Gói hiện tại</p>
+              <p className="mt-1 font-display text-xl font-black text-slate-900">{sub.planName}</p>
+              <p className="mt-1 text-xs sm:text-sm text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p>
+            </div>
+            <div className="rounded-2xl border border-brand-200/80 bg-brand-50/60 p-4 shadow-2xs">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Quyền học</p>
+              <p className="mt-1 font-display text-xl font-black text-slate-900">{sub.maxOpenCoursesPerChild} vùng / con</p>
+              <p className="mt-1 text-xs sm:text-sm text-muted">Vùng đã hoàn thành vẫn được giữ tiến độ khi đổi gói.</p>
+            </div>
           </div>
         )}
       </header>
@@ -494,21 +501,16 @@ function DashboardTab() {
   return (
     <div className="flex flex-col gap-6">
       {/* ── 1. Household Status Banner ───────────────────────── */}
-      <div className="ui-card relative overflow-hidden p-6 shadow-soft">
-        <div className="absolute right-0 top-0 -mr-12 -mt-12 h-44 w-44 rounded-full bg-brand-500/5 blur-xl" />
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              {/* Đã bỏ badge 'Cổng Phụ huynh' và thông tin gói theo yêu cầu UX */}
-            </div>
-            <h2 className="font-display mt-1 text-2xl font-black text-text md:text-3xl">
-              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
-            </p>
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Tổng quan gia đình
+            </span>
           </div>
-
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
@@ -526,7 +528,13 @@ function DashboardTab() {
             </Button>
           </div>
         </div>
-      </div>
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+          Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
+          Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
+        </p>
+      </header>
 
       {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1307,42 +1315,48 @@ function KidsTab() {
       {/* Toast nổi */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {sub && (
-        <div className="ui-card flex flex-wrap items-center justify-between gap-2 bg-brand-50/50 p-4">
-          <div>
-            <p className="text-xs font-bold uppercase text-muted">Gói gia đình</p>
-            <p className="font-display text-lg text-brand-600">
-              {sub.planName} · {sub.childCount}/{sub.maxChildren} ghế con
-            </p>
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Hồ sơ con ({kids.filter((k) => k.active !== false).length}/{maxKids})
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setEditTarget(null)}
+              disabled={seatsLeft <= 0}
+            >
+              + Thêm con
+            </Button>
+          </div>
+        </div>
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+          Quản lý tài khoản các con
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
+          Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập. Tiến trình và chương trình học được quản lý riêng tại Trung tâm học tập.
+        </p>
+        {sub && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-200/80 bg-brand-50/60 p-4 shadow-2xs">
+            <div>
+              <p className="text-xs font-bold uppercase text-muted">Gói gia đình hiện tại</p>
+              <p className="font-display text-lg font-black text-brand-700">
+                {sub.planName} · {sub.childCount}/{sub.maxChildren} ghế con
+              </p>
+            </div>
             <Link
               to="/parent/plan"
-              className="text-sm font-bold text-brand-500 hover:underline self-center"
+              className="text-xs sm:text-sm font-bold text-brand-600 hover:underline"
             >
-              Đổi gói →
+              Đổi gói học →
             </Link>
           </div>
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="flex items-center gap-2 font-display text-xl">
-            <UsersRound size={22} aria-hidden="true" />
-            Hồ sơ các con ({kids.filter((k) => k.active !== false).length}/{maxKids})
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
-            Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập. Tiến trình và chương trình học được quản lý riêng tại Học tập.
-          </p>
-        </div>
-        <Button
-          onClick={() => setEditTarget(null)}
-          disabled={seatsLeft <= 0}
-        >
-          + Thêm con
-        </Button>
-      </div>
+        )}
+      </header>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {kids.length === 0 && (
           <div className="ui-card p-6 text-center sm:col-span-2 xl:col-span-3">
@@ -1935,12 +1949,26 @@ function ApprovalsTab() {
   if (loading) return <LoadingSkeleton count={3} />
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="flex items-center gap-2 font-display text-xl">
-        <Bell size={20} aria-hidden="true" />
-        Yêu cầu chia sẻ
-      </h2>
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Phê duyệt an toàn
+            </span>
+          </div>
+        </div>
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+          Yêu cầu chia sẻ & Kết nối bạn bè
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
+          Xem và duyệt các yêu cầu kết bạn, chia sẻ sản phẩm sáng tạo từ các con nhằm bảo đảm môi trường học tập an toàn.
+        </p>
+      </header>
 
 
       <ProfileSharingPanel />
@@ -2075,10 +2103,24 @@ function ProfileTab() {
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="flex items-center gap-2 font-display text-xl">
-        <Settings size={20} aria-hidden="true" />
-        Hồ sơ phụ huynh
-      </h2>
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Cài đặt tài khoản
+            </span>
+          </div>
+        </div>
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+          Hồ sơ & Bảo mật tài khoản
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
+          Cập nhật thông tin liên hệ, ngôn ngữ hiển thị và quản lý mật khẩu tài khoản phụ huynh.
+        </p>
+      </header>
 
       <form onSubmit={(e) => void saveProfile(e)} className="ui-card flex flex-col gap-4 p-5">
         <div className="grid gap-4 sm:grid-cols-2">

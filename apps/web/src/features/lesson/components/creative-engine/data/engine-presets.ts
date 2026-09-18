@@ -7,6 +7,16 @@ export const ALL_CREATIVE_ENGINE_MODES: CreativeEngineMode[] = [
   'layer-stacking',
   'identity-lock',
   'card-forge',
+  'creative-notebook',
+]
+
+export const ALL_IMAGE_CREATIVE_ENGINE_MODES: CreativeEngineMode[] = [
+  'magic-keys',
+  'style-prism',
+  'prompt-doctor',
+  'layer-stacking',
+  'identity-lock',
+  'card-forge',
 ]
 
 export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
@@ -16,7 +26,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: '4 Chìa Khóa',
     icon: '🔑',
     description: 'Ghép 4 chìa khóa vàng: Ai? + Trông thế nào? + Đang làm gì? + Ở đâu?',
-    badge: 'M1.1 · M1.2 · M4.2 · M5.1',
+    badge: 'M1.1 · M1.2',
   },
   'style-prism': {
     mode: 'style-prism',
@@ -24,7 +34,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: 'Lăng Kính',
     icon: '🔮',
     description: 'Xoay 4 lăng kính phong cách mỹ thuật: Đất nặn, Màu nước, Chibi, Đông Hồ',
-    badge: 'M1.3 · M2.1 · M4.5 · M5.3',
+    badge: 'M1.3 · M2.3 · M5.3',
   },
   'prompt-doctor': {
     mode: 'prompt-doctor',
@@ -32,7 +42,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: 'Bác Sĩ AKI',
     icon: '🩺',
     description: 'Bắt bệnh tranh hỏng và gắn thẻ thuốc chữa lành câu lệnh',
-    badge: 'M1.4 · M4.1 · M5.4',
+    badge: 'M1.4',
   },
   'layer-stacking': {
     mode: 'layer-stacking',
@@ -40,7 +50,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: '3 Tầng',
     icon: '🎭',
     description: 'Xếp bố cục không gian 3 tầng: Hậu cảnh - Ngôi sao 1/3 - Tiền cảnh',
-    badge: 'M2.2 · M2.4 · M3.4 · M4.3',
+    badge: 'M2.2 · M2.4 · M3.4',
   },
   'identity-lock': {
     mode: 'identity-lock',
@@ -48,7 +58,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: 'Khóa Mật Mã',
     icon: '🔒',
     description: 'Khóa chặt 3 mật mã ADN bất biến và xoay bánh xe 6 biểu cảm',
-    badge: 'M2.3 · M3.2 · M3.3 · M4.4',
+    badge: 'M3.2 · M3.3 · M4.4',
   },
   'card-forge': {
     mode: 'card-forge',
@@ -56,45 +66,55 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: 'Đúc Thẻ Bài',
     icon: '🃏',
     description: 'Phù phép mặt thẻ bài, hệ nguyên tố và cân bằng chỉ số sức mạnh',
-    badge: 'M3.1 · M5.2 · M5.5',
+    badge: 'Đúc Thẻ Tự Do',
+  },
+  'creative-notebook': {
+    mode: 'creative-notebook',
+    title: 'Sổ Tay Sáng Tạo Ba Lô',
+    shortName: 'Sổ Tay Ba Lô',
+    icon: '🎒',
+    description: 'Lập hồ sơ, viết cốt truyện, phân cảnh storyboard và cân bằng luật chơi cất vào Ba Lô',
+    badge: 'M2.1 · M3.1 · M4.1 · M4.2 · M4.3 · M4.5 · M5.1 · M5.2 · M5.4 · M5.5',
   },
 }
 
 /**
- * Phân phối cố định cả 6 Game Engines cho toàn bộ 22 bài học từ M1.1 đến M5.5
+ * Phân phối cố định cả 7 Creative Engines cho toàn bộ 22 bài học từ M1.1 đến M5.5:
+ * - 12 Trạm Studio Tạo Ảnh (MagicKeys, StylePrism, PromptDoctor, LayerStacking, IdentityLock)
+ * - 10 Trạm Sổ Tay Sáng Tạo Ba Lô (CreativeNotebook chuyên sâu viết kịch bản, hồ sơ ADN, luật chơi)
  */
 export const LESSON_ENGINE_MAP: Record<string, CreativeEngineMode> = {
-  // M1: Khám Phá & Đặt Nền Móng
+  // M1: Khám Phá & Đặt Nền Móng (100% Studio Ảnh)
   '1.1': 'magic-keys',
   '1.2': 'magic-keys',
   '1.3': 'style-prism',
   '1.4': 'prompt-doctor',
 
   // M2: Không Gian & Bố Cục
-  '2.1': 'style-prism',
+  '2.1': 'creative-notebook', // Cốt truyện Cáo Lửa
   '2.2': 'layer-stacking',
-  '2.3': 'identity-lock',
+  '2.3': 'style-prism',
   '2.4': 'layer-stacking',
 
   // M3: Nhân Vật & Nhận Diện Nhất Quán
-  '3.1': 'card-forge',
+  '3.1': 'creative-notebook', // Hồ sơ ADN 6 chỉ số
   '3.2': 'identity-lock',
   '3.3': 'identity-lock',
   '3.4': 'layer-stacking',
 
   // M4: Thế Giới Truyện Tranh & Khung Hình
-  '4.1': 'prompt-doctor',
-  '4.2': 'magic-keys',
-  '4.3': 'layer-stacking',
+  '4.1': 'creative-notebook', // Kịch bản 3 cổng
+  '4.2': 'creative-notebook', // Nhật ký 4 ải
+  '4.3': 'creative-notebook', // Bản thảo 8 ô
   '4.4': 'identity-lock',
-  '4.5': 'style-prism',
+  '4.5': 'creative-notebook', // Lời bạt & Hội chợ
 
   // M5: Đấu Trường Thẻ Bài & Trò Chơi
-  '5.1': 'magic-keys',
-  '5.2': 'card-forge',
+  '5.1': 'creative-notebook', // Ý tưởng nguyên tố
+  '5.2': 'creative-notebook', // Bảng tính ngân sách 20đ
   '5.3': 'style-prism',
-  '5.4': 'prompt-doctor',
-  '5.5': 'card-forge',
+  '5.4': 'creative-notebook', // Bộ luật 5 câu
+  '5.5': 'creative-notebook', // Bản đồ bàn cờ & giải đấu
 }
 
 /**
@@ -138,13 +158,13 @@ export function hashStringToSeed(str: string): number {
 }
 
 /**
- * Chọn ngẫu nhiên 1 trong 6 creative engine mode.
+ * Chọn ngẫu nhiên 1 trong 6 creative engine mode tạo ảnh (tuyệt đối không chọn nhầm vào creative-notebook).
  * Nếu truyền excludeCurrent, kết quả trả về chắc chắn khác với excludeCurrent.
  */
 export function getRandomCreativeEngineMode(excludeCurrent?: CreativeEngineMode): CreativeEngineMode {
   const pool = excludeCurrent
-    ? ALL_CREATIVE_ENGINE_MODES.filter((m) => m !== excludeCurrent)
-    : ALL_CREATIVE_ENGINE_MODES
+    ? ALL_IMAGE_CREATIVE_ENGINE_MODES.filter((m) => m !== excludeCurrent)
+    : ALL_IMAGE_CREATIVE_ENGINE_MODES
   const randomIndex = Math.floor(Math.random() * pool.length)
   return pool[randomIndex]
 }

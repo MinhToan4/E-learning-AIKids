@@ -99,14 +99,70 @@ Các mã màu định danh trong CSS variables (`apps/web/src/shared/styles/inde
 
 ---
 
-## 5. Quy Chuẩn Bố Cục (Flatten Layout)
+## 5. Quy Chuẩn Bố Cục Đa Màn Hình & Kỷ Luật Chống Tràn Khung (Zero-Overflow & Multi-Screen Engine)
 
-1. **Giảm thiểu độ sâu viền (Max 1–2 Border Layers)**:
-   - Tuyệt đối không lồng 4–5 lớp card có viền xám chồng chéo khiến không gian bị co hẹp dạng hộp trong hộp.
-   - Sử dụng màu nền phân vùng (`bg-slate-50/50`, `bg-brand-50/40`, `bg-white`) thay vì vẽ thêm viền phụ.
-2. **Tối Đa Hóa Không Gian Thao Tác (Expanded Canvas Workspace)**:
-   - Trẻ em cần không gian lớn để kéo thả, bấm chọn đồ chơi tương tác Montessori.
-   - Chiều rộng khu vực tương tác luôn đạt tối đa (`w-full max-w-4xl`), khoảng cách phím bấm thoáng (gap-4 tới gap-6).
+> [!CAUTION]
+> **LỖI NGHIÊM TRỌNG THƯỜNG GẶP**: Giao diện bị đè ra khung (clipping/overflow), xuất hiện thanh cuộn kép (double scroll), hoặc bị giật lắc ngang (horizontal wobble) trên điện thoại và tablet. Mọi agent/developer bắt buộc tuân thủ 5 kỷ luật sắt dưới đây:
+
+### 5.1. Kỷ Luật "Flex Child Defense" (`min-w-0` & `min-h-0`) — TRỊ TẬN GỐC LỖI ĐÈ RA KHUNG
+* **Nguyên nhân gốc rễ:** Trong CSS/Tailwind, mặc định mọi `flex-item` có `min-width: auto`. Khi bên trong chứa text dài, ảnh, SVG, công thức KaTeX hoặc component con, flex-item **KHÔNG BAO GIỜ TỰ CO LẠI**, dẫn tới xé toạc khung cha và đè tràn ra ngoài màn hình.
+* **Quy tắc bắt buộc:**
+  - Bất kỳ flex child nào nằm trong `flex row` mà chứa text, icon, hoặc thẻ con co giãn **BẮT BUỘC PHẢI CÓ `min-w-0`**:
+    ```tsx
+    // ❌ SAI (Text dài sẽ đẩy nút bấm vỡ khung trên màn hình nhỏ):
+    <div className="flex items-center gap-3">
+      <p className="truncate">{title}</p>
+      <button className="shrink-0">Nộp bài</button>
+    </div>
+
+    // ✔️ ĐÚNG (min-w-0 cho phép flex item co lại để truncate hoạt động chuẩn):
+    <div className="flex items-center gap-3 w-full">
+      <div className="flex-1 min-w-0">
+        <p className="truncate font-bold">{title}</p>
+      </div>
+      <button className="shrink-0">Nộp bài</button>
+    </div>
+    ```
+  - Bất kỳ layout `flex-col` nào có vùng cuộn nội dung con **BẮT BUỘC PHẢI CÓ `min-h-0`** trên phần tử co giãn:
+    ```tsx
+    // ✔️ ĐÚNG (Đảm bảo container con không bung quá chiều cao màn hình):
+    <div className="flex flex-col h-[100dvh]">
+      <header className="shrink-0 h-16">Header</header>
+      <main className="flex-1 min-h-0 overflow-y-auto">Nội dung cuộn mượt</main>
+      <footer className="shrink-0">Thanh điều hướng</footer>
+    </div>
+    ```
+
+### 5.2. Kiến Trúc "1 Vùng Cuộn Duy Nhất" (Single Scroll Context) — TRỊ LỖI SCROLL RÁC
+* **CẤM TUYỆT ĐỐI:** Lồng một container có `overflow-y-auto` bên trong một thẻ cha cũng đang có `overflow-y-auto` mà không khống chế chiều cao. Hiện tượng này tạo ra 2 thanh cuộn lồng nhau (Double Scrollbar) gây ức chế tột cùng cho trẻ em khi vuốt chạm.
+* **Quy chuẩn chuẩn hóa:**
+  1. Toàn bộ màn hình dạng App/LMS Dashboard: Khung gốc ngoài cùng phải khóa cố định: `h-[100dvh] overflow-hidden flex flex-col`.
+  2. Chỉ duy nhất một thẻ con `flex-1 min-h-0 overflow-y-auto overflow-x-hidden` được phép nhận sự kiện cuộn.
+  3. Mọi dialog/modal: Phải có `max-h-[90dvh] flex flex-col`, phần body của modal là `flex-1 min-h-0 overflow-y-auto`.
+
+### 5.3. Quy Chuẩn Chiều Cao Động Màn Hình Di Động (`100dvh` Thay Vì `100vh`)
+* **Vấn đề trên Mobile Safari & Chrome:** Khi thanh địa chỉ (URL bar) xuất hiện hoặc ẩn đi, `100vh` sẽ tính sai và làm ẩn mất 60–80px ở chân trang, khiến nút CTA nộp bài hoặc footer bị trôi ra ngoài màn hình.
+* **Quy tắc:**
+  - **100% thay thế `100vh` bằng `100dvh`**: Sử dụng `h-[100dvh]` hoặc `min-h-[100dvh]`.
+  - Luôn thêm vùng đệm an toàn tai thỏ/thanh gạt đáy: `pb-[env(safe-area-inset-bottom,16px)]` hoặc `pb-safe`.
+
+### 5.4. Quy Chuẩn Kích Thước Co Giãn (Fluid Sizing Thay Vì Fixed Pixel)
+* **CẤM TUYỆT ĐỐI:** Dùng chiều rộng cố định lớn hơn 300px như `w-[450px]`, `w-[600px]`, `w-[800px]`.
+* **Thay thế bằng:**
+  - `w-full max-w-lg mx-auto` hoặc `w-full max-w-4xl mx-auto`.
+  - Padding co giãn theo breakpoint: Không dùng `p-8` cố định. Phải dùng: `p-3.5 sm:p-5 md:p-6 lg:p-8`.
+  - Gap co giãn: `gap-2.5 sm:gap-4 md:gap-6`.
+  - Grid co giãn tự động: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` thay vì hardcode `grid-cols-3`.
+
+### 5.5. Chống Tràn Ngang & Tự Động Bẻ Dòng (Word Wrapping & Overflow Clip)
+* **Khung gốc Body/Layout:** Luôn đặt `overflow-x-clip` hoặc `overflow-x-hidden` để triệt tiêu hiện tượng giật lắc ngang (horizontal wobble).
+* **Text dài & Tiêu đề:** Mọi thẻ text hiển thị nội dung động (tên bài, lời nhắn Mee, đề toán) phải có `break-words` hoặc `line-clamp-2` kết hợp `min-w-0`.
+* **Công thức toán KaTeX & Bảng dữ liệu:** Nếu nội dung bản chất không thể bẻ dòng (như phân số dài hay bảng Olympic), bắt buộc bọc trong container cuộn cục bộ:
+  ```tsx
+  <div className="w-full max-w-full overflow-x-auto py-1 scrollbar-thin">
+    <AsmoFormula math={complexFormula} />
+  </div>
+  ```
 
 ---
 
@@ -132,3 +188,28 @@ Các mã màu định danh trong CSS variables (`apps/web/src/shared/styles/inde
 2. **Comic Flashcards & Montessori Manipulatives**:
    - Trực quan hóa bằng thẻ truyện tranh tư duy (Visual Secret Comic Card).
    - Trang bị thanh kéo thả, đĩa cân bập bênh động, mặt đồng hồ có thể xoay kim, mô hình khối 3D trải phẳng 2D.
+
+---
+
+## 8. Ma Trận Kiểm Thử Responsive (Device Testing Matrix & Verification Checklist)
+
+Trước khi bàn giao bất kỳ màn hình nào, `@Design-agent` và `@FE-agent` **BẮT BUỘC** phải rà soát qua 4 mốc kích thước thiết bị:
+
+| Thiết Bị Mục Tiêu | Độ Rộng Viewport | Yêu Cầu Kiểm Tra Bắt Buộc |
+| :--- | :--- | :--- |
+| **Mobile Nhỏ (iPhone SE, Galaxy A-series)** | `360px – 390px` | Không có thanh cuộn ngang; Padding lề gọn (`14px–16px`); Nút CTA vừa vặn không che khuất nội dung; Font tiêu đề co về `text-lg` hoặc `text-xl`. |
+| **Mobile Chuẩn & Landscape (Xoay Ngang)** | `393px – 430px` (Dọc)<br>`667px – 844px` (Ngang) | Khi xoay ngang màn hình (chiều cao hẹp chỉ ~390px): Header/Footer không được chiếm quá 40% chiều cao; Vùng học tập vẫn cuộn được để thấy nút Nộp bài. |
+| **Tablet (iPad 10.2", iPad Air, Galaxy Tab)** | `768px – 1024px` | Đây là thiết bị chính của học sinh: Layout 2 cột cân đối (Cột trái đề bài/Montessori, cột phải tương tác); Touch targets cực nhạy, tối thiểu `48px`. |
+| **Desktop / Laptop** | `1280px – 1536px+` | Nội dung được giới hạn trong khung chứa (`max-w-5xl` hoặc `max-w-6xl mx-auto`), không bị giãn bè ra 2 mép màn hình rộng gây mỏi mắt. |
+
+### 🔍 Lệnh Debug Phát Hiện Tràn Khung Trong 3 Giây (DevTools Console):
+Dán đoạn mã sau vào Chrome DevTools Console để bôi đỏ ngay lập tức bất kỳ phần tử nào đang đè tràn ra ngoài màn hình:
+```javascript
+document.querySelectorAll('*').forEach(el => {
+  if (el.offsetWidth > document.documentElement.offsetWidth) {
+    console.warn('Phần tử tràn khung:', el);
+    el.style.outline = '2px dashed red';
+  }
+});
+```
+

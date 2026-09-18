@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from '@/shared/store/auth'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
 import { AUTH_UNAUTHORIZED_EVENT, type User } from '@/shared/lib/api'
+import { hasAnyPermission } from '@/shared/lib/rbac'
 
 // Lazy layout
 const AppShell = lazy(() =>
@@ -62,11 +63,6 @@ const WorldPage = lazy(() =>
 const CourseIntroPage = lazy(() =>
   import('@/features/course/pages/CourseIntroPage').then((m) => ({
     default: m.CourseIntroPage,
-  })),
-)
-const RulesRoadmapPage = lazy(() =>
-  import('@/features/rules/pages/RulesRoadmapPage').then((m) => ({
-    default: m.RulesRoadmapPage,
   })),
 )
 const RuleLearningPage = lazy(() =>
@@ -269,17 +265,27 @@ function homeFor(role: User['role']) {
 function Guard({
   children,
   roles,
+  permissions,
   requireOnboarded = false,
 }: {
   children: React.ReactNode
   roles?: Array<User['role']>
+  permissions?: string[]
   requireOnboarded?: boolean
 }) {
   const user = useAuth((s) => s.user)
+  const activeContext = useAuth((s) => s.activeContext)
   const loading = useAuth((s) => s.loading)
   if (loading) return <Fallback />
   if (!user) return <Navigate to="/login" replace />
   if (roles && !roles.includes(user.role)) {
+    return <Navigate to={homeFor(user.role)} replace />
+  }
+  if (
+    permissions &&
+    permissions.length > 0 &&
+    !hasAnyPermission(user, activeContext, permissions)
+  ) {
     return <Navigate to={homeFor(user.role)} replace />
   }
   if (requireOnboarded && user.role === 'student' && !user.onboarded) {
@@ -323,7 +329,7 @@ export function App() {
           <Route
             path="/kids"
             element={
-              <Guard>
+              <Guard roles={['parent', 'teacher', 'admin']}>
                 <ChildPickerPage />
               </Guard>
             }
@@ -422,11 +428,7 @@ export function App() {
             />
             <Route
               path="/rules"
-              element={
-                <Guard roles={['student']} requireOnboarded>
-                  <RulesRoadmapPage />
-                </Guard>
-              }
+              element={<Navigate to="/world" replace />}
             />
             <Route
               path="/rules/:ruleId"
@@ -700,11 +702,7 @@ export function App() {
             />
             <Route
               path="/teacher/lectures"
-              element={
-                <Guard roles={['teacher', 'admin']}>
-                  <TeacherPage tab="lectures" />
-                </Guard>
-              }
+              element={<Navigate to="/teacher/courses" replace />}
             />
             <Route
               path="/teacher/stats"
@@ -762,7 +760,7 @@ export function App() {
             <Route
               path="/admin/logs"
               element={
-                <Guard roles={['admin']}>
+                <Guard roles={['admin']} permissions={['system.logs']}>
                   <AdminPage tab="logs" />
                 </Guard>
               }
@@ -770,16 +768,32 @@ export function App() {
             <Route
               path="/admin/users"
               element={
-                <Guard roles={['admin']}>
+                <Guard roles={['admin']} permissions={['users.view']}>
                   <AdminPage tab="users" />
+                </Guard>
+              }
+            />
+            <Route
+              path="/admin/roles"
+              element={
+                <Guard roles={['admin']} permissions={['system.manage_roles']}>
+                  <AdminPage tab="roles" />
+                </Guard>
+              }
+            />
+            <Route
+              path="/admin/classes"
+              element={
+                <Guard roles={['admin']} permissions={['classroom.view']}>
+                  <TeacherPage tab="class" />
                 </Guard>
               }
             />
             <Route
               path="/admin/courses"
               element={
-                <Guard roles={['admin']}>
-                  <AdminPage tab="courses" />
+                <Guard roles={['admin']} permissions={['curriculum.view']}>
+                  <TeacherPage tab="courses" />
                 </Guard>
               }
             />
@@ -802,7 +816,7 @@ export function App() {
             <Route
               path="/admin/ai"
               element={
-                <Guard roles={['admin']}>
+                <Guard roles={['admin']} permissions={['system.ai_routing']}>
                   <AdminPage tab="ai" />
                 </Guard>
               }
@@ -810,7 +824,7 @@ export function App() {
             <Route
               path="/admin/billing"
               element={
-                <Guard roles={['admin']}>
+                <Guard roles={['admin']} permissions={['billing.view']}>
                   <AdminPage tab="billing" />
                 </Guard>
               }

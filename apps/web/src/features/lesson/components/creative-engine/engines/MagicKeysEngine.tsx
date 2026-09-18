@@ -125,13 +125,23 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
   canvasSlot,
   practiceSlot,
   promptSlot,
+  practiceParts,
+  activePartIndex,
+  onPartChange,
 }) => {
   const [selectedSubjectOverride, setSelectedSubjectOverride] = useState<string | null>(null)
-  const effectiveSubject = selectedSubjectOverride || selectedSubject || characterName || 'Cái cốc sứ trắng'
+
+  const partSubject =
+    practiceParts && activePartIndex !== undefined && practiceParts[activePartIndex]
+      ? practiceParts[activePartIndex].title.replace(/\s*\(.*?\)/, '').trim() || practiceParts[activePartIndex].title
+      : null
+
+  const effectiveSubject =
+    selectedSubjectOverride || partSubject || selectedSubject || characterName || 'Cái cốc sứ trắng'
 
   useEffect(() => {
     setSelectedSubjectOverride(null)
-  }, [selectedSubject, characterName])
+  }, [selectedSubject, characterName, activePartIndex])
 
   const buildSubjectBlock = useCallback((name: string): CreativeBlock => {
     const matched = SUBJECT_BLOCKS.find(
@@ -398,7 +408,7 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
       >
         <div
           data-testid="magic-keys-palette-modal"
-          className="w-full max-w-xl bg-white rounded-3xl border-3 border-amber-300 shadow-2xl p-4 sm:p-5 flex flex-col gap-3 relative max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-xl bg-white rounded-3xl border-3 border-amber-300 shadow-2xl p-4 sm:p-5 flex flex-col gap-3 relative max-h-[90dvh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Modal Header */}

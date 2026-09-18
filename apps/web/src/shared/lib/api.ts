@@ -15,9 +15,14 @@ export const AUTH_UNAUTHORIZED_EVENT = 'storymee:auth-unauthorized'
 
 function sharedCookieDomain(): string {
   if (typeof window === 'undefined') return ''
-  return window.location.hostname.toLowerCase().endsWith('.aikid.vn')
-    ? '; Domain=.aikid.vn'
-    : ''
+  const host = window.location.hostname.toLowerCase()
+  if (host === 'aikid.vn' || host.endsWith('.aikid.vn')) {
+    return '; Domain=.aikid.vn'
+  }
+  if (host === 'aikid' || host.endsWith('.aikid')) {
+    return '; Domain=.aikid'
+  }
+  return ''
 }
 
 function readSharedTokenCookie(): string | null {
@@ -30,6 +35,28 @@ function readSharedTokenCookie(): string | null {
   } catch {
     return null
   }
+}
+
+function readUrlSsoToken(): string | null {
+  if (typeof window === 'undefined' || !window.location?.search) return null
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const ssoToken = params.get('sso_token') || params.get('token')
+    if (ssoToken) {
+      params.delete('sso_token')
+      params.delete('token')
+      const searchStr = params.toString()
+      const newUrl =
+        window.location.pathname +
+        (searchStr ? `?${searchStr}` : '') +
+        window.location.hash
+      window.history.replaceState(null, '', newUrl)
+      return ssoToken
+    }
+  } catch {
+    // ignore query extraction or history state replacement issues
+  }
+  return null
 }
 
 function writeSharedTokenCookie(token: string): void {
@@ -52,6 +79,15 @@ export function gatewayUrl(path: string): string {
 }
 
 export function getAccessToken(): string | null {
+  const urlToken = readUrlSsoToken()
+  if (urlToken) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(TOKEN_KEY, urlToken)
+    }
+    writeSharedTokenCookie(urlToken)
+    return urlToken
+  }
+
   if (typeof localStorage === 'undefined') return readSharedTokenCookie()
   const sharedToken = readSharedTokenCookie()
   if (sharedToken) {
@@ -187,28 +223,66 @@ export class ApiError extends Error {
 }
 
 const inFlightGetRequests = new Map<string, Promise<unknown>>()
-const getResponseCache = new Map<string, { expiresAt: number; value: unknown }>()
+const getResponseCache = new Map<string, { expiresAt: number; staleUntil: number; value: unknown }>()
+
+const DEFAULT_STALE_WINDOW = 300_000 // 5 phút cache stale-while-revalidate
 
 function responseCacheTtl(path: string): number {
-  if (path.startsWith('/api/courses/')) return 15_000
-  if (path.startsWith('/api/learning/pathway')) return 30_000
+  if (path === '/api/auth/firebase/config') return 300_000 // 5 phút cache cấu hình Firebase
+  if (path.startsWith('/api/teacher/lectures') || path.startsWith('/api/admin/courses') || path.startsWith('/api/courses')) return 60_000
+  if (path.startsWith('/api/learning/pathway')) return 60_000
   if (path.startsWith('/api/learning/age-policy')) return 300_000 // 5 phút policy tuổi tĩnh
   if (path.startsWith('/api/progress/')) return 15_000
   if (path.startsWith('/api/parent/plans') || path.startsWith('/api/parent/subscription')) return 60_000
   if (path.startsWith('/api/notifications')) return 15_000 // debounce 15s tránh spam request khi đổi tab
   if (path.startsWith('/api/admin/legend-studio')) return 30_000
   if (path.startsWith('/api/gamification/catalog')) return 60_000
-  if (path === '/api/gamification/achievements') return 15_000
-  if (path === '/api/courses' || path === '/api/enrollments') return 15_000
-  if (path.startsWith('/api/gamification/profile') || path.startsWith('/api/gamification/storybook') || path.startsWith('/api/gamification/streak')) return 10_000
+  if (path.startsWith('/api/gamification/social')) return 30_000
+  if (path === '/api/gamification/achievements' || path === '/api/gamification/daily-mission' || path === '/api/v1/gamification/me/missions') return 15_000
+  if (path === '/api/enrollments') return 30_000
+  if (path.startsWith('/api/gamification/profile') || path.startsWith('/api/gamification/storybook') || path.startsWith('/api/gamification/streak')) return 30_000
+  if (path.startsWith('/api/gamification/class-celebration')) return 30_000
+  if (path.startsWith('/api/backpack')) return 30_000
+  if (path.startsWith('/api/projects')) return 30_000
+  if (path.startsWith('/api/profile/settings')) return 30_000
+  if (path.startsWith('/api/parent/children/')) return 15_000
   if (path.startsWith('/api/parent/children') || path.startsWith('/api/teacher/class')) return 10_000
   if (path.startsWith('/api/schedule') || path.startsWith('/api/reports') || path.startsWith('/api/competency-map') || path.startsWith('/api/credentials')) return 10_000
   if (path === '/api/admin/system' || path === '/api/admin/analytics') return 10_000
   return 0
 }
 
-function clearResponseCache() {
+export const getCacheTtlMs = responseCacheTtl
+
+export function clearApiCache(): void {
   getResponseCache.clear()
+  inFlightGetRequests.clear()
+}
+
+const clearResponseCache = clearApiCache
+
+function attachSignal<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T> {
+  if (!signal) return promise
+  if (signal.aborted) {
+    return Promise.reject(signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener('abort', onAbort)
+      reject(signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
+    }
+    signal.addEventListener('abort', onAbort)
+    promise.then(
+      (val) => {
+        signal.removeEventListener('abort', onAbort)
+        resolve(val)
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort)
+        reject(err)
+      },
+    )
+  })
 }
 
 export function api<T = unknown>(
@@ -222,8 +296,7 @@ export function api<T = unknown>(
   const canDedupe =
     method === 'GET' &&
     options.body === undefined &&
-    options.headers === undefined &&
-    options.signal === undefined
+    (!options.headers || Object.keys(options.headers).length === 0)
   if (!canDedupe) {
     // A mutation can change several projections (catalog, achievements and
     // profile) at once. Clear the small in-memory GET cache rather than risk
@@ -234,25 +307,60 @@ export function api<T = unknown>(
 
   const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
   const cached = getResponseCache.get(key)
-  if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.value as T)
-  if (cached) getResponseCache.delete(key)
-  const pending = inFlightGetRequests.get(key)
-  if (pending) return pending as Promise<T>
-
-  const request = executeApi<T>(legacyPath, options)
-  inFlightGetRequests.set(key, request)
-  void request.finally(() => {
-    if (inFlightGetRequests.get(key) === request) {
-      inFlightGetRequests.delete(key)
-    }
-  }).catch(() => undefined)
+  const now = Date.now()
   const ttl = responseCacheTtl(legacyPath)
-  if (ttl > 0) {
-    void request.then((value) => {
-      getResponseCache.set(key, { expiresAt: Date.now() + ttl, value })
-    }).catch(() => undefined)
+
+  const triggerBackgroundFetch = (): Promise<T> => {
+    let pending = inFlightGetRequests.get(key) as Promise<T> | undefined
+    if (!pending) {
+      const fetchOpts: RequestInit = { ...options }
+      delete fetchOpts.signal
+      const request = executeApi<T>(legacyPath, fetchOpts)
+      inFlightGetRequests.set(key, request)
+      void request.finally(() => {
+        if (inFlightGetRequests.get(key) === request) {
+          inFlightGetRequests.delete(key)
+        }
+      }).catch(() => undefined)
+      if (ttl > 0) {
+        void request.then((value) => {
+          getResponseCache.set(key, {
+            expiresAt: Date.now() + ttl,
+            staleUntil: Date.now() + ttl + DEFAULT_STALE_WINDOW,
+            value,
+          })
+        }).catch(() => undefined)
+      }
+      pending = request
+    }
+    return pending
   }
-  return request
+
+  // 1. Fresh cache: return immediately (0ms)
+  if (cached && now < cached.expiresAt) {
+    if (options.signal?.aborted) {
+      return Promise.reject(options.signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
+    }
+    return Promise.resolve(cached.value as T)
+  }
+
+  // 2. Stale cache within stale window: return cached value immediately, revalidate in background
+  if (cached && now < cached.staleUntil) {
+    if (options.signal?.aborted) {
+      return Promise.reject(options.signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
+    }
+    triggerBackgroundFetch()
+    return Promise.resolve(cached.value as T)
+  }
+
+  // 3. Cache completely expired: remove from cache
+  if (cached) {
+    getResponseCache.delete(key)
+  }
+
+  // 4. No cache or completely expired: execute or reuse in-flight request, attached with signal
+  const pending = triggerBackgroundFetch()
+  return attachSignal(pending, options.signal)
 }
 
 api.get = function <T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
@@ -298,27 +406,42 @@ async function executeApi<T>(
   }
   const url = `${API_BASE}${request.path}`
 
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  let signal = request.options.signal
+  if (!signal && typeof AbortController !== 'undefined') {
+    const controller = new AbortController()
+    timeoutId = setTimeout(() => controller.abort(new Error('Request timeout')), 10_000)
+    signal = controller.signal
+  }
+
   let res: Response
   try {
     res = await fetch(url, {
       ...request.options,
       headers,
       credentials: 'omit',
+      signal,
     })
   } catch (e) {
+    if (request.options.signal?.aborted) throw e
     // Browser "Failed to fetch" = network / CORS / API offline
     const raw = e instanceof Error ? e.message : String(e)
+    const timeout = e instanceof Error && (e.name === 'AbortError' || raw.includes('Request timeout'))
     const offline =
       /failed to fetch|networkerror|load failed|network request failed/i.test(
         raw,
       )
     throw new ApiError(
       0,
-      offline
+      timeout
+        ? 'Kết nối quá hạn. Vui lòng kiểm tra mạng và thử lại.'
+        : offline
         ? 'Ôi, có vẻ mạng đang ngủ quên rồi! 🌙 Kiểm tra Wi-Fi rồi thử lại nhé.'
         : 'Mạng hơi bận chút. Chờ một xíu rồi thử lại nhé! 😊',
       { cause: raw, path: request.path, base: API_BASE },
     )
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId)
   }
 
   let data: unknown = null
@@ -455,6 +578,12 @@ export type CourseSummary = {
     practiceKind: string
     stage?: string
     status?: string
+    access?: {
+      mode?: 'inherit' | 'free_trial' | 'plan_required' | 'locked'
+      minPlanTier?: number
+      trialBadge?: string
+      lockedReason?: string
+    }
   }>
 }
 
@@ -650,6 +779,7 @@ export interface SixStageWorkflowStep {
 }
 
 export interface SixStagePracticePartDef {
+  id?: string
   partNumber: number
   title: string
   icon?: string
@@ -662,6 +792,47 @@ export interface SixStageFourKeysOptions {
   how?: string[]
   action?: string[]
   where?: string[]
+}
+
+export interface SixStageStylePrismOption {
+  id: string
+  name: string
+  icon: string
+  desc: string
+  promptStyle?: string
+}
+
+export interface SixStagePromptDoctorCase {
+  caseTitle: string
+  symptom: string
+  originalPrompt: string
+  cureCards: string[]
+  refImageUrl?: string
+  curedImageUrl?: string
+}
+
+export interface SixStageLayerStackingOptions {
+  background: string[]
+  hero: string[]
+  foreground: string[]
+}
+
+export interface SixStageCardForgeElement {
+  id: string
+  name: string
+  icon: string
+}
+
+export interface SixStageCardForgeStats {
+  hp: number
+  atk: number
+  skillName: string
+}
+
+export interface SixStageCardForgeOptions {
+  elements: SixStageCardForgeElement[]
+  stats: SixStageCardForgeStats
+  cardBorder: string
 }
 
 export interface SixStagePractice {
@@ -677,6 +848,46 @@ export interface SixStagePractice {
   sampleUrl?: string
   practiceParts?: SixStagePracticePartDef[]
   fourKeysOptions?: SixStageFourKeysOptions
+  creativeEngineMode?: string
+  expressionOptions?: string[]
+  stylePrismOptions?: SixStageStylePrismOption[]
+  promptDoctorCase?: SixStagePromptDoctorCase
+  layerStackingOptions?: SixStageLayerStackingOptions
+  cardForgeOptions?: SixStageCardForgeOptions
+  notebookConfig?: CreativeNotebookConfig
+}
+
+export interface CreativeNotebookField {
+  id: string
+  label: string
+  prefix?: string
+  placeholder?: string
+  defaultValue?: string
+  helperTip?: string
+  badge?: string
+  category?: string
+  rows?: number
+  colSpan?: 1 | 2
+  spanFull?: boolean
+}
+
+export interface CreativeNotebookChecklistItem {
+  id: string
+  label: string
+  hint?: string
+}
+
+export interface CreativeNotebookConfig {
+  notebookTitle: string
+  challengeSummary?: string[]
+  checklist?: CreativeNotebookChecklistItem[]
+  sampleTemplate?: string
+  sampleHelperTitle?: string
+  fields?: CreativeNotebookField[]
+  akiAdvice?: string
+  backpackCategory?: string
+  backpackTag?: string
+  characterName?: string
 }
 
 export interface SixStageRewardBadge {

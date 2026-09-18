@@ -375,4 +375,86 @@ describe('StudentStageBlocksView', () => {
     expect(html).toContain('Sứ trắng mẻ miệng')
     expect(html).toContain('Đủ 4 chìa là hết đoán bừa!')
   })
+
+  it('optimizes multi-column blocks to single column when isMobile is true', () => {
+    const multiBlockCard: LearnCardDraft = {
+      ...baseCard,
+      contentBlocks: [
+        {
+          id: 'blk-split',
+          type: 'layout-split',
+          title: 'Split Block',
+          body: 'Nội dung chia 2 cột',
+          imageUrl: '/assets/sample.jpg',
+        },
+        {
+          id: 'blk-grid',
+          type: 'layout-grid',
+          title: 'Grid Block',
+          visualItems: [
+            { label: 'Ô 1', text: 'Chi tiết 1' },
+            { label: 'Ô 2', text: 'Chi tiết 2' },
+          ],
+        },
+        {
+          id: 'blk-four-keys',
+          type: 'layout-four-keys',
+          title: '4 Chìa Khóa',
+          visualItems: [
+            { label: 'K1', text: 'V1' },
+            { label: 'K2', text: 'V2' },
+          ],
+        },
+        {
+          id: 'blk-storyboard',
+          type: 'layout-storyboard',
+          title: 'Storyboard',
+          visualItems: [
+            { label: 'Cảnh 1', text: 'Tả cảnh 1' },
+            { label: 'Cảnh 2', text: 'Tả cảnh 2' },
+          ],
+        },
+        {
+          id: 'blk-versus',
+          type: 'versus-ab',
+          title: 'Versus AB',
+          body: 'So sánh 2 tranh',
+        },
+        {
+          id: 'blk-compare',
+          type: 'compare',
+          title: 'So Sánh',
+          compareData: {
+            leftTitle: 'Kho AI',
+            rightTitle: 'Não bé',
+          },
+        },
+        {
+          id: 'blk-images',
+          type: 'images',
+          title: 'Album ảnh',
+          additionalImages: [
+            { id: 'img-1', url: '/img1.jpg', alt: 'Ảnh 1', caption: 'Ảnh 1' },
+            { id: 'img-2', url: '/img2.jpg', alt: 'Ảnh 2', caption: 'Ảnh 2' },
+          ],
+        },
+      ],
+    }
+
+    const htmlDesktop = renderToStaticMarkup(
+      <StudentStageBlocksView card={multiBlockCard} stageIndex={0} isMobile={false} />
+    )
+    expect(htmlDesktop).toContain('md:grid-cols-2')
+    expect(htmlDesktop).toContain('sm:grid-cols-2 lg:grid-cols-3')
+    expect(htmlDesktop).toContain('sm:grid-cols-2 lg:grid-cols-4')
+
+    const htmlMobile = renderToStaticMarkup(
+      <StudentStageBlocksView card={multiBlockCard} stageIndex={0} isMobile={true} />
+    )
+    // All blocks must collapse to 1-column layouts on mobile
+    expect(htmlMobile).toContain('grid-cols-1 gap-3') // layout-split & compare
+    expect(htmlMobile).toContain('grid-cols-1 gap-2.5') // layout-grid, four-keys, storyboard
+    expect(htmlMobile).toContain('grid-cols-1 gap-4') // versus-ab
+    expect(htmlMobile).toContain('grid-cols-1 gap-2') // images
+  })
 })

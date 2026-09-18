@@ -14,6 +14,7 @@ import {
   signInWithFirebasePassword,
 } from '@/shared/lib/firebase-client'
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
+import { clearApiCache } from '@/shared/lib/api-cache'
 
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
@@ -104,7 +105,7 @@ function preferredContext(
   role: User['role'],
 ): AccessContext | null {
   const host = typeof window === 'undefined' ? '' : window.location.hostname.toLowerCase()
-  const orgSlug = host.endsWith('.aikid.vn') && host !== 'app.aikid.vn'
+  const orgSlug = host.endsWith('.aikid.vn') && host !== 'app.aikid.vn' && host !== 'play.aikid.vn'
     ? host.slice(0, -'.aikid.vn'.length)
     : null
   return (
@@ -207,6 +208,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   expireSession: () => {
     clearAccessToken()
+    clearApiCache()
     void clearPreviousLearnerData()
     set({
       user: null,
@@ -363,6 +365,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     } finally {
       await clearPreviousLearnerData()
       clearAccessToken()
+      clearApiCache()
       set({ user: null, access: null, activeContext: null, enteredFromParent: false })
     }
   },

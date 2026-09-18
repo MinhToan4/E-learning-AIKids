@@ -16,6 +16,10 @@ export type LearningPathwayCourse = {
   coverImage: string | null
   enrolled: boolean
   enrollmentId: string | null
+  questCount?: number
+  completedCount?: number
+  totalStars?: number
+  stations?: QuestProgress[]
 }
 
 export type LearningPathway = {

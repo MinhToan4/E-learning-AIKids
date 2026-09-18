@@ -65,15 +65,19 @@ export function ExplorerLevelPage() {
     setLoading(true)
     setError(null)
     try {
-      // WHY: profile là bắt buộc — nếu fail thì throw thật.
-      // catalog và storybook là optional (Hub có thể chưa route) — fail gracefully với fallback.
-      const profileData = await api<GamificationProfile>('/api/gamification/profile')
-      setProfile(profileData)
-
-      const [catalogResult, storybookResult] = await Promise.allSettled([
+      // WHY: Gộp profile, catalog và storybook vào một batch duy nhất.
+      // Profile là bắt buộc — nếu fail thì quăng lỗi.
+      // Catalog và storybook là optional (Hub có thể chưa route) — fallback an toàn.
+      const [profileResult, catalogResult, storybookResult] = await Promise.allSettled([
+        api<GamificationProfile>('/api/gamification/profile'),
         api<{ items: LevelReward[] }>('/api/gamification/catalog?type=reward'),
         api<RewardState>('/api/gamification/storybook'),
       ])
+
+      if (profileResult.status === 'rejected') {
+        throw profileResult.reason
+      }
+      setProfile(profileResult.value)
 
       if (catalogResult.status === 'fulfilled') {
         setCatalog(catalogResult.value.items ?? [])

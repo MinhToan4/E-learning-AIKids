@@ -29,7 +29,9 @@ import {
   createDefaultPracticeWorkflow,
   getAikiStudioConfig,
 } from '../data/aiki-studio-configs'
-import { CreativeEngineShell } from './creative-engine'
+import { CreativeEngineShell, getCreativeEngineMode, type CreativeNotebookConfig } from './creative-engine'
+import { getNonRepeatingFallbackImage } from './creative-engine/data/pregenerated-fallback-registry'
+import { findIslandCurriculum } from '../data/island-curriculum-registry'
 import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { api } from '@/shared/lib/api'
 import {
@@ -38,6 +40,13 @@ import {
   FlatClayNotebook,
   FlatClayVintageClock,
 } from '@/features/asmo/components/AsmoFlatClayIcons'
+import {
+  DEFAULT_MAGIC_KEYS_PARTS,
+  DEFAULT_STYLE_PRISM_PARTS,
+  DEFAULT_PROMPT_DOCTOR_PARTS,
+  DEFAULT_LAYER_STACKING_PARTS,
+  DEFAULT_CARD_FORGE_PARTS,
+} from '@/features/teacher/components/engine-editors/engine-editor-defaults'
 
 export function renderObjectClayIcon(name: string, size = 26) {
   const s = (name || '').toLowerCase()
@@ -70,10 +79,17 @@ export interface PracticePartDef {
   id?: string
   partNumber: number
   title: string
-  icon: string
+  icon?: string
   iconImage?: string
   emoji?: string
 }
+
+export const DEFAULT_IDENTITY_LOCK_PARTS: PracticePartDef[] = [
+  { partNumber: 1, title: 'Chú Sóc Bông Hạt Dẻ', icon: '🐿️', iconImage: '/assets/aiki-islands/island3_lesson2_opt_b.jpg' },
+  { partNumber: 2, title: 'Cáo Lửa Zico Hiệp Sĩ', icon: '🦊', iconImage: '/assets/aiki-islands/island1_lesson4_engineer.jpg' },
+  { partNumber: 3, title: 'Chú Bé Robot Leo', icon: '🤖', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
+  { partNumber: 4, title: 'Mèo Thám Tử Mimi', icon: '🐱', iconImage: '/assets/aiki-islands/island1_lesson1_cat.jpg' },
+]
 
 export interface PracticePartState extends PracticePartDef {
   images: StudioImageItem[]
@@ -81,21 +97,72 @@ export interface PracticePartState extends PracticePartDef {
   isActive: boolean
 }
 
-export function getDefaultPracticeParts(lessonId?: string, subjectName?: string): PracticePartDef[] {
+export function getDefaultPracticeParts(
+  lessonId?: string,
+  subjectName?: string,
+  mode?: string
+): PracticePartDef[] {
+  const normMode = (mode || '').toLowerCase()
   const normId = (lessonId || '').toLowerCase()
   const normSub = (subjectName || '').toLowerCase()
 
-  // 1. Kiểm tra lessonId trước (ưu tiên cao nhất)
-  if (normId.includes('1-2') || normId.includes('chia-khoa')) {
+  // 0. Nếu mode là creative-notebook: Sổ tay Ba Lô là text engine, KHÔNG có ngân hàng món đồ chia lượt!
+  if (normMode === 'creative-notebook' || normMode === 'notebook') {
+    return []
+  }
+
+  // 1. Nếu mode là prompt-doctor hoặc lessonId là bài 1.4: Trả về DEFAULT_PROMPT_DOCTOR_PARTS
+  if (normMode === 'prompt-doctor' || normId.includes('1-4') || normId.includes('1.4')) {
+    return DEFAULT_PROMPT_DOCTOR_PARTS
+  }
+
+  // 2. Nếu mode là layer-stacking hoặc lessonId là bài 2.2: Trả về DEFAULT_LAYER_STACKING_PARTS
+  if (normMode === 'layer-stacking' || normId.includes('2-2') || normId.includes('2.2')) {
+    return DEFAULT_LAYER_STACKING_PARTS
+  }
+
+  // 3. Nếu là bài 3.1: Trả về 4 Chiến Tướng TCG của Bài 3.1
+  if (normId.includes('3-1') || normId.includes('3.1')) {
     return [
-      { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
-      { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-      { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-      { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
+      { partNumber: 1, title: 'Hiệp Sĩ Cáo Lửa (Chiến tướng Hệ Hỏa)', icon: '🦊', iconImage: '/assets/aiki-islands/island1_lesson4_engineer.jpg' },
+      { partNumber: 2, title: 'Rồng Băng Bão Tuyết (Chiến tướng Hệ Băng)', icon: '🐉', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
+      { partNumber: 3, title: 'Sư Tử Lửa Cuồng Nộ (Chiến tướng Hệ Hỏa)', icon: '🦁', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
+      { partNumber: 4, title: 'Đại Bàng Lôi Thần (Chiến tướng Hệ Sét)', icon: '🦅', iconImage: '/assets/aiki-keys/key_how_yellow.jpg' },
     ]
   }
 
-  if (normId.includes('1-1') || normId.includes('meo-muop')) {
+  // 4. Nếu mode là card-forge hoặc bài 4.4, 5.1: Trả về DEFAULT_CARD_FORGE_PARTS
+  if (
+    normMode === 'card-forge' ||
+    normId.includes('4-4') ||
+    normId.includes('4.4') ||
+    normId.includes('5-1') ||
+    normId.includes('5.1')
+  ) {
+    return DEFAULT_CARD_FORGE_PARTS
+  }
+
+  // 5. Nếu mode là identity-lock hoặc bài 3- / 3.: Trả về DEFAULT_IDENTITY_LOCK_PARTS
+  if (
+    normMode === 'identity-lock' ||
+    normId.includes('3-') ||
+    normId.includes('3.')
+  ) {
+    return DEFAULT_IDENTITY_LOCK_PARTS
+  }
+
+  // 5. Nếu mode là style-prism hoặc bài 1.3: Trả về DEFAULT_STYLE_PRISM_PARTS
+  if (normMode === 'style-prism' || normId.includes('1-3') || normId.includes('1.3')) {
+    return DEFAULT_STYLE_PRISM_PARTS
+  }
+
+  // 6. Nếu là bài 1.2 hoặc chìa khóa: Trả về DEFAULT_MAGIC_KEYS_PARTS
+  if (normId.includes('1-2') || normId.includes('1.2') || normId.includes('chia-khoa')) {
+    return DEFAULT_MAGIC_KEYS_PARTS
+  }
+
+  // 7. Kiểm tra bài học hoặc chủ thể đặc thù (Bài 1.1 / Mèo)
+  if (normId.includes('1-1') || normId.includes('1.1') || normId.includes('meo-muop') || normSub.includes('mèo') || normSub.includes('cat')) {
     return [
       { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
       { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
@@ -104,54 +171,22 @@ export function getDefaultPracticeParts(lessonId?: string, subjectName?: string)
     ]
   }
 
-  if (normId.includes('1-3')) {
+  // 7. Mặc định: Trả về DEFAULT_MAGIC_KEYS_PARTS (hoặc gán subjectName cho part 1 nếu có tên tùy chỉnh)
+  if (subjectName && subjectName !== 'Cái cốc sứ trắng' && !normSub.includes('cốc')) {
     return [
-      { partNumber: 1, title: 'Chú trâu bản làng', icon: '🐃', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
-      { partNumber: 2, title: 'Con cún lông xù', icon: '🐶', iconImage: '/assets/aiki-keys/key_how_yellow.jpg' },
-      { partNumber: 3, title: 'Cây đa đầu làng', icon: '🌳', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
-      { partNumber: 4, title: 'Ngôi nhà cổ mái ngói', icon: '🏠', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
-    ]
-  }
-
-  if (normId.includes('1-4')) {
-    return [
-      { partNumber: 1, title: 'Bàn tay năm ngón cầm bút', icon: '✍️', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
-      { partNumber: 2, title: 'Chú gấu đội mũ len đỏ', icon: '🐻', iconImage: '/assets/aiki-keys/key_how_yellow.jpg' },
-      { partNumber: 3, title: 'Chiếc bánh sinh nhật dâu tây', icon: '🎂', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
-      { partNumber: 4, title: 'Cánh diều ngũ sắc', icon: '🪁', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
-    ]
-  }
-
-  // 2. Nếu lessonId không khớp bài nào ở trên, kiểm tra subjectName
-  if (normSub.includes('mèo') || normSub.includes('cat')) {
-    return [
-      { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
-      { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
-      { partNumber: 3, title: 'Mèo Bắt Bướm Nắng Vàng', icon: '🦋', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
-      { partNumber: 4, title: 'Mèo Phi Hành Gia', icon: '🚀', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
-    ]
-  }
-
-  if (normSub.includes('cốc') || normSub.includes('chìa khoá')) {
-    return [
-      { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
-      { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-      { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
+      { partNumber: 1, title: subjectName, icon: '🎨', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
+      { partNumber: 2, title: 'Chiếc xe đạp mini', icon: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
+      { partNumber: 3, title: 'Cuốn sổ tay bìa da', icon: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
       { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
     ]
   }
 
-  const base = subjectName || 'Cái cốc sứ trắng'
-  return [
-    { partNumber: 1, title: base, icon: '🎨', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
-    { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-    { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-    { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
-  ]
+  return DEFAULT_MAGIC_KEYS_PARTS
 }
 
 export interface AikiStudioWorkspaceProps {
   config?: AikiStudioConfig
+  notebookConfig?: CreativeNotebookConfig
   lessonId?: string
   lessonTitle?: string
   lessonBadge?: string
@@ -171,6 +206,9 @@ export interface AikiStudioWorkspaceProps {
   onPartChange?: (index: number) => void
   onPracticePartsSync?: (parts: PracticePartState[], activeIndex: number) => void
   turnsPerItem?: number
+  creativeEngineMode?: string
+  practiceParts?: PracticePartDef[]
+  initialInstantFallback?: boolean
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1375,6 +1413,24 @@ export function getStudioAIArtwork(
   if (cName.includes('đồng hồ') || cName.includes('clock')) {
     return '/assets/aiki-islands/island1_lesson2_clock.jpg'
   }
+  if (cName.includes('màu nước') || cName.includes('watercolor')) {
+    return '/assets/aiki-islands/island1_lesson3_opt_a.jpg'
+  }
+  if (cName.includes('quilling') || cName.includes('cuộn giấy')) {
+    return '/assets/aiki-islands/island1_lesson3_opt_b.jpg'
+  }
+  if (cName.includes('đất sét') || cName.includes('clay')) {
+    return '/assets/aiki-islands/island1_lesson3_styles.jpg'
+  }
+  if (cName.includes('hiệp sĩ') || cName.includes('5 ngón') || cName.includes('bàn tay')) {
+    return '/assets/aiki-islands/island1_lesson4_opt_a.jpg'
+  }
+  if (cName.includes('mũ len') || (cName.includes('sóc') && !lId.includes('3-2'))) {
+    return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
+  }
+  if (cName.includes('ghế mây')) {
+    return '/assets/aiki-islands/island1_lesson1_cat.jpg'
+  }
   if (t === 'teacup' || lId.includes('1-2') || cName.includes('cốc') || cName.includes('ly')) {
     return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
   }
@@ -1418,6 +1474,7 @@ export function getStudioAIArtwork(
 // ────────────────────────────────────────────────────────────────────────────
 export function AikiStudioWorkspace({
   config,
+  notebookConfig,
   lessonId = 'bai-3-2',
   lessonTitle,
   lessonBadge,
@@ -1437,6 +1494,9 @@ export function AikiStudioWorkspace({
   onPartChange,
   onPracticePartsSync,
   turnsPerItem,
+  creativeEngineMode,
+  practiceParts,
+  initialInstantFallback,
 }: AikiStudioWorkspaceProps) {
   // ── TRÍCH XUẤT CẤU HÌNH ĐỘNG TỪ CONFIG HOẶC FALLBACK ─────────────────────
   const effectiveConfig = useMemo(() => {
@@ -1465,9 +1525,46 @@ export function AikiStudioWorkspace({
     return ['trong rừng thông ngập nắng', 'đang đứng vẫy tay tươi cười', 'đang ôm một quả thông to bên gốc cây']
   }, [effectiveConfig?.quickSuggestions])
 
-  const effectiveAkiMotto =
-    effectiveConfig?.akiMotto ||
-    'Chỗ nào bé bỏ trống, AI sẽ tự đoán. Tả càng rõ, vẽ càng đúng ý bé!'
+  const illustrationType = effectiveConfig?.illustrationType || 'soc-bong'
+
+  const effectiveMode = useMemo(() => {
+    if (creativeEngineMode) return creativeEngineMode
+    const curriculumLesson = findIslandCurriculum({
+      id: lessonId,
+      slug: lessonId,
+      title: lessonTitle,
+    })
+    if (curriculumLesson?.journey?.stage5_practice?.creativeEngineMode) {
+      return curriculumLesson.journey.stage5_practice.creativeEngineMode
+    }
+    return getCreativeEngineMode(lessonId, illustrationType)
+  }, [creativeEngineMode, lessonId, lessonTitle, illustrationType])
+
+  const isCreativeNotebook = effectiveMode === 'creative-notebook'
+
+  const effectiveNotebookConfig = useMemo(() => {
+    if (notebookConfig) return notebookConfig
+    if ((config as any)?.notebookConfig) return (config as any).notebookConfig
+    const curriculumLesson = findIslandCurriculum({
+      id: lessonId,
+      slug: lessonId,
+      title: lessonTitle,
+    })
+    if (curriculumLesson?.journey?.stage5_practice?.notebookConfig) {
+      return curriculumLesson.journey.stage5_practice.notebookConfig
+    }
+    return undefined
+  }, [notebookConfig, config, lessonId, lessonTitle])
+
+  const effectiveAkiMotto = useMemo(() => {
+    if (isCreativeNotebook && effectiveNotebookConfig?.akiAdvice) {
+      return effectiveNotebookConfig.akiAdvice
+    }
+    return (
+      effectiveConfig?.akiMotto ||
+      'Chỗ nào bé bỏ trống, AI sẽ tự đoán. Tả càng rõ, vẽ càng đúng ý bé!'
+    )
+  }, [isCreativeNotebook, effectiveNotebookConfig, effectiveConfig?.akiMotto])
 
   const effectiveMissionChecklist = useMemo(() => {
     if (effectiveConfig?.missionChecklist && effectiveConfig.missionChecklist.length > 0) return effectiveConfig.missionChecklist
@@ -1486,8 +1583,6 @@ export function AikiStudioWorkspace({
       criteria: effectiveLockedFeatures,
     }
   }, [effectiveConfig?.verificationQuestion, effectiveLockedFeatures])
-
-  const illustrationType = effectiveConfig?.illustrationType || 'soc-bong'
 
   // Kịch bản thực hành 4 bước (Workflow Steps)
   const effectiveWorkflowSteps = useMemo<StudioWorkflowStep[]>(() => {
@@ -1511,11 +1606,39 @@ export function AikiStudioWorkspace({
   }
 
   const practicePartDefs = useMemo(() => {
-    return getDefaultPracticeParts(lessonId, effectiveCharacterName)
-  }, [lessonId, effectiveCharacterName])
+    if (isCreativeNotebook) {
+      return []
+    }
+    if (practiceParts && practiceParts.length > 0) {
+      return practiceParts
+    }
+    return getDefaultPracticeParts(lessonId, effectiveCharacterName, effectiveMode)
+  }, [isCreativeNotebook, practiceParts, lessonId, effectiveCharacterName, effectiveMode])
 
-  const currentPartDef = practicePartDefs[activePartIndex] || practicePartDefs[0]
-  const activePartSubject = currentPartDef?.title || effectiveCharacterName
+  const effectiveMaxAttempts = useMemo(() => {
+    if (isCreativeNotebook) {
+      return maxAttempts || 8
+    }
+    if (practiceParts && practiceParts.length > 0) {
+      return practiceParts.length * maxTurnsPerPart
+    }
+    if (maxAttempts !== undefined && maxAttempts !== 8) {
+      return maxAttempts
+    }
+    if (practicePartDefs && practicePartDefs.length > 0) {
+      return practicePartDefs.length * maxTurnsPerPart
+    }
+    return maxAttempts || 8
+  }, [isCreativeNotebook, practiceParts, maxTurnsPerPart, maxAttempts, practicePartDefs])
+
+  const currentPartDef = practicePartDefs[activePartIndex] || practicePartDefs[0] || {
+    partNumber: 1,
+    title: effectiveNotebookConfig?.notebookTitle || effectiveCharacterName || 'Sổ Tay Ba Lô',
+    icon: '🎒',
+  }
+  const activePartSubject = isCreativeNotebook
+    ? effectiveNotebookConfig?.notebookTitle || 'Sổ Tay Ba Lô'
+    : currentPartDef?.title || effectiveCharacterName
 
   const step1QuickPrompt = useMemo(() => {
     return activePartSubject ? activePartSubject.split(' ').slice(0, 2).join(' ') : 'Cốc Sứ'
@@ -1562,15 +1685,24 @@ export function AikiStudioWorkspace({
 
   const initialGalleryLength = (initialSavedGallery || preloadedImages || []).length
 
-  // attemptsLeft tính chuẩn xác dựa trên số tranh ban đầu
-  const [attemptsLeft, setAttemptsLeft] = useState<number>(() =>
-    initialAttemptsLeft !== undefined ? initialAttemptsLeft : Math.max(0, maxAttempts - initialGalleryLength)
-  )
+  // attemptsLeft tính chuẩn xác dựa trên số tranh ban đầu và số lượng đồ vật (2 lượt/món)
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(() => {
+    if (initialAttemptsLeft !== undefined) {
+      return initialAttemptsLeft
+    }
+    return Math.max(0, effectiveMaxAttempts - initialGalleryLength)
+  })
+
   // currentPrompt ban đầu trống rỗng, sẵn sàng đón câu lệnh mới
   const [currentPrompt, setCurrentPrompt] = useState<string>(() =>
     initialPrompt !== undefined ? initialPrompt : ''
   )
+  const [activeRefImageUrl, setActiveRefImageUrl] = useState<string | undefined>(undefined)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isInstantFallback, setIsInstantFallback] = useState<boolean>(
+    initialInstantFallback ?? false
+  )
+  const [lastGeneratedUrl, setLastGeneratedUrl] = useState<string | undefined>(undefined)
   const [selectedInspectImage, setSelectedInspectImage] = useState<StudioImageItem | null>(null)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
   const [submittedSuccess, setSubmittedSuccess] = useState(false)
@@ -1593,6 +1725,14 @@ export function AikiStudioWorkspace({
     }
     return []
   })
+
+  // Đồng bộ số lượt còn lại khi danh sách đồ vật hoặc số lượng tác phẩm thay đổi
+  useEffect(() => {
+    setAttemptsLeft((prev) => {
+      const remaining = Math.max(0, effectiveMaxAttempts - gallery.length)
+      return remaining
+    })
+  }, [effectiveMaxAttempts, gallery.length])
 
   const practicePartsState: PracticePartState[] = useMemo(() => {
     return practicePartDefs.map((def, idx) => {
@@ -1838,10 +1978,10 @@ export function AikiStudioWorkspace({
 
   const currentPartTurn =
     selectedTurnByPart[activePartIndex] ||
-    (activePartImages.some((img) => img.partTurn === 2)
+    (activePartImages.some((img) => img.partTurn === 1) && !activePartImages.some((img) => img.partTurn === 2)
       ? 2
-      : activePartImages.some((img) => img.partTurn === 1)
-      ? 1
+      : activePartImages.some((img) => img.partTurn === 2)
+      ? 2
       : 1)
 
   const isCurrentPartTurnAlreadyDrawn = activePartImages.some((img) => img.partTurn === currentPartTurn)
@@ -1986,7 +2126,7 @@ export function AikiStudioWorkspace({
 
     // Lấy ảnh mẫu cho bước hiện tại làm fallback
     const currentStepConfig = effectiveWorkflowSteps[currentWorkflowStep]
-    const partCuratedArtwork = getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName)
+    const partCuratedArtwork = getStudioAIArtwork(illustrationType, lessonId, rawPrompt || activePartSubject || effectiveCharacterName)
     const sampleUrl =
       partCuratedArtwork ||
       currentStepConfig?.sampleResultUrl ||
@@ -1995,20 +2135,41 @@ export function AikiStudioWorkspace({
     let resultImageUrl = sampleUrl
     let isFallback = false
 
-    try {
-      // 3. Gọi generateCreativeImage
-      const generatedUrl = await generateCreativeImage({
-        prompt: rawPrompt,
-        aspectRatio: '1:1',
-      })
-      if (generatedUrl) {
-        resultImageUrl = generatedUrl
-      }
-    } catch (error) {
-      // 4. Cơ chế Graceful Fallback khi gặp lỗi kết nối hoặc worker bận
-      console.warn('Gateway Google Flow connection error or worker busy, falling back gracefully to curated sample:', error)
+    if (isInstantFallback) {
+      // Chế độ demo nhanh/fallback tức thì (500ms để mô phỏng nhịp thở AKI)
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      const fallbackUrl = getNonRepeatingFallbackImage(
+        rawPrompt || activePartSubject || effectiveCharacterName,
+        lastGeneratedUrl,
+        effectiveMode
+      )
+      resultImageUrl = fallbackUrl || sampleUrl
+      setLastGeneratedUrl(resultImageUrl)
       isFallback = true
-      resultImageUrl = sampleUrl
+    } else {
+      try {
+        // 3. Gọi generateCreativeImage
+        const generatedUrl = await generateCreativeImage({
+          prompt: rawPrompt,
+          aspectRatio: '1:1',
+          refImageUrl: activeRefImageUrl,
+        })
+        if (generatedUrl) {
+          resultImageUrl = generatedUrl
+          setLastGeneratedUrl(resultImageUrl)
+        }
+      } catch (error) {
+        // 4. Cơ chế Graceful Fallback khi gặp lỗi kết nối hoặc worker bận
+        console.warn('Gateway Google Flow connection error or worker busy, falling back gracefully to curated sample:', error)
+        isFallback = true
+        const fallbackUrl = getNonRepeatingFallbackImage(
+          rawPrompt || activePartSubject || effectiveCharacterName,
+          lastGeneratedUrl,
+          effectiveMode
+        )
+        resultImageUrl = fallbackUrl || sampleUrl
+        setLastGeneratedUrl(resultImageUrl)
+      }
     }
 
     const currentPartImages = gallery.filter((img) =>
@@ -2194,6 +2355,52 @@ export function AikiStudioWorkspace({
     }, 1400)
   }
 
+  // Xử lý nộp bài Sổ Tay Sáng Tạo Ba Lô (creative-notebook)
+  const handleNotebookSubmit = (content: string, structuredData?: Record<string, string>) => {
+    const now = new Date()
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    const notebookItem: StudioImageItem = {
+      id: `notebook-${Date.now()}`,
+      url: '/assets/aiki-islands/island1_lesson2_notebook.jpg',
+      turn: 1,
+      prompt: content,
+      time: timeStr,
+      toneBg: '#fef3c7',
+      partIndex: 0,
+      partTurn: 1,
+    }
+    setGallery((prev) => [...prev, notebookItem])
+
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const key = `aiki_backpack_items_${lessonId || 'default'}`
+        const existing = JSON.parse(localStorage.getItem(key) || '[]')
+        const combined = [
+          {
+            id: notebookItem.id,
+            url: notebookItem.url,
+            prompt: content,
+            time: timeStr,
+            lessonId,
+            lessonTitle: effectiveTitle,
+            category: 'notebook',
+            structuredData,
+          },
+          ...existing,
+        ]
+        localStorage.setItem(key, JSON.stringify(combined.slice(0, 30)))
+      }
+    } catch {
+      // ignore
+    }
+
+    onSubmitWork?.({
+      selectedImage: notebookItem,
+      prompt: content,
+      images: [notebookItem],
+    })
+  }
+
   // Thêm gợi ý nhanh
   const handleAddSnippet = (snippet: string) => {
     playInstantSound('click')
@@ -2334,9 +2541,30 @@ export function AikiStudioWorkspace({
     <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
       <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0 flex-wrap sm:flex-nowrap">
-        <div className="flex items-center gap-1 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
+        <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
           <span>🖼️</span>
           <span>Tranh sáng tạo:</span>
+          <button
+            type="button"
+            data-testid="toggle-instant-fallback-btn"
+            onClick={() => {
+              playInstantSound('click')
+              setIsInstantFallback((prev) => !prev)
+            }}
+            title={
+              isInstantFallback
+                ? 'Đang bật chế độ Demo Nhanh (Ảnh mẫu phong phú, không tốn credit)'
+                : 'Đang bật chế độ AI Trực Tiếp (Gateway Google Flow)'
+            }
+            className={cn(
+              'px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all cursor-pointer select-none',
+              isInstantFallback
+                ? 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200'
+                : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+            )}
+          >
+            {isInstantFallback ? '⚡ Demo Nhanh' : '🌐 AI Gateway'}
+          </button>
         </div>
         <button
           type="button"
@@ -2421,7 +2649,7 @@ export function AikiStudioWorkspace({
       {displayedPartImage ? (
         <div
           data-testid="studio-live-canvas-display"
-          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-none w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
         >
           <div
             onClick={() => handleOpenInspect(displayedPartImage)}
@@ -2456,7 +2684,7 @@ export function AikiStudioWorkspace({
               <Check size={11} strokeWidth={3} /> Đã lưu vào Balo
             </span>
             <span className="text-slate-600 font-bold truncate max-w-[200px] text-[11px] sm:text-xs">
-              Lượt {displayedPartImage.turn}/{maxAttempts}
+              Lượt {displayedPartImage.turn}/{effectiveMaxAttempts}
             </span>
           </div>
         </div>
@@ -2464,7 +2692,7 @@ export function AikiStudioWorkspace({
         /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - TUYỆT ĐỐI KHÔNG ĐỂ ẢNH MẪU ĐỂ TRÁNH NHẦM LẪN */
         <div
           data-testid="studio-canvas-empty"
-          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-none w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
         >
           {/* Ảnh mẫu & text ẩn sr-only phục vụ test suite & trợ năng, không render thị giác để tránh bé nhầm lẫn */}
           <div className="sr-only">
@@ -2496,7 +2724,8 @@ export function AikiStudioWorkspace({
       )}
 
       {/* Tầng 2: Dải Phim Bộ Sưu Tập Toàn Bộ Các Lượt (Mini Filmstrip Gallery) */}
-      <div className="relative flex items-center gap-1 sm:gap-1.5 w-full min-w-0 pt-0.5">
+      {!isCreativeNotebook && (
+        <div className="relative flex items-center gap-1 sm:gap-1.5 w-full min-w-0 pt-0.5">
         <button
           type="button"
           data-testid="filmstrip-scroll-left"
@@ -2613,6 +2842,7 @@ export function AikiStudioWorkspace({
           <ChevronRight size={16} strokeWidth={2.5} />
         </button>
       </div>
+      )}
     </div>
   )
 
@@ -2622,7 +2852,7 @@ export function AikiStudioWorkspace({
       className={cn(
         'w-full flex flex-col transition-all duration-300 font-sans text-slate-900',
         isFullscreen
-          ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-screen h-screen flex flex-col p-3 sm:p-5 overflow-y-auto'
+          ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-full h-[100dvh] flex flex-col p-3 sm:p-5 overflow-y-auto'
           : 'relative flex w-full min-w-0 min-h-0 flex-col gap-2 overflow-visible',
         className
       )}
@@ -2640,7 +2870,7 @@ export function AikiStudioWorkspace({
         <span>XƯỞNG SÁNG TẠO</span>
         <h1>{effectiveTitle}</h1>
         <div data-testid="studio-attempts-pill">
-          Còn {attemptsLeft} / {maxAttempts} lượt của bài này
+          Còn {attemptsLeft} / {effectiveMaxAttempts} lượt của bài này
         </div>
         <span>{studentStars}</span>
         <span>← Bài {lessonId?.replace('lesson-', '').replace('bai-', '') || '1.1'}</span>
@@ -2781,7 +3011,7 @@ export function AikiStudioWorkspace({
             <div className="size-8 rounded-full bg-amber-400">🐱</div>
             <div>AKI · Xưởng {effectiveBadge}</div>
             <div>
-              Còn <strong>{attemptsLeft}</strong>/{maxAttempts} lượt vẽ
+              Còn <strong>{attemptsLeft}</strong>/{effectiveMaxAttempts} lượt vẽ
             </div>
           </div>
 
@@ -2818,7 +3048,7 @@ export function AikiStudioWorkspace({
           </div>
 
           {/* 3. Khung kiểm chứng đặc điểm (Verification Step) nếu có đặt gọn gàng phía trên CreativeEngineShell */}
-          {(currentWorkflowStep >= 2 || (preloadedImages && preloadedImages.length > 0)) && (
+          {!isCreativeNotebook && (currentWorkflowStep >= 2 || (preloadedImages && preloadedImages.length > 0)) && (
             <div className="bg-amber-50/90 border border-amber-200/90 rounded-2xl px-3 py-1.5 flex items-center justify-between gap-2 shadow-2xs shrink-0 flex-wrap sm:flex-nowrap">
               <p className="text-xs font-black text-amber-950 truncate">
                 {effectiveVerificationQuestion.question}
@@ -2867,14 +3097,20 @@ export function AikiStudioWorkspace({
           <div className="flex w-full min-h-0 flex-col">
             <CreativeEngineShell
               className="min-h-0"
-              mode="magic-keys"
+              mode={(effectiveMode as any) || 'magic-keys'}
+              notebookConfig={effectiveNotebookConfig}
+              onSubmitNotebook={handleNotebookSubmit}
+              practiceParts={practicePartDefs}
               practiceSlot={practiceColumn}
               canvasSlot={previewCanvasColumn}
               currentPrompt={currentPrompt}
               onPromptChange={setCurrentPrompt}
+              onRefImageChange={setActiveRefImageUrl}
+              activePartIndex={activePartIndex}
+              onPartChange={handleSelectPart}
               onGenerate={handleGenerate}
               attemptsLeft={attemptsLeft}
-              maxAttempts={maxAttempts}
+              maxAttempts={effectiveMaxAttempts}
               isGenerating={isGenerating}
               isTurnLocked={isCurrentPartTurnAlreadyDrawn}
               turnLockedMessage={turnLockedMessage}
@@ -3020,50 +3256,69 @@ export function AikiStudioWorkspace({
           <div className="bg-white rounded-2xl border-2 border-amber-200/80 p-2.5 shadow-2xs text-left flex flex-col gap-1.5 shrink-0">
             <div className="flex items-center justify-between gap-1 flex-wrap">
               <div className="flex items-center gap-1 text-xs font-black text-slate-900">
-                <span>⭐</span>
-                <span>Thử thách hôm nay</span>
+                <span>{isCreativeNotebook ? '🎒' : '⭐'}</span>
+                <span>{isCreativeNotebook ? 'Nhiệm vụ Sổ Tay Ba Lô' : 'Thử thách hôm nay'}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300/80">
-                  ⭐ Đã tạo: {gallery.length} / {maxAttempts} tác phẩm
-                </span>
-                <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                  Men Gốm
-                </span>
+                {isCreativeNotebook ? (
+                  <span className="text-xs font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-300/80">
+                    🎒 {effectiveNotebookConfig?.backpackTag || 'Sổ Tay Ba Lô'}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300/80">
+                      ⭐ Đã tạo: {gallery.length} / {effectiveMaxAttempts} tác phẩm
+                    </span>
+                    <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      Men Gốm
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Dòng lượt tạo của phần này */}
-            {(() => {
-              const activeImgsCount = gallery.filter((img) =>
-                img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
-              ).length
-              return (
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Lượt tạo của phần này {activeImgsCount >= 2 ? '2/2' : `${activeImgsCount}/2`}</span>
-                  <span className="text-[11px] font-bold text-slate-500">Phần {activePartIndex + 1}: {currentPartDef.title}</span>
-                </div>
-              )
-            })()}
+            {!isCreativeNotebook ? (
+              (() => {
+                const activeImgsCount = gallery.filter((img) =>
+                  img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
+                ).length
+                return (
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                    <span>Lượt tạo của phần này {activeImgsCount >= 2 ? '2/2' : `${activeImgsCount}/2`}</span>
+                    <span className="text-[11px] font-bold text-slate-500">Phần {activePartIndex + 1}: {currentPartDef.title}</span>
+                  </div>
+                )
+              })()
+            ) : (
+              <div className="flex items-center justify-between text-xs font-bold text-purple-950 bg-purple-50/80 px-2.5 py-1 rounded-xl border border-purple-200/80">
+                <span>{effectiveNotebookConfig?.notebookTitle || 'Sổ Tay Ba Lô'}</span>
+                <span className="text-[11px] font-bold text-purple-700">{effectiveNotebookConfig?.fields?.length || 4} mục ghi chép</span>
+              </div>
+            )}
 
             {/* Thanh tiến trình ngang sinh động màu xanh lá + Hộp quà 🎁 */}
-            <div className="flex items-center gap-2 w-full pt-0.5">
-              <div className="flex-1 h-2.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200 p-0.5 relative">
-                <div
-                  className="h-full rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(6, Math.round((gallery.length / maxAttempts) * 100)))}%` }}
-                />
+            {!isCreativeNotebook && (
+              <div className="flex items-center gap-2 w-full pt-0.5">
+                <div className="flex-1 h-2.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200 p-0.5 relative">
+                  <div
+                    className="h-full rounded-full bg-linear-to-r from-emerald-400 to-emerald-500 transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.max(6, Math.round((gallery.length / effectiveMaxAttempts) * 100)))}%` }}
+                  />
+                </div>
+                <span className="text-sm select-none animate-bounce" title="Quà tặng hoàn thành bài học">🎁</span>
               </div>
-              <span className="text-sm select-none animate-bounce" title="Quà tặng hoàn thành bài học">🎁</span>
-            </div>
+            )}
 
             {/* Thông tin Lượt vẽ của bài này */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-              <span className="font-bold text-slate-700">Lượt vẽ của bài này:</span>
-              <span className="font-black text-amber-900">
-                còn {attemptsLeft}/{maxAttempts} lượt
-              </span>
-            </div>
+            {!isCreativeNotebook && (
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                <span className="font-bold text-slate-700">Lượt vẽ của bài này:</span>
+                <span className="font-black text-amber-900">
+                  còn {attemptsLeft}/{effectiveMaxAttempts} lượt
+                </span>
+              </div>
+            )}
           </div>
 
           {/* KHỐI 3: "MẸO CỦA AKI / BẠN CÓ BIẾT?" */}
@@ -3084,17 +3339,19 @@ export function AikiStudioWorkspace({
             }}
             className={cn(
               'w-full py-2.5 px-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-clay flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer mt-auto shrink-0',
-              currentWorkflowStep >= 3 || gallery.length >= 3
-                ? 'animate-pulse bg-linear-to-r from-amber-500 via-rose-500 to-indigo-600 text-white shadow-md shadow-indigo-300 ring-2 ring-amber-300'
+              currentWorkflowStep >= 3 || gallery.length >= 3 || isCreativeNotebook
+                ? 'animate-pulse bg-linear-to-r from-purple-500 via-indigo-500 to-amber-500 text-white shadow-md shadow-indigo-300 ring-2 ring-purple-300'
                 : 'bg-indigo-600 hover:bg-indigo-700 text-white'
             )}
           >
             <Trophy size={16} />
-            <span>🏆 Nộp Bài & Cất Vào Balo</span>
+            <span>{isCreativeNotebook ? '🎒 Cất Vào Ba Lô Của Bé' : '🏆 Nộp Bài & Cất Vào Balo'}</span>
           </button>
 
           {/* KHỐI DỮ LIỆU BẢO TOÀN CHO TEST SUITE & SCREEN READERS */}
           <div className="sr-only" aria-hidden="true">
+            <span>🏆 Nộp Bài &amp; Cất Vào Balo</span>
+            <span>🏆 Nộp Bài & Cất Vào Balo</span>
             <span>BALO SÁNG TẠO CỦA BÉ</span>
             <span>Hồ sơ biệt đội</span>
             <span>BALO SÁNG TẠO ({gallery.length}/8 ảnh)</span>
@@ -3217,7 +3474,7 @@ export function AikiStudioWorkspace({
           onClick={() => setIsBackpackModalOpen(false)}
         >
           <div
-            className="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 text-left border-3 border-purple-200 max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 text-left border-3 border-purple-200 max-h-[90dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Modal */}

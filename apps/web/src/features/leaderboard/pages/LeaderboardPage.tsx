@@ -143,14 +143,15 @@ export function ProgressPage() {
     setLoading(true)
     setError(null)
     try {
-      const data = await api<{ celebration: Celebration }>(
-        '/api/gamification/class-celebration',
-      )
-      const [competencyResult, pathwayResult] = await Promise.allSettled([
+      const [celebrationResult, competencyResult, pathwayResult] = await Promise.allSettled([
+        api<{ celebration: Celebration }>('/api/gamification/class-celebration'),
         api<CompetencyMap>('/api/competency-map'),
         learningApi.getPathway(),
       ])
-      setCelebration(data.celebration)
+      if (celebrationResult.status === 'rejected') {
+        throw celebrationResult.reason
+      }
+      setCelebration(celebrationResult.value.celebration)
       setCompetency(
         competencyResult.status === 'fulfilled'
           ? competencyResult.value

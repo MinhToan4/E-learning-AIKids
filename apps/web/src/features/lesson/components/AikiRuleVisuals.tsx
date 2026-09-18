@@ -523,7 +523,7 @@ export function AikiPictureZoomModal({
       aria-label={`Xem to ${data.title}`}
     >
       <div
-        className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border-3 border-amber-300 bg-white p-5 sm:p-6 shadow-clay animate-pop"
+        className="relative max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border-3 border-amber-300 bg-white p-5 sm:p-6 shadow-clay animate-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Nút đóng X */}
@@ -624,7 +624,7 @@ export function AikiPosterModal({
       aria-label="Tấm Poster Quy Tắc Vàng"
     >
       <div
-        className="relative max-h-[95vh] w-full max-w-xl overflow-y-auto rounded-3xl border-4 border-amber-400 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6 sm:p-8 shadow-clay animate-pop print:border-none print:shadow-none print:max-w-none print:p-8"
+        className="relative max-h-[95dvh] w-full max-w-xl overflow-y-auto rounded-3xl border-4 border-amber-400 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6 sm:p-8 shadow-clay animate-pop print:border-none print:shadow-none print:max-w-none print:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Nút đóng (ẩn khi in) */}

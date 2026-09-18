@@ -32,6 +32,7 @@ import { useAuth } from '@/shared/store/auth'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 import { programArtworkHint } from '@/shared/config/assets'
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
+import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
 
 
@@ -196,6 +197,9 @@ function friendlyEnrollmentError(cause: unknown): string {
 
 export function ParentLearningPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const upgradeParam = searchParams.get('upgrade')
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+  const [checkoutMode, setCheckoutMode] = useState<'sub' | 'credits'>('sub')
   const role = useAuth((s) => s.user?.role)
   const feedbackBadge = useParentFeedbackBadge(role)
   const [children, setChildren] = useState<Child[]>([])
@@ -206,6 +210,33 @@ export function ParentLearningPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
+
+  // Auto-open upgrade modal if URL has ?upgrade=aikids_official_129k or ?upgrade or ?upgrade=credits
+  useEffect(() => {
+    if (upgradeParam !== null) {
+      setCheckoutMode(upgradeParam === 'credits' ? 'credits' : 'sub')
+      setIsUpgradeModalOpen(true)
+    }
+  }, [upgradeParam])
+
+  const handleOpenUpgrade = useCallback((mode: 'sub' | 'credits' = 'sub') => {
+    setCheckoutMode(mode)
+    setIsUpgradeModalOpen(true)
+  }, [])
+
+  const handleCloseUpgradeModal = useCallback(() => {
+    setIsUpgradeModalOpen(false)
+    if (searchParams.has('upgrade')) {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current)
+          next.delete('upgrade')
+          return next
+        },
+        { replace: true },
+      )
+    }
+  }, [searchParams, setSearchParams])
 
   // Mark seen when parent actively views feedback section
   useEffect(() => {
@@ -316,58 +347,88 @@ export function ParentLearningPage() {
   }
 
 
+  const handleUpgradeSuccess = useCallback(() => {
+    showToast('Nâng cấp gói thành công! Bé đã có thêm hạn mức học tập.', 'success')
+    void load()
+  }, [load, showToast])
+
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <header className="ui-card flex flex-wrap items-end justify-between gap-4 p-5 sm:p-6">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-            Đồng hành cùng con
-          </p>
-          <h1 className="font-display text-2xl sm:text-3xl">Trung tâm học tập</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
-            Chọn từng con để theo dõi lộ trình, hoạt động, nhận xét và năng lực trên cùng một nơi.
-          </p>
-        </div>
-        {children.length > 0 && (
-          <div className="grid min-w-52 gap-2">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-bold">Đang xem hồ sơ học tập</p>
-              <Link to="/parent/kids" className="text-xs font-extrabold text-brand-600 hover:underline">Quản lý hồ sơ</Link>
-            </div>
-            {/* Show child buttons instead of select — easier to see badge per child */}
-            <div className="flex flex-wrap gap-2">
-              {children.map((child) => {
-                const hasNew = feedbackBadge.byChild[child.id] ?? false
-                const isActive = studentId === child.id
-                return (
-                  <button
-                    key={child.id}
-                    type="button"
-                    onClick={() => selectChild(child.id)}
-                    className={cn(
-                      'relative flex min-h-10 items-center gap-2 rounded-2xl border-2 px-4 text-sm font-bold transition',
-                      isActive
-                        ? 'border-brand-400 bg-brand-50 text-brand-700'
-                        : 'border-border bg-white text-text hover:border-brand-200',
-                    )}
-                    aria-pressed={isActive}
-                    aria-label={`${child.nickname ?? 'Học viên'}${hasNew ? ' — có nhận xét mới' : ''}`}
-                  >
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-xs text-brand-700">{(child.nickname ?? 'H').trim().slice(0, 1).toUpperCase()}</span>
-                    {child.nickname ?? 'Học viên'}
-                    {hasNew && (
-                      <span
-                        aria-hidden="true"
-                        className="h-2 w-2 rounded-full bg-danger ring-1 ring-white"
-                      />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
+              <Sparkles size={12} /> THEO DÕI TIẾN ĐỘ HỌC TẬP
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              Lộ trình & Năng lực
+            </span>
           </div>
-        )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleOpenUpgrade('credits')}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2.5 py-1 text-xs font-black text-amber-900 shadow-soft transition"
+            >
+              <Sparkles size={13} className="text-amber-600" />
+              <span>Nạp Thêm Lượt Tạo Ảnh AI</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOpenUpgrade('sub')}
+              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-black text-white shadow-soft transition hover:opacity-95"
+            >
+              <Sparkles size={13} />
+              <span>Nâng gói</span>
+            </button>
+            <Link to="/parent/kids" className="text-xs font-extrabold text-brand-600 hover:underline">Quản lý hồ sơ</Link>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-black text-slate-900 sm:text-3xl">Trung tâm học tập</h1>
+            <p className="mt-1 max-w-2xl text-xs sm:text-sm text-muted leading-relaxed">
+              Chọn từng con để theo dõi lộ trình, hoạt động, nhận xét và năng lực trên cùng một nơi.
+            </p>
+          </div>
+          {children.length > 0 && (
+            <div className="grid min-w-52 gap-2">
+              <p className="text-xs font-bold text-muted uppercase tracking-wider">Đang xem hồ sơ học tập</p>
+              <div className="flex flex-wrap gap-2">
+                {children.map((child) => {
+                  const hasNew = feedbackBadge.byChild[child.id] ?? false
+                  const isActive = studentId === child.id
+                  return (
+                    <button
+                      key={child.id}
+                      type="button"
+                      onClick={() => selectChild(child.id)}
+                      className={cn(
+                        'relative flex min-h-10 items-center gap-2 rounded-2xl border-2 px-4 text-sm font-bold transition',
+                        isActive
+                          ? 'border-brand-400 bg-brand-50 text-brand-700 shadow-2xs'
+                          : 'border-border bg-white text-text hover:border-brand-200',
+                      )}
+                      aria-pressed={isActive}
+                      aria-label={`${child.nickname ?? 'Học viên'}${hasNew ? ' — có nhận xét mới' : ''}`}
+                    >
+                      <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-xs font-black text-brand-700">{(child.nickname ?? 'H').trim().slice(0, 1).toUpperCase()}</span>
+                      {child.nickname ?? 'Học viên'}
+                      {hasNew && (
+                        <span
+                          aria-hidden="true"
+                          className="h-2 w-2 rounded-full bg-danger ring-2 ring-white"
+                        />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Nội dung học tập của con">
@@ -418,11 +479,18 @@ export function ParentLearningPage() {
           hasNewFeedback={feedbackBadge.byChild[studentId] ?? false}
           onOpenPathway={() => setSection('pathway')}
           onOpenFeedback={() => setSection('feedback')}
+          onTopupCredits={() => handleOpenUpgrade('credits')}
         />
       ) : data && section === 'pathway' ? (
         <div className="grid gap-5">
           <PathwaySection pathway={data.pathway} />
-          <CourseSelectionSection courses={data.courses} subscription={data.subscription} busy={busy} onToggleProgram={toggleProgram} />
+          <CourseSelectionSection
+            courses={data.courses}
+            subscription={data.subscription}
+            busy={busy}
+            onToggleProgram={toggleProgram}
+            onUpgrade={() => handleOpenUpgrade('sub')}
+          />
         </div>
       ) : data && section === 'activity' ? (
         <LearningActivitySection studentId={studentId} initialProgress={data.progress} />
@@ -435,6 +503,14 @@ export function ParentLearningPage() {
           onDownload={downloadCredential}
         />
       ) : null}
+
+      <ParentSubscriptionCheckoutModal
+        open={isUpgradeModalOpen}
+        onClose={handleCloseUpgradeModal}
+        onSuccess={handleUpgradeSuccess}
+        defaultPlanId={upgradeParam || 'aikids_official_129k'}
+        initialMode={checkoutMode}
+      />
     </div>
   )
 }
@@ -446,6 +522,7 @@ function LearningOverview({
   hasNewFeedback,
   onOpenPathway,
   onOpenFeedback,
+  onTopupCredits,
 }: {
   child: Child | null
   pathway: Pathway
@@ -453,6 +530,7 @@ function LearningOverview({
   hasNewFeedback: boolean
   onOpenPathway: () => void
   onOpenFeedback: () => void
+  onTopupCredits?: () => void
 }) {
   const active = pathway.courses.find((course) => course.id === pathway.recommendedCourseId)
     ?? pathway.courses.find((course) => course.status === 'active')
@@ -461,6 +539,38 @@ function LearningOverview({
 
   return (
     <div className="grid gap-5">
+      {/* AI Creative Studio & Credits Banner */}
+      <section className="ui-card flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 bg-gradient-to-r from-sun-50 via-cream-50 to-amber-50 border border-amber-200 shadow-soft">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-100 text-amber-700 shadow-soft">
+            <Sparkles size={22} className="text-amber-600" />
+          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-display text-base sm:text-lg font-black text-text">
+                Xưởng Sáng Tạo & Tranh Vẽ AI Cho {childName}
+              </h3>
+              <span className="rounded-full bg-amber-200/80 px-2 py-0.5 text-[11px] font-black text-amber-950">
+                Lượt dự phòng
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-muted">
+              Bé thỏa sức sáng tác truyện tranh và mở rộng trí tưởng tượng cùng AI Cat AKI. Lượt tạo ảnh không bao giờ hết hạn.
+            </p>
+          </div>
+        </div>
+        {onTopupCredits && (
+          <button
+            type="button"
+            onClick={onTopupCredits}
+            className="inline-flex items-center gap-1.5 rounded-2xl py-2 px-3.5 text-xs font-black shadow-clay bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white transition active:scale-[0.98]"
+          >
+            <Sparkles size={14} />
+            <span>Nạp Thêm Lượt Tạo Ảnh AI</span>
+          </button>
+        )}
+      </section>
+
       <section className="ui-card overflow-hidden">
         <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-sky-50 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
@@ -622,11 +732,13 @@ function CourseSelectionSection({
   subscription,
   busy,
   onToggleProgram,
+  onUpgrade,
 }: {
   courses: Course[]
   subscription: LearningData['subscription']
   busy: boolean
   onToggleProgram: (courses: Course[], enroll: boolean) => Promise<void>
+  onUpgrade?: () => void
 }) {
   type Space = NonNullable<Course['programSource']>
   const [space, setSpace] = useState<Space>('aikid_official')
@@ -735,7 +847,17 @@ function CourseSelectionSection({
                     {(region.stations?.length ?? 0) > 3 && <p className="mt-1 text-xs font-bold text-brand-600">+ {(region.stations?.length ?? 0) - 3} trạm khác</p>}
                     {!region.enrolled && (availableSlots > 0
                       ? <Button className="mt-3 w-full" disabled={busy} onClick={() => void onToggleProgram([region], true)}><Plus size={16} aria-hidden="true" /> Đăng ký vùng này</Button>
-                      : <Link to="/parent/plan" className="ui-btn ui-btn-secondary mt-3 w-full">Đã mở {enrolledCourseCount}/{subscription.maxOpenCoursesPerChild} vùng · Nâng gói</Link>)}
+                      : onUpgrade ? (
+                        <button
+                          type="button"
+                          onClick={onUpgrade}
+                          className="ui-btn ui-btn-secondary mt-3 w-full"
+                        >
+                          Đã mở {enrolledCourseCount}/{subscription.maxOpenCoursesPerChild} vùng · Nâng gói
+                        </button>
+                      ) : (
+                        <Link to="/parent/plan" className="ui-btn ui-btn-secondary mt-3 w-full">Đã mở {enrolledCourseCount}/{subscription.maxOpenCoursesPerChild} vùng · Nâng gói</Link>
+                      ))}
                   </div>)}
                 </div>
               </details>

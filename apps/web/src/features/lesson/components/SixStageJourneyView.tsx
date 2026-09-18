@@ -29,6 +29,7 @@ import {
   getDefaultPracticeParts,
   type PracticePartState,
 } from './AikiStudioWorkspace'
+import { getCreativeEngineMode } from './creative-engine/data/engine-presets'
 import {
   getAikiStudioConfig,
   type AikiStudioConfig,
@@ -36,6 +37,9 @@ import {
 import { playInstantSound } from './LessonInteractiveSidebar'
 import { StudentStageBlocksView } from './StudentStageBlocksView'
 import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
+import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
+import { findIslandCurriculum, DEFAULT_NOTEBOOK_CONFIGS } from '@/features/lesson/data/island-curriculum-registry'
+import type { CreativeNotebookConfig } from './creative-engine/types'
 
 export interface SixStageJourneyViewProps {
   journey: LessonSixStageJourney
@@ -43,12 +47,27 @@ export interface SixStageJourneyViewProps {
   lessonTitle: string
   studentStars?: number
   rewardXp?: number
+  isCompleted?: boolean
+  previousStars?: number
   onFinishLesson?: (result: { stars: number; xp: number; nextLessonSlug?: string }) => void
   onBackToMap?: () => void
   onNavigateNextLesson?: (nextLessonSlug: string) => void
   initialStageIndex?: number
   onStageChange?: (stageIndex: number) => void
   initialSidebarCollapsed?: boolean
+}
+
+/**
+ * Quy đổi thống nhất Sao sang XP cho toàn bộ trạm học AIKids:
+ * - 1 Sao = 30 XP
+ * - 2 Sao = 60 XP
+ * - 3 Sao = 100 XP (kèm 10 XP Mastery Bonus)
+ */
+export function calculateStationXp(stars: number): number {
+  if (stars >= 3) return 100
+  if (stars === 2) return 60
+  if (stars === 1) return 30
+  return 0
 }
 
 export const STAGES = [
@@ -77,6 +96,8 @@ export function SixStageJourneyView({
   lessonTitle,
   studentStars = 42,
   rewardXp: rewardXpProp,
+  isCompleted = false,
+  previousStars,
   onFinishLesson,
   onBackToMap,
   onNavigateNextLesson,
@@ -84,8 +105,95 @@ export function SixStageJourneyView({
   onStageChange,
   initialSidebarCollapsed = true,
 }: SixStageJourneyViewProps) {
-  const effectiveRewardXp = rewardXpProp ?? journey.stage6_completion?.rewardBadge?.xp ?? 50
-  const effectiveStars = journey.stage6_completion?.rewardBadge?.stars ?? 3
+  const matchedCurriculum = useMemo(() => {
+    return findIslandCurriculum({ id: lessonId, slug: lessonId, title: lessonTitle })
+  }, [lessonId, lessonTitle])
+
+  const stationInfo = useMemo(() => {
+    const curriculum = matchedCurriculum
+    const cleanCurriculumTitle = (rawTitle: string) => {
+      return (rawTitle || '')
+        .replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '')
+        .replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '')
+        .trim()
+    }
+
+    const ISLAND_CANONICAL_NAMES: Record<number, string> = {
+      0: 'Đảo Tiên Quyết',
+      1: 'Đảo 1: Nhà Thám Hiểm AI',
+      2: 'Đảo 2: Hoạ Sĩ AI',
+      3: 'Đảo 3: Biệt Đội Nhân Vật',
+      4: 'Đảo 4: Vương Quốc Truyện Tranh',
+      5: 'Đảo 5: Đấu Trường Trò Chơi',
+      6: 'Đảo 6: Triển Lãm & Tốt Nghiệp',
+    }
+
+    if (curriculum) {
+      const num = String(curriculum.lessonNumber || '1.1')
+      const pureTitle = cleanCurriculumTitle(curriculum.title)
+      let title = pureTitle
+      let icon = '🎨'
+      let stationLabel = `Trạm ${num}: ${pureTitle}`
+
+      if (num === '1.1') {
+        title = 'Mèo Mimi'
+        icon = '🐱'
+        stationLabel = 'Trạm 1: Mèo Mimi'
+      } else if (num === '1.2') {
+        title = '4 Chìa Khoá'
+        icon = '🔑'
+        stationLabel = 'Trạm 2: 4 Chìa Khoá'
+      } else if (num === '1.3') {
+        title = 'Lăng Kính Phù Thủy'
+        icon = '🪄'
+        stationLabel = 'Trạm 3: Lăng Kính Phù Thủy'
+      } else if (num === '1.4') {
+        title = 'Kỹ Sư Tài Ba'
+        icon = '🩺'
+        stationLabel = 'Trạm 4: Kỹ Sư Tài Ba'
+      } else if (num === '2.1') {
+        title = 'Bức Tranh Biết Nói'
+        icon = '🦊'
+        stationLabel = `Trạm ${num}: Bức Tranh Biết Nói`
+      } else if (num === '2.2') {
+        title = 'Ai Là Ngôi Sao?'
+        icon = '⭐'
+        stationLabel = `Trạm ${num}: Ai Là Ngôi Sao?`
+      } else if (num === '2.3') {
+        title = 'Cảm Xúc Của Sắc Màu'
+        icon = '🌈'
+        stationLabel = `Trạm ${num}: Cảm Xúc Sắc Màu`
+      } else if (num === '2.4') {
+        title = 'Mảnh Ghép Hoàn Hảo'
+        icon = '🖼️'
+        stationLabel = `Trạm ${num}: Mảnh Ghép Hoàn Hảo`
+      } else if (num.startsWith('3.')) {
+        icon = '🔒'
+        stationLabel = `Trạm ${num}: ${pureTitle}`
+      } else if (num.startsWith('4.')) {
+        icon = '📚'
+        stationLabel = `Trạm ${num}: ${pureTitle}`
+      } else if (num.startsWith('5.')) {
+        icon = '🃏'
+        stationLabel = `Trạm ${num}: ${pureTitle}`
+      }
+
+      return {
+        stationLabel,
+        icon,
+        islandName: ISLAND_CANONICAL_NAMES[curriculum.islandNumber] || (curriculum as any).islandName || `Đảo ${curriculum.islandNumber}`,
+        lessonNumber: num,
+      }
+    }
+
+    const safeTitle = cleanCurriculumTitle(lessonTitle || 'Bài học')
+    return {
+      stationLabel: safeTitle.startsWith('Trạm') ? safeTitle : `Trạm: ${safeTitle}`,
+      icon: '🎨',
+      islandName: 'Đảo Sáng Tạo',
+      lessonNumber: '1',
+    }
+  }, [lessonId, lessonTitle])
 
   const [currentStage, setCurrentStage] = useState<number>(initialStageIndex)
   const [completedStages, setCompletedStages] = useState<Set<number>>(() => new Set([0]))
@@ -120,9 +228,28 @@ export function SixStageJourneyView({
   const [activePracticePartIndex, setActivePracticePartIndex] = useState<number>(0)
   const [practicePartsState, setPracticePartsState] = useState<PracticePartState[]>([])
 
+  const effectiveCreativeMode =
+    journey.stage5_practice?.creativeEngineMode ||
+    matchedCurriculum?.journey?.stage5_practice?.creativeEngineMode ||
+    getCreativeEngineMode(matchedCurriculum?.lessonNumber || lessonId)
+  const isCreativeNotebook = effectiveCreativeMode === 'creative-notebook'
+
   const defaultPracticeParts = useMemo(() => {
-    return getDefaultPracticeParts(lessonId, journey.stage5_practice?.subjectName || lessonTitle)
-  }, [lessonId, journey.stage5_practice?.subjectName, lessonTitle])
+    if (isCreativeNotebook) {
+      return []
+    }
+    if (journey.stage5_practice?.practiceParts && journey.stage5_practice.practiceParts.length > 0) {
+      return journey.stage5_practice.practiceParts.map((p, idx) => ({
+        id: p.id,
+        partNumber: p.partNumber || idx + 1,
+        title: p.title,
+        icon: p.icon || p.emoji || '🎨',
+        iconImage: p.iconImage,
+        emoji: p.emoji || p.icon || '🎨',
+      }))
+    }
+    return getDefaultPracticeParts(lessonId, journey.stage5_practice?.subjectName || lessonTitle, effectiveCreativeMode)
+  }, [isCreativeNotebook, journey.stage5_practice?.practiceParts, effectiveCreativeMode, lessonId, journey.stage5_practice?.subjectName, lessonTitle])
 
   // Lightbox Modal state for full-screen image inspection
   const [zoomImage, setZoomImage] = useState<{ url: string; title: string } | null>(null)
@@ -170,7 +297,25 @@ export function SixStageJourneyView({
   }, [])
 
   const videoEmbedUrl = useMemo(() => {
-    const raw = journey.stage3_video.videoUrl
+    let raw = journey.stage3_video.videoUrl || ''
+    if (raw) {
+      const youtuBeMatch = raw.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+      if (youtuBeMatch) {
+        raw = `https://www.youtube-nocookie.com/embed/${youtuBeMatch[1]}`
+      } else {
+        const watchMatch = raw.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/)
+        if (watchMatch) {
+          raw = `https://www.youtube-nocookie.com/embed/${watchMatch[1]}`
+        } else if (!raw.includes('/embed/')) {
+          if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) {
+            raw = `https://www.youtube-nocookie.com/embed/${raw}`
+          }
+        }
+      }
+    } else {
+      raw = 'https://www.youtube-nocookie.com/embed/NMdHhsLY5jc'
+    }
+
     if (videoSeekSec === null || videoSeekSec === undefined) {
       return raw
     }
@@ -229,6 +374,29 @@ export function SixStageJourneyView({
       (journey.stage1_goal.keyPoints && journey.stage1_goal.keyPoints.some((kp) => kp.toLowerCase().includes('mèo')))
     )
   }, [lessonId, lessonTitle, journey.stage1_goal])
+
+  const isDedicatedLessonVideo = useMemo(() => {
+    const num = stationInfo?.lessonNumber
+    if (num === '1.2' || num === '1.3') return true
+    if (isLesson1_2) return true
+    const lId = (lessonId || '').toLowerCase()
+    if (lId.includes('1-2') || lId.includes('1.2') || lId.includes('1-3') || lId.includes('1.3')) return true
+    const sId = (journey.stage3_video?.id || '').toLowerCase()
+    if (sId.includes('bai-1-2') || sId.includes('bai-1-3') || sId.includes('1-2') || sId.includes('1-3')) return true
+    const vid = journey.stage3_video?.videoUrl || ''
+    if (vid.includes('GCtez_WirtU')) return true
+    const title = ((stationInfo?.stationLabel || '') + ' ' + (lessonTitle || '')).toLowerCase()
+    if (
+      title.includes('1.2') ||
+      title.includes('1.3') ||
+      title.includes('bốn chiếc chìa khoá') ||
+      title.includes('bốn chiếc chìa khóa') ||
+      title.includes('úm ba la')
+    ) {
+      return true
+    }
+    return false
+  }, [stationInfo, isLesson1_2, lessonId, journey.stage3_video, lessonTitle])
 
   const formulaCards = useMemo(() => {
     const kp = journey.stage1_goal.keyPoints || []
@@ -345,7 +513,9 @@ export function SixStageJourneyView({
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     try {
       window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
+      const cleaned = normalizeVietnameseSpeech(text)
+      if (!cleaned) return
+      const utterance = new SpeechSynthesisUtterance(cleaned)
       utterance.lang = 'vi-VN'
       utterance.rate = 0.95
       window.speechSynthesis.speak(utterance)
@@ -451,6 +621,7 @@ export function SixStageJourneyView({
       lockedFeatures: practice.lockedFeatures?.length ? practice.lockedFeatures : base.lockedFeatures,
       akiMotto: practice.akiMotto || base.akiMotto,
       illustrationType: (practice.illustrationType as any) || base.illustrationType,
+      notebookConfig: practice.notebookConfig,
       practiceWorkflow: practice.workflowSteps?.length
         ? {
             steps: practice.workflowSteps.map((ws, i) => ({
@@ -469,6 +640,19 @@ export function SixStageJourneyView({
         : base.practiceWorkflow,
     }
   }, [journey.stage5_practice, lessonId, lessonTitle])
+
+
+  const effectiveNotebookConfig = useMemo<CreativeNotebookConfig | undefined>(() => {
+    const matchedKey = matchedCurriculum?.lessonNumber
+    return (
+      journey.stage5_practice?.notebookConfig ||
+      matchedCurriculum?.journey?.stage5_practice?.notebookConfig ||
+      (matchedKey ? DEFAULT_NOTEBOOK_CONFIGS[matchedKey] : undefined) ||
+      (lessonId ? DEFAULT_NOTEBOOK_CONFIGS[lessonId] : undefined) ||
+      (lessonId ? DEFAULT_NOTEBOOK_CONFIGS[lessonId.replace('bai-', '').replace('lesson-', '').replace('-', '.')] : undefined) ||
+      studioConfig?.notebookConfig
+    )
+  }, [journey.stage5_practice?.notebookConfig, matchedCurriculum, lessonId, studioConfig?.notebookConfig])
 
   // Calculate Quiz Score
   const quizScore = useMemo(() => {
@@ -489,6 +673,33 @@ export function SixStageJourneyView({
     if (ratio >= 0.5) return 2
     return 1
   }, [quizScore, journey.stage4_quiz.questions])
+
+  // Cơ chế thưởng 1 lần duy nhất: Nếu bài học đã hoàn thành trước đó (isCompleted hoặc previousStars > 0)
+  const isReplay = Boolean(isCompleted || (previousStars != null && previousStars > 0))
+
+  const defaultStars = journey.stage6_completion?.rewardBadge?.stars ?? 3
+  const earnedStars = useMemo(() => {
+    let stars = 0
+    if (completedStages.has(0) && completedStages.has(1) && completedStages.has(2)) {
+      stars += 1
+    }
+    const quizTotal = journey.stage4_quiz.questions?.length || 1
+    if (quizScore / quizTotal >= 0.8) {
+      stars += 1
+    }
+    if (submittedArtwork) {
+      stars += 1
+    }
+    // Nếu mở trực tiếp Stage 5 mà chưa qua các bước (preview/test):
+    if (currentStage === 5 && completedStages.size <= 1 && stars === 0) {
+      return defaultStars
+    }
+    return Math.max(1, stars)
+  }, [completedStages, quizScore, journey.stage4_quiz.questions, submittedArtwork, currentStage, defaultStars])
+
+  const calculatedXp = rewardXpProp ?? journey.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
+  const effectiveStars = isReplay ? 0 : earnedStars
+  const effectiveRewardXp = isReplay ? 0 : calculatedXp
 
   const renderSidebarAction = (stage: number) => {
     switch (stage) {
@@ -607,18 +818,9 @@ export function SixStageJourneyView({
             </button>
           )}
 
-          {/* Title Trạm đang học (Tinh gọn, sang trọng, không xao nhãng) */}
-          <div
-            data-testid="current-station-badge"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs shrink-0 font-black text-xs sm:text-sm select-none"
-          >
-            <span>{isLesson1_2 ? '🔑' : '🐱'}</span>
-            <span className="hidden sm:inline">{isLesson1_2 ? 'Trạm 2: 4 Chìa Khoá' : 'Trạm 1: Mèo Mimi'}</span>
-          </div>
-
           <nav
             aria-label="Tiến độ bài học 6 chặng"
-            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5"
+            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 flex-1 min-w-0"
           >
             {STAGES.map((header, idx) => {
               const isActive = currentStage === header.index
@@ -687,6 +889,26 @@ export function SixStageJourneyView({
         </div>
       </header>
 
+      {/* ── THÔNG TIN TRẠM BÀI HỌC (ĐƯỢC TÁCH RIÊNG ĐỂ 6 BƯỚC CÓ THÊM KHÔNG GIAN TỐI ĐA) ── */}
+      <div className="shrink-0 flex items-center justify-between gap-2 px-1 sm:px-1.5 py-0.5">
+        <div
+          data-testid="current-station-badge"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs font-black text-xs sm:text-sm select-none shrink-0"
+        >
+          <span>{stationInfo.icon}</span>
+          <span className="font-bold text-amber-800 hidden md:inline">{stationInfo.islandName}</span>
+          <span className="text-amber-400 hidden md:inline">·</span>
+          <span>{stationInfo.stationLabel}</span>
+        </div>
+
+        <div className="text-[11px] font-bold text-slate-500 hidden sm:flex items-center gap-1.5">
+          <span>Đang học:</span>
+          <span className="text-brand-600 font-black">
+            Chặng {currentStage + 1}/6 · {STAGES[currentStage]?.title}
+          </span>
+        </div>
+      </div>
+
       {/* ── 2 CỘT TƯƠNG THÍCH HOÀN HẢO ── */}
       <div className="flex flex-col md:flex-row items-stretch gap-4 flex-1 min-h-0 w-full overflow-hidden">
         {/* CỘT TRÁI (MAIN LEARNING BLOCKS - 60-65% WIDTH HOẶC 100% KHI THU GỌN SIDEBAR) */}
@@ -707,117 +929,114 @@ export function SixStageJourneyView({
               data-testid="stage-0-goal"
               className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-6 animate-fade-up"
             >
-              <div className="flex flex-col items-start gap-6 lg:flex-row lg:gap-8">
-                {/* Cột trái: Khung ảnh to bản, chiếm trọn 100% tỷ lệ 4:3 đẹp đẽ */}
-                <div className="group relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-3xl border-4 border-amber-200 bg-amber-50 shadow-clay lg:w-1/2">
-                  <img
-                    decoding="async"
-                    src={journey.stage1_goal.imageUrl}
-                    alt={journey.stage1_goal.title}
-                    className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
-                    onClick={() =>
-                      setZoomImage({
-                        url: journey.stage1_goal.imageUrl,
-                        title: journey.stage1_goal.title,
-                      })
-                    }
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = isLesson1_2
-                        ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg'
-                        : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                    }}
-                  />
-                  {/* Text box overlay trên ảnh được chuyển sang sr-only để giao diện sạch sẽ, chống đè nút Phóng to khi đổi size màn hình và bảo toàn 100% test assertions */}
-                  <div className="sr-only">
-                    <span>🔑</span>
-                    <span>{isLesson1_2 ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
-                    {isLesson1_2 && (
-                      <div>
-                        <span>1. Cái gì</span>
-                        <span>2. Trông thế nào</span>
-                        <span>3. Đang làm gì</span>
-                        <span>4. Ở đâu</span>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setZoomImage({
-                        url: journey.stage1_goal.imageUrl,
-                        title: journey.stage1_goal.title,
-                      })
-                    }
-                    className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
-                    title="Xem ảnh phóng to"
-                  >
-                    <span>🔍 Phóng to</span>
-                  </button>
+              {/* Phần 1 - Tiêu đề & Header */}
+              <div className="flex flex-col gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60">
+                  <Sparkles size={13} className="text-brand-500" />
+                  <span>Chặng 1: Mục tiêu bài học</span>
                 </div>
 
-                {/* Nội dung mục tiêu & Lời dặn của AKI */}
-                <div className="flex w-full flex-col justify-between gap-3 sm:gap-4 lg:w-1/2">
-                  <div className="flex flex-col gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60">
-                      <Sparkles size={13} className="text-brand-500" />
-                      <span>Chặng 1: Mục tiêu bài học</span>
-                    </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
+                  {journey.stage1_goal.title}
+                </h2>
+              </div>
 
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
-                      {journey.stage1_goal.title}
-                    </h2>
-                  </div>
-
-                  <div className="text-base text-slate-700 font-medium leading-relaxed bg-brand-50/70 p-4 sm:p-5 rounded-3xl border-2 border-brand-100 shadow-clay-sm flex items-start gap-3">
-                    <span className="text-2xl shrink-0 mt-0.5">🎯</span>
+              {/* Phần 2 - Khung Ảnh Minh Họa (Hero Banner Row) */}
+              <div className="w-full max-w-2xl mx-auto rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] max-h-[340px] sm:max-h-[380px] flex items-center justify-center">
+                <img
+                  decoding="async"
+                  src={journey.stage1_goal.imageUrl}
+                  alt={journey.stage1_goal.title}
+                  className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
+                  onClick={() =>
+                    setZoomImage({
+                      url: journey.stage1_goal.imageUrl,
+                      title: journey.stage1_goal.title,
+                    })
+                  }
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = isLesson1_2
+                      ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg'
+                      : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                  }}
+                />
+                {/* Text box overlay trên ảnh được chuyển sang sr-only để giao diện sạch sẽ, chống đè nút Phóng to khi đổi size màn hình và bảo toàn 100% test assertions */}
+                <div className="sr-only">
+                  <span>🔑</span>
+                  <span>{isLesson1_2 ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
+                  {isLesson1_2 && (
                     <div>
-                      <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
-                        Mục Tiêu Cốt Lõi:
-                      </span>
-                      <p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">{journey.stage1_goal.goalText}</p>
+                      <span>1. Cái gì</span>
+                      <span>2. Trông thế nào</span>
+                      <span>3. Đang làm gì</span>
+                      <span>4. Ở đâu</span>
                     </div>
-                  </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setZoomImage({
+                      url: journey.stage1_goal.imageUrl,
+                      title: journey.stage1_goal.title,
+                    })
+                  }
+                  className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                  title="Xem ảnh phóng to"
+                >
+                  <span>🔍 Phóng to</span>
+                </button>
+              </div>
 
-                  {/* Vùng Bốn Chìa Khóa Vàng */}
-                  <div className="flex flex-col gap-2 flex-1 justify-between">
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950">
-                      <span>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 flex-1 items-stretch">
-                      {formulaCards.map((card, idx) => (
-                        <div
-                          key={card.id}
+              {/* Phần 3 - Thẻ Mục Tiêu Cốt Lõi */}
+              <div className="w-full rounded-3xl border-2 border-brand-100 bg-brand-50/70 p-4 sm:p-5 shadow-clay-sm flex items-start gap-3">
+                <span className="text-2xl shrink-0 mt-0.5">🎯</span>
+                <div>
+                  <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
+                    Mục Tiêu Cốt Lõi:
+                  </span>
+                  <p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">{journey.stage1_goal.goalText}</p>
+                </div>
+              </div>
+
+              {/* Phần 4 - Bốn Chiếc Chìa Khóa Vàng */}
+              <div className="flex flex-col gap-2.5 sm:gap-3">
+                <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950 min-w-0 break-words">
+                  <span>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</span>
+                </div>
+                <div className="grid gap-3 sm:gap-4 items-stretch grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                  {formulaCards.map((card, idx) => (
+                    <div
+                      key={card.id}
+                      className={cn(
+                        "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2.5 sm:gap-3 min-h-[64px] h-auto",
+                        card.bg
+                      )}
+                    >
+                      <img
+                        decoding="async"
+                        src={card.image}
+                        alt={card.code}
+                        className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs transition-transform hover:scale-105"
+                      />
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <span
                           className={cn(
-                            "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2.5 sm:gap-3 min-h-[64px] h-auto",
-                            card.bg
+                            "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit",
+                            card.badge
                           )}
                         >
-                          <img
-                            decoding="async"
-                            src={card.image}
-                            alt={card.code}
-                            className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs transition-transform hover:scale-105"
-                          />
-                          <div className="flex-1 min-w-0 flex flex-col justify-center">
-                            <span
-                              className={cn(
-                                "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit",
-                                card.badge
-                              )}
-                            >
-                              [{idx + 1}] {card.code}
-                            </span>
-                            <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
-                              {card.val}
-                            </p>
-                            <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
-                              ({card.sub})
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                          [{idx + 1}] {card.code}
+                        </span>
+                        <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
+                          {card.val}
+                        </p>
+                        <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
+                          ({card.sub})
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
@@ -1239,6 +1458,18 @@ export function SixStageJourneyView({
                 </div>
               </div>
 
+              {/* Thông báo ấm áp khi bài học dùng video chung của AKI */}
+              {!isDedicatedLessonVideo && (
+                <div
+                  data-testid="generic-video-notice"
+                  className="w-full max-w-4xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3.5 py-2 sm:px-5 sm:py-2.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
+                >
+                  <span>
+                    🎬 Video bài học chuyên sâu của trạm này đang được AKI chuẩn bị! Bé hãy xem video bí kíp của AKI ở trên hoặc bấm &quot;Tiếp tục&quot; để làm trắc nghiệm &amp; thực hành nhé ✨
+                  </span>
+                </div>
+              )}
+
               {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN AIKIRULEVIDEOPLAYER */}
               <div
                 data-testid="video-timeline-stepper"
@@ -1324,17 +1555,13 @@ export function SixStageJourneyView({
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {currentChapter && (
-                      <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg border border-brand-200">
-                        <span>🎯 Mốc {currentChapterIndex + 1}:</span>
-                        <span className="max-w-[200px] truncate">{currentChapter.label}</span>
-                      </span>
-                    )}
-                    <span className="hidden sm:inline text-xs sm:text-sm text-amber-800/80 italic">
-                      Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!
-                    </span>
-                  </div>
+                  {/* Thông tin mốc được chuyển sang sr-only để giao diện gọn gàng, bảo toàn trợ năng & test assertions */}
+                  {currentChapter && (
+                    <div className="sr-only">
+                      <span>🎯 Mốc {currentChapterIndex + 1}: {currentChapter.label}</span>
+                      <span>Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1693,13 +1920,16 @@ export function SixStageJourneyView({
 
               <AikiStudioWorkspace
                 config={studioConfig}
+                notebookConfig={journey.stage5_practice.notebookConfig}
                 lessonId={lessonId}
                 lessonTitle={lessonTitle}
                 lessonBadge={journey.stage5_practice.badge || 'Bài thực hành'}
                 characterName={journey.stage5_practice.subjectName || lessonTitle}
                 lockedFeatures={journey.stage5_practice.lockedFeatures}
-                initialAttemptsLeft={8}
-                maxAttempts={8}
+                creativeEngineMode={journey.stage5_practice.creativeEngineMode}
+                practiceParts={defaultPracticeParts}
+                initialAttemptsLeft={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
+                maxAttempts={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
                 studentStars={studentStars}
                 activePartIndex={activePracticePartIndex}
                 onPartChange={setActivePracticePartIndex}
@@ -1720,21 +1950,24 @@ export function SixStageJourneyView({
           {/* ──────────────────────────────────────────────────────────── */}
           {/* CHẶNG 5: MÀN KẾT THÚC - VINH DANH CÚP VÀNG & TÁC PHẨM      */}
           {/* ──────────────────────────────────────────────────────────── */}
+          {/* ──────────────────────────────────────────────────────────── */}
+          {/* CHẶNG 5: MÀN KẾT THÚC - VINH DANH CÚP VÀNG & TÁC PHẨM      */}
+          {/* ──────────────────────────────────────────────────────────── */}
           {currentStage === 5 && (
             <section
               data-testid="stage-5-completion"
-              className="flex w-full min-h-0 flex-col justify-center overflow-y-auto rounded-3xl border-2 border-brand-100 bg-white p-4 shadow-clay animate-fade-up sm:p-6 lg:p-7"
+              className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border-2 border-brand-100 bg-white p-3.5 sm:p-5 lg:p-6 shadow-clay animate-fade-up overflow-hidden"
             >
-              <div className="grid w-full grid-cols-1 items-center gap-4 lg:grid-cols-12 lg:gap-6">
-                {/* CỘT TRÁI (md:col-span-6 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
-                <div className="flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3.5 sm:p-4 lg:col-span-6 lg:h-full">
-                  <div className="flex items-center justify-between text-xs font-black text-amber-900 uppercase tracking-wider mb-2">
-                    <span className="flex items-center gap-1.5">
-                      <Award size={16} className="text-amber-600" />
+              <div className="grid w-full max-w-full grid-cols-1 items-center gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
+                {/* CỘT TRÁI (md:col-span-1 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
+                <div className="flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3 sm:p-4 md:col-span-1 lg:col-span-6 lg:h-full min-w-0 max-w-full overflow-hidden">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-black text-amber-900 uppercase tracking-wider mb-2 min-w-0">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <Award size={16} className="text-amber-600 shrink-0" />
                       <span>Tác phẩm kiệt xuất vừa cất vào Balo</span>
                     </span>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-xs sm:text-sm font-black">
-                      <CheckCircle2 size={13} className="text-mint-600" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-xs sm:text-sm font-black shrink-0">
+                      <CheckCircle2 size={13} className="text-mint-600 shrink-0" />
                       <span>{journey.stage6_completion.rewardBadge.name}</span>
                     </div>
                   </div>
@@ -1780,27 +2013,27 @@ export function SixStageJourneyView({
                   </div>
 
                   {submittedArtwork?.prompt && (
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 truncate">
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 max-w-full overflow-hidden truncate">
                       &ldquo;{submittedArtwork.prompt}&rdquo;
                     </p>
                   )}
                 </div>
 
-                {/* CỘT PHẢI (md:col-span-6 lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Các nút điều hướng */}
-                <div className="flex flex-col justify-center gap-3.5 text-center sm:gap-4 lg:col-span-6 lg:h-full lg:text-left">
-                  <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start">
-                    <Trophy size={13} className="text-amber-600" />
+                {/* CỘT PHẢI (md:col-span-1 lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Các nút điều hướng */}
+                <div className="flex flex-col justify-center gap-2.5 sm:gap-3.5 text-center md:col-span-1 lg:col-span-6 lg:h-full lg:text-left min-w-0 max-w-full">
+                  <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start shrink-0 max-w-full">
+                    <Trophy size={13} className="text-amber-600 shrink-0" />
                     <span>Chặng 6: Hoàn thành bài học</span>
                   </div>
 
                   {/* Vinh danh: Cúp vàng đất nặn 3D Hallmark Soft Clay + 3 Sao vàng */}
-                  <div className="flex items-center justify-center gap-4 lg:justify-start">
+                  <div className="flex items-center justify-center gap-3 sm:gap-4 lg:justify-start">
                     <div className="relative shrink-0">
                       <img
                         decoding="async"
                         src="/assets/trophy-clay-gold.png"
                         alt="Cúp Vàng Sáng Tạo"
-                        className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-clay select-none hover:scale-105 transition-transform duration-300"
+                        className="w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 object-contain drop-shadow-clay select-none hover:scale-105 transition-transform duration-300"
                       />
                       <div
                         data-testid="stage6-trophy-xp-badge"
@@ -1815,7 +2048,7 @@ export function SixStageJourneyView({
                       {[1, 2, 3].map((star) => (
                         <Star
                           key={star}
-                          size={24}
+                          size={22}
                           className="fill-amber-400 text-amber-500 drop-shadow-md animate-pulse"
                         />
                       ))}
@@ -1824,20 +2057,20 @@ export function SixStageJourneyView({
 
                   {/* Tiêu đề & Lời chúc mừng */}
                   <div className="space-y-1">
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 leading-tight break-words">
                       {journey.stage6_completion.title}
                     </h2>
-                    <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
+                    <p className="text-xs sm:text-sm lg:text-base text-slate-600 font-medium leading-relaxed break-words">
                       {journey.stage6_completion.congratsMessage}
                     </p>
                   </div>
 
                   {/* Cụm Nút điều hướng kết thúc */}
-                  <div className="flex flex-col gap-2.5 w-full pt-1">
+                  <div className="flex flex-col gap-2 sm:gap-2.5 w-full pt-1">
                     {journey.stage6_completion.nextLessonSlug && onNavigateNextLesson ? (
                       <Button
                         variant="primary"
-                        className="w-full py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
                         onClick={() => {
                           onFinishLesson?.({
                             stars: effectiveStars,
@@ -1854,7 +2087,7 @@ export function SixStageJourneyView({
                     {onBackToMap && (
                       <Button
                         variant="secondary"
-                        className="w-full py-2.5 text-sm sm:text-base font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer"
                         onClick={() => {
                           onFinishLesson?.({
                             stars: effectiveStars,
@@ -1898,7 +2131,7 @@ export function SixStageJourneyView({
               className={cn(
                 'shrink-0 flex flex-col bg-white rounded-3xl border-2 border-brand-100 shadow-clay overflow-hidden',
                 (currentStage === 4 || currentStage === 5)
-                  ? 'fixed top-16 right-4 bottom-4 w-[340px] sm:w-[380px] z-40 shadow-2xl border-2 border-brand-300'
+                  ? 'fixed top-16 right-2 sm:right-4 bottom-4 w-[min(calc(100vw-1rem),380px)] z-40 shadow-2xl border-2 border-brand-300'
                   : 'w-full md:w-[300px] lg:w-[360px] xl:w-[400px]'
               )}
             >
@@ -1965,201 +2198,283 @@ export function SixStageJourneyView({
               {/* Nếu ở Chặng 4 (Thực hành - Xưởng sáng tạo): Hiển thị chi tiết Bốn món đồ, Tiến trình 4 bước & Mẹo vàng AKI */}
               {currentStage === 4 ? (
                 <div className="flex flex-col gap-3">
-                  {/* KHỐI: 🧰 BỐN MÓN ĐỒ CỦA CÁC CẬU */}
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-3xl p-3.5 border-2 border-amber-300 shadow-clay flex flex-col gap-2.5 text-left">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 font-black text-xs sm:text-sm text-amber-950">
-                        <span className="text-base">🧰</span>
-                        <span>Bốn món đồ của các cậu</span>
+                  {!isCreativeNotebook && (
+                    /* KHỐI: 🧰 BỐN MÓN ĐỒ CỦA CÁC CẬU */
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-3xl p-3.5 border-2 border-amber-300 shadow-clay flex flex-col gap-2.5 text-left">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-black text-xs sm:text-sm text-amber-950">
+                          <span className="text-base">🧰</span>
+                          <span>Bốn món đồ của các cậu</span>
+                        </div>
+                        <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                          Chỉ 4 lượt chọn
+                        </span>
                       </div>
-                      <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
-                        Chỉ 4 lượt chọn
-                      </span>
-                    </div>
 
-                    <p className="text-xs sm:text-sm text-amber-900 font-medium">
-                      Bài này có 4 phần. Mỗi phần 2 lượt tạo.
-                    </p>
+                      <p className="text-xs sm:text-sm text-amber-900 font-medium">
+                        Bài này có 4 phần. Mỗi phần 2 lượt tạo.
+                      </p>
 
-                    {/* 4 Card món đồ có thể bấm chọn */}
-                    <div className="flex flex-col gap-2">
-                      {(() => {
-                        const partsList = practicePartsState.length > 0
-                          ? practicePartsState
-                          : defaultPracticeParts.map((def, idx) => ({
-                              ...def,
-                              images: [],
-                              isDone: false,
-                              isActive: idx === activePracticePartIndex,
-                            }))
+                      {/* 4 Card món đồ có thể bấm chọn */}
+                      <div className="flex flex-col gap-2">
+                        {(() => {
+                          const partsList = practicePartsState.length > 0
+                            ? practicePartsState
+                            : defaultPracticeParts.map((def, idx) => ({
+                                ...def,
+                                images: [],
+                                isDone: false,
+                                isActive: idx === activePracticePartIndex,
+                              }))
 
-                        return partsList.map((part, idx) => {
-                          const isSelected = activePracticePartIndex === idx
-                          const imagesCount = part.images?.length || 0
-                          const isDone = part.isDone || imagesCount >= 2
+                          return partsList.map((part, idx) => {
+                            const isSelected = activePracticePartIndex === idx
+                            const imagesCount = part.images?.length || 0
+                            const isDone = part.isDone || imagesCount >= 2
 
-                          let statusBadgeText = `PHẦN ${idx + 1} - CHỜ`
-                          let statusBadgeClass = 'bg-slate-200 text-slate-700'
-                          if (isDone) {
-                            statusBadgeText = `PHẦN ${idx + 1} - XONG ✓`
-                            statusBadgeClass = 'bg-emerald-500 text-white shadow-2xs'
-                          } else if (isSelected) {
-                            statusBadgeText = `PHẦN ${idx + 1} - ĐANG LÀM`
-                            statusBadgeClass = 'bg-indigo-600 text-white shadow-xs animate-pulse'
-                          }
+                            let statusBadgeText = `PHẦN ${idx + 1} - CHỜ`
+                            let statusBadgeClass = 'bg-slate-200 text-slate-700'
+                            if (isDone) {
+                              statusBadgeText = `PHẦN ${idx + 1} - XONG ✓`
+                              statusBadgeClass = 'bg-emerald-500 text-white shadow-2xs'
+                            } else if (isSelected) {
+                              statusBadgeText = `PHẦN ${idx + 1} - ĐANG LÀM`
+                              statusBadgeClass = 'bg-indigo-600 text-white shadow-xs animate-pulse'
+                            }
 
-                          let turnText = '(lượt 1, lượt 2)'
-                          if (imagesCount >= 2) {
-                            turnText = '(✓ lượt 1, ✓ lượt 2)'
-                          } else if (imagesCount === 1) {
-                            turnText = '(✓ lượt 1, lượt 2)'
-                          }
+                            let turnText = '(lượt 1, lượt 2)'
+                            if (imagesCount >= 2) {
+                              turnText = '(✓ lượt 1, ✓ lượt 2)'
+                            } else if (imagesCount === 1) {
+                              turnText = '(✓ lượt 1, lượt 2)'
+                            }
 
-                          const displayName = isDone || isSelected
-                            ? part.title
-                            : `Chưa chọn món đồ / ${part.title}`
+                            const displayName = isDone || isSelected
+                              ? part.title
+                              : `Chưa chọn món đồ / ${part.title}`
 
-                          return (
-                            <button
-                              key={part.partNumber}
-                              type="button"
-                              data-testid={`sidebar-practice-part-${part.partNumber}`}
-                              onClick={() => {
-                                setActivePracticePartIndex(idx)
-                                playInstantSound('click')
-                              }}
-                              className={cn(
-                                'w-full p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col gap-1.5 select-none',
-                                isSelected
-                                  ? 'bg-white border-indigo-500 shadow-md ring-2 ring-indigo-200 scale-[1.01]'
-                                  : isDone
-                                  ? 'bg-emerald-50/70 border-emerald-300 hover:bg-emerald-100/70'
-                                  : 'bg-white/90 border-slate-200 hover:border-amber-300 hover:bg-amber-50/50'
-                              )}
-                            >
-                              <div className="flex items-center justify-between gap-1">
-                                <span className={cn('text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider', statusBadgeClass)}>
-                                  {statusBadgeText}
-                                </span>
-                                <span className="text-[11px] sm:text-xs font-bold text-slate-500">
-                                  {turnText}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                {part.iconImage ? (
-                                  <img
-                                    decoding="async"
-                                    src={part.iconImage}
-                                    alt={part.title}
-                                    className="w-8 h-8 rounded-lg object-contain bg-white border border-amber-200 p-0.5 shrink-0 shadow-2xs"
-                                  />
-                                ) : (
-                                  <span className="text-lg shrink-0">{part.icon}</span>
+                            return (
+                              <button
+                                key={part.partNumber}
+                                type="button"
+                                data-testid={`sidebar-practice-part-${part.partNumber}`}
+                                onClick={() => {
+                                  setActivePracticePartIndex(idx)
+                                  playInstantSound('click')
+                                }}
+                                className={cn(
+                                  'w-full p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col gap-1.5 select-none',
+                                  isSelected
+                                    ? 'bg-white border-indigo-500 shadow-md ring-2 ring-indigo-200 scale-[1.01]'
+                                    : isDone
+                                    ? 'bg-emerald-50/70 border-emerald-300 hover:bg-emerald-100/70'
+                                    : 'bg-white/90 border-slate-200 hover:border-amber-300 hover:bg-amber-50/50'
                                 )}
-                                <span className="text-xs sm:text-sm font-black text-slate-900 truncate">
-                                  {displayName}
-                                </span>
-                              </div>
-                            </button>
-                          )
-                        })
-                      })()}
-                    </div>
-                  </div>
+                              >
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className={cn('text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider', statusBadgeClass)}>
+                                    {statusBadgeText}
+                                  </span>
+                                  <span className="text-[11px] sm:text-xs font-bold text-slate-500">
+                                    {turnText}
+                                  </span>
+                                </div>
 
-                  {/* Tiến trình 4 bước thực hành của bài học */}
-                  <div className="bg-indigo-50/80 rounded-2xl p-3.5 border border-indigo-200 flex flex-col gap-2.5 text-left">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs sm:text-sm font-black uppercase tracking-wide text-indigo-950 flex items-center gap-1.5">
-                        <span>🎯</span>
-                        <span>Tiến Trình 4 Bước Thực Hành</span>
-                      </span>
-                      <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                        Chuẩn AIKI
-                      </span>
+                                <div className="flex items-center gap-2">
+                                  {part.iconImage ? (
+                                    <img
+                                      decoding="async"
+                                      src={part.iconImage}
+                                      alt={part.title}
+                                      className="w-8 h-8 rounded-lg object-contain bg-white border border-amber-200 p-0.5 shrink-0 shadow-2xs"
+                                    />
+                                  ) : (
+                                    <span className="text-lg shrink-0">{part.icon}</span>
+                                  )}
+                                  <span className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                                    {displayName}
+                                  </span>
+                                </div>
+                              </button>
+                            )
+                          })
+                        })()}
+                      </div>
                     </div>
+                  )}
 
-                    <div className="flex flex-col gap-2">
-                      {[
-                        {
-                          step: 1,
-                          title: 'Bước 1: Thử câu lệnh ban đầu (1-2 từ)',
-                          hint: studioConfig?.practiceWorkflow?.steps?.[0]?.quickPrompt
-                            ? `💡 Thử: "${studioConfig.practiceWorkflow.steps[0].quickPrompt}"`
-                            : 'Thử lệnh 1-2 từ',
-                        },
-                        {
-                          step: 2,
-                          title: 'Bước 2: Thêm hình dáng & màu sắc',
-                          hint: studioConfig?.practiceWorkflow?.steps?.[1]?.quickPrompt
-                            ? `💡 Thêm: "${studioConfig.practiceWorkflow.steps[1].quickPrompt}"`
-                            : 'Thêm dáng & màu',
-                        },
-                        {
-                          step: 3,
-                          title: 'Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng',
-                          hint: studioConfig?.practiceWorkflow?.steps?.[2]?.quickPrompt
-                            ? `💡 5 chi tiết: "${studioConfig.practiceWorkflow.steps[2].quickPrompt}"`
-                            : 'Đủ 5 chi tiết vàng',
-                        },
-                        {
-                          step: 4,
-                          title: 'Bước 4: Soi kỹ tranh & nộp vào Balo',
-                          hint: '🔍 Soi kỹ và cất Balo',
-                        },
-                      ].map((s) => (
-                        <div
-                          key={s.step}
-                          className="p-2 rounded-xl bg-white/90 border border-indigo-100 flex items-start gap-2 shadow-2xs"
-                        >
-                          <span className="size-5 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
-                            {s.step}
+                  {isCreativeNotebook ? (
+                    /* ── SỔ TAY SÁNG TẠO BA LÔ (TEXT ENGINE) SIDEBAR ── */
+                    <div className="bg-amber-50/90 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-2.5 text-left shadow-2xs">
+                      <div className="flex items-center justify-between gap-1 flex-wrap">
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wide text-amber-950 flex items-center gap-1.5">
+                          <span>🎒</span>
+                          <span>Sổ Tay Sáng Tạo Ba Lô</span>
+                        </span>
+                        <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300/80">
+                          {effectiveNotebookConfig?.backpackTag || 'Sổ tay Ba Lô'}
+                        </span>
+                      </div>
+
+                      {/* Tiêu đề sổ tay */}
+                      <div className="p-2.5 rounded-xl bg-white/95 border border-amber-200/80 shadow-2xs">
+                        <div className="text-[10px] font-black uppercase tracking-wide text-amber-800">
+                          Tiêu Đề Sổ Tay:
+                        </div>
+                        <div className="text-xs sm:text-sm font-black text-slate-900 mt-0.5">
+                          {effectiveNotebookConfig?.notebookTitle || 'Sổ Tay Sáng Tạo Ba Lô'}
+                        </div>
+                      </div>
+
+                      {/* Lời dặn dò của AKI */}
+                      <div className="bg-amber-100/70 rounded-xl p-2.5 border border-amber-200/90 flex flex-col gap-1 text-left">
+                        <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                          <span>💡</span>
+                          <span>Lời dặn của AKI:</span>
+                        </div>
+                        <p className="text-xs text-amber-900 font-bold leading-relaxed">
+                          {effectiveNotebookConfig?.akiAdvice || journey.stage5_practice.akiMotto || 'Hãy viết bằng chính suy nghĩ của con! Cốt truyện này là của riêng con!'}
+                        </p>
+                      </div>
+
+                      {/* Mục tiêu thử thách Ba Lô */}
+                      {effectiveNotebookConfig?.challengeSummary && effectiveNotebookConfig.challengeSummary.length > 0 && (
+                        <div className="flex flex-col gap-1.5 pt-1">
+                          <span className="text-[11px] font-black text-amber-900 uppercase tracking-wide">
+                            🎯 Mục tiêu thử thách:
                           </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
-                              {s.title}
-                            </div>
-                            <div className="text-[11px] sm:text-xs text-indigo-700 font-semibold mt-0.5 truncate">
-                              {s.hint}
-                            </div>
+                          <div className="flex flex-col gap-1.5">
+                            {effectiveNotebookConfig.challengeSummary.map((item: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className="p-2 rounded-xl bg-white/90 border border-amber-200/60 flex items-start gap-2 shadow-2xs text-xs font-bold text-slate-800 leading-snug"
+                              >
+                                <span className="size-4 rounded-full bg-amber-500 text-white font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                                  {idx + 1}
+                                </span>
+                                <span>{item}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      )}
 
-                  {/* Mẹo vàng của AKI */}
-                  <div className="bg-amber-50/90 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-1.5 text-left">
-                    <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
-                      <span>💡</span>
-                      <span>MẸO VÀNG CỦA AKI</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
-                      {journey.stage5_practice.akiMotto ||
-                        studioConfig?.akiMotto ||
-                        'Tả càng rõ, tranh càng đúng ý! Hãy miêu tả đủ chi tiết để AKI vẽ chuẩn nhé.'}
-                    </p>
-                  </div>
-
-                  {/* Mật mã đặc điểm vàng */}
-                  {studioConfig?.lockedFeatures && studioConfig.lockedFeatures.length > 0 && (
-                    <div className="bg-purple-50/80 rounded-2xl p-3 border border-purple-200 flex flex-col gap-1.5 text-left">
-                      <div className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-1.5">
-                        <span>🔑</span>
-                        <span>Mật mã đặc điểm vàng:</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {studioConfig.lockedFeatures.map((feat, idx) => (
-                          <span
-                            key={idx}
-                            className="text-xs font-bold text-purple-900 bg-white px-2 py-0.5 rounded-lg border border-purple-200 shadow-2xs"
-                          >
-                            ✓ {feat}
+                      {/* Checklist nếu có */}
+                      {effectiveNotebookConfig?.checklist && effectiveNotebookConfig.checklist.length > 0 && (
+                        <div className="flex flex-col gap-1.5 pt-1">
+                          <span className="text-[11px] font-black text-amber-900 uppercase tracking-wide">
+                            ✓ Tiêu chí hoàn thành:
                           </span>
-                        ))}
-                      </div>
+                          <div className="flex flex-col gap-1">
+                            {effectiveNotebookConfig.checklist.map((item: { id: string; label: string; done?: boolean }) => (
+                              <div
+                                key={item.id}
+                                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white/70 px-2 py-1 rounded-lg border border-amber-100"
+                              >
+                                <span className="text-emerald-600 font-black text-xs">✓</span>
+                                <span>{item.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    <>
+                      {/* Tiến trình 4 bước thực hành của bài học */}
+                      <div className="bg-indigo-50/80 rounded-2xl p-3.5 border border-indigo-200 flex flex-col gap-2.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs sm:text-sm font-black uppercase tracking-wide text-indigo-950 flex items-center gap-1.5">
+                            <span>🎯</span>
+                            <span>Tiến Trình 4 Bước Thực Hành</span>
+                          </span>
+                          <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                            Chuẩn AIKI
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          {[
+                            {
+                              step: 1,
+                              title: 'Bước 1: Thử câu lệnh ban đầu (1-2 từ)',
+                              hint: studioConfig?.practiceWorkflow?.steps?.[0]?.quickPrompt
+                                ? `💡 Thử: "${studioConfig.practiceWorkflow.steps[0].quickPrompt}"`
+                                : 'Thử lệnh 1-2 từ',
+                            },
+                            {
+                              step: 2,
+                              title: 'Bước 2: Thêm hình dáng & màu sắc',
+                              hint: studioConfig?.practiceWorkflow?.steps?.[1]?.quickPrompt
+                                ? `💡 Thêm: "${studioConfig.practiceWorkflow.steps[1].quickPrompt}"`
+                                : 'Thêm dáng & màu',
+                            },
+                            {
+                              step: 3,
+                              title: 'Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng',
+                              hint: studioConfig?.practiceWorkflow?.steps?.[2]?.quickPrompt
+                                ? `💡 5 chi tiết: "${studioConfig.practiceWorkflow.steps[2].quickPrompt}"`
+                                : 'Đủ 5 chi tiết vàng',
+                            },
+                            {
+                              step: 4,
+                              title: 'Bước 4: Soi kỹ tranh & nộp vào Balo',
+                              hint: '🔍 Soi kỹ và cất Balo',
+                            },
+                          ].map((s) => (
+                            <div
+                              key={s.step}
+                              className="p-2 rounded-xl bg-white/90 border border-indigo-100 flex items-start gap-2 shadow-2xs"
+                            >
+                              <span className="size-5 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                {s.step}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                                  {s.title}
+                                </div>
+                                <div className="text-[11px] sm:text-xs text-indigo-700 font-semibold mt-0.5 truncate">
+                                  {s.hint}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Mẹo vàng của AKI */}
+                      <div className="bg-amber-50/90 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-1.5 text-left">
+                        <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
+                          <span>💡</span>
+                          <span>MẸO VÀNG CỦA AKI</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
+                          {journey.stage5_practice.akiMotto ||
+                            studioConfig?.akiMotto ||
+                            'Tả càng rõ, tranh càng đúng ý! Hãy miêu tả đủ chi tiết để AKI vẽ chuẩn nhé.'}
+                        </p>
+                      </div>
+
+                      {/* Mật mã đặc điểm vàng */}
+                      {studioConfig?.lockedFeatures && studioConfig.lockedFeatures.length > 0 && (
+                        <div className="bg-purple-50/80 rounded-2xl p-3 border border-purple-200 flex flex-col gap-1.5 text-left">
+                          <div className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-1.5">
+                            <span>🔑</span>
+                            <span>Mật mã đặc điểm vàng:</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {studioConfig.lockedFeatures.map((feat, idx) => (
+                              <span
+                                key={idx}
+                                className="text-xs font-bold text-purple-900 bg-white px-2 py-0.5 rounded-lg border border-purple-200 shadow-2xs"
+                              >
+                                ✓ {feat}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* Nút xem lại bài giảng */}
@@ -2492,12 +2807,22 @@ export function SixStageJourneyView({
                           </span>
                         </div>
 
+                        {isReplay && (
+                          <div className="bg-amber-100/80 rounded-xl p-2.5 border border-amber-300 text-xs text-amber-900 font-bold text-center">
+                            🎉 Bé đang ôn tập lại trạm học! (Đã nhận thưởng ở lần học trước)
+                          </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-2">
                           <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-2 shadow-2xs">
                             <span className="text-lg">⭐</span>
                             <div>
-                              <span className="text-xs sm:text-sm font-black text-amber-900 block">+3 Sao</span>
-                              <span className="text-[11px] text-slate-500 font-semibold">Tích lũy</span>
+                              <span className="text-xs sm:text-sm font-black text-amber-900 block">
+                                {isReplay ? '+0 Sao' : `+${earnedStars} Sao`}
+                              </span>
+                              <span className="text-[11px] text-slate-500 font-semibold">
+                                {isReplay ? 'Đã nhận' : 'Tích lũy'}
+                              </span>
                             </div>
                           </div>
                           <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-2 shadow-2xs">
@@ -2510,8 +2835,12 @@ export function SixStageJourneyView({
                           <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-2 shadow-2xs">
                             <span className="text-lg">⚡</span>
                             <div>
-                              <span className="text-xs sm:text-sm font-black text-amber-900 block">+50 XP</span>
-                              <span className="text-[11px] text-slate-500 font-semibold">Kinh nghiệm</span>
+                              <span className="text-xs sm:text-sm font-black text-amber-900 block">
+                                {isReplay ? '+0 XP' : `+${calculatedXp} XP`}
+                              </span>
+                              <span className="text-[11px] text-slate-500 font-semibold">
+                                {isReplay ? 'Đã nhận thưởng' : 'Kinh nghiệm'}
+                              </span>
                             </div>
                           </div>
                           <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-2 shadow-2xs">
@@ -2597,15 +2926,15 @@ export function SixStageJourneyView({
           onClick={() => setZoomImage(null)}
         >
           <div
-            className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center"
+            className="relative max-w-4xl max-h-[90dvh] w-full flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Nút Đóng ✕ to rõ */}
+            {/* Nút Đóng ✕ to rõ chuẩn tap target mobile (44x44px) */}
             <button
               type="button"
               aria-label="Đóng"
               onClick={() => setZoomImage(null)}
-              className="absolute -top-12 right-0 sm:top-3 sm:right-3 z-10 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xl font-bold backdrop-blur-md transition cursor-pointer shadow-lg border border-white/20"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xl font-bold backdrop-blur-md transition cursor-pointer shadow-lg border border-white/30"
             >
               <X size={24} />
             </button>
@@ -2615,7 +2944,7 @@ export function SixStageJourneyView({
               decoding="async"
               src={zoomImage.url}
               alt={zoomImage.title}
-              className="max-w-4xl max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/20 bg-black/40"
+              className="max-w-4xl max-h-[85dvh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/20 bg-black/40"
             />
 
             {zoomImage.title && (

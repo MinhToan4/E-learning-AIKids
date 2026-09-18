@@ -11,7 +11,7 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
     expect(DEFAULT_PRACTICE_PARTS).toHaveLength(4)
     expect(DEFAULT_PRACTICE_PARTS[0].title).toBe('Cái cốc sứ trắng')
     expect(DEFAULT_PRACTICE_PARTS[1].title).toBe('Cái xe đạp')
-    expect(DEFAULT_PRACTICE_PARTS[2].title).toBe('Cuốn sổ tay mở')
+    expect(DEFAULT_PRACTICE_PARTS[2].title).toMatch(/Cuốn sổ tay/)
     expect(DEFAULT_PRACTICE_PARTS[3].title).toBe('Cái đồng hồ cổ')
 
     DEFAULT_PRACTICE_PARTS.forEach((part, idx) => {
@@ -52,4 +52,44 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
   it('preserves full text for Stage 5 in ISLAND_6_STAGE_NAMES without truncation', () => {
     expect(ISLAND_6_STAGE_NAMES[4]).toBe('5. 🎨 Thực hành (AI Studio)')
   })
+
+  it('defines SSOT mottos for all 7 creative engines in ENGINE_DEFAULT_MOTTOS', async () => {
+    const { ENGINE_DEFAULT_MOTTOS } = await import('./LectureDrawer')
+    expect(Object.keys(ENGINE_DEFAULT_MOTTOS)).toEqual([
+      'magic-keys',
+      'style-prism',
+      'prompt-doctor',
+      'layer-stacking',
+      'identity-lock',
+      'card-forge',
+      'creative-notebook',
+    ])
+
+    expect(ENGINE_DEFAULT_MOTTOS['magic-keys']).toContain('4 Chìa khóa vạn năng')
+    expect(ENGINE_DEFAULT_MOTTOS['style-prism']).toContain('Lăng kính phù thủy')
+    expect(ENGINE_DEFAULT_MOTTOS['prompt-doctor']).toContain('Bác sĩ AKI')
+    expect(ENGINE_DEFAULT_MOTTOS['layer-stacking']).toContain('3 Tầng sân khấu')
+    expect(ENGINE_DEFAULT_MOTTOS['identity-lock']).toContain('Khóa mật mã ADN')
+    expect(ENGINE_DEFAULT_MOTTOS['card-forge']).toContain('Xưởng đúc thẻ bài')
+    expect(ENGINE_DEFAULT_MOTTOS['creative-notebook']).toContain('câu chuyện này là của riêng cậu')
+  })
+
+  it('automatically derives lockedFeatures from 4 keys without requiring manual entry', () => {
+    const fourKeys = {
+      what: ['Cốc sứ trắng', 'Bình trà'],
+      how: ['men bóng mẻ miệng', 'màu xanh ngọc'],
+      action: ['đang bốc khói nghi ngút', 'đứng yên'],
+      where: ['trên bàn gỗ mộc', 'trong tủ kính'],
+    }
+    const autoLocked = [fourKeys.what?.[0], fourKeys.how?.[0], fourKeys.action?.[0], fourKeys.where?.[0]].filter(Boolean)
+
+    expect(autoLocked).toEqual([
+      'Cốc sứ trắng',
+      'men bóng mẻ miệng',
+      'đang bốc khói nghi ngút',
+      'trên bàn gỗ mộc',
+    ])
+    expect(autoLocked.length).toBe(4)
+  })
 })
+

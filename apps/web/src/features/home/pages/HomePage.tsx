@@ -320,60 +320,75 @@ export function HomePage() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
+
+    // Progressive Hydration: Chạy cả 2 nhóm request song song ngay từ đầu
+    const coursesPromise = Promise.all([
+      api<{ courses: CourseSummary[] }>('/api/courses'),
+      api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments').catch(() => ({
+        enrollments: [] as EnrollmentSummary[],
+      })),
+    ])
+
+    const gamificationPromise = Promise.allSettled([
+      api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
+      api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile'),
+      api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
+      api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission'),
+      api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook'),
+    ])
+
     try {
-      // WHY: Run all independent API calls in parallel to cut perceived load time
-      // from serial round-trips down to one batched round-trip.
-      const fetchMissionAndStreak = async () => {
-        const streakPromise = api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak')
-          .catch(() => null)
-        const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission').catch(() => null)
-        const [streak, mission] = await Promise.all([streakPromise, missionPromise])
-        return { streak, mission }
-      }
-
-      // Courses are the only data required to start learning. Render them as
-      // soon as they arrive; rewards and profile counters enhance the page later.
-      const [c, enrollmentData] = await Promise.all([
-        api<{ courses: CourseSummary[] }>('/api/courses'),
-        api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
-      ])
-      setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
+      // Đợi khóa học xong trước tiên để hiển thị UI ngay lập tức
+      const [coursesRes, enrollmentsRes] = await coursesPromise
+      setCourses(coursesWithEnrollments(coursesRes.courses, enrollmentsRes.enrollments))
+      setLoading(false) // Gỡ bỏ Skeleton ngay lập tức
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
       setLoading(false)
+      return
+    }
 
-      const [a, profile, gamification, rewardState] = await Promise.all([
-        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements').catch(() => null),
-        api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile').catch(() => null),
-        fetchMissionAndStreak(),
-        api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook')
-          .catch(() => null),
-      ])
-      if (gamification.streak) {
+    try {
+      // Đợi gamification hoàn tất song song để cập nhật widget phụ
+      const [
+        achievementsRes,
+        profileRes,
+        streakRes,
+        missionRes,
+        storybookRes,
+      ] = await gamificationPromise
+
+      if (streakRes.status === 'fulfilled' && streakRes.value) {
         setStreak({
-          current: gamification.streak.current,
-          longest: gamification.streak.longest,
-          lastActivityDate: gamification.streak.lastActivityDate,
+          current: streakRes.value.current,
+          longest: streakRes.value.longest,
+          lastActivityDate: streakRes.value.lastActivityDate,
         })
       }
-      if (a) setBadges(recentUnlockedAchievements(a.achievements, 3))
-      if (gamification.mission?.mission) {
-        setDailyMission(gamification.mission.mission)
+
+      if (achievementsRes.status === 'fulfilled' && achievementsRes.value) {
+        setBadges(recentUnlockedAchievements(achievementsRes.value.achievements, 3))
+      }
+
+      if (missionRes.status === 'fulfilled' && missionRes.value?.mission) {
+        setDailyMission(missionRes.value.mission)
       } else {
         setDailyMission(null)
       }
-      if (profile) {
-        setExplorerXp(profile.totalXp)
-        setExplorerLevel(profile.level)
-        setXpIntoLevel(profile.xpIntoLevel)
-        setXpToNextLevel(profile.xpToNextLevel)
+
+      if (profileRes.status === 'fulfilled' && profileRes.value) {
+        setExplorerXp(profileRes.value.totalXp)
+        setExplorerLevel(profileRes.value.level)
+        setXpIntoLevel(profileRes.value.xpIntoLevel)
+        setXpToNextLevel(profileRes.value.xpToNextLevel)
       }
-      if (user && rewardState) {
-        const synced = rewardEquipmentFromRows(rewardState.equipment)
+
+      if (user && storybookRes.status === 'fulfilled' && storybookRes.value) {
+        const synced = rewardEquipmentFromRows(storybookRes.value.equipment)
         setProfileEquipment(syncRewardEquipment(user.id, synced))
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
-    } finally {
-      setLoading(false)
+    } catch {
+      // Bỏ qua lỗi gamification do không chặn UI chính
     }
   }, [user?.id])
 

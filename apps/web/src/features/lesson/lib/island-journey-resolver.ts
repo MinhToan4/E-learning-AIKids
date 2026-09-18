@@ -91,6 +91,20 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
         ...journey.stage3_video,
         videoUrl: customVideoUrl || journey.stage3_video.videoUrl,
       },
+      stage5_practice: {
+        ...journey.stage5_practice,
+        ...(quest.sixStageJourney?.stage5_practice || {}),
+        creativeEngineMode:
+          quest.sixStageJourney?.stage5_practice?.creativeEngineMode ||
+          curriculumItem.journey.stage5_practice.creativeEngineMode,
+        notebookConfig:
+          quest.sixStageJourney?.stage5_practice?.notebookConfig ||
+          curriculumItem.journey.stage5_practice.notebookConfig,
+        ...((quest.sixStageJourney?.stage5_practice?.creativeEngineMode ||
+          curriculumItem.journey.stage5_practice.creativeEngineMode) === 'creative-notebook'
+          ? { practiceParts: [] }
+          : {}),
+      },
       stage6_completion: {
         ...journey.stage6_completion,
         nextLessonSlug: customNextSlug,
@@ -161,7 +175,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   const stage3_video: SixStageVideo = {
     id: `${quest.id}-video`,
     title: `Video hướng dẫn: ${quest.title}`,
-    videoUrl: quest.videoUrl || quest.learnCards?.find((c) => Boolean(c.videoUrl))?.videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl: quest.videoUrl || quest.learnCards?.find((c) => Boolean(c.videoUrl))?.videoUrl || 'https://www.youtube.com/embed/NMdHhsLY5jc',
     durationSec: 180,
     posterUrl: resolvedCover,
     timestamps: [
@@ -261,6 +275,13 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
     maxAttempts: 6,
     workflowSteps,
     sampleUrl: resolvedCover,
+    creativeEngineMode: questStudio?.creativeEngineMode || 'magic-keys',
+    practiceParts: questStudio?.practiceParts,
+    fourKeysOptions: questStudio?.fourKeysOptions,
+    stylePrismOptions: questStudio?.stylePrismOptions,
+    promptDoctorCase: questStudio?.promptDoctorCase,
+    layerStackingOptions: questStudio?.layerStackingOptions,
+    cardForgeOptions: questStudio?.cardForgeOptions,
   }
 
   // ── Chặng 6: stage6_completion ──

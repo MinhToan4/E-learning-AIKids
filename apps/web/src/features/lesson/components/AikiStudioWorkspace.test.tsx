@@ -28,7 +28,7 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { AikiStudioWorkspace, getStudioAIArtwork, renderObjectClayIcon, type StudioImageItem } from './AikiStudioWorkspace'
+import { AikiStudioWorkspace, getDefaultPracticeParts, DEFAULT_IDENTITY_LOCK_PARTS, getStudioAIArtwork, renderObjectClayIcon, type StudioImageItem } from './AikiStudioWorkspace'
 import { getAikiStudioConfig } from '../data/aiki-studio-configs'
 import * as creativeApi from '@/shared/lib/creative-api'
 
@@ -272,7 +272,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: 'Sóc Bông',
+        prompt: 'Chú Sóc',
         aspectRatio: '1:1',
       })
     )
@@ -322,7 +322,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: 'Sóc Bông',
+        prompt: 'Chú Sóc',
         aspectRatio: '1:1',
       })
     )
@@ -432,7 +432,7 @@ describe('AikiStudioWorkspace', () => {
     // 1. Kiểm tra 4 Món đồ mặc định theo bài 1.2
     expect(html).toContain('Cái cốc sứ trắng')
     expect(html).toContain('Cái xe đạp')
-    expect(html).toContain('Cuốn sổ tay mở')
+    expect(html).toContain('Cuốn sổ tay bìa da')
     expect(html).toContain('Cái đồng hồ cổ')
 
     // 2. Kiểm tra Badges yêu cầu
@@ -543,7 +543,7 @@ describe('AikiStudioWorkspace', () => {
       part3Btn.click()
     })
     expect(emptyImg.src).toContain('island1_lesson2_notebook.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay mở')
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay bìa da')
 
     // Chuyển sang Món 4 (Đồng hồ)
     const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
@@ -707,7 +707,7 @@ describe('AikiStudioWorkspace', () => {
     // Khung canvas phải ở trạng thái empty chờ vẽ Part 3, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Cái cốc)
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay mở')
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay bìa da')
 
     act(() => {
       root.unmount()
@@ -838,10 +838,13 @@ describe('AikiStudioWorkspace', () => {
     expect(container.textContent).toContain('✓ Đã vẽ')
     expect(container.textContent).toContain('Chưa vẽ')
 
-    // 2. Khung ảnh to đang hiển thị ảnh Lượt 1
+    // 2. Khung ảnh to đang hiển thị ảnh Lượt 1, kiểm tra responsive max-h giải phóng chiều cao cho Prompt Bar
     const liveCanvas = container.querySelector('[data-testid="studio-live-canvas-display"]')
     expect(liveCanvas).not.toBeNull()
     expect(liveCanvas?.textContent).toContain('Lượt 1')
+    expect(liveCanvas?.className).toContain('lg:max-h-[290px]')
+    expect(liveCanvas?.className).toContain('xl:max-h-[310px]')
+    expect(liveCanvas?.className).toContain('2xl:max-h-[350px]')
 
     // 3. Click chuyển sang Tab Lượt 2
     const buttons = container.querySelectorAll('button')
@@ -852,10 +855,13 @@ describe('AikiStudioWorkspace', () => {
       turn2Btn?.click()
     })
 
-    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty
+    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty, kiểm tra responsive max-h
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
     expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Bé Đang Chờ!')
+    expect(emptyCanvas?.className).toContain('lg:max-h-[290px]')
+    expect(emptyCanvas?.className).toContain('xl:max-h-[310px]')
+    expect(emptyCanvas?.className).toContain('2xl:max-h-[350px]')
 
     // 5. Kiểm tra Dải phim Mini Filmstrip Gallery
     expect(container.textContent).toContain('Balo bài học:')
@@ -1057,14 +1063,22 @@ describe('AikiStudioWorkspace', () => {
       )
     })
 
-    // Initially Turn 1 is selected; since it is already drawn, the draw button is disabled with message
+    // Theo logic tối ưu mới: Nếu Lượt 1 đã vẽ mà Lượt 2 chưa vẽ, hệ thống tự động chọn Lượt 2 để trẻ vẽ tiếp (không bị khóa)
     const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
     expect(drawBtn).not.toBeNull()
+    expect(drawBtn.textContent).not.toContain('🔒 Lượt 1 đã vẽ xong')
+
+    // Khi trẻ bấm chọn lại Lượt 1: Sơ khai đã vẽ, nút vẽ bị khóa với thông báo rõ ràng
+    const buttons = container.querySelectorAll('button')
+    const turn1Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 1: Sơ khai'))
+    await act(async () => {
+      turn1Btn?.click()
+    })
+
     expect(drawBtn.disabled).toBe(true)
     expect(drawBtn.textContent).toContain('🔒 Lượt 1 đã vẽ xong · Chuyển sang Lượt 2 nhé!')
 
-    // Switch to Turn 2
-    const buttons = container.querySelectorAll('button')
+    // Chuyển lại sang Lượt 2: Chưa vẽ nên nút mở khóa sẵn sàng
     const turn2Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 2: Hoàn thiện ★'))
     await act(async () => {
       turn2Btn?.click()
@@ -1218,6 +1232,109 @@ describe('AikiStudioWorkspace', () => {
       root.unmount()
     })
     container.remove()
+  })
+
+  it('returns engine-specific default practice parts based on mode or lessonId', () => {
+    // 1. prompt-doctor
+    expect(getDefaultPracticeParts(undefined, undefined, 'prompt-doctor')).toHaveLength(4)
+    expect(getDefaultPracticeParts('bai-1-4')[0].title).toContain('Ca 1: Hiệp Sĩ Bạc')
+
+    // 2. layer-stacking
+    expect(getDefaultPracticeParts(undefined, undefined, 'layer-stacking')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
+    expect(getDefaultPracticeParts('bai-2-2')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
+
+    // 3. card-forge
+    expect(getDefaultPracticeParts(undefined, undefined, 'card-forge')[0].title).toContain('Rồng Băng Bão Tuyết')
+    expect(getDefaultPracticeParts('bai-3-1')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
+    expect(getDefaultPracticeParts('bai-3-1')).toHaveLength(4)
+    expect(getDefaultPracticeParts('bai-4-4')[0].title).toContain('Rồng Băng Bão Tuyết')
+    expect(getDefaultPracticeParts('bai-5-1')[0].title).toContain('Rồng Băng Bão Tuyết')
+
+    // 4. identity-lock
+    expect(DEFAULT_IDENTITY_LOCK_PARTS).toHaveLength(4)
+    expect(DEFAULT_IDENTITY_LOCK_PARTS[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
+    expect(DEFAULT_IDENTITY_LOCK_PARTS[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
+    expect(DEFAULT_IDENTITY_LOCK_PARTS[2].title).toBe('Chú Bé Robot Leo')
+    expect(DEFAULT_IDENTITY_LOCK_PARTS[3].title).toBe('Mèo Thám Tử Mimi')
+
+    const identityParts = getDefaultPracticeParts(undefined, undefined, 'identity-lock')
+    expect(identityParts).toHaveLength(4)
+    expect(identityParts[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
+    expect(identityParts[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
+    expect(identityParts[2].title).toBe('Chú Bé Robot Leo')
+    expect(identityParts[3].title).toBe('Mèo Thám Tử Mimi')
+
+    const bai33Parts = getDefaultPracticeParts('bai-3-3')
+    expect(bai33Parts).toHaveLength(4)
+    expect(bai33Parts[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
+    expect(bai33Parts[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
+    expect(bai33Parts[2].title).toBe('Chú Bé Robot Leo')
+    expect(bai33Parts[3].title).toBe('Mèo Thám Tử Mimi')
+
+    // 5. style-prism
+    expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Chú Trâu Đất Nặn')
+    expect(getDefaultPracticeParts('bai-1-3')[0].title).toContain('Chú Trâu Đất Nặn')
+
+    // 6. magic-keys / default
+    expect(getDefaultPracticeParts(undefined, undefined, 'magic-keys')[0].title).toBe('Cái cốc sứ trắng')
+    expect(getDefaultPracticeParts('bai-1-2')[0].title).toBe('Cái cốc sứ trắng')
+  })
+
+  it('supports instant fallback toggle mode and generates non-repeating curated artwork', async () => {
+    const spy = vi.spyOn(creativeApi, 'generateCreativeImage')
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-3-2"
+          characterName="Sóc Bông"
+          initialInstantFallback={true}
+        />
+      )
+    })
+
+    // 1. Nút toggle xuất hiện với nhãn "⚡ Demo Nhanh"
+    const toggleBtn = container.querySelector('[data-testid="toggle-instant-fallback-btn"]') as HTMLButtonElement
+    expect(toggleBtn).not.toBeNull()
+    expect(toggleBtn.textContent).toContain('⚡ Demo Nhanh')
+
+    // 2. Chạy tạo tranh lượt 1 với instant fallback
+    const quickChipBtn = container.querySelector('[data-testid="studio-step-quick-btn"]') as HTMLButtonElement
+    expect(quickChipBtn).not.toBeNull()
+
+    await act(async () => {
+      quickChipBtn.click()
+      await new Promise((resolve) => setTimeout(resolve, 600))
+    })
+
+    // generateCreativeImage KHÔNG được gọi vì đang ở chế độ Instant Fallback
+    expect(spy).not.toHaveBeenCalled()
+
+    // Ảnh đã được thêm vào gallery và hiển thị
+    expect(container.textContent).toContain('1 ảnh')
+
+    // 3. Chuyển toggle sang AI Gateway
+    await act(async () => {
+      toggleBtn.click()
+    })
+    expect(toggleBtn.textContent).toContain('🌐 AI Gateway')
+
+    // 4. Chuyển lại về Demo Nhanh
+    await act(async () => {
+      toggleBtn.click()
+    })
+    expect(toggleBtn.textContent).toContain('⚡ Demo Nhanh')
+
+    // Dọn dẹp
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+    spy.mockRestore()
   })
 })
 

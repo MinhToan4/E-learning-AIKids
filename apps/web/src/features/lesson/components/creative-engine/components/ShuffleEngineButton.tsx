@@ -20,6 +20,13 @@ export const ShuffleEngineButton: React.FC<ShuffleEngineButtonProps> = ({
 }) => {
   const [isSpinning, setIsSpinning] = useState(false)
   const [switchedName, setSwitchedName] = useState<string | null>(null)
+  const timeoutsRef = React.useRef<ReturnType<typeof setTimeout>[]>([])
+
+  React.useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout)
+    }
+  }, [])
 
   const handleShuffle = () => {
     if (disabled || isSpinning) return
@@ -33,13 +40,14 @@ export const ShuffleEngineButton: React.FC<ShuffleEngineButtonProps> = ({
 
     onShuffle(nextMode)
 
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
       setIsSpinning(false)
     }, 500)
 
-    setTimeout(() => {
+    const t2 = setTimeout(() => {
       setSwitchedName(null)
     }, 2400)
+    timeoutsRef.current.push(t1, t2)
   }
 
   return (

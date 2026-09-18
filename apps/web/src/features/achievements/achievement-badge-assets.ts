@@ -17,7 +17,8 @@ const badgesById = new Map(
 /** Lightweight raster thumbnail for CMS lists; full SVG remains for profile rendering. */
 export function rewardBadgeThumbnail(rewardId?: string): string | undefined {
   if (!rewardId) return undefined
-  return badgesById.get(`badge-${rewardId.replace(/\.(?:svg|png|webp)$/, '')}`)
+  const clean = rewardId.replace(/\.(?:svg|png|webp)$/, '')
+  return badgesById.get(clean.startsWith('badge-') ? clean : `badge-${clean}`)
 }
 
 function semanticBadgeId(item: AchievementRow): string | undefined {

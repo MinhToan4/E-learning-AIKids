@@ -45,6 +45,7 @@ export interface StudentStageBlocksViewProps {
   card: LearnCardDraft
   stageIndex: number
   isAikiRuleJourney?: boolean
+  isMobile?: boolean
   quest?: any
   // Zoom image modal trigger
   onZoomImage?: (data: {
@@ -91,6 +92,7 @@ export function StudentStageBlocksView({
   card,
   stageIndex,
   isAikiRuleJourney = false,
+  isMobile = false,
   quest,
   onZoomImage,
   answers: externalAnswers,
@@ -348,7 +350,7 @@ export function StudentStageBlocksView({
               data-testid="block-layout-split"
               className="rounded-3xl border-2 border-orange-200 bg-white/90 p-4 sm:p-5 shadow-sm"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div className={cn(isMobile ? "grid grid-cols-1 gap-3 items-start" : "grid grid-cols-1 md:grid-cols-2 gap-4 items-start md:items-center")}>
                 <div className="flex flex-col justify-center text-left">
                   {block.title && (
                     <h3 className="font-display text-xl sm:text-2xl font-black text-text mb-2">
@@ -364,7 +366,7 @@ export function StudentStageBlocksView({
                     </div>
                   )}
                 </div>
-                <div className="relative overflow-hidden rounded-2xl border-2 border-orange-200 bg-orange-50/60 p-2 group/art flex items-center justify-center min-h-[220px]">
+                <div className="relative overflow-hidden rounded-2xl border-2 border-orange-200 bg-orange-50/60 p-2 group/art flex items-center justify-center min-h-[220px] self-start w-full">
                   {splitImage ? (
                     <img
                       src={splitImage}
@@ -411,7 +413,7 @@ export function StudentStageBlocksView({
                   {block.title}
                 </h3>
               )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className={cn(isMobile ? "grid grid-cols-1 gap-2.5" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3")}>
                 {items.map((item, i) => {
                   const tone = item.tone || 'brand'
                   const toneCls = {
@@ -420,6 +422,7 @@ export function StudentStageBlocksView({
                     mint: 'border-mint-200 bg-mint-50/80 text-mint-900',
                     sun: 'border-sun-200 bg-sun-50/80 text-sun-900',
                     coral: 'border-coral-200 bg-coral-50/80 text-coral-900',
+                    rose: 'border-rose-200 bg-rose-50/80 text-rose-900',
                   }[tone] || 'border-brand-200 bg-brand-50/80 text-brand-900'
 
                   return (
@@ -444,11 +447,11 @@ export function StudentStageBlocksView({
 
         if (block.type === 'layout-four-keys') {
           const items = (block.visualItems || []).slice(0, 4)
-          const keyStyles = [
-            'border-sky-300 bg-sky-50 text-sky-950',
-            'border-amber-300 bg-amber-50 text-amber-950',
-            'border-orange-300 bg-orange-50 text-orange-950',
-            'border-rose-300 bg-rose-50 text-rose-950',
+          const keyPresets = [
+            { border: 'border-sky-300', bg: 'bg-sky-50 text-sky-950', badge: 'bg-blue-600 text-white', defaultImage: '/assets/aiki-keys/key_what_blue.jpg', defaultSub: 'Ai, đồ vật gì' },
+            { border: 'border-amber-300', bg: 'bg-amber-50 text-amber-950', badge: 'bg-amber-600 text-white', defaultImage: '/assets/aiki-keys/key_how_yellow.jpg', defaultSub: 'Màu sắc, hình dáng' },
+            { border: 'border-orange-300', bg: 'bg-orange-50 text-orange-950', badge: 'bg-orange-600 text-white', defaultImage: '/assets/aiki-keys/key_action_orange.jpg', defaultSub: 'Hành động' },
+            { border: 'border-rose-300', bg: 'bg-rose-50 text-rose-950', badge: 'bg-rose-600 text-white', defaultImage: '/assets/aiki-keys/key_where_pink.jpg', defaultSub: 'Bối cảnh, nơi chốn' },
           ]
           return (
             <section key={block.id} data-testid="block-layout-four-keys" className="rounded-3xl bg-white p-4 shadow-clay sm:p-6 text-left">
@@ -458,17 +461,32 @@ export function StudentStageBlocksView({
                   <h3 className="mt-3 font-display text-2xl font-black text-text sm:text-3xl">{block.title || 'Bốn chiếc chìa khóa mở câu lệnh'}</h3>
                   {block.body && <p className="mx-auto mt-2 max-w-2xl text-base font-semibold leading-relaxed text-slate-700">{block.body}</p>}
                 </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {items.map((item, index) => (
-                    <article key={`${block.id}-${index}`} className={cn('min-h-40 rounded-3xl border-2 p-4 shadow-sm', keyStyles[index])}>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="grid size-11 place-items-center rounded-2xl bg-white font-black shadow-sm" aria-hidden="true">{index + 1}</span>
-                        <span className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-black uppercase">Chìa khóa {index + 1}</span>
-                      </div>
-                      <h4 className="mt-4 text-lg font-black leading-tight">{item.label}</h4>
-                      <p className="mt-2 text-sm font-semibold leading-relaxed opacity-90">{item.text}</p>
-                    </article>
-                  ))}
+                <div className={cn("mt-5", isMobile ? "grid grid-cols-1 gap-2.5" : "grid gap-3 sm:grid-cols-2 lg:grid-cols-4")}>
+                  {items.map((item, index) => {
+                    const preset = keyPresets[index % keyPresets.length]
+                    const keyImg = item.keyImage || preset.defaultImage
+                    const subText = item.sub
+                    return (
+                      <article key={`${block.id}-${index}`} className={cn('min-h-40 rounded-3xl border-2 p-4 shadow-sm flex flex-col justify-between', preset.border, preset.bg)}>
+                        <div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="grid size-10 place-items-center rounded-2xl bg-white font-black shadow-sm text-sm" aria-hidden="true">{index + 1}</span>
+                            <div className="flex items-center gap-1.5">
+                              {keyImg && (
+                                <img src={keyImg} alt={item.label} className="w-7 h-7 rounded-lg object-contain bg-white/90 p-0.5 border border-amber-200 shadow-2xs" />
+                              )}
+                              <span className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-black uppercase">Chìa khóa {index + 1}</span>
+                            </div>
+                          </div>
+                          <h4 className="mt-3 text-lg font-black leading-tight">{item.label}</h4>
+                          <p className="mt-1.5 text-sm font-semibold leading-relaxed opacity-90">{item.text}</p>
+                        </div>
+                        {subText && (
+                          <span className="mt-2.5 text-xs font-bold text-slate-500/90 block">({subText})</span>
+                        )}
+                      </article>
+                    )
+                  })}
                 </div>
                 {block.tip && <p className="mt-4 rounded-2xl bg-brand-50 px-4 py-3 text-center text-sm font-black text-brand-900">{block.tip}</p>}
               </div>
@@ -529,7 +547,7 @@ export function StudentStageBlocksView({
                   {block.title}
                 </h3>
               )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className={cn(isMobile ? "grid grid-cols-1 gap-2.5" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3")}>
                 {items.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
@@ -830,7 +848,7 @@ export function StudentStageBlocksView({
                 </div>
               </div>
 
-              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 pt-2">
+              <div className={cn(isMobile ? "grid grid-cols-1 gap-4 pt-2 items-start" : "grid gap-6 grid-cols-1 md:grid-cols-2 pt-2 items-start")}>
                 {riddle.options.map((opt: string, optIdx: number) => {
                   const isSelected = selectedAnswer === optIdx
                   const isCorrect = isSelected && feedback?.correct
@@ -863,13 +881,13 @@ export function StudentStageBlocksView({
                   return (
                     <div
                       key={opt}
-                      className="flex flex-col gap-3"
+                      className="flex flex-col gap-3 self-start w-full"
                     >
                       {/* Khung tranh lớn, to bản với nút xem to */}
                       <div
                         onClick={() => handleChooseAnswerInternal(riddle.id, optIdx)}
                         className={cn(
-                          'relative w-full aspect-[4/3] min-h-[280px] sm:min-h-[340px] overflow-hidden rounded-3xl border-3 bg-slate-100 group shadow-md flex items-center justify-center cursor-pointer transition-all duration-200',
+                          'relative w-full aspect-[4/3] shrink-0 overflow-hidden rounded-3xl border-3 bg-slate-100 group shadow-md flex items-center justify-center cursor-pointer transition-all duration-200',
                           isSelected
                             ? isCorrect
                               ? 'border-mint-500 ring-4 ring-mint-300/50 shadow-clay'
@@ -888,9 +906,9 @@ export function StudentStageBlocksView({
                           />
                         ) : stationNum === 1 ? (
                           optIdx === 0 ? (
-                            <ZicoDrawingFallback className="size-full" />
+                            <ZicoDrawingFallback className="size-full min-h-0" />
                           ) : (
-                            <SonetDrawingFallback className="size-full" />
+                            <SonetDrawingFallback className="size-full min-h-0" />
                           )
                         ) : (
                           <div className="flex flex-col items-center justify-center text-muted p-4 text-center">
@@ -1121,7 +1139,7 @@ export function StudentStageBlocksView({
                 </p>
               )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className={cn(isMobile ? "grid grid-cols-1 gap-3 items-start" : "grid grid-cols-1 md:grid-cols-2 gap-4 items-start")}>
                 {/* Cột 1: Kho của AI */}
                 <div className="flex flex-col justify-between rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 sm:p-5 shadow-xs">
                   <div>
@@ -1364,7 +1382,7 @@ export function StudentStageBlocksView({
                   {onAikiFinish && (
                     <Button
                       variant="primary"
-                      className="w-full sm:w-auto min-w-[280px] text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2 cursor-pointer"
+                      className="w-full sm:w-auto min-w-[280px] max-w-full text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2 cursor-pointer"
                       onClick={onAikiFinish}
                       disabled={busy}
                     >
@@ -1448,8 +1466,9 @@ export function StudentStageBlocksView({
                     <span>Bộ sưu tập hình ảnh minh họa</span>
                   </div>
                   <div className={cn(
-                    "grid gap-3",
-                    additionalImgs.length === 1 ? "grid-cols-1 max-w-md mx-auto" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    isMobile
+                      ? "grid grid-cols-1 gap-2"
+                      : "grid grid-cols-2 sm:grid-cols-3 gap-3"
                   )}>
                     {additionalImgs.map((imgItem, imgIdx) => (
                       <figure key={imgItem.id || imgIdx} className="group overflow-hidden rounded-2xl border-2 border-emerald-100 bg-emerald-50/40 p-2 shadow-2xs transition hover:shadow-md">

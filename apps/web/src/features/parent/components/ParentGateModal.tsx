@@ -18,9 +18,11 @@ import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 export function ParentGateModal({
   open,
   onClose,
+  redirectTo = '/parent',
 }: {
   open: boolean
   onClose: () => void
+  redirectTo?: string
 }) {
   const setUser = useAuth((s) => s.setUser)
 
@@ -54,9 +56,9 @@ export function ParentGateModal({
       // Full page reload so the new session cookie is bootstrapped cleanly.
       // React Router SPA navigation after a session swap causes white screen
       // because auth state and route guards race each other.
-      window.location.replace('/parent')
+      window.location.replace(redirectTo)
     },
-    [setUser, onClose],
+    [setUser, onClose, redirectTo],
   )
 
   const handleSubmit = useCallback(async () => {

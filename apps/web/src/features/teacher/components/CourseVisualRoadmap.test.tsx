@@ -110,4 +110,26 @@ describe('CourseVisualRoadmap Component', () => {
     expect(html).toContain('Nhập kịch bản AI')
     expect(html).toContain('+ Thêm trạm đầu tiên')
   })
+
+  it('renders filter tabs and separates active vs archived stations sections', () => {
+    const html = renderToStaticMarkup(
+      <CourseVisualRoadmap
+        courseTitle="Khóa Học Thử Nghiệm"
+        stations={mockStations}
+        onSelectStation={() => {}}
+        onAddStation={() => {}}
+        onToggleArchiveStation={() => {}}
+      />
+    )
+
+    // Tabs
+    expect(html).toContain('Tất cả (3)')
+    expect(html).toContain('🟢 Đang mở (2)')
+    expect(html).toContain('📦 Đã ẩn (1)')
+
+    // Archived station section header & warning badge
+    expect(html).toContain('TRẠM CŨ / ĐÃ ẨN KHỎI HỌC SINH (1)')
+    expect(html).toContain('🚫 ĐÃ ẨN KHỎI HỌC SINH')
+    expect(html).toContain('Khôi phục')
+  })
 })

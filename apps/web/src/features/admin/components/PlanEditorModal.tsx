@@ -270,7 +270,7 @@ export function PlanEditorModal({
       aria-modal="true"
       aria-labelledby="plan-editor-title"
     >
-      <div className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border-2 border-border/80 bg-surface shadow-clay animate-in zoom-in-95">
+      <div className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border-2 border-border/80 bg-surface shadow-clay animate-in zoom-in-95">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b-2 border-border/70 px-6 py-5 bg-gradient-to-r from-brand-50/50 via-surface to-amber-50/40">
           <div className="flex items-center gap-3">

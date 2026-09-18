@@ -10,13 +10,13 @@ import {
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
+import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
+import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
+import { useAuth } from '@/shared/store/auth'
 import { type QuestProgress } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
-import { RulesRoadmapContent } from '@/features/rules/components/RulesRoadmapContent'
-import { useRulesProgress } from '@/features/rules/hooks/useRulesProgress'
-import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 
 // WHY: Sếp yêu cầu tạm thời unlock toàn bộ các đảo M1..M5 để test nội dung.
 // Đổi thành false bất kỳ lúc nào để bật lại luật Gatekeeper Island.
@@ -145,6 +145,26 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
   )
 }
 
+interface CourseProgressCacheEntry {
+  expiresAt: number
+  progress: {
+    questCount: number
+    completedCount: number
+    totalStars: number
+    stations: QuestProgress[]
+  }
+}
+
+const courseProgressCache = new Map<string, CourseProgressCacheEntry>()
+const COURSE_PROGRESS_CACHE_TTL = 120_000 // 2 phút
+
+let cachedPathway: Pathway | null = null
+
+export function clearWorldPageCache(): void {
+  courseProgressCache.clear()
+  cachedPathway = null
+}
+
 export interface WorldPageProps {
   showSpacesSelector?: boolean
 }
@@ -156,39 +176,102 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [pathway, setPathway] = useState<Pathway | null>(null)
+  const [pathway, setPathway] = useState<Pathway | null>(() => cachedPathway)
+  const [loading, setLoading] = useState(() => (courseId ? true : !cachedPathway))
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
 
   useEffect(() => {
-    if (courseId && (courseId === 'aiki-rules' || courseId.toLowerCase().includes('rule'))) {
-      setCourseTitle('Module 0 — Mười quy tắc của Xưởng sáng tạo')
-      setLoading(false)
+    if (courseId === 'aiki-rules') {
+      void (async () => {
+        try {
+          const journey = cachedPathway ?? (await learningApi.getPathway())
+          const rawCourses = journey.courses as PathwayCourse[]
+          const foundRuleCourse = rawCourses.find((c, i) => isAikiRuleCourse(c, i))
+          if (foundRuleCourse) {
+            navigate('/world/' + foundRuleCourse.id, { replace: true })
+            return
+          }
+        } catch {
+          // ignore
+        }
+      })()
       return
     }
     void (async () => {
-      setLoading(true)
+      // Avoid resetting loading state or wiping out data if we already have pathway loaded
+      if (!courseId) {
+        if (!cachedPathway && !pathway) {
+          setLoading(true)
+        }
+      } else {
+        setLoading(true)
+        setQuests([])
+        setMeta({ totalStars: 0, completedCount: 0 })
+      }
       setError(null)
       setEnrollmentRequired(false)
-      setQuests([])
-      setMeta({ totalStars: 0, completedCount: 0 })
       try {
         if (!courseId) {
           const journey = await learningApi.getPathway()
-          const initialCourses = applyGatekeeperRules(journey.courses)
-          setPathway({ ...journey, courses: initialCourses })
-          setLoading(false)
+          const rawCourses = journey.courses as PathwayCourse[]
+
+          // 1. If backend returns stations for all courses, read directly
+          const hasAllStations =
+            rawCourses.length > 0 &&
+            rawCourses.every(
+              (course) => Array.isArray(course.stations) && course.stations.length > 0,
+            )
+
+          if (hasAllStations) {
+            const finalCourses = applyGatekeeperRules(rawCourses)
+            const finalPathway = { ...journey, courses: finalCourses }
+            cachedPathway = finalPathway
+            setPathway(finalPathway)
+            setLoading(false)
+            return
+          }
+
+          // 2. Read directly from course.stations or module cache (courseProgressCache with 2min TTL)
+          // to eliminate N+1 waterfall requests
+          const now = Date.now()
           const coursesWithStations = await Promise.all(
-            initialCourses.map(async (course) => {
-              try {
-                const progress = await learningApi.getCourseProgress(course.id)
+            rawCourses.map(async (course) => {
+              if (Array.isArray(course.stations) && course.stations.length > 0) {
+                // Populate/update cache with backend data
+                courseProgressCache.set(course.id, {
+                  expiresAt: now + COURSE_PROGRESS_CACHE_TTL,
+                  progress: {
+                    questCount: course.questCount ?? course.stations.length,
+                    completedCount: course.completedCount ?? 0,
+                    totalStars: course.totalStars ?? 0,
+                    stations: course.stations,
+                  },
+                })
+                return course
+              }
+              const cached = courseProgressCache.get(course.id)
+              if (cached && now < cached.expiresAt) {
                 return {
                   ...course,
+                  ...cached.progress,
+                }
+              }
+              try {
+                const progress = await learningApi.getCourseProgress(course.id)
+                const progressData = {
                   questCount: progress.quests.length,
                   completedCount: progress.completedCount,
                   totalStars: progress.totalStars,
                   stations: progress.quests,
+                }
+                courseProgressCache.set(course.id, {
+                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
+                  progress: progressData,
+                })
+                return {
+                  ...course,
+                  ...progressData,
                 }
               } catch {
                 return course
@@ -196,16 +279,43 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             }),
           )
           const finalCourses = applyGatekeeperRules(coursesWithStations)
-          setPathway({ ...journey, courses: finalCourses })
+          const finalPathway = { ...journey, courses: finalCourses }
+          cachedPathway = finalPathway
+          setPathway(finalPathway)
+          setLoading(false)
           return
         }
+
+        const now = Date.now()
+        const cachedProgress = courseProgressCache.get(courseId)
+        const cachedProgressValid = cachedProgress && now < cachedProgress.expiresAt
+
         const [journey, courseResp, progressData] = await Promise.all([
           learningApi.getPathway(),
           learningApi.getCourse<{ course: { title: string } }>(courseId),
-          learningApi.getCourseProgress(courseId).catch(() => null),
+          cachedProgressValid
+            ? Promise.resolve({
+                quests: cachedProgress.progress.stations,
+                completedCount: cachedProgress.progress.completedCount,
+                totalStars: cachedProgress.progress.totalStars,
+              })
+            : learningApi.getCourseProgress(courseId).then((prog) => {
+                courseProgressCache.set(courseId, {
+                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
+                  progress: {
+                    questCount: prog.quests.length,
+                    completedCount: prog.completedCount,
+                    totalStars: prog.totalStars,
+                    stations: prog.quests,
+                  },
+                })
+                return prog
+              }).catch(() => null),
         ])
         const processedCourses = applyGatekeeperRules(journey.courses)
-        const courseTitle = courseResp.course.title
+        const finalPathway = { ...journey, courses: processedCourses }
+        cachedPathway = finalPathway
+        const courseTitle = formatCourseTitle(courseResp.course.title)
         const pathRow = processedCourses.find((row) => row.id === courseId)
         const targetOrder = getAikiCourseSortOrder(pathRow || { id: courseId, title: courseTitle })
         setRegionIndex(targetOrder < WORLD_REGIONS.length ? targetOrder : Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
@@ -213,7 +323,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         if (!pathRow || (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'locked')) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
         }
-        setPathway({ ...journey, courses: processedCourses })
+        setPathway(finalPathway)
         setCourseTitle(courseTitle)
 
         if (progressData && progressData.quests && progressData.quests.length > 0) {
@@ -265,18 +375,9 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     )
   }
 
-  if (courseId && (courseId === 'aiki-rules' || courseId.startsWith('rule-') || isAikiRuleCourse({ id: courseId, title: courseTitle }, regionIndex))) {
-    return (
-      <RulesRoadmapContent
-        courseId={courseId}
-        backUrl="/world/program/aikid_official/creator"
-        onSelectRule={(ruleNum) => navigate(`/world/${courseId}/lesson/rule-${ruleNum}`)}
-        ruleUrlPattern={(ruleNum) => `/world/${courseId}/lesson/rule-${ruleNum}`}
-      />
-    )
-  }
-
   if (courseId && error) {
+    const ruleCourse = pathway?.courses.find((c, i) => isAikiRuleCourse(c, i))
+    const ruleCourseHref = `/world/${ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
     return (
       <div className="flex flex-col items-center justify-center py-10 px-4 page-enter">
         <div className="ui-card mx-auto w-full max-w-xl p-8 text-center border-2 border-amber-200 bg-white/95 shadow-clay rounded-3xl">
@@ -285,7 +386,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           </div>
           <AikidCatCharacter pose="guide" className="mx-auto h-28 w-28 drop-shadow-md mb-3" />
           <h1 className="font-display text-2xl sm:text-3xl font-black text-text">
-            Vùng Đất Này Đang Chờ Mở Khóa!
+            Hòn Đảo Này Đang Chờ Mở Khóa!
           </h1>
           <p className="mt-3 text-sm sm:text-base font-semibold text-muted leading-relaxed max-w-md mx-auto">
             {error || 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'}
@@ -294,7 +395,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             <Button onClick={() => navigate('/world/program/aikid_official/creator')} className="w-full sm:w-auto">
               🗺️ Danh sách các Đảo
             </Button>
-            <Link to="/world/aiki-rules" className="w-full sm:w-auto">
+            <Link to={ruleCourseHref} className="w-full sm:w-auto">
               <Button variant="secondary" className="w-full">
                 🛡️ Đến Đảo Quy Tắc Vàng
               </Button>
@@ -521,9 +622,29 @@ export function isPathwayCourseVisible(course: PathwayCourse): boolean {
   return ['completed', 'active', 'available', 'locked'].includes(course.status)
 }
 
+export const AIKI_ISLAND_BADGES = [
+  'ĐẢO TIÊN QUYẾT',
+  'ĐẢO KHÁM PHÁ',
+  'ĐẢO HOẠ SĨ',
+  'ĐẢO NHÂN VẬT',
+  'ĐẢO TRUYỆN TRANH',
+  'ĐẢO TRÒ CHƠI',
+] as const
+
+export function formatCourseTitle(title?: string | null): string {
+  if (!title) return ''
+  return title
+    .replace(/^module\s*\d+\s*[-—:]\s*/i, '')
+    .replace(/^module\s*\d+\s*\.\s*/i, '')
+    .replace(/^m\d+\s*[-—:]\s*/i, '')
+    .replace(/^đảo\s*\d+\s*[-—:]\s*/i, '')
+    .trim()
+}
+
 export const WORLD_REGIONS = [
   {
-    name: 'Đảo 0: Mười Quy Tắc Vàng',
+    name: 'Đảo Tiên Quyết',
+    badge: 'ĐẢO TIÊN QUYẾT',
     description: 'Đảo Tiên Quyết — Nắm vững 10 nguyên tắc an toàn, đạo đức và làm chủ AI của Xưởng sáng tạo.',
     background: designerAssets.lobby.bgHome,
     scene: designerAssets.worldScenes.aiValley,
@@ -533,7 +654,8 @@ export const WORLD_REGIONS = [
     sceneLabel: 'AKI đang hướng dẫn 10 quy tắc an toàn sáng tạo AI',
   },
   {
-    name: 'Đảo 1: Nhà Thám Hiểm AI',
+    name: 'Đảo Khám Phá',
+    badge: 'ĐẢO KHÁM PHÁ',
     description: '4 Chìa Khóa Lệnh — Tạo hình ảnh đơn lẻ đúng ý mình và sửa câu lệnh như một kỹ sư AI thực thụ.',
     background: designerAssets.lobby.bgArt,
     scene: designerAssets.worldScenes.storyIsland,
@@ -543,7 +665,8 @@ export const WORLD_REGIONS = [
     sceneLabel: 'AKI đang cùng con mở 4 chiếc chìa khoá lệnh',
   },
   {
-    name: 'Đảo 2: Tớ Là Hoạ Sĩ AI!',
+    name: 'Đảo Hoạ Sĩ',
+    badge: 'ĐẢO HOẠ SĨ',
     description: 'Sắc Màu & Kể Chuyện — Bố cục ngôi sao 3 lớp, ánh sáng cảm xúc và tạo ra bức tranh biết nói.',
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.creativeMountain,
@@ -553,7 +676,8 @@ export const WORLD_REGIONS = [
     sceneLabel: 'AKI đang cầm cọ vẽ kiệt tác nghệ thuật',
   },
   {
-    name: 'Đảo 3: Biệt Đội Nhân Vật AI',
+    name: 'Đảo Nhân Vật',
+    badge: 'ĐẢO NHÂN VẬT',
     description: 'Hồ Sơ & 6 Biểu Cảm — Khoá mật mã nhận diện 3 điểm, biến hoá 6 biểu cảm và căn cứ bí mật.',
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.aiValley,
@@ -563,7 +687,8 @@ export const WORLD_REGIONS = [
     sceneLabel: 'AKI đang cùng con thiết kế hồ sơ nhân vật độc quyền',
   },
   {
-    name: 'Đảo 4: Vương Quốc Truyện Tranh AI',
+    name: 'Đảo Truyện Tranh',
+    badge: 'ĐẢO TRUYỆN TRANH',
     description: 'Storyboard 8 Ô & Comic — Kịch bản 3 cổng, khung xương 4 nhịp và xuất bản cuốn truyện tranh 8 trang.',
     background: designerAssets.lobby.bgArt,
     scene: designerAssets.worldScenes.storyIsland,
@@ -573,7 +698,8 @@ export const WORLD_REGIONS = [
     sceneLabel: 'AKI đang xem bản thảo truyện tranh 8 ô',
   },
   {
-    name: 'Đảo 5: Nhà Phát Minh Trò Chơi AI',
+    name: 'Đảo Trò Chơi',
+    badge: 'ĐẢO TRÒ CHƠI',
     description: 'Đấu Trường Thẻ Bài — Bộ 12 thẻ bài cân bằng chỉ số Sức-Nhanh-Khéo, bàn cờ A3 và luật chơi công bằng.',
     background: designerAssets.lobby.bgHome,
     scene: designerAssets.worldScenes.creativeMountain,
@@ -609,7 +735,9 @@ export function getAikiCourseSortOrder(course: {
     combined.includes('quy tac') ||
     combined.includes('module 0') ||
     combined.includes('aiki-rules') ||
-    combined.includes('rule')
+    combined.includes('rule') ||
+    combined.includes('tiên quyết') ||
+    combined.includes('tien quyet')
   ) {
     return 0
   }
@@ -618,6 +746,8 @@ export function getAikiCourseSortOrder(course: {
     combined.includes('module 1') ||
     combined.includes('nha-tham-hiem') ||
     combined.includes('nhà thám hiểm') ||
+    combined.includes('khám phá') ||
+    combined.includes('kham pha') ||
     combined.includes('chìa khoá')
   ) {
     return 1
@@ -681,6 +811,20 @@ export function getRegionForCourse(
   return WORLD_REGIONS[index % WORLD_REGIONS.length]
 }
 
+export function getIslandBadge(
+  course: { id?: string; title?: string; shortTitle?: string; courseKey?: string; metadata?: any },
+  index: number,
+): string {
+  const order = getAikiCourseSortOrder(course)
+  if (order >= 0 && order < AIKI_ISLAND_BADGES.length) {
+    return AIKI_ISLAND_BADGES[order]
+  }
+  if (index >= 0 && index < AIKI_ISLAND_BADGES.length) {
+    return AIKI_ISLAND_BADGES[index]
+  }
+  return `ĐẢO ${index + 1}`
+}
+
 function RoadmapCourseNode({
   course,
   index,
@@ -695,20 +839,14 @@ function RoadmapCourseNode({
   onLockedClick?: (course: PathwayCourse) => void
 }) {
   const region = getRegionForCourse(course, index);
-  const isRule = isAikiRuleCourse(course, index);
-  const { progress: rulesProgress, completedCount: rulesCompletedCount } = useRulesProgress();
-  const currentRuleId = AIKI_RULES_DATA.find((r) => rulesProgress.rules[r.id]?.status === 'available')?.id ?? 1;
-
-  const isCompleted = isRule ? rulesCompletedCount >= 10 : course.status === 'completed';
-  const isActive = isRule ? (rulesCompletedCount > 0 && rulesCompletedCount < 10) : course.status === 'active';
-  const isLocked = isRule ? false : (!FORCE_UNLOCK_ALL_ISLANDS && course.status === 'locked');
-  const stationCount = isRule ? 10 : Math.max(0, Math.round(course.questCount ?? 0));
-  const completedStations = isRule
-    ? rulesCompletedCount
-    : Math.min(
-        stationCount,
-        Math.max(0, course.completedCount ?? Math.floor(stationCount * course.completionPercent / 100)),
-      );
+  const isCompleted = course.status === 'completed';
+  const isActive = course.status === 'active';
+  const isLocked = !FORCE_UNLOCK_ALL_ISLANDS && course.status === 'locked';
+  const stationCount = Math.max(0, Math.round(course.questCount ?? (course.stations?.length ?? 0)));
+  const completedStations = Math.min(
+    stationCount,
+    Math.max(0, course.completedCount ?? Math.floor((stationCount * course.completionPercent) / 100)),
+  );
   const nextStation = course.stations?.find(
     (station) => station.status === 'available' || station.status === 'in_progress',
   ) ?? (course.stations && course.stations.length > 0 ? course.stations[0] : undefined);
@@ -758,17 +896,17 @@ function RoadmapCourseNode({
 
       <div className="min-w-0">
         <p className="text-[10px] font-extrabold uppercase tracking-wider text-white/80 truncate">
-          {course.shortTitle}
+          {course.shortTitle ? formatCourseTitle(course.shortTitle) : region.name}
         </p>
         <h3 className="font-display text-xl leading-snug text-white line-clamp-2">
-          {course.title}
+          {formatCourseTitle(course.title)}
         </h3>
       </div>
 
       {(isActive || isCompleted) && (
         <div>
           <CuteProgress
-            value={isRule ? Math.round((rulesCompletedCount / 10) * 100) : course.completionPercent}
+            value={course.completionPercent}
             label="Hoàn thành khóa"
             tone={isCompleted ? 'mint' : 'violet'}
           />
@@ -784,37 +922,6 @@ function RoadmapCourseNode({
           <ol className="world-station-path">
             {Array.from({ length: stationCount }, (_, stationIndex) => {
               const stationNumber = stationIndex + 1;
-              if (isRule) {
-                const ruleProgress = rulesProgress.rules[stationNumber];
-                const isRuleDone = ruleProgress?.status === 'completed';
-                const isRuleCurrent = (ruleProgress?.status === 'available' && stationNumber === currentRuleId) || (!isRuleDone && stationNumber === currentRuleId);
-                const isRuleUnlocked = isRuleDone || isRuleCurrent || ruleProgress?.status === 'available' || stationNumber === 1;
-                const dotClassName = cn(
-                  'world-station-dot',
-                  isRuleDone && 'world-station-dot-done',
-                  isRuleCurrent && 'world-station-dot-current',
-                );
-                const stationLabel = `Trạm ${stationNumber}: Quy tắc ${stationNumber}${isRuleDone ? ', đã xong' : isRuleCurrent ? ', tiếp theo' : ', chưa mở'}`;
-                return (
-                  <li key={stationNumber}>
-                    {isRuleUnlocked ? (
-                      <Link
-                        to={`/world/${course.id || 'aiki-rules'}/lesson/rule-${stationNumber}`}
-                        className={dotClassName}
-                        aria-label={stationLabel}
-                        title={`Quy tắc ${stationNumber}`}
-                      >
-                        {stationNumber}
-                      </Link>
-                    ) : (
-                      <span className={dotClassName} aria-label={stationLabel} aria-disabled="true">
-                        {stationNumber}
-                      </span>
-                    )}
-                  </li>
-                );
-              }
-
               const station = course.stations?.[stationIndex];
               const isDone = station?.status === 'completed' || stationNumber <= completedStations;
               const isCurrent = station?.status === 'available' || station?.status === 'in_progress' || (stationNumber === completedStations + 1 && !isCompleted);
@@ -877,7 +984,7 @@ function RoadmapCourseNode({
               </p>
               <p className="mt-0.5 text-xs font-semibold leading-relaxed text-white/90 line-clamp-2">
                 {course.lockMessage || (course.reasonCode === 'prerequisite_incomplete' && previousRegion
-                  ? `Hoàn thành ${previousRegion.name} để mở vùng này.`
+                  ? `Hoàn thành ${previousRegion.name} để mở đảo này.`
                   : 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để mở khóa nhé!')}
               </p>
             </div>
@@ -897,14 +1004,7 @@ function RoadmapCourseNode({
 
       {!isLocked && (
         <div className="flex flex-wrap items-center gap-2">
-          {isRule ? (
-            <Link
-              to={`/world/${course.id || 'aiki-rules'}/lesson/rule-${currentRuleId}`}
-              className="world-course-primary-action"
-            >
-              Học tiếp
-            </Link>
-          ) : nextStation ? (
+          {nextStation ? (
             <Link
               to={`/world/${course.id}/lesson/${nextStation.id}`}
               className="world-course-primary-action"
@@ -920,7 +1020,7 @@ function RoadmapCourseNode({
             </Link>
           )}
           <Link
-            to={isRule ? `/world/${course.id || 'aiki-rules'}` : `/world/${course.id}`}
+            to={`/world/${course.id}`}
             className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white"
           >
             {isCompleted ? 'Học lại' : 'Xem toàn bộ trạm'}
@@ -957,11 +1057,13 @@ function RoadmapCourseNode({
               <span>🛡️ Đảo Tiên Quyết — Cửa ngõ mở khóa toàn bộ thế giới</span>
             </div>
           )}
-          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">Vùng {index + 1}</p>
-          <h2 className="mt-1 font-display text-4xl text-text">{course.title}</h2>
+          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">
+            {getIslandBadge(course, index)}
+          </p>
+          <h2 className="mt-1 font-display text-4xl text-text">{formatCourseTitle(course.title)}</h2>
           <p className="mx-auto mt-2 max-w-lg text-sm font-bold leading-relaxed text-muted">
             {course.shortTitle && course.shortTitle !== course.title
-              ? course.shortTitle
+              ? formatCourseTitle(course.shortTitle)
               : region.description}
           </p>
         </div>
@@ -1020,7 +1122,36 @@ function PathwayOverview({
   showSpacesSelector?: boolean
 }) {
   const navigate = useNavigate()
+  const user = useAuth((s) => s.user)
+  const isParent = user?.role === 'parent'
   const [lockedModalCourse, setLockedModalCourse] = useState<PathwayCourse | null>(null)
+  const [paywallModalCourse, setPaywallModalCourse] = useState<PathwayCourse | null>(null)
+  const [isParentGateOpen, setIsParentGateOpen] = useState(false)
+
+  const isPaywallCourse = (course: PathwayCourse): boolean => {
+    if (isAikiRuleCourse(course)) return false
+    if (
+      course.reasonCode === 'purchase_required' ||
+      course.reasonCode === 'entitlement_required' ||
+      course.reasonCode === 'unpaid' ||
+      course.reasonCode === 'subscription_required' ||
+      Boolean(course.lockMessage && /gói|129|trả phí|mua|nâng cấp|học phí/i.test(course.lockMessage))
+    ) {
+      return true
+    }
+    if (course.status === 'locked' && course.reasonCode !== 'gatekeeper_rule_incomplete') {
+      return true
+    }
+    return false
+  }
+
+  const handleLockedCourseClick = (course: PathwayCourse) => {
+    if (isPaywallCourse(course)) {
+      setPaywallModalCourse(course)
+    } else {
+      setLockedModalCourse(course)
+    }
+  }
 
   const isSpacesView = Boolean(showSpacesSelector)
   const selectedSource: PathwayCourse['programSource'] | null = isSpacesView
@@ -1054,8 +1185,8 @@ function PathwayOverview({
       tone: 'bg-sun-50 border-sun-200 text-warning',
     },
   ]
-  const { progress: rulesProgress } = useRulesProgress()
-  const currentRuleId = AIKI_RULES_DATA.find((r) => rulesProgress.rules[r.id]?.status === 'available')?.id ?? 1
+  const ruleCourse = pathway.courses.find((c, i) => isAikiRuleCourse(c, i))
+  const ruleCourseHref = `/world/${ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
 
   const selectedCategory = categories.find((category) => category.id === selectedSource)
   const selectedCourses = sortAikiCourses(
@@ -1071,7 +1202,7 @@ function PathwayOverview({
     (station) => station.status === 'in_progress' || station.status === 'available',
   )
   const courseHref = (course: PathwayCourse) => {
-    if (isAikiRuleCourse(course)) return `/world/${course.id || 'aiki-rules'}`
+    if (isAikiRuleCourse(course)) return `/world/${course.id || ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
     return course.status === 'active' || course.status === 'completed'
       ? `/world/${course.id}`
       : `/course/${course.id}`
@@ -1232,11 +1363,11 @@ function PathwayOverview({
                 </p>
               </div>
               {sourceRecommended.status === 'locked' ? (
-                <Button onClick={() => setLockedModalCourse(sourceRecommended)}>
+                <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
                   🔒 Xem điều kiện mở
                 </Button>
               ) : (
-                <Link to={isAikiRuleCourse(sourceRecommended) ? `/world/${sourceRecommended.id || 'aiki-rules'}/lesson/rule-${currentRuleId}` : (nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
+                <Link to={nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended)}>
                   <Button>
                     {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                   </Button>
@@ -1384,7 +1515,7 @@ function PathwayOverview({
           actions={
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-2">
               <Link
-                to="/world/aiki-rules"
+                to={ruleCourseHref}
                 className="w-full sm:w-auto"
                 onClick={() => setLockedModalCourse(null)}
               >
@@ -1402,6 +1533,30 @@ function PathwayOverview({
             </div>
           }
         />
+        <CoursePaywallModal
+          open={Boolean(paywallModalCourse)}
+          courseTitle={paywallModalCourse?.title}
+          onClose={() => setPaywallModalCourse(null)}
+          onContinueFree={() => {
+            setPaywallModalCourse(null)
+            navigate(ruleCourseHref)
+          }}
+          onUpgrade={() => {
+            setPaywallModalCourse(null)
+            if (isParent) {
+              navigate('/parent/learning?upgrade=aikids_official_129k')
+            } else {
+              setIsParentGateOpen(true)
+            }
+          }}
+        />
+        {isParentGateOpen && (
+          <ParentGateModal
+            open={isParentGateOpen}
+            onClose={() => setIsParentGateOpen(false)}
+            redirectTo="/parent/learning?upgrade=aikids_official_129k"
+          />
+        )}
       </div>
     )
   }
@@ -1498,11 +1653,11 @@ function PathwayOverview({
               </p>
             </div>
             {sourceRecommended.status === 'locked' ? (
-              <Button onClick={() => setLockedModalCourse(sourceRecommended)}>
+              <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
                 🔒 Xem điều kiện mở
               </Button>
             ) : (
-              <Link to={isAikiRuleCourse(sourceRecommended) ? `/world/${sourceRecommended.id || 'aiki-rules'}/lesson/rule-${currentRuleId}` : (nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
+              <Link to={nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended)}>
                 <Button>
                   {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                 </Button>
@@ -1533,7 +1688,7 @@ function PathwayOverview({
           </p>
 
           <div className="relative">
-            <ol className="relative z-10 flex flex-col gap-6" aria-label="Danh sách vùng và bản đồ khóa học">
+            <ol className="relative z-10 flex flex-col gap-6" aria-label="Danh sách các đảo và bản đồ khóa học">
               {selectedCourses.map((course, index) => (
                 <RoadmapCourseNode
                   key={course.id}
@@ -1541,7 +1696,7 @@ function PathwayOverview({
                   index={index}
                   isRecommended={course.id === sourceRecommended?.id}
                   courseHref={courseHref(course)}
-                  onLockedClick={(c) => setLockedModalCourse(c)}
+                  onLockedClick={(c) => handleLockedCourseClick(c)}
                 />
               ))}
             </ol>
@@ -1593,7 +1748,7 @@ function PathwayOverview({
         actions={
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-2">
             <Link
-              to="/world/aiki-rules"
+              to={ruleCourseHref}
               className="w-full sm:w-auto"
               onClick={() => setLockedModalCourse(null)}
             >
@@ -1611,6 +1766,30 @@ function PathwayOverview({
           </div>
         }
       />
+      <CoursePaywallModal
+        open={Boolean(paywallModalCourse)}
+        courseTitle={paywallModalCourse?.title}
+        onClose={() => setPaywallModalCourse(null)}
+        onContinueFree={() => {
+          setPaywallModalCourse(null)
+          navigate(ruleCourseHref)
+        }}
+        onUpgrade={() => {
+          setPaywallModalCourse(null)
+          if (isParent) {
+            navigate('/parent/learning?upgrade=aikids_official_129k')
+          } else {
+            setIsParentGateOpen(true)
+          }
+        }}
+      />
+      {isParentGateOpen && (
+        <ParentGateModal
+          open={isParentGateOpen}
+          onClose={() => setIsParentGateOpen(false)}
+          redirectTo="/parent/learning?upgrade=aikids_official_129k"
+        />
+      )}
     </div>
   )
 }

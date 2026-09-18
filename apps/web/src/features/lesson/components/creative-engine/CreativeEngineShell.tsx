@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Sparkles, ChevronDown, Wand2, RefreshCw } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { playInstantSound } from '../LessonInteractiveSidebar'
-import type { CreativeEngineMode, CreativeBlock } from './types'
+import type { CreativeEngineMode, CreativeBlock, CreativeNotebookConfig } from './types'
 import { ENGINE_CONFIGS, getCreativeEngineMode } from './data/engine-presets'
 import { MagicKeysEngine } from './engines/MagicKeysEngine'
 import { StylePrismEngine } from './engines/StylePrismEngine'
@@ -10,6 +10,7 @@ import { PromptDoctorEngine } from './engines/PromptDoctorEngine'
 import { LayerStackingEngine } from './engines/LayerStackingEngine'
 import { IdentityLockEngine } from './engines/IdentityLockEngine'
 import { CardForgeEngine } from './engines/CardForgeEngine'
+import { CreativeNotebookEngine } from './engines/CreativeNotebookEngine'
 import { PromptPreviewBar } from './components/PromptPreviewBar'
 
 export interface CreativeEngineShellProps {
@@ -34,6 +35,20 @@ export interface CreativeEngineShellProps {
   practiceSlot?: React.ReactNode
   isTurnLocked?: boolean
   turnLockedMessage?: string
+  onRefImageChange?: (url: string) => void
+  activePartIndex?: number
+  onPartChange?: (index: number) => void
+  practiceParts?: Array<{
+    id?: string
+    partNumber: number
+    title: string
+    icon?: string
+    iconImage?: string
+    emoji?: string
+  }>
+  notebookConfig?: CreativeNotebookConfig
+  onSubmitNotebook?: (content: string, structuredData?: Record<string, string>) => void
+  onSaveDraft?: (content: string, structuredData?: Record<string, string>) => void
 }
 
 export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
@@ -58,6 +73,13 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
   practiceSlot,
   isTurnLocked,
   turnLockedMessage,
+  onRefImageChange,
+  activePartIndex,
+  onPartChange,
+  practiceParts,
+  notebookConfig,
+  onSubmitNotebook,
+  onSaveDraft,
 }) => {
   // Xác định chế độ engine mặc định dựa vào bài học
   const initialMode = useMemo(() => {
@@ -93,8 +115,9 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
   )
 
   const promptBarContent = (
-    <div className="flex w-full shrink-0 flex-col items-stretch gap-2 border-t border-amber-100/90 pt-1 sm:flex-row sm:items-stretch">
+    <div className="flex w-full min-w-0 shrink-0 flex-col items-stretch gap-2 border-t border-amber-100/90 pt-1 sm:flex-row sm:items-stretch">
       <PromptPreviewBar
+        mode={activeMode}
         blocks={activeBlocks}
         generatedPrompt={currentPrompt}
         lockedFeatures={lockedFeatures}
@@ -132,7 +155,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
         onClick={onGenerate}
         disabled={isTurnLocked || attemptsLeft <= 0 || isGenerating || !currentPrompt.trim()}
         className={cn(
-          'flex min-h-[48px] sm:min-h-[66px] w-full shrink-0 items-center justify-center gap-1.5 rounded-2xl px-4 py-2 text-sm font-black shadow-clay transition-all duration-150 active:scale-95 cursor-pointer select-none sm:w-auto sm:px-6 sm:py-2.5 sm:text-base',
+          'flex min-h-[48px] sm:min-h-[58px] self-stretch sm:self-auto w-full shrink-0 items-center justify-center gap-1.5 rounded-2xl px-4 py-2 text-sm font-black shadow-clay transition-all duration-150 active:scale-95 cursor-pointer select-none sm:w-auto sm:px-6 sm:py-2.5 sm:text-base',
           !isTurnLocked && attemptsLeft > 0 && !isGenerating && currentPrompt.trim()
             ? 'bg-amber-500 hover:bg-amber-600 text-white border-b-4 border-amber-700 hover:border-amber-800'
             : 'bg-slate-200 text-slate-400 cursor-not-allowed border-none'
@@ -173,66 +196,197 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
             canvasSlot={canvasSlot}
             practiceSlot={practiceSlot}
             promptSlot={promptBarContent}
+            practiceParts={practiceParts}
+            activePartIndex={activePartIndex}
+            onPartChange={onPartChange}
           />
         )}
 
-        {activeMode === 'style-prism' && (
-          <StylePrismEngine
+        {activeMode === 'creative-notebook' && (
+          <CreativeNotebookEngine
             characterName={characterName}
+            selectedSubject={selectedSubject}
             lessonId={lessonId}
             currentPrompt={currentPrompt}
-            lockedFeatures={lockedFeatures}
-            illustrationType={illustrationType}
             onPromptChange={handleEnginePromptChange}
+            notebookConfig={notebookConfig}
+            onSubmitNotebook={onSubmitNotebook}
+            onSaveDraft={onSaveDraft}
           />
         )}
 
-        {activeMode === 'prompt-doctor' && (
-          <PromptDoctorEngine
-            characterName={characterName}
-            lessonId={lessonId}
-            currentPrompt={currentPrompt}
-            lockedFeatures={lockedFeatures}
-            illustrationType={illustrationType}
-            onPromptChange={handleEnginePromptChange}
-          />
-        )}
+        {activeMode !== 'magic-keys' && activeMode !== 'creative-notebook' && (
+          canvasSlot ? (
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-2.5 items-start w-full min-w-0 mt-1">
+              <div className="w-full lg:col-span-7 xl:col-span-7 flex flex-col gap-2 min-w-0 order-1">
+                {activeMode === 'style-prism' && (
+                  <StylePrismEngine
+                    characterName={characterName}
+                    selectedSubject={selectedSubject}
+                    lessonId={lessonId}
+                    currentPrompt={currentPrompt}
+                    lockedFeatures={lockedFeatures}
+                    illustrationType={illustrationType}
+                    onPromptChange={handleEnginePromptChange}
+                    practiceParts={practiceParts}
+                    activePartIndex={activePartIndex}
+                    onPartChange={onPartChange}
+                  />
+                )}
+                {activeMode === 'prompt-doctor' && (
+                  <PromptDoctorEngine
+                    characterName={characterName}
+                    selectedSubject={selectedSubject}
+                    lessonId={lessonId}
+                    currentPrompt={currentPrompt}
+                    lockedFeatures={lockedFeatures}
+                    illustrationType={illustrationType}
+                    onPromptChange={handleEnginePromptChange}
+                    onRefImageChange={onRefImageChange}
+                    activeCaseIndex={activePartIndex}
+                    onCaseChange={onPartChange}
+                    practiceParts={practiceParts}
+                    activePartIndex={activePartIndex}
+                    onPartChange={onPartChange}
+                  />
+                )}
+                {activeMode === 'layer-stacking' && (
+                  <LayerStackingEngine
+                    characterName={characterName}
+                    selectedSubject={selectedSubject}
+                    lessonId={lessonId}
+                    currentPrompt={currentPrompt}
+                    lockedFeatures={lockedFeatures}
+                    illustrationType={illustrationType}
+                    onPromptChange={handleEnginePromptChange}
+                    practiceParts={practiceParts}
+                    activePartIndex={activePartIndex}
+                    onPartChange={onPartChange}
+                  />
+                )}
+                {activeMode === 'identity-lock' && (
+                  <IdentityLockEngine
+                    characterName={characterName}
+                    selectedSubject={selectedSubject}
+                    lessonId={lessonId}
+                    currentPrompt={currentPrompt}
+                    lockedFeatures={lockedFeatures}
+                    illustrationType={illustrationType}
+                    onPromptChange={handleEnginePromptChange}
+                    activeCharacterIndex={activePartIndex}
+                    onCharacterChange={onPartChange}
+                    practiceParts={practiceParts}
+                    activePartIndex={activePartIndex}
+                    onPartChange={onPartChange}
+                  />
+                )}
+                {activeMode === 'card-forge' && (
+                  <CardForgeEngine
+                    characterName={characterName}
+                    selectedSubject={selectedSubject}
+                    lessonId={lessonId}
+                    currentPrompt={currentPrompt}
+                    lockedFeatures={lockedFeatures}
+                    illustrationType={illustrationType}
+                    onPromptChange={handleEnginePromptChange}
+                    practiceParts={practiceParts}
+                    activePartIndex={activePartIndex}
+                    onPartChange={onPartChange}
+                  />
+                )}
+              </div>
 
-        {activeMode === 'layer-stacking' && (
-          <LayerStackingEngine
-            characterName={characterName}
-            lessonId={lessonId}
-            currentPrompt={currentPrompt}
-            lockedFeatures={lockedFeatures}
-            illustrationType={illustrationType}
-            onPromptChange={handleEnginePromptChange}
-          />
-        )}
+              {/* KHUNG PREVIEW TRANH VẼ & XEM LẠI ẢNH BALO */}
+              <div className="w-full lg:col-span-5 xl:col-span-5 min-w-0 order-3 lg:order-2">
+                {canvasSlot}
+              </div>
 
-        {activeMode === 'identity-lock' && (
-          <IdentityLockEngine
-            characterName={characterName}
-            lessonId={lessonId}
-            currentPrompt={currentPrompt}
-            lockedFeatures={lockedFeatures}
-            illustrationType={illustrationType}
-            onPromptChange={handleEnginePromptChange}
-          />
+              {/* THANH CÂU LỆNH & NÚT VẼ ĐI AKI */}
+              <div className="w-full col-span-12 order-2 lg:order-3">
+                {promptBarContent}
+              </div>
+            </div>
+          ) : (
+            <>
+              {activeMode === 'style-prism' && (
+                <StylePrismEngine
+                  characterName={characterName}
+                  selectedSubject={selectedSubject}
+                  lessonId={lessonId}
+                  currentPrompt={currentPrompt}
+                  lockedFeatures={lockedFeatures}
+                  illustrationType={illustrationType}
+                  onPromptChange={handleEnginePromptChange}
+                  practiceParts={practiceParts}
+                  activePartIndex={activePartIndex}
+                  onPartChange={onPartChange}
+                />
+              )}
+              {activeMode === 'prompt-doctor' && (
+                <PromptDoctorEngine
+                  characterName={characterName}
+                  selectedSubject={selectedSubject}
+                  lessonId={lessonId}
+                  currentPrompt={currentPrompt}
+                  lockedFeatures={lockedFeatures}
+                  illustrationType={illustrationType}
+                  onPromptChange={handleEnginePromptChange}
+                  onRefImageChange={onRefImageChange}
+                  activeCaseIndex={activePartIndex}
+                  onCaseChange={onPartChange}
+                  practiceParts={practiceParts}
+                  activePartIndex={activePartIndex}
+                  onPartChange={onPartChange}
+                />
+              )}
+              {activeMode === 'layer-stacking' && (
+                <LayerStackingEngine
+                  characterName={characterName}
+                  selectedSubject={selectedSubject}
+                  lessonId={lessonId}
+                  currentPrompt={currentPrompt}
+                  lockedFeatures={lockedFeatures}
+                  illustrationType={illustrationType}
+                  onPromptChange={handleEnginePromptChange}
+                  practiceParts={practiceParts}
+                  activePartIndex={activePartIndex}
+                  onPartChange={onPartChange}
+                />
+              )}
+              {activeMode === 'identity-lock' && (
+                <IdentityLockEngine
+                  characterName={characterName}
+                  selectedSubject={selectedSubject}
+                  lessonId={lessonId}
+                  currentPrompt={currentPrompt}
+                  lockedFeatures={lockedFeatures}
+                  illustrationType={illustrationType}
+                  onPromptChange={handleEnginePromptChange}
+                  activeCharacterIndex={activePartIndex}
+                  onCharacterChange={onPartChange}
+                  practiceParts={practiceParts}
+                  activePartIndex={activePartIndex}
+                  onPartChange={onPartChange}
+                />
+              )}
+              {activeMode === 'card-forge' && (
+                <CardForgeEngine
+                  characterName={characterName}
+                  selectedSubject={selectedSubject}
+                  lessonId={lessonId}
+                  currentPrompt={currentPrompt}
+                  lockedFeatures={lockedFeatures}
+                  illustrationType={illustrationType}
+                  onPromptChange={handleEnginePromptChange}
+                  practiceParts={practiceParts}
+                  activePartIndex={activePartIndex}
+                  onPartChange={onPartChange}
+                />
+              )}
+              {promptBarContent}
+            </>
+          )
         )}
-
-        {activeMode === 'card-forge' && (
-          <CardForgeEngine
-            characterName={characterName}
-            lessonId={lessonId}
-            currentPrompt={currentPrompt}
-            lockedFeatures={lockedFeatures}
-            illustrationType={illustrationType}
-            onPromptChange={handleEnginePromptChange}
-          />
-        )}
-
-        {/* ── TẦNG 3: THANH CÂU LỆNH TỰ ĐỘNG & NÚT VẼ (CHO CÁC ENGINE KHÁC) ── */}
-        {activeMode !== 'magic-keys' && promptBarContent}
       </div>
     </div>
   )

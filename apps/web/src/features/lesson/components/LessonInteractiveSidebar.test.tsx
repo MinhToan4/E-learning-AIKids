@@ -93,4 +93,40 @@ describe('LessonInteractiveSidebar', () => {
     expect(markup).toContain('Bức nào mới đúng yêu cầu của cô? Bấm chọn đi nào!')
     expect(markup).not.toContain('Thu nhỏ box')
   })
+
+  it('renders collapsed Soft Clay minimal state with Hỗ trợ AKI, stars, and expand pill', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 0,
+        isCollapsed: true,
+        liveStars: 2,
+      })
+    )
+
+    expect(markup).toContain('w-[76px] sm:w-[84px]')
+    expect(markup).toContain('Hỗ trợ AKI')
+    expect(markup).toContain('2/3')
+    expect(markup).toContain('Tiến độ')
+    expect(markup).toContain('Mở')
+  })
+
+  it('renders stage 4 commitment checkbox with (+1 ⭐) bonus label', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 4,
+        hasCommitted: false,
+        onToggleCommit: () => {},
+      })
+    )
+
+    expect(markup).toContain('Con hứa luôn nghĩ ý tưởng của mình trước khi nhờ AI ✨ (+1 ⭐)')
+  })
 })

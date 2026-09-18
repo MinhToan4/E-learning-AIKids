@@ -2,7 +2,14 @@
 ;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
 import React, { act } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot as originalCreateRoot } from 'react-dom/client'
+
+const activeRoots: Array<{ unmount: () => void }> = []
+const createRoot: typeof originalCreateRoot = (container, options) => {
+  const root = originalCreateRoot(container, options)
+  activeRoots.push(root)
+  return root
+}
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { SixStageJourneyView } from './SixStageJourneyView'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
@@ -34,7 +41,7 @@ const mockJourney: LessonSixStageJourney = {
   stage3_video: {
     id: 'bai-1-1-stage3-video',
     title: 'Video Bài Giảng: Bí Kíp Câu Lệnh Thần Kỳ',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl: 'https://www.youtube.com/embed/NMdHhsLY5jc',
     durationSec: 180,
     posterUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg',
     timestamps: [
@@ -104,7 +111,18 @@ describe('SixStageJourneyView', () => {
   })
 
   afterEach(() => {
-    document.body.removeChild(container)
+    act(() => {
+      while (activeRoots.length > 0) {
+        try {
+          activeRoots.pop()?.unmount()
+        } catch {
+          // ignore already unmounted
+        }
+      }
+    })
+    if (container && container.parentNode) {
+      document.body.removeChild(container)
+    }
   })
 
   it('renders 2-column layout: Left Main Learning Canvas & Right AKI Interactive Sidebar', () => {
@@ -616,7 +634,7 @@ describe('SixStageJourneyView', () => {
     // Mainbar iframe has base video URL initially
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe).not.toBeNull()
-    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ')
+    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/NMdHhsLY5jc')
 
     // Timestamps are cleanly displayed in Companion Sidebar (Interactive Chapters)
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
@@ -901,6 +919,103 @@ describe('SixStageJourneyView', () => {
     // 4. Mẹo vàng AKI và nút Tua lại video
     expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AKI')
     expect(sidebar?.textContent).toContain('↺ Tua lại video')
+  })
+
+  it('loads correct 4 standard identity characters for Station 3.3 (bai-3-3)', () => {
+    const root = createRoot(container)
+    const journey3_3: LessonSixStageJourney = {
+      ...mockJourney,
+      stage5_practice: {
+        ...mockJourney.stage5_practice,
+        id: 'bai-3-3-stage5-practice',
+        title: 'Xưởng Sáng Tạo: Ổ Khóa Vàng Nhận Diện',
+        subjectName: 'Biệt Đội 4 Nhân Vật',
+      },
+    }
+
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={journey3_3}
+          lessonId="bai-3-3"
+          lessonTitle="Ổ Khóa Vàng Nhận Diện"
+          initialStageIndex={4}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+
+    // 4 cards in sidebar should be 4 standard characters: Sóc Bông, Cáo Lửa, Robot Leo, Mèo Mimi
+    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
+    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
+    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
+    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
+
+    expect(part1Btn).not.toBeNull()
+    expect(part2Btn).not.toBeNull()
+    expect(part3Btn).not.toBeNull()
+    expect(part4Btn).not.toBeNull()
+
+    expect(part1Btn.textContent).toContain('Chú Sóc Bông Hạt Dẻ')
+    expect(part2Btn.textContent).toContain('Cáo Lửa Zico Hiệp Sĩ')
+    expect(part3Btn.textContent).toContain('Chú Bé Robot Leo')
+    expect(part4Btn.textContent).toContain('Mèo Thám Tử Mimi')
+  })
+
+  it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', () => {
+    const root = createRoot(container)
+    const journey3_1: LessonSixStageJourney = {
+      ...mockJourney,
+      stage5_practice: {
+        ...mockJourney.stage5_practice,
+        id: 'bai-3-1-stage5-practice',
+        title: 'Xưởng Sáng Tạo AI: Bài 3.1 — Hồ sơ biệt đội',
+        subjectName: 'Hiệp Sĩ Cáo Lửa',
+        creativeEngineMode: 'card-forge',
+        practiceParts: [
+          { partNumber: 1, title: 'Hiệp Sĩ Cáo Lửa (Chiến tướng Hệ Hỏa)', icon: '🦊', emoji: '🦊' },
+          { partNumber: 2, title: 'Rồng Băng Bão Tuyết (Chiến tướng Hệ Băng)', icon: '🐉', emoji: '🐉' },
+          { partNumber: 3, title: 'Sư Tử Lửa Cuồng Nộ (Chiến tướng Hệ Hỏa)', icon: '🦁', emoji: '🦁' },
+          { partNumber: 4, title: 'Đại Bàng Lôi Thần (Chiến tướng Hệ Sét)', icon: '🦅', emoji: '🦅' },
+        ],
+      },
+    }
+
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={journey3_1}
+          lessonId="bai-3-1"
+          lessonTitle="Hồ sơ biệt đội"
+          initialStageIndex={4}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+
+    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
+    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
+    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
+    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
+
+    expect(part1Btn).not.toBeNull()
+    expect(part2Btn).not.toBeNull()
+    expect(part3Btn).not.toBeNull()
+    expect(part4Btn).not.toBeNull()
+
+    expect(part1Btn.textContent).toContain('Hiệp Sĩ Cáo Lửa')
+    expect(part2Btn.textContent).toContain('Rồng Băng Bão Tuyết')
+    expect(part3Btn.textContent).toContain('Sư Tử Lửa Cuồng Nộ')
+    expect(part4Btn.textContent).toContain('Đại Bàng Lôi Thần')
+
+    // CardForgeEngine is rendered
+    expect(container.querySelector('[data-testid="card-forge-engine"]')).not.toBeNull()
   })
 
   it('renders Lesson 1.2 Stage 0 with 4-keys banner and 4-colored formula grid', () => {
@@ -1546,6 +1661,69 @@ describe('SixStageJourneyView', () => {
     // iframe URL cập nhật tua tới giây 120
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe?.getAttribute('src')).toContain('start=120')
+  })
+
+  it('renders warm notice when lesson uses generic AIKid video and hides it for dedicated lessons 1.2 and 1.3', () => {
+    // 1. Bài 1.1 (Generic video): Phải hiển thị thông báo ấm áp của AKI
+    const root1 = createRoot(container)
+    act(() => {
+      root1.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Một từ hay năm từ?"
+          initialStageIndex={2}
+          initialSidebarCollapsed={true}
+        />
+      )
+    })
+
+    const notice = container.querySelector('[data-testid="generic-video-notice"]')
+    expect(notice).not.toBeNull()
+    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AKI chuẩn bị!')
+    expect(notice?.textContent).toContain('Bé hãy xem video bí kíp của AKI ở trên hoặc bấm "Tiếp tục" để làm trắc nghiệm & thực hành nhé ✨')
+
+    // 2. Bài 1.2 (Dedicated video): Không hiển thị thông báo
+    act(() => {
+      root1.render(
+        <SixStageJourneyView
+          journey={{
+            ...mockJourney,
+            stage3_video: {
+              ...mockJourney.stage3_video,
+              id: 'bai-1-2-bon-chiec-chia-khoa-stage3-video',
+              videoUrl: 'https://www.youtube.com/embed/NMdHhsLY5jc',
+            },
+          }}
+          lessonId="bai-1-2"
+          lessonTitle="Bốn chiếc chìa khoá"
+          initialStageIndex={2}
+          initialSidebarCollapsed={true}
+        />
+      )
+    })
+    expect(container.querySelector('[data-testid="generic-video-notice"]')).toBeNull()
+
+    // 3. Bài 1.3 (Dedicated video): Không hiển thị thông báo
+    act(() => {
+      root1.render(
+        <SixStageJourneyView
+          journey={{
+            ...mockJourney,
+            stage3_video: {
+              ...mockJourney.stage3_video,
+              id: 'bai-1-3-um-ba-la-bien-hinh-stage3-video',
+              videoUrl: 'https://www.youtube.com/embed/GCtez_WirtU',
+            },
+          }}
+          lessonId="bai-1-3"
+          lessonTitle="Úm ba la... Biến hình"
+          initialStageIndex={2}
+          initialSidebarCollapsed={true}
+        />
+      )
+    })
+    expect(container.querySelector('[data-testid="generic-video-notice"]')).toBeNull()
   })
 
   it('renders dynamic XP badge from SSOT rewardBadge config and passes correct XP to onFinishLesson callback', () => {

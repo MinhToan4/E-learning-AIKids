@@ -17,7 +17,7 @@ import { MagicKeysEngine } from './engines/MagicKeysEngine'
 import { StylePrismEngine } from './engines/StylePrismEngine'
 import { PromptDoctorEngine } from './engines/PromptDoctorEngine'
 import { LayerStackingEngine } from './engines/LayerStackingEngine'
-import { IdentityLockEngine } from './engines/IdentityLockEngine'
+import { IdentityLockEngine, IDENTITY_CHARACTERS } from './engines/IdentityLockEngine'
 import { CardForgeEngine } from './engines/CardForgeEngine'
 import { CreativeEngineShell } from './CreativeEngineShell'
 import { BlockPalette } from './components/BlockPalette'
@@ -39,27 +39,27 @@ describe('CreativeEngine Suite', () => {
         'bai-1-3': 'style-prism',
         'bai-1-4': 'prompt-doctor',
         // M2
-        'bai-2-1': 'style-prism',
+        'bai-2-1': 'creative-notebook',
         'bai-2-2': 'layer-stacking',
-        'bai-2-3': 'identity-lock',
+        'bai-2-3': 'style-prism',
         'bai-2-4': 'layer-stacking',
         // M3
-        'bai-3-1': 'card-forge',
+        'bai-3-1': 'creative-notebook',
         'bai-3-2': 'identity-lock',
         'bai-3-3': 'identity-lock',
         'bai-3-4': 'layer-stacking',
         // M4
-        'bai-4-1': 'prompt-doctor',
-        'bai-4-2': 'magic-keys',
-        'bai-4-3': 'layer-stacking',
+        'bai-4-1': 'creative-notebook',
+        'bai-4-2': 'creative-notebook',
+        'bai-4-3': 'creative-notebook',
         'bai-4-4': 'identity-lock',
-        'bai-4-5': 'style-prism',
+        'bai-4-5': 'creative-notebook',
         // M5
-        'bai-5-1': 'magic-keys',
-        'bai-5-2': 'card-forge',
+        'bai-5-1': 'creative-notebook',
+        'bai-5-2': 'creative-notebook',
         'bai-5-3': 'style-prism',
-        'bai-5-4': 'prompt-doctor',
-        'bai-5-5': 'card-forge',
+        'bai-5-4': 'creative-notebook',
+        'bai-5-5': 'creative-notebook',
       }
 
       expect(Object.keys(expectedMapping)).toHaveLength(22)
@@ -74,12 +74,12 @@ describe('CreativeEngine Suite', () => {
       expect(getCreativeEngineMode('bai-1-2-bon-chiec-chia-khoa')).toBe('magic-keys')
       expect(getCreativeEngineMode('bai-1-3-um-ba-la-bien-hinh')).toBe('style-prism')
       expect(getCreativeEngineMode('bai-1-4-ky-su-tai-ba')).toBe('prompt-doctor')
-      expect(getCreativeEngineMode('bai-4-1-3-cong-cua-vuong-quoc')).toBe('prompt-doctor')
-      expect(getCreativeEngineMode('bai-4-3-ban-do-8-o-p1-mo')).toBe('layer-stacking')
-      expect(getCreativeEngineMode('bai-5-5-dau-truong-khai-mo')).toBe('card-forge')
-      expect(getCreativeEngineMode('m2.3')).toBe('identity-lock')
-      expect(getCreativeEngineMode('island3_lesson1')).toBe('card-forge')
-      expect(getCreativeEngineMode('island4_lesson2')).toBe('magic-keys')
+      expect(getCreativeEngineMode('bai-4-1-3-cong-cua-vuong-quoc')).toBe('creative-notebook')
+      expect(getCreativeEngineMode('bai-4-3-ban-do-8-o-p1-mo')).toBe('creative-notebook')
+      expect(getCreativeEngineMode('bai-5-5-dau-truong-khai-mo')).toBe('creative-notebook')
+      expect(getCreativeEngineMode('m2.3')).toBe('style-prism')
+      expect(getCreativeEngineMode('island3_lesson1')).toBe('creative-notebook')
+      expect(getCreativeEngineMode('island4_lesson2')).toBe('creative-notebook')
     })
 
     it('extracts lesson keys accurately', () => {
@@ -90,7 +90,8 @@ describe('CreativeEngine Suite', () => {
       expect(extractLessonKey('rule-1')).toBeNull()
     })
 
-    it('has full configuration info for all 6 engine modes', () => {
+    it('has full configuration info for all 7 engine modes', () => {
+      expect(ALL_CREATIVE_ENGINE_MODES).toHaveLength(7)
       for (const mode of ALL_CREATIVE_ENGINE_MODES) {
         const cfg = ENGINE_CONFIGS[mode]
         expect(cfg).toBeDefined()
@@ -266,10 +267,11 @@ describe('CreativeEngine Suite', () => {
       expect(html).toContain('Tranh Đông Hồ')
     })
 
-    it('renders PromptDoctorEngine with clinic cases and cures', () => {
+    it('renders PromptDoctorEngine with clinic cases, cures, and reference error image', () => {
+      const onPromptChange = vi.fn()
       const html = renderToStaticMarkup(
         <PromptDoctorEngine
-          onPromptChange={vi.fn()}
+          onPromptChange={onPromptChange}
         />
       )
       expect(html).toContain('data-testid="prompt-doctor-engine"')
@@ -277,6 +279,44 @@ describe('CreativeEngine Suite', () => {
       expect(html).toContain('Bàn Tay Hiệp Sĩ Biến Dạng')
       expect(html).toContain('Tủ Thuốc Thần Kỳ')
       expect(html).toContain('data-testid="doctor-cure-slot"')
+      // Khung hiển thị ảnh tham chiếu bệnh án trực quan
+      expect(html).toContain('🏥 BỆNH VIỆN TRANH LỖI · ẢNH BỆNH NHÂN CẦN KHÁM')
+      expect(html).toContain('doctor_hand_broken_v1.webp')
+      expect(html).toContain('5 ngón tay bọc giáp')
+    })
+
+    it('renders CreativeEngineShell with canvasSlot for style-prism and prompt-doctor modes', () => {
+      const prismHtml = renderToStaticMarkup(
+        <CreativeEngineShell
+          mode="style-prism"
+          currentPrompt="Cỗ xe bay cà rốt"
+          onPromptChange={vi.fn()}
+          onGenerate={vi.fn()}
+          attemptsLeft={6}
+          maxAttempts={6}
+          isGenerating={false}
+          canvasSlot={<div data-testid="mock-canvas-slot">Mock Canvas Display</div>}
+        />
+      )
+      expect(prismHtml).toContain('data-testid="style-prism-engine"')
+      expect(prismHtml).toContain('data-testid="mock-canvas-slot"')
+      expect(prismHtml).toContain('Mock Canvas Display')
+
+      const doctorHtml = renderToStaticMarkup(
+        <CreativeEngineShell
+          mode="prompt-doctor"
+          currentPrompt="Hiệp sĩ bọc giáp cầm kiếm thần"
+          onPromptChange={vi.fn()}
+          onGenerate={vi.fn()}
+          attemptsLeft={6}
+          maxAttempts={6}
+          isGenerating={false}
+          canvasSlot={<div data-testid="mock-canvas-slot">Mock Doctor Canvas</div>}
+        />
+      )
+      expect(doctorHtml).toContain('data-testid="prompt-doctor-engine"')
+      expect(doctorHtml).toContain('data-testid="mock-canvas-slot"')
+      expect(doctorHtml).toContain('Mock Doctor Canvas')
     })
 
     it('renders LayerStackingEngine with 3 depth layers', () => {
@@ -287,12 +327,12 @@ describe('CreativeEngine Suite', () => {
       )
       expect(html).toContain('data-testid="layer-stacking-engine"')
       expect(html).toContain('Bố Cục 3 Tầng Sân Khấu')
-      expect(html).toContain('Hậu Cảnh (Phía sau)')
-      expect(html).toContain('Ngôi Sao Chính (Trung tâm 1/3)')
-      expect(html).toContain('Tiền Cảnh (Sát ống kính)')
+      expect(html).toContain('HẬU CẢNH (XA NHẤT)')
+      expect(html).toContain('NGÔI SAO CHÍNH (ĐIỂM NHẤN 1/3)')
+      expect(html).toContain('TIỀN CẢNH (GẦN NHẤT)')
     })
 
-    it('renders IdentityLockEngine with 3 VIP locks and expression wheel', () => {
+    it('renders IdentityLockEngine with 4 characters in Subject Bar and ADN locks', () => {
       const html = renderToStaticMarkup(
         <IdentityLockEngine
           characterName="Sóc Bông"
@@ -301,10 +341,136 @@ describe('CreativeEngine Suite', () => {
         />
       )
       expect(html).toContain('data-testid="identity-lock-engine"')
+      expect(html).toContain('BỘ CHỦ THỂ NHÂN VẬT')
+      expect(html).toContain('Chú Sóc Bông Hạt Dẻ')
+      expect(html).toContain('Cáo Lửa Zico Hiệp Sĩ')
+      expect(html).toContain('Chú Bé Robot Leo')
+      expect(html).toContain('Mèo Thám Tử Mimi')
       expect(html).toContain('3 Ổ Khóa Vàng VIP Bất Biến')
       expect(html).toContain('Mũ len đỏ')
       expect(html).toContain('Đuôi to xù cam')
       expect(html).toContain('Bánh Xe 6 Biểu Cảm')
+    })
+
+    it('emits 4 activeBlocks (Subject, DNA lock, Expression, Action) and full prompt', async () => {
+      const onPromptChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <IdentityLockEngine
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      expect(onPromptChange).toHaveBeenCalled()
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembledPrompt, activeBlocks] = lastCall
+
+      // Prompt string includes character name, locked features, expression, action
+      expect(assembledPrompt).toContain('Chú Sóc Bông Hạt Dẻ')
+      expect(assembledPrompt).toContain('đội mũ len đỏ quả bông trắng')
+
+      // activeBlocks has 4 blocks
+      expect(activeBlocks).toHaveLength(4)
+      expect(activeBlocks[0].category).toBe('subject')
+      expect(activeBlocks[0].label).toBe('Chú Sóc Bông Hạt Dẻ')
+      expect(activeBlocks[1].category).toBe('modifier')
+      expect(activeBlocks[1].label).toBe('3 Ổ khóa ADN')
+      expect(activeBlocks[2].category).toBe('expression')
+      expect(activeBlocks[3].category).toBe('action')
+
+      await act(async () => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('switches character when activeCharacterIndex changes', async () => {
+      const onPromptChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <IdentityLockEngine
+            activeCharacterIndex={1}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembledPrompt, activeBlocks] = lastCall
+
+      expect(assembledPrompt).toContain('Cáo Lửa Zico Hiệp Sĩ')
+      expect(assembledPrompt).toContain('áo choàng đỏ thêu sao vàng')
+      expect(activeBlocks[0].label).toBe('Cáo Lửa Zico Hiệp Sĩ')
+
+      await act(async () => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('interactively switches among all 4 standard characters with full prompt and activeBlocks synchronization', async () => {
+      const onPromptChange = vi.fn()
+      const onCharacterChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <IdentityLockEngine
+            onPromptChange={onPromptChange}
+            onCharacterChange={onCharacterChange}
+          />
+        )
+      })
+
+      // Verify all 4 characters can be clicked and update UI, prompt and blocks
+      for (let i = 0; i < IDENTITY_CHARACTERS.length; i++) {
+        const char = IDENTITY_CHARACTERS[i]
+        const btn = container.querySelector(`[data-testid="character-button-${char.id}"]`) as HTMLButtonElement
+        expect(btn).toBeTruthy()
+
+        await act(async () => {
+          btn.click()
+        })
+
+        expect(onCharacterChange).toHaveBeenCalledWith(i)
+        expect(container.textContent).toContain(`3 Ổ Khóa Vàng VIP Bất Biến: ${char.name}`)
+
+        for (const feat of char.lockedFeatures) {
+          expect(container.textContent).toContain(feat)
+        }
+
+        const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+        const [assembledPrompt, activeBlocks] = lastCall
+
+        expect(assembledPrompt).toContain(char.name)
+        for (const feat of char.lockedFeatures) {
+          expect(assembledPrompt).toContain(feat)
+        }
+
+        expect(activeBlocks).toHaveLength(4)
+        expect(activeBlocks[0].category).toBe('subject')
+        expect(activeBlocks[0].label).toBe(char.name)
+        expect(activeBlocks[1].category).toBe('modifier')
+        expect(activeBlocks[1].label).toBe('3 Ổ khóa ADN')
+        expect(activeBlocks[2].category).toBe('expression')
+        expect(activeBlocks[3].category).toBe('action')
+      }
+
+      await act(async () => {
+        root.unmount()
+      })
+      container.remove()
     })
 
     it('renders CardForgeEngine with element selector and 3 stat sliders', () => {
@@ -510,8 +676,16 @@ describe('CreativeEngine Suite', () => {
         />
       )
 
-      // Kiểm tra container linked blocks tồn tại
+      // Kiểm tra container linked blocks tồn tại & có thanh cuộn giới hạn độ cao không tràn khung
       expect(html).toContain('data-testid="prompt-linked-blocks"')
+      expect(html).toContain('max-h-[72px]')
+      expect(html).toContain('sm:max-h-[82px]')
+      expect(html).toContain('overflow-y-auto')
+
+      // Kiểm tra chip có truncate và max-w bảo vệ layout mobile/tablet
+      expect(html).toContain('max-w-[260px]')
+      expect(html).toContain('sm:max-w-[340px]')
+      expect(html).toContain('truncate')
 
       // Kiểm tra 4 khối từ vựng
       expect(html).toContain('data-testid="prompt-block-chip-sub-cup"')
@@ -984,5 +1158,553 @@ describe('CreativeEngine Suite', () => {
       const drawBtnCount = (html.match(/data-testid="studio-draw-btn"/g) || []).length
       expect(drawBtnCount).toBe(1)
     })
+
+    it('notifies parent about reference image url via onRefImageChange in PromptDoctorEngine', () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onRefImageChange = vi.fn()
+
+      act(() => {
+        root.render(
+          <PromptDoctorEngine
+            onPromptChange={vi.fn()}
+            onRefImageChange={onRefImageChange}
+          />
+        )
+      })
+
+      expect(onRefImageChange).toHaveBeenCalledWith('/assets/aiki-doctor/doctor_hand_broken_v1.webp')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('combines old broken prompt and cure into complete prompt with brokenBlock and cure in PromptDoctorEngine', () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onPromptChange = vi.fn()
+
+      act(() => {
+        root.render(
+          <PromptDoctorEngine
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Initial state: brokenBlock (câu lệnh cũ) is passed
+      expect(onPromptChange).toHaveBeenCalled()
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[0]).toContain('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(lastCall[1]).toHaveLength(1)
+      expect(lastCall[1][0].category).toBe('subject')
+      expect(lastCall[1][0].label).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+
+      // Select first cure (5 ngón tay bọc giáp)
+      const cureCard = container.querySelector('[data-testid^="cure-card-"]') as HTMLElement
+      expect(cureCard).not.toBeNull()
+      act(() => {
+        cureCard.click()
+      })
+
+      // Combined prompt: old prompt + cure text, with both blocks
+      const afterCureCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(afterCureCall[0]).toContain('Hiệp sĩ bọc giáp cầm kiếm thần, ')
+      expect(afterCureCall[1]).toHaveLength(2)
+      expect(afterCureCall[1][0].category).toBe('subject')
+      expect(afterCureCall[1][1].category).toBe('cure')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('renders PromptPreviewBar in prompt-doctor mode with prescription badge and medicine prefix tags', () => {
+      const brokenBlock = {
+        id: 'broken-hand',
+        label: 'Hiệp sĩ bọc giáp cầm kiếm thần',
+        text: 'Hiệp sĩ bọc giáp cầm kiếm thần',
+        category: 'subject' as const,
+        icon: '📜',
+        colorScheme: 'amber' as const,
+      }
+      const cureBlock = {
+        id: 'cure-hand',
+        label: 'Vẽ chuẩn 5 ngón tay giáp',
+        text: 'bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay',
+        category: 'cure' as const,
+        icon: '✋',
+        colorScheme: 'emerald' as const,
+      }
+
+      // Khi có đủ cả câu lệnh cũ và đơn thuốc
+      const html = renderToStaticMarkup(
+        <PromptPreviewBar
+          mode="prompt-doctor"
+          blocks={[brokenBlock, cureBlock]}
+          generatedPrompt="Hiệp sĩ bọc giáp cầm kiếm thần, bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay"
+        />
+      )
+
+      expect(html).toContain('Đã kê đơn thuốc ✨')
+      expect(html).not.toContain('/4 Chìa Khóa')
+      expect(html).not.toContain('🔑 1')
+      expect(html).toContain('📜 Bệnh án: ')
+      expect(html).toContain('💊 Đơn thuốc: ')
+      expect(html).toContain('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(html).toContain('bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay')
+    })
+
+    it('supports single cure slot prescription with replacement, toggle removal, and diagnostic feedback', async () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onPromptChange = vi.fn()
+
+      await act(async () => {
+        root.render(
+          <PromptDoctorEngine
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Tiêu đề kê 1 liều duy nhất
+      expect(container.textContent).toContain('ĐƠN THUỐC ĐẶC TRỊ CHO TRANH (KÊ 1 LIỀU DUY NHẤT)')
+
+      // Tìm thẻ thuốc đúng (5 ngón tay) và thẻ bẫy (Mũ len)
+      const cureHand = container.querySelector('[data-testid="cure-card-cure-5-ngon-tay"]') as HTMLElement
+      const cureHat = container.querySelector('[data-testid="cure-card-cure-mu-len"]') as HTMLElement
+      expect(cureHand).not.toBeNull()
+      expect(cureHat).not.toBeNull()
+
+      // 1. Click liều thuốc đúng đặc trị (5 ngón tay)
+      await act(async () => {
+        cureHand.click()
+      })
+
+      let lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[1]).toHaveLength(2) // 1 broken + 1 cure
+      expect(lastCall[0]).toContain('bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay')
+      // Hiển thị huy hiệu bốc đúng thuốc đặc trị
+      expect(container.textContent).toContain('🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!')
+
+      // 2. Click liều thuốc bẫy (Mũ len) -> Thay thế liều cũ vào ô duy nhất (Single Cure Slot)
+      await act(async () => {
+        cureHat.click()
+      })
+
+      lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[1]).toHaveLength(2) // Vẫn đúng 1 broken + 1 cure (thay thế, không dồn tích)
+      expect(lastCall[0]).toContain('đội ngay ngắn chiếc mũ len đỏ quả bông trắng ấm áp trên đầu')
+      expect(lastCall[0]).not.toContain('bàn tay bọc găng giáp bạc')
+      // Hiển thị cảnh báo bốc nhầm thuốc
+      expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Hiệp Sĩ Bạc')
+
+      // 3. Click nút X trên thẻ thuốc để gỡ bỏ
+      const removeButton = container.querySelector('[data-testid="doctor-cure-slot"] button') as HTMLElement
+      expect(removeButton).not.toBeNull()
+
+      await act(async () => {
+        removeButton.click()
+      })
+
+      lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[1]).toHaveLength(1) // Chỉ còn lại 1 brokenBlock
+      expect(lastCall[0]).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(container.textContent).toContain('Chạm hoặc kéo 1 liều thuốc đặc trị bên dưới vào đây để chữa bệnh')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('synchronizes active case when activeCaseIndex prop is provided and triggers onCaseChange on switch', async () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onPromptChange = vi.fn()
+      const onCaseChange = vi.fn()
+
+      // Render với activeCaseIndex = 1 (Ca 2: Sóc Bông)
+      await act(async () => {
+        root.render(
+          <PromptDoctorEngine
+            activeCaseIndex={1}
+            onCaseChange={onCaseChange}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Kiểm tra bệnh án hiển thị đúng Sóc Bông
+      expect(container.textContent).toContain('Sóc Bông Bị Mất Mũ Len')
+      expect(container.textContent).toContain('Sóc Bông đang ôm quả thông trong rừng')
+
+      // Click chuyển sang Ca 3 (Mèo Mướp)
+      const caseButtons = container.querySelectorAll('button')
+      const catButton = Array.from(caseButtons).find((b) => b.textContent?.includes('Ca 3: Mèo Mướp'))
+      expect(catButton).toBeDefined()
+
+      await act(async () => {
+        catButton?.click()
+      })
+
+      expect(onCaseChange).toHaveBeenCalledWith(2)
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('toggles cure card selection off when tapping the active card in cabinet again', async () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onPromptChange = vi.fn()
+
+      await act(async () => {
+        root.render(<PromptDoctorEngine onPromptChange={onPromptChange} />)
+      })
+
+      const cureHand = container.querySelector('[data-testid="cure-card-cure-5-ngon-tay"]') as HTMLElement
+      expect(cureHand).not.toBeNull()
+
+      // 1st click: selects cure
+      await act(async () => {
+        cureHand.click()
+      })
+      let lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[1]).toHaveLength(2)
+      expect(container.textContent).toContain('✓ Đang kê đơn')
+
+      // 2nd click: unselects cure back to empty slot
+      await act(async () => {
+        cureHand.click()
+      })
+      lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(lastCall[1]).toHaveLength(1)
+      expect(lastCall[0]).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(container.textContent).toContain('+ Kê đơn')
+      expect(container.textContent).not.toContain('✓ Đang kê đơn')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('validates Case 2 (Sóc Bông) and Case 3 (Mèo Mướp) special cures vs trap medicines', async () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+      const onPromptChange = vi.fn()
+
+      // --- CASE 2: Sóc Bông ---
+      await act(async () => {
+        root.render(
+          <PromptDoctorEngine
+            activeCaseIndex={1}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Select Trap Medicine: cure-5-ngon-tay
+      const trapHand = container.querySelector('[data-testid="cure-card-cure-5-ngon-tay"]') as HTMLElement
+      await act(async () => {
+        trapHand.click()
+      })
+      expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Sóc Bông')
+      const slotElement = container.querySelector('[data-testid="doctor-cure-slot"]') as HTMLElement
+      expect(slotElement.className).toContain('border-amber-400')
+
+      // Select Special Cure: cure-mu-len (replaces trap medicine in single slot)
+      const specialHat = container.querySelector('[data-testid="cure-card-cure-mu-len"]') as HTMLElement
+      await act(async () => {
+        specialHat.click()
+      })
+      expect(container.textContent).toContain('🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!')
+      expect(container.textContent).not.toContain('⚠️ BỐC NHẦM THUỐC RỒI')
+      expect(slotElement.className).toContain('border-emerald-400')
+
+      // --- CASE 3: Mèo Mướp ---
+      await act(async () => {
+        root.render(
+          <PromptDoctorEngine
+            activeCaseIndex={2}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Select Trap Medicine: cure-mu-len
+      const trapHat = container.querySelector('[data-testid="cure-card-cure-mu-len"]') as HTMLElement
+      await act(async () => {
+        trapHat.click()
+      })
+      expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Mèo Mướp')
+
+      // Select Special Cure: cure-them-nen-ghe
+      const specialBed = container.querySelector('[data-testid="cure-card-cure-them-nen-ghe"]') as HTMLElement
+      await act(async () => {
+        specialBed.click()
+      })
+      expect(container.textContent).toContain('🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!')
+      expect(container.textContent).not.toContain('⚠️ BỐC NHẦM THUỐC RỒI')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('opens and closes reference image zoom lightbox modal', async () => {
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(<PromptDoctorEngine onPromptChange={vi.fn()} />)
+      })
+
+      // Click thumbnail to zoom
+      const zoomThumbnail = container.querySelector('div[title="Bấm để xem ảnh bệnh án phóng to soi lỗi"]') as HTMLElement
+      expect(zoomThumbnail).not.toBeNull()
+
+      await act(async () => {
+        zoomThumbnail.click()
+      })
+
+      // Lightbox dialog should be open
+      const dialog = container.querySelector('div[role="dialog"]') as HTMLElement
+      expect(dialog).not.toBeNull()
+      expect(dialog.textContent).toContain('Bệnh Án Tham Chiếu: Bàn Tay Hiệp Sĩ Biến Dạng')
+
+      // Click close button
+      const closeBtn = dialog.querySelector('button') as HTMLButtonElement
+      expect(closeBtn).not.toBeNull()
+
+      await act(async () => {
+        closeBtn.click()
+      })
+
+      expect(container.querySelector('div[role="dialog"]')).toBeNull()
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+  })
+
+  describe('Standardized Subjects & Pedagogical Flow across all Engines', () => {
+    const mockPracticeParts = [
+      { partNumber: 1, title: 'Hiệp Sĩ Cáo Lửa (Chiến tướng Hệ Hỏa)', icon: '🦊', emoji: '🦊' },
+      { partNumber: 2, title: 'Rồng Băng Bão Tuyết (Chiến tướng Hệ Băng)', icon: '🐉', emoji: '🐉' },
+      { partNumber: 3, title: 'Sư Tử Lửa Cuồng Nộ (Chiến tướng Hệ Hỏa)', icon: '🦁', emoji: '🦁' },
+      { partNumber: 4, title: 'Đại Bàng Lôi Thần (Chiến tướng Hệ Sét)', icon: '🦅', emoji: '🦅' },
+    ]
+
+    it('CardForgeEngine: renders 3 pedagogical steps and emits card-subject as first activeBlock', async () => {
+      const onPromptChange = vi.fn()
+      const onPartChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <CardForgeEngine
+            practiceParts={mockPracticeParts}
+            activePartIndex={0}
+            onPartChange={onPartChange}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Kiểm tra 3 bước sư phạm được đánh số rõ ràng
+      expect(container.textContent).toContain('CHỌN CHIẾN TƯỚNG (CHỦ THỂ)')
+      expect(container.textContent).toContain('CHỌN HỆ NGUYÊN TỐ (KỸ NĂNG)')
+      expect(container.textContent).toContain('PHÂN BỔ 3 CHỈ SỐ')
+
+      // Kiểm tra nạp 4 chiến tướng từ practiceParts
+      expect(container.textContent).toContain('Hiệp Sĩ Cáo Lửa')
+      expect(container.textContent).toContain('Rồng Băng Bão Tuyết')
+      expect(container.textContent).toContain('Sư Tử Lửa Cuồng Nộ')
+      expect(container.textContent).toContain('Đại Bàng Lôi Thần')
+
+      // Kiểm tra activeBlocks xuất ra có 3 thẻ, thẻ chủ thể đứng đầu
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembled, blocks] = lastCall
+
+      expect(assembled).toContain('thẻ bài TCG minh họa Hiệp Sĩ Cáo Lửa')
+      expect(blocks).toHaveLength(3)
+      expect(blocks[0].id).toBe('card-subject')
+      expect(blocks[0].category).toBe('subject')
+      expect(blocks[0].label).toBe('Hiệp Sĩ Cáo Lửa')
+      expect(blocks[1].id).toBe('card-elem')
+      expect(blocks[1].category).toBe('stat-trait')
+      expect(blocks[2].id).toBe('card-stats')
+      expect(blocks[2].category).toBe('stat-trait')
+
+      // Click chọn chiến tướng thứ 2 (Rồng Băng Bão Tuyết)
+      const champBtn2 = container.querySelector('[data-testid="champion-button-champ-2"]') as HTMLButtonElement
+      expect(champBtn2).not.toBeNull()
+
+      await act(async () => {
+        champBtn2.click()
+      })
+
+      expect(onPartChange).toHaveBeenCalledWith(1)
+      const afterClickCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(afterClickCall[0]).toContain('thẻ bài TCG minh họa Rồng Băng Bão Tuyết')
+      expect(afterClickCall[1][0].label).toBe('Rồng Băng Bão Tuyết')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('StylePrismEngine: renders 3 steps with subject and lighting, emitting 3 activeBlocks', async () => {
+      const onPromptChange = vi.fn()
+      const onPartChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <StylePrismEngine
+            practiceParts={mockPracticeParts}
+            activePartIndex={0}
+            onPartChange={onPartChange}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Kiểm tra 3 bước
+      expect(container.textContent).toContain('CHỌN ĐỐI TƯỢNG BIẾN HÌNH (CHỦ THỂ)')
+      expect(container.textContent).toContain('CHỌN LĂNG KÍNH PHONG CÁCH')
+      expect(container.textContent).toContain('TÙY CHỌN ÁNH SÁNG & KHÔNG GIAN')
+
+      // Kiểm tra nạp chủ thể từ practiceParts
+      expect(container.textContent).toContain('Hiệp Sĩ Cáo Lửa')
+
+      // Kiểm tra activeBlocks có 3 thẻ: prism-subject, style, lighting
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembled, blocks] = lastCall
+
+      expect(blocks).toHaveLength(3)
+      expect(blocks[0].id).toBe('prism-subject')
+      expect(blocks[0].category).toBe('subject')
+      expect(blocks[0].label).toBe('Hiệp Sĩ Cáo Lửa')
+      expect(blocks[1].category).toBe('style')
+      expect(blocks[2].category).toBe('lighting-mood')
+      expect(assembled).toContain('Hiệp Sĩ Cáo Lửa')
+
+      // Click đổi sang chủ thể thứ 2
+      const subBtn2 = container.querySelector('[data-testid="subject-button-sub-2"]') as HTMLButtonElement
+      expect(subBtn2).not.toBeNull()
+
+      await act(async () => {
+        subBtn2.click()
+      })
+
+      expect(onPartChange).toHaveBeenCalledWith(1)
+      const afterClickCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      expect(afterClickCall[0]).toContain('Rồng Băng Bão Tuyết')
+      expect(afterClickCall[1][0].label).toBe('Rồng Băng Bão Tuyết')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('LayerStackingEngine: puts Star 1/3 (Subject) step first and leads activeBlocks', async () => {
+      const onPromptChange = vi.fn()
+      const onPartChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <LayerStackingEngine
+            practiceParts={mockPracticeParts}
+            activePartIndex={0}
+            onPartChange={onPartChange}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Kiểm tra Bước 1 là Ngôi sao chính
+      const starSlot = container.querySelector('[data-testid="layer-slot-star"]')
+      expect(starSlot).not.toBeNull()
+      expect(starSlot?.textContent).toContain('Bước 1')
+      expect(starSlot?.textContent).toContain('NGÔI SAO CHÍNH (ĐIỂM NHẤN 1/3)')
+      expect(starSlot?.textContent).toContain('Hiệp Sĩ Cáo Lửa')
+
+      // Kiểm tra activeBlocks: Thẻ Ngôi Sao đứng đầu
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembled, blocks] = lastCall
+
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
+      expect(blocks[0].category).toBe('subject')
+      expect(blocks[0].label).toBe('Hiệp Sĩ Cáo Lửa')
+      expect(assembled).toContain('Hiệp Sĩ Cáo Lửa')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('IdentityLockEngine: dynamically loads characters from practiceParts and keeps subject first', async () => {
+      const onPromptChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <IdentityLockEngine
+            practiceParts={mockPracticeParts}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      expect(container.textContent).toContain('Hiệp Sĩ Cáo Lửa')
+      expect(container.textContent).toContain('Rồng Băng Bão Tuyết')
+
+      const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
+      const [assembled, blocks] = lastCall
+
+      expect(blocks[0].category).toBe('subject')
+      expect(blocks[0].label).toBe('Hiệp Sĩ Cáo Lửa')
+      expect(assembled).toContain('Hiệp Sĩ Cáo Lửa')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
   })
 })
+

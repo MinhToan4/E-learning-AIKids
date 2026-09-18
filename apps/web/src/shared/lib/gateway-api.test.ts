@@ -1190,5 +1190,74 @@ describe('StoryMee Gateway adapter', () => {
     expect(fetchMock.mock.calls[0][0]).toBe('https://dev-hub.storymee.com/api/v1/billing/admin/plans')
     expect(fetchMock.mock.calls[1][0]).toBe('https://dev-hub.storymee.com/api/v1/billing/admin/plans/pro/toggle')
   })
+
+  describe('Cross-app SSO token and shared session', () => {
+    it('automatically reads sso_token from URL query and stores to localStorage and cookie', () => {
+      const replaceStateMock = vi.fn()
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'app.aikid.vn',
+          protocol: 'https:',
+          pathname: '/home',
+          search: '?sso_token=child-sso-jwt-xyz&tab=missions',
+          hash: '',
+        },
+        history: {
+          replaceState: replaceStateMock,
+        },
+      })
+
+      const token = getAccessToken()
+      expect(token).toBe('child-sso-jwt-xyz')
+      expect(localStorage.getItem('storymee.access_token')).toBe('child-sso-jwt-xyz')
+      expect(replaceStateMock).toHaveBeenCalledWith(null, '', '/home?tab=missions')
+    })
+
+    it('automatically reads token param from URL when sso_token is absent', () => {
+      const replaceStateMock = vi.fn()
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'app.aikid.vn',
+          protocol: 'https:',
+          pathname: '/',
+          search: '?token=child-direct-token-123',
+          hash: '',
+        },
+        history: {
+          replaceState: replaceStateMock,
+        },
+      })
+
+      const token = getAccessToken()
+      expect(token).toBe('child-direct-token-123')
+      expect(localStorage.getItem('storymee.access_token')).toBe('child-direct-token-123')
+      expect(replaceStateMock).toHaveBeenCalledWith(null, '', '/')
+    })
+
+    it('writes cookie with .aikid.vn domain on apex or subdomains', () => {
+      let capturedCookie = ''
+      vi.stubGlobal('window', {
+        location: {
+          hostname: 'aikid.vn',
+          protocol: 'https:',
+          search: '',
+        },
+      })
+      vi.stubGlobal('document', {
+        get cookie() {
+          return capturedCookie
+        },
+        set cookie(val: string) {
+          capturedCookie = val
+        },
+      })
+
+      setAccessToken('token-apex-domain')
+      expect(capturedCookie).toContain('storymee_shared_token=token-apex-domain')
+      expect(capturedCookie).toContain('Domain=.aikid.vn')
+      expect(capturedCookie).toContain('Secure')
+    })
+  })
 })
+
 

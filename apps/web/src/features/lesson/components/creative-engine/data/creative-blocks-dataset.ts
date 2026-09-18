@@ -154,7 +154,7 @@ export const COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     label: 'Có quai tròn xinh',
     text: 'có quai cầm tròn xinh xắn',
     category: 'color-shape',
-    icon: '⚪',
+    icon: '🔘',
     colorScheme: 'rose',
   },
   {
@@ -197,7 +197,7 @@ export const CERAMIC_CUP_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     label: 'Có quai tròn xinh',
     text: 'có quai cầm tròn xinh xắn',
     category: 'color-shape',
-    icon: '⚪',
+    icon: '🔘',
     colorScheme: 'rose',
   },
   {
@@ -976,7 +976,7 @@ export const LAYER_BLOCKS: {
       label: 'Vũ trụ dải ngân hà',
       text: 'hậu cảnh vũ trụ ngàn vì sao lấp lánh dải ngân hà huyền bí',
       category: 'background',
-      icon: '🌌',
+      icon: '🪐',
       colorScheme: 'purple',
     },
     {
@@ -1018,7 +1018,7 @@ export const LAYER_BLOCKS: {
       label: 'Rồng Băng Uy Dũng (1/3)',
       text: 'ở vị trí 1/3 là chú Rồng Băng sải cánh đón gió lạnh',
       category: 'subject',
-      icon: '🐉',
+      icon: '🐲',
       colorScheme: 'sky',
     },
   ],

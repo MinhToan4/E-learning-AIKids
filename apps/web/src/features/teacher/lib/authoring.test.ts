@@ -265,43 +265,51 @@ describe('authoring ids and readiness', () => {
   })
 
   it('provides feature blocks library categories and active module resolution', () => {
-    // 1. Verify course-native templates are separated from generic blocks.
-    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(6)
+    // 1. Verify standardized 3 Layout Builder categories
+    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(3)
     const categoryNames = FEATURE_BLOCKS_CATEGORIES.map((c) => c.category)
     expect(categoryNames).toEqual([
-      'Khối Chuẩn Khóa Học',
-      'Kể Chuyện & Bài Giảng',
-      'Bố Cục & Văn Bản',
-      'Game Engine Bài Học',
-      'Game Engine Thực Hành',
-      'Luyện Tập & Đánh Giá',
+      'Bố Cục & Cột Nội Dung',
+      'Hình Ảnh & Đa Phương Tiện',
+      'Khối Tương Tác & Sư Phạm',
     ])
 
-    // Verify all essential block IDs are present
+    // Verify all 16 essential layout builder block IDs are present
     const allBlockIds = FEATURE_BLOCKS_CATEGORIES.flatMap((c) => c.items.map((i) => i.id))
-    expect(allBlockIds).toContain('course-text')
-    expect(allBlockIds).toContain('course-four-keys')
-    expect(allBlockIds).toContain('practice-ai-studio')
-    expect(allBlockIds).toContain('versus-ab')
-    expect(allBlockIds).toContain('dialogue')
-    expect(allBlockIds).toContain('compare')
-    expect(allBlockIds).toContain('poster')
-    expect(allBlockIds).toContain('gallery')
-    expect(allBlockIds).toContain('video')
-    expect(allBlockIds).toContain('voice')
-    expect(allBlockIds).toContain('layout-text')
-    expect(allBlockIds).toContain('layout-split')
-    expect(allBlockIds).toContain('layout-grid')
-    expect(allBlockIds).toContain('layout-callout')
-    expect(allBlockIds).toContain('layout-storyboard')
-    expect(allBlockIds).toContain('layout-formula')
-    expect(allBlockIds).toContain('data-runner')
-    expect(allBlockIds).toContain('truth-patrol')
-    expect(allBlockIds).toContain('battle-math')
-    expect(allBlockIds).toContain('blockly')
-    expect(allBlockIds).toContain('quiz')
-    expect(allBlockIds).toContain('ordering')
-    expect(allBlockIds).toContain('pledge')
+    expect(allBlockIds).toEqual([
+      // Group 1: Bố Cục & Cột Nội Dung
+      'layout-text',
+      'layout-split',
+      'layout-two-text',
+      'layout-grid',
+      'layout-four-keys',
+      'practice-workflow',
+      // Group 2: Hình Ảnh & Đa Phương Tiện
+      'versus-ab',
+      'images',
+      'video',
+      'voice',
+      // Group 3: Khối Tương Tác & Sư Phạm
+      'layout-callout',
+      'compare',
+      'dialogue',
+      'layout-formula',
+      'poster',
+      'layout-confirm-option',
+    ])
+
+    // Verify practice-workflow and layout-two-text are in Bố Cục & Cột Nội Dung
+    const layoutCategory = FEATURE_BLOCKS_CATEGORIES.find((c) => c.category === 'Bố Cục & Cột Nội Dung')
+    expect(layoutCategory?.items.map((i) => i.id)).toContain('practice-workflow')
+    expect(layoutCategory?.items.map((i) => i.id)).toContain('layout-two-text')
+
+    // Verify images is in Hình Ảnh & Đa Phương Tiện
+    const mediaCategory = FEATURE_BLOCKS_CATEGORIES.find((c) => c.category === 'Hình Ảnh & Đa Phương Tiện')
+    expect(mediaCategory?.items.map((i) => i.id)).toContain('images')
+
+    // Verify layout-confirm-option is in Khối Tương Tác & Sư Phạm
+    const interactiveCategory = FEATURE_BLOCKS_CATEGORIES.find((c) => c.category === 'Khối Tương Tác & Sư Phạm')
+    expect(interactiveCategory?.items.map((i) => i.id)).toContain('layout-confirm-option')
 
     // 2. Verify getActiveModules resolution with explicit enabledModules
     const cardWithExplicit: any = {
@@ -464,14 +472,107 @@ describe('authoring ids and readiness', () => {
     const second = createFourKeysBlock('four-keys-b')
 
     expect(first.type).toBe('layout-four-keys')
+    expect(first.body).toBe('')
+    expect(first.tip).toBe('')
     expect(first.visualItems?.map((item) => item.label)).toEqual([
-      'Cái gì?',
-      'Trông như thế nào?',
-      'Đang làm gì?',
-      'Ở đâu?',
+      'CÁI GÌ',
+      'TRÔNG THẾ NÀO',
+      'ĐANG LÀM GÌ',
+      'Ở ĐÂU',
+    ])
+    expect(first.visualItems?.map((item) => item.sub)).toEqual([
+      'Ai, đồ vật gì',
+      'Màu sắc, hình dáng',
+      'Hành động',
+      'Bối cảnh, nơi chốn',
     ])
 
     first.visualItems![0].label = 'Ai?'
-    expect(second.visualItems?.[0].label).toBe('Cái gì?')
+    expect(second.visualItems?.[0].label).toBe('CÁI GÌ')
+  })
+
+  it('island course basics step only requires id and title', () => {
+    const islandDraft = {
+      ...completeLecture,
+      lessonFormat: 'aiki-island-6steps' as const,
+      skill: '',
+      hook: '',
+      goalsText: '',
+      videoUrl: '',
+    }
+    const readiness = lectureDraftReadiness(islandDraft)
+    const basics = readiness.steps.find((s) => s.id === 'basics')
+    expect(basics?.complete).toBe(true)
+    expect(basics?.missing).toHaveLength(0)
+  })
+
+  it('preserves access control configuration in normalizeLectureDraft for all access modes', () => {
+    // 1. Default fallback when access is undefined
+    const defaultNormalized = normalizeLectureDraft(completeLecture, 'aikid-courses')
+    expect(defaultNormalized.access).toEqual({
+      mode: 'inherit',
+      minPlanTier: 0,
+      trialBadge: 'Học thử',
+      lockedReason: '',
+    })
+
+    // 2. free_trial mode preserved from draft.access
+    const trialLecture = {
+      ...completeLecture,
+      access: {
+        mode: 'free_trial' as const,
+        minPlanTier: 0,
+        trialBadge: 'Trải nghiệm miễn phí',
+        lockedReason: '',
+      },
+    }
+    const trialNormalized = normalizeLectureDraft(trialLecture, 'aikid-courses')
+    expect(trialNormalized.access?.mode).toBe('free_trial')
+    expect(trialNormalized.access?.trialBadge).toBe('Trải nghiệm miễn phí')
+
+    // 3. plan_required mode preserved
+    const planRequiredLecture = {
+      ...completeLecture,
+      access: {
+        mode: 'plan_required' as const,
+        minPlanTier: 1,
+        trialBadge: 'Học thử',
+        lockedReason: '',
+      },
+    }
+    const planNormalized = normalizeLectureDraft(planRequiredLecture, 'aikid-courses')
+    expect(planNormalized.access?.mode).toBe('plan_required')
+    expect(planNormalized.access?.minPlanTier).toBe(1)
+
+    // 4. locked mode with lockedReason preserved
+    const lockedLecture = {
+      ...completeLecture,
+      access: {
+        mode: 'locked' as const,
+        minPlanTier: 0,
+        trialBadge: 'Học thử',
+        lockedReason: 'Bài học đang cập nhật bởi giáo viên',
+      },
+    }
+    const lockedNormalized = normalizeLectureDraft(lockedLecture, 'aikid-courses')
+    expect(lockedNormalized.access?.mode).toBe('locked')
+    expect(lockedNormalized.access?.lockedReason).toBe('Bài học đang cập nhật bởi giáo viên')
+
+    // 5. access loaded from metadata.access if top-level access is missing
+    const metadataAccessLecture = {
+      ...completeLecture,
+      access: undefined,
+      metadata: {
+        access: {
+          mode: 'free_trial' as const,
+          minPlanTier: 0,
+          trialBadge: 'Dùng thử 0 đồng',
+          lockedReason: '',
+        },
+      },
+    }
+    const fromMetaNormalized = normalizeLectureDraft(metadataAccessLecture as any, 'aikid-courses')
+    expect(fromMetaNormalized.access?.mode).toBe('free_trial')
+    expect(fromMetaNormalized.access?.trialBadge).toBe('Dùng thử 0 đồng')
   })
 })

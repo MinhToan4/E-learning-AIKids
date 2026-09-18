@@ -18,6 +18,7 @@ import type {
   AsmoSubject,
 } from '@/features/asmo/types'
 import { ASMO_SAMPLE_EXAMS_META } from '@/features/asmo/data/asmo-sample-exams-meta'
+import { loadExamById } from '@/features/asmo/data/asmo-grade-loader'
 import { ASMO_CURRICULUM_WEEKS } from '@/features/asmo/data/asmo-curriculum'
 import {
   auditAsmoExam,
@@ -115,11 +116,9 @@ export function AsmoAdminStudio() {
     setViewingQuestionsExam(exam)
     if (!exam.questions || exam.questions.length === 0) {
       try {
-        const { ASMO_SAMPLE_EXAMS } = await import('@/features/asmo/data/asmo-sample-exams')
+        const fullExam = await loadExamById(exam.id)
         if (!isMountedRef.current) return
-        const fullExam = ASMO_SAMPLE_EXAMS.find((e) => e.id === exam.id)
         if (fullExam && fullExam.questions) {
-          if (!isMountedRef.current) return
           setViewingQuestionsExam((prev) =>
             prev && prev.id === exam.id ? { ...prev, questions: fullExam.questions } : prev,
           )
