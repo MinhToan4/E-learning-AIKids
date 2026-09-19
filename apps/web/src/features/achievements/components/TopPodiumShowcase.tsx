@@ -98,7 +98,7 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
   return (
     <section
       className="soft-clay-showcase-panel relative flex flex-col gap-4 min-w-0 w-full"
-      aria-label="3 Báu vật con tự hào nhất"
+      aria-label="3 Báu vật học sinh tự hào nhất"
     >
       {/* Frameless Podium Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b-2 border-dashed border-amber-200/80 pb-3 text-center sm:text-left">
@@ -108,10 +108,10 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
           </div>
           <div>
             <h2 className="font-display text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-              3 Báu Vật Con Tự Hào Nhất
+              3 Báu Vật Học Sinh Tự Hào Nhất
             </h2>
             <p className="text-xs sm:text-sm font-extrabold text-amber-900/70">
-              Chạm vào ô để ghim 3 báu vật con yêu thích nhất lên đây nhé!
+              Chạm vào ô để ghim 3 báu vật học sinh yêu thích nhất lên đây nhé!
             </p>
           </div>
         </div>
@@ -123,7 +123,7 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
       </div>
 
       {/* 3 Floating Organic Treasures with Soft Clay Sun Halo in Curved Arc Layout */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 max-w-4xl mx-auto w-full px-2 pt-6 pb-4 justify-items-center items-end">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 max-w-4xl mx-auto w-full px-2 pt-6 pb-4 justify-items-center items-center">
         {TREASURE_SLOTS.map((config) => {
           const isCenter = config.slotIndex === 1
           const isLeft = config.slotIndex === 0
@@ -155,66 +155,74 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
               ? '-rotate-1.5 z-0'
               : 'rotate-1.5 z-0'
 
-          // Giant Hero Centerpiece sizing:
-          // Center: 210px - 240px (w-52 h-52 sm:w-60 sm:h-60), fallback icon 84px
-          // Sides: 180px - 208px (w-44 h-44 sm:w-52 sm:h-52), fallback icon 72px
+          // Sizing:
+          // 2 bên: w-40 h-40 sm:w-48 sm:h-48
+          // Ở giữa (Centerpiece): w-48 h-48 sm:w-56 sm:h-56
           const iconSizeClass = isCenter
-            ? 'w-52 h-52 sm:w-60 sm:h-60'
-            : 'w-44 h-44 sm:w-52 sm:h-52'
+            ? 'w-48 h-48 sm:w-56 sm:h-56'
+            : 'w-40 h-40 sm:w-48 sm:h-48'
 
           return (
             <div
               key={config.slotIndex}
               className={cn(
-                'relative flex flex-col items-center justify-end w-full max-w-[240px] sm:max-w-[280px] min-h-[290px] sm:min-h-[340px] transition-all duration-300 p-2',
+                'relative flex flex-col items-center w-full max-w-[240px] sm:max-w-[280px] gap-1.5 sm:gap-2 transition-all duration-300 p-2',
                 arcClass,
               )}
             >
-              {/* Soft Clay Sun Halo / Hero Centerpiece Glow */}
-              <div
-                className={cn(
-                  'absolute inset-x-0 bottom-6 rounded-full pointer-events-none -z-10',
-                  isCenter
-                    ? 'h-48 sm:h-60 hero-centerpiece-glow'
-                    : 'h-40 sm:h-52 soft-clay-sun-halo',
-                )}
-                aria-hidden="true"
-              />
-
               {badgeItem ? (
-                <div className={cn('group relative flex flex-col items-center min-w-0 w-full', floatClass)}>
+                <div className={cn('group relative flex flex-col items-center gap-1.5 sm:gap-2 min-w-0 w-full', floatClass)}>
                   {/* Badge Item Button to View Detail (Touch Target mượt mà nảy nhẹ lò xo) */}
                   <button
                     type="button"
                     onClick={() => onViewBadgeDetail(badgeItem)}
-                    className="group/btn relative flex flex-col items-center min-w-0 w-full p-1 rounded-3xl transition-transform duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
+                    className="group/btn relative flex flex-col items-center gap-1.5 sm:gap-2 min-w-0 w-full p-1 rounded-3xl transition-transform duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
                     title={`${badgeItem.title} (Bấm xem chi tiết)`}
                   >
-                    {/* Floating Medallion with natural warm glow - HERO CENTERPIECE: 180px - 240px */}
+                    {/* Floating Medallion with natural warm sun halo - 180px – 220px visual footprint */}
                     <div className={cn('relative flex items-center justify-center shrink-0', iconSizeClass)}>
+                      {/* Đĩa hào quang ấm ôm sát chân icon, tạo cảm giác như báu vật tỏa ánh hào quang mặt trời rực rỡ */}
+                      <div
+                        className={cn(
+                          'absolute inset-0 rounded-full pointer-events-none -z-10 transition-all duration-300',
+                          isCenter
+                            ? 'hero-centerpiece-glow scale-125 sm:scale-135'
+                            : 'soft-clay-sun-halo scale-115 sm:scale-125',
+                        )}
+                        aria-hidden="true"
+                      />
+
+                      {/* Hạt sao lấp lánh Soft Clay Sparkles nhấp nháy */}
+                      <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 pointer-events-none z-10">
+                        <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-amber-400 animate-pulse drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]" />
+                      </div>
+                      <div className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 pointer-events-none z-10">
+                        <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300 animate-pulse delay-300 drop-shadow-[0_2px_6px_rgba(251,191,36,0.5)]" />
+                      </div>
+
                       {imageSrc ? (
                         <img
                           src={imageSrc}
                           alt={badgeItem.title}
-                          className="h-full w-full object-contain filter drop-shadow-[0_16px_26px_rgba(217,119,6,0.35)] transition-transform duration-200 group-hover/btn:scale-110"
+                          className="h-full w-full object-contain filter drop-shadow-[0_16px_26px_rgba(217,119,6,0.35)] transition-transform duration-200 transform scale-[1.38] sm:scale-[1.46]"
                         />
                       ) : (
                         <div
                           className="flex h-full w-full items-center justify-center rounded-3xl bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 shadow-press"
                         >
-                          <NavBadgeIcon size={isCenter ? 84 : 72} />
+                          <NavBadgeIcon size={isCenter ? 76 : 64} />
                         </div>
                       )}
                     </div>
 
-                    {/* Tên báu vật to rõ font display mềm mại trực tiếp dưới icon */}
-                    <p className="mt-2 sm:mt-3 line-clamp-2 max-w-full text-center font-display text-base sm:text-lg font-black text-slate-800 leading-tight">
+                    {/* Tên báu vật to rõ font display mềm mại ngay sát dưới chân icon (khoảng cách chỉ 6px - 8px) */}
+                    <p className="line-clamp-2 max-w-full text-center font-display text-base sm:text-lg font-black text-slate-800 leading-tight">
                       {badgeItem.title}
                     </p>
                   </button>
 
-                  {/* Nút hành động nhỏ gọn Soft Clay [ ✨ Đổi báu vật ] & nút gỡ nhỏ tinh tế */}
-                  <div className="mt-2 flex items-center justify-center gap-1.5 w-full">
+                  {/* Nút [ ✨ Đổi báu vật ] nhỏ gọn Soft Clay nằm xinh xắn ngay dưới tên báu vật & nút gỡ nhỏ tinh tế */}
+                  <div className="flex items-center justify-center gap-1.5 w-full">
                     <button
                       type="button"
                       onClick={() => setActivePickerSlot(config.slotIndex)}
@@ -236,23 +244,34 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
                 </div>
               ) : (
                 /* Empty Slot with inviting soft clay plus on sun halo */
-                <div className={cn('group relative flex flex-col items-center justify-center min-w-0 w-full', floatClass)}>
+                <div className={cn('group relative flex flex-col items-center gap-1.5 sm:gap-2 justify-center min-w-0 w-full', floatClass)}>
                   <button
                     type="button"
                     onClick={() => setActivePickerSlot(config.slotIndex)}
-                    className="group/empty flex flex-col items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-3xl p-1 cursor-pointer"
+                    className="group/empty flex flex-col items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-3xl p-1 cursor-pointer"
                     aria-label={`Thêm báu vật cho ${config.label}`}
                   >
                     <div
-                      className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-2 border-dashed border-amber-300/90 bg-white/85 flex items-center justify-center shadow-xs transition-all duration-200 group-hover/empty:scale-105 group-hover/empty:border-amber-400 group-hover/empty:bg-amber-100/50"
+                      className={cn(
+                        'relative rounded-full border-2 border-dashed border-amber-300/90 bg-white/85 flex items-center justify-center shadow-xs transition-all duration-200 group-hover/empty:scale-105 group-hover/empty:border-amber-400 group-hover/empty:bg-amber-100/50',
+                        iconSizeClass,
+                      )}
                     >
+                      {/* Sun halo background for empty slot */}
+                      <div
+                        className={cn(
+                          'absolute inset-0 rounded-full pointer-events-none -z-10 opacity-60 transition-all duration-300',
+                          isCenter ? 'hero-centerpiece-glow' : 'soft-clay-sun-halo',
+                        )}
+                        aria-hidden="true"
+                      />
                       <Plus
-                        size={48}
+                        size={isCenter ? 52 : 44}
                         className="text-amber-500 transition-transform duration-200 group-hover/empty:scale-125 group-hover/empty:rotate-90"
                       />
                     </div>
 
-                    <span className="mt-2 sm:mt-3 font-display text-sm sm:text-base font-black text-amber-900/80 group-hover/empty:text-amber-950 text-center">
+                    <span className="font-display text-sm sm:text-base font-black text-amber-900/80 group-hover/empty:text-amber-950 text-center">
                       Thêm báu vật
                     </span>
                   </button>
@@ -270,7 +289,7 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
           tone="achievement"
           eyebrow={`Vị trí ${TREASURE_SLOTS.find((s) => s.slotIndex === activePickerSlot)?.label ?? 'Báu vật'}`}
           title="Chọn Báu Vật Tự Hào Nhất"
-          description="Chọn một báu vật con đã mở để đặt vào góc tự hào."
+          description="Chọn một báu vật học sinh đã mở để đặt vào góc tự hào."
           onClose={() => setActivePickerSlot(null)}
           actions={
             <div className="flex w-full items-center justify-between gap-2">
@@ -292,7 +311,7 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
           {unlockedItems.length === 0 ? (
             <div className="py-6 text-center">
               <Award size={48} className="mx-auto text-amber-400 mb-2 opacity-60" />
-              <p className="font-bold text-slate-700">Con chưa có báu vật nào đã mở.</p>
+              <p className="font-bold text-slate-700">Học sinh chưa có báu vật nào đã mở.</p>
               <p className="text-xs font-semibold text-slate-500 mt-1">
                 Hãy hoàn thành bài học để mở khóa báu vật đầu tiên nhé!
               </p>
@@ -328,7 +347,7 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
                         <img
                           src={imageSrc}
                           alt=""
-                          className="h-full w-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.12)]"
+                          className="h-full w-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.12)] transform scale-[1.22]"
                         />
                       ) : (
                         <NavBadgeIcon size={34} />

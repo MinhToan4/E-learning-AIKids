@@ -398,3 +398,8 @@ export const useAuth = create<AuthState>((set, get) => ({
     return context
   },
 }))
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  ;(window as unknown as { __AUTH_STORE__: typeof useAuth }).__AUTH_STORE__ = useAuth
+}
+

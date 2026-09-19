@@ -112,4 +112,82 @@ describe('BackpackPage', () => {
     })
     container.remove()
   })
+
+  it('does not show error banner when local projects exist even if network calls fail', async () => {
+    vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/api/projects') throw new Error('Network error')
+      if (endpoint === '/api/backpack') throw new Error('Offline')
+      if (endpoint === '/api/gamification/storybook') return { inventory: [] } as any
+      if (endpoint === '/api/gamification/catalog?type=reward') return { items: [] } as any
+      return {} as any
+    })
+
+    const savedWorks = [
+      {
+        id: 'bp-local-1',
+        title: 'Tranh địa phương của bé',
+        kind: 'image',
+        thumbnail: '/test.jpg',
+        prompt: 'Tranh vui',
+      },
+    ]
+    localStorage.setItem('aiki_backpack_saved_works', JSON.stringify(savedWorks))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    expect(container.textContent).not.toContain('Một vài ngăn chưa tải được. Con thử lại nhé.')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('shows error banner when network calls fail and no local or remote projects exist', async () => {
+    vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/api/projects') throw new Error('Network error')
+      if (endpoint === '/api/backpack') throw new Error('Offline')
+      if (endpoint === '/api/gamification/storybook') return { inventory: [] } as any
+      if (endpoint === '/api/gamification/catalog?type=reward') return { items: [] } as any
+      return {} as any
+    })
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    expect(container.textContent).toContain('Một vài ngăn chưa tải được. Con thử lại nhé.')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })
+

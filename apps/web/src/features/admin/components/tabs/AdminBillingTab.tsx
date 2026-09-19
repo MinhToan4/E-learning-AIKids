@@ -7,6 +7,7 @@ import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { AdminBillingPos } from '../AdminBillingPos'
+import { AdminInvoiceManager } from './AdminInvoiceManager'
 import { PendingIntentDetailModal } from '../PendingIntentDetailModal'
 import type { VietQrModalData } from '../VietQrModal'
 import {
@@ -96,8 +97,8 @@ export function AdminBillingTab() {
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Sub-nav view: subscribers, plans, or logs
-  const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'plans' | 'logs'>('subscribers')
+  // Sub-nav view: subscribers, plans, invoices, or logs
+  const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'plans' | 'invoices' | 'logs'>('subscribers')
   const [billingSubSearch, setBillingSubSearch] = useState('')
   const [selectedPlanFilter, setSelectedPlanFilter] = useState<string>('all')
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'paid' | 'free' | 'expired'>('all')
@@ -618,12 +619,13 @@ export function AdminBillingTab() {
           {[
             { id: 'subscribers', label: 'Danh sách thuê bao' },
             { id: 'plans', label: 'Catalog gói cước & Package Builder' },
+            { id: 'invoices', label: 'Hóa đơn & Thuế VN (MISA)' },
             { id: 'logs', label: 'Lịch sử cấp & bán gói (Logs)' },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setBillingPlanView(tab.id as 'subscribers' | 'plans' | 'logs')}
+              onClick={() => setBillingPlanView(tab.id as 'subscribers' | 'plans' | 'invoices' | 'logs')}
               className={cn(
                 'rounded-xl px-4 sm:px-5 py-2 text-sm font-bold transition cursor-pointer',
                 billingPlanView === tab.id
@@ -1023,6 +1025,11 @@ export function AdminBillingTab() {
                 </Suspense>
               )}
             </div>
+          )}
+
+          {/* Quản lý Hóa đơn điện tử MISA & Kế toán thuế VN */}
+          {billingPlanView === 'invoices' && (
+            <AdminInvoiceManager onNotify={(msg, type) => showToast(msg, type || 'info')} />
           )}
 
           {/* Lịch sử cấp & bán gói (Logs) */}

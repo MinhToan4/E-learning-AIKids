@@ -96,10 +96,10 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
   const isActiveFuture = !activeItem.unlocked && !isActiveInProgress
 
   const meeMessage = activeItem.unlocked
-    ? `🐾 Mèo Mee reo vang: "Tuyệt đỉnh bạn nhỏ ơi! Con đã xuất sắc đánh thức trọn vẹn màu sắc rực rỡ của '${activeItem.title}'. Hãy tự hào ngắm nhìn báu vật lấp lánh này nhé!"`
+    ? `🐾 Mèo AIKI reo vang: "Tuyệt đỉnh bạn học sinh ơi! Học sinh đã xuất sắc đánh thức trọn vẹn màu sắc rực rỡ của '${activeItem.title}'. Hãy tự hào ngắm nhìn báu vật lấp lánh này nhé!"`
     : isActiveInProgress
-      ? `🐾 Mèo Mee cổ vũ: "Linh thú đang hấp thụ từng giọt sương tri thức! Con chỉ còn thiếu ${remaining.toLocaleString('vi-VN')} ${progressUnit(activeItem)} nữa thôi là thổi hồn màu sắc thành công rồi, cố lên nào!"`
-      : `🐾 Mèo Mee mách nhỏ: "Báu vật cấp cao '${activeItem.title}' đang say ngủ trong khối tượng thạch cao tinh khôi. Hãy chinh phục từng mốc trước đó để tiến tới đánh thức nhé!"`
+      ? `🐾 Mèo AIKI cổ vũ: "Linh thú đang hấp thụ từng giọt sương tri thức! Học sinh chỉ còn thiếu ${remaining.toLocaleString('vi-VN')} ${progressUnit(activeItem)} nữa thôi là thổi hồn màu sắc thành công rồi, cố lên nào!"`
+      : `🐾 Mèo AIKI mách nhỏ: "Báu vật cấp cao '${activeItem.title}' đang say ngủ trong khối tượng thạch cao tinh khôi. Hãy chinh phục từng mốc trước đó để tiến tới đánh thức nhé!"`
 
   return (
     <AdventureModal

@@ -161,10 +161,12 @@ const courseProgressCache = new Map<string, CourseProgressCacheEntry>()
 const COURSE_PROGRESS_CACHE_TTL = 120_000 // 2 phút
 
 let cachedPathway: Pathway | null = null
+const cachedIslandQuests = new Map<string, { quests: QuestProgress[]; meta: { totalStars: number; completedCount: number } }>()
 
 export function clearWorldPageCache(): void {
   courseProgressCache.clear()
   cachedPathway = null
+  cachedIslandQuests.clear()
 }
 
 export interface WorldPageProps {
@@ -174,12 +176,13 @@ export interface WorldPageProps {
 export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const { courseId, programId, trackId } = useParams<{ courseId?: string; programId?: string; trackId?: string }>()
   const navigate = useNavigate()
-  const [quests, setQuests] = useState<QuestProgress[]>([])
-  const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
+  const cachedIsland = courseId ? cachedIslandQuests.get(courseId) : undefined
+  const [quests, setQuests] = useState<QuestProgress[]>(() => cachedIsland?.quests || [])
+  const [meta, setMeta] = useState(() => cachedIsland?.meta || { totalStars: 0, completedCount: 0 })
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
   const [error, setError] = useState<string | null>(null)
   const [pathway, setPathway] = useState<Pathway | null>(() => cachedPathway)
-  const [loading, setLoading] = useState(() => (courseId ? true : !cachedPathway))
+  const [loading, setLoading] = useState(() => (courseId ? !cachedIslandQuests.has(courseId) : !cachedPathway))
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
 
@@ -207,9 +210,15 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           setLoading(true)
         }
       } else {
-        setLoading(true)
-        setQuests([])
-        setMeta({ totalStars: 0, completedCount: 0 })
+        const cached = cachedIslandQuests.get(courseId)
+        if (cached) {
+          setQuests(cached.quests)
+          setMeta(cached.meta)
+        } else {
+          setLoading(true)
+          setQuests([])
+          setMeta({ totalStars: 0, completedCount: 0 })
+        }
       }
       setError(null)
       setEnrollmentRequired(false)
@@ -329,13 +338,17 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         setCourseTitle(courseTitle)
 
         if (progressData && progressData.quests && progressData.quests.length > 0) {
+          const nextMeta = { totalStars: progressData.totalStars, completedCount: progressData.completedCount }
           setQuests(progressData.quests)
-          setMeta({ totalStars: progressData.totalStars, completedCount: progressData.completedCount })
+          setMeta(nextMeta)
+          cachedIslandQuests.set(courseId, { quests: progressData.quests, meta: nextMeta })
         } else if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
           setEnrollmentRequired(true)
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
+        if (!courseId || !cachedIslandQuests.has(courseId)) {
+          setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
+        }
       } finally {
         setLoading(false)
       }

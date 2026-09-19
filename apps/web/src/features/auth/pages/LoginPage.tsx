@@ -192,6 +192,8 @@ export function LoginPage() {
                     <label className="flex flex-col gap-3">
                       <span className="sr-only">Biệt danh</span>
                       <input
+                        id="login-nickname"
+                        name="nickname"
                         autoComplete="username"
                         placeholder="Nhập biệt danh"
                         className="min-h-16 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-lg font-extrabold text-text shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-20 sm:text-xl sm:rounded-3xl"
@@ -206,6 +208,8 @@ export function LoginPage() {
                       <label>
                         <span className="sr-only">Email hoặc tên đăng nhập</span>
                         <input
+                          id="login-email"
+                          name="email"
                           type="text"
                           autoComplete="username"
                           placeholder="Nhập email hoặc tên đăng nhập"
@@ -218,6 +222,8 @@ export function LoginPage() {
                       <label>
                         <span className="sr-only">Mật khẩu</span>
                         <input
+                          id="login-password"
+                          name="password"
                           type="password"
                           autoComplete="current-password"
                           placeholder="Nhập mật khẩu"

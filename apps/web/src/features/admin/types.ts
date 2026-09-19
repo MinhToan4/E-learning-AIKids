@@ -348,12 +348,16 @@ export type AdminTab =
   | 'logs'
   | 'ai'
   | 'users'
+  | 'staff'
   | 'roles'
   | 'courses'
   | 'classes'
   | 'legends'
   | 'billing'
   | 'asmo'
+
+export const STUDENT_PARENT_ROLES = ['student', 'child', 'parent'] as const
+export const STAFF_ROLES = ['admin', 'curriculum_lead', 'teacher'] as const
 
 export type RoleDefinition = {
   key: string

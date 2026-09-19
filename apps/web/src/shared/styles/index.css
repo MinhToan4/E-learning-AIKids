@@ -5,20 +5,24 @@
   No plastic neon AI SaaS chrome.
 */
 @theme {
-  --font-sans: 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Baloo 2', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Mali', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Chiron GoRound TC', 'Baloo 2', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-500: #6d5efc;
-  --color-brand-600: #5646e8;
-  --color-brand-700: #4436bd;
-  --color-brand-800: #33269b;
-  --color-brand-900: #251b74;
-  --color-brand-950: #1e1b4b;
-  --color-brand-400: #9e8eff;
-  --color-brand-300: #c2b7ff;
-  --color-brand-200: #dcd6ff;
-  --color-brand-100: #ebe8ff;
-  --color-brand-50: #f5f3ff;
+  --color-brand-500: #0A6EDF;
+  --color-brand-600: #085bc0;
+  --color-brand-700: #072147;
+  --color-brand-800: #061937;
+  --color-brand-900: #041228;
+  --color-brand-950: #020b19;
+  --color-brand-400: #3b8ef5;
+  --color-brand-300: #7cb5f9;
+  --color-brand-200: #b8d8fd;
+  --color-brand-100: #e0effe;
+  --color-brand-50: #f0f7ff;
+
+  --color-aiki-orange: #FD7D2E;
+  --color-teal-500: #16A5A9;
+  --color-cream-bg: #FFFCEB;
 
   --color-sky-400: #3dbfff;
   --color-sky-700: #075f91;
@@ -28,7 +32,7 @@
   --color-sky-50: #f1faff;
 
   --color-mint-400: #3ed9a0;
-  --color-mint-500: #20c988;
+  --color-mint-500: #16A5A9;
   --color-mint-600: #178a5c;
   --color-mint-700: #116b4c;
   --color-mint-800: #0e543b;
@@ -38,7 +42,7 @@
   --color-mint-50: #f1fcf7;
 
   --color-sun-300: #ffd875;
-  --color-sun-400: #ffc94a;
+  --color-sun-400: #F1B120;
   --color-sun-500: #eeb028;
   --color-sun-600: #a66b12;
   --color-sun-700: #8b5707;
@@ -50,13 +54,13 @@
   --color-sun-50: #fffbec;
 
   --color-cream-50: #fffdfa;
-  --color-cream-100: #fefbf3;
+  --color-cream-100: #FFFCEB;
   --color-cream-200: #faeed1;
   --color-cream-300: #f4dfaf;
   --color-cream-400: #eed08d;
 
   --color-coral-400: #ff7b93;
-  --color-coral-500: #ff5c7c;
+  --color-coral-500: #FF5C8A;
   --color-coral-600: #c03955;
   --color-coral-700: #9f2642;
   --color-coral-800: #881e36;
@@ -3556,14 +3560,22 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .progress-experience {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 64rem;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 0;
+    background-color: var(--color-cream-bg, #FFFCEB);
+    border-radius: 2.5rem;
+    padding: 1.25rem;
   }
 
   .progress-experience .progress-hero {
     min-height: 20rem;
     border: 3px solid rgb(23 138 92 / 12%);
     border-radius: 2.5rem 1.5rem 2.5rem 1.5rem;
-    background: #fbf8ed;
+    background: var(--color-cream-bg, #FFFCEB);
     box-shadow: inset 0 -9px 0 rgb(23 138 92 / 7%), var(--shadow-clay);
   }
 
@@ -3601,7 +3613,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   }
 
   .progress-experience .progress-hero-art {
-    background: #fbf8ed;
+    background: var(--color-cream-bg, #FFFCEB);
   }
 
   .progress-experience .progress-hero-art img {
@@ -3681,18 +3693,6 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     box-shadow: inset 0 -7px 0 rgb(23 138 92 / 6%), var(--shadow-soft);
   }
 
-  .progress-story-card::before {
-    position: absolute;
-    top: 1.5rem;
-    left: -0.42rem;
-    width: 0.7rem;
-    height: 3rem;
-    content: '';
-    border: 3px solid white;
-    border-radius: 999px;
-    background: var(--color-mint-400);
-    box-shadow: var(--shadow-press);
-  }
 
   .progress-next-card {
     min-height: 100%;
@@ -3756,6 +3756,21 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   .progress-recent-card ol {
     grid-template-columns: 1fr;
+  }
+
+  /* Soft Clay Progress Passport & Multi-Course Roadmap */
+  .passport-stat-tile {
+    position: relative;
+    border-radius: 1.5rem;
+    box-shadow: inset 0 -6px 0 rgb(0 0 0 / 4%), var(--shadow-clay);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .station-roadmap-connector {
+    position: absolute;
+    width: 0.35rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--color-mint-400), var(--color-brand-400), #e2e8f0);
   }
 
   .progress-stat-icon {
@@ -3890,51 +3905,6 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
   }
 
-  @media (min-width: 1024px) {
-    .progress-experience {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: start;
-      gap: 1.25rem;
-    }
-
-    .progress-experience > .progress-hero,
-    .progress-experience > [role='alert'] {
-      grid-column: 1 / -1;
-    }
-
-    .progress-summary-grid {
-      grid-column: 9 / -1;
-      grid-row: 2;
-      grid-template-columns: 1fr;
-    }
-
-    .progress-next-card {
-      grid-column: 1 / 9;
-      grid-row: 2;
-    }
-
-    .progress-recent-card {
-      grid-column: 1 / -1;
-    }
-
-    .progress-skills-card {
-      grid-column: 1 / 7;
-    }
-
-    .progress-courses-card {
-      grid-column: 7 / -1;
-    }
-
-    .progress-experience > .progress-garden {
-      grid-column: 1 / -1;
-      min-height: 25rem;
-    }
-
-    .progress-recent-card ol {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
 
   @media (hover: hover) {
     .progress-experience .progress-stat,

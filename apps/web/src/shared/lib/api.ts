@@ -229,6 +229,9 @@ const DEFAULT_STALE_WINDOW = 300_000 // 5 phút cache stale-while-revalidate
 
 function responseCacheTtl(path: string): number {
   if (path === '/api/auth/firebase/config') return 300_000 // 5 phút cache cấu hình Firebase
+  if (path.startsWith('/api/admin/users')) return 30_000 // 30s cache SWR
+  if (path.startsWith('/api/admin/roles')) return 60_000 // 60s cache SWR
+  if (path.startsWith('/api/admin/login-logs')) return 15_000 // 15s cache SWR
   if (path.startsWith('/api/teacher/lectures') || path.startsWith('/api/admin/courses') || path.startsWith('/api/courses')) return 60_000
   if (path.startsWith('/api/learning/pathway')) return 60_000
   if (path.startsWith('/api/learning/age-policy')) return 300_000 // 5 phút policy tuổi tĩnh

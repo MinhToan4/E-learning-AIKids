@@ -11,6 +11,7 @@ import {
   CmsSessionsIcon,
 } from '@/shared/components/icons/CmsIcons'
 import { StatCard, OutcomeBadge } from '../AdminUiHelpers'
+import { UserManagementNav } from '../UserManagementNav'
 import type { AdminUser, LoginLogItem, LoginLogSummary } from '../../types'
 
 export function AdminLogsTab() {
@@ -97,6 +98,8 @@ export function AdminLogsTab() {
 
   return (
     <div className="flex flex-col gap-5">
+      <UserManagementNav activeTab="logs" />
+
       {/* ── Thống kê tóm tắt ─────────────────────────────────── */}
       {logSummary && (
         <div className="grid gap-3 sm:grid-cols-4">

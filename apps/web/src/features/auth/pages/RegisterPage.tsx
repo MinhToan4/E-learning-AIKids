@@ -84,6 +84,8 @@ export function RegisterPage() {
             <label className="flex flex-col gap-1 text-sm font-bold">
               Tên hiển thị
               <input
+                id="register-nickname"
+                name="nickname"
                 autoComplete="name"
                 placeholder="Tên bạn muốn hiển thị"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
@@ -96,6 +98,8 @@ export function RegisterPage() {
             <label className="flex flex-col gap-1 text-sm font-bold">
               Email *
               <input
+                id="register-email"
+                name="email"
                 type="email"
                 autoComplete="email"
                 placeholder="Nhập email của bạn"
@@ -109,6 +113,8 @@ export function RegisterPage() {
             <label className="flex flex-col gap-1 text-sm font-bold">
               Mật khẩu *
               <input
+                id="register-password"
+                name="password"
                 type="password"
                 autoComplete="new-password"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
@@ -148,6 +154,8 @@ export function RegisterPage() {
             <label className="flex flex-col gap-1 text-sm font-bold">
               Xác nhận mật khẩu *
               <input
+                id="register-confirm-password"
+                name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 className={cn(

@@ -139,8 +139,9 @@ function EditUserModal({
               value={form.role}
               onChange={(e) => onChange((f) => ({ ...f, role: e.target.value as AdminUser['role'] }))}
             >
-              <option value="student">Học sinh</option>
-              <option value="parent">Phụ huynh</option>
+              <option value="teacher">Giáo viên</option>
+              <option value="curriculum_lead">Trưởng ban chuyên môn</option>
+              <option value="admin">Quản trị viên</option>
             </select>
             {isSelf && (
               <p className="rounded-xl border border-amber-200 bg-amber-50 p-2 text-xs font-bold text-amber-800">
@@ -266,7 +267,7 @@ function EditUserModal({
   )
 }
 
-export function AdminUsersTab() {
+export function AdminStaffTab() {
   const { user: currentUser } = useAuth()
   const { toasts, showToast, dismissToast } = useToast()
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -278,8 +279,7 @@ export function AdminUsersTab() {
   const [userSearch, setUserSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
-  const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local' | 'pin'>('')
-  const [groupByFamily, setGroupByFamily] = useState(false)
+  const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local'>('')
 
   // Modals & form
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
@@ -294,7 +294,7 @@ export function AdminUsersTab() {
   // Create form modal
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({
-    role: 'parent' as 'parent' | 'student',
+    role: 'teacher' as 'teacher' | 'curriculum_lead' | 'admin',
     email: '',
     password: '',
     nickname: '',
@@ -350,33 +350,26 @@ export function AdminUsersTab() {
       )
     } else if (userAuthFilter === 'local') {
       list = list.filter((u) => u.loginUsername || (!u.isFirebaseLinked && !u.firebaseUid))
-    } else if (userAuthFilter === 'pin') {
-      list = list.filter((u) => u.role === 'student' || u.authProviders?.includes('pin'))
     }
 
-    // Chỉ hiển thị học sinh và phụ huynh
+    // Chỉ giữ người dùng thuộc nhóm Cán bộ & Quản trị
     list = list.filter(
       (u) =>
-        u.role === 'student' ||
-        u.role === 'child' ||
-        u.role === 'parent' ||
-        Boolean(u.guardianParent) ||
-        (u.children && u.children.length > 0),
+        u.role === 'admin' ||
+        u.role === 'teacher' ||
+        u.role === 'curriculum_lead' ||
+        (u.platformRoles && u.platformRoles.length > 0),
     )
 
-    if (groupByFamily) {
-      return groupUsersByFamilyList(list)
-    }
-
     return list as DisplayAdminUser[]
-  }, [users, userSearch, userActiveFilter, userAuthFilter, groupByFamily])
+  }, [users, userSearch, userActiveFilter, userAuthFilter])
 
   const stats = useMemo(() => {
-    const students = users.filter((u) => u.role === 'student' || u.role === 'child').length
-    const parents = users.filter((u) => u.role === 'parent').length
+    const admins = users.filter((u) => u.role === 'admin' || (u.platformRoles && u.platformRoles.length > 0)).length
+    const curriculum = users.filter((u) => u.role === 'curriculum_lead').length
+    const teachers = users.filter((u) => u.role === 'teacher').length
     const active = users.filter((u) => u.active).length
-    const inactive = users.filter((u) => !u.active).length
-    return { students, parents, active, inactive }
+    return { admins, curriculum, teachers, active }
   }, [users])
 
   const usersPag = usePagination(filteredUsers, 15)
@@ -387,7 +380,7 @@ export function AdminUsersTab() {
       await api('/api/admin/users', { method: 'POST', body: JSON.stringify(createForm) })
       showToast(`Đã tạo tài khoản ${createForm.email}`, 'success')
       setShowCreateModal(false)
-      setCreateForm({ role: 'parent', email: '', password: '', nickname: '' })
+      setCreateForm({ role: 'teacher', email: '', password: '', nickname: '' })
       await fetchUsers()
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không thể tạo tài khoản', 'error')
@@ -468,40 +461,38 @@ export function AdminUsersTab() {
   return (
     <div className="space-y-4">
       {/* ── KPI Metric Header Overview ── */}
-      <section className="ui-card flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4" aria-label="Tổng quan học sinh và phụ huynh">
+      <section className="ui-card flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4" aria-label="Tổng quan cán bộ và quản trị">
         <div className="mr-auto">
-          <p className="text-xs font-black uppercase tracking-wider text-brand-600">Quản lý Gia đình & Học tập</p>
-          <p className="font-display text-xl text-slate-900">{filteredUsers.length} tài khoản</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
-          <strong>{stats.students}</strong>
-          <span className="text-muted">Học sinh</span>
+          <p className="text-xs font-black uppercase tracking-wider text-brand-600">Đội ngũ Vận hành & Chuyên môn</p>
+          <p className="font-display text-xl text-slate-900">{filteredUsers.length} cán bộ</p>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
-          <strong>{stats.parents}</strong>
-          <span className="text-muted">Phụ huynh</span>
+          <strong>{stats.admins}</strong>
+          <span className="text-muted">Quản trị viên</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" />
+          <strong>{stats.curriculum}</strong>
+          <span className="text-muted">Ban chuyên môn</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
+          <strong>{stats.teachers}</strong>
+          <span className="text-muted">Giáo viên</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="h-2.5 w-2.5 rounded-full bg-mint-500" />
           <strong>{stats.active}</strong>
           <span className="text-muted">Hoạt động</span>
         </div>
-        {stats.inactive > 0 && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="h-2.5 w-2.5 rounded-full bg-coral-500" />
-            <strong>{stats.inactive}</strong>
-            <span className="text-muted">Đã khóa</span>
-          </div>
-        )}
         <Button onClick={() => setShowCreateModal(true)} className="ml-auto flex items-center gap-1.5 shadow-sm">
-          <Plus className="h-4 w-4" aria-hidden="true" /> Thêm tài khoản
+          <Plus className="h-4 w-4" aria-hidden="true" /> Thêm cán bộ
         </Button>
       </section>
 
       {/* ── 4-Cards Domain Navigation ── */}
-      <UserManagementNav activeTab="users" />
+      <UserManagementNav activeTab="staff" />
 
       {/* ── Full-width Table Card ── */}
       <section className="ui-card overflow-hidden border border-border shadow-xs">
@@ -538,9 +529,10 @@ export function AdminUsersTab() {
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
-            <option value="">Tất cả học sinh & phụ huynh</option>
-            <option value="student">Học sinh</option>
-            <option value="parent">Phụ huynh</option>
+            <option value="">Tất cả cán bộ & quản trị</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+            <option value="curriculum_lead">Trưởng ban chuyên môn</option>
+            <option value="teacher">Giáo viên</option>
           </select>
 
           <select
@@ -559,39 +551,22 @@ export function AdminUsersTab() {
             className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold bg-white"
             value={userAuthFilter}
             onChange={(e) =>
-              setUserAuthFilter(e.target.value as '' | 'firebase' | 'google' | 'local' | 'pin')
+              setUserAuthFilter(e.target.value as '' | 'firebase' | 'google' | 'local')
             }
           >
             <option value="">Tất cả nguồn</option>
             <option value="firebase">Đã lên Firebase</option>
             <option value="google">Dùng Google</option>
             <option value="local">Nội bộ / Alias</option>
-            <option value="pin">Học sinh PIN</option>
           </select>
 
-          <button
-            type="button"
-            onClick={() => setGroupByFamily((prev) => !prev)}
-            className={cn(
-              'flex items-center gap-1.5 min-h-11 rounded-xl px-3.5 py-2 text-xs font-extrabold transition border-2 cursor-pointer select-none',
-              groupByFamily
-                ? 'bg-brand-500 text-white border-brand-500 shadow-sm'
-                : 'bg-white text-ink border-border hover:border-brand-300 hover:bg-brand-50/50',
-            )}
-            aria-pressed={groupByFamily}
-            title="Gom nhóm tài khoản theo gia đình"
-          >
-            <span aria-hidden="true">👨‍👩‍👧</span>
-            <span>Gom nhóm Gia đình</span>
-          </button>
-
-          {(userSearch || roleFilter || userActiveFilter || userAuthFilter || groupByFamily) && (
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
             <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
-              {filteredUsers.length} / {users.length} tài khoản
+              {filteredUsers.length} / {users.length} cán bộ
             </span>
           )}
 
-          {(userSearch || roleFilter || userActiveFilter || userAuthFilter || groupByFamily) && (
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
             <button
               type="button"
               className="text-xs font-bold text-muted underline cursor-pointer"
@@ -600,7 +575,6 @@ export function AdminUsersTab() {
                 setRoleFilter('')
                 setUserActiveFilter('')
                 setUserAuthFilter('')
-                setGroupByFamily(false)
               }}
             >
               Xóa bộ lọc
@@ -619,7 +593,7 @@ export function AdminUsersTab() {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
-                <th className="px-4 py-3 font-extrabold">Người dùng / Gia đình</th>
+                <th className="px-4 py-3 font-extrabold">Cán bộ / Nhân sự</th>
                 <th className="px-4 py-3 font-extrabold">Vai trò</th>
                 <th className="px-4 py-3 font-extrabold">Phương thức xác thực</th>
                 <th className="px-4 py-3 font-extrabold">Trạng thái</th>
@@ -637,57 +611,20 @@ export function AdminUsersTab() {
                 usersPag.slice.map((u) => (
                   <tr
                     key={u.id}
-                    className={cn(
-                      'border-b border-border/40 hover:bg-brand-50/30 transition-colors',
-                      u.isChildInFamily && 'bg-slate-50/60',
-                    )}
+                    className="border-b border-border/40 hover:bg-brand-50/30 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div className={cn('flex items-start gap-2', u.isChildInFamily && 'pl-5')}>
-                        {u.isChildInFamily && (
-                          <span
-                            className="text-brand-400 font-bold text-base select-none mt-0.5"
-                            title="Tài khoản con"
-                          >
-                            ↳
-                          </span>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-black text-indigo-700 text-xs shadow-sm">
+                          {(u.name ?? u.nickname ?? u.email ?? 'A').charAt(0).toUpperCase()}
+                        </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-bold">{u.name ?? u.nickname ?? '—'}</p>
-                            {u.isChildInFamily && (
-                              <span className="rounded-full bg-purple-100 text-purple-700 px-1.5 py-0.2 text-[10px] font-bold">
-                                Con
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
-                          {(u.role === 'student' || u.role === 'child') && u.guardianParent && (
-                            <div className="mt-1">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setUserSearch(u.guardianParent?.email || u.guardianParent?.name || '')
-                                  setRoleFilter('')
-                                }}
-                                className="inline-flex items-center gap-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2 py-0.5 text-xs font-semibold transition cursor-pointer text-left"
-                                title={`Tìm phụ huynh: ${u.guardianParent.name || u.guardianParent.email}`}
-                              >
-                                <span aria-hidden="true">👨‍👧</span>
-                                <span>
-                                  Phụ huynh: <strong>{u.guardianParent.name || u.guardianParent.email}</strong>
-                                </span>
-                              </button>
-                            </div>
-                          )}
-                          {u.role === 'parent' && u.children && u.children.length > 0 && (
-                            <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 text-xs font-semibold">
-                              <span aria-hidden="true">👶</span>
-                              <span>
-                                {u.children.length} con: {u.children.map((c) => c.name).join(', ')}
-                              </span>
-                            </div>
+                          <p className="font-bold text-text truncate">{u.name ?? u.nickname ?? '—'}</p>
+                          <p className="text-xs text-muted truncate">{u.email ?? u.id.slice(0, 10)}</p>
+                          {u.loginUsername && (
+                            <span className="inline-block mt-0.5 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-muted">
+                              @{u.loginUsername}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -779,60 +716,17 @@ export function AdminUsersTab() {
             usersPag.slice.map((u) => (
               <div
                 key={u.id}
-                className={cn(
-                  'px-4 py-3 transition-colors',
-                  u.isChildInFamily && 'bg-slate-50/60 pl-6 border-l-4 border-brand-300',
-                )}
+                className="px-4 py-3 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-start gap-1.5">
-                      {u.isChildInFamily && (
-                        <span
-                          className="text-brand-400 font-bold text-base select-none mt-0.5"
-                          title="Tài khoản con"
-                        >
-                          ↳
-                        </span>
-                      )}
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-black text-indigo-700 text-xs shadow-sm">
+                        {(u.name ?? u.nickname ?? u.email ?? 'A').charAt(0).toUpperCase()}
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <p className="truncate font-bold text-sm">{u.name ?? u.nickname ?? '—'}</p>
-                          {u.isChildInFamily && (
-                            <span className="shrink-0 rounded-full bg-purple-100 text-purple-700 px-1.5 py-0.2 text-[10px] font-bold">
-                              Con
-                            </span>
-                          )}
-                        </div>
+                        <p className="truncate font-bold text-sm">{u.name ?? u.nickname ?? '—'}</p>
                         <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
-                        {(u.role === 'student' || u.role === 'child') && u.guardianParent && (
-                          <div className="mt-1">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setUserSearch(u.guardianParent?.email || u.guardianParent?.name || '')
-                                setRoleFilter('')
-                              }}
-                              className="inline-flex items-center gap-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2 py-0.5 text-xs font-semibold transition cursor-pointer text-left"
-                              title={`Tìm phụ huynh: ${u.guardianParent.name || u.guardianParent.email}`}
-                            >
-                              <span aria-hidden="true">👨‍👧</span>
-                              <span>
-                                Phụ huynh:{' '}
-                                <strong>{u.guardianParent.name || u.guardianParent.email}</strong>
-                              </span>
-                            </button>
-                          </div>
-                        )}
-                        {u.role === 'parent' && u.children && u.children.length > 0 && (
-                          <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 text-xs font-semibold">
-                            <span aria-hidden="true">👶</span>
-                            <span>
-                              {u.children.length} con: {u.children.map((c) => c.name).join(', ')}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -915,7 +809,7 @@ export function AdminUsersTab() {
         />
       </section>
 
-      {/* ── Modal Tạo tài khoản Gia đình mới ─────────────────── */}
+      {/* ── Modal Tạo Cán bộ mới ────────────────────────────── */}
       {showCreateModal && createPortal(
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
@@ -925,21 +819,21 @@ export function AdminUsersTab() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="create-family-user-title"
+            aria-labelledby="create-staff-user-title"
             className="ui-card w-full max-w-md overflow-y-auto p-6"
             style={{ maxHeight: 'calc(100dvh - 2rem)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-wider text-brand-600">Thêm người dùng mới</p>
-                <h2 id="create-family-user-title" className="font-display text-xl font-bold text-text">Tạo tài khoản Gia đình</h2>
+                <p className="text-xs font-black uppercase tracking-wider text-brand-600">Thêm nhân sự mới</p>
+                <h2 id="create-staff-user-title" className="font-display text-xl font-bold text-text">Tạo Cán bộ / Quản trị</h2>
               </div>
               <button
                 type="button"
                 className="min-h-10 shrink-0 rounded-lg px-2.5 text-sm font-bold text-muted hover:bg-brand-50 cursor-pointer"
                 onClick={() => setShowCreateModal(false)}
-                aria-label="Đóng hộp thoại tạo tài khoản"
+                aria-label="Đóng hộp thoại tạo cán bộ"
               >
                 ✕
               </button>
@@ -947,7 +841,7 @@ export function AdminUsersTab() {
 
             <form className="flex flex-col gap-4" onSubmit={(e) => void createUser(e)}>
               <label className="flex flex-col gap-1.5 text-sm font-bold">
-                Vai trò người dùng
+                Vai trò cán bộ
                 <select
                   className="min-h-11 rounded-xl border-2 border-border px-3 bg-white outline-none focus:border-brand-400"
                   value={createForm.role}
@@ -955,17 +849,18 @@ export function AdminUsersTab() {
                     setCreateForm((f) => ({ ...f, role: e.target.value as typeof createForm.role }))
                   }
                 >
-                  <option value="parent">👨‍👩‍👧 Phụ huynh (quản lý con & thanh toán)</option>
-                  <option value="student">👶 Học sinh (trải nghiệm học tập & tích XP)</option>
+                  <option value="teacher">🧑‍🏫 Giáo viên giảng dạy (quản lý lớp & chấm điểm)</option>
+                  <option value="curriculum_lead">🎓 Trưởng ban chuyên môn (biên soạn giáo trình)</option>
+                  <option value="admin">⚙️ Quản trị viên (toàn quyền hệ thống & phân quyền)</option>
                 </select>
               </label>
 
               <label className="flex flex-col gap-1.5 text-sm font-bold">
-                {createForm.role === 'parent' ? 'Email phụ huynh' : 'Email hoặc Mã học sinh'}
+                Email công vụ
                 <input
-                  type={createForm.role === 'parent' ? 'email' : 'text'}
+                  type="email"
                   required
-                  placeholder={createForm.role === 'parent' ? 'phuhuynh@example.com' : 'hocsinh01 hoặc email'}
+                  placeholder="canbo@storymee.vn"
                   className="min-h-11 rounded-xl border-2 border-border px-3 bg-white outline-none focus:border-brand-400 text-sm"
                   value={createForm.email}
                   onChange={(e) => setCreateForm((f) => ({ ...f, email: e.target.value }))}
@@ -973,11 +868,11 @@ export function AdminUsersTab() {
               </label>
 
               <label className="flex flex-col gap-1.5 text-sm font-bold">
-                {createForm.role === 'parent' ? 'Mật khẩu (tối thiểu 8 ký tự)' : 'Mật khẩu / Mã PIN (tối thiểu 6 ký tự)'}
+                Mật khẩu khởi tạo (tối thiểu 8 ký tự)
                 <input
                   type="password"
                   required
-                  minLength={createForm.role === 'parent' ? 8 : 6}
+                  minLength={8}
                   placeholder="••••••••"
                   className="min-h-11 rounded-xl border-2 border-border px-3 bg-white outline-none focus:border-brand-400 text-sm"
                   value={createForm.password}
@@ -986,9 +881,9 @@ export function AdminUsersTab() {
               </label>
 
               <label className="flex flex-col gap-1.5 text-sm font-bold">
-                Tên hiển thị / Biệt danh
+                Tên hiển thị / Chức danh
                 <input
-                  placeholder={createForm.role === 'parent' ? 'Mẹ Lan / Ba Hùng' : 'Bé Bon / Minh Trí'}
+                  placeholder="Thầy Nguyễn Văn A / Ban Chuyên Môn Toán"
                   className="min-h-11 rounded-xl border-2 border-border px-3 bg-white outline-none focus:border-brand-400 text-sm"
                   value={createForm.nickname}
                   onChange={(e) => setCreateForm((f) => ({ ...f, nickname: e.target.value }))}
@@ -1000,7 +895,7 @@ export function AdminUsersTab() {
                   Hủy bỏ
                 </Button>
                 <Button type="submit" className="shadow-sm">
-                  Xác nhận tạo tài khoản
+                  Xác nhận tạo cán bộ
                 </Button>
               </div>
             </form>

@@ -289,12 +289,25 @@ function ContinueLearningCard({ course }: { course: CourseSummary }) {
   )
 }
 
+let cachedHomeData: {
+  courses: CourseSummary[]
+  streak?: { current: number; longest: number; lastActivityDate: string | null }
+  badges?: AchievementRow[]
+  mission?: any
+  storybook?: any
+  profile?: { totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }
+} | null = null
+
+export function clearHomePageCache(): void {
+  cachedHomeData = null
+}
+
 export function HomePage() {
   const user = useAuth((s) => s.user)
-  const [courses, setCourses] = useState<CourseSummary[]>([])
-  const [streak, setStreak] = useState({ current: 0, longest: 0, lastActivityDate: null as string | null })
+  const [courses, setCourses] = useState<CourseSummary[]>(() => cachedHomeData?.courses || [])
+  const [streak, setStreak] = useState(() => cachedHomeData?.streak || { current: 0, longest: 0, lastActivityDate: null as string | null })
 
-  const [badges, setBadges] = useState<AchievementRow[]>([])
+  const [badges, setBadges] = useState<AchievementRow[]>(() => cachedHomeData?.badges || [])
   const [dailyMission, setDailyMission] = useState<{
     title: string
     key: string
@@ -306,19 +319,21 @@ export function HomePage() {
     completedAt: string | null
     claimedAt: string | null
     action: { label: string; route: string }
-  } | null>(null)
+  } | null>(() => cachedHomeData?.mission ?? null)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [explorerXp, setExplorerXp] = useState(0)
-  const [explorerLevel, setExplorerLevel] = useState(1)
-  const [xpIntoLevel, setXpIntoLevel] = useState(0)
-  const [xpToNextLevel, setXpToNextLevel] = useState(100)
+  const [loading, setLoading] = useState(() => !cachedHomeData)
+  const [explorerXp, setExplorerXp] = useState(() => cachedHomeData?.profile?.totalXp ?? 0)
+  const [explorerLevel, setExplorerLevel] = useState(() => cachedHomeData?.profile?.level ?? 1)
+  const [xpIntoLevel, setXpIntoLevel] = useState(() => cachedHomeData?.profile?.xpIntoLevel ?? 0)
+  const [xpToNextLevel, setXpToNextLevel] = useState(() => cachedHomeData?.profile?.xpToNextLevel ?? 100)
   const [profileEquipment, setProfileEquipment] = useState(
     () => user ? readRewardEquipment(user.id) : {},
   )
 
   const load = useCallback(async () => {
-    setLoading(true)
+    if (!cachedHomeData) {
+      setLoading(true)
+    }
     setError(null)
 
     // Progressive Hydration: Chạy cả 2 nhóm request song song ngay từ đầu
@@ -340,10 +355,14 @@ export function HomePage() {
     try {
       // Đợi khóa học xong trước tiên để hiển thị UI ngay lập tức
       const [coursesRes, enrollmentsRes] = await coursesPromise
-      setCourses(coursesWithEnrollments(coursesRes.courses, enrollmentsRes.enrollments))
+      const mergedCourses = coursesWithEnrollments(coursesRes.courses, enrollmentsRes.enrollments)
+      setCourses(mergedCourses)
+      cachedHomeData = { ...(cachedHomeData || { courses: [] }), courses: mergedCourses }
       setLoading(false) // Gỡ bỏ Skeleton ngay lập tức
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
+      if (!cachedHomeData) {
+        setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
+      }
       setLoading(false)
       return
     }
@@ -359,19 +378,24 @@ export function HomePage() {
       ] = await gamificationPromise
 
       if (streakRes.status === 'fulfilled' && streakRes.value) {
-        setStreak({
+        const nextStreak = {
           current: streakRes.value.current,
           longest: streakRes.value.longest,
           lastActivityDate: streakRes.value.lastActivityDate,
-        })
+        }
+        setStreak(nextStreak)
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), streak: nextStreak }
       }
 
       if (achievementsRes.status === 'fulfilled' && achievementsRes.value) {
-        setBadges(recentUnlockedAchievements(achievementsRes.value.achievements, 3))
+        const nextBadges = recentUnlockedAchievements(achievementsRes.value.achievements, 3)
+        setBadges(nextBadges)
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), badges: nextBadges }
       }
 
       if (missionRes.status === 'fulfilled' && missionRes.value?.mission) {
         setDailyMission(missionRes.value.mission)
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), mission: missionRes.value.mission }
       } else {
         setDailyMission(null)
       }
@@ -381,11 +405,13 @@ export function HomePage() {
         setExplorerLevel(profileRes.value.level)
         setXpIntoLevel(profileRes.value.xpIntoLevel)
         setXpToNextLevel(profileRes.value.xpToNextLevel)
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), profile: profileRes.value }
       }
 
       if (user && storybookRes.status === 'fulfilled' && storybookRes.value) {
         const synced = rewardEquipmentFromRows(storybookRes.value.equipment)
         setProfileEquipment(syncRewardEquipment(user.id, synced))
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), storybook: storybookRes.value.equipment }
       }
     } catch {
       // Bỏ qua lỗi gamification do không chặn UI chính

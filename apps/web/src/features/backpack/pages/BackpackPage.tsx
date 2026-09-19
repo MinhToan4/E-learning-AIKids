@@ -210,16 +210,17 @@ export function BackpackPage() {
       ]
       setProjects(mergedProjects)
       if (inventoryResult.status === 'fulfilled' && catalogResult.status === 'fulfilled') {
-        const owned = new Set(inventoryResult.value.inventory.map((item) => item.rewardId))
+        const owned = new Set((inventoryResult.value?.inventory ?? []).map((item) => item.rewardId))
         setRewards(displayableRewardInventory(
-          catalogResult.value.items.filter((item) => owned.has(item.code)),
+          (catalogResult.value?.items ?? []).filter((item) => owned.has(item.code)),
         ))
       } else {
         setRewards([])
       }
       const rejected = [a, p, inventoryResult, catalogResult]
         .find((result) => result.status === 'rejected')
-      if (rejected?.status === 'rejected') {
+      const hasAnyProjects = savedLocalProjects.length > 0 || remoteProjects.length > 0
+      if (rejected?.status === 'rejected' && !hasAnyProjects) {
         setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
       }
     } finally {

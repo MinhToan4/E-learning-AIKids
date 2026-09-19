@@ -316,7 +316,7 @@ export function AchievementsPage() {
               Kệ Trưng Bày Huy Hiệu Soft Clay
             </h1>
             <p className="mt-1 max-w-xl text-base font-semibold text-muted">
-              Mỗi huy hiệu là một viên gạch thành tựu, cùng Mèo Mee tích lũy thật nhiều nhé!
+              Mỗi huy hiệu là một viên gạch thành tựu, cùng Mèo AIKI tích lũy thật nhiều nhé!
             </p>
           </div>
           {!loading && totalSeriesCount > 0 && (
@@ -427,7 +427,7 @@ export function AchievementsPage() {
           ) : (
             <EmptyState
               title="Không có báu vật trong mục này"
-              description="Chọn một mục khác để tiếp tục ngắm nhìn bộ sưu tập con nhé."
+              description="Chọn một mục khác để tiếp tục ngắm nhìn bộ sưu tập học sinh nhé."
             />
           )}
         </div>

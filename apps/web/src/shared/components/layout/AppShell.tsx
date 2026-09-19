@@ -60,6 +60,7 @@ type RoleNavItem = {
   badge?: boolean
   action?: boolean
   group?: string
+  matchPrefixes?: string[]
 }
 
 type StudentFeatureTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
@@ -203,24 +204,30 @@ const studentNav: StudentNavItem[] = [
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
 function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
+  const location = useLocation()
   const managementItems = nav.filter((item) => !item.action)
   const actionItems = nav.filter((item) => item.action)
-  const renderItem = ({ to, label, icon: Icon, end, badge, action }: RoleNavItem) => (
+  const renderItem = ({ to, label, icon: Icon, end, badge, action, matchPrefixes }: RoleNavItem) => (
     <NavLink
       key={to}
       to={to}
       end={end}
       onPointerEnter={() => prefetchRoute(to)}
       onFocus={() => prefetchRoute(to)}
-      className={({ isActive }) =>
-        cn('role-nav-link', action && 'border border-brand-200 bg-brand-50/70 text-brand-700', isActive && 'role-nav-link-active')
-      }
+      className={({ isActive }) => {
+        const isItemActive = matchPrefixes ? matchPrefixes.some((prefix) => location.pathname.startsWith(prefix)) : isActive
+        return cn(
+          'role-nav-link',
+          action && 'border border-brand-200 bg-brand-50/70 text-brand-700',
+          (isItemActive ?? isActive) && 'role-nav-link-active',
+        )
+      }}
     >
       <span className="role-nav-icon relative" aria-hidden="true">
         <Icon size={23} />
         {badge && <span aria-label="Có nhận xét mới" className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white" />}
       </span>
-      <span>{label}</span>
+      <span className="truncate flex-1 text-[13.5px] tracking-tight" title={label}>{label}</span>
     </NavLink>
   )
   return (
@@ -251,16 +258,23 @@ function AdultBottomLink({
   end,
   badge,
   tone,
+  matchPrefixes,
 }: RoleNavItem & { tone: string }) {
+  const location = useLocation()
   return (
     <NavLink
       to={to}
       end={end}
       onPointerEnter={() => prefetchRoute(to)}
       onFocus={() => prefetchRoute(to)}
-      className={({ isActive }) =>
-        cn('adult-bottom-link', `adult-bottom-link-${tone}`, isActive && 'adult-bottom-link-active')
-      }
+      className={({ isActive }) => {
+        const isItemActive = matchPrefixes ? matchPrefixes.some((prefix) => location.pathname.startsWith(prefix)) : isActive
+        return cn(
+          'adult-bottom-link',
+          `adult-bottom-link-${tone}`,
+          (isItemActive ?? isActive) && 'adult-bottom-link-active',
+        )
+      }}
     >
       <span className="adult-bottom-icon relative" aria-hidden="true">
         <Icon size={22} />
@@ -419,6 +433,7 @@ function AdminDrawer({
 }) {
   const [open, setOpen] = useState(false)
   const { handleLogout, loggingOut } = useLogoutAction()
+  const location = useLocation()
 
   return (
     <>
@@ -449,7 +464,7 @@ function AdminDrawer({
         <nav className="admin-drawer-grid" aria-label={menuAriaLabel}>
           {nav.map((item, index) => {
             const showHeader = Boolean(item.group && (index === 0 || nav[index - 1].group !== item.group))
-            const { to, label, icon: Icon, end } = item
+            const { to, label, icon: Icon, end, matchPrefixes } = item
             return (
               <Fragment key={to}>
                 {showHeader && (
@@ -463,9 +478,10 @@ function AdminDrawer({
                   onPointerEnter={() => prefetchRoute(to)}
                   onFocus={() => prefetchRoute(to)}
                   onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
-                  }
+                  className={({ isActive }) => {
+                    const isItemActive = matchPrefixes ? matchPrefixes.some((prefix) => location.pathname.startsWith(prefix)) : isActive
+                    return cn('admin-drawer-item', (isItemActive ?? isActive) && 'admin-drawer-item-active')
+                  }}
                 >
                   <span className="admin-drawer-icon" aria-hidden="true">
                     <Icon size={24} />
@@ -566,9 +582,9 @@ function CmsShell({
   const isAdmin = tone === 'admin'
 
   return (
-    <div className={`role-shell role-tone-${tone} min-h-dvh md:pl-60`}>
+    <div className={`role-shell role-tone-${tone} min-h-dvh md:pl-64`}>
       {/* Desktop sidebar */}
-      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-64 flex-col md:flex">
         <div className="role-brand">
           <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
             <BrandLogo size="md" />
@@ -594,7 +610,7 @@ function CmsShell({
 
       {/* Mobile bottom nav */}
       <div className="md:hidden">
-        {isAdmin && pinnedNav ? (
+        {pinnedNav ? (
           <AdminDrawer nav={nav} pinnedNav={pinnedNav} tone={tone} />
         ) : (
           <AdultBottomNav nav={nav} tone={tone} />
@@ -613,9 +629,9 @@ function AdultChrome({
   brandTo: string
 }) {
   return (
-    <div className="role-shell role-tone-parent min-h-dvh md:pl-60">
+    <div className="role-shell role-tone-parent min-h-dvh md:pl-64">
       {/* Desktop sidebar */}
-      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-64 flex-col md:flex">
         <div className="role-brand">
           <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
             <BrandLogo size="md" />
@@ -712,16 +728,35 @@ export function AppShell() {
   }
 
   if (user?.role === 'teacher') {
+    const teacherNav: RoleNavItem[] = [
+      // 🏫 KHÔNG GIAN GIẢNG DẠY
+      { to: '/teacher', label: 'Tổng quan giảng dạy', icon: CmsOverviewIcon, end: true, group: '🏫 KHÔNG GIAN GIẢNG DẠY' },
+      { to: '/teacher/class', label: 'Lớp học của tôi', icon: CmsClassesIcon, group: '🏫 KHÔNG GIAN GIẢNG DẠY' },
+      { to: '/teacher/operations', label: 'Điểm danh & Sổ đầu bài', icon: CmsSessionsIcon, group: '🏫 KHÔNG GIAN GIẢNG DẠY' },
+
+      // ✍️ CHUYÊN MÔN & SOẠN BÀI
+      { to: '/teacher/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon, group: '✍️ CHUYÊN MÔN & SOẠN BÀI' },
+      { to: '/teacher/assessments', label: 'Đánh giá & Chấm điểm', icon: CmsCoursesIcon, group: '✍️ CHUYÊN MÔN & SOẠN BÀI' },
+
+      // 💬 ĐỒNG HÀNH & KẾT NỐI
+      { to: '/teacher/feedback', label: 'Báo cáo Phụ huynh AI', icon: CmsFeedbackIcon, group: '💬 ĐỒNG HÀNH & KẾT NỐI' },
+      { to: '/teacher/stats', label: 'Thống kê lớp học', icon: CmsAnalyticsIcon, group: '💬 ĐỒNG HÀNH & KẾT NỐI' },
+    ]
+
+    const teacherPinnedNav: RoleNavItem[] = [
+      { to: '/teacher', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+      { to: '/teacher/class', label: 'Lớp học', icon: CmsClassesIcon },
+      { to: '/teacher/operations', label: 'Sổ đầu bài', icon: CmsSessionsIcon },
+      { to: '/teacher/courses', label: 'Xưởng soạn', icon: CmsLecturesIcon },
+    ]
+
     return (
       <CmsShell
         brandTo="/teacher"
         roleLabel="Giáo viên"
         tone="teacher"
-        nav={[
-          { to: '/teacher', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher/class', label: 'Quản lý Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon },
-        ]}
+        nav={teacherNav}
+        pinnedNav={teacherPinnedNav}
       />
     )
   }
@@ -731,29 +766,39 @@ export function AppShell() {
       // 📊 VẬN HÀNH & GIÁM SÁT
       { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true, group: '📊 VẬN HÀNH & GIÁM SÁT' },
       { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon, group: '📊 VẬN HÀNH & GIÁM SÁT' },
-      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon, group: '📊 VẬN HÀNH & GIÁM SÁT' },
 
       // 👥 NGƯỜI DÙNG & PHÂN QUYỀN
-      { to: '/admin/users', label: 'Học sinh & Tài khoản', icon: CmsUsersIcon, group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN' },
-      { to: '/admin/roles', label: 'Vai trò & Phân quyền', icon: CmsClassesIcon, group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN' },
+      {
+        to: '/admin/users',
+        label: 'Tài khoản & Phân quyền',
+        icon: CmsUsersIcon,
+        matchPrefixes: ['/admin/users', '/admin/staff', '/admin/roles', '/admin/logs'],
+        group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN',
+      },
 
       // 🎓 ĐÀO TẠO & KHÓA HỌC
+      { to: '/admin/classes', label: 'Danh mục Lớp học & Phân công', icon: CmsClassesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
       { to: '/admin/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
-      { to: '/admin/classes', label: 'Quản lý Lớp học', icon: CmsClassesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
       { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
-
-      // 💳 TÀI CHÍNH & KINH DOANH
-      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon, group: '💳 TÀI CHÍNH & KINH DOANH' },
 
       // 🤖 CÔNG NGHỆ & AI STUDIO
       { to: '/admin/ai', label: 'Điều phối AI', icon: CmsAiIcon, group: '🤖 CÔNG NGHỆ & AI STUDIO' },
       { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon, group: '🤖 CÔNG NGHỆ & AI STUDIO' },
+
+      // 💳 TÀI CHÍNH & KINH DOANH
+      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon, group: '💳 TÀI CHÍNH & KINH DOANH' },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [
       { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-      { to: '/admin/users', label: 'Học sinh & Tài khoản', icon: CmsUsersIcon },
-      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
+      {
+        to: '/admin/users',
+        label: 'Tài khoản & Phân quyền',
+        icon: CmsUsersIcon,
+        matchPrefixes: ['/admin/users', '/admin/staff', '/admin/roles', '/admin/logs'],
+      },
+      { to: '/admin/classes', label: 'Danh mục Lớp học & Phân công', icon: CmsClassesIcon },
+      { to: '/admin/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon },
     ]
     return (
       <CmsShell

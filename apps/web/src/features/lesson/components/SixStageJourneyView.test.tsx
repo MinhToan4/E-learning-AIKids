@@ -754,9 +754,9 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.className).toContain('lg:w-[360px]')
   })
 
-  it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AKI golden motto', () => {
+  it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AKI golden motto', async () => {
     const root = createRoot(container)
-    act(() => {
+    await act(async () => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
@@ -767,6 +767,12 @@ describe('SixStageJourneyView', () => {
         />
       )
     })
+    await act(async () => {
+      await import('./AikiStudioWorkspace')
+    })
+
+
+
 
     // Main workspace for practice stage
     expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
@@ -1014,7 +1020,7 @@ describe('SixStageJourneyView', () => {
     expect(part4Btn.textContent).toContain('Mèo Thám Tử Mimi')
   })
 
-  it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', () => {
+  it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', async () => {
     const root = createRoot(container)
     const journey3_1: LessonSixStageJourney = {
       ...mockJourney,
@@ -1033,7 +1039,7 @@ describe('SixStageJourneyView', () => {
       },
     }
 
-    act(() => {
+    await act(async () => {
       root.render(
         <SixStageJourneyView
           journey={journey3_1}
@@ -1043,6 +1049,9 @@ describe('SixStageJourneyView', () => {
           initialSidebarCollapsed={false}
         />
       )
+    })
+    await act(async () => {
+      await import('./AikiStudioWorkspace')
     })
 
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')

@@ -11,8 +11,7 @@ import {
   AikiPosterModal,
   type ZoomImageData,
 } from '@/features/lesson/components/AikiRuleVisuals'
-import { AikiRuleVideoPlayer } from '@/features/lesson/components/AikiRuleVideoPlayer'
-import { AikiRuleQuiz } from '@/features/lesson/components/AikiRuleQuiz'
+
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
@@ -57,20 +56,14 @@ import { ApiError, api, type QuestDetail } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
-import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
-import { SketchCanvas } from '@/features/lesson/components/SketchCanvas'
-import { OrderingPractice } from '@/features/lesson/components/OrderingPractice'
 import {
   EMPTY_PROMPT_LAB,
-  PromptLab,
   promptLabError,
   strongPrompt,
   type PromptLabValue,
 } from '@/features/lesson/components/PromptLab'
-import { CardBalancePractice } from '@/features/lesson/components/CardBalancePractice'
 import type { GameEvidence } from '@/features/lesson/components/CurriculumGame'
 import type { GameHint } from '@/features/lesson/components/games/types'
-import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -107,6 +100,15 @@ const CurriculumGame = React.lazy(() =>
     default: m.CurriculumGame,
   })),
 )
+const AikiRuleVideoPlayer = React.lazy(() => import('@/features/lesson/components/AikiRuleVideoPlayer').then(m => ({ default: m.AikiRuleVideoPlayer })))
+const AikiRuleQuiz = React.lazy(() => import('@/features/lesson/components/AikiRuleQuiz').then(m => ({ default: m.AikiRuleQuiz })))
+const RefMediaPicker = React.lazy(() => import('@/features/lesson/components/RefMediaPicker').then(m => ({ default: m.RefMediaPicker })))
+const SketchCanvas = React.lazy(() => import('@/features/lesson/components/SketchCanvas').then(m => ({ default: m.SketchCanvas })))
+const OrderingPractice = React.lazy(() => import('@/features/lesson/components/OrderingPractice').then(m => ({ default: m.OrderingPractice })))
+const PromptLab = React.lazy(() => import('@/features/lesson/components/PromptLab').then(m => ({ default: m.PromptLab })))
+const CardBalancePractice = React.lazy(() => import('@/features/lesson/components/CardBalancePractice').then(m => ({ default: m.CardBalancePractice })))
+const LectureVideo = React.lazy(() => import('@/features/lesson/components/LectureVideo').then(m => ({ default: m.LectureVideo })))
+
 
 // These workshops can continue from course-created work only; the API verifies ownership.
 const GEN_KINDS = new Set(['ai_pick', 'video', 'chips', 'character'])
@@ -1665,16 +1667,18 @@ export function LessonPage() {
 
           {/* Video bài giảng quy tắc 16:9 to bản sắc nét chiếm 100% Cột Trái */}
           {isAikiRuleJourney && ruleData && (
-            <AikiRuleVideoPlayer
-              rule={ruleData}
-              seekTarget={videoSeekTarget}
-              questions={ruleData.questions}
-              activeSlideIndex={aikiRuleStage}
-              onSlideChange={handleSlideChange}
-              selectedAnswer={aikiQuizAnswer}
-              onSelectOption={handleSelectOption}
-              onPlayStateChange={handlePlayStateChange}
-            />
+            <React.Suspense fallback={<div className="p-4 text-center text-sm font-bold text-slate-400">Đang tải...</div>}>
+              <AikiRuleVideoPlayer
+                rule={ruleData}
+                seekTarget={videoSeekTarget}
+                questions={ruleData.questions}
+                activeSlideIndex={aikiRuleStage}
+                onSlideChange={handleSlideChange}
+                selectedAnswer={aikiQuizAnswer}
+                onSelectOption={handleSelectOption}
+                onPlayStateChange={handlePlayStateChange}
+              />
+            </React.Suspense>
           )}
 
           {/* Video bài giảng to bản 16:9 sắc nét đặt ở Mainbar cho khóa học thông thường */}
@@ -1684,7 +1688,9 @@ export function LessonPage() {
                 <Play size={15} className="text-brand-600" />
                 <span>Video bài giảng trạm {quest.order || ''}</span>
               </div>
-              <LectureVideo title={currentLearnVideoTitle || ''} url={currentLearnVideoUrl} />
+              <React.Suspense fallback={<div className="p-4 text-center text-sm font-bold text-slate-400">Đang tải...</div>}>
+                <LectureVideo title={currentLearnVideoTitle || ''} url={currentLearnVideoUrl} />
+              </React.Suspense>
             </div>
           )}
 
@@ -2296,71 +2302,73 @@ export function LessonPage() {
                   </div>
                 )}
 
-              {GEN_KINDS.has(quest.practiceKind) && (
-                <RefMediaPicker
-                  questId={questId}
-                  selectedIds={refAssetIds}
-                  onChange={setRefAssetIds}
-                  max={4}
-                />
-              )}
-
-              {quest.practiceKind === 'sketch' && (
-                <div className="flex flex-col gap-3">
-                  <SketchCanvas onChange={setSketchDataUrl} />
-                  <label className="flex flex-col gap-1 text-sm font-bold">
-                    Ghi chú ngắn (tuỳ chọn)
-                    <input
-                      className="min-h-11 rounded-xl border-2 border-border px-3 text-sm"
-                      value={journalText}
-                      maxLength={200}
-                      placeholder="Ví dụ: thế giới kẹo của con"
-                      onChange={(e) => setJournalText(e.target.value)}
-                    />
-                  </label>
-                </div>
-              )}
-
-              {quest.practiceKind === 'prompt_lab' && (
-                <PromptLab value={promptLab} onChange={setPromptLab} />
-              )}
-
-              {(quest.practiceKind === 'card' ||
-                quest.practiceKind === 'card_balance' ||
-                quest.id.includes('bai-5-2') ||
-                quest.title.toLowerCase().includes('mặt thẻ') ||
-                quest.title.toLowerCase().includes('phù phép mặt thẻ')) && (
-                <CardBalancePractice
-                  onSave={(card) => {
-                    setJournalText(
-                      `Thẻ: ${card.name} | Sức ${card.power}, Nhanh ${card.speed}, Khéo ${card.agility} | Kỹ năng: ${card.skill}`
-                    )
-                  }}
-                />
-              )}
-
-              {quest.practiceKind === 'ordering' && orderingCards.length > 0 && (
-                <div className="grid gap-4">
-                  <OrderingPractice
-                    prompt={practiceStation?.practiceConfig?.prompt ?? practiceStation?.instruction ?? 'Sắp xếp các bước theo thứ tự hợp lý.'}
-                    cards={orderingCards}
-                    order={effectivePracticeOrder}
-                    onChange={setPracticeOrder}
+              <React.Suspense fallback={<div className="p-4 text-center text-sm font-bold text-slate-400">Đang tải...</div>}>
+                {GEN_KINDS.has(quest.practiceKind) && (
+                  <RefMediaPicker
+                    questId={questId}
+                    selectedIds={refAssetIds}
+                    onChange={setRefAssetIds}
+                    max={4}
                   />
-                  <label className="rounded-3xl border-2 border-mint-200 bg-mint-50 p-4 font-bold text-text sm:p-5">
-                    Lý do sắp xếp của con
-                    <span className="mt-1 block text-sm font-semibold text-muted">Giải thích ngắn vì sao các bước cần đi theo thứ tự này.</span>
-                    <textarea
-                      className="mt-3 min-h-36 w-full rounded-2xl border-2 border-mint-200 bg-white p-4 font-semibold leading-relaxed focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100"
-                      value={journalText}
-                      maxLength={600}
-                      placeholder="Con xếp như vậy vì bước đầu tiên cần… Sau đó…"
-                      onChange={(event) => setJournalText(event.target.value)}
+                )}
+
+                {quest.practiceKind === 'sketch' && (
+                  <div className="flex flex-col gap-3">
+                    <SketchCanvas onChange={setSketchDataUrl} />
+                    <label className="flex flex-col gap-1 text-sm font-bold">
+                      Ghi chú ngắn (tuỳ chọn)
+                      <input
+                        className="min-h-11 rounded-xl border-2 border-border px-3 text-sm"
+                        value={journalText}
+                        maxLength={200}
+                        placeholder="Ví dụ: thế giới kẹo của con"
+                        onChange={(e) => setJournalText(e.target.value)}
+                      />
+                    </label>
+                  </div>
+                )}
+
+                {quest.practiceKind === 'prompt_lab' && (
+                  <PromptLab value={promptLab} onChange={setPromptLab} />
+                )}
+
+                {(quest.practiceKind === 'card' ||
+                  quest.practiceKind === 'card_balance' ||
+                  quest.id.includes('bai-5-2') ||
+                  quest.title.toLowerCase().includes('mặt thẻ') ||
+                  quest.title.toLowerCase().includes('phù phép mặt thẻ')) && (
+                  <CardBalancePractice
+                    onSave={(card) => {
+                      setJournalText(
+                        `Thẻ: ${card.name} | Sức ${card.power}, Nhanh ${card.speed}, Khéo ${card.agility} | Kỹ năng: ${card.skill}`
+                      )
+                    }}
+                  />
+                )}
+
+                {quest.practiceKind === 'ordering' && orderingCards.length > 0 && (
+                  <div className="grid gap-4">
+                    <OrderingPractice
+                      prompt={practiceStation?.practiceConfig?.prompt ?? practiceStation?.instruction ?? 'Sắp xếp các bước theo thứ tự hợp lý.'}
+                      cards={orderingCards}
+                      order={effectivePracticeOrder}
+                      onChange={setPracticeOrder}
                     />
-                    <span className="mt-2 block text-right text-xs text-muted">{journalText.trim().length}/600 ký tự</span>
-                  </label>
-                </div>
-              )}
+                    <label className="rounded-3xl border-2 border-mint-200 bg-mint-50 p-4 font-bold text-text sm:p-5">
+                      Lý do sắp xếp của con
+                      <span className="mt-1 block text-sm font-semibold text-muted">Giải thích ngắn vì sao các bước cần đi theo thứ tự này.</span>
+                      <textarea
+                        className="mt-3 min-h-36 w-full rounded-2xl border-2 border-mint-200 bg-white p-4 font-semibold leading-relaxed focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                        value={journalText}
+                        maxLength={600}
+                        placeholder="Con xếp như vậy vì bước đầu tiên cần… Sau đó…"
+                        onChange={(event) => setJournalText(event.target.value)}
+                      />
+                      <span className="mt-2 block text-right text-xs text-muted">{journalText.trim().length}/600 ký tự</span>
+                    </label>
+                  </div>
+                )}
+              </React.Suspense>
 
               {(quest.practiceKind === 'journal' ||
                 quest.practiceKind === 'reflect' ||

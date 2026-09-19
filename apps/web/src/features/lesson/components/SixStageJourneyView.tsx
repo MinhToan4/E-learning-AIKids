@@ -24,11 +24,14 @@ import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import {
-  AikiStudioWorkspace,
   type StudioImageItem,
   getDefaultPracticeParts,
   type PracticePartState,
-} from './AikiStudioWorkspace'
+} from '../lib/practice-parts'
+
+const AikiStudioWorkspace = React.lazy(() =>
+  import('./AikiStudioWorkspace').then((m) => ({ default: m.AikiStudioWorkspace }))
+)
 import { getCreativeEngineMode } from './creative-engine/data/engine-presets'
 import {
   getAikiStudioConfig,
@@ -136,9 +139,9 @@ export function SixStageJourneyView({
       let stationLabel = `Trạm ${num}: ${pureTitle}`
 
       if (num === '1.1') {
-        title = 'Mèo Mimi'
+        title = 'Mèo AIKI'
         icon = '🐱'
-        stationLabel = 'Trạm 1: Mèo Mimi'
+        stationLabel = 'Trạm 1: Mèo AIKI'
       } else if (num === '1.2') {
         title = '4 Chìa Khoá'
         icon = '🔑'
@@ -217,6 +220,13 @@ export function SixStageJourneyView({
     setActiveQuizQuestionIdx(0)
     setCheckedQuestions({})
   }, [currentStage, lessonId])
+
+  useEffect(() => {
+    if (currentStage >= 2) {
+      void import('./AikiStudioWorkspace')
+    }
+  }, [currentStage])
+
 
   // Stage 4 (Practice) submitted artwork state
   const [submittedArtwork, setSubmittedArtwork] = useState<{
@@ -1088,11 +1098,11 @@ export function SixStageJourneyView({
                   </h2>
                   {isLesson1_2 ? (
                     <p className="text-sm sm:text-base text-slate-600 mt-1 font-semibold">
-                      Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bé hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!
+                      Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bạn hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!
                     </p>
                   ) : (
                     <p className="text-sm sm:text-base text-slate-600 mt-0.5 font-semibold">
-                      Bé hãy chọn 1 đáp án chính xác nhất để chuẩn bị bước vào xem video nhé!
+                      Học sinh hãy chọn 1 đáp án chính xác nhất để chuẩn bị bước vào xem video nhé!
                     </p>
                   )}
                 </div>
@@ -1263,7 +1273,7 @@ export function SixStageJourneyView({
                   })}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl w-full mx-auto my-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-6xl xl:max-w-7xl mx-auto my-3">
                   {journey.stage2_confirmGoal.options.map((option, idx) => {
                     const optKey = option.id || `opt-${idx}`
                     const isSelected = selectedConfirmOption === idx
@@ -1310,12 +1320,12 @@ export function SixStageJourneyView({
                         </span>
 
                         {hasValidImg && (
-                          <div className="aspect-[4/3] sm:aspect-[16/10] w-full max-h-[260px] rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1">
+                          <div className="aspect-[16/10] sm:aspect-[16/9] w-full min-h-[260px] sm:min-h-[300px] lg:min-h-[360px] rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1.5">
                             <img
                               decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
-                              className="object-contain w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-300"
+                              className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-300"
                               onError={() => {
                                 setFailedOptionImages((prev) => ({ ...prev, [optKey]: true }))
                               }}
@@ -1366,7 +1376,7 @@ export function SixStageJourneyView({
 
                         {isSelected && (
                           <span className="sr-only">
-                            {isCorrect ? 'Chính xác! Tuyệt vời quá bé ơi!' : 'Chưa đúng rồi, bé hãy thử chọn lại nhé!'}
+                            {isCorrect ? 'Chính xác! Tuyệt vời quá bạn ơi!' : 'Chưa đúng rồi, học sinh hãy thử chọn lại nhé!'}
                           </span>
                         )}
                       </button>
@@ -1472,10 +1482,10 @@ export function SixStageJourneyView({
               {!isDedicatedLessonVideo && (
                 <div
                   data-testid="generic-video-notice"
-                  className="w-full max-w-4xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3.5 py-2 sm:px-5 sm:py-2.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
+                  className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3.5 py-2 sm:px-5 sm:py-2.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
                 >
                   <span>
-                    🎬 Video bài học chuyên sâu của trạm này đang được AKI chuẩn bị! Bé hãy xem video bí kíp của AKI ở trên hoặc bấm &quot;Tiếp tục&quot; để làm trắc nghiệm &amp; thực hành nhé ✨
+                    🎬 Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị! Bạn hãy xem video bí kíp của AIKI ở trên hoặc bấm &quot;Tiếp tục&quot; để làm trắc nghiệm &amp; thực hành nhé ✨
                   </span>
                 </div>
               )}
@@ -1483,7 +1493,7 @@ export function SixStageJourneyView({
               {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN AIKIRULEVIDEOPLAYER */}
               <div
                 data-testid="video-timeline-stepper"
-                className="w-full max-w-4xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
+                className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
               >
                 <div className="flex items-center gap-2.5 sm:gap-3">
                   <button
@@ -1558,10 +1568,10 @@ export function SixStageJourneyView({
                       type="button"
                       onClick={() => speakCurrentStage(currentStageSpeech)}
                       className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                      title="Nghe AKI giảng bài"
+                      title="Nghe AIKI giảng bài"
                     >
                       <Volume2 size={13} className="text-brand-600" />
-                      <span>Nghe AKI giảng</span>
+                      <span>Nghe AIKI giảng</span>
                     </button>
                   </div>
 
@@ -1569,7 +1579,7 @@ export function SixStageJourneyView({
                   {currentChapter && (
                     <div className="sr-only">
                       <span>🎯 Mốc {currentChapterIndex + 1}: {currentChapter.label}</span>
-                      <span>Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!</span>
+                      <span>Video gồm {videoChapters.length} mốc — bạn bấm tua xem lại bất kỳ lúc nào nhé!</span>
                     </div>
                   )}
                 </div>
@@ -1928,32 +1938,43 @@ export function SixStageJourneyView({
               className="flex h-auto w-full min-w-0 shrink-0 flex-col overflow-visible rounded-3xl border-2 border-brand-100 bg-white p-2 pb-8 sm:p-3 sm:pb-4 shadow-clay animate-fade-up"
             >
 
-              <AikiStudioWorkspace
-                config={studioConfig}
-                notebookConfig={journey.stage5_practice.notebookConfig}
-                lessonId={lessonId}
-                lessonTitle={lessonTitle}
-                lessonBadge={journey.stage5_practice.badge || 'Bài thực hành'}
-                characterName={journey.stage5_practice.subjectName || lessonTitle}
-                lockedFeatures={journey.stage5_practice.lockedFeatures}
-                creativeEngineMode={journey.stage5_practice.creativeEngineMode}
-                practiceParts={defaultPracticeParts}
-                initialAttemptsLeft={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
-                maxAttempts={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
-                studentStars={studentStars}
-                activePartIndex={activePracticePartIndex}
-                onPartChange={setActivePracticePartIndex}
-                onPracticePartsSync={(parts, activeIdx) => {
-                  setPracticePartsState(parts)
-                  setActivePracticePartIndex(activeIdx)
-                }}
-                onBackToLesson={() => handleStageSelect(3)}
-                onReplayVideo={() => handleStageSelect(2)}
-                onSubmitWork={({ selectedImage, prompt }) => {
-                  setSubmittedArtwork({ image: selectedImage, prompt })
-                  advanceToStage(5)
-                }}
-              />
+              <React.Suspense
+                fallback={
+                  <div className="flex h-96 w-full items-center justify-center rounded-3xl bg-amber-50/40 p-8 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="size-10 animate-spin rounded-full border-4 border-amber-400 border-t-transparent" />
+                      <p className="text-sm font-black text-amber-900">Đang nạp Xưởng Sáng Tạo AIKI...</p>
+                    </div>
+                  </div>
+                }
+              >
+                <AikiStudioWorkspace
+                  config={studioConfig}
+                  notebookConfig={journey.stage5_practice.notebookConfig}
+                  lessonId={lessonId}
+                  lessonTitle={lessonTitle}
+                  lessonBadge={journey.stage5_practice.badge || 'Bài thực hành'}
+                  characterName={journey.stage5_practice.subjectName || lessonTitle}
+                  lockedFeatures={journey.stage5_practice.lockedFeatures}
+                  creativeEngineMode={journey.stage5_practice.creativeEngineMode}
+                  practiceParts={defaultPracticeParts}
+                  initialAttemptsLeft={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
+                  maxAttempts={defaultPracticeParts.length > 0 ? defaultPracticeParts.length * 2 : 8}
+                  studentStars={studentStars}
+                  activePartIndex={activePracticePartIndex}
+                  onPartChange={setActivePracticePartIndex}
+                  onPracticePartsSync={(parts, activeIdx) => {
+                    setPracticePartsState(parts)
+                    setActivePracticePartIndex(activeIdx)
+                  }}
+                  onBackToLesson={() => handleStageSelect(3)}
+                  onReplayVideo={() => handleStageSelect(2)}
+                  onSubmitWork={({ selectedImage, prompt }) => {
+                    setSubmittedArtwork({ image: selectedImage, prompt })
+                    advanceToStage(5)
+                  }}
+                />
+              </React.Suspense>
             </section>
           )}
 

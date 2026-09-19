@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
+import { UserManagementNav } from '../UserManagementNav'
 import type { SystemInfo, RoleDefinition, PermissionCategory, PermissionItem } from '../../types'
 
 // ── Định nghĩa Danh mục Quyền hạn Chuẩn ────────────────────────
@@ -204,6 +205,8 @@ export function AdminRolesTab() {
 
   return (
     <div className="space-y-6">
+      <UserManagementNav activeTab="roles" />
+
       {/* Top Banner & Tab Controls */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

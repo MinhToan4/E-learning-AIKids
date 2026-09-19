@@ -774,6 +774,14 @@ export function App() {
               }
             />
             <Route
+              path="/admin/staff"
+              element={
+                <Guard roles={['admin']} permissions={['users.view']}>
+                  <AdminPage tab="staff" />
+                </Guard>
+              }
+            />
+            <Route
               path="/admin/roles"
               element={
                 <Guard roles={['admin']} permissions={['system.manage_roles']}>
@@ -785,7 +793,7 @@ export function App() {
               path="/admin/classes"
               element={
                 <Guard roles={['admin']} permissions={['classroom.view']}>
-                  <TeacherPage tab="class" />
+                  <AdminPage tab="classes" />
                 </Guard>
               }
             />

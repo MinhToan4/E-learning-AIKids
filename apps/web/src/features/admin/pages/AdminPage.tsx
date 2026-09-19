@@ -66,11 +66,17 @@ const AdminLogsTab = lazy(() =>
 const AdminUsersTab = lazy(() =>
   import('../components/tabs/AdminUsersTab').then((m) => ({ default: m.AdminUsersTab })),
 )
+const AdminStaffTab = lazy(() =>
+  import('../components/tabs/AdminStaffTab').then((m) => ({ default: m.AdminStaffTab })),
+)
 const AdminRolesTab = lazy(() =>
   import('../components/tabs/AdminRolesTab').then((m) => ({ default: m.AdminRolesTab })),
 )
 const AdminCoursesTab = lazy(() =>
   import('../components/tabs/AdminCoursesTab').then((m) => ({ default: m.AdminCoursesTab })),
+)
+const AdminClassesTab = lazy(() =>
+  import('../components/tabs/AdminClassesTab').then((m) => ({ default: m.AdminClassesTab })),
 )
 const AdminBillingTab = lazy(() =>
   import('../components/tabs/AdminBillingTab').then((m) => ({ default: m.AdminBillingTab })),
@@ -149,10 +155,17 @@ const TAB_METADATA: Record<AdminTab, TabMeta> = {
   },
   users: {
     group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN',
-    title: 'Học sinh, Phụ huynh & Tài khoản',
-    breadcrumb: ['Quản trị', 'Người dùng & Phân quyền', 'Danh sách tài khoản'],
-    description: 'Cấu trúc cây gia đình (Phụ huynh - Con), gán quyền, mở/khóa và đồng bộ Firebase claims.',
+    title: 'Học sinh & Phụ huynh',
+    breadcrumb: ['Quản trị', 'Người dùng & Phân quyền', 'Học sinh & Phụ huynh'],
+    description: 'Cấu trúc cây gia đình (Phụ huynh - Con), liên kết tài khoản con, mã PIN học sinh và phân bổ quyền học tập.',
     badgeCls: 'bg-purple-50 text-purple-700 border-purple-200',
+  },
+  staff: {
+    group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN',
+    title: 'Cán bộ & Quản trị viên',
+    breadcrumb: ['Quản trị', 'Người dùng & Phân quyền', 'Cán bộ & Quản trị'],
+    description: 'Quản lý tài khoản quản trị hệ thống, trưởng ban chuyên môn, giáo viên và kiểm soát đặc quyền vận hành.',
+    badgeCls: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   },
   roles: {
     group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN',
@@ -239,9 +252,18 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
 
       case 'users':
         return (
-          <CmsErrorBoundary name="Tài khoản">
-            <Suspense fallback={<TabLoadingFallback label="Quản lý tài khoản" />}>
+          <CmsErrorBoundary name="Học sinh & Phụ huynh">
+            <Suspense fallback={<TabLoadingFallback label="Quản lý học sinh & phụ huynh" />}>
               <AdminUsersTab />
+            </Suspense>
+          </CmsErrorBoundary>
+        )
+
+      case 'staff':
+        return (
+          <CmsErrorBoundary name="Cán bộ & Quản trị">
+            <Suspense fallback={<TabLoadingFallback label="Quản lý cán bộ & quản trị" />}>
+              <AdminStaffTab />
             </Suspense>
           </CmsErrorBoundary>
         )
@@ -260,6 +282,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <CmsErrorBoundary name="Khóa học">
             <Suspense fallback={<TabLoadingFallback label="Danh mục khóa học" />}>
               <AdminCoursesTab />
+            </Suspense>
+          </CmsErrorBoundary>
+        )
+
+      case 'classes':
+        return (
+          <CmsErrorBoundary name="Quản lý Lớp học">
+            <Suspense fallback={<TabLoadingFallback label="Quản lý lớp học" />}>
+              <AdminClassesTab />
             </Suspense>
           </CmsErrorBoundary>
         )

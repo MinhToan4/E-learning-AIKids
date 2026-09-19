@@ -9,8 +9,10 @@ import { AdminSystemTab } from './AdminSystemTab'
 import { AdminAnalyticsTab } from './AdminAnalyticsTab'
 import { AdminLogsTab } from './AdminLogsTab'
 import { AdminUsersTab } from './AdminUsersTab'
+import { AdminStaffTab } from './AdminStaffTab'
 import { AdminCoursesTab } from './AdminCoursesTab'
 import { AdminRolesTab } from './AdminRolesTab'
+import { AdminClassesTab } from './AdminClassesTab'
 import { AdminPage } from '../../pages/AdminPage'
 import { AdminBillingPos, AI_CREDIT_PACKS } from '../AdminBillingPos'
 import { PendingIntentDetailModal } from '../PendingIntentDetailModal'
@@ -183,6 +185,158 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(grouped[1].isChildInFamily).toBe(true)
     // Other accounts placed after
     expect(grouped[2].id).toBe('teacher-1')
+  })
+
+  it('AdminUsersTab renders and filters only students & parents, hiding staff & admins', async () => {
+    mockApi.mockResolvedValueOnce({
+      users: [
+        {
+          id: 'child-1',
+          role: 'student',
+          email: null,
+          nickname: 'Bé Na',
+          active: true,
+          level: 1,
+          xp: 100,
+          createdAt: '2026-01-01',
+          guardianParent: { id: 'parent-1', name: 'Mẹ Lan', email: 'lan@gmail.com' },
+        },
+        {
+          id: 'parent-1',
+          role: 'parent',
+          email: 'lan@gmail.com',
+          nickname: 'Mẹ Lan',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+          children: [{ id: 'child-1', profileId: 'p-1', name: 'Bé Na' }],
+        },
+        {
+          id: 'teacher-1',
+          role: 'teacher',
+          email: 'gv@storymee.vn',
+          nickname: 'Thầy Hưng',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+        },
+        {
+          id: 'admin-1',
+          role: 'admin',
+          email: 'admin@storymee.vn',
+          nickname: 'Quản Trị Viên',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+        },
+      ],
+    })
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminUsersTab />
+        </MemoryRouter>,
+      )
+    })
+
+    // Contains Students & Parents
+    expect(container.textContent).toContain('Bé Na')
+    expect(container.textContent).toContain('Mẹ Lan')
+    expect(container.textContent).toContain('Học sinh & Phụ huynh')
+    expect(container.textContent).toContain('Thêm tài khoản')
+
+    // Click to open modal
+    const addBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Thêm tài khoản'),
+    )
+    await act(async () => {
+      addBtn?.click()
+    })
+    expect(document.body.textContent).toContain('Tạo tài khoản Gia đình')
+
+    // Hides staff & admins
+    expect(container.textContent).not.toContain('Thầy Hưng')
+    expect(container.textContent).not.toContain('admin@storymee.vn')
+  })
+
+  it('AdminStaffTab renders and filters only staff roles, hiding students & parents', async () => {
+    mockApi.mockResolvedValueOnce({
+      users: [
+        {
+          id: 'child-1',
+          role: 'student',
+          email: null,
+          nickname: 'Bé Na',
+          active: true,
+          level: 1,
+          xp: 100,
+          createdAt: '2026-01-01',
+          guardianParent: { id: 'parent-1', name: 'Mẹ Lan', email: 'lan@gmail.com' },
+        },
+        {
+          id: 'parent-1',
+          role: 'parent',
+          email: 'lan@gmail.com',
+          nickname: 'Mẹ Lan',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+          children: [{ id: 'child-1', profileId: 'p-1', name: 'Bé Na' }],
+        },
+        {
+          id: 'teacher-1',
+          role: 'teacher',
+          email: 'gv@storymee.vn',
+          nickname: 'Thầy Hưng',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+        },
+        {
+          id: 'admin-1',
+          role: 'admin',
+          email: 'admin@storymee.vn',
+          nickname: 'Quản Trị Viên',
+          active: true,
+          level: 1,
+          xp: 0,
+          createdAt: '2026-01-01',
+        },
+      ],
+    })
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminStaffTab />
+        </MemoryRouter>,
+      )
+    })
+
+    // Contains Staff & Admins
+    expect(container.textContent).toContain('Thầy Hưng')
+    expect(container.textContent).toContain('Quản Trị Viên')
+    expect(container.textContent).toContain('Cán bộ & Quản trị')
+    expect(container.textContent).toContain('Thêm cán bộ')
+
+    // Click to open modal
+    const addStaffBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Thêm cán bộ'),
+    )
+    await act(async () => {
+      addStaffBtn?.click()
+    })
+    expect(document.body.textContent).toContain('Tạo Cán bộ / Quản trị')
+
+    // Hides students & parents
+    expect(container.textContent).not.toContain('Bé Na')
+    expect(container.textContent).not.toContain('lan@gmail.com')
   })
 
   it('AdminCoursesTab renders course list and search input', async () => {
@@ -476,6 +630,119 @@ describe('Admin Domain Tabs & POS Refactor', () => {
       card?.click()
     })
     expect(onViewDetail).toHaveBeenCalledWith(mockIntent)
+  })
+
+  it('AdminClassesTab renders KPI metrics, student list, invite code, and action buttons', async () => {
+    mockApi.mockImplementation((url: string) => {
+      if (url === '/api/teacher/class') {
+        return Promise.resolve({
+          class: {
+            id: 'cls-test-1',
+            name: 'Lớp Phi Hành Gia Nhí 3A',
+            code: 'AIKI-3A',
+          },
+          students: [
+            {
+              id: 'stu-1',
+              nickname: 'Bé Miu',
+              level: 3,
+              xp: 250,
+              completedQuests: 5,
+              totalStars: 15,
+              projectCount: 2,
+            },
+            {
+              id: 'stu-2',
+              nickname: 'Bé Thỏ',
+              level: 1,
+              xp: 40,
+              completedQuests: 0,
+              totalStars: 0,
+              projectCount: 0,
+            },
+          ],
+        })
+      }
+      if (url === '/api/teacher/class/stats') {
+        return Promise.resolve({
+          stats: {
+            className: 'Lớp Phi Hành Gia Nhí 3A',
+            code: 'AIKI-3A',
+            studentCount: 2,
+            totalCompletedQuests: 5,
+            openQuestCount: 8,
+            projectCount: 2,
+            students: [
+              {
+                id: 'stu-1',
+                nickname: 'Bé Miu',
+                level: 3,
+                xp: 250,
+                completedQuests: 5,
+                currentQuest: 'Trạm 5',
+                currentPhase: 'practice',
+                lastActiveAt: new Date().toISOString(),
+                needsSupport: false,
+                supportReason: null,
+              },
+              {
+                id: 'stu-2',
+                nickname: 'Bé Thỏ',
+                level: 1,
+                xp: 40,
+                completedQuests: 0,
+                currentQuest: 'Trạm 1',
+                currentPhase: 'explore',
+                lastActiveAt: new Date().toISOString(),
+                needsSupport: true,
+                supportReason: 'Bé đang kẹt ở phần chọn nhân vật',
+              },
+            ],
+          },
+        })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminClassesTab />
+        </MemoryRouter>,
+      )
+    })
+
+    // KPI Metrics Header & Class Info
+    expect(container.textContent).toContain('QUẢN LÝ LỚP HỌC')
+    expect(container.textContent).toContain('Lớp Phi Hành Gia Nhí 3A')
+    expect(container.textContent).toContain('AIKI-3A')
+    expect(container.textContent).toContain('2')
+    expect(container.textContent).toContain('học sinh')
+    expect(container.textContent).toContain('Hiệp Sĩ AIKI')
+    expect(container.textContent).toContain('cần hỗ trợ')
+
+    // Action buttons in header
+    expect(container.textContent).toContain('+ Thêm học sinh')
+    expect(container.querySelector('button[aria-label="Cài đặt lớp"]')).toBeDefined()
+    expect(container.querySelector('button[aria-label="Làm mới"]')).toBeDefined()
+
+    // Sub-Nav View Switcher tabs
+    expect(container.textContent).toContain('Danh sách học sinh')
+    expect(container.textContent).toContain('Thống kê & Hỗ trợ')
+    expect(container.textContent).toContain('Thông tin & Hướng dẫn lớp')
+
+    // Student List Table
+    expect(container.textContent).toContain('Bé Miu')
+    expect(container.textContent).toContain('Bé Thỏ')
+    expect(container.textContent).toContain('Lv3')
+    expect(container.textContent).toContain('250 XP')
+    expect(container.textContent).toContain('5 trạm · 15 ⭐ · 2 🎨')
+    expect(container.textContent).toContain('🛡️ Hiệp Sĩ AIKI')
+    expect(container.textContent).toContain('⏳ Đang học quy tắc')
+
+    // Action buttons on student rows
+    expect(container.textContent).toContain('🔍 Chi tiết')
+    expect(container.textContent).toContain('🗑️ Gỡ')
   })
 })
 

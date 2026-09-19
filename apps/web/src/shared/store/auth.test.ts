@@ -379,4 +379,11 @@ describe('auth store', () => {
       },
     )
   })
+
+  it('exposes __AUTH_STORE__ on window in DEV environment for browser testing/tools', () => {
+    if (typeof window !== 'undefined' && import.meta.env.DEV) {
+      expect((window as unknown as { __AUTH_STORE__: typeof useAuth }).__AUTH_STORE__).toBe(useAuth)
+    }
+  })
 })
+

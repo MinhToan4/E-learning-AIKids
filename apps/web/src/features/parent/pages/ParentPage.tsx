@@ -168,6 +168,7 @@ import {
   CREDIT_PACKS,
   type CheckoutProductMode,
 } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
+import { ParentInvoiceHistory } from '@/features/parent/components/ParentInvoiceHistory'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
 
@@ -625,6 +626,9 @@ function PlanTab({
           ))}
         </div>
       )}
+
+      {/* ── Hóa đơn điện tử MISA & Lịch sử chứng từ ── */}
+      <ParentInvoiceHistory onNotify={(msg, type) => showToast(msg, type || 'info')} />
     </div>
   )
 }
