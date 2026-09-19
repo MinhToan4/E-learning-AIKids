@@ -32,7 +32,7 @@ export const DEFAULT_IDENTITY_LOCK_PARTS: PracticePartDef[] = [
   { partNumber: 1, title: 'Chú Sóc Bông Hạt Dẻ', icon: '🐿️', iconImage: '/assets/aiki-islands/island3_lesson2_opt_b.jpg' },
   { partNumber: 2, title: 'Cáo Lửa Zico Hiệp Sĩ', icon: '🦊', iconImage: '/assets/aiki-islands/island1_lesson4_engineer.jpg' },
   { partNumber: 3, title: 'Chú Bé Robot Leo', icon: '🤖', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
-  { partNumber: 4, title: 'Mèo Thám Tử Mimi', icon: '🐱', iconImage: '/assets/aiki-islands/island1_lesson1_cat.jpg' },
+  { partNumber: 4, title: 'Mèo Thám Tử AIKI', icon: '🐱', iconImage: '/assets/aiki-islands/island1_lesson1_cat.jpg' },
 ]
 
 export interface PracticePartState extends PracticePartDef {

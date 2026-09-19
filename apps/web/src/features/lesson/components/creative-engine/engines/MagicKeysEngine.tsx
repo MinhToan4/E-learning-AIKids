@@ -208,25 +208,6 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     [onPromptChange]
   )
 
-  // Khóa ô slot-subject theo món đồ đã chọn (tự động cập nhật khi đổi món đồ ở Sidebar)
-  useEffect(() => {
-    setSlots((prev) => {
-      const next = prev.map((slot) => {
-        if (slot.keyId === 'subject') {
-          return {
-            ...slot,
-            currentBlock: buildSubjectBlock(effectiveSubject),
-            locked: false,
-            subjectImage: getSubjectImage(effectiveSubject),
-          }
-        }
-        return slot
-      })
-      syncPrompt(next)
-      return next
-    })
-  }, [effectiveSubject, buildSubjectBlock, syncPrompt])
-
   const currentObjectBlocks = useMemo(() => {
     const s = (effectiveSubject || '').toLowerCase()
     if (s.includes('phi hành gia') || s.includes('astronaut')) return CAT_ASTRONAUT_BLOCKS
@@ -252,6 +233,38 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     if (s.includes('cốc') || s.includes('ly') || s.includes('cup') || lessonId?.includes('1-2') || lessonId?.includes('1.2')) return CERAMIC_CUP_BLOCKS
     return [...COLOR_SHAPE_BLOCKS, ...ACTION_BLOCKS, ...CONTEXT_BLOCKS]
   }, [effectiveSubject, lessonId])
+
+  // Khóa ô slot-subject theo món đồ đã chọn (tự động cập nhật khi đổi món đồ ở Sidebar)
+  useEffect(() => {
+    setSlots((prev) => {
+      const next = prev.map((slot) => {
+        if (slot.keyId === 'subject') {
+          return {
+            ...slot,
+            currentBlock: buildSubjectBlock(effectiveSubject),
+            locked: false,
+            subjectImage: getSubjectImage(effectiveSubject),
+          }
+        }
+        // Kiểm tra các slot 2, 3, 4 (slot-color-shape, slot-action, slot-context).
+        // Nếu currentBlock của các slot đó không nằm trong currentObjectBlocks của món đồ mới, reset currentBlock: null
+        if (slot.currentBlock) {
+          const isStillValid = currentObjectBlocks.some(
+            (b) => b.id === slot.currentBlock?.id || (b.category === slot.keyId && b.text === slot.currentBlock?.text)
+          )
+          if (!isStillValid) {
+            return {
+              ...slot,
+              currentBlock: null,
+            }
+          }
+        }
+        return slot
+      })
+      syncPrompt(next)
+      return next
+    })
+  }, [effectiveSubject, buildSubjectBlock, syncPrompt, currentObjectBlocks])
 
   // Tập trung vào các nhóm thuộc tính mô tả
   const allBlocks = currentObjectBlocks
@@ -396,17 +409,17 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
       {/* Tầng 1: Bố cục 3 Cột (Món đồ - 4 Chìa khóa - Tranh AI Canvas) */}
       {practiceSlot || canvasSlot ? (
         <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(200px,250px)_minmax(0,1fr)] xl:grid-cols-[minmax(200px,230px)_minmax(400px,1fr)_minmax(340px,520px)]">
-          {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ BÉ VẼ */}
+          {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ HỌC SINH VẼ */}
           {practiceSlot && (
             <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1 xl:col-start-1 xl:row-start-1">
               {practiceSlot}
             </div>
           )}
 
-          {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AKI */}
+          {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AIKI */}
           <div className="min-w-0 self-start md:col-start-2 md:row-start-1 xl:col-start-2 xl:row-start-1">
             <BlockSlotTray
-              title="4 Chìa Khóa Vàng AKI"
+              title="4 Chìa Khóa Vàng AIKI"
               subtitle="Chạm ô để đổi từ gợi ý"
               slots={slots}
               activeSlotId={activeSlotId}
@@ -441,7 +454,7 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
       ) : (
         <>
           <BlockSlotTray
-            title="4 Chìa Khóa Vàng AKI"
+            title="4 Chìa Khóa Vàng AIKI"
             subtitle="Chạm ô để đổi từ gợi ý"
             slots={slots}
             activeSlotId={activeSlotId}

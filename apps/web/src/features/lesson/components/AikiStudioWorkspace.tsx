@@ -2015,7 +2015,7 @@ export function AikiStudioWorkspace({
     const waitingAkiMsg = {
       id: waitingAkiId,
       sender: 'aki' as const,
-      text: '🐱 AKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bé... Chờ tớ một chút nhé! ✨',
+      text: '🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨',
       time: timeStr,
     }
 
@@ -2615,7 +2615,7 @@ export function AikiStudioWorkspace({
               alt={activePartSubject || effectiveCharacterName}
             />
             <span>Món {activePartIndex + 1}: {activePartSubject}</span>
-            <div>Khung Tranh Sáng Tạo Của Bé Đang Chờ! Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm &quot;Vẽ Đi AKI! ✨&quot; để tranh xuất hiện tại đây nhé!</div>
+            <div>Khung Tranh Sáng Tạo Của Học Sinh Đang Chờ! Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm &quot;Vẽ Đi AIKI! ✨&quot; để tranh xuất hiện tại đây nhé!</div>
           </div>
 
           <div className="absolute top-3 left-3 bg-indigo-600/90 backdrop-blur-xs text-white text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-indigo-400 pointer-events-none">
@@ -2628,10 +2628,10 @@ export function AikiStudioWorkspace({
               🎨
             </div>
             <div className="text-xs sm:text-sm font-black text-slate-800 leading-snug">
-              Khung Tranh Của Bé Đang Chờ!
+              Khung Tranh Của Học Sinh Đang Chờ!
             </div>
             <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed mt-0.5 max-w-xs">
-              Ghép 4 chìa khóa rồi bấm Vẽ Đi AKI! ✨ để xem tranh nhé
+              Ghép 4 chìa khóa rồi bấm Vẽ Đi AIKI! ✨ để xem tranh nhé
             </p>
           </div>
         </div>
@@ -2706,6 +2706,7 @@ export function AikiStudioWorkspace({
                         src={img.url || getStudioAIArtwork(illustrationType, lessonId, part.title || effectiveCharacterName)}
                         alt={`${part.title} Lượt ${tNum}`}
                         className="size-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = getStudioAIArtwork(illustrationType, lessonId, part.title || effectiveCharacterName) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
                       />
                       <div className="absolute top-0.5 left-0.5 bg-black/60 backdrop-blur-xs text-white text-[9px] font-black px-1 rounded-sm flex items-center gap-0.5 pointer-events-none">
                         <span>{part.icon}</span>
@@ -2951,7 +2952,7 @@ export function AikiStudioWorkspace({
             ))}
             <p>
               {isGenerating
-                ? '🐱 AKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bé... Chờ tớ một chút nhé! ✨'
+                ? '🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨'
                 : latestAkiMessageText}
             </p>
             {chatMessages

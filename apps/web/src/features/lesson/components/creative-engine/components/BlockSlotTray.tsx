@@ -98,7 +98,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
   onRemoveBlock,
   onDropBlock,
   onSlotClick,
-  title = '4 Chìa Khóa Vàng AKI',
+  title = '4 Chìa Khóa Vàng AIKI',
   subtitle,
   isComplete,
   className,

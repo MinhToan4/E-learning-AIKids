@@ -248,7 +248,7 @@ describe('CreativeEngine Suite', () => {
         />
       )
       expect(html).toContain('data-testid="magic-keys-engine"')
-      expect(html).toContain('4 Chìa Khóa Vàng AKI')
+      expect(html).toContain('4 Chìa Khóa Vàng AIKI')
       expect(html).toContain('Khay Thẻ Bài 4 Nhóm Chìa Khóa')
     })
 

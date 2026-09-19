@@ -278,7 +278,7 @@ describe('AikiStudioWorkspace', () => {
     )
 
     // Kiểm tra tin nhắn chờ của AKI xuất hiện trong chat
-    expect(container.textContent).toContain('🐱 AKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bé... Chờ tớ một chút nhé! ✨')
+    expect(container.textContent).toContain('🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨')
 
     // Kiểm tra tin nhắn phản hồi thành công và ảnh mới được thêm vào gallery
     expect(container.textContent).toContain('Đã tạo tranh hoàn thành cho bé!')
@@ -864,7 +864,7 @@ describe('AikiStudioWorkspace', () => {
     // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty, kiểm tra responsive max-h và max-w
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
-    expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Bé Đang Chờ!')
+    expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Học Sinh Đang Chờ!')
     expect(emptyCanvas?.className).toContain('lg:max-h-[290px]')
     expect(emptyCanvas?.className).toContain('xl:max-h-[310px]')
     expect(emptyCanvas?.className).toContain('2xl:max-h-[350px]')
@@ -1265,21 +1265,21 @@ describe('AikiStudioWorkspace', () => {
     expect(DEFAULT_IDENTITY_LOCK_PARTS[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
     expect(DEFAULT_IDENTITY_LOCK_PARTS[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
     expect(DEFAULT_IDENTITY_LOCK_PARTS[2].title).toBe('Chú Bé Robot Leo')
-    expect(DEFAULT_IDENTITY_LOCK_PARTS[3].title).toBe('Mèo Thám Tử Mimi')
+    expect(DEFAULT_IDENTITY_LOCK_PARTS[3].title).toBe('Mèo Thám Tử AIKI')
 
     const identityParts = getDefaultPracticeParts(undefined, undefined, 'identity-lock')
     expect(identityParts).toHaveLength(4)
     expect(identityParts[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
     expect(identityParts[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
     expect(identityParts[2].title).toBe('Chú Bé Robot Leo')
-    expect(identityParts[3].title).toBe('Mèo Thám Tử Mimi')
+    expect(identityParts[3].title).toBe('Mèo Thám Tử AIKI')
 
     const bai33Parts = getDefaultPracticeParts('bai-3-3')
     expect(bai33Parts).toHaveLength(4)
     expect(bai33Parts[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
     expect(bai33Parts[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
     expect(bai33Parts[2].title).toBe('Chú Bé Robot Leo')
-    expect(bai33Parts[3].title).toBe('Mèo Thám Tử Mimi')
+    expect(bai33Parts[3].title).toBe('Mèo Thám Tử AIKI')
 
     // 5. style-prism
     expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Chú Trâu Đất Nặn')

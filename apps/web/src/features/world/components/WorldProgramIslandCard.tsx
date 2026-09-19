@@ -250,7 +250,7 @@ export function WorldProgramIslandCard({
               Khóa sáng tạo nội dung cùng AIKID
             </h3>
             <p className="text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
-              Nắm vững 10 quy tắc vàng an toàn, cùng AKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.
+              Nắm vững 10 quy tắc vàng an toàn, cùng AIKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.
             </p>
           </div>
 

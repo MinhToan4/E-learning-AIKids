@@ -103,6 +103,8 @@ export function AdminBillingTab() {
   const [selectedPlanFilter, setSelectedPlanFilter] = useState<string>('all')
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'paid' | 'free' | 'expired'>('all')
   const [isPosCollapsed, setIsPosCollapsed] = useState(false)
+  const isWideView = billingPlanView === 'invoices' || billingPlanView === 'logs'
+  const shouldShowPos = !isPosCollapsed && !isWideView
 
   // Transaction logs state
   const [txLogs, setTxLogs] = useState<BillingTransactionLog[]>(getStoredBillingLogs)
@@ -637,17 +639,19 @@ export function AdminBillingTab() {
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => setIsPosCollapsed((prev) => !prev)}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 cursor-pointer ml-auto"
-        >
-          <span>{isPosCollapsed ? '📦 Mở POS Thu Ngân' : '📐 Thu gọn POS'}</span>
-        </button>
+        {!isWideView && (
+          <button
+            type="button"
+            onClick={() => setIsPosCollapsed((prev) => !prev)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 cursor-pointer ml-auto"
+          >
+            <span>{isPosCollapsed ? '📦 Mở POS Thu Ngân' : '📐 Thu gọn POS'}</span>
+          </button>
+        )}
       </div>
 
       {/* ── Layout chính: Trái (Data/Catalog/Logs) | Phải (Admin POS) ── */}
-      <div className={cn('grid gap-5', isPosCollapsed ? 'grid-cols-1' : 'xl:grid-cols-[1fr_410px]')}>
+      <div className={cn('grid gap-5', shouldShowPos ? 'xl:grid-cols-[1fr_410px]' : 'grid-cols-1')}>
         {/* ─── CỘT TRÁI ─── */}
         <div className="flex flex-col gap-5">
           {/* Danh sách thuê bao */}
@@ -1160,7 +1164,7 @@ export function AdminBillingTab() {
         </div>
 
         {/* ─── CỘT PHẢI: TRUNG TÂM LÊN GÓI & THU NGÂN (ADMIN POS) ─── */}
-        {!isPosCollapsed && (
+        {shouldShowPos && (
           <AdminBillingPos
             billingAdminMode={billingAdminMode}
             setBillingAdminMode={setBillingAdminMode}

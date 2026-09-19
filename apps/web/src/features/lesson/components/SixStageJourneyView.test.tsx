@@ -277,7 +277,7 @@ describe('SixStageJourneyView', () => {
       optABtn?.click()
     })
 
-    expect(container.textContent).toContain('Chính xác! Tuyệt vời quá bé ơi!')
+    expect(container.textContent).toContain('Chính xác! Tuyệt vời quá bạn ơi!')
     expect(container.textContent).toContain('🎬 Xem video bài học thôi nào →')
 
     // Click to advance to video stage
@@ -553,7 +553,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo')
   })
 
-  it('verifies Stage 1 option image container uses aspect-[4/3] object-contain and max-h-[260px] to prevent vertical stretching, and supports full-screen zoom Lightbox', () => {
+  it('verifies Stage 1 option image container uses aspect-[16/10] object-cover and min-h-[260px] to prevent vertical stretching, and supports full-screen zoom Lightbox', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -569,8 +569,8 @@ describe('SixStageJourneyView', () => {
     const stage1Section = container.querySelector('section[data-testid="stage-1-confirm"]')
     expect(stage1Section).not.toBeNull()
 
-    // Verify option cards use h-auto and max-w-4xl to prevent vertical and horizontal stretching
-    const optionsGrid = stage1Section?.querySelector('.max-w-4xl')
+    // Verify option cards use h-auto and max-w-6xl to prevent vertical and horizontal stretching
+    const optionsGrid = stage1Section?.querySelector('.max-w-6xl')
     expect(optionsGrid).not.toBeNull()
     const optionCards = optionsGrid?.querySelectorAll('button')
     expect(optionCards?.length).toBe(2)
@@ -578,19 +578,19 @@ describe('SixStageJourneyView', () => {
       expect(card.className).toContain('h-auto')
     })
 
-    const imgContainers = stage1Section?.querySelectorAll('.aspect-\\[4\\/3\\]')
+    const imgContainers = stage1Section?.querySelectorAll('.aspect-\\[16\\/10\\]')
     expect(imgContainers?.length).toBe(2)
 
     imgContainers?.forEach((box) => {
-      expect(box.className).toContain('aspect-[4/3]')
-      expect(box.className).toContain('sm:aspect-[16/10]')
-      expect(box.className).toContain('max-h-[260px]')
+      expect(box.className).toContain('aspect-[16/10]')
+      expect(box.className).toContain('sm:aspect-[16/9]')
+      expect(box.className).toContain('min-h-[260px]')
     })
 
     const images = stage1Section?.querySelectorAll('img')
     expect(images?.length).toBe(2)
     images?.forEach((img) => {
-      expect(img.className).toContain('object-contain')
+      expect(img.className).toContain('object-cover')
     })
 
     // Test clicking zoom button to open Lightbox Modal
@@ -1017,7 +1017,7 @@ describe('SixStageJourneyView', () => {
     expect(part1Btn.textContent).toContain('Chú Sóc Bông Hạt Dẻ')
     expect(part2Btn.textContent).toContain('Cáo Lửa Zico Hiệp Sĩ')
     expect(part3Btn.textContent).toContain('Chú Bé Robot Leo')
-    expect(part4Btn.textContent).toContain('Mèo Thám Tử Mimi')
+    expect(part4Btn.textContent).toContain('Mèo Thám Tử AIKI')
   })
 
   it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', async () => {
@@ -1236,7 +1236,7 @@ describe('SixStageJourneyView', () => {
 
     const badge = container.querySelector('[data-testid="current-station-badge"]')
     expect(badge).not.toBeNull()
-    expect(badge?.textContent).toContain('Trạm 1: Mèo Mimi')
+    expect(badge?.textContent).toContain('Trạm 1: Mèo AIKI')
     expect(badge?.textContent).toContain('🐱')
 
     // 6 chặng tiến độ hiển thị đầy đủ, thoáng đãng
@@ -1379,7 +1379,7 @@ describe('SixStageJourneyView', () => {
     const stage1 = container.querySelector('[data-testid="stage-1-confirm"]')
     expect(stage1).not.toBeNull()
     expect(stage1?.textContent).toContain(
-      'Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bé hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!'
+      'Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bạn hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!'
     )
   })
 
@@ -1706,7 +1706,7 @@ describe('SixStageJourneyView', () => {
     const timelineStepper = stage2Section?.querySelector('[data-testid="video-timeline-stepper"]')
     expect(timelineStepper).not.toBeNull()
     expect(timelineStepper?.textContent).toContain('Xem lại video')
-    expect(timelineStepper?.textContent).toContain('Nghe AKI giảng')
+    expect(timelineStepper?.textContent).toContain('Nghe AIKI giảng')
     expect(timelineStepper?.textContent).toContain('Tình huống khởi động')
 
     // Bấm mốc "Thực hành cùng AKI" (node thứ 3, startSec = 120)
@@ -1738,8 +1738,8 @@ describe('SixStageJourneyView', () => {
 
     const notice = container.querySelector('[data-testid="generic-video-notice"]')
     expect(notice).not.toBeNull()
-    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AKI chuẩn bị!')
-    expect(notice?.textContent).toContain('Bé hãy xem video bí kíp của AKI ở trên hoặc bấm "Tiếp tục" để làm trắc nghiệm & thực hành nhé ✨')
+    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị!')
+    expect(notice?.textContent).toContain('Bạn hãy xem video bí kíp của AIKI ở trên hoặc bấm "Tiếp tục" để làm trắc nghiệm & thực hành nhé ✨')
 
     // 2. Bài 1.2 (Dedicated video): Không hiển thị thông báo
     act(() => {

@@ -184,15 +184,17 @@ export function AdminInvoiceManager({ onNotify }: AdminInvoiceManagerProps) {
         <div className="flex flex-col gap-3 border-b border-border/70 p-4 bg-brand-50/20 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xl">🧾</span>
                 <h3 className="font-display text-base sm:text-lg font-black text-text">
-                  Quản Lý Hóa Đơn Điện Tử MISA & Báo Cáo Thuế Việt Nam
+                  Quản Lý Hóa Đơn Điện Tử MISA (B2B Trường Học & Tổ Chức)
                 </h3>
+                <span className="rounded-full bg-brand-100 text-brand-700 px-2.5 py-0.5 text-[11px] font-black border border-brand-200">
+                  Dành cho Trường học & Doanh nghiệp
+                </span>
               </div>
-              <p className="text-xs text-muted mt-0.5">
-                Căn cứ Nghị định 123/2020/NĐ-CP, Thông tư 78/2021/TT-BTC & Khoản 13, 21 Điều 4 Thông tư 219/2013/TT-BTC
-                (Dịch vụ giáo dục E-learning & Phần mềm AI Kids thuộc diện Không chịu thuế GTGT).
+              <p className="text-xs text-muted mt-0.5 max-w-4xl leading-relaxed">
+                Hệ thống xuất và quản lý HĐĐT MISA meInvoice dành riêng cho <strong>Trường học, Tổ chức Giáo dục & Khách hàng Doanh nghiệp (B2B)</strong> nộp báo cáo thuế theo Nghị định 123/2020/NĐ-CP, Thông tư 78/2021/TT-BTC & Thông tư 219/2013/TT-BTC (Dịch vụ giáo dục E-learning & Bản quyền phần mềm không chịu thuế GTGT).
               </p>
             </div>
 
@@ -274,18 +276,18 @@ export function AdminInvoiceManager({ onNotify }: AdminInvoiceManagerProps) {
 
         {/* Bảng dữ liệu hóa đơn */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-xs">
+          <table className="w-full min-w-[1050px] text-left text-xs">
             <thead>
               <tr className="border-b border-border/40 bg-brand-50/60">
-                <th className="px-4 py-3 font-extrabold text-slate-800">Số HĐ & Ký hiệu</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Ngày xuất</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Người mua / Doanh nghiệp</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Gói dịch vụ</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Doanh thu (VND)</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Thuế suất</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Mã Cơ quan Thuế</th>
-                <th className="px-4 py-3 font-extrabold text-slate-800">Trạng thái HĐĐT</th>
-                <th className="px-4 py-3 font-extrabold text-right text-slate-800">Thao tác</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[135px]">Số HĐ & Ký hiệu</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[95px]">Ngày xuất</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 min-w-[240px]">Người mua / Đơn vị B2B</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 min-w-[220px]">Gói dịch vụ / Khóa học</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[130px]">Doanh thu (VND)</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[110px]">Thuế suất</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[150px]">Mã Cơ quan Thuế</th>
+                <th className="px-4 py-3 font-extrabold text-slate-800 w-[130px]">Trạng thái HĐĐT</th>
+                <th className="px-4 py-3 font-extrabold text-right text-slate-800 w-[170px]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -294,7 +296,7 @@ export function AdminInvoiceManager({ onNotify }: AdminInvoiceManagerProps) {
                   <td colSpan={9} className="px-4 py-16 text-center text-muted">
                     <p className="font-bold text-sm text-text">Không tìm thấy hóa đơn điện tử nào</p>
                     <p className="text-xs text-muted mt-1">
-                      Các hóa đơn phát sinh khi phụ huynh thanh toán gói học sẽ được lưu trữ và cấp mã CQT tại đây.
+                      Các hóa đơn B2B phát sinh khi Trường học, Tổ chức Giáo dục hoặc Doanh nghiệp thanh toán bản quyền sẽ được lưu trữ và cấp mã CQT tại đây.
                     </p>
                   </td>
                 </tr>
@@ -323,27 +325,29 @@ export function AdminInvoiceManager({ onNotify }: AdminInvoiceManagerProps) {
                       </td>
 
                       {/* Người mua & MST */}
-                      <td className="px-4 py-3 max-w-[220px]">
-                        <p className="font-bold text-slate-900 truncate" title={inv.buyerLegalName}>
+                      <td className="px-4 py-3 min-w-[240px]">
+                        <p className="font-bold text-slate-900 leading-snug whitespace-normal" title={inv.buyerLegalName}>
                           {inv.buyerLegalName}
                         </p>
-                        <p className="text-slate-500 font-mono text-[11px] truncate">
-                          {inv.buyerEmail || '—'}
-                        </p>
+                        {inv.buyerEmail && (
+                          <p className="text-slate-500 font-mono text-[11px] mt-0.5">
+                            {inv.buyerEmail}
+                          </p>
+                        )}
                         {inv.buyerTaxCode && (
-                          <span className="inline-block rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-700 mt-0.5 border border-slate-200">
+                          <span className="inline-block rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-700 mt-1 border border-slate-200">
                             MST: {inv.buyerTaxCode}
                           </span>
                         )}
                       </td>
 
                       {/* Gói dịch vụ */}
-                      <td className="px-4 py-3">
-                        <span className="font-bold text-slate-800 line-clamp-1" title={inv.planName}>
+                      <td className="px-4 py-3 min-w-[220px]">
+                        <p className="font-bold text-slate-800 whitespace-normal leading-snug" title={inv.planName}>
                           {inv.planName}
-                        </span>
-                        <span className="text-[10px] text-slate-500 block">
-                          PT: {inv.paymentMethod}
+                        </p>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          Hình thức: {inv.paymentMethod}
                         </span>
                       </td>
 
