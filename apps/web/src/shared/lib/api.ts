@@ -234,6 +234,7 @@ function responseCacheTtl(path: string): number {
   if (path.startsWith('/api/admin/login-logs')) return 15_000 // 15s cache SWR
   if (path.startsWith('/api/teacher/lectures') || path.startsWith('/api/admin/courses') || path.startsWith('/api/courses')) return 60_000
   if (path.startsWith('/api/learning/pathway')) return 60_000
+  if (path.startsWith('/api/quests/')) return 60_000 // 60s SWR cache cho cấu trúc trạm học tĩnh
   if (path.startsWith('/api/learning/age-policy')) return 300_000 // 5 phút policy tuổi tĩnh
   if (path.startsWith('/api/progress/')) return 15_000
   if (path.startsWith('/api/parent/plans') || path.startsWith('/api/parent/subscription')) return 60_000

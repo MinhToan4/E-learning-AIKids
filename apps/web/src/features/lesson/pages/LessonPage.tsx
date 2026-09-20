@@ -512,6 +512,13 @@ export function LessonPage() {
           })),
         } as any)
         setLoading(false)
+        const nextSlug =
+          (islandCurriculum.journey as any)?.nextSlug ||
+          islandCurriculum.journey?.stage6_completion?.nextLessonSlug ||
+          islandCurriculum.nextLessonSlug
+        if (nextSlug) {
+          learningApi.getLesson(nextSlug).catch(() => {})
+        }
         return
       }
 
@@ -523,6 +530,17 @@ export function LessonPage() {
         if (cancelled) return
         setQuest(data.quest)
         setLiveStars(start.progress.stars)
+
+        // Prefetch ngầm trạm học kế tiếp sau khi tải trạm hiện tại thành công (0ms SWR cache khi chuyển trạm)
+        const nextSlug =
+          (data.quest.sixStageJourney as any)?.nextSlug ||
+          data.quest.sixStageJourney?.stage6_completion?.nextLessonSlug ||
+          (data.quest as any)?.nextQuestId ||
+          (data.quest as any)?.nextLessonSlug
+        if (nextSlug) {
+          learningApi.getLesson(nextSlug).catch(() => {})
+        }
+
         // Resume mid-quest; completed stations open on celebrate/review
         if (start.progress.status === 'completed') {
           setPhase('done')
@@ -690,6 +708,12 @@ export function LessonPage() {
       }
     })()
   }, [quest, phase, checkResult?.nextQuestId, isAikiRuleJourney, ruleId])
+
+  useEffect(() => {
+    if (checkResult?.nextQuestId) {
+      learningApi.getLesson(checkResult.nextQuestId).catch(() => {})
+    }
+  }, [checkResult?.nextQuestId])
 
   const ruleData = useMemo(() => {
     if (!isAikiRuleJourney) return null

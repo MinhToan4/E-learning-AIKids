@@ -73,6 +73,11 @@ describe('short-lived API response cache', () => {
     await api('/api/gamification/daily-mission')
     await api('/api/gamification/daily-mission')
     expect(fetchMock).toHaveBeenCalledTimes(7)
+
+    // Test quests caching (60s SWR for static quest structure)
+    await api('/api/quests/station-1')
+    await api('/api/quests/station-1')
+    expect(fetchMock).toHaveBeenCalledTimes(8)
   })
 
   it('caches /api/auth/firebase/config with 300_000ms TTL', async () => {
