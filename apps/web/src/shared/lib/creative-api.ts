@@ -191,8 +191,15 @@ export async function generateCreativeImage(input: {
     setTimeout(() => reject(new Error('Creative generation timeout (60s)')), 60000)
   )
 
+  let safePrompt = (input.prompt || '').trim()
+  const pLower = safePrompt.toLowerCase()
+  if (!pLower.includes('cartoon') && !pLower.includes('illustration') && !pLower.includes('soft clay')) {
+    safePrompt = `Cute 3D cartoon animation style, soft clay storybook illustration, vibrant warm pastel colors: ${safePrompt}. Friendly playful children's art, strictly non-realistic.`
+  }
+
   const jobParams: Record<string, unknown> = {
-    prompt: input.prompt,
+    prompt: safePrompt,
+    negative_prompt: 'realistic photo, photorealism, real life photo, camera photography, human photograph, horror, violence, deformed',
     provider,
     model_id: input.modelId || 'NARWHAL',
     aspect_ratio: input.aspectRatio || '4:3',

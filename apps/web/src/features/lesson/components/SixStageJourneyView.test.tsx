@@ -960,7 +960,7 @@ describe('SixStageJourneyView', () => {
 
     // Mặc định part 1 đang làm
     expect(part1Btn.textContent).toContain('PHẦN 1 - ĐANG LÀM')
-    expect(part1Btn.textContent).toContain('Cái cốc sứ trắng')
+    expect(part1Btn.textContent).toContain('Con cún')
     expect(part2Btn.textContent).toContain('PHẦN 2 - CHỜ')
     expect(part2Btn.textContent).toContain('Cái xe đạp')
 
@@ -976,15 +976,15 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.textContent).toContain('↺ Tua lại video')
   })
 
-  it('loads correct 4 standard identity characters for Station 3.3 (bai-3-3)', () => {
+  it('loads correct 6 standard expressions for Station 3.3 (bai-3-3)', () => {
     const root = createRoot(container)
     const journey3_3: LessonSixStageJourney = {
       ...mockJourney,
       stage5_practice: {
         ...mockJourney.stage5_practice,
         id: 'bai-3-3-stage5-practice',
-        title: 'Xưởng Sáng Tạo: Ổ Khóa Vàng Nhận Diện',
-        subjectName: 'Biệt Đội 4 Nhân Vật',
+        title: 'Xưởng Sáng Tạo: Biến Hoá Biểu Cảm',
+        subjectName: 'Biệt Đội 6 Biểu Cảm',
       },
     }
 
@@ -993,7 +993,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={journey3_3}
           lessonId="bai-3-3"
-          lessonTitle="Ổ Khóa Vàng Nhận Diện"
+          lessonTitle="Biến Hoá Biểu Cảm"
           initialStageIndex={4}
           initialSidebarCollapsed={false}
         />
@@ -1003,7 +1003,7 @@ describe('SixStageJourneyView', () => {
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
 
-    // 4 cards in sidebar should be 4 standard characters: Sóc Bông, Cáo Lửa, Robot Leo, Mèo Mimi
+    // 6 expression cards in sidebar for Station 3.3
     const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
     const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
     const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
@@ -1014,10 +1014,10 @@ describe('SixStageJourneyView', () => {
     expect(part3Btn).not.toBeNull()
     expect(part4Btn).not.toBeNull()
 
-    expect(part1Btn.textContent).toContain('Chú Sóc Bông Hạt Dẻ')
-    expect(part2Btn.textContent).toContain('Cáo Lửa Zico Hiệp Sĩ')
-    expect(part3Btn.textContent).toContain('Chú Bé Robot Leo')
-    expect(part4Btn.textContent).toContain('Mèo Thám Tử AIKI')
+    expect(part1Btn.textContent).toContain('Biểu cảm Vui 😊')
+    expect(part2Btn.textContent).toContain('Biểu cảm Buồn 😢')
+    expect(part3Btn.textContent).toContain('Biểu cảm Sợ 😨')
+    expect(part4Btn.textContent).toContain('Biểu cảm Giận 😠')
   })
 
   it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', async () => {

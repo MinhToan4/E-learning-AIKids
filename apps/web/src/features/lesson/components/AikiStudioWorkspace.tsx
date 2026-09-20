@@ -1281,6 +1281,45 @@ export function StudioTopicIllustration({
   }
 }
 
+/**
+ * Chuẩn hóa và bọc phong cách 3D hoạt hình / Soft Clay AI Kids cho câu lệnh của bé,
+ * tuyệt đối triệt tiêu rủi ro sinh ảnh chụp đời thực (realistic photo/camera photo).
+ */
+export function formatAikiCartoonPrompt(rawPrompt: string, mode?: string): string {
+  const normMode = (mode || '').toLowerCase()
+  const cleanPrompt = (rawPrompt || '').trim()
+
+  if (normMode === 'style-prism') {
+    const pLower = cleanPrompt.toLowerCase()
+    let specificStyle = ''
+    if (pLower.includes('màu nước') || pLower.includes('watercolor')) {
+      specificStyle = 'whimsical vibrant watercolor children book illustration style with soft organic translucent washes'
+    } else if (pLower.includes('đất nặn') || pLower.includes('clay')) {
+      specificStyle = 'handcrafted 3D soft clay sculpture style with smooth rounded clay diorama texture'
+    } else if (pLower.includes('truyện tranh') || pLower.includes('chibi') || pLower.includes('manga') || pLower.includes('comic')) {
+      specificStyle = 'adorable chibi anime manga comic book style with crisp bold friendly line art'
+    } else if (pLower.includes('đông hồ') || pLower.includes('dân gian')) {
+      specificStyle = 'stylized Vietnamese Dong Ho folk woodblock art style on rustic textured background'
+    }
+
+    if (specificStyle) {
+      return (
+        'Cute 3D cartoon animation style, ' +
+        specificStyle +
+        ', vibrant warm pastel colors, charming playful children\'s illustration. Subject: ' +
+        cleanPrompt +
+        '. Friendly warm studio lighting, 3D animated character art. Strictly avoid realistic photo, no camera photography, no photorealism, no real humans, no real-life photograph.'
+      )
+    }
+  }
+
+  return (
+    'Cute 3D cartoon animation style, soft clay storybook illustration, vibrant warm pastel colors, smooth clay diorama render, charming playful children\'s illustration. Subject: ' +
+    cleanPrompt +
+    '. Friendly warm studio lighting, 3D animated character art. Strictly avoid realistic photo, no camera photography, no photorealism, no real humans, no real-life photograph.'
+  )
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // AI ARTWORK SSOT - ĐẢM BẢO TRANH AI 3D SOFT CLAY THẬT 100% CHO 22 BÀI HỌC
 // ────────────────────────────────────────────────────────────────────────────
@@ -1293,6 +1332,12 @@ export function getStudioAIArtwork(
   const cName = (characterName || '').toLowerCase()
   const t = (type || '').toLowerCase()
 
+  if (cName.includes('cún') || cName.includes('chó') || cName.includes('dog')) {
+    return '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp'
+  }
+  if (cName.includes('cá vàng') || cName.includes('fish')) {
+    return '/assets/aiki-islands/island1_lesson1_cat.jpg'
+  }
   if (cName.includes('xe') || cName.includes('đạp') || cName.includes('bicycle')) {
     return '/assets/aiki-islands/island1_lesson2_bicycle.jpg'
   }
@@ -1527,7 +1572,9 @@ export function AikiStudioWorkspace({
   }
   const activePartSubject = isCreativeNotebook
     ? effectiveNotebookConfig?.notebookTitle || 'Sổ Tay Ba Lô'
-    : currentPartDef?.title || effectiveCharacterName
+    : currentPartDef?.title && !currentPartDef.title.toLowerCase().includes('chọn nhân vật')
+      ? currentPartDef.title
+      : effectiveCharacterName || currentPartDef?.title
 
   const step1QuickPrompt = useMemo(() => {
     return activePartSubject ? activePartSubject.split(' ').slice(0, 2).join(' ') : 'Cốc Sứ'
@@ -2045,9 +2092,10 @@ export function AikiStudioWorkspace({
       isFallback = true
     } else {
       try {
-        // 3. Gọi generateCreativeImage
+        // 3. Gọi generateCreativeImage với prompt đã được ép phong cách 3D hoạt hình / Soft Clay AI Kids
+        const cartoonPrompt = formatAikiCartoonPrompt(rawPrompt, effectiveMode)
         const generatedUrl = await generateCreativeImage({
-          prompt: rawPrompt,
+          prompt: cartoonPrompt,
           aspectRatio: '4:3',
           refImageUrl: activeRefImageUrl,
         })

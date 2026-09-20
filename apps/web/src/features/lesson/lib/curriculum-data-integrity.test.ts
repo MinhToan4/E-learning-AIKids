@@ -7,6 +7,8 @@ import {
   DOG_BLOCKS,
 } from '../components/creative-engine/data/creative-blocks-dataset'
 import { getSubjectImage } from '../components/creative-engine/engines/MagicKeysEngine'
+import { getDefaultPracticeParts } from './practice-parts'
+import { formatAikiCartoonPrompt } from '../components/AikiStudioWorkspace'
 
 describe('Curriculum Data Integrity Audit', () => {
   it('verifies all 22 lessons exist with correct lessonNumbers from 1.1 to 5.5', () => {
@@ -104,5 +106,127 @@ describe('Curriculum Data Integrity Audit', () => {
 
     const dogImg = getSubjectImage('Con cún')
     expect(dogImg).toContain('island1_lesson1_cat.jpg')
+  })
+
+  it('verifies exact practice parts count and titles for all 22 lessons matching Excel curriculum SSOT', () => {
+    // 1.1: đúng 3 món (Con mèo, Con cá vàng, Con cún)
+    const p1_1 = getDefaultPracticeParts('bai-1-1')
+    expect(p1_1).toHaveLength(3)
+    expect(p1_1.map((p) => p.title)).toEqual(['Con mèo', 'Con cá vàng', 'Con cún'])
+
+    // 1.2: đúng 4 món (Con cún, Cái xe đạp, Cuốn sách, Cái đồng hồ)
+    const p1_2 = getDefaultPracticeParts('bai-1-2')
+    expect(p1_2).toHaveLength(4)
+    expect(p1_2.map((p) => p.title)).toEqual(['Con cún', 'Cái xe đạp', 'Cuốn sách', 'Cái đồng hồ'])
+
+    // 1.3: đúng 4 phong cách
+    const p1_3 = getDefaultPracticeParts('bai-1-3')
+    expect(p1_3).toHaveLength(4)
+    expect(p1_3.map((p) => p.title)).toEqual([
+      'Phong cách Màu nước',
+      'Phong cách Truyện tranh',
+      'Phong cách Đất nặn',
+      'Phong cách Tranh Đông Hồ',
+    ])
+
+    // 1.4: đúng 4 ca bệnh
+    const p1_4 = getDefaultPracticeParts('bai-1-4')
+    expect(p1_4).toHaveLength(4)
+    expect(p1_4.map((p) => p.title)).toEqual([
+      'Ca 1: Hiệp Sĩ Bạc (Bàn tay 5 ngón)',
+      'Ca 2: Sóc Bông (Mũ len đỏ quả bông)',
+      'Ca 3: Mèo Mướp (Ghế mây đệm êm)',
+      'Ca 4: Tranh Lem Nhem (Dọn sạch nền)',
+    ])
+
+    // 2.1, 3.1, 4.1, 4.2, 4.3, 4.5, 5.1, 5.2, 5.4, 5.5: đúng 0 món (notebook text engine)
+    const notebookLessons = ['2.1', '3.1', '4.1', '4.2', '4.3', '4.5', '5.1', '5.2', '5.4', '5.5']
+    for (const num of notebookLessons) {
+      const parts = getDefaultPracticeParts(`bai-${num.replace('.', '-')}`)
+      expect(parts).toHaveLength(0)
+    }
+
+    // 2.2: đúng 1 món ('Bức tranh ba lớp của bé')
+    const p2_2 = getDefaultPracticeParts('bai-2-2')
+    expect(p2_2).toHaveLength(1)
+    expect(p2_2[0].title).toContain('Bức tranh ba lớp của bé')
+
+    // 2.3: đúng 4 kiểu ánh sáng
+    const p2_3 = getDefaultPracticeParts('bai-2-3')
+    expect(p2_3).toHaveLength(4)
+    expect(p2_3.map((p) => p.title)).toEqual([
+      'Ánh sáng Ban Mai',
+      'Ánh sáng Nắng Trưa',
+      'Ánh sáng Hoàng Hôn',
+      'Ánh sáng Ánh Trăng',
+    ])
+
+    // 2.4: đúng 1 món ('Bức tranh của bé (Ghép 4 mảnh)')
+    const p2_4 = getDefaultPracticeParts('bai-2-4')
+    expect(p2_4).toHaveLength(1)
+    expect(p2_4[0].title).toBe('Bức tranh của bé (Ghép 4 mảnh)')
+
+    // 3.2: đúng 1 món ('Chọn nhân vật của bé & Nhận ảnh mẫu')
+    const p3_2 = getDefaultPracticeParts('bai-3-2')
+    expect(p3_2).toHaveLength(1)
+    expect(p3_2[0].title).toBe('Chọn nhân vật của bé & Nhận ảnh mẫu')
+
+    // 3.3: đúng 6 biểu cảm
+    const p3_3 = getDefaultPracticeParts('bai-3-3')
+    expect(p3_3).toHaveLength(6)
+    expect(p3_3.map((p) => p.title)).toEqual([
+      'Biểu cảm Vui 😊',
+      'Biểu cảm Buồn 😢',
+      'Biểu cảm Sợ 😨',
+      'Biểu cảm Giận 😠',
+      'Biểu cảm Ngạc nhiên 😲',
+      'Biểu cảm Buồn ngủ 😴',
+    ])
+
+    // 3.4: đúng 1 món ('Căn cứ bí mật của bạn ấy')
+    const p3_4 = getDefaultPracticeParts('bai-3-4')
+    expect(p3_4).toHaveLength(1)
+    expect(p3_4[0].title).toBe('Căn cứ bí mật của bạn ấy')
+
+    // 4.4: đúng 8 khung storyboard
+    const p4_4 = getDefaultPracticeParts('bai-4-4')
+    expect(p4_4).toHaveLength(8)
+    expect(p4_4.map((p) => p.title)).toEqual([
+      'Khung 1', 'Khung 2', 'Khung 3', 'Khung 4',
+      'Khung 5', 'Khung 6', 'Khung 7', 'Khung 8',
+    ])
+
+    // 5.3: đúng 12 lá thẻ sưu tập
+    const p5_3 = getDefaultPracticeParts('bai-5-3')
+    expect(p5_3).toHaveLength(12)
+    expect(p5_3.map((p) => p.title)).toEqual(Array.from({ length: 12 }, (_, i) => `Lá ${i + 1}`))
+  })
+
+  it('verifies formatAikiCartoonPrompt enforces 3D cartoon/soft clay and bans realistic photo', () => {
+    const rawPrompt = 'Con mèo mướp nằm ngủ trên ghế mây'
+    const formatted = formatAikiCartoonPrompt(rawPrompt)
+
+    // Chứa tiền tố phong cách hoạt hình 3D / Soft Clay
+    expect(formatted).toContain('Cute 3D cartoon animation style')
+    expect(formatted).toContain('soft clay storybook illustration')
+    expect(formatted).toContain('vibrant warm pastel colors')
+    expect(formatted).toContain(rawPrompt)
+
+    // Triệt tiêu triệt để ảnh thực tế / camera photo
+    expect(formatted).toContain('Strictly avoid realistic photo')
+    expect(formatted).toContain('no camera photography')
+    expect(formatted).toContain('no photorealism')
+    expect(formatted).toContain('no real humans')
+    expect(formatted).toContain('no real-life photograph')
+
+    // Thử với style-prism
+    const watercolorPrompt = formatAikiCartoonPrompt('Chú trâu màu nước', 'style-prism')
+    expect(watercolorPrompt).toContain('Cute 3D cartoon animation style')
+    expect(watercolorPrompt).toContain('watercolor')
+    expect(watercolorPrompt).toContain('Strictly avoid realistic photo')
+
+    const clayPrompt = formatAikiCartoonPrompt('Chú trâu đất nặn', 'style-prism')
+    expect(clayPrompt).toContain('handcrafted 3D soft clay sculpture style')
+    expect(clayPrompt).toContain('Strictly avoid realistic photo')
   })
 })

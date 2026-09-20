@@ -272,7 +272,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: 'Chú Sóc',
+        prompt: expect.stringMatching(/Cute 3D cartoon animation style.*Sóc.*Strictly avoid realistic photo/),
         aspectRatio: '4:3',
       })
     )
@@ -322,7 +322,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: 'Chú Sóc',
+        prompt: expect.stringMatching(/Sóc/),
         aspectRatio: '4:3',
       })
     )
@@ -424,16 +424,16 @@ describe('AikiStudioWorkspace', () => {
         lessonId="bai-1-2"
         lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
         lessonBadge="Bài 1.2"
-        characterName="Cốc Sứ Trắng"
+        characterName="Con cún"
         maxAttempts={8}
       />
     )
 
     // 1. Kiểm tra 4 Món đồ mặc định theo bài 1.2
-    expect(html).toContain('Cái cốc sứ trắng')
+    expect(html).toContain('Con cún')
     expect(html).toContain('Cái xe đạp')
-    expect(html).toContain('Cuốn sổ tay bìa da')
-    expect(html).toContain('Cái đồng hồ cổ')
+    expect(html).toContain('Cuốn sách')
+    expect(html).toContain('Cái đồng hồ')
 
     // 2. Kiểm tra Badges yêu cầu
     expect(html).toContain('BALO SÁNG TẠO (0/8 ảnh)')
@@ -457,7 +457,7 @@ describe('AikiStudioWorkspace', () => {
     expect(html).toContain('data-testid="practice-item-select-4"')
   })
 
-  it('synchronizes step1QuickPrompt when switching practice items (e.g. from cup to clock)', async () => {
+  it('synchronizes step1QuickPrompt when switching practice items (e.g. from dog to clock)', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -468,17 +468,17 @@ describe('AikiStudioWorkspace', () => {
           lessonId="bai-1-2"
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
-          characterName="Cốc Sứ Trắng"
+          characterName="Con cún"
           maxAttempts={8}
         />
       )
     })
 
-    // Ban đầu chọn Part 1: Cái cốc sứ trắng -> prompt gợi ý là "Cái cốc"
+    // Ban đầu chọn Part 1: Con cún -> prompt gợi ý là "Con cún"
     const quickPromptBtnInitial = container.querySelector('[data-testid="studio-step-quick-btn"]')
-    expect(quickPromptBtnInitial?.textContent).toContain('Cái cốc')
+    expect(quickPromptBtnInitial?.textContent).toContain('Con cún')
 
-    // Click chuyển sang Part 4: Cái đồng hồ cổ
+    // Click chuyển sang Part 4: Cái đồng hồ
     const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
     expect(part4Btn).not.toBeNull()
 
@@ -489,7 +489,7 @@ describe('AikiStudioWorkspace', () => {
     // Sau khi chuyển, prompt gợi ý cập nhật theo Món 4 (Cái đồng)
     const quickPromptBtnAfter = container.querySelector('[data-testid="studio-step-quick-btn"]')
     expect(quickPromptBtnAfter?.textContent).toContain('Cái đồng')
-    expect(quickPromptBtnAfter?.textContent).not.toContain('Cốc Sứ')
+    expect(quickPromptBtnAfter?.textContent).not.toContain('Con cún')
 
     act(() => {
       root.unmount()
@@ -499,10 +499,10 @@ describe('AikiStudioWorkspace', () => {
 
   it('switches sample artwork and banner dynamically across 4 soft clay items in Lesson 1.2', async () => {
     // 1. Kiểm tra unit hàm getStudioAIArtwork
-    expect(getStudioAIArtwork('teacup', 'bai-1-2', 'Cái cốc sứ trắng')).toBe('/assets/aiki-islands/island1_lesson2_teacup.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Con cún')).toBe('/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp')
     expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái xe đạp')).toBe('/assets/aiki-islands/island1_lesson2_bicycle.jpg')
-    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cuốn sổ tay mở')).toBe('/assets/aiki-islands/island1_lesson2_notebook.jpg')
-    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái đồng hồ cổ')).toBe('/assets/aiki-islands/island1_lesson2_clock.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cuốn sách')).toBe('/assets/aiki-islands/island1_lesson2_notebook.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái đồng hồ')).toBe('/assets/aiki-islands/island1_lesson2_clock.jpg')
 
     // 2. Kiểm tra tương tác component AikiStudioWorkspace
     const container = document.createElement('div')
@@ -515,7 +515,7 @@ describe('AikiStudioWorkspace', () => {
           lessonId="bai-1-2"
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
-          characterName="Cốc Sứ Trắng"
+          characterName="Con cún"
           maxAttempts={8}
         />
       )
@@ -524,10 +524,10 @@ describe('AikiStudioWorkspace', () => {
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
 
-    // Ban đầu: Món 1 (Cốc sứ)
+    // Ban đầu: Món 1 (Con cún)
     const emptyImg = emptyCanvas?.querySelector('img') as HTMLImageElement
-    expect(emptyImg.src).toContain('island1_lesson2_teacup.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 1: Cái cốc sứ trắng')
+    expect(emptyImg.src).toContain('dog_full_details_v1.webp')
+    expect(emptyCanvas?.textContent).toContain('Món 1: Con cún')
 
     // Chuyển sang Món 2 (Xe đạp)
     const part2Btn = container.querySelector('[data-testid="practice-item-select-2"]') as HTMLButtonElement
@@ -537,21 +537,21 @@ describe('AikiStudioWorkspace', () => {
     expect(emptyImg.src).toContain('island1_lesson2_bicycle.jpg')
     expect(emptyCanvas?.textContent).toContain('Món 2: Cái xe đạp')
 
-    // Chuyển sang Món 3 (Sổ tay)
+    // Chuyển sang Món 3 (Cuốn sách)
     const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
     await act(async () => {
       part3Btn.click()
     })
     expect(emptyImg.src).toContain('island1_lesson2_notebook.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay bìa da')
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sách')
 
-    // Chuyển sang Món 4 (Đồng hồ)
+    // Chuyển sang Món 4 (Cái đồng hồ)
     const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
     await act(async () => {
       part4Btn.click()
     })
     expect(emptyImg.src).toContain('island1_lesson2_clock.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 4: Cái đồng hồ cổ')
+    expect(emptyCanvas?.textContent).toContain('Món 4: Cái đồng hồ')
 
     act(() => {
       root.unmount()
@@ -600,7 +600,7 @@ describe('AikiStudioWorkspace', () => {
           lessonId="bai-1-2"
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
-          characterName="Cốc Sứ Trắng"
+          characterName="Con cún"
           maxAttempts={8}
         />
       )
@@ -611,7 +611,7 @@ describe('AikiStudioWorkspace', () => {
 
     expect(part1Card).not.toBeNull()
     expect(part1Card?.textContent).toContain('THỰC HÀNH 01 · ĐANG LÀM')
-    expect(part1Card?.textContent).toContain('Cái cốc sứ trắng')
+    expect(part1Card?.textContent).toContain('Con cún')
     expect(part1Card?.textContent).toContain('lượt 1')
     expect(part1Card?.textContent).toContain('lượt 2')
 
@@ -669,10 +669,10 @@ describe('AikiStudioWorkspace', () => {
         id: 'img-p1-1',
         turn: 1,
         partIndex: 0,
-        prompt: 'Cái cốc sứ trắng tinh',
+        prompt: 'Chú cún con lông vàng',
         time: '08:30',
         toneBg: 'bg-amber-100',
-        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        url: '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp',
       },
     ]
 
@@ -686,28 +686,28 @@ describe('AikiStudioWorkspace', () => {
           lessonId="bai-1-2"
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
-          characterName="Cốc Sứ Trắng"
+          characterName="Con cún"
           maxAttempts={8}
           preloadedImages={preloadedMock}
         />
       )
     })
 
-    // Part 1 (Cốc sứ): Canvas có ảnh của Part 1
-    const activeCanvasImg = container.querySelector('[data-testid="studio-col-canvas"] img') as HTMLImageElement
+    // Part 1 (Con cún): Canvas có ảnh của Part 1
+    const activeCanvasImg = container.querySelector('[data-testid="studio-live-canvas-display"] img') as HTMLImageElement
     expect(activeCanvasImg).not.toBeNull()
-    expect(activeCanvasImg.src).toContain('island1_lesson2_teacup.jpg')
+    expect(activeCanvasImg.src).toContain('dog_full_details_v1.webp')
 
-    // Chuyển sang Part 3 (Cuốn sổ tay mở) - phần này chưa vẽ
+    // Chuyển sang Part 3 (Cuốn sách) - phần này chưa vẽ
     const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
     await act(async () => {
       part3Btn.click()
     })
 
-    // Khung canvas phải ở trạng thái empty chờ vẽ Part 3, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Cái cốc)
+    // Khung canvas phải ở trạng thái empty chờ vẽ Part 3, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Con cún)
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay bìa da')
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sách')
 
     act(() => {
       root.unmount()
@@ -1251,14 +1251,15 @@ describe('AikiStudioWorkspace', () => {
 
     // 2. layer-stacking
     expect(getDefaultPracticeParts(undefined, undefined, 'layer-stacking')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
-    expect(getDefaultPracticeParts('bai-2-2')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
+    expect(getDefaultPracticeParts('bai-2-2')[0].title).toContain('Bức tranh ba lớp')
+    expect(getDefaultPracticeParts('bai-2-2')).toHaveLength(1)
 
     // 3. card-forge
     expect(getDefaultPracticeParts(undefined, undefined, 'card-forge')[0].title).toContain('Rồng Băng Bão Tuyết')
-    expect(getDefaultPracticeParts('bai-3-1')[0].title).toContain('Hiệp Sĩ Cáo Lửa')
-    expect(getDefaultPracticeParts('bai-3-1')).toHaveLength(4)
-    expect(getDefaultPracticeParts('bai-4-4')[0].title).toContain('Rồng Băng Bão Tuyết')
-    expect(getDefaultPracticeParts('bai-5-1')[0].title).toContain('Rồng Băng Bão Tuyết')
+    expect(getDefaultPracticeParts('bai-3-1')).toHaveLength(0)
+    expect(getDefaultPracticeParts('bai-4-4')).toHaveLength(8)
+    expect(getDefaultPracticeParts('bai-4-4')[0].title).toBe('Khung 1')
+    expect(getDefaultPracticeParts('bai-5-1')).toHaveLength(0)
 
     // 4. identity-lock
     expect(DEFAULT_IDENTITY_LOCK_PARTS).toHaveLength(4)
@@ -1275,19 +1276,21 @@ describe('AikiStudioWorkspace', () => {
     expect(identityParts[3].title).toBe('Mèo Thám Tử AIKI')
 
     const bai33Parts = getDefaultPracticeParts('bai-3-3')
-    expect(bai33Parts).toHaveLength(4)
-    expect(bai33Parts[0].title).toBe('Chú Sóc Bông Hạt Dẻ')
-    expect(bai33Parts[1].title).toBe('Cáo Lửa Zico Hiệp Sĩ')
-    expect(bai33Parts[2].title).toBe('Chú Bé Robot Leo')
-    expect(bai33Parts[3].title).toBe('Mèo Thám Tử AIKI')
+    expect(bai33Parts).toHaveLength(6)
+    expect(bai33Parts[0].title).toBe('Biểu cảm Vui 😊')
+    expect(bai33Parts[1].title).toBe('Biểu cảm Buồn 😢')
+    expect(bai33Parts[2].title).toBe('Biểu cảm Sợ 😨')
+    expect(bai33Parts[3].title).toBe('Biểu cảm Giận 😠')
+    expect(bai33Parts[4].title).toBe('Biểu cảm Ngạc nhiên 😲')
+    expect(bai33Parts[5].title).toBe('Biểu cảm Buồn ngủ 😴')
 
     // 5. style-prism
-    expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Chú Trâu Đất Nặn')
-    expect(getDefaultPracticeParts('bai-1-3')[0].title).toContain('Chú Trâu Đất Nặn')
+    expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Phong cách Màu nước')
+    expect(getDefaultPracticeParts('bai-1-3')[0].title).toContain('Phong cách Màu nước')
 
     // 6. magic-keys / default
     expect(getDefaultPracticeParts(undefined, undefined, 'magic-keys')[0].title).toBe('Cái cốc sứ trắng')
-    expect(getDefaultPracticeParts('bai-1-2')[0].title).toBe('Cái cốc sứ trắng')
+    expect(getDefaultPracticeParts('bai-1-2')[0].title).toBe('Con cún')
   })
 
   it('supports instant fallback toggle mode and generates non-repeating curated artwork', async () => {

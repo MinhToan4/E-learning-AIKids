@@ -195,31 +195,24 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Chú Mèo Mướp Vàng",
+            "title": "Con mèo",
             "icon": "🐱",
             "emoji": "🐱",
             "iconImage": "/assets/aiki-keys/key_subject_cat.jpg"
           },
           {
             "partNumber": 2,
-            "title": "Mèo Béo Ngủ Ghế Mây",
-            "icon": "🪑",
-            "emoji": "🪑",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
+            "title": "Con cá vàng",
+            "icon": "🐠",
+            "emoji": "🐠",
+            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Mèo Bắt Bướm Nắng Vàng",
-            "icon": "🦋",
-            "emoji": "🦋",
-            "iconImage": "/assets/aiki-keys/key_action_orange.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Mèo Phi Hành Gia",
-            "icon": "🚀",
-            "emoji": "🚀",
-            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
+            "title": "Con cún",
+            "icon": "🐶",
+            "emoji": "🐶",
+            "iconImage": "/assets/pregenerated-fallback/magic-keys/dog_one_word_v1.webp"
           }
         ]
       },
@@ -422,28 +415,28 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Cốc Sứ Trắng Mẻ Miệng Bốc Khói",
-            "icon": "☕",
-            "emoji": "☕",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_teacup.jpg"
+            "title": "Con cún",
+            "icon": "🐶",
+            "emoji": "🐶",
+            "iconImage": "/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Chiếc xe đạp mini",
+            "title": "Cái xe đạp",
             "icon": "🚲",
             "emoji": "🚲",
             "iconImage": "/assets/aiki-islands/island1_lesson2_bicycle.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Cuốn sổ tay bìa da",
+            "title": "Cuốn sách",
             "icon": "📖",
             "emoji": "📖",
             "iconImage": "/assets/aiki-islands/island1_lesson2_notebook.jpg"
           },
           {
             "partNumber": 4,
-            "title": "Cái đồng hồ cổ",
+            "title": "Cái đồng hồ",
             "icon": "⏰",
             "emoji": "⏰",
             "iconImage": "/assets/aiki-islands/island1_lesson2_clock.jpg"
@@ -631,31 +624,31 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Chú Trâu Đất Nặn",
-            "icon": "🐃",
-            "emoji": "🐃",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
+            "title": "Phong cách Màu nước",
+            "icon": "🎨",
+            "emoji": "🎨",
+            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_watercolor_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Chú Mèo Béo Múp",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Phong cách Truyện tranh",
+            "icon": "✨",
+            "emoji": "✨",
+            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_chibi_v1.webp"
           },
           {
             "partNumber": 3,
-            "title": "Bạn Robot Tí Hon",
-            "icon": "🤖",
-            "emoji": "🤖",
-            "iconImage": "/assets/aiki-keys/key_action_orange.jpg"
+            "title": "Phong cách Đất nặn",
+            "icon": "🧸",
+            "emoji": "🧸",
+            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp"
           },
           {
             "partNumber": 4,
-            "title": "Lâu Đài Cổ Tích",
-            "icon": "🏰",
-            "emoji": "🏰",
-            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
+            "title": "Phong cách Tranh Đông Hồ",
+            "icon": "🏮",
+            "emoji": "🏮",
+            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_dongho_v1.webp"
           }
         ]
       },
@@ -842,28 +835,28 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Ca 1: Hiệp Sĩ Bạc (Bàn tay 5 ngón)",
             "icon": "✋",
             "emoji": "✋",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_opt_a.jpg"
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_v1.webp"
           },
           {
             "partNumber": 2,
             "title": "Ca 2: Sóc Bông (Mũ len đỏ quả bông)",
             "icon": "🐿️",
             "emoji": "🐿️",
-            "iconImage": "/assets/game-engines/prompt-color-error.webp"
+            "iconImage": "/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp"
           },
           {
             "partNumber": 3,
             "title": "Ca 3: Mèo Mướp (Ghế mây đệm êm)",
             "icon": "🐱",
             "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_opt_a.jpg"
+            "iconImage": "/assets/aiki-doctor/doctor_cat_floating_v1.webp"
           },
           {
             "partNumber": 4,
             "title": "Ca 4: Tranh Lem Nhem (Dọn sạch nền)",
             "icon": "🧹",
             "emoji": "🧹",
-            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
+            "iconImage": "/assets/aiki-doctor/doctor_clutter_broken_v1.webp"
           }
         ],
         "promptDoctorCase": {
@@ -1295,31 +1288,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Hiệp Sĩ Cáo Lửa (Điểm vàng 1/3)",
-            "icon": "🦊",
-            "emoji": "🦊",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 2,
-            "title": "Sóc Bông Hạt Dẻ (Điểm vàng 1/3)",
-            "icon": "🐿️",
-            "emoji": "🐿️",
-            "iconImage": "/assets/game-engines/prompt-color-error.webp"
-          },
-          {
-            "partNumber": 3,
-            "title": "Thuyền Buồm Vàng (Điểm vàng 1/3)",
-            "icon": "⛵",
-            "emoji": "⛵",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Mèo Phi Hành Gia (Điểm vàng 1/3)",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Bức tranh ba lớp của bé (Hậu cảnh - Ngôi sao - Tiền cảnh)",
+            "icon": "🌟",
+            "emoji": "🌟",
+            "iconImage": "/assets/aiki-islands/island2_lesson2_star.jpg"
           }
         ]
       },
@@ -1503,31 +1475,31 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Chú Trâu Đất Nặn",
-            "icon": "🐃",
-            "emoji": "🐃",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
+            "title": "Ánh sáng Ban Mai",
+            "icon": "🌅",
+            "emoji": "🌅",
+            "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 2,
-            "title": "Chú Mèo Béo Múp",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Ánh sáng Nắng Trưa",
+            "icon": "☀️",
+            "emoji": "☀️",
+            "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Bạn Robot Tí Hon",
-            "icon": "🤖",
-            "emoji": "🤖",
-            "iconImage": "/assets/aiki-keys/key_action_orange.jpg"
+            "title": "Ánh sáng Hoàng Hôn",
+            "icon": "🌇",
+            "emoji": "🌇",
+            "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 4,
-            "title": "Lâu Đài Cổ Tích",
-            "icon": "🏰",
-            "emoji": "🏰",
-            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
+            "title": "Ánh sáng Ánh Trăng",
+            "icon": "🌙",
+            "emoji": "🌙",
+            "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           }
         ]
       },
@@ -1711,31 +1683,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Hiệp Sĩ Cáo Lửa (Điểm vàng 1/3)",
-            "icon": "🦊",
-            "emoji": "🦊",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 2,
-            "title": "Sóc Bông Hạt Dẻ (Điểm vàng 1/3)",
-            "icon": "🐿️",
-            "emoji": "🐿️",
-            "iconImage": "/assets/game-engines/prompt-color-error.webp"
-          },
-          {
-            "partNumber": 3,
-            "title": "Thuyền Buồm Vàng (Điểm vàng 1/3)",
-            "icon": "⛵",
-            "emoji": "⛵",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Mèo Phi Hành Gia (Điểm vàng 1/3)",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Bức tranh của bé (Ghép 4 mảnh)",
+            "icon": "🧩",
+            "emoji": "🧩",
+            "iconImage": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg"
           }
         ]
       },
@@ -2187,31 +2138,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Cáo Lửa Zico — Vui vẻ 😄",
-            "icon": "😄",
-            "emoji": "😄",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 2,
-            "title": "Cáo Lửa Zico — Tinh nghịch 😉",
-            "icon": "😉",
-            "emoji": "😉",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 3,
-            "title": "Cáo Lửa Zico — Ngạc nhiên 😲",
-            "icon": "😲",
-            "emoji": "😲",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Cáo Lửa Zico — Quyết tâm ✊",
-            "icon": "✊",
-            "emoji": "✊",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+            "title": "Chọn nhân vật của bé & Nhận ảnh mẫu",
+            "icon": "👤",
+            "emoji": "👤",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
           }
         ]
       },
@@ -2395,31 +2325,45 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Cáo Lửa Zico — Vui vẻ 😄",
-            "icon": "😄",
-            "emoji": "😄",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+            "title": "Biểu cảm Vui 😊",
+            "icon": "😊",
+            "emoji": "😊",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Cáo Lửa Zico — Tinh nghịch 😉",
-            "icon": "😉",
-            "emoji": "😉",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+            "title": "Biểu cảm Buồn 😢",
+            "icon": "😢",
+            "emoji": "😢",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
           },
           {
             "partNumber": 3,
-            "title": "Cáo Lửa Zico — Ngạc nhiên 😲",
-            "icon": "😲",
-            "emoji": "😲",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+            "title": "Biểu cảm Sợ 😨",
+            "icon": "😨",
+            "emoji": "😨",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
           },
           {
             "partNumber": 4,
-            "title": "Cáo Lửa Zico — Quyết tâm ✊",
-            "icon": "✊",
-            "emoji": "✊",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+            "title": "Biểu cảm Giận 😠",
+            "icon": "😠",
+            "emoji": "😠",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
+          },
+          {
+            "partNumber": 5,
+            "title": "Biểu cảm Ngạc nhiên 😲",
+            "icon": "😲",
+            "emoji": "😲",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
+          },
+          {
+            "partNumber": 6,
+            "title": "Biểu cảm Buồn ngủ 😴",
+            "icon": "😴",
+            "emoji": "😴",
+            "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp"
           }
         ]
       },
@@ -2604,31 +2548,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Hiệp Sĩ Cáo Lửa (Điểm vàng 1/3)",
-            "icon": "🦊",
-            "emoji": "🦊",
-            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
-          },
-          {
-            "partNumber": 2,
-            "title": "Sóc Bông Hạt Dẻ (Điểm vàng 1/3)",
-            "icon": "🐿️",
-            "emoji": "🐿️",
-            "iconImage": "/assets/game-engines/prompt-color-error.webp"
-          },
-          {
-            "partNumber": 3,
-            "title": "Thuyền Buồm Vàng (Điểm vàng 1/3)",
-            "icon": "⛵",
-            "emoji": "⛵",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Mèo Phi Hành Gia (Điểm vàng 1/3)",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Căn cứ bí mật của bạn ấy",
+            "icon": "🏰",
+            "emoji": "🏰",
+            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
           }
         ]
       },
@@ -3558,30 +3481,58 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Cáo Lửa Zico — Vui vẻ 😄",
-            "icon": "😄",
-            "emoji": "😄",
+            "title": "Khung 1",
+            "icon": "🎬",
+            "emoji": "🎬",
             "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
           },
           {
             "partNumber": 2,
-            "title": "Cáo Lửa Zico — Tinh nghịch 😉",
-            "icon": "😉",
-            "emoji": "😉",
+            "title": "Khung 2",
+            "icon": "🎬",
+            "emoji": "🎬",
             "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Cáo Lửa Zico — Ngạc nhiên 😲",
-            "icon": "😲",
-            "emoji": "😲",
+            "title": "Khung 3",
+            "icon": "🎬",
+            "emoji": "🎬",
             "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
           },
           {
             "partNumber": 4,
-            "title": "Cáo Lửa Zico — Quyết tâm ✊",
-            "icon": "✊",
-            "emoji": "✊",
+            "title": "Khung 4",
+            "icon": "🎬",
+            "emoji": "🎬",
+            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+          },
+          {
+            "partNumber": 5,
+            "title": "Khung 5",
+            "icon": "🎬",
+            "emoji": "🎬",
+            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+          },
+          {
+            "partNumber": 6,
+            "title": "Khung 6",
+            "icon": "🎬",
+            "emoji": "🎬",
+            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+          },
+          {
+            "partNumber": 7,
+            "title": "Khung 7",
+            "icon": "🎬",
+            "emoji": "🎬",
+            "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
+          },
+          {
+            "partNumber": 8,
+            "title": "Khung 8",
+            "icon": "🎬",
+            "emoji": "🎬",
             "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg"
           }
         ]
@@ -4534,31 +4485,87 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Chú Trâu Đất Nặn",
-            "icon": "🐃",
-            "emoji": "🐃",
-            "iconImage": "/assets/aiki-keys/key_what_blue.jpg"
+            "title": "Lá 1",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Chú Mèo Béo Múp",
-            "icon": "🐱",
-            "emoji": "🐱",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "title": "Lá 2",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 3,
-            "title": "Bạn Robot Tí Hon",
-            "icon": "🤖",
-            "emoji": "🤖",
-            "iconImage": "/assets/aiki-keys/key_action_orange.jpg"
+            "title": "Lá 3",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 4,
-            "title": "Lâu Đài Cổ Tích",
-            "icon": "🏰",
-            "emoji": "🏰",
-            "iconImage": "/assets/aiki-keys/key_where_pink.jpg"
+            "title": "Lá 4",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 5,
+            "title": "Lá 5",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 6,
+            "title": "Lá 6",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 7,
+            "title": "Lá 7",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 8,
+            "title": "Lá 8",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 9,
+            "title": "Lá 9",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 10,
+            "title": "Lá 10",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 11,
+            "title": "Lá 11",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
+          },
+          {
+            "partNumber": 12,
+            "title": "Lá 12",
+            "icon": "🎴",
+            "emoji": "🎴",
+            "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           }
         ]
       },
