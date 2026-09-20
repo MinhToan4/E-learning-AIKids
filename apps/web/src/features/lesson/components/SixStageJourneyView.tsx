@@ -1406,7 +1406,7 @@ export function SixStageJourneyView({
                   })}
                 </div>
               ) : hasAnyValidOptionImg ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-6xl xl:max-w-7xl mx-auto my-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto my-3 w-full">
                   {journey.stage2_confirmGoal.options.map((option, idx) => {
                     const optKey = option.id || `opt-${idx}`
                     const isSelected = selectedConfirmOption === idx
@@ -1417,16 +1417,19 @@ export function SixStageJourneyView({
                     )
 
                     let cardStyle =
-                      'border-slate-200 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 text-slate-700'
+                      'border-slate-200 bg-white/95 hover:border-brand-300 text-slate-800'
 
                     if (isSelected) {
                       if (isCorrect) {
                         cardStyle =
-                          'border-mint-500 bg-mint-50/80 text-mint-900 ring-2 ring-mint-400 ring-offset-2'
+                          'border-mint-500 bg-mint-50/90 text-mint-950 ring-4 ring-mint-200 scale-[1.02]'
                       } else {
                         cardStyle =
-                          'border-rose-400 bg-rose-50/80 text-rose-900 ring-2 ring-rose-400 ring-offset-2'
+                          'border-rose-400 bg-rose-50/90 text-rose-950 ring-4 ring-rose-200 scale-[0.99]'
                       }
+                    } else if (selectedConfirmOption !== null) {
+                      cardStyle =
+                        'border-slate-200 bg-white/95 text-slate-700 opacity-80 hover:opacity-100 hover:border-brand-300'
                     }
 
                     return (
@@ -1444,21 +1447,43 @@ export function SixStageJourneyView({
                           }
                         }}
                         className={cn(
-                          'h-auto flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all duration-200 text-left cursor-pointer group relative shadow-2xs hover:shadow-sm gap-2.5',
+                          'h-auto flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-3xl border-2 transition-all duration-200 text-left cursor-pointer group relative shadow-clay-sm hover:shadow-clay gap-3',
                           cardStyle
                         )}
                       >
-                        <span className="absolute top-3 left-3 w-7 h-7 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center font-bold text-sm text-slate-700 group-hover:border-brand-400 z-10">
+                        {/* Huy hiệu tròn A, B, C nổi bật */}
+                        <span
+                          className={cn(
+                            'absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center font-black text-sm border-2 transition-all z-10 shadow-sm',
+                            isSelected
+                              ? isCorrect
+                                ? 'bg-mint-500 text-white border-mint-400 scale-110 shadow-mint-200'
+                                : 'bg-rose-500 text-white border-rose-400 scale-110 shadow-rose-200'
+                              : 'bg-white text-slate-700 border-slate-200 group-hover:border-brand-400 group-hover:bg-brand-50'
+                          )}
+                        >
                           {String.fromCharCode(65 + idx)}
                         </span>
 
-                        {hasValidImg && (
-                          <div className="aspect-[16/10] sm:aspect-[16/9] w-full min-h-[260px] sm:min-h-[300px] lg:min-h-[360px] rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1.5">
+                        {/* Dấu tích ✓ khi đúng / ✕ khi sai */}
+                        {isSelected && (
+                          <span
+                            className={cn(
+                              'absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shadow-xs animate-fade-up text-white z-10',
+                              isCorrect ? 'bg-mint-500' : 'bg-rose-500'
+                            )}
+                          >
+                            {isCorrect ? '✓' : '✕'}
+                          </span>
+                        )}
+
+                        {hasValidImg ? (
+                          <div className="aspect-[16/10] max-h-[220px] w-full rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1.5">
                             <img
                               decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
-                              className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-300"
+                              className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
                               onError={() => {
                                 setFailedOptionImages((prev) => ({ ...prev, [optKey]: true }))
                               }}
@@ -1483,15 +1508,22 @@ export function SixStageJourneyView({
                               <span>🔍 Phóng to</span>
                             </span>
                           </div>
+                        ) : (
+                          <div className="aspect-[16/10] max-h-[220px] w-full rounded-2xl overflow-hidden bg-amber-50/60 border border-amber-200/60 relative flex flex-col items-center justify-center p-4 text-center gap-2">
+                            <div className="w-12 h-12 rounded-2xl bg-white shadow-clay-sm flex items-center justify-center text-2xl border border-amber-200">
+                              🎨
+                            </div>
+                            <span className="text-xs font-bold text-slate-500">Minh họa phương án</span>
+                          </div>
                         )}
 
-                        <p className="text-sm sm:text-base font-bold text-slate-800 text-center w-full leading-snug px-1 mt-1">
+                        <p className="text-sm sm:text-base font-bold text-slate-800 text-center w-full leading-snug px-1 mt-1 flex-1 flex items-center justify-center">
                           {option.text}
                         </p>
 
                         <div
                           className={cn(
-                            'mt-1 py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-black border transition-colors w-full',
+                            'mt-1 py-2 px-3 rounded-xl text-center text-xs sm:text-sm font-black border transition-colors w-full',
                             isSelected && isCorrect
                               ? 'bg-mint-100 text-mint-800 border-mint-300'
                               : isSelected && !isCorrect

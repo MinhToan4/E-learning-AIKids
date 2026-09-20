@@ -59,15 +59,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "AKI dừng lại và hỏi lại con cho bằng hết"
+            "text": "AKI dừng lại và hỏi lại con cho bằng hết",
+            "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "AKI tự điền vào những chỗ con bỏ trống"
+            "text": "AKI tự điền vào những chỗ con bỏ trống",
+            "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "AKI để trống y như vậy trên bức tranh"
+            "text": "AKI để trống y như vậy trên bức tranh",
+            "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -483,15 +486,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Viết lại toàn bộ câu tả từ đầu"
+            "text": "Viết lại toàn bộ câu tả từ đầu",
+            "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Giữ nguyên bốn ô, chỉ thêm tên kiểu vẽ vào cuối"
+            "text": "Giữ nguyên bốn ô, chỉ thêm tên kiểu vẽ vào cuối",
+            "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Xoá bớt chi tiết đi cho AI dễ đổi"
+            "text": "Xoá bớt chi tiết đi cho AI dễ đổi",
+            "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -690,15 +696,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Bấm tạo lại ngay xem lần này có may hơn không"
+            "text": "Bấm tạo lại ngay xem lần này có may hơn không",
+            "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Gọi tên cái lỗi ra đã, rồi mới tìm chỗ thiếu trong câu tả"
+            "text": "Gọi tên cái lỗi ra đã, rồi mới tìm chỗ thiếu trong câu tả",
+            "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Đổi sang đề tài khác cho dễ"
+            "text": "Đổi sang đề tài khác cho dễ",
+            "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -908,15 +917,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Bức có nhiều đồ vật và nhiều màu"
+            "text": "Bức có nhiều đồ vật và nhiều màu",
+            "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Bức khiến người xem tự hỏi “chuyện gì đang xảy ra ở đây nhỉ?”"
+            "text": "Bức khiến người xem tự hỏi “chuyện gì đang xảy ra ở đây nhỉ?”",
+            "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Bức vẽ càng giống thật càng tốt"
+            "text": "Bức vẽ càng giống thật càng tốt",
+            "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -1142,15 +1154,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Càng nhiều càng vui"
+            "text": "Càng nhiều càng vui",
+            "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Một ngôi sao chính"
+            "text": "Một ngôi sao chính",
+            "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Ít nhất ba thì bức mới đầy"
+            "text": "Ít nhất ba thì bức mới đầy",
+            "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -1328,15 +1343,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Chọn ánh sáng đẹp trước, xem ra cảm xúc gì sau"
+            "text": "Chọn ánh sáng đẹp trước, xem ra cảm xúc gì sau",
+            "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Chọn cảm xúc trước, chọn ánh sáng sau"
+            "text": "Chọn cảm xúc trước, chọn ánh sáng sau",
+            "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Tạo cả bốn kiểu ánh sáng rồi chọn bức đẹp nhất"
+            "text": "Tạo cả bốn kiểu ánh sáng rồi chọn bức đẹp nhất",
+            "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -1534,15 +1552,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Cậu bé thả diều"
+            "text": "Cậu bé thả diều",
+            "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Chiếc diều cuối cùng của mùa hè"
+            "text": "Chiếc diều cuối cùng của mùa hè",
+            "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Bức tranh số 4"
+            "text": "Bức tranh số 4",
+            "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -1721,15 +1742,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Ô TÊN GÌ và ô THÍCH GÌ"
+            "text": "Ô TÊN GÌ và ô THÍCH GÌ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Ô SỢ GÌ và ô DỞ GÌ"
+            "text": "Ô SỢ GÌ và ô DỞ GÌ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Ô GIỎI GÌ và ô ƯỚC MƠ GÌ"
+            "text": "Ô GIỎI GÌ và ô ƯỚC MƠ GÌ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -1987,15 +2011,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Chỉ cần tả bằng lời là đủ"
+            "text": "Chỉ cần tả bằng lời là đủ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Hai thứ: ảnh mẫu và ba đặc điểm nhận diện"
+            "text": "Hai thứ: ảnh mẫu và ba đặc điểm nhận diện",
+            "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Chỉ cần ảnh mẫu là đủ"
+            "text": "Chỉ cần ảnh mẫu là đủ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -2172,15 +2199,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Chỉ cần viết “bạn ấy đang giận” là đủ"
+            "text": "Chỉ cần viết “bạn ấy đang giận” là đủ",
+            "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Gửi kèm ảnh mẫu, nhắc lại đặc điểm nhận diện, rồi mới thêm biểu cảm"
+            "text": "Gửi kèm ảnh mẫu, nhắc lại đặc điểm nhận diện, rồi mới thêm biểu cảm",
+            "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Tạo lại nhân vật mới cho mỗi biểu cảm"
+            "text": "Tạo lại nhân vật mới cho mỗi biểu cảm",
+            "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -2392,15 +2422,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Món này có đẹp không?"
+            "text": "Món này có đẹp không?",
+            "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Thứ này liên quan đến điều gì của bạn ấy?"
+            "text": "Thứ này liên quan đến điều gì của bạn ấy?",
+            "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Món này có đắt không?"
+            "text": "Món này có đắt không?",
+            "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -2578,15 +2611,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Chíp ngủ dậy, đánh răng, ăn sáng, đi học, về nhà"
+            "text": "Chíp ngủ dậy, đánh răng, ăn sáng, đi học, về nhà",
+            "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Chíp ra sân chơi bóng, bóng mắc bên kia hàng rào, Chíp khều lại bằng cành cây"
+            "text": "Chíp ra sân chơi bóng, bóng mắc bên kia hàng rào, Chíp khều lại bằng cành cây",
+            "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Chíp có quả bóng đỏ, áo xanh, giày trắng"
+            "text": "Chíp có quả bóng đỏ, áo xanh, giày trắng",
+            "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -2808,15 +2844,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Từ thời tiết hay chuyện tình cờ"
+            "text": "Từ thời tiết hay chuyện tình cờ",
+            "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Từ ô SỢ hoặc ô DỞ trong Hồ sơ nhân vật"
+            "text": "Từ ô SỢ hoặc ô DỞ trong Hồ sơ nhân vật",
+            "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Từ gợi ý của AKI"
+            "text": "Từ gợi ý của AKI",
+            "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -3045,15 +3084,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Càng nhiều càng đỡ tốn ô"
+            "text": "Càng nhiều càng đỡ tốn ô",
+            "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Một việc"
+            "text": "Một việc",
+            "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Hai việc cho nhanh"
+            "text": "Hai việc cho nhanh",
+            "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -3319,15 +3361,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Đúng người — Đúng việc — Đúng kiểu"
+            "text": "Đúng người — Đúng việc — Đúng kiểu",
+            "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Đúng màu — Đúng nét — Đúng bóng"
+            "text": "Đúng màu — Đúng nét — Đúng bóng",
+            "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Đúng tên — Đúng tuổi — Đúng nghề"
+            "text": "Đúng tên — Đúng tuổi — Đúng nghề",
+            "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_c.jpg"
           }
         ],
         "correctIndex": 0,
@@ -3554,15 +3599,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Một"
+            "text": "Một",
+            "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Hai"
+            "text": "Hai",
+            "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Bao nhiêu cũng được"
+            "text": "Bao nhiêu cũng được",
+            "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -3843,15 +3891,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Ngồi nhìn màn hình chờ ý tưởng"
+            "text": "Ngồi nhìn màn hình chờ ý tưởng",
+            "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Đứng dậy đi nhìn quanh nhà, hoặc đi hỏi một người"
+            "text": "Đứng dậy đi nhìn quanh nhà, hoặc đi hỏi một người",
+            "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Nhờ AKI nghĩ hộ một chủ đề"
+            "text": "Nhờ AKI nghĩ hộ một chủ đề",
+            "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -4081,15 +4132,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Mỗi lá một số khác nhau cho phong phú"
+            "text": "Mỗi lá một số khác nhau cho phong phú",
+            "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Tất cả các lá cùng một tổng điểm, ví dụ 12"
+            "text": "Tất cả các lá cùng một tổng điểm, ví dụ 12",
+            "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Càng nhiều càng mạnh"
+            "text": "Càng nhiều càng mạnh",
+            "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -4317,15 +4371,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Chỉ cần ảnh mẫu là đủ"
+            "text": "Chỉ cần ảnh mẫu là đủ",
+            "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Ảnh mẫu VÀ công thức nền bốn thứ"
+            "text": "Ảnh mẫu VÀ công thức nền bốn thứ",
+            "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Chỉ cần tả thật dài cho mỗi lá"
+            "text": "Chỉ cần tả thật dài cho mỗi lá",
+            "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -4581,15 +4638,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "AKI nghĩ ra luật chơi cho con"
+            "text": "AKI nghĩ ra luật chơi cho con",
+            "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "AKI chỉ sắp xếp và viết lại cho dễ đọc, không tự thêm luật mới"
+            "text": "AKI chỉ sắp xếp và viết lại cho dễ đọc, không tự thêm luật mới",
+            "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "AKI chấm điểm bộ luật của con"
+            "text": "AKI chấm điểm bộ luật của con",
+            "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_c.jpg"
           }
         ],
         "correctIndex": 1,
@@ -4833,15 +4893,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Xuất phát – Đường đi – Ô đặc biệt – Đích"
+            "text": "Xuất phát – Đường đi – Ô đặc biệt – Đích",
+            "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "Tên – Hình – Màu – Viền"
+            "text": "Tên – Hình – Màu – Viền",
+            "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "Thẻ – Xúc xắc – Quân cờ – Hộp"
+            "text": "Thẻ – Xúc xắc – Quân cờ – Hộp",
+            "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_c.jpg"
           }
         ],
         "correctIndex": 0,

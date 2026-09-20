@@ -262,13 +262,19 @@ describe('Curriculum Data Integrity Audit', () => {
     }
   })
 
-  it('verifies stage2_confirmGoal options have zero distracting AI imageUrl across all 22 lessons', () => {
+  it('verifies stage2_confirmGoal options have valid imageUrl for visual confirmation across lessons (except lesson 1.2 keys)', () => {
     for (const lesson of ISLAND_CURRICULUM_LESSONS) {
       const options = lesson.journey.stage2_confirmGoal?.options || []
+      expect(options.length).toBeGreaterThanOrEqual(2)
       for (const opt of options) {
         if (typeof opt === 'object' && opt !== null) {
           const optObj = opt as { imageUrl?: string }
-          expect(optObj.imageUrl).toBeFalsy()
+          if (lesson.lessonNumber === '1.2') {
+            expect(optObj.imageUrl).toBeFalsy()
+          } else {
+            expect(optObj.imageUrl).toBeTruthy()
+            expect(optObj.imageUrl).toMatch(/^\/assets\/aiki-islands\/island\d+_lesson\d+_opt_[abc]\.jpg$/)
+          }
         }
       }
     }

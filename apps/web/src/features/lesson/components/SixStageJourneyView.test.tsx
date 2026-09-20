@@ -553,7 +553,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo')
   })
 
-  it('verifies Stage 1 option image container uses aspect-[16/10] object-cover and min-h-[260px] to prevent vertical stretching, and supports full-screen zoom Lightbox', () => {
+  it('verifies Stage 1 option image container uses aspect-[16/10] object-cover and max-h-[220px] to prevent vertical stretching, and supports full-screen zoom Lightbox', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -583,8 +583,7 @@ describe('SixStageJourneyView', () => {
 
     imgContainers?.forEach((box) => {
       expect(box.className).toContain('aspect-[16/10]')
-      expect(box.className).toContain('sm:aspect-[16/9]')
-      expect(box.className).toContain('min-h-[260px]')
+      expect(box.className).toContain('max-h-[220px]')
     })
 
     const images = stage1Section?.querySelectorAll('img')
