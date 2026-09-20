@@ -39,7 +39,10 @@ describe('adult management surfaces', () => {
   })
 
   it('separates child profile management from learning management', () => {
-    const parent = read('features/parent/pages/ParentPage.tsx')
+    const parent =
+      read('features/parent/pages/ParentPage.tsx') +
+      read('features/parent/components/tabs/ParentKidsTab.tsx') +
+      read('features/parent/components/tabs/ParentDashboardTab.tsx')
     const learning = read('features/parent/pages/ParentLearningPage.tsx')
 
     expect(parent).toContain('Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập')
@@ -77,14 +80,18 @@ describe('adult management surfaces', () => {
   })
 
   it('does not silently render zero child data when the parent request fails', () => {
-    const parent = read('features/parent/pages/ParentPage.tsx')
+    const parent =
+      read('features/parent/pages/ParentPage.tsx') +
+      read('features/parent/components/tabs/ParentDashboardTab.tsx')
 
     expect(parent).toContain('Chưa tải được dữ liệu của các con')
     expect(parent).toContain('<ErrorState message={error}')
   })
 
   it('explains plan capacity as child profiles and open learning regions', () => {
-    const parent = read('features/parent/pages/ParentPage.tsx')
+    const parent =
+      read('features/parent/pages/ParentPage.tsx') +
+      read('features/parent/components/tabs/ParentPlanTab.tsx')
 
     expect(parent).toContain('Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc')
     expect(parent).toContain('Mức sử dụng của gia đình')

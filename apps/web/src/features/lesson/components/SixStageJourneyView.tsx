@@ -1703,7 +1703,7 @@ export function SixStageJourneyView({
           {currentStage === 2 && (
             <section
               data-testid="stage-2-video"
-              className="min-h-0 rounded-3xl bg-white p-3 sm:p-4 shadow-clay border-2 border-brand-100 flex flex-col justify-between gap-3 overflow-y-auto animate-fade-up lg:h-full lg:max-h-full lg:overflow-hidden"
+              className="h-full max-h-full min-h-0 rounded-3xl bg-white p-3 sm:p-4 shadow-clay border-2 border-brand-100 flex flex-col justify-between gap-2.5 sm:gap-3 overflow-y-auto animate-fade-up"
             >
               {/* Header nhỏ */}
               <div className="shrink-0 flex items-center justify-between gap-2">
@@ -1719,9 +1719,9 @@ export function SixStageJourneyView({
               {/* KHUNG VIDEO 16:9 TO RÕ Ở TRUNG TÂM (CHIẾM TRỌN BỀ NGANG, CHIỀU CAO TỐI ƯU) */}
               <div className="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden">
                 <div
-                  className="relative aspect-video w-full max-w-7xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-black"
+                  className="relative aspect-video w-full max-w-7xl max-h-[54vh] sm:max-h-[58vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-black"
                   style={{
-                    width: 'min(100%, 1280px, calc((100dvh - 245px) * 16 / 9))',
+                    width: 'min(100%, 1100px, calc((100dvh - 360px) * 16 / 9))',
                   }}
                 >
                   <iframe
@@ -1751,7 +1751,7 @@ export function SixStageJourneyView({
                 data-testid="video-timeline-stepper"
                 className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
               >
-                <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
                   <button
                     type="button"
                     data-testid="video-timeline-play-btn"
@@ -1764,7 +1764,7 @@ export function SixStageJourneyView({
                   </button>
 
                   {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
-                  <div className="relative flex-1 py-1">
+                  <div className="relative flex-1 min-w-[140px] py-1">
                     <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
@@ -1802,14 +1802,14 @@ export function SixStageJourneyView({
                     </div>
                   </div>
 
-                  <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
+                  <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0 ml-auto sm:ml-0">
                     {Math.floor((videoSeekSec || 0) / 60)}:{String((videoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
                   </span>
                 </div>
 
                 {/* Hàng nút phụ & tên mốc đang xem */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-amber-200/60 text-xs sm:text-sm">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handleSeekVideo(0)}
@@ -1842,18 +1842,18 @@ export function SixStageJourneyView({
               </div>
 
               {/* Action button footer */}
-              <div className="shrink-0 flex justify-between items-center pt-1">
+              <div className="shrink-0 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 pt-1">
                 <Button
                   variant="secondary"
                   onClick={() => handleStageSelect(1)}
-                  className="rounded-xl text-xs sm:text-sm py-2 px-3 sm:px-4"
+                  className="rounded-xl text-xs sm:text-sm py-2 px-3 sm:px-4 shrink-0"
                 >
                   Quay lại câu đố
                 </Button>
 
                 <Button
                   variant="primary"
-                  className="px-5 sm:px-7 py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-2 cursor-pointer"
+                  className="px-4 sm:px-7 py-2 sm:py-3 text-xs sm:text-base font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0"
                   onClick={() => advanceToStage(3)}
                 >
                   <span>📝 Làm bài test thử tài →</span>
