@@ -115,6 +115,24 @@ describe('AdminClassesDirectory ERP Master Directory', () => {
     expect(onSelect).toHaveBeenCalled()
   })
 
+  it('renders Soft Clay Empty State when classes array is empty', async () => {
+    mockApi.mockResolvedValue({})
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminClassesDirectory />
+        </MemoryRouter>,
+      )
+    })
+
+    expect(container.textContent).toContain('Chưa có lớp học mở rộng hoặc trường liên kết nào')
+    expect(container.textContent).toContain(
+      'Các lớp chuyên đề, câu lạc bộ ngoại khóa hoặc dự án trường liên kết ngoài sẽ được hiển thị tại đây.',
+    )
+    expect(container.textContent).toContain('+ Khởi tạo Lớp học mới')
+  })
+
   it('opens and submits CreateClassModal', async () => {
     mockApi.mockResolvedValue({})
 
@@ -142,7 +160,33 @@ describe('AdminClassesDirectory ERP Master Directory', () => {
   })
 
   it('opens AssignTeacherModal for unassigned class and submits', async () => {
-    mockApi.mockResolvedValue({})
+    mockApi.mockImplementation((url: string) => {
+      if (url === '/api/schedule') {
+        return Promise.resolve({
+          classes: [
+            {
+              id: 'cls-unassigned',
+              name: 'Lớp Lập Trình Game 2C',
+              code: 'GAME-2C',
+              courseId: 'c-scratch',
+              teacherId: null,
+              studentCount: 12,
+              capacity: 20,
+              status: 'draft',
+              completionRate: 0,
+            },
+          ],
+        })
+      }
+      if (url === '/api/admin/users') {
+        return Promise.resolve({
+          users: [
+            { id: 't-hung', nickname: 'Thầy Hưng', email: 'gv@storymee.vn', role: 'teacher' },
+          ],
+        })
+      }
+      return Promise.resolve({})
+    })
 
     await act(async () => {
       root.render(

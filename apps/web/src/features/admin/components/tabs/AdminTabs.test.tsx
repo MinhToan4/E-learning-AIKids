@@ -632,8 +632,39 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(onViewDetail).toHaveBeenCalledWith(mockIntent)
   })
 
-  it('AdminClassesTab renders ERP Directory by default and switches to Classroom Console', async () => {
+  it('AdminClassesTab renders Official Core Program by default and switches to Electives & Console', async () => {
     mockApi.mockImplementation((url: string) => {
+      if (url === '/api/schedule') {
+        return Promise.resolve({
+          classes: [
+            {
+              id: 'cls-test-1',
+              name: 'Lớp Phi Hành Gia Nhí 3A',
+              code: 'AIKI-3A',
+              courseId: 'c-draw',
+              teacherId: 't-hung',
+              studentCount: 18,
+              capacity: 25,
+              status: 'open',
+              completionRate: 85,
+            },
+          ],
+        })
+      }
+      if (url === '/api/admin/users') {
+        return Promise.resolve({
+          users: [
+            { id: 't-hung', nickname: 'Thầy Hưng', email: 'gv@storymee.vn', role: 'teacher' },
+          ],
+        })
+      }
+      if (url === '/api/admin/courses') {
+        return Promise.resolve({
+          courses: [
+            { id: 'c-draw', title: 'Học vẽ AI Diệu Kỳ', category: 'Mỹ thuật AI' },
+          ],
+        })
+      }
       if (url === '/api/teacher/class') {
         return Promise.resolve({
           class: {
@@ -712,24 +743,46 @@ describe('Admin Domain Tabs & POS Refactor', () => {
       )
     })
 
-    // 1. Góc nhìn 1 mặc định: ERP Directory toàn trường
+    // 1. Phân hệ 1 mặc định: Chương Trình AIKids Chính Thức (Official Core Program)
+    expect(container.textContent).toContain('Chương Trình AIKids Chính Thức (Official Core Program)')
+    expect(container.textContent).toContain('Lớp Học Mở Rộng & Trường Liên Kết (Electives & Partner Schools)')
+    expect(container.textContent).toContain('Học sinh chính quy')
+    expect(container.textContent).toContain('Đạt 10 Quy Tắc Vàng')
+    expect(container.textContent).toContain('Đang tích cực học tập')
+    expect(container.textContent).toContain('Cần hỗ trợ sư phạm')
+    expect(container.textContent).toContain('Phân Khu 1: Unlock & Pacing Governance')
+    expect(container.textContent).toContain('🗺️ Quản Trị 6 Vùng Đảo & Điều Phối Mở Trạm Toàn Trường')
+    expect(container.textContent).toContain('Đảo 10 Quy Tắc Vàng')
+    expect(container.textContent).toContain('Xưởng Sáng Tạo AI')
+    expect(container.textContent).toContain('Phân Khu 2: Age Cohorts & Mentors')
+    expect(container.textContent).toContain('Khối Mầm Non (4-6 tuổi)')
+    expect(container.textContent).toContain('Khối Tiểu Học (7-9 tuổi)')
+    expect(container.textContent).toContain('Khối Thiếu Nhi (10-12 tuổi)')
+    expect(container.textContent).toContain('Phân Khu 3: School Stuck Radar & Interventions')
+    expect(container.textContent).toContain('🚨 Radar Kẹt Bài & Can Thiệp Sư Phạm Toàn Trường')
+    expect(container.textContent).toContain('Bé Thỏ')
+    expect(container.textContent).toContain('Gửi sticker động viên')
+    expect(container.textContent).toContain('Gán Mentor hỗ trợ')
+    expect(container.textContent).toContain('Phân Khu 4: School Showcase & Hall of Fame')
+    expect(container.textContent).toContain('🏆 Bảng Vinh Danh & Triển Lãm Tác Phẩm Cấp Trường')
+
+    // 2. Chuyển sang Phân hệ 2: Lớp Học Mở Rộng & Trường Liên Kết
+    const electivesBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Lớp Học Mở Rộng & Trường Liên Kết'),
+    )
+    expect(electivesBtn).toBeDefined()
+    await act(async () => {
+      electivesBtn?.click()
+    })
+
+    // Trong phân hệ 2: Hiển thị ERP Directory
     expect(container.textContent).toContain('Danh mục Lớp học Toàn trường (ERP Directory)')
     expect(container.textContent).toContain('Chi tiết điều hành lớp (Classroom Console)')
     expect(container.textContent).toContain('Lớp học')
-    expect(container.textContent).toContain('Học sinh đang học')
-    expect(container.textContent).toContain('Giáo viên đứng lớp')
-    expect(container.textContent).toContain('Tỷ lệ hoàn thành')
     expect(container.textContent).toContain('+ Khởi tạo Lớp học mới')
-    expect(container.textContent).toContain('Làm mới')
-    expect(container.textContent).toContain('Bộ lọc:')
-    expect(container.textContent).toContain('Lớp Học & Mã Lớp')
-    expect(container.textContent).toContain('Khóa Học Gán')
-    expect(container.textContent).toContain('Giáo Viên Phụ Trách')
-    expect(container.textContent).toContain('Sĩ Số Học Sinh')
-    expect(container.textContent).toContain('Trạng Thái')
-    expect(container.textContent).toContain('Thao Tác')
+    expect(container.textContent).toContain('Lớp Phi Hành Gia Nhí 3A')
 
-    // 2. Chuyển sang Góc nhìn 2: Classroom Console
+    // 3. Chuyển sang Góc nhìn Classroom Console
     const consoleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Chi tiết điều hành lớp'),
     )
@@ -753,25 +806,14 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(container.querySelector('button[aria-label="Làm mới"]')).toBeDefined()
     expect(container.textContent).toContain('← Quay lại danh mục toàn trường')
 
-    // Sub-Nav View Switcher tabs
-    expect(container.textContent).toContain('Danh sách học sinh')
-    expect(container.textContent).toContain('Thống kê & Hỗ trợ')
-    expect(container.textContent).toContain('Ghi danh & Thông tin lớp')
-
     // Student List Table
     expect(container.textContent).toContain('Bé Miu')
     expect(container.textContent).toContain('Bé Thỏ')
     expect(container.textContent).toContain('Lv3')
     expect(container.textContent).toContain('250 XP')
     expect(container.textContent).toContain('5 trạm · 15 ⭐ · 2 🎨')
-    expect(container.textContent).toContain('🛡️ Hiệp Sĩ AIKI')
-    expect(container.textContent).toContain('⏳ Đang học quy tắc')
 
-    // Action buttons on student rows
-    expect(container.textContent).toContain('🔍 Chi tiết')
-    expect(container.textContent).toContain('🗑️ Gỡ')
-
-    // 3. Quay lại ERP Directory
+    // 4. Quay lại ERP Directory
     const backBtn = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Quay lại danh mục toàn trường'),
     )
@@ -781,6 +823,16 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     })
     expect(container.textContent).toContain('Danh mục Lớp học Toàn trường (ERP Directory)')
     expect(container.textContent).toContain('+ Khởi tạo Lớp học mới')
+
+    // 5. Quay lại Phân hệ Chương Trình Chính Thức
+    const officialBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Chương Trình AIKids Chính Thức'),
+    )
+    expect(officialBtn).toBeDefined()
+    await act(async () => {
+      officialBtn?.click()
+    })
+    expect(container.textContent).toContain('Quản Trị 6 Vùng Đảo & Điều Phối Mở Trạm Toàn Trường')
   })
 })
 

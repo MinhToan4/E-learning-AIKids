@@ -56,98 +56,6 @@ export interface AdminClassesDirectoryProps {
   onSelectClass?: (classroom: MasterClassItem) => void
 }
 
-const FALLBACK_COURSES: CourseOption[] = [
-  { id: 'c-draw', title: 'Học vẽ AI Diệu Kỳ', category: 'Mỹ thuật AI' },
-  { id: 'c-asmo', title: 'Toán Olympic ASMO 3D', category: 'Toán học' },
-  { id: 'c-scratch', title: 'Xưởng Hoạt Hình AI', category: 'Lập trình' },
-  { id: 'c-logic', title: 'Thế Giới Prompts & Logic', category: 'Kỹ năng số' },
-]
-
-const FALLBACK_TEACHERS: TeacherOption[] = [
-  { id: 't-hung', nickname: 'Thầy Hưng', email: 'gv@storymee.vn' },
-  { id: 't-chi', nickname: 'Cô Linh Chi', email: 'chi.linh@storymee.vn' },
-  { id: 't-nam', nickname: 'Thầy Hoàng Nam', email: 'nam.hoang@storymee.vn' },
-  { id: 't-phuong', nickname: 'Cô Mai Phương', email: 'phuong.mai@storymee.vn' },
-]
-
-const FALLBACK_CLASSES: MasterClassItem[] = [
-  {
-    id: 'cls-1',
-    name: 'Lớp Phi Hành Gia Nhí 3A',
-    code: 'AIKI-3A',
-    courseId: 'c-draw',
-    courseName: 'Học vẽ AI Diệu Kỳ',
-    subjectBadge: 'Mỹ thuật AI',
-    teacherId: 't-hung',
-    teacherName: 'Thầy Hưng',
-    teacherEmail: 'gv@storymee.vn',
-    studentCount: 18,
-    capacity: 25,
-    status: 'active',
-    completionRate: 85,
-  },
-  {
-    id: 'cls-2',
-    name: 'Toán Sáng Tạo Olympic 4B',
-    code: 'ASMO-4B',
-    courseId: 'c-asmo',
-    courseName: 'Toán Olympic ASMO 3D',
-    subjectBadge: 'Toán học',
-    teacherId: 't-chi',
-    teacherName: 'Cô Linh Chi',
-    teacherEmail: 'chi.linh@storymee.vn',
-    studentCount: 22,
-    capacity: 25,
-    status: 'active',
-    completionRate: 92,
-  },
-  {
-    id: 'cls-3',
-    name: 'Hiệp Sĩ Lập Trình Game 2C',
-    code: 'GAME-2C',
-    courseId: 'c-scratch',
-    courseName: 'Xưởng Hoạt Hình AI',
-    subjectBadge: 'Lập trình',
-    teacherId: null,
-    teacherName: null,
-    teacherEmail: null,
-    studentCount: 12,
-    capacity: 20,
-    status: 'upcoming',
-    completionRate: 0,
-  },
-  {
-    id: 'cls-4',
-    name: 'Nhà Thám Hiểm Trí Tuệ Nhân Tạo 5A',
-    code: 'AI-5A',
-    courseId: 'c-logic',
-    courseName: 'Thế Giới Prompts & Logic',
-    subjectBadge: 'Kỹ năng số',
-    teacherId: 't-nam',
-    teacherName: 'Thầy Hoàng Nam',
-    teacherEmail: 'nam.hoang@storymee.vn',
-    studentCount: 24,
-    capacity: 25,
-    status: 'active',
-    completionRate: 76,
-  },
-  {
-    id: 'cls-5',
-    name: 'CLB Mỹ Thuật Số Sáng Tạo 1A',
-    code: 'ART-1A',
-    courseId: 'c-draw',
-    courseName: 'Học vẽ AI Diệu Kỳ',
-    subjectBadge: 'Mỹ thuật AI',
-    teacherId: 't-phuong',
-    teacherName: 'Cô Mai Phương',
-    teacherEmail: 'phuong.mai@storymee.vn',
-    studentCount: 15,
-    capacity: 20,
-    status: 'closed',
-    completionRate: 100,
-  },
-]
-
 export function AdminClassesDirectory({ onSelectClass }: AdminClassesDirectoryProps) {
   const { toasts, showToast, dismissToast } = useToast()
 
@@ -180,7 +88,7 @@ export function AdminClassesDirectory({ onSelectClass }: AdminClassesDirectoryPr
       ])
 
       // 1. Process Courses
-      let loadedCourses: CourseOption[] = FALLBACK_COURSES
+      let loadedCourses: CourseOption[] = []
       if (coursesRes.status === 'fulfilled' && coursesRes.value?.courses?.length) {
         loadedCourses = coursesRes.value.courses.map((c: any) => ({
           id: c.id,
@@ -191,9 +99,11 @@ export function AdminClassesDirectory({ onSelectClass }: AdminClassesDirectoryPr
       setCourses(loadedCourses)
 
       // 2. Process Teachers
-      let loadedTeachers: TeacherOption[] = FALLBACK_TEACHERS
+      let loadedTeachers: TeacherOption[] = []
       if (usersRes.status === 'fulfilled' && usersRes.value?.users?.length) {
-        const teacherUsers = usersRes.value.users.filter((u: any) => u.role === 'teacher' || u.role === 'staff')
+        const teacherUsers = usersRes.value.users.filter(
+          (u: any) => u.role === 'teacher' || u.role === 'staff' || u.role === 'curriculum_lead',
+        )
         if (teacherUsers.length > 0) {
           loadedTeachers = teacherUsers.map((u: any) => ({
             id: u.id,
@@ -205,36 +115,48 @@ export function AdminClassesDirectory({ onSelectClass }: AdminClassesDirectoryPr
       setTeachers(loadedTeachers)
 
       // 3. Process Classes
-      let loadedClasses: MasterClassItem[] = FALLBACK_CLASSES
+      let loadedClasses: MasterClassItem[] = []
       if (scheduleRes.status === 'fulfilled' && scheduleRes.value?.classes?.length) {
         loadedClasses = scheduleRes.value.classes.map((cls: any, index: number) => {
           const matchedCourse = loadedCourses.find((c) => c.id === cls.courseId)
           const matchedTeacher = loadedTeachers.find((t) => t.id === cls.teacherId)
-          const studentCount = cls.studentCount ?? (Array.isArray(cls.students) ? cls.students.length : (cls.capacity ? Math.min(cls.capacity, 15 + index * 3) : 18))
+          const studentCount =
+            cls.studentCount ??
+            (Array.isArray(cls.students)
+              ? cls.students.length
+              : cls.capacity
+                ? Math.min(cls.capacity, 15 + index * 3)
+                : 0)
           const capacity = cls.capacity || 25
-          const status = (cls.status === 'open' || cls.status === 'active') ? 'active' : (cls.status === 'upcoming' || cls.status === 'draft') ? 'upcoming' : 'closed'
+          const status =
+            cls.status === 'open' || cls.status === 'active'
+              ? 'active'
+              : cls.status === 'upcoming' || cls.status === 'draft'
+                ? 'upcoming'
+                : 'closed'
           return {
             id: cls.id || `cls-${index}`,
             name: cls.name || `Lớp học ${index + 1}`,
             code: cls.code || `AIKI-${index + 1}A`,
             courseId: cls.courseId || null,
-            courseName: matchedCourse ? matchedCourse.title : (cls.course?.title || 'Chương trình AI Kids'),
+            courseName: matchedCourse ? matchedCourse.title : cls.course?.title || 'Chương trình AI Kids',
             subjectBadge: matchedCourse?.category || 'Chương trình AI',
             teacherId: cls.teacherId || matchedTeacher?.id || null,
-            teacherName: matchedTeacher ? matchedTeacher.nickname : (cls.teacher?.nickname || null),
-            teacherEmail: matchedTeacher ? matchedTeacher.email : (cls.teacher?.email || null),
+            teacherName: matchedTeacher ? matchedTeacher.nickname : cls.teacher?.nickname || null,
+            teacherEmail: matchedTeacher ? matchedTeacher.email : cls.teacher?.email || null,
             studentCount,
             capacity,
             status,
-            completionRate: cls.completionRate ?? (status === 'active' ? 70 + (index * 7) % 25 : status === 'closed' ? 100 : 0),
+            completionRate:
+              cls.completionRate ?? (status === 'active' ? 70 : status === 'closed' ? 100 : 0),
           }
         })
       }
       setClasses(loadedClasses)
     } catch {
-      setClasses(FALLBACK_CLASSES)
-      setCourses(FALLBACK_COURSES)
-      setTeachers(FALLBACK_TEACHERS)
+      setClasses([])
+      setCourses([])
+      setTeachers([])
     } finally {
       setLoading(false)
     }
@@ -526,188 +448,212 @@ export function AdminClassesDirectory({ onSelectClass }: AdminClassesDirectoryPr
         </div>
       </div>
 
-      {/* ── 3. Bảng Master Directory Lớp Học Toàn Trường ────────── */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/75 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3.5">Lớp Học & Mã Lớp</th>
-                <th className="px-4 py-3.5">Khóa Học Gán</th>
-                <th className="px-4 py-3.5">Giáo Viên Phụ Trách</th>
-                <th className="px-4 py-3.5">Sĩ Số Học Sinh</th>
-                <th className="px-4 py-3.5">Trạng Thái</th>
-                <th className="px-4 py-3.5 text-right">Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {paginated.slice.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
-                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                    <p className="font-semibold text-slate-600">Không tìm thấy lớp học nào phù hợp</p>
-                    <p className="text-xs text-slate-400 mt-1">Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc</p>
-                  </td>
-                </tr>
-              ) : (
-                paginated.slice.map((cls: MasterClassItem) => {
-                  const studentPercent = Math.min(100, Math.round((cls.studentCount / cls.capacity) * 100))
-                  const isCopied = copiedId === cls.id
-
-                  return (
-                    <tr key={cls.id} className="hover:bg-slate-50/80 transition-colors">
-                      {/* Tên & Mã lớp */}
-                      <td className="px-4 py-3.5">
-                        <div className="font-bold text-slate-900 text-[13.5px]">{cls.name}</div>
-                        <div className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-slate-100 border border-slate-200/80 px-2 py-0.5 text-xs font-mono font-medium text-slate-700">
-                          <span>{cls.code}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyCode(cls.code, cls.id)}
-                            className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                            title="Sao chép mã lớp"
-                          >
-                            {isCopied ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-
-                      {/* Khóa học gán */}
-                      <td className="px-4 py-3.5">
-                        <div className="font-semibold text-slate-800 text-[13px]">{cls.courseName}</div>
-                        {cls.subjectBadge && (
-                          <span className="mt-1 inline-block rounded-full bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
-                            {cls.subjectBadge}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Giáo viên phụ trách */}
-                      <td className="px-4 py-3.5">
-                        {cls.teacherId && cls.teacherName ? (
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-xs border border-blue-200 shadow-2xs">
-                              {cls.teacherName.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-900 text-xs leading-tight">
-                                {cls.teacherName}
-                              </div>
-                              {cls.teacherEmail && (
-                                <div className="text-[11px] text-slate-500 leading-tight">
-                                  {cls.teacherEmail}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-semibold text-amber-800">
-                            <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Chưa phân công</span>
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Sĩ số học sinh */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
-                          <span>
-                            {cls.studentCount} / {cls.capacity} học sinh
-                          </span>
-                        </div>
-                        <div className="mt-1.5 h-1.5 w-28 rounded-full bg-slate-100 overflow-hidden border border-slate-200/60">
-                          <div
-                            className={cn(
-                              'h-full rounded-full transition-all',
-                              studentPercent >= 90
-                                ? 'bg-rose-500'
-                                : studentPercent >= 70
-                                  ? 'bg-amber-500'
-                                  : 'bg-emerald-500',
-                            )}
-                            style={{ width: `${studentPercent}%` }}
-                          />
-                        </div>
-                      </td>
-
-                      {/* Trạng thái */}
-                      <td className="px-4 py-3.5">
-                        {cls.status === 'active' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Đang hoạt động
-                          </span>
-                        ) : cls.status === 'upcoming' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-1 text-[11px] font-bold text-sky-700">
-                            <Calendar className="w-3 h-3" />
-                            Sắp mở
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 border border-slate-200 px-2.5 py-1 text-[11px] font-bold text-slate-600">
-                            Đã đóng
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Thao tác */}
-                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setAssignModalTarget(cls)}
-                            className="h-8 px-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                            title="Phân công hoặc thay đổi giáo viên"
-                          >
-                            <span>👨‍🏫 Phân công GV</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => onSelectClass?.(cls)}
-                            className="h-8 px-2.5 text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white rounded-lg shadow-2xs transition-colors cursor-pointer"
-                            title="Chuyển sang góc nhìn điều hành lớp & học sinh"
-                          >
-                            <span>🔍 Quản lý chi tiết</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setEditModalTarget(cls)}
-                            className="h-8 w-8 p-0 inline-flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                            title="Cài đặt thông tin lớp"
-                            aria-label="Cài đặt lớp"
-                          >
-                            <Settings className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Phân trang */}
-        {paginated.totalPages > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-            <Paginator
-              page={paginated.page}
-              totalPages={paginated.totalPages}
-              totalItems={filteredClasses.length}
-              pageSize={8}
-              onPrev={paginated.prev}
-              onNext={paginated.next}
-              onGoTo={paginated.goTo}
-            />
+      {/* ── 3. Bảng Master Directory Lớp Học Toàn Trường hoặc Empty State ────────── */}
+      {classes.length === 0 && !loading ? (
+        <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 shadow-inner">
+            <GraduationCap className="h-8 w-8" />
           </div>
-        )}
-      </div>
+          <h3 className="text-lg font-black text-slate-900">
+            Chưa có lớp học mở rộng hoặc trường liên kết nào
+          </h3>
+          <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 font-medium leading-relaxed">
+            Các lớp chuyên đề, câu lạc bộ ngoại khóa hoặc dự án trường liên kết ngoài sẽ được hiển thị tại đây. Bấm nút bên dưới để khởi tạo lớp học mở rộng mới.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setCreateModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl bg-brand-500 hover:bg-brand-600 text-white shadow-sm transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Khởi tạo Lớp học mới</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/75 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3.5">Lớp Học & Mã Lớp</th>
+                  <th className="px-4 py-3.5">Khóa Học Gán</th>
+                  <th className="px-4 py-3.5">Giáo Viên Phụ Trách</th>
+                  <th className="px-4 py-3.5">Sĩ Số Học Sinh</th>
+                  <th className="px-4 py-3.5">Trạng Thái</th>
+                  <th className="px-4 py-3.5 text-right">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {paginated.slice.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
+                      <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                      <p className="font-semibold text-slate-600">Không tìm thấy lớp học nào phù hợp</p>
+                      <p className="text-xs text-slate-400 mt-1">Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc</p>
+                    </td>
+                  </tr>
+                ) : (
+                  paginated.slice.map((cls: MasterClassItem) => {
+                    const studentPercent = Math.min(100, Math.round((cls.studentCount / cls.capacity) * 100))
+                    const isCopied = copiedId === cls.id
+
+                    return (
+                      <tr key={cls.id} className="hover:bg-slate-50/80 transition-colors">
+                        {/* Tên & Mã lớp */}
+                        <td className="px-4 py-3.5">
+                          <div className="font-bold text-slate-900 text-[13.5px]">{cls.name}</div>
+                          <div className="mt-1 inline-flex items-center gap-1.5 rounded-md bg-slate-100 border border-slate-200/80 px-2 py-0.5 text-xs font-mono font-medium text-slate-700">
+                            <span>{cls.code}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyCode(cls.code, cls.id)}
+                              className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                              title="Sao chép mã lớp"
+                            >
+                              {isCopied ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Khóa học gán */}
+                        <td className="px-4 py-3.5">
+                          <div className="font-semibold text-slate-800 text-[13px]">{cls.courseName}</div>
+                          {cls.subjectBadge && (
+                            <span className="mt-1 inline-block rounded-full bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                              {cls.subjectBadge}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Giáo viên phụ trách */}
+                        <td className="px-4 py-3.5">
+                          {cls.teacherId && cls.teacherName ? (
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-xs border border-blue-200 shadow-2xs">
+                                {cls.teacherName.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="font-bold text-slate-900 text-xs leading-tight">
+                                  {cls.teacherName}
+                                </div>
+                                {cls.teacherEmail && (
+                                  <div className="text-[11px] text-slate-500 leading-tight">
+                                    {cls.teacherEmail}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-semibold text-amber-800">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Chưa phân công</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Sĩ số học sinh */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
+                            <span>
+                              {cls.studentCount} / {cls.capacity} học sinh
+                            </span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 w-28 rounded-full bg-slate-100 overflow-hidden border border-slate-200/60">
+                            <div
+                              className={cn(
+                                'h-full rounded-full transition-all',
+                                studentPercent >= 90
+                                  ? 'bg-rose-500'
+                                  : studentPercent >= 70
+                                    ? 'bg-amber-500'
+                                    : 'bg-emerald-500',
+                              )}
+                              style={{ width: `${studentPercent}%` }}
+                            />
+                          </div>
+                        </td>
+
+                        {/* Trạng thái */}
+                        <td className="px-4 py-3.5">
+                          {cls.status === 'active' ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Đang hoạt động
+                            </span>
+                          ) : cls.status === 'upcoming' ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-1 text-[11px] font-bold text-sky-700">
+                              <Calendar className="w-3 h-3" />
+                              Sắp mở
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 border border-slate-200 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+                              Đã đóng
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Thao tác */}
+                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setAssignModalTarget(cls)}
+                              className="h-8 px-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                              title="Phân công hoặc thay đổi giáo viên"
+                            >
+                              <span>👨‍🏫 Phân công GV</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => onSelectClass?.(cls)}
+                              className="h-8 px-2.5 text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white rounded-lg shadow-2xs transition-colors cursor-pointer"
+                              title="Chuyển sang góc nhìn điều hành lớp & học sinh"
+                            >
+                              <span>🔍 Quản lý chi tiết</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setEditModalTarget(cls)}
+                              className="h-8 w-8 p-0 inline-flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                              title="Cài đặt thông tin lớp"
+                              aria-label="Cài đặt lớp"
+                            >
+                              <Settings className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Phân trang */}
+          {paginated.totalPages > 1 && (
+            <div className="p-4 border-t border-slate-100 flex items-center justify-between">
+              <Paginator
+                page={paginated.page}
+                totalPages={paginated.totalPages}
+                totalItems={filteredClasses.length}
+                pageSize={8}
+                onPrev={paginated.prev}
+                onNext={paginated.next}
+                onGoTo={paginated.goTo}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── 4. Modals Tích Hợp ───────────────────────────────────── */}
 
