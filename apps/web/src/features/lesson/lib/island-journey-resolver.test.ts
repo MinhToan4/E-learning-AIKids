@@ -149,9 +149,9 @@ describe('island-journey-resolver', () => {
 
       // Stage 2: Confirm Goal (Options cụ thể, TUYỆT ĐỐI KHÔNG "Phương án A/B")
       expect(resolved.stage2_confirmGoal.question).toBeTruthy()
-      expect(resolved.stage2_confirmGoal.options).toHaveLength(2)
-      expect(resolved.stage2_confirmGoal.options[0].text).toContain('con mèo')
-      expect(resolved.stage2_confirmGoal.options[1].text).toContain('5 chi tiết')
+      expect(resolved.stage2_confirmGoal.options).toHaveLength(3)
+      expect(resolved.stage2_confirmGoal.options[0].text).toContain('AKI dừng lại')
+      expect(resolved.stage2_confirmGoal.options[1].text).toContain('tự điền vào')
       expect(resolved.stage2_confirmGoal.correctIndex).toBe(1)
       expect(resolved.stage2_confirmGoal.options[0].text).not.toContain('Phương án A')
 
@@ -185,7 +185,7 @@ describe('island-journey-resolver', () => {
       const resolved = resolveIslandSixStageJourney(uuidQuest)
       expect(resolved.stage5_practice.subjectName).toContain('Sóc Bông')
       expect(resolved.stage5_practice.badge).toBe('Bài 3.2')
-      expect(resolved.stage2_confirmGoal.question).toContain('Sóc Bông')
+      expect(resolved.stage2_confirmGoal.question).toContain('Để AKI vẽ đúng')
     })
 
     it('falls back to dynamic generation when quest is outside 22 island lessons', () => {

@@ -17,6 +17,8 @@ import {
   FIRE_FORTRESS_BLOCKS,
   SPACE_STATION_BLOCKS,
   DETECTIVE_OFFICE_BLOCKS,
+  GOLDFISH_BLOCKS,
+  DOG_BLOCKS,
 } from '../data/creative-blocks-dataset'
 import { BlockSlotTray } from '../components/BlockSlotTray'
 import { BlockPalette } from '../components/BlockPalette'
@@ -30,6 +32,8 @@ export function getSubjectImage(name?: string): string {
   if (s.includes('đồng hồ') || s.includes('clock')) return '/assets/aiki-islands/island1_lesson2_clock.jpg'
   if (s.includes('cốc') || s.includes('ly') || s.includes('cup') || s.includes('teacup')) return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
   if (s.includes('mèo') || s.includes('cat')) return '/assets/aiki-islands/island1_lesson1_cat.jpg'
+  if (s.includes('cá vàng') || s.includes('ca vang') || s.includes('con cá') || /(?:^|\s)cá(?:\s|$)/u.test(s) || s.includes('fish')) return '/assets/aiki-islands/island1_lesson1_cat.jpg'
+  if (s.includes('cún') || s.includes('cun') || s.includes('con chó') || /\bchó\b/u.test(s) || s.includes('dog')) return '/assets/aiki-islands/island1_lesson1_cat.jpg'
   return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
 }
 
@@ -230,6 +234,8 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     if (s.includes('xe') || s.includes('đạp') || s.includes('bike')) return BICYCLE_BLOCKS
     if (s.includes('sổ') || s.includes('sách') || s.includes('note')) return NOTEBOOK_BLOCKS
     if (s.includes('đồng hồ') || s.includes('clock')) return CLOCK_BLOCKS
+    if (s.includes('cá vàng') || s.includes('ca vang') || s.includes('con cá') || /(?:^|\s)cá(?:\s|$)/u.test(s) || s.includes('fish')) return GOLDFISH_BLOCKS
+    if (s.includes('cún') || s.includes('cun') || s.includes('con chó') || /\bchó\b/u.test(s) || s.includes('dog')) return DOG_BLOCKS
     if (s.includes('cốc') || s.includes('ly') || s.includes('cup') || lessonId?.includes('1-2') || lessonId?.includes('1.2')) return CERAMIC_CUP_BLOCKS
     return [...COLOR_SHAPE_BLOCKS, ...ACTION_BLOCKS, ...CONTEXT_BLOCKS]
   }, [effectiveSubject, lessonId])

@@ -335,20 +335,20 @@ describe('CreativeEngine Suite', () => {
     it('renders IdentityLockEngine with 4 characters in Subject Bar and ADN locks', () => {
       const html = renderToStaticMarkup(
         <IdentityLockEngine
-          characterName="Sóc Bông"
-          lockedFeatures={['Mũ len đỏ', 'Đuôi to xù cam']}
+          characterName="Bí"
+          lockedFeatures={['Mũ len đỏ có quả bông trắng', 'Áo khoác xanh dương hai túi']}
           onPromptChange={vi.fn()}
         />
       )
       expect(html).toContain('data-testid="identity-lock-engine"')
       expect(html).toContain('BỘ CHỦ THỂ NHÂN VẬT')
-      expect(html).toContain('Chú Sóc Bông Hạt Dẻ')
-      expect(html).toContain('Cáo Lửa Zico Hiệp Sĩ')
-      expect(html).toContain('Chú Bé Robot Leo')
-      expect(html).toContain('Mèo Thám Tử Mimi')
+      expect(html).toContain('Bí')
+      expect(html).toContain('Tép')
+      expect(html).toContain('Bông')
+      expect(html).toContain('Rô')
       expect(html).toContain('3 Ổ Khóa Vàng VIP Bất Biến')
-      expect(html).toContain('Mũ len đỏ')
-      expect(html).toContain('Đuôi to xù cam')
+      expect(html).toContain('Mũ len đỏ có quả bông trắng')
+      expect(html).toContain('Áo khoác xanh dương hai túi')
       expect(html).toContain('Bánh Xe 6 Biểu Cảm')
     })
 
@@ -371,13 +371,13 @@ describe('CreativeEngine Suite', () => {
       const [assembledPrompt, activeBlocks] = lastCall
 
       // Prompt string includes character name, locked features, expression, action
-      expect(assembledPrompt).toContain('Chú Sóc Bông Hạt Dẻ')
-      expect(assembledPrompt).toContain('đội mũ len đỏ quả bông trắng')
+      expect(assembledPrompt).toContain('Bí')
+      expect(assembledPrompt).toContain('Mũ len đỏ có quả bông trắng')
 
       // activeBlocks has 4 blocks
       expect(activeBlocks).toHaveLength(4)
       expect(activeBlocks[0].category).toBe('subject')
-      expect(activeBlocks[0].label).toBe('Chú Sóc Bông Hạt Dẻ')
+      expect(activeBlocks[0].label).toBe('Bí')
       expect(activeBlocks[1].category).toBe('modifier')
       expect(activeBlocks[1].label).toBe('3 Ổ khóa ADN')
       expect(activeBlocks[2].category).toBe('expression')
@@ -407,9 +407,9 @@ describe('CreativeEngine Suite', () => {
       const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
       const [assembledPrompt, activeBlocks] = lastCall
 
-      expect(assembledPrompt).toContain('Cáo Lửa Zico Hiệp Sĩ')
-      expect(assembledPrompt).toContain('áo choàng đỏ thêu sao vàng')
-      expect(activeBlocks[0].label).toBe('Cáo Lửa Zico Hiệp Sĩ')
+      expect(assembledPrompt).toContain('Tép')
+      expect(assembledPrompt).toContain('Khăn quàng ca-rô đỏ')
+      expect(activeBlocks[0].label).toBe('Tép')
 
       await act(async () => {
         root.unmount()

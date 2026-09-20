@@ -20,6 +20,24 @@ export const SUBJECT_BLOCKS: CreativeBlock[] = [
     badge: 'M1.1',
   },
   {
+    id: 'sub-con-ca-vang',
+    label: 'Con cá vàng',
+    text: 'Con cá vàng',
+    category: 'subject',
+    icon: '🐠',
+    colorScheme: 'amber',
+    badge: 'M1.1',
+  },
+  {
+    id: 'sub-con-cun',
+    label: 'Con cún',
+    text: 'Con cún',
+    category: 'subject',
+    icon: '🐶',
+    colorScheme: 'amber',
+    badge: 'M1.1',
+  },
+  {
     id: 'sub-xe-ca-rot',
     label: 'Cỗ Xe Cà Rốt',
     text: 'Cỗ xe bay củ cà rốt của thỏ trắng',
@@ -1780,5 +1798,181 @@ export const DETECTIVE_OFFICE_BLOCKS: CreativeBlock[] = [
     icon: '🏙️',
     colorScheme: 'sky',
   },
+]
+
+// ── BỘ TỪ VỰNG: BÀI 1.1 - MÓN 02: CON CÁ VÀNG ───────────────────────────────
+export const GOLDFISH_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-fish-duoi-voan',
+    label: 'Đuôi voan dài mềm',
+    text: 'đuôi voan dài mềm',
+    category: 'color-shape',
+    icon: '🐠',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-fish-than-tron',
+    label: 'Thân tròn mắt lồi',
+    text: 'thân tròn mắt lồi',
+    category: 'color-shape',
+    icon: '👀',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-fish-vay-anh-bac',
+    label: 'Vảy ánh bạc lấp lánh',
+    text: 'vảy ánh bạc lấp lánh',
+    category: 'color-shape',
+    icon: '✨',
+    colorScheme: 'sky',
+  },
+]
+
+export const GOLDFISH_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-fish-dop-bot',
+    label: 'Ngoi lên đớp bọt',
+    text: 'đang ngoi lên đớp bọt',
+    category: 'action',
+    icon: '🫧',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'act-fish-nap-da',
+    label: 'Nấp sau hòn đá',
+    text: 'đang nấp sau hòn đá',
+    category: 'action',
+    icon: '🪨',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-fish-ria-rong',
+    label: 'Rỉa nhánh rong xanh',
+    text: 'đang rỉa nhánh rong xanh',
+    category: 'action',
+    icon: '🌿',
+    colorScheme: 'mint',
+  },
+]
+
+export const GOLDFISH_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-fish-binh-thuy-tinh',
+    label: 'Trong bình thuỷ tinh tròn',
+    text: 'trong bình thuỷ tinh tròn',
+    category: 'context',
+    icon: '🫧',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'ctx-fish-be-ca-soi',
+    label: 'Trong bể cá rải sỏi trắng',
+    text: 'trong bể cá rải sỏi trắng',
+    category: 'context',
+    icon: '🐠',
+    colorScheme: 'indigo',
+  },
+  {
+    id: 'ctx-fish-chum-sanh',
+    label: 'Trong chum sành ngoài sân',
+    text: 'trong chum sành ngoài sân',
+    category: 'context',
+    icon: '🏺',
+    colorScheme: 'amber',
+  },
+]
+
+export const GOLDFISH_BLOCKS: CreativeBlock[] = [
+  ...GOLDFISH_COLOR_SHAPE_BLOCKS,
+  ...GOLDFISH_ACTION_BLOCKS,
+  ...GOLDFISH_CONTEXT_BLOCKS,
+]
+
+// ── BỘ TỪ VỰNG: BÀI 1.1 - MÓN 03: CON CÚN ──────────────────────────────────
+export const DOG_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-dog-long-vang',
+    label: 'Lông vàng hai tai cụp',
+    text: 'lông vàng hai tai cụp',
+    category: 'color-shape',
+    icon: '🐕',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-dog-trang-dom',
+    label: 'Trắng đốm nâu quanh mắt',
+    text: 'trắng đốm nâu quanh mắt',
+    category: 'color-shape',
+    icon: '🐶',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-dog-long-xu',
+    label: 'Lông xù rối bù',
+    text: 'lông xù rối bù',
+    category: 'color-shape',
+    icon: '☁️',
+    colorScheme: 'amber',
+  },
+]
+
+export const DOG_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-dog-duoi-bong',
+    label: 'Chạy đuổi quả bóng',
+    text: 'đang chạy đuổi quả bóng',
+    category: 'action',
+    icon: '⚽',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'act-dog-ngoi-cho',
+    label: 'Ngồi vẫy đuôi chờ',
+    text: 'đang ngồi vẫy đuôi chờ',
+    category: 'action',
+    icon: '🐾',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-dog-tha-dep',
+    label: 'Tha một chiếc dép',
+    text: 'đang tha một chiếc dép',
+    category: 'action',
+    icon: '🩴',
+    colorScheme: 'amber',
+  },
+]
+
+export const DOG_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-dog-san-gach',
+    label: 'Ở góc sân gạch đỏ',
+    text: 'ở góc sân gạch đỏ',
+    category: 'context',
+    icon: '🧱',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'ctx-dog-cay-bang',
+    label: 'Dưới gốc cây bàng',
+    text: 'dưới gốc cây bàng',
+    category: 'context',
+    icon: '🌳',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'ctx-dog-tham-phong',
+    label: 'Trên thảm phòng khách',
+    text: 'trên thảm phòng khách',
+    category: 'context',
+    icon: '🛋️',
+    colorScheme: 'indigo',
+  },
+]
+
+export const DOG_BLOCKS: CreativeBlock[] = [
+  ...DOG_COLOR_SHAPE_BLOCKS,
+  ...DOG_ACTION_BLOCKS,
+  ...DOG_CONTEXT_BLOCKS,
 ]
 
