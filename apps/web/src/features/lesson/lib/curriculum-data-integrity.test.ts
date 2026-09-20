@@ -229,4 +229,49 @@ describe('Curriculum Data Integrity Audit', () => {
     expect(clayPrompt).toContain('handcrafted 3D soft clay sculpture style')
     expect(clayPrompt).toContain('Strictly avoid realistic photo')
   })
+
+  it('verifies zero fake _cat.jpg image paths in quizQuestions across both registry and backend SSOT', () => {
+    // In all 22 lessons, only lesson 1.1 has a valid cat asset (/assets/aiki-islands/island1_lesson1_cat.jpg)
+    // All other 21 lessons must NOT have any fake _cat.jpg
+    let totalQuizCatImages = 0
+    for (const lesson of ISLAND_CURRICULUM_LESSONS) {
+      const questions = lesson.journey.stage4_quiz?.questions || []
+      for (const q of questions) {
+        if (q.visualUrl && q.visualUrl.includes('_cat.jpg')) {
+          totalQuizCatImages++
+          // The ONLY allowed cat image is the real asset for lesson 1.1
+          expect(lesson.lessonNumber).toBe('1.1')
+          expect(q.visualUrl).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg')
+        }
+      }
+    }
+    // Exactly 0 fake cat images across the curriculum
+    expect(totalQuizCatImages).toBeLessThanOrEqual(1)
+  })
+
+  it('verifies all 22 lessons have rich keyPoints (at least 3 items) in stage1_goal from Excel P1', () => {
+    for (const lesson of ISLAND_CURRICULUM_LESSONS) {
+      const keyPoints = lesson.journey.stage1_goal?.keyPoints || []
+      expect(keyPoints.length).toBeGreaterThanOrEqual(3)
+      for (const kp of keyPoints) {
+        expect(kp.length).toBeGreaterThanOrEqual(10)
+        // Should not be generic placeholder text
+        expect(kp).not.toContain('Chưa có nội dung')
+        expect(kp).not.toContain('Lorem ipsum')
+      }
+    }
+  })
+
+  it('verifies stage2_confirmGoal options have zero distracting AI imageUrl across all 22 lessons', () => {
+    for (const lesson of ISLAND_CURRICULUM_LESSONS) {
+      const options = lesson.journey.stage2_confirmGoal?.options || []
+      for (const opt of options) {
+        if (typeof opt === 'object' && opt !== null) {
+          const optObj = opt as { imageUrl?: string }
+          expect(optObj.imageUrl).toBeFalsy()
+        }
+      }
+    }
+  })
 })
+

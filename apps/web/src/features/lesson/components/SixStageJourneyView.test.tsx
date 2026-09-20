@@ -1890,4 +1890,72 @@ describe('SixStageJourneyView', () => {
       nextLessonSlug: mockJourney.stage6_completion.nextLessonSlug,
     })
   })
+
+  it('hides image column and expands question box to md:col-span-12 when quiz has no image or image fails to load', () => {
+    const journeyWithQuizImages: LessonSixStageJourney = {
+      ...mockJourney,
+      stage4_quiz: {
+        id: 'quiz-visual-test',
+        title: 'Quiz Layout Test',
+        passScore: 1,
+        questions: [
+          {
+            id: 'q-with-img',
+            prompt: 'Question with image',
+            options: ['A', 'B'],
+            correctIndex: 0,
+            explanation: 'Why',
+            visualUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg',
+          },
+          {
+            id: 'q-without-img',
+            prompt: 'Question without image',
+            options: ['A', 'B'],
+            correctIndex: 0,
+            explanation: 'Why',
+            visualUrl: '',
+          },
+        ],
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={journeyWithQuizImages}
+          lessonId="bai-1-1"
+          lessonTitle="Layout Test"
+          initialStageIndex={3}
+        />
+      )
+    })
+
+    const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+
+    // 1. Question 1 has valid visualUrl -> image column (md:col-span-5) is visible, question box has md:col-span-7
+    const imgEl = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_cat.jpg"]')
+    expect(imgEl).not.toBeNull()
+    const imgCol = imgEl?.closest('.md\\:col-span-5')
+    expect(imgCol).not.toBeNull()
+
+    // Question box should have md:col-span-7
+    const q1Box = imgCol?.nextElementSibling
+    expect(q1Box?.className).toContain('md:col-span-7')
+    expect(q1Box?.className).not.toContain('md:col-span-12')
+
+    // 2. Trigger onError on image -> image column should disappear and question box should expand to md:col-span-12
+    act(() => {
+      imgEl?.dispatchEvent(new Event('error'))
+    })
+
+    const imgAfterError = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_cat.jpg"]')
+    expect(imgAfterError).toBeNull()
+
+    // Question box expands to md:col-span-12
+    const questionBoxes = quizSection?.querySelectorAll('.md\\:col-span-12')
+    expect(questionBoxes?.length).toBeGreaterThanOrEqual(1)
+  })
 })
+
