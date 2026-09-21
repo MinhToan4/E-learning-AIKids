@@ -486,24 +486,31 @@ describe('SixStageJourneyView', () => {
     expect(nav?.textContent).toContain('Thực hành')
     expect(nav?.textContent).toContain('Hoàn thành')
 
-    // Verify NO button has opacity-40 or cursor-not-allowed (100% sharp and accessible)
-    buttons?.forEach((btn) => {
-      expect(btn.className).not.toContain('opacity-40')
-      expect(btn.className).not.toContain('cursor-not-allowed')
-      expect(btn.className).not.toContain('text-slate-400')
-    })
+    // Verify strict sequential progression:
+    // Stage 0 (current) and Stage 1 (next unlockable) are enabled
+    expect(buttons?.[0]?.disabled).toBe(false)
+    expect(buttons?.[1]?.disabled).toBe(false)
+    expect(buttons?.[0]?.className).not.toContain('opacity-40')
+    expect(buttons?.[1]?.className).not.toContain('opacity-40')
 
-    // Verify smooth navigation: click stage 3 (Video) directly navigates without getting blocked
+    // Future stages (2-5) are locked with opacity-40, cursor-not-allowed, and disabled
+    for (let i = 2; i < 6; i++) {
+      expect(buttons?.[i]?.disabled).toBe(true)
+      expect(buttons?.[i]?.className).toContain('opacity-40')
+      expect(buttons?.[i]?.className).toContain('cursor-not-allowed')
+    }
+
+    // Clicking locked stage 2 (Video) directly does NOT navigate
     act(() => {
       buttons?.[2]?.click()
     })
-    expect(container.querySelector('[data-testid="stage-2-video"]')).not.toBeNull()
-    expect(container.textContent).toContain('Video Bài Giảng: Bí Kíp Câu Lệnh Thần Kỳ')
+    expect(container.querySelector('[data-testid="stage-2-video"]')).toBeNull()
 
-    // Stage 0 badge content
-    // When navigated to Stage 2, sidebar shows Stage 3/6
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.textContent).toContain('Chặng 3/6: Video')
+    // Clicking unlocked stage 1 navigates smoothly
+    act(() => {
+      buttons?.[1]?.click()
+    })
+    expect(container.querySelector('[data-testid="stage-1-confirm"]')).not.toBeNull()
   })
 
   it('handles image failure in Stage 2 without leaving empty placeholder boxes', () => {

@@ -189,6 +189,8 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
               <img
                 src={imageSrc}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className={cn(
                   'h-full w-full object-contain transition-all duration-300',
                   activeItem.unlocked

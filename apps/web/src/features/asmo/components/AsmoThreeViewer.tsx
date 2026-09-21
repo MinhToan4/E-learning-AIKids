@@ -251,7 +251,8 @@ export function AsmoThreeViewer({
     // 2. Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     renderer.setSize(width, containerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const maxDpr = typeof window !== 'undefined' && window.innerWidth < 768 ? 1.25 : 2
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr))
     rendererRef.current = renderer
     container.replaceChildren()
     container.appendChild(renderer.domElement)
@@ -340,9 +341,25 @@ export function AsmoThreeViewer({
     window.addEventListener('pointermove', onPointerMove)
     window.addEventListener('pointerup', onPointerUp)
 
-    // 7. Animation Loop
+    // 7. Visibility & Animation Loop
+    let isIntersecting = true
+    let observer: IntersectionObserver | null = null
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isIntersecting = entry.isIntersecting
+        },
+        { threshold: 0.05 },
+      )
+      observer.observe(container)
+    }
+
     const animate = () => {
       animFrameIdRef.current = requestAnimationFrame(animate)
+
+      if (!isIntersecting || (typeof document !== 'undefined' && document.hidden)) {
+        return
+      }
 
       if (autoRotate && !isDragging) {
         activeGroup.rotation.y += 0.005
@@ -388,6 +405,7 @@ export function AsmoThreeViewer({
 
     // 9. Cleanup
     return () => {
+      observer?.disconnect()
       if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current)
       window.removeEventListener('resize', handleResize)
       canvas.removeEventListener('pointerdown', onPointerDown)

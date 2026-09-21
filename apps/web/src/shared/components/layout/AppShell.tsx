@@ -788,6 +788,7 @@ export function AppShell() {
 
       // 💳 TÀI CHÍNH & KINH DOANH
       { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon, group: '💳 TÀI CHÍNH & KINH DOANH' },
+      { to: '/admin/affiliates', label: 'Cộng Tác Viên & Đối Soát', icon: CmsBillingIcon, group: '💳 TÀI CHÍNH & KINH DOANH' },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [

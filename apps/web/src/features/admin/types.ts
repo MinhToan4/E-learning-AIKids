@@ -355,6 +355,65 @@ export type AdminTab =
   | 'legends'
   | 'billing'
   | 'asmo'
+  | 'affiliates'
+
+// ── Affiliate & Commission types ──────────────────────────────
+export interface AffiliateRow {
+  id: string
+  name: string
+  phone?: string | null
+  email?: string | null
+  ref_code: string
+  commission_rate: number
+  bank_name?: string | null
+  bank_account?: string | null
+  bank_account_name?: string | null
+  status: 'active' | 'inactive' | string
+  created_at: string
+  updated_at: string
+  total_orders?: number
+  total_revenue_minor?: number
+  total_commission_minor?: number
+  pending_commission_minor?: number
+  approved_commission_minor?: number
+  paid_commission_minor?: number
+}
+
+export interface AffiliateCommissionRow {
+  id: string
+  affiliate_id: string
+  order_code: string
+  payment_intent_id?: string | null
+  customer_name?: string | null
+  customer_phone?: string | null
+  customer_email?: string | null
+  order_total_minor: number
+  commission_amount_minor: number
+  status: 'pending' | 'approved' | 'paid' | 'rejected' | string
+  note?: string | null
+  is_self_referral?: boolean
+  created_at: string
+  updated_at: string
+  affiliate_name?: string
+  affiliate_ref_code?: string
+  affiliate_email?: string | null
+  affiliate_phone?: string | null
+  bank_name?: string | null
+  bank_account?: string | null
+  bank_account_name?: string | null
+}
+
+export interface AffiliateStats {
+  total_affiliates: number
+  total_active_affiliates: number
+  total_orders: number
+  total_revenue_minor: number
+  total_commission_minor: number
+  pending_commission_minor: number
+  approved_commission_minor: number
+  paid_commission_minor: number
+  rejected_commission_minor: number
+}
 
 export const STUDENT_PARENT_ROLES = ['student', 'child', 'parent'] as const
 export const STAFF_ROLES = ['admin', 'curriculum_lead', 'teacher'] as const

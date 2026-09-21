@@ -837,6 +837,14 @@ export function App() {
                 </Guard>
               }
             />
+            <Route
+              path="/admin/affiliates"
+              element={
+                <Guard roles={['admin']} permissions={['billing.view']}>
+                  <AdminPage tab="affiliates" />
+                </Guard>
+              }
+            />
             {/* Legacy bookmark: learning settings now live inside each course. */}
             <Route
               path="/admin/learning-config"

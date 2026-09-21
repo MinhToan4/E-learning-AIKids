@@ -7118,16 +7118,44 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
 @media (prefers-reduced-motion: reduce) {
   .mee-tutor-avatar,
-  .mee-tutor-avatar__accent {
+  .mee-tutor-avatar__accent,
+  .mee-tutor-avatar-wrap,
+  .pulse-soft,
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-delayed,
+  .animate-float-delayed-2,
+  .companion-avatar-clay,
+  .xp-shimmer-active {
     animation: none !important;
   }
 }
 
 /* Mobile motion budget: recurring decoration must not compete with scrolling. */
 @media (max-width: 767px) {
+  body::before {
+    background-image: linear-gradient(180deg, #f7f5ff 0%, #f3f0ff 40%, #eef9ff 100%) !important;
+  }
+
+  .home-course-island-art,
+  .home-course-island-cat,
+  .home-next-course-cat,
+  .important-card-mascot > .aikid-cat-character,
+  .adventure-card-island,
+  .adventure-card-mascot {
+    filter: none !important;
+  }
+
   .animate-bounce,
   .animate-pulse,
-  .animate-spin-slow {
+  .animate-spin-slow,
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-delayed,
+  .animate-float-delayed-2,
+  .pulse-soft,
+  .companion-avatar-clay,
+  .xp-shimmer-active {
     animation: none !important;
   }
 }

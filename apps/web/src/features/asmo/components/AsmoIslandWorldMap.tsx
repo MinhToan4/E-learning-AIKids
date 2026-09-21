@@ -580,7 +580,7 @@ export function AsmoIslandWorldMap({
 
             {/* Scene Canvas with Art + Mèo Mee Character on Grass Hill */}
             <div className="course-map-scene" aria-label={activeTheme.sceneLabel}>
-              <img src={activeTheme.scene} alt="" className="course-map-scene-art" />
+              <img src={activeTheme.scene} alt="" decoding="async" className="course-map-scene-art" />
               <AikidCatCharacter pose={activeTheme.pose} className="course-map-scene-cat" />
             </div>
 
@@ -902,6 +902,7 @@ export function AsmoIslandWorldMap({
                       <img
                         src={theme.scene}
                         alt=""
+                        decoding="async"
                         className="world-region-art"
                         loading={index === 0 ? 'eager' : 'lazy'}
                       />

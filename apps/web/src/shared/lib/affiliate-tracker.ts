@@ -81,8 +81,8 @@ export function recordAffiliateClick(refCode: string): void {
   if (!refCode) return
 
   const cleanRef = refCode.trim()
-  const baseApiUrl = (environment.affiliateApiUrl || 'http://173.249.19.167:3000').replace(/\/+$/, '')
-  const endpoint = `${baseApiUrl}/api/track/click`
+  const baseApiUrl = (environment.affiliateApiUrl || environment.apiBaseUrl || (typeof window !== 'undefined' ? window.location?.origin : '') || '').replace(/\/+$/, '')
+  const endpoint = `${baseApiUrl}/api/v1/billing/track/click`
 
   const payload = JSON.stringify({
     ref_code: cleanRef,

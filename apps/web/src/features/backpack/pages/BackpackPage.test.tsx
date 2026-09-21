@@ -39,6 +39,8 @@ describe('BackpackPage', () => {
       if (endpoint === '/api/projects') return { projects: [] } as any
       if (endpoint === '/api/gamification/storybook') return { inventory: [] } as any
       if (endpoint === '/api/gamification/catalog?type=reward') return { items: [] } as any
+      if (endpoint === '/api/gamification/achievements') return { achievements: [] } as any
+      if (endpoint.includes('/api/v1/media/gallery')) return { items: [] } as any
       return {} as any
     })
   })
@@ -89,12 +91,10 @@ describe('BackpackPage', () => {
       )
     })
 
-    // Wait for load() to finish and loading state to transition to false
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Switch to section "projects" (Tác phẩm)
     const buttons = container.querySelectorAll('button')
     const projectsNavBtn = Array.from(buttons).find((b) => b.textContent?.includes('Tác phẩm'))
     expect(projectsNavBtn).toBeDefined()
@@ -103,7 +103,6 @@ describe('BackpackPage', () => {
       projectsNavBtn?.click()
     })
 
-    // Saved works from studio appear in Backpack
     expect(container.textContent).toContain('Kiệt tác: Cái cốc sứ trắng...')
     expect(container.textContent).toContain('Cái cốc sứ trắng (Lượt 1): Cốc sứ...')
 
@@ -115,6 +114,7 @@ describe('BackpackPage', () => {
 
   it('does not show error banner when local projects exist even if network calls fail', async () => {
     vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+      if (endpoint.includes('/api/v1/media/gallery')) throw new Error('Offline')
       if (endpoint === '/api/projects') throw new Error('Network error')
       if (endpoint === '/api/backpack') throw new Error('Offline')
       if (endpoint === '/api/gamification/storybook') return { inventory: [] } as any
@@ -159,11 +159,7 @@ describe('BackpackPage', () => {
 
   it('shows error banner when network calls fail and no local or remote projects exist', async () => {
     vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
-      if (endpoint === '/api/projects') throw new Error('Network error')
-      if (endpoint === '/api/backpack') throw new Error('Offline')
-      if (endpoint === '/api/gamification/storybook') return { inventory: [] } as any
-      if (endpoint === '/api/gamification/catalog?type=reward') return { items: [] } as any
-      return {} as any
+      throw new Error('Network error')
     })
 
     const container = document.createElement('div')
@@ -190,4 +186,3 @@ describe('BackpackPage', () => {
     container.remove()
   })
 })
-

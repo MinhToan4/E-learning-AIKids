@@ -351,6 +351,8 @@ export function AsmoAdventureIslandCard({
             <img
               src={theme.image || theme.scene}
               alt={theme.islandName}
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-contain drop-shadow-md scale-105 group-hover:scale-110 transition-transform duration-700 pointer-events-none"
             />
 

@@ -24,6 +24,9 @@ import {
   type LoginLogSummary,
   type ModelRow,
   type RoutingState,
+  type AffiliateRow,
+  type AffiliateCommissionRow,
+  type AffiliateStats,
 } from '../types'
 
 // Re-export shared types for backward compatibility across the app
@@ -51,6 +54,9 @@ export type {
   LoginLogSummary,
   ModelRow,
   RoutingState,
+  AffiliateRow,
+  AffiliateCommissionRow,
+  AffiliateStats,
 }
 
 // Lazy-loaded tab components for optimal code splitting & speed
@@ -80,6 +86,9 @@ const AdminClassesTab = lazy(() =>
 )
 const AdminBillingTab = lazy(() =>
   import('../components/tabs/AdminBillingTab').then((m) => ({ default: m.AdminBillingTab })),
+)
+const AdminAffiliatesTab = lazy(() =>
+  import('../components/tabs/AdminAffiliatesTab').then((m) => ({ default: m.AdminAffiliatesTab })),
 )
 const AiEngineStudio = lazy(() =>
   import('../components/AiEngineStudio').then((m) => ({ default: m.AiEngineStudio })),
@@ -179,6 +188,13 @@ const TAB_METADATA: Record<AdminTab, TabMeta> = {
     title: 'Gói cước & POS Thu ngân',
     breadcrumb: ['Quản trị', 'Tài chính & Kinh doanh', 'Gói & Thanh toán'],
     description: 'Duyệt đơn chờ VietQR, POS thu tiền tại quầy, quản lý gói 129k và 5 gói nạp lượt AI.',
+    badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  },
+  affiliates: {
+    group: '💳 TÀI CHÍNH & KINH DOANH',
+    title: 'Cộng Tác Viên & Đối Soát',
+    breadcrumb: ['Quản trị', 'Tài chính & Kinh doanh', 'Cộng Tác Viên & Đối Soát'],
+    description: 'Quản lý danh sách CTV, cấp mã ref, đối soát đơn hàng và duyệt chi trả hoa hồng.',
     badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
   courses: {
@@ -300,6 +316,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <CmsErrorBoundary name="Gói & Thanh toán">
             <Suspense fallback={<TabLoadingFallback label="Gói & Thanh toán" />}>
               <AdminBillingTab />
+            </Suspense>
+          </CmsErrorBoundary>
+        )
+
+      case 'affiliates':
+        return (
+          <CmsErrorBoundary name="Cộng Tác Viên & Đối Soát">
+            <Suspense fallback={<TabLoadingFallback label="Cộng Tác Viên & Đối Soát" />}>
+              <AdminAffiliatesTab />
             </Suspense>
           </CmsErrorBoundary>
         )

@@ -45,6 +45,7 @@ describe('application API route coverage', () => {
       // These are already canonical contracts; move them into the matching
       // domain adapter when those feature modules are next changed.
       'features/admin/components/RewardPackAdmin.tsx',
+      'features/admin/components/tabs/AdminAffiliatesTab.tsx',
       'features/teacher/components/TeacherFeedbackPanel.tsx',
       'features/parent/components/ParentTeacherFeedbackSection.tsx',
       'features/parent/hooks/useParentFeedbackBadge.ts',

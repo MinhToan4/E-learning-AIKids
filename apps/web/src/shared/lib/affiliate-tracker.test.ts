@@ -103,7 +103,7 @@ describe('Affiliate Tracker', () => {
 
       expect(sendBeaconMock).toHaveBeenCalledTimes(1)
       const [url, blob] = sendBeaconMock.mock.calls[0]
-      expect(url).toContain('/api/track/click')
+      expect(url).toContain('/api/v1/billing/track/click')
       expect(blob).toBeInstanceOf(Blob)
     })
 
@@ -120,7 +120,7 @@ describe('Affiliate Tracker', () => {
 
       expect(fetchMock).toHaveBeenCalledTimes(1)
       const [url, options] = fetchMock.mock.calls[0]
-      expect(url).toContain('/api/track/click')
+      expect(url).toContain('/api/v1/billing/track/click')
       expect(options.method).toBe('POST')
       const parsedBody = JSON.parse(options.body as string)
       expect(parsedBody.ref_code).toBe('PARTNER_FETCH')

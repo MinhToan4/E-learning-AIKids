@@ -60,6 +60,7 @@ export const CollectibleBadgeItem = memo(function CollectibleBadgeItem({
             src={imageSrc}
             alt=""
             loading="lazy"
+            decoding="async"
             className={cn(
               'h-full w-full object-contain transition-all duration-300 transform scale-[1.22]',
               item.unlocked

@@ -622,7 +622,7 @@ export function AikiRuleVideoPlayer({
 
       {/* Live Subtitles (Karaoke Phân Vai) */}
       {currentSlide && currentSlideIndex !== 4 && (
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent p-3 sm:p-4 text-center pointer-events-none z-10">
+        <div className="relative mt-1.5 p-2 bg-brand-900/90 rounded-xl text-white md:absolute md:inset-x-0 md:bottom-0 md:bg-gradient-to-t md:from-black/85 md:via-black/60 md:to-transparent md:p-3 md:sm:p-4 text-center pointer-events-none z-10">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/80 border border-brand-300/60 px-3 py-0.5 text-xs font-black text-white mb-1 backdrop-blur-xs shadow-xs">
             <span>{currentSlide.stage}</span>
             <span>·</span>

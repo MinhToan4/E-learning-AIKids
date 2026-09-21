@@ -204,6 +204,8 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
                         <img
                           src={imageSrc}
                           alt={badgeItem.title}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-contain filter drop-shadow-[0_16px_26px_rgba(217,119,6,0.35)] transition-transform duration-200 transform scale-[1.38] sm:scale-[1.46]"
                         />
                       ) : (
@@ -347,6 +349,8 @@ export const TopPodiumShowcase = memo(function TopPodiumShowcase({
                         <img
                           src={imageSrc}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.12)] transform scale-[1.22]"
                         />
                       ) : (
