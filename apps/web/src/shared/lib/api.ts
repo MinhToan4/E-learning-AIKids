@@ -224,6 +224,7 @@ export class ApiError extends Error {
 
 const inFlightGetRequests = new Map<string, Promise<unknown>>()
 const getResponseCache = new Map<string, { expiresAt: number; staleUntil: number; value: unknown }>()
+let cacheGeneration = 0
 
 const DEFAULT_STALE_WINDOW = 300_000 // 5 phút cache stale-while-revalidate
 
@@ -259,11 +260,61 @@ function responseCacheTtl(path: string): number {
 export const getCacheTtlMs = responseCacheTtl
 
 export function clearApiCache(): void {
+  cacheGeneration += 1
   getResponseCache.clear()
   inFlightGetRequests.clear()
 }
 
 const clearResponseCache = clearApiCache
+
+function cachePath(key: string): string {
+  const marker = key.indexOf(':/api/')
+  return marker >= 0 ? key.slice(marker + 1) : key
+}
+
+function invalidateCachePrefixes(prefixes: string[]): void {
+  cacheGeneration += 1
+  for (const key of getResponseCache.keys()) {
+    const path = cachePath(key)
+    if (prefixes.some((prefix) => path.startsWith(prefix))) {
+      getResponseCache.delete(key)
+    }
+  }
+  // A mutation can make an already-running GET stale. Removing the in-flight
+  // handle allows the next caller to issue a fresh read; cacheGeneration keeps
+  // the older response from being written into the response cache afterward.
+  for (const key of inFlightGetRequests.keys()) {
+    const path = cachePath(key)
+    if (prefixes.some((prefix) => path.startsWith(prefix))) {
+      inFlightGetRequests.delete(key)
+    }
+  }
+}
+
+function mutationInvalidationPrefixes(path: string): string[] | null {
+  if (path.startsWith('/api/progress/')) {
+    return ['/api/progress/', '/api/learning/pathway']
+  }
+  if (path.startsWith('/api/enrollments')) {
+    return ['/api/enrollments', '/api/learning/pathway', '/api/courses', '/api/progress/']
+  }
+  if (path.startsWith('/api/gamification/rewards/equipment')) {
+    return ['/api/gamification/storybook', '/api/gamification/profile', '/api/profile/settings']
+  }
+  if (path.startsWith('/api/gamification/')) {
+    return ['/api/gamification/']
+  }
+  if (path.startsWith('/api/profile/settings')) {
+    return ['/api/profile/settings', '/api/public/profiles/']
+  }
+  if (path.startsWith('/api/projects') || path.startsWith('/api/backpack') || path.startsWith('/api/media/')) {
+    return ['/api/projects', '/api/backpack']
+  }
+  if (path.startsWith('/api/admin/legend-studio')) {
+    return ['/api/admin/legend-studio']
+  }
+  return null
+}
 
 function attachSignal<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T> {
   if (!signal) return promise
@@ -302,11 +353,13 @@ export function api<T = unknown>(
     options.body === undefined &&
     (!options.headers || Object.keys(options.headers).length === 0)
   if (!canDedupe) {
-    // A mutation can change several projections (catalog, achievements and
-    // profile) at once. Clear the small in-memory GET cache rather than risk
-    // showing data from before the mutation.
-    if (method !== 'GET') clearResponseCache()
-    return executeApi<T>(legacyPath, options)
+    if (method === 'GET') return executeApi<T>(legacyPath, options)
+    return executeApi<T>(legacyPath, options).then((value) => {
+      const prefixes = mutationInvalidationPrefixes(legacyPath)
+      if (prefixes) invalidateCachePrefixes(prefixes)
+      else clearResponseCache()
+      return value
+    })
   }
 
   const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
@@ -317,6 +370,7 @@ export function api<T = unknown>(
   const triggerBackgroundFetch = (): Promise<T> => {
     let pending = inFlightGetRequests.get(key) as Promise<T> | undefined
     if (!pending) {
+      const requestGeneration = cacheGeneration
       const fetchOpts: RequestInit = { ...options }
       delete fetchOpts.signal
       const request = executeApi<T>(legacyPath, fetchOpts)
@@ -328,6 +382,7 @@ export function api<T = unknown>(
       }).catch(() => undefined)
       if (ttl > 0) {
         void request.then((value) => {
+          if (requestGeneration !== cacheGeneration) return
           getResponseCache.set(key, {
             expiresAt: Date.now() + ttl,
             staleUntil: Date.now() + ttl + DEFAULT_STALE_WINDOW,

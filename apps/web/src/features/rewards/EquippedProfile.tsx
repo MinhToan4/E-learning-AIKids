@@ -85,6 +85,7 @@ export function EquippedProfile({
     }
   }, [user.id])
   useEffect(() => {
+    if (compact) return
     void api<{ items: Array<{ code: string; assets?: RewardCatalogAssets; displayConfig?: Record<string, unknown> }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6')
       .then(({ items }) => {
         const config = items.find((item) => item.code === PROFILE_CARD_LAYOUT_CODE)?.displayConfig?.profileCardLayout as ProfileCardLayout | undefined
@@ -95,7 +96,7 @@ export function EquippedProfile({
         })))
       })
       .catch(() => undefined)
-  }, [])
+  }, [compact])
 
 
   const avatarReward = REWARD_CATALOG.find((item) => item.id === equipment.avatar)

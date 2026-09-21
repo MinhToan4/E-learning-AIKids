@@ -2,7 +2,7 @@ import '@/shared/styles/adult-shell.css'
 import { Fragment, Suspense, useEffect, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
-import { prefetchRoute } from '@/app/route-prefetch'
+import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { api } from '@/shared/lib/api'
@@ -210,6 +210,7 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
       to={to}
       end={end}
       onPointerEnter={() => prefetchRoute(to)}
+      onPointerDown={() => prefetchRouteImmediately(to)}
       onFocus={() => prefetchRoute(to)}
       className={({ isActive }) => {
         const isItemActive = matchPrefixes ? matchPrefixes.some((prefix) => location.pathname.startsWith(prefix)) : isActive
@@ -263,6 +264,7 @@ function AdultBottomLink({
       to={to}
       end={end}
       onPointerEnter={() => prefetchRoute(to)}
+      onPointerDown={() => prefetchRouteImmediately(to)}
       onFocus={() => prefetchRoute(to)}
       className={({ isActive }) => {
         const isItemActive = matchPrefixes ? matchPrefixes.some((prefix) => location.pathname.startsWith(prefix)) : isActive

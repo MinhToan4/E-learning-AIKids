@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { BookOpen, BrainCircuit, Check, ChevronLeft, ChevronRight, Clock3, Gamepad2, Lightbulb, MessageSquareText, MoveRight, PencilLine, Play, Printer, ScanSearch, ShieldCheck, Sparkles, Square, Star, Target, Timer, Trophy, Volume2, ZoomIn } from 'lucide-react'
 import {
@@ -12,15 +12,11 @@ import {
   type ZoomImageData,
 } from '@/features/lesson/components/AikiRuleVisuals'
 
-import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
 import {
-  resolveIslandSixStageJourney,
   isAikiRuleJourney as checkIsAikiRule,
   extractRuleNumber,
   AIKI_MODULE_0_COURSE_ID,
-} from '@/features/lesson/lib/island-journey-resolver'
-import { adaptRuleToStages } from '@/features/lesson/lib/stage-adapter'
-import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+} from '@/features/lesson/lib/rule-journey-identifiers'
 import { getAikiStudioConfig } from '@/features/lesson/data/aiki-studio-configs'
 import type { AikiRule } from '@/features/rules/types'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
@@ -67,9 +63,11 @@ import {
   promptLabError,
   strongPrompt,
   type PromptLabValue,
-} from '@/features/lesson/components/PromptLab'
+} from '@/features/lesson/lib/prompt-lab-state'
 import type { GameEvidence } from '@/features/lesson/components/CurriculumGame'
 import type { GameHint } from '@/features/lesson/components/games/types'
+
+const LessonJourneyRenderer = React.lazy(() => import('@/features/lesson/components/LessonJourneyRenderer'))
 
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -495,7 +493,9 @@ export function LessonPage() {
         return
       }
 
-      const islandCurriculum = findIslandCurriculum({ id: questId, slug: questId })
+      const islandCurriculum = questId.startsWith('bai-')
+        ? (await import('@/features/lesson/data/island-curriculum-registry')).findIslandCurriculum({ id: questId, slug: questId })
+        : undefined
       if (islandCurriculum) {
         setQuest({
           id: islandCurriculum.id || questId,
@@ -648,7 +648,6 @@ export function LessonPage() {
 
   const isIslandJourney = Boolean(
     !isAikiRuleJourney && (
-      Boolean(findIslandCurriculum(quest)) ||
       quest?.courseId?.startsWith('dao-') ||
       quest?.id?.startsWith('bai-') ||
       questId?.startsWith('bai-') ||
@@ -1533,53 +1532,19 @@ export function LessonPage() {
 
   // ── TEMPLATE 1: 10 Quy Tắc Vàng AIKI (Module 0 - 3 Chặng Chuẩn: VIDEO ➔ QUIZ ➔ REWARD) ──
   if (isAikiRuleJourney && quest) {
-    const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
-    const ruleStages = adaptRuleToStages(matchedRule)
-
     return (
-      <div className="h-full max-h-full min-h-0 flex-1 bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-hidden">
-        <SixStageJourneyView
-          stages={ruleStages}
-          lessonId={quest.id}
-          lessonTitle={quest.title}
-          studentStars={liveStars || 42}
-          rewardXp={50}
-          onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
-          onNavigateNextLesson={(nextSlug) => {
-            navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)
-          }}
-          onFinishLesson={(_res) => {
-            void handleAikiFinish()
-          }}
-        />
-      </div>
+      <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
+        <LessonJourneyRenderer mode="rule" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={() => void handleAikiFinish()} />
+      </Suspense>
     )
   }
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──
   if (isIslandJourney && quest) {
-    const islandSixStageJourney = resolveIslandSixStageJourney(quest)
     return (
-      <div className="h-full max-h-full min-h-0 flex-1 bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-hidden">
-        <SixStageJourneyView
-          journey={islandSixStageJourney}
-          lessonId={quest.id}
-          lessonTitle={quest.title}
-          studentStars={liveStars || 42}
-          rewardXp={islandSixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
-          onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
-          onNavigateNextLesson={(nextSlug) => {
-            const nextCurriculum = findIslandCurriculum({ id: nextSlug, slug: nextSlug })
-            const targetCourseId = nextCurriculum?.islandNumber
-              ? `dao-${nextCurriculum.islandNumber}`
-              : effectiveCourseId
-            navigate(`/world/${targetCourseId}/lesson/${nextSlug}`)
-          }}
-          onFinishLesson={(_res) => {
-            void handleAikiFinish()
-          }}
-        />
-      </div>
+      <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
+        <LessonJourneyRenderer mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={() => void handleAikiFinish()} />
+      </Suspense>
     )
   }
 

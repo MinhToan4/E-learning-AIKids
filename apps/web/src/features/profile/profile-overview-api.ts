@@ -72,6 +72,7 @@ function readStoredNumber(key: string): number | undefined {
 async function loadLegacyProfileOverview(
   request: ProfileRequest,
   timeoutMs = 3500,
+  includeMedia = true,
 ): Promise<ProfileOverviewData> {
   const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
 
@@ -80,7 +81,9 @@ async function loadLegacyProfileOverview(
       safeReq<{ current: number }>('/api/gamification/streak'),
       safeReq<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
       safeReq<{ projects: ShowcaseProject[] }>('/api/projects'),
-      safeReq<{ assets: ProfileMediaAsset[] }>('/api/backpack'),
+      includeMedia
+        ? safeReq<{ assets: ProfileMediaAsset[] }>('/api/backpack')
+        : Promise.resolve({ assets: [] as ProfileMediaAsset[] }),
       safeReq<{ totalXp: number; level: number }>('/api/gamification/profile'),
       safeReq<PublicProfileSettings>('/api/profile/settings'),
       safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
@@ -134,6 +137,7 @@ async function loadLegacyProfileOverview(
 export async function loadProfileOverview(
   request: ProfileRequest = api,
   timeoutMs = 3500,
+  includeMedia = true,
 ): Promise<ProfileOverviewData> {
-  return loadLegacyProfileOverview(request, timeoutMs)
+  return loadLegacyProfileOverview(request, timeoutMs, includeMedia)
 }

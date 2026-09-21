@@ -190,11 +190,10 @@ describe('LessonPage prefetch', () => {
       )
     })
 
-    // Should render SixStageJourneyView with 3 stages
-    expect(container.textContent).toContain('Chặng 1/3')
+    // The journey renderer is intentionally split from the route bundle.
+    await vi.waitFor(() => expect(container.textContent).toContain('Chặng 1/3'))
     expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
     // Legacy sidebar / 4-phase tabs should NOT be rendered
     expect(container.querySelector('[data-testid="legacy-sidebar"]')).toBeNull()
   })
 })
-

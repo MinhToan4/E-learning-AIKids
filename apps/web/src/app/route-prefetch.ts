@@ -53,7 +53,44 @@ function loadRouteChunk(key: string) {
                           : key === 'profile' ? import('@/features/profile/pages/ProfilePage')
                             : key === 'creative' ? import('@/features/creative/pages/CreativePage')
                               : key === 'asmo' ? import('@/features/asmo/pages/AsmoHubPage')
+                                : key === 'course' ? import('@/features/course/pages/CourseIntroPage')
                                 : null
+}
+
+function warmRouteData(path: string): Promise<unknown> | null {
+  const normalized = path.split('?')[0]
+  const lessonMatch = normalized.match(/\/(?:lesson|quests|rule)\/([^/]+)$/)
+  if (lessonMatch) {
+    const lessonId = decodeURIComponent(lessonMatch[1])
+    const data = import('@/shared/lib/learning-api').then(({ learningApi }) =>
+      learningApi.getLesson(lessonId).catch(() => undefined),
+    )
+    if (lessonId.startsWith('bai-') || lessonId.startsWith('rule-')) {
+      return Promise.all([
+        data,
+        import('@/features/lesson/components/LessonJourneyRenderer'),
+        lessonId.startsWith('bai-') ? import('@/features/lesson/data/island-curriculum-registry') : Promise.resolve(),
+      ])
+    }
+    return data
+  }
+  const courseMatch = normalized.match(/^\/course\/([^/]+)$/)
+  if (courseMatch) {
+    return Promise.all([
+      import('@/shared/lib/learning-api').then(({ learningApi }) =>
+        learningApi.getCourse(decodeURIComponent(courseMatch[1])).catch(() => undefined),
+      ),
+      import('@/shared/lib/api').then(({ api }) =>
+        api('/api/enrollments').catch(() => undefined),
+      ),
+    ])
+  }
+  if (normalized.startsWith('/world')) {
+    return import('@/shared/lib/learning-api').then(({ learningApi }) =>
+      learningApi.getPathway().catch(() => undefined),
+    )
+  }
+  return null
 }
 
 /** Cancel a pending prefetch timer if mouse leaves before debounce expires. */
@@ -97,9 +134,36 @@ export function prefetchRoute(path: string) {
     prefetchTimers.delete(key)
     if (prefetched.has(key)) return
     prefetched.add(key)
-    const load = loadRouteChunk(key)
-    void load?.catch(() => prefetched.delete(key))
+    const chunk = loadRouteChunk(key)
+    const data = warmRouteData(path)
+    const work = [chunk, data].filter(Boolean) as Promise<unknown>[]
+    if (work.length === 0) {
+      prefetched.delete(key)
+      return
+    }
+    void Promise.all(work).catch(() => prefetched.delete(key))
   }, 180)
 
   prefetchTimers.set(key, timer)
+}
+
+/** Start prefetch synchronously on touch/pointer down, before navigation. */
+export function prefetchRouteImmediately(path: string) {
+  if (!canPrefetchRoute()) return
+  const key = resolveRouteKey(path)
+  const pendingTimer = prefetchTimers.get(key)
+  if (pendingTimer) {
+    clearTimeout(pendingTimer)
+    prefetchTimers.delete(key)
+  }
+  if (prefetched.has(key)) return
+  prefetched.add(key)
+  const chunk = loadRouteChunk(key)
+  const data = warmRouteData(path)
+  const work = [chunk, data].filter(Boolean) as Promise<unknown>[]
+  if (work.length === 0) {
+    prefetched.delete(key)
+    return
+  }
+  void Promise.all(work).catch(() => prefetched.delete(key))
 }

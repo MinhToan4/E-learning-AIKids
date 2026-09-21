@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router'
-import { CheckCircle2, Star, Trophy, Zap, ChevronRight, ArrowLeft } from 'lucide-react'
+import { CheckCircle2, Star, Trophy, Zap, ChevronRight, ArrowLeft, Sparkles } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -18,7 +18,7 @@ import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
-import { FlatClayIcon } from '@/features/asmo/components/AsmoFlatClayIcons'
+import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 
 // WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
 export const FORCE_UNLOCK_ALL_ISLANDS = false
@@ -205,7 +205,13 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
       {locked ? (
         <div className="cursor-not-allowed select-none" title={`Trạm ${quest.order}: Chưa mở khóa`}>{nodeEl}</div>
       ) : (
-        <Link to={lessonUrl} className="block">
+        <Link
+          to={lessonUrl}
+          className="block"
+          onPointerEnter={() => prefetchRoute(lessonUrl)}
+          onPointerDown={() => prefetchRouteImmediately(lessonUrl)}
+          onFocus={() => prefetchRoute(lessonUrl)}
+        >
           {nodeEl}
         </Link>
       )}
@@ -295,6 +301,17 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
 
           // 2. Read directly from course.stations or module cache (courseProgressCache with 2min TTL)
           // to eliminate N+1 waterfall requests
+          // Paint the course map immediately from pathway data. Missing station
+          // progress hydrates in the background instead of holding the whole
+          // learning screen behind the slowest course request.
+          const provisionalPathway = {
+            ...journey,
+            courses: applyGatekeeperRules(rawCourses),
+          }
+          cachedPathway = provisionalPathway
+          setPathway(provisionalPathway)
+          setLoading(false)
+
           const now = Date.now()
           const coursesWithStations = await Promise.all(
             rawCourses.map(async (course) => {
@@ -348,7 +365,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         }
 
         // Khi có courseId trong URL (slug như 'dao-1', 'dao-2', 'muoi-quy-tac-xuong-sang-tao', hoặc UUID)
-        const journey = await learningApi.getPathway()
+        const journey = cachedPathway ?? await learningApi.getPathway()
         const rawCourses = journey.courses as PathwayCourse[]
         const processedCourses = applyGatekeeperRules(rawCourses)
         const finalPathway = { ...journey, courses: processedCourses }
@@ -515,7 +532,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         </div>
 
         <div className="course-map-scene" aria-label={currentRegion.sceneLabel}>
-          <img src={currentRegion.scene} alt="" className="course-map-scene-art" />
+          <img src={currentRegion.scene} alt="" decoding="async" fetchPriority="high" className="course-map-scene-art" />
           <AikidCatCharacter pose={currentRegion.pose} className="course-map-scene-cat" />
         </div>
 
@@ -534,7 +551,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
                   <h2 className="font-display text-xl text-text">{next.title}</h2>
                   <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
                 </div>
-                <Link to={`/world/${courseId}/lesson/${(next as any).slug || next.id}`} className="course-map-primary-action animate-pop">
+                <Link
+                  to={`/world/${courseId}/lesson/${(next as any).slug || next.id}`}
+                  className="course-map-primary-action animate-pop"
+                  onPointerEnter={() => prefetchRoute(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
+                  onPointerDown={() => prefetchRouteImmediately(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
+                  onFocus={() => prefetchRoute(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
+                >
                   {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
                 </Link>
               </aside>
@@ -553,7 +576,12 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           <div className="course-map-stats">
             <span><Trophy size={17} aria-hidden /> {meta.totalStars}/{quests.length * 3} sao</span>
             <span><CheckCircle2 size={17} aria-hidden /> {meta.completedCount} trạm xong</span>
-            <Link to={`/course/${courseId}`}>
+            <Link
+              to={`/course/${courseId}`}
+              onPointerEnter={() => prefetchRoute(`/course/${courseId}`)}
+              onPointerDown={() => prefetchRouteImmediately(`/course/${courseId}`)}
+              onFocus={() => prefetchRoute(`/course/${courseId}`)}
+            >
               <CourseBookIcon size={19} aria-hidden="true" /> Giới thiệu khóa
             </Link>
           </div>
@@ -567,7 +595,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           <p className="mt-2 text-sm text-muted">
             Xem giới thiệu và bắt đầu khóa học để mở trạm đầu tiên.
           </p>
-          <Link className="mt-4 inline-block" to={`/course/${courseId}`}>
+          <Link
+            className="mt-4 inline-block"
+            to={`/course/${courseId}`}
+            onPointerEnter={() => prefetchRoute(`/course/${courseId}`)}
+            onPointerDown={() => prefetchRouteImmediately(`/course/${courseId}`)}
+            onFocus={() => prefetchRoute(`/course/${courseId}`)}
+          >
             <Button>Bắt đầu hành trình</Button>
           </Link>
         </section>
@@ -1491,7 +1525,7 @@ function PathwayOverview({
           <div className="world-guide-copy">
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-brand-500">
-                <FlatClayIcon name="sparkles" size={14} />
+                <Sparkles size={14} aria-hidden="true" />
                 <span>Không gian học chính thức</span>
               </p>
               <h1 className="font-display text-3xl sm:text-4xl leading-tight">

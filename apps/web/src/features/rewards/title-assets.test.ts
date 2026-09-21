@@ -7,7 +7,10 @@ describe('rewardTitleAsset', () => {
     expect(rewardTitleAsset('storybook-title-p08')).toContain('storybook-title-p08')
     expect(rewardTitleAsset('title-curious-seeker')).toContain('curious-seeker')
     expect(rewardTitleAsset('title-creative-warrior')).toContain('title-creative-warrior')
-    expect(rewardTitleAsset('title-first-light')).toContain('badge-title-first-light')
+    expect(rewardTitleAsset('title-explorer')).toContain('title-explorer')
+    expect(rewardTitleAsset('title-explorer', 'thumbnail')).toContain('title-explorer--thumbnail')
+    expect(rewardTitleAsset('title-first-light')).toBeUndefined()
+    expect(rewardTitleAsset('title-explorer')).not.toContain('badge-title-explorer')
   })
 
   it('fails closed for unknown title ids', () => {

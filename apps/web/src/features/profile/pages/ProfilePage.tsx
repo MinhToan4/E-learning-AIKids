@@ -77,10 +77,10 @@ type ProfileCacheSnapshot = {
   level?: number
 }
 
-function readProfileOverviewCache(): ProfileCacheSnapshot | null {
+function readProfileOverviewCache(userId?: string): ProfileCacheSnapshot | null {
   if (typeof window === 'undefined') return null
   try {
-    const raw = localStorage.getItem('aiki_profile_overview_cache')
+    const raw = localStorage.getItem(`aiki_profile_overview_cache.${userId ?? 'guest'}`)
     return raw ? (JSON.parse(raw) as ProfileCacheSnapshot) : null
   } catch {
     return null
@@ -106,7 +106,7 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
-  const [profileCache] = useState(() => readProfileOverviewCache())
+  const [profileCache] = useState(() => readProfileOverviewCache(user?.id))
   const [loading, setLoading] = useState(() => !user)
   const [section, setSection] = useState<'overview' | 'customize'>('overview')
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
@@ -221,7 +221,9 @@ export function ProfilePage() {
   useEffect(() => {
     let active = true
     const loadVersion = equipmentMutationVersion.current
-    loadProfileOverview()
+    // Avatar media is only needed when the picker opens; avoid downloading the
+    // complete backpack on every profile visit.
+    loadProfileOverview(api, 3500, false)
       .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
@@ -241,7 +243,7 @@ export function ProfilePage() {
           localStorage.setItem('aiki_last_known_xp', String(overview.totalXp))
           localStorage.setItem('aiki_last_known_level', String(overview.level))
           localStorage.setItem(
-            'aiki_profile_overview_cache',
+            `aiki_profile_overview_cache.${user?.id ?? 'guest'}`,
             JSON.stringify({
               streak: overview.streak,
               achievements: overview.achievements,
@@ -300,6 +302,27 @@ export function ProfilePage() {
       active = false
     }
   }, [user?.id])
+
+  useEffect(() => {
+    if (!avatarPickerOpen || avatarChoices.length > 0) return
+    let active = true
+    void api<{ assets: Array<{ id: string; name: string; thumbnail: string; type: string }> }>('/api/backpack')
+      .then(({ assets }) => {
+        if (!active) return
+        setAvatarChoices((assets ?? [])
+          .filter((asset) => asset.thumbnail)
+          .map((asset) => ({
+            id: asset.id,
+            url: asset.thumbnail,
+            label: asset.name,
+            source: asset.type.includes('generated') ? 'generated' : 'library',
+          })))
+      })
+      .catch(() => undefined)
+    return () => {
+      active = false
+    }
+  }, [avatarChoices.length, avatarPickerOpen])
 
   // Avatar trước đây chỉ được giữ trong localStorage của LMS, nên AI Studio
   // không thể thấy. Migrate lựa chọn hiện tại sang child profile chung.

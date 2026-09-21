@@ -39,7 +39,7 @@ export function RulesRoadmapContent({
   }
 
   return (
-    <div className="min-h-screen bg-[#f3f0ff] text-text selection:bg-brand-500 selection:text-white w-full">
+    <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden bg-[#f3f0ff] text-text selection:bg-brand-500 selection:text-white">
       {/* ── Top Header ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-4 py-3 backdrop-blur-md sm:px-8 shadow-xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
@@ -49,7 +49,7 @@ export function RulesRoadmapContent({
               <button
                 type="button"
                 onClick={onBack}
-                className="inline-flex items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer"
+                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer"
               >
                 <ArrowLeft size={15} />
                 <span className="hidden sm:inline">Nhà sáng tạo</span>
@@ -58,7 +58,7 @@ export function RulesRoadmapContent({
             ) : (
               <Link
                 to={backUrl}
-                className="inline-flex items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50"
+                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50"
               >
                 <ArrowLeft size={15} />
                 <span className="hidden sm:inline">Nhà sáng tạo</span>

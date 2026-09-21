@@ -188,18 +188,39 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
   })
 
   it('tất cả 22 bài học phải sử dụng video AIKid chính thức, tuyệt đối không dùng link demo dQw4w9WgXcQ', () => {
+    const EXPECTED_VIDEO_MAP: Record<string, string> = {
+      '1.1': 'sRpHRsErlw8',
+      '1.2': 'NMdHhsLY5jc',
+      '1.3': 'GCtez_WirtU',
+      '1.4': '53OFMtjB0aM',
+      '2.1': 'XeIBZyKmoDo',
+      '2.2': 'wmn8pf6GUdo',
+      '2.3': 'voAsCD7THtI',
+      '2.4': 'B_tbjS0Msnc',
+      '3.1': 'x2k-VyO-GTc',
+      '3.2': 'LtRW4JX8HWE',
+      '3.3': 'Crrd59K_C2M',
+      '3.4': 'Hxk4NmtL3IY',
+      '4.1': 'OGS7gaPTcc4',
+      '4.2': '35kC8Lw31C0',
+      '4.3': 'reY6-ZLR3eM',
+      '4.4': 'UzvinFjseRE',
+      '4.5': 'V4OodQ9gGC8',
+      '5.1': 'CC8qli9iBD0',
+      '5.2': 'PijX4EBOmkU',
+      '5.3': 'StQ4ICE15No',
+      '5.4': 'VIGcrhPzr5Q',
+      '5.5': '6A1l9ybJu-Q',
+    }
+
     for (const lesson of ISLAND_CURRICULUM_LESSONS) {
       const videoUrl = lesson.journey.stage3_video.videoUrl
       expect(videoUrl).toBeDefined()
       expect(videoUrl).not.toContain('dQw4w9WgXcQ')
 
-      if (lesson.lessonNumber === '1.2') {
-        expect(videoUrl).toContain('NMdHhsLY5jc')
-      } else if (lesson.lessonNumber === '1.3') {
-        expect(videoUrl).toContain('GCtez_WirtU')
-      } else {
-        expect(videoUrl).toContain('NMdHhsLY5jc')
-      }
+      const expectedId = EXPECTED_VIDEO_MAP[lesson.lessonNumber]
+      expect(expectedId).toBeDefined()
+      expect(videoUrl).toContain(expectedId)
     }
   })
 })

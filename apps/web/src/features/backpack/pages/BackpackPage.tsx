@@ -385,6 +385,7 @@ function readLocalBackpackWorks(): Project[] {
 
 export function BackpackPage() {
   const user = useAuth((state) => state.user)
+  const snapshotKey = `aiki_backpack_cache_snapshot.${user?.id ?? 'guest'}`
   const [equipment, setEquipment] = useState<RewardEquipment>(() => readRewardEquipment(user?.id ?? 'guest'))
 
   useEffect(() => {
@@ -399,7 +400,7 @@ export function BackpackPage() {
 
   const [assets, setAssets] = useState<Asset[]>(() => {
     try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
+      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
       if (snap) {
         const parsed = JSON.parse(snap)
         return parsed.assets || []
@@ -411,7 +412,7 @@ export function BackpackPage() {
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
       let merged: Project[] = []
-      const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
+      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
       if (snap) merged = JSON.parse(snap).projects || []
 
       const localWorks = readLocalBackpackWorks()
@@ -423,7 +424,7 @@ export function BackpackPage() {
 
   const [rewards, setRewards] = useState<GamificationReward[]>(() => {
     try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
+      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
       if (snap) {
         const parsed = JSON.parse(snap)
         if (parsed.rewards && parsed.rewards.length > 0) return parsed.rewards
@@ -442,7 +443,7 @@ export function BackpackPage() {
       assets: {
         assetId: item.id,
         primary: { assetId: item.id, variant: 'primary' as const },
-        thumbnail: { assetId: item.id, variant: 'primary' as const },
+        thumbnail: { assetId: item.id, variant: 'thumbnail' as const },
       },
     }))
 
@@ -456,7 +457,7 @@ export function BackpackPage() {
 
   const [achievements, setAchievements] = useState<AchievementRow[]>(() => {
     try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
+      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
       return snap ? JSON.parse(snap).achievements || [] : []
     } catch {}
     return []
@@ -569,7 +570,7 @@ export function BackpackPage() {
         assets: {
           assetId: item.id,
           primary: { assetId: item.id, variant: 'primary' as const },
-          thumbnail: { assetId: item.id, variant: 'primary' as const },
+          thumbnail: { assetId: item.id, variant: 'thumbnail' as const },
         },
       }))
       const combinedCatalog: GamificationReward[] = Array.from(
@@ -595,7 +596,7 @@ export function BackpackPage() {
 
       try {
         localStorage.setItem(
-          'aiki_backpack_cache_snapshot',
+          snapshotKey,
           JSON.stringify({
             assets: remoteAssets,
             projects: mergedProjects,
@@ -615,7 +616,10 @@ export function BackpackPage() {
       setLoading(false)
       setSyncing(false)
     }
-  }, [achievements.length, assets.length, projects.length, rewards.length])
+  // Keep the loader stable. Depending on collection lengths made the mount
+  // effect run again after this function populated those same collections,
+  // duplicating the complete six-request backpack sync.
+  }, [snapshotKey, user?.level])
 
   useEffect(() => {
     void load()

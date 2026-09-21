@@ -11,14 +11,15 @@ import {
   CheckCircle2,
   ArrowRight,
   Sparkles,
+  Star,
   Cloud,
   ChevronLeft,
   ChevronRight,
+  Compass,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
-import { FlatClayIcon } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
 
@@ -224,6 +225,8 @@ export function WorldProgramIslandCard({
           <img
             src={designerAssets.worldScenes.storyIsland}
             alt="Đảo bí ẩn ASMO"
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover object-left [mask-image:linear-gradient(to_right,transparent,black_20%)]"
           />
           <div className="absolute top-8 left-8 text-sky-400/80 animate-float">
@@ -238,7 +241,7 @@ export function WorldProgramIslandCard({
           <div className="flex-1 space-y-4 min-w-0 w-full max-w-xl relative z-20">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1 text-xs font-black uppercase text-amber-700 shadow-2xs border border-amber-200">
-                <FlatClayIcon name="sparkles" size={14} /> 5 VÙNG ĐẤT ASMO
+                <Sparkles size={14} aria-hidden="true" /> 5 VÙNG ĐẤT ASMO
               </span>
               <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold text-sky-800 shadow-2xs border border-sky-200">
                 Đang đón gió mở cổng
@@ -304,7 +307,7 @@ export function WorldProgramIslandCard({
         <div className="flex-1 space-y-5 sm:space-y-6 min-w-0 w-full md:max-w-[60%] lg:max-w-[62%] xl:max-w-[66%] relative z-30">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3.5 py-1 text-xs font-black uppercase text-mint-800 shadow-2xs border border-mint-200">
-              <FlatClayIcon name="sparkles" size={14} /> CHƯƠNG TRÌNH CHÍNH THỨC
+              <Sparkles size={14} aria-hidden="true" /> CHƯƠNG TRÌNH CHÍNH THỨC
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-brand-700 shadow-2xs border border-brand-200">
               {totalCourses} Đảo học tập
@@ -324,7 +327,7 @@ export function WorldProgramIslandCard({
           <div className="relative mt-2">
             <div className="flex items-center justify-between gap-2 mb-2">
               <p className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <FlatClayIcon name="compass" size={16} />
+                <Compass size={16} aria-hidden="true" />
                 <span>Hải trình {islands.length} hòn đảo sáng tạo</span>
               </p>
 
@@ -435,6 +438,8 @@ export function WorldProgramIslandCard({
                         <img
                           src={island.scene}
                           alt={island.title}
+                          loading={isCurrent ? 'eager' : 'lazy'}
+                          decoding="async"
                           className={cn(
                             'absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500',
                             !isLocked && 'group-hover:scale-110',
@@ -519,7 +524,7 @@ export function WorldProgramIslandCard({
                   {completedStations}/{totalStations} trạm
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <FlatClayIcon name="star" size={14} />
+                  <Star size={14} aria-hidden="true" />
                   {totalStars} sao
                 </span>
               </div>
@@ -549,7 +554,7 @@ export function WorldProgramIslandCard({
           <div className="flex md:hidden flex-col items-center pt-6 pb-2 w-full relative z-20">
             <div className="py-2 px-4 rounded-2xl border-2 border-brand-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center gap-1.5">
               <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
-              <FlatClayIcon name="sparkles" size={14} />
+              <Sparkles size={14} aria-hidden="true" />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
               <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
             </div>
@@ -562,12 +567,12 @@ export function WorldProgramIslandCard({
         {/* Cột Mèo Aiki Riêng Biệt Cho Tablet & Desktop (>= md) - Không Bao Giờ Đè Lên Cột Trái */}
         <div className="hidden md:flex flex-col items-center justify-end w-[200px] lg:w-[240px] xl:w-[280px] shrink-0 relative z-20 self-stretch pb-2">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 border border-brand-200/80 shadow-2xs text-[11px] font-extrabold text-brand-700 backdrop-blur-xs mb-2">
-            <FlatClayIcon name="compass" size={13} />
+            <Compass size={13} aria-hidden="true" />
             <span>Trợ lý đồng hành Aiki</span>
           </div>
           <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border-2 border-brand-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center gap-1.5 mb-3 relative">
             <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
-            <FlatClayIcon name="sparkles" size={14} />
+            <Sparkles size={14} aria-hidden="true" />
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
             <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
           </div>

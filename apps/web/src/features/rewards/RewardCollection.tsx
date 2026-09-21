@@ -63,7 +63,7 @@ function RewardAssetImage({
 }) {
   const [failed, setFailed] = useState(false)
   if (!src || failed) return <>{fallback}</>
-  return <img src={src} alt="" className={className} onError={() => setFailed(true)} />
+  return <img src={src} alt="" className={className} loading="lazy" decoding="async" onError={() => setFailed(true)} />
 }
 
 function catalogAssetsFor(item: { code: string; assets?: RewardCatalogAssets }) {
@@ -135,7 +135,7 @@ function RewardArtwork({
   }
 
   if (reward.kind === 'title') {
-    const titleAsset = assetUrl ?? rewardTitleAsset(reward.id)
+    const titleAsset = rewardTitleAsset(reward.id, large ? 'primary' : 'thumbnail') ?? assetUrl
     if (titleAsset) return (
       <span className={`inline-flex w-full max-w-full items-center justify-center ${large ? 'max-w-[30rem]' : 'max-w-[18rem]'}`}>
         <span className="reward-title-artwork">

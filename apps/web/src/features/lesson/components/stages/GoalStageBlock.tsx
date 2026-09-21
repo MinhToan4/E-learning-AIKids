@@ -2,7 +2,6 @@ import React from 'react'
 import { Sparkles, ArrowRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
-import { AsmoFormula } from '@/features/asmo/components/AsmoFormula'
 import type { JourneyStageDefinition, GoalStageConfig } from '../../types/stage-schema'
 import { GOAL_CARD_STYLES } from '../../lib/stage-adapter'
 
@@ -51,7 +50,7 @@ export function GoalStageBlock({
           <span>Chặng 1: Mục tiêu bài học</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
-          <AsmoFormula text={config.title} />
+          {config.title}
         </h2>
       </div>
 
@@ -103,7 +102,7 @@ export function GoalStageBlock({
                 Mục Tiêu Cốt Lõi:
               </span>
               <div className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
-                <AsmoFormula text={config.goalText} />
+                {config.goalText}
               </div>
             </div>
           </div>
@@ -140,7 +139,7 @@ export function GoalStageBlock({
                         [{idx + 1}] {card.code}
                       </span>
                       <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
-                        <AsmoFormula text={card.val} as="span" />
+                        {card.val}
                       </p>
                       <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
                         ({card.sub})
@@ -178,7 +177,7 @@ export function GoalStageBlock({
                       </div>
                       {card.content && (
                         <p className="text-xs sm:text-[13px] font-black text-slate-900 leading-snug break-words">
-                          <AsmoFormula text={card.content} />
+                          {card.content}
                         </p>
                       )}
                       {card.note && (

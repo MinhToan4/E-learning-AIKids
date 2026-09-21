@@ -7,9 +7,15 @@ const budgets = [
   { pattern: /^AdminPage-.*\.js$/, maxKb: 90 },
   { pattern: /^LegendRewardStudio-.*\.js$/, maxKb: 160 },
   { pattern: /^HomePage-.*\.js$/, maxKb: 25 },
+  { pattern: /^WorldPage-.*\.js$/, maxKb: 70 },
+  { pattern: /^LessonPage-.*\.js$/, maxKb: 130 },
+  { pattern: /^ProfilePage-.*\.js$/, maxKb: 45 },
+  { pattern: /^BackpackPage-.*\.js$/, maxKb: 32 },
+  { pattern: /^data-island-curriculum-.*\.js$/, maxKb: 275 },
   { pattern: /^AsmoHubPage-.*\.js$/, maxKb: 20 },
   { pattern: /^asmo-api-.*\.js$/, maxKb: 15 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
+  { pattern: /^index-.*\.css$/, maxKb: 580 },
 ]
 
 const failures = []

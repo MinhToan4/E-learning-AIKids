@@ -20,7 +20,6 @@ import {
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
-import { AsmoFormula } from '@/features/asmo/components/AsmoFormula'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import {
   AiWarehouseVisual,
@@ -40,6 +39,16 @@ import {
 } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
 import { playInstantSound } from '@/features/lesson/components/LessonInteractiveSidebar'
+
+function readableFormula(value: string): string {
+  return value
+    .replace(/^\s*\$\$?|\$\$?\s*$/g, '')
+    .replace(/\\text\{([^}]*)\}/g, '$1')
+    .replace(/\\(?:cdot|times)/g, '×')
+    .replace(/\\(?:Rightarrow|rightarrow)/g, '→')
+    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)')
+    .trim()
+}
 
 export interface StudentStageBlocksViewProps {
   card: LearnCardDraft
@@ -321,7 +330,7 @@ export function StudentStageBlocksView({
           )
         }
 
-        // ── 4. BLOCK: LAYOUT-FORMULA (Công Thức KaTeX) ────────────
+        // ── 4. BLOCK: LAYOUT-FORMULA (plain lesson text; KaTeX belongs to ASMO) ──
         if (block.type === 'layout-formula') {
           const formulaLatex = block.formula || block.body || card.body || '$$x = a + b$$'
           return (
@@ -332,10 +341,10 @@ export function StudentStageBlocksView({
             >
               <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-black uppercase text-brand-800 mb-2">
                 <span>📐</span>
-                <span>{block.title || 'Công Thức KaTeX'}</span>
+                <span>{block.title || 'Công thức'}</span>
               </div>
               <div className="py-2 text-lg sm:text-xl font-bold text-brand-950 flex items-center justify-center">
-                <AsmoFormula text={formulaLatex} />
+                <span>{readableFormula(formulaLatex)}</span>
               </div>
             </div>
           )

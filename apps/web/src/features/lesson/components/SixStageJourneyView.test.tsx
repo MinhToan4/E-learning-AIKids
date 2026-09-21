@@ -2176,6 +2176,13 @@ describe('SixStageJourneyView', () => {
     expect(speechBubble).not.toBeNull()
     expect(speechBubble?.textContent).toContain('Mèo AIKI')
 
+    // Video stages must grow as one scrollable document. A fixed-height stage or an
+    // overflow-hidden media wrapper clips the speech bubble at laptop/mobile heights.
+    const videoStage = container.querySelector('[data-testid="stage-2-video"]')
+    expect(videoStage?.className).toContain('h-auto')
+    expect(videoStage?.className).not.toContain('sm:h-full')
+    expect(speechBubble?.parentElement?.className).not.toContain('overflow-hidden')
+
     // 3. Auto-play button and 5 chapter nodes
     const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
     expect(autoPlayBtn).not.toBeNull()
@@ -2462,4 +2469,3 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 })
-

@@ -112,6 +112,42 @@ describe('BackpackPage', () => {
     container.remove()
   })
 
+  it('syncs each backpack endpoint only once when the first response populates collections', async () => {
+    const apiSpy = vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/api/backpack') return { assets: [{ id: 'asset-1', type: 'image', name: 'Ảnh', thumbnail: '/a.webp', private: true, createdAt: '' }] } as any
+      if (endpoint === '/api/projects') return { projects: [{ id: 'project-1', title: 'Tranh', kind: 'image', thumbnail: '/p.webp', shareStatus: 'private' }] } as any
+      if (endpoint === '/api/gamification/storybook') return { inventory: [{ rewardId: 'reward-1' }] } as any
+      if (endpoint === '/api/gamification/catalog?type=reward') return { items: [{ code: 'reward-1', name: 'Quà', description: '', kind: 'perk' }] } as any
+      if (endpoint === '/api/gamification/achievements') return { achievements: [{ id: 'badge-1', unlocked: true }] } as any
+      if (endpoint === '/api/gamification/profile') return { totalXp: 10, level: 2 } as any
+      return {} as any
+    })
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<MemoryRouter><BackpackPage /></MemoryRouter>)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    const calls = apiSpy.mock.calls.map(([endpoint]) => endpoint)
+    for (const endpoint of [
+      '/api/backpack',
+      '/api/projects',
+      '/api/gamification/storybook',
+      '/api/gamification/catalog?type=reward',
+      '/api/gamification/achievements',
+      '/api/gamification/profile',
+    ]) {
+      expect(calls.filter((value) => value === endpoint)).toHaveLength(1)
+    }
+
+    act(() => root.unmount())
+    container.remove()
+  })
+
   it('does not show error banner when local projects exist even if network calls fail', async () => {
     vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
       if (endpoint.includes('/api/v1/media/gallery')) throw new Error('Offline')

@@ -117,7 +117,7 @@ export function VideoStageBlock({
     return (
       <section
         data-testid="stage-2-video"
-        className="flex min-h-0 flex-col gap-2 sm:gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 sm:p-4 shadow-clay animate-fade-up max-sm:h-auto sm:h-full sm:max-h-full sm:justify-between"
+        className="flex h-auto min-h-0 shrink-0 flex-col gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:gap-3 sm:p-4"
       >
         {/* Header nhỏ */}
         <div className="shrink-0 flex flex-wrap items-center justify-between gap-2">
@@ -131,7 +131,7 @@ export function VideoStageBlock({
         </div>
 
         {/* Khung hình hiển thị Slide Cinema */}
-        <div className="flex min-h-0 w-full sm:flex-1 flex-col items-center justify-start sm:justify-center gap-2 sm:gap-2.5 overflow-hidden">
+        <div className="flex w-full flex-col items-center justify-start gap-2 sm:gap-2.5">
           <div className="relative aspect-video max-sm:aspect-[4/3] sm:aspect-video w-full max-w-5xl max-h-[32vh] sm:max-h-[54vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-slate-950 flex items-center justify-center group shrink-0">
             <img
               src={currentSlide?.image || config.posterUrl || '/assets/aiki-rules/rule1_superhero_dad.jpg'}
@@ -172,7 +172,7 @@ export function VideoStageBlock({
               <button
                 type="button"
                 onClick={() => onSpeakCurrentStage?.(currentSlide?.dialogue || '')}
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold shadow-2xs transition cursor-pointer"
+                className="inline-flex min-h-11 items-center gap-1 sm:gap-1.5 px-3 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold shadow-2xs transition cursor-pointer"
                 title="Nghe Mèo AIKI đọc lời thoại"
               >
                 <Volume2 size={12} className="text-brand-600 sm:size-[13px]" />
@@ -197,7 +197,7 @@ export function VideoStageBlock({
               type="button"
               data-testid="slide-autoplay-btn"
               onClick={() => setIsAutoPlaying((prev) => !prev)}
-              className="size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition shrink-0"
+              className="size-11 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition shrink-0"
               title={isAutoPlaying ? 'Tạm dừng tự động phát' : 'Tự động phát'}
             >
               {isAutoPlaying ? (
@@ -234,24 +234,31 @@ export function VideoStageBlock({
                         setIsAutoPlaying(false)
                       }}
                       className={cn(
-                        'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs select-none transition-all duration-200 cursor-pointer',
-                        isCurrent
-                          ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
-                          : isPassed
-                          ? 'bg-amber-400 text-amber-950 font-black'
-                          : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
+                        'absolute top-1/2 z-10 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none'
                       )}
                       style={{ left: `${posPercent}%` }}
                       title={label}
                     >
-                      {idx + 1}
+                      <span
+                        className={cn(
+                          'flex items-center justify-center rounded-full border-2 border-white shadow-clay transition-all duration-200',
+                          isCurrent ? 'size-9 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-7 sm:size-9',
+                          !isCurrent && isPassed
+                            ? 'bg-amber-400 text-amber-950'
+                            : !isCurrent
+                              ? 'border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200'
+                              : ''
+                        )}
+                      >
+                        {idx + 1}
+                      </span>
                     </button>
                   )
                 })}
               </div>
             </div>
 
-            <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
+            <span className="hidden text-xs font-mono font-black text-amber-900 shrink-0 sm:inline sm:text-sm">
               {currentSlideIdx + 1} / {slides.length}
             </span>
           </div>
@@ -274,7 +281,7 @@ export function VideoStageBlock({
                   setIsAutoPlaying(false)
                 }}
                 className={cn(
-                  'truncate rounded-lg px-1 py-0.5 transition cursor-pointer',
+                  'min-h-11 truncate rounded-lg px-1 transition cursor-pointer',
                   currentSlideIdx === idx
                     ? 'bg-amber-200 text-amber-950 font-black'
                     : 'text-amber-800 hover:bg-amber-100'
@@ -345,7 +352,7 @@ export function VideoStageBlock({
   return (
     <section
       data-testid="stage-2-video"
-      className="flex min-h-0 flex-col gap-2 sm:gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 sm:p-4 shadow-clay animate-fade-up max-sm:h-auto sm:h-full sm:max-h-full sm:justify-between"
+      className="flex h-full min-h-0 shrink-0 flex-col justify-between gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:gap-3 sm:p-4"
     >
       {/* Header nhỏ */}
       <div className="shrink-0 flex flex-wrap items-center justify-between gap-2">
@@ -359,7 +366,7 @@ export function VideoStageBlock({
       </div>
 
       {/* Khung video 16:9 to rõ ở trung tâm */}
-      <div className="flex min-h-0 w-full sm:flex-1 items-center justify-center overflow-hidden py-1 sm:py-0">
+      <div className="flex w-full items-center justify-center py-1 sm:py-0">
         <div
           className="relative aspect-video w-full max-w-7xl max-h-[32vh] sm:max-h-[54vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black"
           style={{
@@ -398,7 +405,7 @@ export function VideoStageBlock({
             type="button"
             data-testid="video-timeline-play-btn"
             onClick={() => onSeekVideo?.((videoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-            className="size-8 sm:size-9 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
+            className="size-11 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
             aria-label="Tua lại từ đầu"
             title="Tua lại từ đầu"
           >
@@ -427,24 +434,31 @@ export function VideoStageBlock({
                     data-testid={`video-chapter-node-${idx + 1}`}
                     onClick={() => onSeekVideo?.(m.startSec)}
                     className={cn(
-                      'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs sm:text-sm select-none transition-all duration-200 cursor-pointer',
-                      isCurrent
-                        ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
-                        : isPassed
-                        ? 'bg-amber-400 text-amber-950 font-black'
-                        : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
+                      'absolute top-1/2 z-10 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none sm:text-sm'
                     )}
                     style={{ left: `${posPercent}%` }}
                     title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
                   >
-                    {idx + 1}
+                    <span
+                      className={cn(
+                        'flex items-center justify-center rounded-full border-2 border-white shadow-clay transition-all duration-200',
+                        isCurrent ? 'size-9 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-7 sm:size-9',
+                        !isCurrent && isPassed
+                          ? 'bg-amber-400 text-amber-950'
+                          : !isCurrent
+                            ? 'border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200'
+                            : ''
+                      )}
+                    >
+                      {idx + 1}
+                    </span>
                   </button>
                 )
               })}
             </div>
           </div>
 
-          <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0 ml-auto sm:ml-0">
+          <span className="hidden text-xs font-mono font-black text-amber-900 shrink-0 ml-auto sm:inline sm:ml-0 sm:text-sm">
             {Math.floor((videoSeekSec || 0) / 60)}:{String((videoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
           </span>
         </div>

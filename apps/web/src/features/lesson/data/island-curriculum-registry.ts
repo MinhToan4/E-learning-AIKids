@@ -80,7 +80,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage3-video",
         "title": "Video bài giảng: Bài 1.1 — Một từ hay năm từ?",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/sRpHRsErlw8",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "timestamps": [
@@ -717,7 +717,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-1-4-ky-su-tai-ba-stage3-video",
         "title": "Video bài giảng: Bài 1.4 — Kỹ sư tài ba",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/53OFMtjB0aM",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
         "timestamps": [
@@ -938,7 +938,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage3-video",
         "title": "Video bài giảng: Bài 2.1 — Bức tranh biết nói",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/XeIBZyKmoDo",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
         "timestamps": [
@@ -1175,7 +1175,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage3-video",
         "title": "Video bài giảng: Bài 2.2 — Ai là ngôi sao?",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/wmn8pf6GUdo",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
         "timestamps": [
@@ -1364,7 +1364,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage3-video",
         "title": "Video bài giảng: Bài 2.3 — Cảm xúc của sắc màu",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/voAsCD7THtI",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
         "timestamps": [
@@ -1573,7 +1573,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage3-video",
         "title": "Video bài giảng: Bài 2.4 — Mảnh ghép hoàn hảo",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/B_tbjS0Msnc",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
         "timestamps": [
@@ -1763,7 +1763,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-3-1-ho-so-biet-doi-stage3-video",
         "title": "Video bài giảng: Bài 3.1 — Hồ sơ biệt đội",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/x2k-VyO-GTc",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
         "timestamps": [
@@ -2032,7 +2032,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage3-video",
         "title": "Video bài giảng: Bài 3.2 — Mật mã nhận diện",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/LtRW4JX8HWE",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
         "timestamps": [
@@ -2220,7 +2220,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage3-video",
         "title": "Video bài giảng: Bài 3.3 — Biến hoá biểu cảm",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/Crrd59K_C2M",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
         "timestamps": [
@@ -2443,7 +2443,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage3-video",
         "title": "Video bài giảng: Bài 3.4 — Căn cứ bí mật của biệt đội",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/Hxk4NmtL3IY",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
         "timestamps": [
@@ -2632,7 +2632,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage3-video",
         "title": "Video bài giảng: Bài 4.1 — 3 Cổng của Vương Quốc",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/OGS7gaPTcc4",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
         "timestamps": [
@@ -2865,7 +2865,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-4-2-04-chang-thu-thach-stage3-video",
         "title": "Video bài giảng: Bài 4.2 — 04 Chặng thử thách",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/35kC8Lw31C0",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
         "timestamps": [
@@ -3105,7 +3105,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage3-video",
         "title": "Video bài giảng: Bài 4.3 — Bản đồ 8 Ô - P1: Mở",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/reY6-ZLR3eM",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
         "timestamps": [
@@ -3382,7 +3382,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage3-video",
         "title": "Video bài giảng: Bài 4.4 — Bản đồ 8 Ô - P2: Khoá",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/UzvinFjseRE",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
         "timestamps": [
@@ -3620,7 +3620,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage3-video",
         "title": "Video bài giảng: Bài 4.5 — Vương miện hoàn hảo",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/V4OodQ9gGC8",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
         "timestamps": [
@@ -3912,7 +3912,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage3-video",
         "title": "Video bài giảng: Bài 5.1 — Săn lùng Bộ sưu tập",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/CC8qli9iBD0",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
         "timestamps": [
@@ -4153,7 +4153,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-5-2-phu-phep-mat-the-stage3-video",
         "title": "Video bài giảng: Bài 5.2 — Phù phép Mặt thẻ",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/PijX4EBOmkU",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
         "timestamps": [
@@ -4392,7 +4392,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-5-3-khoa-the-stage3-video",
         "title": "Video bài giảng: Bài 5.3 — Khoá thẻ",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/StQ4ICE15No",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
         "timestamps": [
@@ -4659,7 +4659,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-5-4-luat-choi-stage3-video",
         "title": "Video bài giảng: Bài 5.4 — Luật chơi",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/VIGcrhPzr5Q",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
         "timestamps": [
@@ -4914,7 +4914,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       "stage3_video": {
         "id": "bai-5-5-dau-truong-khai-mo-stage3-video",
         "title": "Video bài giảng: Bài 5.5 — Đấu trường khai mở",
-        "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
+        "videoUrl": "https://www.youtube.com/embed/6A1l9ybJu-Q",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
         "timestamps": [

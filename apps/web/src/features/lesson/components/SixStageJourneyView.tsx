@@ -766,14 +766,14 @@ export function SixStageJourneyView({
   return (
     <div className="w-full h-full min-h-0 flex-1 flex flex-col gap-2 overflow-hidden">
       {/* ── TOP HEADER: NẤC TIẾN ĐỘ SƯ PHẠM ĐỘNG + NÚT BẢN ĐỒ ── */}
-      <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2.5 sm:px-3 py-0.5 min-h-[36px] sm:min-h-[38px] w-full rounded-2xl border-2 border-brand-100 shadow-sm">
+      <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 min-h-12 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
         {/* Trái: Nút Bản đồ + Nấc kẹo dẻo Soft Clay render linh hoạt */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5">
           {onBackToMap && (
             <button
               type="button"
               onClick={onBackToMap}
-              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 sm:px-2.5 py-1 text-xs font-black text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-xs font-black text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
               title="Quay lại bản đồ"
             >
               <ChevronLeft size={14} aria-hidden="true" />
@@ -807,7 +807,7 @@ export function SixStageJourneyView({
                     disabled={!isUnlocked}
                     onClick={() => handleStageSelect(idx)}
                     className={cn(
-                      'flex size-7 shrink-0 items-center justify-center rounded-full p-1 text-[11px] shadow-2xs transition-all duration-200 sm:size-auto sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-xs',
+                      'flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-2 text-[11px] shadow-2xs transition-all duration-200 sm:gap-1.5 sm:px-3 sm:text-xs',
                       !isUnlocked &&
                         'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200',
                       isUnlocked &&
@@ -855,23 +855,23 @@ export function SixStageJourneyView({
       </header>
 
       {/* ── THÔNG TIN TRẠM BÀI HỌC ── */}
-      <div className="shrink-0 flex items-center justify-between gap-2 px-1 sm:px-1.5 py-0.5">
-        <div className="flex items-center gap-2 flex-wrap min-w-0">
+      <div className="shrink-0 flex min-w-0 flex-wrap items-center justify-between gap-2 px-1 sm:px-1.5 py-0.5">
+        <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           <div
             data-testid="current-station-badge"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs font-black text-xs sm:text-sm select-none shrink-0"
+            className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-2xl border border-amber-300/80 bg-amber-100/90 px-3 py-1.5 text-xs font-black text-amber-950 shadow-2xs select-none sm:rounded-full sm:text-sm"
           >
-            <span>{stationInfo.icon}</span>
-            <span className="font-bold text-amber-800 hidden md:inline">{stationInfo.islandName}</span>
-            <span className="text-amber-400 hidden md:inline">·</span>
-            <span>{stationInfo.stationLabel}</span>
+            <span className="shrink-0">{stationInfo.icon}</span>
+            <span className="hidden shrink-0 font-bold text-amber-800 xl:inline">{stationInfo.islandName}</span>
+            <span className="hidden shrink-0 text-amber-400 xl:inline">·</span>
+            <span className="min-w-0 break-words leading-snug sm:line-clamp-2">{stationInfo.stationLabel}</span>
           </div>
 
           {/* Nút Toggle Trợ lý AIKI */}
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black shadow-xs bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 cursor-pointer transition-all active:scale-95 shrink-0"
+            className="inline-flex min-h-11 items-center justify-center gap-1 px-3 rounded-full text-xs font-black shadow-xs bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 cursor-pointer transition-all active:scale-95 shrink-0"
             title={isSidebarCollapsed ? 'Mở trợ lý AIKI' : 'Thu gọn trợ lý AIKI'}
           >
             <span>🐱</span>
@@ -880,7 +880,7 @@ export function SixStageJourneyView({
           </button>
         </div>
 
-        <div className="text-[11px] font-bold text-slate-500 hidden sm:flex items-center gap-1.5">
+        <div className="hidden items-center gap-1.5 text-[11px] font-bold text-slate-500 xl:flex">
           <span>Đang học:</span>
           <span className="text-brand-600 font-black">
             Chặng {currentStage + 1}/{stages.length} · {currentStageDef?.title}
@@ -898,6 +898,7 @@ export function SixStageJourneyView({
             'flex-1 min-w-0 flex flex-col gap-4 pr-1',
             currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
             currentStageDef?.type === 'REWARD' ? 'overflow-y-auto pb-28 sm:pb-6' : '',
+            currentStageDef?.type === 'VIDEO' ? 'overflow-y-auto overflow-x-hidden overscroll-contain pb-24 sm:pb-6' : '',
             (isSidebarCollapsed || currentStageDef?.type === 'PRACTICE' || currentStageDef?.type === 'REWARD')
               ? 'w-full'
               : 'w-full md:flex-1'

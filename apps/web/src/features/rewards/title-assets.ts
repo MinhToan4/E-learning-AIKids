@@ -7,14 +7,17 @@ const titleSvgModules = import.meta.glob<string>(
 )
 
 const titlePngModules = import.meta.glob<string>(
-  [
-    '../../assets/rewards/badges/badge-title-*.png',
-    '../../assets/rewards/titles/title-*.png',
-  ],
+  '../../assets/rewards/titles/title-*.png',
+  { eager: true, import: 'default', query: '?url' },
+)
+
+const titleThumbnailModules = import.meta.glob<string>(
+  '../../assets/rewards/titles/*--thumbnail.webp',
   { eager: true, import: 'default', query: '?url' },
 )
 
 const titleAssets = new Map<string, string>()
+const titleThumbnailAssets = new Map<string, string>()
 
 // 1. First register SVGs (legacy fallback / storybook plaques)
 for (const [path, url] of Object.entries(titleSvgModules)) {
@@ -24,25 +27,30 @@ for (const [path, url] of Object.entries(titleSvgModules)) {
   }
 }
 
-// 2. Register designer PNG badges and titles, taking precedence over SVGs
+// 2. Register horizontal designer title plaques, taking precedence over SVGs.
+// Circular badge artwork is a different reward family and must never be used
+// as a title: titles are always long horizontal plaques.
 for (const [path, url] of Object.entries(titlePngModules)) {
   const fileName = path.split('/').at(-1)?.replace(/\.png$/, '') ?? ''
   if (!fileName) continue
   titleAssets.set(fileName, url)
 
-  if (fileName.startsWith('badge-title-')) {
-    // e.g. badge-title-first-light -> title-first-light
-    const titleId = fileName.replace(/^badge-/, '')
-    titleAssets.set(titleId, url)
-  } else if (fileName.startsWith('title-')) {
-    // e.g. title-gate-keeper -> badge-title-gate-keeper
-    titleAssets.set(`badge-${fileName}`, url)
-  }
+}
+
+for (const [path, url] of Object.entries(titleThumbnailModules)) {
+  const fileName = path.split('/').at(-1)?.replace(/--thumbnail\.webp$/, '') ?? ''
+  if (fileName) titleThumbnailAssets.set(fileName, url)
 }
 
 /** Resolve only the approved title plaques exported from the Figma Title frame. */
-export function rewardTitleAsset(rewardId?: string): string | undefined {
+export function rewardTitleAsset(
+  rewardId?: string,
+  variant: 'primary' | 'thumbnail' = 'primary',
+): string | undefined {
   if (!rewardId) return undefined
+  if (variant === 'thumbnail') {
+    return titleThumbnailAssets.get(rewardId) ?? titleAssets.get(rewardId)
+  }
   return titleAssets.get(rewardId)
 }
 
