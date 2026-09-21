@@ -1010,6 +1010,7 @@ export type LectureRow = {
 
 export type QuestProgress = {
   id: string
+  slug?: string
   order: number
   title: string
   skill: string

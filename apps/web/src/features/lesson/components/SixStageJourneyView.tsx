@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Target,
   HelpCircle,
@@ -35,21 +36,26 @@ import { StudentStageBlocksView } from './StudentStageBlocksView'
 import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
 import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import {
   adaptSixStageJourneyToStages,
+  adaptRuleToStages,
   isValidImageUrl,
   parseGoalCard,
   GOAL_CARD_STYLES,
 } from '../lib/stage-adapter'
+import { isAikiRuleJourney, extractRuleNumber, resolveIslandSixStageJourney } from '../lib/island-journey-resolver'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { STAGE_REGISTRY } from './stages'
-import type { ParsedGoalCard } from '../types/stage-schema'
+import type { JourneyStageDefinition, ParsedGoalCard } from '../types/stage-schema'
 
 // Re-export helpers for 100% backward compatibility
 export { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES }
 export type { ParsedGoalCard }
 
 export interface SixStageJourneyViewProps {
-  journey: LessonSixStageJourney
+  journey?: LessonSixStageJourney
+  stages?: JourneyStageDefinition[]
   lessonId: string
   lessonTitle: string
   studentStars?: number
@@ -79,15 +85,16 @@ export function calculateStationXp(stars: number): number {
 
 export const STAGES = [
   { index: 0, title: 'Mục tiêu', icon: Target, stepNumber: 1 },
-  { index: 1, title: 'Xác nhận', icon: HelpCircle, stepNumber: 2 },
-  { index: 2, title: 'Video', icon: Video, stepNumber: 3 },
+  { index: 1, title: 'Xác nhận mục tiêu', icon: HelpCircle, stepNumber: 2 },
+  { index: 2, title: 'Video bài giảng', icon: Video, stepNumber: 3 },
   { index: 3, title: 'Bài test', icon: FileQuestion, stepNumber: 4 },
   { index: 4, title: 'Thực hành', icon: Palette, stepNumber: 5 },
   { index: 5, title: 'Hoàn thành', icon: Trophy, stepNumber: 6 },
 ] as const
 
 export function SixStageJourneyView({
-  journey,
+  journey: rawJourney,
+  stages: stagesProp,
   lessonId,
   lessonTitle,
   studentStars = 42,
@@ -101,6 +108,11 @@ export function SixStageJourneyView({
   onStageChange,
   initialSidebarCollapsed,
 }: SixStageJourneyViewProps) {
+  const journey = useMemo(() => {
+    if (rawJourney) return rawJourney
+    return resolveIslandSixStageJourney({ id: lessonId, title: lessonTitle } as any)
+  }, [rawJourney, lessonId, lessonTitle])
+
   const matchedCurriculum = useMemo(() => {
     return findIslandCurriculum({ id: lessonId, slug: lessonId, title: lessonTitle })
   }, [lessonId, lessonTitle])
@@ -182,6 +194,17 @@ export function SixStageJourneyView({
       }
     }
 
+    if (isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle)) {
+      const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
+      const rule = AIKI_RULES_DATA.find((r) => r.id === rNum) || AIKI_RULES_DATA[0]
+      return {
+        stationLabel: `Quy tắc ${rule.id}: ${rule.shortTitle}`,
+        icon: '⭐',
+        islandName: 'Xưởng Sáng Tạo — 10 Quy Tắc Vàng',
+        lessonNumber: String(rule.id),
+      }
+    }
+
     const safeTitle = cleanCurriculumTitle(lessonTitle || 'Bài học')
     return {
       stationLabel: safeTitle.startsWith('Trạm') ? safeTitle : `Trạm: ${safeTitle}`,
@@ -189,29 +212,93 @@ export function SixStageJourneyView({
       islandName: 'Đảo Sáng Tạo',
       lessonNumber: '1',
     }
-  }, [matchedCurriculum, lessonTitle])
+  }, [matchedCurriculum, lessonId, lessonTitle])
 
   // Adapter transforms journey data into declarative stages without hardcoded lesson checks
   const stages = useMemo(() => {
+    if (stagesProp && stagesProp.length > 0) return stagesProp
+    if (isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle) || isAikiRuleJourney(journey)) {
+      const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
+      const rule = AIKI_RULES_DATA.find((r) => r.id === rNum) || AIKI_RULES_DATA[0]
+      return adaptRuleToStages(rule)
+    }
+    if (!journey) return []
     return adaptSixStageJourneyToStages(journey, {
       lessonId,
       lessonTitle,
       stationInfo,
       matchedCurriculum,
     })
-  }, [journey, lessonId, lessonTitle, stationInfo, matchedCurriculum])
+  }, [stagesProp, journey, lessonId, lessonTitle, stationInfo, matchedCurriculum])
 
-  const [currentStage, setCurrentStage] = useState<number>(initialStageIndex)
-  const [completedStages, setCompletedStages] = useState<Set<number>>(() => new Set([0]))
+  const [currentStage, setCurrentStage] = useState<number>(() => {
+    if (initialStageIndex > 0) return initialStageIndex
+    if (typeof window !== 'undefined' && lessonId) {
+      try {
+        const saved = localStorage.getItem(`aikids_lesson_stage_${lessonId}`)
+        if (saved !== null) {
+          const parsed = parseInt(saved, 10)
+          if (!isNaN(parsed) && parsed >= 0) {
+            return parsed
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return 0
+  })
+
+  const [completedStages, setCompletedStages] = useState<Set<number>>(() => {
+    const initial = new Set<number>([0])
+    if (typeof window !== 'undefined' && lessonId) {
+      try {
+        const saved = localStorage.getItem(`aikids_lesson_completed_stages_${lessonId}`)
+        if (saved) {
+          const arr = JSON.parse(saved)
+          if (Array.isArray(arr)) {
+            arr.forEach((num: number) => {
+              if (typeof num === 'number') initial.add(num)
+            })
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return initial
+  })
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     if (typeof initialSidebarCollapsed === 'boolean') {
       return initialSidebarCollapsed
     }
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 768
+      return window.innerWidth < 1280
     }
     return false
   })
+
+  // Guard mobile responsive (< 1024px): Luôn tự động đóng sidebar trên mobile khi resize hoặc đổi chặng
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const prevStageRef = useRef(currentStage)
+  useEffect(() => {
+    if (prevStageRef.current !== currentStage) {
+      prevStageRef.current = currentStage
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true)
+      }
+    }
+  }, [currentStage])
 
   // Stage 1 (Confirm goal) state
   const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(null)
@@ -322,27 +409,99 @@ export function SixStageJourneyView({
     setZoomImage(null)
   }, [])
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !lessonId) return
+    try {
+      localStorage.setItem(`aikids_lesson_stage_${lessonId}`, String(currentStage))
+    } catch {
+      // ignore
+    }
+  }, [currentStage, lessonId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !lessonId) return
+    try {
+      localStorage.setItem(
+        `aikids_lesson_completed_stages_${lessonId}`,
+        JSON.stringify(Array.from(completedStages))
+      )
+    } catch {
+      // ignore
+    }
+  }, [completedStages, lessonId])
+
   const handleStageSelect = useCallback(
     (index: number) => {
       setCurrentStage(index)
+      if (typeof window !== 'undefined' && lessonId) {
+        try {
+          localStorage.setItem(`aikids_lesson_stage_${lessonId}`, String(index))
+        } catch {
+          // ignore
+        }
+      }
       onStageChange?.(index)
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true)
+      }
     },
-    [onStageChange]
+    [lessonId, onStageChange]
   )
 
   const advanceToStage = useCallback(
     (nextStage: number) => {
-      setCompletedStages((prev) => new Set([...prev, currentStage, nextStage]))
+      setCompletedStages((prev) => {
+        const updated = new Set([...prev, currentStage, nextStage])
+        if (typeof window !== 'undefined' && lessonId) {
+          try {
+            localStorage.setItem(
+              `aikids_lesson_completed_stages_${lessonId}`,
+              JSON.stringify(Array.from(updated))
+            )
+          } catch {
+            // ignore
+          }
+        }
+        return updated
+      })
       setCurrentStage(nextStage)
+      if (typeof window !== 'undefined' && lessonId) {
+        try {
+          localStorage.setItem(`aikids_lesson_stage_${lessonId}`, String(nextStage))
+        } catch {
+          // ignore
+        }
+      }
       onStageChange?.(nextStage)
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true)
+      }
       try {
         playInstantSound('click')
       } catch {
         // ignore audio failure
       }
     },
-    [currentStage, onStageChange]
+    [currentStage, lessonId, onStageChange]
   )
+
+  const handleRetryQuestion = useCallback((qIdx: number) => {
+    setCheckedQuestions((prev) => {
+      const updated = { ...prev }
+      delete updated[qIdx]
+      return updated
+    })
+    setQuizAnswers((prev) => {
+      const updated = { ...prev }
+      delete updated[qIdx]
+      return updated
+    })
+    try {
+      playInstantSound('click')
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const handleSeekVideo = useCallback((sec: number) => {
     setVideoSeekSec(sec)
@@ -353,21 +512,36 @@ export function SixStageJourneyView({
     }
   }, [])
 
+  const [isSpeakingCurrentStage, setIsSpeakingCurrentStage] = useState<boolean>(false)
+
   // Web Speech synthesis for AIKI
   const speakCurrentStage = useCallback((text: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     try {
       window.speechSynthesis.cancel()
       const cleaned = normalizeVietnameseSpeech(text)
-      if (!cleaned) return
+      if (!cleaned) {
+        setIsSpeakingCurrentStage(false)
+        return
+      }
       const utterance = new SpeechSynthesisUtterance(cleaned)
       utterance.lang = 'vi-VN'
       utterance.rate = 0.95
+      utterance.onstart = () => setIsSpeakingCurrentStage(true)
+      utterance.onend = () => setIsSpeakingCurrentStage(false)
+      utterance.onerror = () => setIsSpeakingCurrentStage(false)
       window.speechSynthesis.speak(utterance)
     } catch {
-      // ignore
+      setIsSpeakingCurrentStage(false)
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    setIsSpeakingCurrentStage(false)
+  }, [currentStage, lessonId])
 
   const currentStageDef = stages[currentStage] || stages[0]
   const currentStageSpeech = currentStageDef?.speech || 'Cùng AIKI học thật vui nhé!'
@@ -404,34 +578,44 @@ export function SixStageJourneyView({
   }
 
   // Calculate Quiz Score
+  const quizStageDef = stages.find((s) => s.type === 'QUIZ')
+  const rewardStageDef = stages.find((s) => s.type === 'REWARD')
+  const effectiveQuizQuestions = (quizStageDef?.config?.questions as any[]) || journey?.stage4_quiz?.questions || []
+
   const quizScore = useMemo(() => {
-    const questions = journey.stage4_quiz?.questions || []
     let correct = 0
-    questions.forEach((q, idx) => {
+    effectiveQuizQuestions.forEach((q, idx) => {
       if (quizAnswers[idx] === q.correctIndex) {
         correct++
       }
     })
     return correct
-  }, [journey.stage4_quiz?.questions, quizAnswers])
+  }, [effectiveQuizQuestions, quizAnswers])
 
   const quizStars = useMemo(() => {
-    const total = journey.stage4_quiz?.questions?.length || 1
+    const total = effectiveQuizQuestions.length || 1
     const ratio = quizScore / total
     if (ratio >= 0.8) return 3
     if (ratio >= 0.5) return 2
     return 1
-  }, [quizScore, journey.stage4_quiz?.questions])
+  }, [quizScore, effectiveQuizQuestions])
 
   const isReplay = Boolean(isCompleted || (previousStars != null && previousStars > 0))
-  const defaultStars = journey.stage6_completion?.rewardBadge?.stars ?? 3
+  const defaultStars = rewardStageDef?.config?.rewardBadge?.stars ?? journey?.stage6_completion?.rewardBadge?.stars ?? 3
 
   const earnedStars = useMemo(() => {
+    if (stages.length === 3) {
+      let stars = 0
+      if (completedStages.has(0)) stars += 1
+      if (quizScore >= 1) stars += 1
+      if (currentStage === 2 || completedStages.has(1)) stars += 1
+      return Math.max(1, Math.min(3, stars))
+    }
     let stars = 0
     if (completedStages.has(0) && completedStages.has(1) && completedStages.has(2)) {
       stars += 1
     }
-    const quizTotal = journey.stage4_quiz?.questions?.length || 1
+    const quizTotal = effectiveQuizQuestions.length || 1
     if (quizScore / quizTotal >= 0.8) {
       stars += 1
     }
@@ -442,14 +626,14 @@ export function SixStageJourneyView({
       return defaultStars
     }
     return Math.max(1, stars)
-  }, [completedStages, quizScore, journey.stage4_quiz?.questions, submittedArtwork, currentStage, defaultStars])
+  }, [stages.length, completedStages, quizScore, effectiveQuizQuestions, submittedArtwork, currentStage, defaultStars])
 
-  const calculatedXp = rewardXpProp ?? journey.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
+  const calculatedXp = rewardXpProp ?? rewardStageDef?.config?.rewardBadge?.xp ?? journey?.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
   const effectiveStars = isReplay ? 0 : earnedStars
   const effectiveRewardXp = isReplay ? 0 : calculatedXp
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
-    const blocks = (journey.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
+    const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
       ?.filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-'))
     if (!Array.isArray(blocks) || blocks.length === 0) return null
     return {
@@ -463,7 +647,7 @@ export function SixStageJourneyView({
       contentBlocks: blocks,
       mee: { readText: '', gesture: 'presentation', autoRead: false },
     }
-  }, [currentStage, journey.stageContentBlocks, stages])
+  }, [currentStage, journey?.stageContentBlocks, stages])
 
   // Helper values for the sidebar
   const formulaCards = stages[0]?.config?.formulaCards || []
@@ -584,7 +768,7 @@ export function SixStageJourneyView({
       {/* ── TOP HEADER: NẤC TIẾN ĐỘ SƯ PHẠM ĐỘNG + NÚT BẢN ĐỒ ── */}
       <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2.5 sm:px-3 py-0.5 min-h-[36px] sm:min-h-[38px] w-full rounded-2xl border-2 border-brand-100 shadow-sm">
         {/* Trái: Nút Bản đồ + Nấc kẹo dẻo Soft Clay render linh hoạt */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5">
           {onBackToMap && (
             <button
               type="button"
@@ -599,7 +783,7 @@ export function SixStageJourneyView({
 
           <nav
             aria-label="Tiến độ bài học 6 chặng"
-            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 flex-1 min-w-0"
+            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 flex-1 min-w-0"
           >
             {stages.map((stageItem, idx) => {
               const isActive = currentStage === idx
@@ -672,14 +856,28 @@ export function SixStageJourneyView({
 
       {/* ── THÔNG TIN TRẠM BÀI HỌC ── */}
       <div className="shrink-0 flex items-center justify-between gap-2 px-1 sm:px-1.5 py-0.5">
-        <div
-          data-testid="current-station-badge"
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs font-black text-xs sm:text-sm select-none shrink-0"
-        >
-          <span>{stationInfo.icon}</span>
-          <span className="font-bold text-amber-800 hidden md:inline">{stationInfo.islandName}</span>
-          <span className="text-amber-400 hidden md:inline">·</span>
-          <span>{stationInfo.stationLabel}</span>
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <div
+            data-testid="current-station-badge"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs font-black text-xs sm:text-sm select-none shrink-0"
+          >
+            <span>{stationInfo.icon}</span>
+            <span className="font-bold text-amber-800 hidden md:inline">{stationInfo.islandName}</span>
+            <span className="text-amber-400 hidden md:inline">·</span>
+            <span>{stationInfo.stationLabel}</span>
+          </div>
+
+          {/* Nút Toggle Trợ lý AIKI */}
+          <button
+            type="button"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black shadow-xs bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 cursor-pointer transition-all active:scale-95 shrink-0"
+            title={isSidebarCollapsed ? 'Mở trợ lý AIKI' : 'Thu gọn trợ lý AIKI'}
+          >
+            <span>🐱</span>
+            <span>Trợ lý AIKI</span>
+            <span className="text-[10px]">{isSidebarCollapsed ? '▼' : '▲'}</span>
+          </button>
         </div>
 
         <div className="text-[11px] font-bold text-slate-500 hidden sm:flex items-center gap-1.5">
@@ -709,7 +907,7 @@ export function SixStageJourneyView({
             <StageComp
               stage={currentStageDef}
               onContinue={() => advanceToStage(currentStage + 1)}
-              onPrevious={() => handleStageSelect(Math.max(0, currentStage - 1))}
+              onPrevious={currentStage > 0 ? () => handleStageSelect(currentStage - 1) : undefined}
               onImageClick={setZoomImage}
               // Confirm stage props
               selectedOption={selectedConfirmOption}
@@ -719,6 +917,9 @@ export function SixStageJourneyView({
                 setSelectedConfirmOption(idx)
                 const correct = idx === currentStageDef.config.correctIndex
                 setIsConfirmCorrect(correct)
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setIsSidebarCollapsed(true)
+                }
               }}
               onOptionImageError={(optKey: string) => {
                 setFailedOptionImages((prev) => ({ ...prev, [optKey]: true }))
@@ -738,11 +939,23 @@ export function SixStageJourneyView({
               onSelectQuizAnswer={(qIdx: number, optIdx: number) => {
                 setQuizAnswers((prev) => ({ ...prev, [qIdx]: optIdx }))
                 setCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setIsSidebarCollapsed(true)
+                }
               }}
               onCheckAnswer={(qIdx: number) => {
                 setCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setIsSidebarCollapsed(true)
+                }
               }}
-              onSetActiveQuizQuestion={setActiveQuizQuestionIdx}
+              onRetryQuestion={handleRetryQuestion}
+              onSetActiveQuizQuestion={(action: number | ((prev: number) => number)) => {
+                setActiveQuizQuestionIdx(action)
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setIsSidebarCollapsed(true)
+                }
+              }}
               onSubmitQuiz={() => {
                 setQuizSubmitted(true)
                 const allChecked: Record<number, boolean> = {}
@@ -750,6 +963,9 @@ export function SixStageJourneyView({
                   allChecked[i] = true
                 })
                 setCheckedQuestions(allChecked)
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setIsSidebarCollapsed(true)
+                }
                 try {
                   playInstantSound('star')
                 } catch {
@@ -819,8 +1035,8 @@ export function SixStageJourneyView({
                 'fixed top-14 right-2 sm:right-4 bottom-2 z-40 w-[min(calc(100vw-1.5rem),380px)] shadow-2xl border-2 border-brand-300',
                 // Desktop (>= md):
                 (currentStage === 4 || currentStage === 5)
-                  ? 'md:fixed md:top-16 md:right-4 md:bottom-4 md:z-40 md:w-[min(calc(100vw-2rem),400px)] md:border-2 md:border-brand-300 md:shadow-2xl'
-                  : 'md:static md:w-[300px] lg:w-[360px] xl:w-[400px] md:border-2 md:border-brand-100 md:shadow-clay'
+                  ? 'md:fixed md:top-16 md:right-4 md:bottom-4 md:z-40 md:w-[min(calc(100vw-2rem),360px)] md:border-2 md:border-brand-300 md:shadow-2xl'
+                  : 'md:static md:w-[320px] lg:w-[340px] md:border-2 md:border-brand-100 md:shadow-clay'
               )}
             >
               {/* Header Sidebar: Chặng X/N + Tên Chặng + Nút Âm Thanh */}
@@ -840,10 +1056,7 @@ export function SixStageJourneyView({
                   <button
                     type="button"
                     onClick={() => setIsSidebarCollapsed(true)}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all cursor-pointer ml-1',
-                      (currentStage === 4 || currentStage === 5) ? 'inline-flex' : 'inline-flex md:hidden'
-                    )}
+                    className="inline-flex px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all cursor-pointer ml-1"
                     title="Đóng bảng tương tác"
                   >
                     ✕ Đóng
@@ -855,8 +1068,12 @@ export function SixStageJourneyView({
               <div className="flex-1 overflow-y-auto hidden-scrollbar p-4 flex flex-col gap-4">
                 {/* Mascot Mèo AIKI sinh động */}
                 <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-b from-amber-50 to-orange-50/40 rounded-2xl border border-amber-200 shadow-2xs">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-amber-300 border-4 border-white shadow-md grid place-items-center text-4xl animate-bounce">
-                    {getStageMascotEmoji(currentStageDef?.type, currentStage)}
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-amber-200/60 border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
+                    <AikidCatCharacter
+                      pose={currentStageDef?.type === 'QUIZ' ? 'thinking' : currentStageDef?.type === 'REWARD' ? 'celebrate' : 'welcome'}
+                      isSpeaking={isSpeakingCurrentStage}
+                      size="md"
+                    />
                   </div>
                   <span className="mt-2 text-xs font-black text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
                     {currentStageDef?.mascotRole || 'Bạn Đồng Hành AIKI'}
@@ -1602,13 +1819,13 @@ export function SixStageJourneyView({
       </div>
 
       {/* ── LIGHTBOX MODAL PHÓNG TO ẢNH FULL-SCREEN RESPONSIVE ── */}
-      {zoomImage && (
+      {zoomImage && typeof document !== 'undefined' && createPortal(
         <div
           ref={modalRef}
           data-testid="lightbox-modal"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fade-in select-none"
+          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fade-in select-none"
           onClick={handleCloseModal}
         >
           {/* Bộ công cụ điều khiển trên PC / Tablet: Fullscreen, Zoom In, Zoom Out, Reset */}
@@ -1671,7 +1888,7 @@ export function SixStageJourneyView({
             type="button"
             aria-label="Đóng"
             onClick={handleCloseModal}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 text-white border border-white/30 active:scale-95 flex items-center justify-center transition cursor-pointer shadow-lg backdrop-blur-md"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 w-11 h-11 rounded-full bg-black/80 hover:bg-black text-white border border-white/40 active:scale-95 flex items-center justify-center transition cursor-pointer shadow-2xl backdrop-blur-md"
             title="Đóng xem ảnh (Esc)"
           >
             <X size={24} />
@@ -1703,7 +1920,8 @@ export function SixStageJourneyView({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── MODAL TRAO CHỨNG CHỈ HOÀN THÀNH ĐẢO ── */}

@@ -32,9 +32,9 @@ describe('RulesRoadmapPage Component', () => {
 
     // 10 Rules check
     expect(markup).toContain('Lộ trình 10 Quy Tắc Vàng')
-    expect(markup).toContain('Hãy nghĩ ý tưởng của cậu')
-    expect(markup).toContain('Nội dung là do cậu viết')
-    expect(markup).toContain('Bài tập ở trường là của cậu')
+    expect(markup).toContain('Hãy nghĩ ý tưởng của con')
+    expect(markup).toContain('Nội dung là do con viết')
+    expect(markup).toContain('Bài tập ở trường là của con')
 
     // Progress bar check
     expect(markup).toContain('mở lần lượt từng cái một')
@@ -76,7 +76,7 @@ describe('RuleLearningPage Component', () => {
     expect(markup).toContain('Câu 1/2')
 
     // Big Rule Title check
-    expect(markup).toContain('Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé!')
+    expect(markup).toContain('Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!')
 
     // Left Column: Video & Controls check
     expect(markup).toContain('Xem lại video')
@@ -128,7 +128,7 @@ describe('AikiRuleWorkspace direct integration', () => {
     )
 
     expect(markup).toContain('QUY TẮC 2 / 10')
-    expect(markup).toContain('Nội dung là do cậu viết')
+    expect(markup).toContain('Nội dung là do con viết')
     expect(markup).toContain('↺ Xem lại video')
     expect(markup).toContain('🎙️ Nghe AIKI đọc quy tắc')
     expect(markup).toContain('Ôn lại một chút nhé')

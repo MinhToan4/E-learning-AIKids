@@ -49,4 +49,51 @@ describe('WorldProgramIslandCard', () => {
     expect(html).toContain('Sắp mở cổng thám hiểm...')
     expect(html).toContain('shadow-clay')
   })
+
+  it('has semantic clean targetSlug and canonicalSlug for all 6 islands', async () => {
+    const { AIKID_ISLANDS_META } = await import('./WorldProgramIslandCard')
+    expect(AIKID_ISLANDS_META).toHaveLength(6)
+
+    expect(AIKID_ISLANDS_META[0].targetSlug).toBe('dao-1')
+    expect(AIKID_ISLANDS_META[0].canonicalSlug).toBe('muoi-quy-tac-xuong-sang-tao')
+
+    expect(AIKID_ISLANDS_META[1].targetSlug).toBe('dao-2')
+    expect(AIKID_ISLANDS_META[1].canonicalSlug).toBe('dao-1-nha-tham-hiem-ai')
+
+    expect(AIKID_ISLANDS_META[2].targetSlug).toBe('dao-3')
+    expect(AIKID_ISLANDS_META[2].canonicalSlug).toBe('dao-2-hoa-si-ai')
+
+    expect(AIKID_ISLANDS_META[3].targetSlug).toBe('dao-4')
+    expect(AIKID_ISLANDS_META[3].canonicalSlug).toBe('dao-3-biet-doi-nhan-vat-ai')
+
+    expect(AIKID_ISLANDS_META[4].targetSlug).toBe('dao-5')
+    expect(AIKID_ISLANDS_META[4].canonicalSlug).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+
+    expect(AIKID_ISLANDS_META[5].targetSlug).toBe('dao-6')
+    expect(AIKID_ISLANDS_META[5].canonicalSlug).toBe('dao-5-nha-phat-minh-tro-choi-ai')
+  })
+
+  it('renders locked islands as dimmed/disabled when courses report locked status', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(WorldProgramIslandCard, {
+          type: 'aikid',
+          totalProgress: 0,
+          completedCount: 0,
+          totalCourses: 6,
+          courses: [
+            { id: 'dao-1', slug: 'dao-1', title: 'Đảo 1', status: 'available' },
+            { id: 'dao-2', slug: 'dao-2', title: 'Đảo 2', status: 'locked' },
+            { id: 'dao-3', slug: 'dao-3', title: 'Đảo 3', status: 'locked' },
+          ],
+        })
+      )
+    )
+
+    expect(html).toContain('cursor-not-allowed')
+    expect(html).toContain('opacity-60')
+    expect(html).toContain('Chưa mở khóa')
+  })
 })

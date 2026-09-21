@@ -14,7 +14,7 @@ import {
   NavCreativeIcon,
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
-import type { RewardKind } from '@/shared/lib/creation/rewards'
+import { REWARD_CATALOG, type RewardKind } from '@/shared/lib/creation/rewards'
 import {
   resolveCatalogRewardAsset,
   type RewardCatalogAssets,
@@ -31,7 +31,11 @@ import {
   type RewardEquipment,
 } from '@/features/rewards/reward-equipment'
 import { avatarImage } from '@/shared/config/avatars'
-import { profilePageEdgeBackgroundStyle } from '@/features/rewards/profile-backgrounds'
+import {
+  profileCardEdgeBackgroundStyle,
+  profilePageEdgeBackgroundStyle,
+} from '@/features/rewards/profile-backgrounds'
+import { profilePageThemeStyle } from '@/features/rewards/student-theme'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 
 export const PROJECT_FILTERS = [
@@ -71,6 +75,7 @@ type GamificationReward = {
   kind: RewardKind
   displayConfig?: { icon?: string }
   assets?: RewardCatalogAssets
+  unlock?: { type?: string; value?: string | number }
 }
 
 function fetchWithTimeout<T>(p: Promise<T>, ms = 2500): Promise<T> {
@@ -80,16 +85,110 @@ function fetchWithTimeout<T>(p: Promise<T>, ms = 2500): Promise<T> {
   ])
 }
 
-function RewardThumbnail({ src, onInvalid }: { src: string; onInvalid: () => void }) {
+function RewardCardVisual({
+  reward,
+  assetUrl,
+  large = false,
+  className = '',
+}: {
+  reward: { kind?: string; code?: string; name?: string; displayConfig?: any; icon?: string }
+  assetUrl?: string
+  large?: boolean
+  className?: string
+}) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const icon = reward.displayConfig?.icon || reward.icon || '🎁'
+
+  if (reward.kind === 'background' || reward.kind === 'theme') {
+    const backgroundStyle = reward.kind === 'background'
+      ? profileCardEdgeBackgroundStyle(reward.code)
+      : profilePageThemeStyle(reward.code)
+
+    return (
+      <div
+        className={`relative w-full h-full rounded-xl overflow-hidden border border-black/5 shadow-inner flex items-center justify-center ${className}`}
+        style={{ ...backgroundStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        {assetUrl && !imgFailed && (
+          <img
+            src={assetUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        )}
+      </div>
+    )
+  }
+
+  if (reward.kind === 'frame') {
+    return (
+      <div className={`relative flex items-center justify-center w-full h-full ${className}`}>
+        {assetUrl && !imgFailed ? (
+          <img
+            src={assetUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-contain drop-shadow-sm"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <div
+            className={`flex items-center justify-center rounded-full bg-white shadow-soft ${
+              large ? 'w-28 h-28 text-5xl' : 'w-14 h-14 text-2xl'
+            }`}
+            style={rewardFrameStyle(reward.code || '')}
+          >
+            <span className="flex h-full w-full items-center justify-center rounded-full bg-white">
+              {icon}
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (reward.kind === 'title') {
+    return (
+      <div className={`flex items-center justify-center w-full h-full px-2 ${className}`}>
+        {assetUrl && !imgFailed ? (
+          <img
+            src={assetUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="max-h-full max-w-full object-contain"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <span className="inline-flex max-w-full items-center justify-center rounded-full border-2 border-sun-300 bg-sun-50 px-3 py-1 text-center text-xs font-black text-sun-800 shadow-sm">
+            {reward.name || icon}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  if (assetUrl && !imgFailed) {
+    return (
+      <img
+        src={assetUrl}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className={`h-full w-full object-contain drop-shadow-sm ${className}`}
+        onError={() => setImgFailed(true)}
+      />
+    )
+  }
+
   return (
-    <img
-      src={src}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      className="h-full w-full object-contain drop-shadow-sm"
-      onError={onInvalid}
-    />
+    <div className={`flex items-center justify-center w-full h-full rounded-xl bg-brand-50 ${className}`}>
+      <span className={large ? 'text-6xl' : 'text-3xl'}>{icon}</span>
+    </div>
   )
 }
 
@@ -105,7 +204,7 @@ const rewardKindLabels: Partial<Record<RewardKind, string>> = {
   background: 'Nền thẻ',
 }
 
-type BackpackSection = 'creations' | 'achievements' | 'wardrobe' | 'storybook'
+type BackpackSection = 'creations' | 'achievements' | 'treasures'
 type ProjectFilter = 'all' | 'lesson' | 'workshop'
 type ProjectFormat = 'all' | 'image' | 'comic' | 'story'
 
@@ -153,9 +252,6 @@ function isRawInternalFile(title: string): boolean {
   if (!title) return false
   const lower = title.toLowerCase()
   if (lower.endsWith('.json')) return true
-  if (lower.startsWith('storyplot-comic-') && !lower.includes('paco') && !lower.includes('vet')) {
-    return true
-  }
   if (lower.startsWith('prompt-schema-')) return true
   return false
 }
@@ -238,6 +334,55 @@ function AchievementBadgeCard({ achievement, idx }: { achievement: AchievementRo
   )
 }
 
+function readLocalBackpackWorks(): Project[] {
+  let works: Project[] = []
+  if (typeof window === 'undefined' || !window.localStorage) return works
+
+  try {
+    const raw = localStorage.getItem('aiki_backpack_saved_works')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        works = parsed.map((item: any) => ({
+          id: item.id || `bp-${Date.now()}-${Math.random()}`,
+          title: item.title || 'Tác phẩm tranh vẽ',
+          kind: item.kind || 'image',
+          thumbnail: item.url || item.thumbnail || '',
+          content: item.prompt || item.content || '',
+          shareStatus: item.shareStatus || 'private',
+          questId: item.lessonId || item.stationLabel || null,
+        }))
+      }
+    }
+  } catch {}
+
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('aiki_backpack_items_')) {
+        const rawItems = localStorage.getItem(key)
+        if (rawItems) {
+          const parsed = JSON.parse(rawItems)
+          if (Array.isArray(parsed)) {
+            const lessonWorks = parsed.map((it: any) => ({
+              id: it.id || `lesson-item-${Math.random()}`,
+              title: it.lessonTitle ? `Bài học: ${it.lessonTitle}` : 'Ghi chú bài học',
+              kind: it.category === 'notebook' ? 'story' : 'image',
+              thumbnail: it.url || '',
+              content: it.prompt || '',
+              shareStatus: 'private',
+              questId: it.lessonId || 'lesson',
+            }))
+            works = [...works, ...lessonWorks.filter((lw) => !works.some((w) => w.id === lw.id))]
+          }
+        }
+      }
+    }
+  } catch {}
+
+  return works
+}
+
 export function BackpackPage() {
   const user = useAuth((state) => state.user)
   const [equipment, setEquipment] = useState<RewardEquipment>(() => readRewardEquipment(user?.id ?? 'guest'))
@@ -269,19 +414,8 @@ export function BackpackPage() {
       const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
       if (snap) merged = JSON.parse(snap).projects || []
 
-      const raw = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_saved_works') : null
-      if (raw) {
-        const saved = JSON.parse(raw).map((item: any) => ({
-          id: item.id || `bp-${Date.now()}-${Math.random()}`,
-          title: item.title || 'Tác phẩm tranh vẽ',
-          kind: 'image',
-          thumbnail: item.url || '',
-          content: item.prompt || '',
-          shareStatus: 'private',
-          questId: item.lessonId || item.stationLabel || null,
-        }))
-        merged = [...saved, ...merged.filter((rp) => !saved.some((lp: any) => lp.id === rp.id))]
-      }
+      const localWorks = readLocalBackpackWorks()
+      merged = [...localWorks, ...merged.filter((rp) => !localWorks.some((lp) => lp.id === rp.id))]
       return merged.filter((p) => !isRawInternalFile(p.title))
     } catch {}
     return []
@@ -290,9 +424,34 @@ export function BackpackPage() {
   const [rewards, setRewards] = useState<GamificationReward[]>(() => {
     try {
       const snap = typeof window !== 'undefined' ? localStorage.getItem('aiki_backpack_cache_snapshot') : null
-      return snap ? JSON.parse(snap).rewards || [] : []
+      if (snap) {
+        const parsed = JSON.parse(snap)
+        if (parsed.rewards && parsed.rewards.length > 0) return parsed.rewards
+      }
     } catch {}
-    return []
+
+    const savedLevel = typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) : undefined
+    const initialLevel = (user?.level && user.level > 1 ? user.level : undefined) || savedLevel || 107
+    const baseCatalog: GamificationReward[] = (REWARD_CATALOG || []).map((item) => ({
+      code: item.id,
+      name: item.name,
+      description: item.description,
+      kind: item.kind,
+      displayConfig: { icon: item.icon },
+      unlock: item.unlock,
+      assets: {
+        assetId: item.id,
+        primary: { assetId: item.id, variant: 'primary' as const },
+        thumbnail: { assetId: item.id, variant: 'primary' as const },
+      },
+    }))
+
+    return baseCatalog.filter((item) => {
+      if (item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number') {
+        return item.unlock.value <= initialLevel
+      }
+      return false
+    })
   })
 
   const [achievements, setAchievements] = useState<AchievementRow[]>(() => {
@@ -325,17 +484,17 @@ export function BackpackPage() {
     setError(null)
 
     try {
-      const [galleryResult, inventoryResult, catalogResult, achievementsResult] = await Promise.allSettled([
-        fetchWithTimeout(api<{ items?: any[] }>('/api/v1/media/gallery')).catch(async () => {
-          const [b, p] = await Promise.all([
-            fetchWithTimeout(api<{ assets: Asset[] }>('/api/backpack')).catch(() => ({ assets: [] })),
-            fetchWithTimeout(api<{ projects: Project[] }>('/api/projects')).catch(() => ({ projects: [] })),
-          ])
-          return { _mockFallback: true, assets: b.assets || [], projects: p.projects || [] }
-        }),
+      const [galleryResult, inventoryResult, catalogResult, achievementsResult, profileResult] = await Promise.allSettled([
+        fetchWithTimeout(
+          Promise.all([
+            api<{ assets: Asset[] }>('/api/backpack').catch(() => ({ assets: [] })),
+            api<{ projects: Project[] }>('/api/projects').catch(() => ({ projects: [] })),
+          ]).then(([b, p]) => ({ _mockFallback: true, assets: b.assets || [], projects: p.projects || [] })),
+        ),
         fetchWithTimeout(api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook')),
         fetchWithTimeout(api<{ items: GamificationReward[] }>('/api/gamification/catalog?type=reward')),
         fetchWithTimeout(api<{ achievements: AchievementRow[] }>('/api/gamification/achievements')),
+        fetchWithTimeout(api<{ totalXp: number; level: number }>('/api/gamification/profile')),
       ])
 
       let remoteAssets: Asset[] = []
@@ -381,33 +540,49 @@ export function BackpackPage() {
         }
       }
 
-      let savedLocalProjects: Project[] = []
-      try {
-        const raw = localStorage.getItem('aiki_backpack_saved_works')
-        if (raw) {
-          savedLocalProjects = JSON.parse(raw).map((item: any) => ({
-            id: item.id || `bp-${Date.now()}-${Math.random()}`,
-            title: item.title || 'Tác phẩm tranh vẽ',
-            kind: 'image',
-            thumbnail: item.url || '',
-            content: item.prompt || '',
-            shareStatus: 'private',
-            questId: item.lessonId || item.stationLabel || null,
-          }))
-        }
-      } catch {}
-
+      const savedLocalProjects = readLocalBackpackWorks()
       const mergedProjects = [
         ...savedLocalProjects,
         ...remoteProjects.filter((rp) => !savedLocalProjects.some((lp) => lp.id === rp.id)),
       ].filter((p) => !isRawInternalFile(p.title))
 
-      if (inventoryResult.status === 'fulfilled' && catalogResult.status === 'fulfilled') {
-        const owned = new Set((inventoryResult.value?.inventory ?? []).map((item) => item.rewardId))
-        loadedRewards = displayableRewardInventory(
-          (catalogResult.value?.items ?? []).filter((item) => owned.has(item.code)),
-        )
+      const levelFromApi = profileResult.status === 'fulfilled' ? profileResult.value?.level : undefined
+      const savedLevel = typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) : undefined
+      const userLevel = levelFromApi || (user?.level && user.level > 1 ? user.level : undefined) || savedLevel || 107
+      if (levelFromApi) {
+        try { localStorage.setItem('aiki_last_known_level', String(levelFromApi)) } catch {}
       }
+
+      const owned = new Set(
+        inventoryResult.status === 'fulfilled'
+          ? (inventoryResult.value?.inventory ?? []).map((item) => item.rewardId)
+          : [],
+      )
+      const serverCatalog: GamificationReward[] = catalogResult.status === 'fulfilled' ? (catalogResult.value?.items ?? []) : []
+      const baseCatalog: GamificationReward[] = (REWARD_CATALOG || []).map((item) => ({
+        code: item.id,
+        name: item.name,
+        description: item.description,
+        kind: item.kind,
+        displayConfig: { icon: item.icon },
+        unlock: item.unlock,
+        assets: {
+          assetId: item.id,
+          primary: { assetId: item.id, variant: 'primary' as const },
+          thumbnail: { assetId: item.id, variant: 'primary' as const },
+        },
+      }))
+      const combinedCatalog: GamificationReward[] = Array.from(
+        new Map([...baseCatalog, ...serverCatalog].map((item) => [item.code, item])).values(),
+      )
+
+      loadedRewards = combinedCatalog.filter((item) => {
+        if (owned.has(item.code)) return true
+        if (item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number') {
+          return item.unlock.value <= userLevel
+        }
+        return false
+      })
 
       if (achievementsResult.status === 'fulfilled') {
         loadedAchievements = achievementsResult.value?.achievements?.filter((a) => a.unlocked) || []
@@ -433,7 +608,7 @@ export function BackpackPage() {
       const rejected = [galleryResult, inventoryResult, catalogResult, achievementsResult].find(
         (r) => r.status === 'rejected',
       )
-      if (rejected && mergedProjects.length === 0 && loadedRewards.length === 0) {
+      if (rejected && mergedProjects.length === 0) {
         setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
       }
     } finally {
@@ -446,6 +621,12 @@ export function BackpackPage() {
     void load()
   }, [load])
 
+  useEffect(() => {
+    const handleXpUpdate = () => { void load() }
+    window.addEventListener('aikids:xp-updated', handleXpUpdate)
+    return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
+  }, [load])
+
   const visibleProjects = useMemo(() => {
     return projects.filter((p) => {
       if (sourceFilter === 'lesson' && !isLessonProject(p)) return false
@@ -455,10 +636,9 @@ export function BackpackPage() {
     })
   }, [projects, sourceFilter, formatFilter])
 
-  const wardrobeRewards = rewards.filter((r) =>
-    ['avatar', 'frame', 'theme', 'title', 'companion', 'effect', 'background'].includes(r.kind),
+  const treasureRewards = rewards.filter((r) =>
+    ['event_ticket', 'perk', 'effect'].includes(r.kind) || r.unlock?.type === 'storybook_sticker',
   )
-  const storybookRewards = rewards.filter((r) => ['event_ticket', 'perk'].includes(r.kind))
 
   async function requestShare(projectId: string) {
     try {
@@ -480,10 +660,9 @@ export function BackpackPage() {
   return (
     <PageMotion
       className="flex flex-col gap-6 relative min-h-screen"
-      style={profilePageEdgeBackgroundStyle(equipment?.theme || equipment?.background)}
     >
       <header
-        className="home-profile-banner p-5 sm:p-7 relative overflow-hidden"
+        className="home-profile-banner p-5 sm:p-7 relative overflow-hidden border-4 border-white shadow-clay rounded-3xl"
         style={{
           ...profileCardBackgroundStyle(equipment?.background),
           backgroundPosition: 'center',
@@ -491,15 +670,17 @@ export function BackpackPage() {
       >
         <div className="home-profile-banner-wash" />
 
-        {companionUrl ? (
-          <img
-            src={companionUrl}
-            alt=""
-            className="important-card-mascot--hero z-10 drop-shadow-md"
-          />
-        ) : (
-          <ImportantCardMascot pose="welcome" className="important-card-mascot--hero z-10 drop-shadow-md" />
-        )}
+        <div className="absolute right-3 bottom-0 sm:right-8 sm:bottom-0 pointer-events-none z-10 flex items-end">
+          {companionUrl ? (
+            <img
+              src={companionUrl}
+              alt=""
+              className="max-h-28 sm:max-h-36 w-auto object-contain drop-shadow-md"
+            />
+          ) : (
+            <ImportantCardMascot pose="welcome" className="important-card-mascot--hero drop-shadow-md" />
+          )}
+        </div>
 
         <div className="student-feature-hero-row relative z-10">
           <div className="max-w-2xl">
@@ -518,9 +699,16 @@ export function BackpackPage() {
                 <div className="eyebrow-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 text-brand-800 font-extrabold shadow-soft text-xs sm:text-sm">
                   <KidBackpackImageIcon size={20} /> Kho báu của con
                 </div>
-                <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight text-text sm:text-3xl drop-shadow-sm">
-                  Ba lô của con
-                </h1>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <h1 className="font-display text-2xl font-extrabold leading-tight text-text sm:text-3xl drop-shadow-sm">
+                    Ba lô của con
+                  </h1>
+                  {equipment?.title && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100/90 text-amber-800 text-xs font-black shadow-sm border border-amber-200">
+                      <span>🎖️</span> {equipment.title}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -535,13 +723,13 @@ export function BackpackPage() {
                 <span className="text-[11px] font-bold text-muted uppercase">Huy hiệu</span>
               </div>
               <div className="bg-white/85 rounded-2xl px-3.5 py-2 shadow-sm border border-white/60 backdrop-blur-sm">
-                <span className="block text-xl font-display text-fuchsia-600 leading-none">{wardrobeRewards.length}</span>
-                <span className="text-[11px] font-bold text-muted uppercase">Ngoại trang</span>
+                <span className="block text-xl font-display text-emerald-600 leading-none">{treasureRewards.length}</span>
+                <span className="text-[11px] font-bold text-muted uppercase">Bảo bối</span>
               </div>
 
               <Link to="/profile" className="sm:ml-auto w-full sm:w-auto mt-2 sm:mt-0">
                 <Button className="w-full rounded-2xl shadow-clay !text-sm whitespace-nowrap bg-gradient-to-r from-brand-500 to-indigo-500 hover:from-brand-600 hover:to-indigo-600 text-white border-0">
-                  🎨 Đổi trang trí ba lô & hồ sơ
+                  🎨 Tủ đồ & Đổi trang trí
                 </Button>
               </Link>
             </div>
@@ -558,12 +746,11 @@ export function BackpackPage() {
       {msg && <p className="rounded-xl bg-mint-100 px-3 py-2 text-sm text-success font-bold">{msg}</p>}
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
 
-      <nav aria-label="Các ngăn trong Ba lô" className="grid gap-3 sm:grid-cols-4">
+      <nav aria-label="Các ngăn trong Ba lô" className="grid gap-3 sm:grid-cols-3">
         {[
-          { id: 'creations' as const, label: 'Tác phẩm', desc: 'Tranh & Truyện', count: projects.length, icon: NavCreativeIcon },
-          { id: 'achievements' as const, label: 'Huy hiệu', desc: 'Thành tựu', count: achievements.length, icon: NavBadgeIcon },
-          { id: 'wardrobe' as const, label: 'Ngoại trang', desc: 'Đồ trang trí', count: wardrobeRewards.length, icon: NavBadgeIcon },
-          { id: 'storybook' as const, label: 'Kỷ vật', desc: 'Quà sự kiện', count: storybookRewards.length, icon: NavWorldIcon },
+          { id: 'creations' as const, label: 'Tác phẩm sáng tạo', desc: 'Tranh & Truyện', count: projects.length, icon: NavCreativeIcon },
+          { id: 'achievements' as const, label: 'Huy hiệu thành tích', desc: 'Cúp & Kỷ lục', count: achievements.length, icon: NavBadgeIcon },
+          { id: 'treasures' as const, label: 'Bảo bối & Kỷ vật', desc: 'Quà phiêu lưu', count: treasureRewards.length, icon: NavWorldIcon },
         ].map((item) => {
           const Icon = item.icon
           const selected = section === item.id
@@ -593,30 +780,58 @@ export function BackpackPage() {
         })}
       </nav>
 
+
       {section === 'creations' && (
         <section className="ui-card p-5 sm:p-6 shadow-soft rounded-3xl bg-white" aria-labelledby="projects-title">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 id="projects-title" className="font-display text-2xl">Tác phẩm sáng tạo</h2>
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={sourceFilter}
-                onChange={(e) => setSourceFilter(e.target.value as ProjectFilter)}
-                className="min-h-12 rounded-2xl border-2 border-border bg-white px-4 font-extrabold text-sm shadow-sm focus-visible:outline-brand-500"
-              >
-                <option value="all">Mọi nguồn</option>
-                <option value="lesson">Từ Bài học AI</option>
-                <option value="workshop">Từ Xưởng sáng tạo</option>
-              </select>
-              <select
-                value={formatFilter}
-                onChange={(e) => setFormatFilter(e.target.value as ProjectFormat)}
-                className="min-h-12 rounded-2xl border-2 border-border bg-white px-4 font-extrabold text-sm shadow-sm focus-visible:outline-brand-500"
-              >
-                <option value="all">Mọi định dạng</option>
-                <option value="image">Tranh ảnh AI</option>
-                <option value="comic">Truyện tranh</option>
-                <option value="story">Truyện chữ</option>
-              </select>
+          <div className="mb-6 flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h2 id="projects-title" className="font-display text-2xl">Tác phẩm sáng tạo</h2>
+              <span className="text-xs font-bold text-muted bg-brand-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
+                {visibleProjects.length} / {projects.length} tác phẩm
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs font-black text-muted uppercase tracking-wider mr-1">Nguồn:</span>
+              {[
+                { id: 'all' as const, label: 'Tất cả' },
+                { id: 'lesson' as const, label: '🏫 Từ Bài học AI' },
+                { id: 'workshop' as const, label: '🎨 Từ Xưởng Tự Do / Play AIKid' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setSourceFilter(f.id)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition-all active:scale-95 ${
+                    sourceFilter === f.id
+                      ? 'bg-brand-500 text-white shadow-soft scale-[1.02]'
+                      : 'bg-white text-muted hover:text-text border border-border'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-black text-muted uppercase tracking-wider mr-1">Loại:</span>
+              {[
+                { id: 'all' as const, label: 'Tất cả' },
+                { id: 'image' as const, label: '🖼️ Tranh ảnh AI' },
+                { id: 'comic' as const, label: '📚 Truyện tranh' },
+                { id: 'story' as const, label: '✍️ Truyện chữ' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFormatFilter(f.id)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition-all active:scale-95 ${
+                    formatFilter === f.id
+                      ? 'bg-indigo-600 text-white shadow-soft scale-[1.02]'
+                      : 'bg-white text-muted hover:text-text border border-border'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -642,6 +857,11 @@ export function BackpackPage() {
                 >
                   <div className="h-40 bg-brand-50 relative overflow-hidden">
                     <MediaThumbnail src={p.thumbnail} kind={p.kind} className="w-full h-full object-cover" />
+                    <span className={`absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm ${
+                      isLessonProject(p) ? 'bg-emerald-500 text-white' : 'bg-brand-500 text-white'
+                    }`}>
+                      {isLessonProject(p) ? '🏫 Bài học AI' : '🎨 Play AIKid'}
+                    </span>
                   </div>
                   <div className="p-4 flex-1 flex flex-col">
                     <p className="font-extrabold text-base truncate">{p.title || friendlyProjectTitle(p.title)}</p>
@@ -691,60 +911,44 @@ export function BackpackPage() {
         </section>
       )}
 
-      {section === 'wardrobe' && (
+      {section === 'treasures' && (
         <section className="ui-card p-5 sm:p-6 shadow-soft rounded-3xl bg-white">
-          <div className="mb-4 flex justify-between items-center">
-            <h2 className="font-display text-2xl">Ngoại trang & Phụ kiện</h2>
-            <Link to="/profile">
-              <Button variant="secondary" className="rounded-xl !min-h-10">
-                Dùng trên hồ sơ
-              </Button>
-            </Link>
+          <div className="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div>
+              <h2 className="font-display text-2xl">Bảo bối & Kỷ vật</h2>
+              <p className="text-xs text-muted font-semibold mt-0.5">
+                Các vật phẩm, vé sự kiện và kỷ vật đặc biệt con thu thập được trên hành trình phiêu lưu
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {wardrobeRewards.map((r) => {
-              const assetUrl =
-                r.kind === 'title'
-                  ? rewardTitleAsset(r.code)
-                  : resolveCatalogRewardAsset({ id: r.code, assets: r.assets }, 'thumbnail')
-              return (
-                <div
-                  key={r.code}
-                  className="p-3 bg-white border border-border rounded-2xl shadow-sm cursor-pointer hover:shadow-clay"
-                  onClick={() => setSelectedItem(r)}
-                >
-                  <div className="aspect-square bg-fuchsia-50 rounded-xl flex items-center justify-center p-2">
-                    {assetUrl && <RewardThumbnail src={assetUrl} onInvalid={() => {}} />}
-                  </div>
-                  <p className="mt-2 text-[10px] font-black uppercase text-fuchsia-600">{rewardKindLabels[r.kind]}</p>
-                  <h4 className="text-sm font-extrabold leading-tight mt-0.5">{r.name}</h4>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
 
-      {section === 'storybook' && (
-        <section className="ui-card p-5 sm:p-6 shadow-soft rounded-3xl bg-white">
-          <h2 className="font-display text-2xl mb-4">Kỷ vật huyền thoại</h2>
-          {storybookRewards.length === 0 ? (
-            <p className="text-sm font-bold text-muted p-4 bg-brand-50 rounded-2xl">
-              Chưa có kỷ vật nào. Tham gia sự kiện để nhận nhé!
-            </p>
+          {treasureRewards.length === 0 ? (
+            <div className="text-center py-10 bg-brand-50 rounded-2xl p-6">
+              <p className="text-base font-extrabold text-brand-800">
+                Chưa có bảo bối nào trong ngăn này!
+              </p>
+              <p className="text-xs text-muted font-bold mt-1">
+                Hãy tham gia các sự kiện, hoàn thành thử thách và lật mở Sticker Book để nhận bảo bối nhé.
+              </p>
+            </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {storybookRewards.map((r) => {
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {treasureRewards.map((r) => {
                 const assetUrl = resolveCatalogRewardAsset({ id: r.code, assets: r.assets }, 'thumbnail')
                 return (
-                  <div key={r.code} className="flex gap-3 p-3 bg-white border border-border rounded-2xl shadow-sm items-center">
-                    <div className="w-16 h-16 bg-blue-50 rounded-xl flex-shrink-0 flex items-center justify-center p-1">
-                      {assetUrl && <RewardThumbnail src={assetUrl} onInvalid={() => {}} />}
+                  <div
+                    key={r.code}
+                    className="p-3 bg-white border border-border rounded-2xl shadow-sm cursor-pointer hover:shadow-clay transition-all flex flex-col items-center text-center"
+                    onClick={() => setSelectedItem(r)}
+                  >
+                    <div className="w-20 h-20 bg-emerald-50/70 rounded-2xl flex items-center justify-center p-2 mb-2 overflow-hidden shadow-inner border border-emerald-100">
+                      <RewardCardVisual reward={r} assetUrl={assetUrl} />
                     </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold">{r.name}</h4>
-                      <p className="text-xs text-muted line-clamp-2 mt-1">{r.description}</p>
-                    </div>
+                    <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">
+                      {rewardKindLabels[r.kind] || 'Bảo bối'}
+                    </span>
+                    <h4 className="text-sm font-extrabold leading-tight mt-1 line-clamp-1">{r.name}</h4>
+                    <p className="text-xs text-muted line-clamp-2 mt-1">{r.description}</p>
                   </div>
                 )
               })}
@@ -759,21 +963,30 @@ export function BackpackPage() {
           onClick={() => setSelectedItem(null)}
         >
           <div className="bg-white w-full max-w-md rounded-3xl shadow-clay overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="relative aspect-video bg-brand-50">
-              <MediaThumbnail
-                src={
-                  (selectedItem as any).thumbnail ||
-                  resolveCatalogRewardAsset(
-                    { id: (selectedItem as any).code, assets: (selectedItem as any).assets },
-                    'thumbnail',
-                  ) ||
-                  ''
-                }
-                kind={(selectedItem as any).kind || 'image'}
-                className="w-full h-full object-contain"
-              />
+            <div className="relative aspect-video bg-brand-50 flex items-center justify-center p-4">
+              {'code' in (selectedItem as any) ? (
+                <RewardCardVisual
+                  reward={selectedItem as any}
+                  assetUrl={
+                    (selectedItem as any).kind === 'title'
+                      ? rewardTitleAsset((selectedItem as any).code)
+                      : resolveCatalogRewardAsset(
+                          { id: (selectedItem as any).code, assets: (selectedItem as any).assets },
+                          'primary',
+                        )
+                  }
+                  large
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <MediaThumbnail
+                  src={(selectedItem as any).thumbnail || ''}
+                  kind={(selectedItem as any).kind || 'image'}
+                  className="w-full h-full object-contain"
+                />
+              )}
               <button
-                className="absolute top-3 right-3 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center font-bold text-gray-700 shadow-sm"
+                className="absolute top-3 right-3 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center font-bold text-gray-700 shadow-sm hover:bg-white transition-all"
                 onClick={() => setSelectedItem(null)}
               >
                 ✕
@@ -787,8 +1000,33 @@ export function BackpackPage() {
                   'Một vật phẩm tuyệt vời trong ba lô của con.'}
               </p>
 
-              <div className="mt-6 flex gap-3">
-                <Button className="flex-1 rounded-2xl" onClick={() => setSelectedItem(null)}>
+              <div className="mt-6 flex flex-wrap gap-3">
+                {'id' in (selectedItem as any) && (selectedItem as any).shareStatus === 'private' && (
+                  <Button
+                    variant="secondary"
+                    className="flex-1 rounded-2xl !min-h-12 !text-xs font-black whitespace-nowrap"
+                    onClick={() => {
+                      requestShare((selectedItem as any).id)
+                      setSelectedItem(null)
+                    }}
+                  >
+                    💌 Khoe với Ba Mẹ
+                  </Button>
+                )}
+                {('thumbnail' in (selectedItem as any) || 'url' in (selectedItem as any)) && ((selectedItem as any).thumbnail || (selectedItem as any).url) && (
+                  <a
+                    href={(selectedItem as any).thumbnail || (selectedItem as any).url}
+                    download="kiet-tac-aikids.png"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1"
+                  >
+                    <Button variant="secondary" className="w-full rounded-2xl !min-h-12 !text-xs font-black whitespace-nowrap">
+                      💾 Tải về máy
+                    </Button>
+                  </a>
+                )}
+                <Button className="flex-1 rounded-2xl !min-h-12 !text-xs font-black" onClick={() => setSelectedItem(null)}>
                   Đóng
                 </Button>
               </div>

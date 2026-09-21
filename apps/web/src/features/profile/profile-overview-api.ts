@@ -45,19 +45,60 @@ type ProfileRequest = <T>(
   options?: RequestInit,
 ) => Promise<T>
 
+export function withTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`Request timed out after ${timeoutMs}ms`))
+    }, timeoutMs)
+  })
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer)
+  })
+}
+
+function readStoredNumber(key: string): number | undefined {
+  if (typeof window === 'undefined') return undefined
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return undefined
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) ? parsed : undefined
+  } catch {
+    return undefined
+  }
+}
+
 async function loadLegacyProfileOverview(
   request: ProfileRequest,
+  timeoutMs = 3500,
 ): Promise<ProfileOverviewData> {
+  const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
+
   const [streak, achievements, projects, media, gamification, settings, rewards] =
     await Promise.allSettled([
-      request<{ current: number }>('/api/gamification/streak'),
-      request<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-      request<{ projects: ShowcaseProject[] }>('/api/projects'),
-      request<{ assets: ProfileMediaAsset[] }>('/api/backpack'),
-      request<{ totalXp: number; level: number }>('/api/gamification/profile'),
-      request<PublicProfileSettings>('/api/profile/settings'),
-      request<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
+      safeReq<{ current: number }>('/api/gamification/streak'),
+      safeReq<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
+      safeReq<{ projects: ShowcaseProject[] }>('/api/projects'),
+      safeReq<{ assets: ProfileMediaAsset[] }>('/api/backpack'),
+      safeReq<{ totalXp: number; level: number }>('/api/gamification/profile'),
+      safeReq<PublicProfileSettings>('/api/profile/settings'),
+      safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
     ])
+
+  if (gamification.status === 'fulfilled' && gamification.value) {
+    try {
+      if (typeof gamification.value.level === 'number') {
+        localStorage.setItem('aiki_last_known_level', String(gamification.value.level))
+      }
+      if (typeof gamification.value.totalXp === 'number') {
+        localStorage.setItem('aiki_last_known_xp', String(gamification.value.totalXp))
+      }
+    } catch {}
+  }
+
+  const fallbackLevel = readStoredNumber('aiki_last_known_level') ?? 1
+  const fallbackXp = readStoredNumber('aiki_last_known_xp') ?? 0
 
   return {
     streak: streak.status === 'fulfilled' ? streak.value.current : 0,
@@ -72,10 +113,10 @@ async function loadLegacyProfileOverview(
       : [],
     totalXp: gamification.status === 'fulfilled'
       ? gamification.value.totalXp
-      : 0,
+      : fallbackXp,
     level: gamification.status === 'fulfilled'
       ? gamification.value.level
-      : 1,
+      : fallbackLevel,
     profileSettings: settings.status === 'fulfilled' ? settings.value : null,
     equipment: rewards.status === 'fulfilled'
       ? rewards.value.equipment ?? []
@@ -92,6 +133,7 @@ async function loadLegacyProfileOverview(
  */
 export async function loadProfileOverview(
   request: ProfileRequest = api,
+  timeoutMs = 3500,
 ): Promise<ProfileOverviewData> {
-  return loadLegacyProfileOverview(request)
+  return loadLegacyProfileOverview(request, timeoutMs)
 }

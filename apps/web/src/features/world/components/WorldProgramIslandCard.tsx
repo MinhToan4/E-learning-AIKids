@@ -32,6 +32,8 @@ export interface IslandMeta {
   icon: any
   accentColor: string
   shadowColor: string
+  targetSlug?: string
+  canonicalSlug?: string
 }
 
 export interface WorldProgramIslandCardProps {
@@ -43,6 +45,8 @@ export interface WorldProgramIslandCardProps {
   totalCourses?: number
   totalStars?: number
   islands?: IslandMeta[]
+  courses?: Array<{ id: string; slug?: string; title?: string; status?: string; [key: string]: any }>
+  onSelectIsland?: (island: IslandMeta, index: number) => void
 }
 
 export const AIKID_ISLANDS_META: IslandMeta[] = [
@@ -56,6 +60,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: Shield,
     accentColor: 'from-violet-500 to-purple-600',
     shadowColor: 'shadow-violet-500/30',
+    targetSlug: 'dao-1',
+    canonicalSlug: 'muoi-quy-tac-xuong-sang-tao',
   },
   {
     id: '2',
@@ -67,6 +73,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: Key,
     accentColor: 'from-emerald-500 to-teal-600',
     shadowColor: 'shadow-emerald-500/30',
+    targetSlug: 'dao-2',
+    canonicalSlug: 'dao-1-nha-tham-hiem-ai',
   },
   {
     id: '3',
@@ -78,6 +86,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: Palette,
     accentColor: 'from-amber-500 to-orange-600',
     shadowColor: 'shadow-amber-500/30',
+    targetSlug: 'dao-3',
+    canonicalSlug: 'dao-2-hoa-si-ai',
   },
   {
     id: '4',
@@ -89,6 +99,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: UserCheck,
     accentColor: 'from-sky-500 to-blue-600',
     shadowColor: 'shadow-sky-500/30',
+    targetSlug: 'dao-4',
+    canonicalSlug: 'dao-3-biet-doi-nhan-vat-ai',
   },
   {
     id: '5',
@@ -100,6 +112,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: BookOpen,
     accentColor: 'from-pink-500 to-rose-600',
     shadowColor: 'shadow-pink-500/30',
+    targetSlug: 'dao-5',
+    canonicalSlug: 'dao-4-vuong-quoc-truyen-tranh-ai',
   },
   {
     id: '6',
@@ -111,6 +125,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     icon: Gamepad2,
     accentColor: 'from-indigo-500 to-purple-600',
     shadowColor: 'shadow-indigo-500/30',
+    targetSlug: 'dao-6',
+    canonicalSlug: 'dao-5-nha-phat-minh-tro-choi-ai',
   },
 ]
 
@@ -123,6 +139,8 @@ export function WorldProgramIslandCard({
   totalCourses = 6,
   totalStars = 0,
   islands = AIKID_ISLANDS_META,
+  courses,
+  onSelectIsland,
 }: WorldProgramIslandCardProps) {
   const navigate = useNavigate()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -147,6 +165,54 @@ export function WorldProgramIslandCard({
         behavior: 'smooth',
       })
     }
+  }
+
+  const handleIslandClick = (island: IslandMeta, idx: number) => {
+    const matchedCourse = courses?.find(
+      (c) =>
+        (c.slug && (c.slug === island.canonicalSlug || c.slug === island.targetSlug)) ||
+        c.id === island.targetSlug ||
+        c.id === island.canonicalSlug,
+    ) || courses?.[idx]
+
+    const isLocked = matchedCourse
+      ? matchedCourse.status === 'locked'
+      : idx > completedCount
+
+    if (isLocked) {
+      return
+    }
+
+    if (onSelectIsland) {
+      onSelectIsland(island, idx)
+      return
+    }
+
+    const routeSlug =
+      island.targetSlug ||
+      island.canonicalSlug ||
+      matchedCourse?.slug ||
+      matchedCourse?.id ||
+      `dao-${idx + 1}`
+
+    navigate(`/world/${routeSlug}`)
+  }
+
+  const handlePrimaryAction = () => {
+    const activeIndex = islands.findIndex((island, idx) => {
+      const matched = courses?.find(
+        (c) =>
+          (c.slug && (c.slug === island.canonicalSlug || c.slug === island.targetSlug)) ||
+          c.id === island.targetSlug ||
+          c.id === island.canonicalSlug,
+      ) || courses?.[idx]
+      return matched
+        ? matched.status !== 'locked' && matched.status !== 'completed'
+        : idx === completedCount
+    })
+    const targetIdx = activeIndex >= 0 ? activeIndex : Math.min(Math.max(0, completedCount), islands.length - 1)
+    const activeIsland = islands[targetIdx] || islands[0]
+    handleIslandClick(activeIsland, targetIdx)
   }
 
   if (type === 'asmo') {
@@ -308,17 +374,42 @@ export function WorldProgramIslandCard({
                 />
 
                 {islands.map((island, idx) => {
-                  const isCompleted = idx < completedCount
-                  const isCurrent = idx === completedCount
+                  const matchedCourse = courses?.find(
+                    (c) =>
+                      (c.slug && (c.slug === island.canonicalSlug || c.slug === island.targetSlug)) ||
+                      c.id === island.targetSlug ||
+                      c.id === island.canonicalSlug,
+                  ) || courses?.[idx]
+
+                  const isLocked = matchedCourse
+                    ? matchedCourse.status === 'locked'
+                    : idx > completedCount
+                  const isCompleted = matchedCourse
+                    ? matchedCourse.status === 'completed'
+                    : idx < completedCount
+                  const isCurrent = matchedCourse
+                    ? (matchedCourse.status === 'active' || matchedCourse.status === 'available' || matchedCourse.status === 'in_progress') && !isCompleted && !isLocked
+                    : idx === completedCount
 
                   return (
                     <button
                       key={island.id}
                       ref={isCurrent ? currentIslandRef : null}
                       type="button"
-                      onClick={() => navigate('/world/program/aikid_official/creator')}
-                      className="relative z-10 flex flex-col items-center gap-1.5 group cursor-pointer hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 rounded-2xl shrink-0"
-                      title={`${island.title}: ${island.desc} (${island.landmark})`}
+                      disabled={isLocked}
+                      aria-disabled={isLocked}
+                      onClick={isLocked ? undefined : () => handleIslandClick(island, idx)}
+                      className={cn(
+                        'relative z-10 flex flex-col items-center gap-1.5 group rounded-2xl shrink-0 transition-transform',
+                        isLocked
+                          ? 'cursor-not-allowed opacity-60'
+                          : 'cursor-pointer hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500',
+                      )}
+                      title={
+                        isLocked
+                          ? `${island.title}: Chưa mở khóa`
+                          : `${island.title}: ${island.desc} (${island.landmark})`
+                      }
                     >
                       {/* Huy hiệu ĐANG HỌC nổi bật với viền trắng, không bị clipping do container có pt-6 */}
                       {isCurrent && (
@@ -330,12 +421,14 @@ export function WorldProgramIslandCard({
                       {/* Mặt đảo nổi */}
                       <div
                         className={cn(
-                          'relative size-16 sm:size-17 rounded-2xl sm:rounded-3xl overflow-hidden group-hover:shadow-xl transition-all duration-300',
+                          'relative size-16 sm:size-17 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300',
                           isCurrent
-                            ? 'border-2 border-amber-400 ring-2 ring-amber-300/70 shadow-lg shadow-amber-400/20 scale-105'
+                            ? 'border-2 border-amber-400 ring-2 ring-amber-300/70 shadow-lg shadow-amber-400/20 scale-105 group-hover:shadow-xl'
                             : isCompleted
-                            ? 'border-2 border-mint-400 ring-1 ring-mint-300/60 shadow-sm'
-                            : 'border-2 border-slate-300/80 bg-slate-200/60 shadow-2xs',
+                            ? 'border-2 border-mint-400 ring-1 ring-mint-300/60 shadow-sm group-hover:shadow-xl'
+                            : isLocked
+                            ? 'border-2 border-slate-300/60 bg-slate-200/80 shadow-none'
+                            : 'border-2 border-slate-300/80 bg-slate-200/60 shadow-2xs group-hover:shadow-xl',
                         )}
                       >
                         {/* Ảnh phong cảnh độc bản chuẩn của hòn đảo */}
@@ -343,10 +436,13 @@ export function WorldProgramIslandCard({
                           src={island.scene}
                           alt={island.title}
                           className={cn(
-                            'absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110',
-                            !isCompleted &&
-                              !isCurrent &&
-                              'filter grayscale contrast-75 opacity-55 transition-all duration-300 group-hover:opacity-75',
+                            'absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500',
+                            !isLocked && 'group-hover:scale-110',
+                            isLocked
+                              ? 'filter grayscale contrast-50 opacity-40'
+                              : !isCompleted && !isCurrent
+                              ? 'filter grayscale contrast-75 opacity-55 transition-all duration-300 group-hover:opacity-75'
+                              : '',
                           )}
                         />
 
@@ -360,10 +456,10 @@ export function WorldProgramIslandCard({
                           </div>
                         )}
 
-                        {/* Ổ khóa khi chưa học */}
-                        {!isCompleted && !isCurrent && (
-                          <div className="absolute top-1 right-1 size-4 rounded-full bg-slate-500/60 backdrop-blur-xs flex items-center justify-center z-20">
-                            <Lock size={9} className="text-white" />
+                        {/* Ổ khóa khi bị khóa */}
+                        {isLocked && (
+                          <div className="absolute top-1 right-1 size-4.5 rounded-full bg-slate-700/80 backdrop-blur-xs flex items-center justify-center z-20 shadow-xs">
+                            <Lock size={10} className="text-white" />
                           </div>
                         )}
                       </div>
@@ -373,7 +469,9 @@ export function WorldProgramIslandCard({
                         <span
                           className={cn(
                             'block text-[10px] tracking-wide mb-0.5',
-                            isCurrent
+                            isLocked
+                              ? 'text-slate-400 font-bold'
+                              : isCurrent
                               ? 'text-amber-600 font-black'
                               : isCompleted
                               ? 'text-mint-600 font-black'
@@ -385,7 +483,9 @@ export function WorldProgramIslandCard({
                         <p
                           className={cn(
                             'text-[11px] sm:text-xs leading-snug whitespace-nowrap transition-colors',
-                            isCurrent
+                            isLocked
+                              ? 'text-slate-400 font-semibold'
+                              : isCurrent
                               ? 'text-slate-900 font-black'
                               : isCompleted
                               ? 'text-slate-800 font-extrabold'
@@ -437,7 +537,7 @@ export function WorldProgramIslandCard({
           {/* Nút Hành Động Soft Clay */}
           <div className="pt-2">
             <Button
-              onClick={() => navigate('/world/program/aikid_official/creator')}
+              onClick={handlePrimaryAction}
               className="w-full sm:w-auto shadow-clay active:shadow-press rounded-2xl gap-2 px-8 py-4 text-base font-black inline-flex items-center justify-center cursor-pointer"
             >
               <span>{totalProgress > 0 ? 'Tiếp tục học các đảo' : 'Lên thuyền khám phá các đảo'}</span>

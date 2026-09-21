@@ -17,6 +17,7 @@ export interface QuizStageBlockProps {
   failedQuizImages?: Record<number, boolean>
   onSelectQuizAnswer?: (questionIdx: number, optionIdx: number) => void
   onCheckAnswer?: (questionIdx: number) => void
+  onRetryQuestion?: (questionIdx: number) => void
   onSetActiveQuizQuestion?: (index: number | ((prev: number) => number)) => void
   onSubmitQuiz?: () => void
   onQuizImageError?: (questionIdx: number) => void
@@ -36,6 +37,7 @@ export function QuizStageBlock({
   failedQuizImages = {},
   onSelectQuizAnswer,
   onCheckAnswer,
+  onRetryQuestion,
   onSetActiveQuizQuestion,
   onSubmitQuiz,
   onQuizImageError,
@@ -45,6 +47,10 @@ export function QuizStageBlock({
 }: QuizStageBlockProps) {
   const { config } = stage
   const questions = config.questions || []
+  const fallbackPoster =
+    (config as any)?.posterUrl ||
+    (stage as any)?.config?.posterUrl ||
+    '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
 
   const [displayedQuizSrcs, setDisplayedQuizSrcs] = React.useState<Record<number, string>>(() => {
     const initial: Record<number, string> = {}
@@ -63,11 +69,26 @@ export function QuizStageBlock({
   }, [questions])
 
   const handleOptionSelect = (qIdx: number, optIdx: number, correctIndex: number) => {
-    if (checkedQuestions[qIdx] || quizSubmitted) return
+    if (quizSubmitted) return
+    const isQuestionChecked = checkedQuestions[qIdx]
+    const isCurrentlyCorrect = isQuestionChecked && quizAnswers[qIdx] === correctIndex
+    // Nếu câu này đã đúng thì không cho đổi
+    if (isCurrentlyCorrect) return
+
     onSelectQuizAnswer?.(qIdx, optIdx)
     const isRight = optIdx === correctIndex
     try {
       playInstantSound(isRight ? 'star' : 'wrong')
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleRetry = (qIdx: number) => {
+    if (quizSubmitted) return
+    onRetryQuestion?.(qIdx)
+    try {
+      playInstantSound('click')
     } catch {
       // ignore
     }
@@ -154,10 +175,14 @@ export function QuizStageBlock({
           const selectedOpt = quizAnswers[qIdx]
           const isActive = qIdx === activeQuizQuestionIdx
           const isQuestionChecked = checkedQuestions[qIdx] || quizSubmitted
+          const isCorrect = selectedOpt === question.correctIndex
           const isQuizImgFailed = failedQuizImages[qIdx]
-          const hasValidQuizImg = Boolean(
-            question.visualUrl && isValidImageUrl(question.visualUrl) && !isQuizImgFailed
-          )
+          const resolvedImgUrl =
+            displayedQuizSrcs[qIdx] ||
+            (question.visualUrl && isValidImageUrl(question.visualUrl) && !isQuizImgFailed
+              ? question.visualUrl
+              : fallbackPoster)
+          const hasValidQuizImg = true
 
           return (
             <div
@@ -167,46 +192,40 @@ export function QuizStageBlock({
                 isActive ? 'block' : 'hidden'
               )}
             >
-              <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 md:grid-cols-12 md:gap-4 lg:gap-5">
-                {/* CỘT TRÁI: Ảnh To Rõ Ràng - 5/12 cols trên MD */}
+              <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 xl:grid-cols-12 xl:gap-5">
+                {/* CỘT TRÁI: Ảnh To Rõ Ràng - Dọc mặc định, 5/12 cols trên XL */}
                 {hasValidQuizImg && (
-                  <div className="flex min-h-0 flex-col justify-center md:col-span-5">
-                    <div className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm lg:max-h-[340px]">
+                  <div className="flex min-h-0 flex-col justify-center w-full xl:col-span-5">
+                    <div className="group relative flex aspect-[16/10] w-full max-w-xl mx-auto max-h-[260px] sm:max-h-[300px] items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm">
                       <img
                         loading="lazy"
                         decoding="async"
-                        src={displayedQuizSrcs[qIdx] || question.visualUrl}
+                        src={resolvedImgUrl}
                         alt={question.prompt}
                         className="w-full h-full object-cover cursor-pointer group-hover:scale-103 transition-transform duration-300"
                         onError={() => {
                           onQuizImageError?.(qIdx)
                           setDisplayedQuizSrcs((prev) => ({
                             ...prev,
-                            [qIdx]: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                            [qIdx]: fallbackPoster,
                           }))
                         }}
                         onClick={() => {
-                          const src = displayedQuizSrcs[qIdx] || question.visualUrl
-                          if (src) {
-                            onImageClick?.({
-                              url: src,
-                              title: question.prompt,
-                              fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
-                            })
-                          }
+                          onImageClick?.({
+                            url: resolvedImgUrl,
+                            title: question.prompt,
+                            fallbackUrl: fallbackPoster,
+                          })
                         }}
                       />
                       <button
                         type="button"
                         onClick={() => {
-                          const src = displayedQuizSrcs[qIdx] || question.visualUrl
-                          if (src) {
-                            onImageClick?.({
-                              url: src,
-                              title: question.prompt,
-                              fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
-                            })
-                          }
+                          onImageClick?.({
+                            url: resolvedImgUrl,
+                            title: question.prompt,
+                            fallbackUrl: fallbackPoster,
+                          })
                         }}
                         className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1.5 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
                         title="Xem ảnh phóng to"
@@ -217,11 +236,11 @@ export function QuizStageBlock({
                   </div>
                 )}
 
-                {/* CỘT CÂU HỎI & CÁC ĐÁP ÁN: 12 COLS NẾU KHÔNG CÓ ẢNH, 7 COLS NẾU CÓ ẢNH */}
+                {/* CỘT CÂU HỎI & CÁC ĐÁP ÁN: 100% width nếu không có ảnh, 7 COLS NẾU CÓ ẢNH TRÊN XL */}
                 <div
                   className={cn(
-                    'flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-5 shadow-2xs',
-                    hasValidQuizImg ? 'md:col-span-7' : 'md:col-span-12 max-w-3xl mx-auto w-full'
+                    'flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-5 shadow-2xs w-full',
+                    hasValidQuizImg ? 'xl:col-span-7' : 'xl:col-span-12 max-w-3xl mx-auto'
                   )}
                 >
                   <div>
@@ -238,17 +257,21 @@ export function QuizStageBlock({
                   <div className="flex flex-col gap-2 my-2 overflow-y-auto">
                     {question.options.map((optText, optIdx) => {
                       const isSelected = selectedOpt === optIdx
-                      const isCorrect = optIdx === question.correctIndex
+                      const isOptCorrect = optIdx === question.correctIndex
+                      const isOptionDisabled = quizSubmitted || (isQuestionChecked && isCorrect)
 
                       let optClass =
                         'border-slate-200 bg-white hover:bg-amber-50/70 text-slate-700 hover:border-amber-300'
                       if (isQuestionChecked) {
-                        if (isCorrect) {
+                        if (isSelected && isOptCorrect) {
                           optClass =
                             'border-mint-500 bg-mint-50 text-mint-900 font-bold ring-2 ring-mint-300'
-                        } else if (isSelected && !isCorrect) {
+                        } else if (isSelected && !isOptCorrect) {
                           optClass =
-                            'border-rose-400 bg-rose-50 text-rose-900 font-medium'
+                            'border-rose-400 bg-rose-50 text-rose-900 font-medium ring-2 ring-rose-200'
+                        } else if (!isCorrect && !isOptionDisabled) {
+                          optClass =
+                            'border-slate-200 bg-white hover:bg-amber-50/80 text-slate-800 hover:border-amber-400'
                         }
                       } else if (isSelected) {
                         optClass =
@@ -259,10 +282,11 @@ export function QuizStageBlock({
                         <button
                           key={optIdx}
                           type="button"
-                          disabled={isQuestionChecked}
+                          disabled={isOptionDisabled}
                           onClick={() => handleOptionSelect(qIdx, optIdx, question.correctIndex)}
                           className={cn(
-                            'p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-left text-xs sm:text-sm md:text-base font-bold text-slate-800 transition-all flex items-center gap-2.5 cursor-pointer min-h-[44px] sm:min-h-[48px] shadow-2xs',
+                            'p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-left text-xs sm:text-sm md:text-base font-bold text-slate-800 transition-all flex items-center gap-2.5 min-h-[44px] sm:min-h-[48px] shadow-2xs',
+                            isOptionDisabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer',
                             optClass
                           )}
                         >
@@ -270,10 +294,10 @@ export function QuizStageBlock({
                             {String.fromCharCode(65 + optIdx)}
                           </span>
                           <span className="flex-1 leading-snug">{optText}</span>
-                          {isQuestionChecked && isCorrect && (
+                          {isQuestionChecked && isSelected && isOptCorrect && (
                             <Check size={18} className="text-mint-600 flex-shrink-0" />
                           )}
-                          {isQuestionChecked && isSelected && !isCorrect && (
+                          {isQuestionChecked && isSelected && !isOptCorrect && (
                             <X size={18} className="text-rose-500 flex-shrink-0" />
                           )}
                         </button>
@@ -282,8 +306,18 @@ export function QuizStageBlock({
 
                     {isQuestionChecked && question.explanation && (
                       <div className="mt-1 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-900 leading-relaxed font-bold flex items-start gap-2">
-                        <span className="text-base">💡</span>
+                        <span className="text-base shrink-0">💡</span>
                         <span className="flex-1">{question.explanation}</span>
+                        {!isCorrect && !quizSubmitted && (
+                          <button
+                            type="button"
+                            onClick={() => handleRetry(qIdx)}
+                            className="ml-auto px-2.5 py-1 rounded-xl bg-amber-200 hover:bg-amber-300 active:scale-95 text-amber-950 font-black text-xs flex items-center gap-1 shrink-0 cursor-pointer transition-all shadow-2xs"
+                            title="Làm lại câu này"
+                          >
+                            <span>🔄 Thử lại</span>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -320,16 +354,28 @@ export function QuizStageBlock({
                       )}
 
                       {isQuestionChecked && (
-                        <span
-                          className={cn(
-                            'px-3 py-1 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1',
-                            selectedOpt === question.correctIndex
-                              ? 'bg-mint-100 text-mint-800'
-                              : 'bg-rose-100 text-rose-800'
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              'px-3 py-1 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1',
+                              isCorrect
+                                ? 'bg-mint-100 text-mint-800'
+                                : 'bg-rose-100 text-rose-800'
+                            )}
+                          >
+                            {isCorrect ? '✓ Đúng rồi!' : '✕ Chưa chính xác'}
+                          </span>
+                          {!isCorrect && !quizSubmitted && (
+                            <button
+                              type="button"
+                              onClick={() => handleRetry(qIdx)}
+                              className="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-xs sm:text-sm flex items-center gap-1 shadow-xs cursor-pointer transition-all"
+                              title="Thử lại câu này ngay"
+                            >
+                              <span>🔄 Thử lại câu này</span>
+                            </button>
                           )}
-                        >
-                          {selectedOpt === question.correctIndex ? '✓ Đúng rồi!' : '✕ Chưa chính xác'}
-                        </span>
+                        </div>
                       )}
 
                       {activeQuizQuestionIdx < questions.length - 1 ? (
@@ -359,11 +405,11 @@ export function QuizStageBlock({
       </div>
 
       {/* Action buttons - Sticky đáy */}
-      <div className="shrink-0 pt-1.5 pb-0.5 bg-white/95 backdrop-blur-xs flex justify-between items-center border-t border-slate-100 sticky bottom-0 z-20">
+      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-wrap gap-2 sm:gap-3 justify-between items-center border-t border-slate-100 sticky bottom-0 z-20">
         <Button
           variant="secondary"
           onClick={onPrevious}
-          className="rounded-xl text-xs py-1 px-3"
+          className="rounded-xl text-xs sm:text-sm py-2 px-3 sm:px-4 shrink-0"
         >
           Xem lại video
         </Button>
@@ -373,14 +419,14 @@ export function QuizStageBlock({
             variant="primary"
             disabled={Object.keys(quizAnswers).length < questions.length}
             onClick={onSubmitQuiz}
-            className="px-6 py-3 text-sm sm:text-base font-black rounded-xl"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-base font-black rounded-xl"
           >
             Nộp bài kiểm tra
           </Button>
         ) : (
           <Button
             variant="primary"
-            className="px-8 py-4 text-base sm:text-lg font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-2 cursor-pointer"
+            className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-2 cursor-pointer"
             onClick={onContinue}
           >
             <span>👉 Vào Xưởng Sáng Tạo AI 🎨</span>

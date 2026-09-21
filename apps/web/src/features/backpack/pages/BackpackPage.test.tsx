@@ -185,4 +185,77 @@ describe('BackpackPage', () => {
     })
     container.remove()
   })
+
+  it('renders 3 core compartments and does not render standalone wardrobe tab', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Confirm 3 core compartments are present
+    expect(container.textContent).toContain('Tác phẩm sáng tạo')
+    expect(container.textContent).toContain('Huy hiệu thành tích')
+    expect(container.textContent).toContain('Bảo bối & Kỷ vật')
+
+    // Confirm nav does NOT have 'Ngoại trang'
+    const nav = container.querySelector('nav')
+    expect(nav?.textContent).not.toContain('Ngoại trang')
+
+    // Confirm CTA to profile wardrobe exists
+    expect(container.textContent).toContain('Tủ đồ & Đổi trang trí')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('loads lesson notebook works from aiki_backpack_items_ into projects', async () => {
+    const lessonItems = [
+      {
+        id: 'notebook-101',
+        url: '/assets/aiki-islands/island1_lesson2_notebook.jpg',
+        prompt: 'Ghi chép bài học số 2 của bé',
+        time: '14:20',
+        lessonId: 'bai-1-2',
+        lessonTitle: 'Cánh Cổng AI Đầu Tiên',
+        category: 'notebook',
+      },
+    ]
+    localStorage.setItem('aiki_backpack_items_bai-1-2', JSON.stringify(lessonItems))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    expect(container.textContent).toContain('Bài học: Cánh Cổng AI Đầu Tiên')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })

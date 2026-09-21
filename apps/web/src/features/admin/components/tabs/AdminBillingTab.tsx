@@ -32,6 +32,7 @@ const PlanEditorModal = lazy(() =>
 const PLAN_BADGE_COLORS: Record<string, string> = {
   free: 'bg-slate-100 text-slate-600',
   starter: 'bg-sky-100 text-sky-700',
+  aikids_official_129k: 'bg-amber-100 text-amber-800',
   premium_family: 'bg-violet-100 text-violet-700',
   pro: 'bg-amber-100 text-amber-700',
 }
@@ -97,14 +98,11 @@ export function AdminBillingTab() {
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Sub-nav view: subscribers, plans, invoices, or logs
-  const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'plans' | 'invoices' | 'logs'>('subscribers')
+  // Sub-nav view: subscribers, pos_orders, plans, invoices, or logs
+  const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'pos_orders' | 'plans' | 'invoices' | 'logs'>('subscribers')
   const [billingSubSearch, setBillingSubSearch] = useState('')
   const [selectedPlanFilter, setSelectedPlanFilter] = useState<string>('all')
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'paid' | 'free' | 'expired'>('all')
-  const [isPosCollapsed, setIsPosCollapsed] = useState(false)
-  const isWideView = billingPlanView === 'invoices' || billingPlanView === 'logs'
-  const shouldShowPos = !isPosCollapsed && !isWideView
 
   // Transaction logs state
   const [txLogs, setTxLogs] = useState<BillingTransactionLog[]>(getStoredBillingLogs)
@@ -152,7 +150,8 @@ export function AdminBillingTab() {
   const planLabels = useMemo(() => {
     const base: Record<string, string> = {
       free: 'Miễn phí',
-      starter: 'Gói Tiêu Chuẩn 129K',
+      starter: 'Starter (69K)',
+      aikids_official_129k: 'AI Kid Chính Thức (129K)',
       premium_family: 'Premium Gia Đình',
       pro: 'Pro',
       credits_10: '10 lượt AI',
@@ -337,10 +336,12 @@ export function AdminBillingTab() {
         const unitPrice =
           curPlan?.amountMinor ??
           (grantForm.planId === 'starter'
-            ? 129000
-            : grantForm.planId === 'premium_family'
-              ? 149000
-              : 349000)
+            ? 69000
+            : grantForm.planId === 'aikids_official_129k'
+              ? 129000
+              : grantForm.planId === 'premium_family'
+                ? 149000
+                : 349000)
         const totalAmount = unitPrice * grantForm.durationMonths
         recordBillingLog({
           userEmail: grantSelectedUser.email ?? '',
@@ -380,10 +381,12 @@ export function AdminBillingTab() {
         const unitPrice =
           curPlan?.amountMinor ??
           (grantForm.planId === 'starter'
-            ? 129000
-            : grantForm.planId === 'premium_family'
-              ? 149000
-              : 349000)
+            ? 69000
+            : grantForm.planId === 'aikids_official_129k'
+              ? 129000
+              : grantForm.planId === 'premium_family'
+                ? 149000
+                : 349000)
         const totalAmount = unitPrice * grantForm.durationMonths
         const paymentCode =
           data?.vietqr?.paymentCode ||
@@ -480,7 +483,7 @@ export function AdminBillingTab() {
   }
 
   function quickGrant(sub: SubscriptionRow) {
-    setIsPosCollapsed(false)
+    setBillingPlanView('pos_orders')
     setGrantSelectedUser({
       id: sub.userId,
       email: sub.email,
@@ -615,11 +618,12 @@ export function AdminBillingTab() {
         ))}
       </div>
 
-      {/* ── Sub-nav: Thuê bao | Catalog gói cước | Lịch sử Logs ─────────── */}
+      {/* ── Sub-nav: Thuê bao | Trung tâm lên gói & Đơn thanh toán | Catalog | HĐ MISA | Logs ── */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 w-fit border border-brand-100">
+        <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 w-fit border border-brand-100 flex-wrap">
           {[
             { id: 'subscribers', label: 'Danh sách thuê bao' },
+            { id: 'pos_orders', label: 'Trung tâm lên gói & Đơn thanh toán' },
             { id: 'plans', label: 'Catalog gói cước & Package Builder' },
             { id: 'invoices', label: 'Hóa đơn & Thuế VN (MISA)' },
             { id: 'logs', label: 'Lịch sử cấp & bán gói (Logs)' },
@@ -627,31 +631,27 @@ export function AdminBillingTab() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setBillingPlanView(tab.id as 'subscribers' | 'plans' | 'invoices' | 'logs')}
+              onClick={() => setBillingPlanView(tab.id as 'subscribers' | 'pos_orders' | 'plans' | 'invoices' | 'logs')}
               className={cn(
-                'rounded-xl px-4 sm:px-5 py-2 text-sm font-bold transition cursor-pointer',
+                'rounded-xl px-4 sm:px-5 py-2 text-sm font-bold transition cursor-pointer flex items-center gap-1.5',
                 billingPlanView === tab.id
                   ? 'bg-white text-brand-700 shadow-sm font-black'
                   : 'text-muted hover:text-text',
               )}
             >
-              {tab.label}
+              <span>{tab.label}</span>
+              {tab.id === 'pos_orders' && pendingIntents.length > 0 && (
+                <span className="flex h-5 px-1.5 min-w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-white shadow-2xs">
+                  {pendingIntents.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
-        {!isWideView && (
-          <button
-            type="button"
-            onClick={() => setIsPosCollapsed((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 cursor-pointer ml-auto"
-          >
-            <span>{isPosCollapsed ? '📦 Mở POS Thu Ngân' : '📐 Thu gọn POS'}</span>
-          </button>
-        )}
       </div>
 
-      {/* ── Layout chính: Trái (Data/Catalog/Logs) | Phải (Admin POS) ── */}
-      <div className={cn('grid gap-5', shouldShowPos ? 'xl:grid-cols-[1fr_410px]' : 'grid-cols-1')}>
+      {/* ── Layout chính: Toàn màn hình rộng rãi cho từng Tab ── */}
+      <div className="grid gap-5 grid-cols-1">
         {/* ─── CỘT TRÁI ─── */}
         <div className="flex flex-col gap-5">
           {/* Danh sách thuê bao */}
@@ -681,17 +681,21 @@ export function AdminBillingTab() {
                     className="min-h-10 rounded-xl border-2 border-border bg-white px-3 py-1.5 text-xs font-bold text-text outline-none transition focus:border-brand-400 cursor-pointer shadow-sm"
                   >
                     <option value="all">Tất cả gói cước</option>
-                    <option value="free">Gói Miễn phí</option>
-                    <option value="starter">Gói Tiêu Chuẩn 129K</option>
-                    <option value="premium_family">Premium Gia Đình</option>
-                    <option value="pro">Pro</option>
-                    {billingPlans
-                      .filter((p) => !['free', 'starter', 'premium_family', 'pro'].includes(p.id))
-                      .map((p) => (
+                    {billingPlans.length > 0 ? (
+                      billingPlans.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.name}
+                          {p.name} {p.amountMinor ? `(${p.amountMinor.toLocaleString('vi-VN')}₫)` : ''}
                         </option>
-                      ))}
+                      ))
+                    ) : (
+                      <>
+                        <option value="free">Miễn Phí</option>
+                        <option value="starter">Starter (69K)</option>
+                        <option value="aikids_official_129k">AI Kid Chính Thức (129K)</option>
+                        <option value="premium_family">Premium Gia Đình (149K)</option>
+                        <option value="pro">Pro (349K)</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -1161,35 +1165,35 @@ export function AdminBillingTab() {
               </div>
             </div>
           )}
-        </div>
 
-        {/* ─── CỘT PHẢI: TRUNG TÂM LÊN GÓI & THU NGÂN (ADMIN POS) ─── */}
-        {shouldShowPos && (
-          <AdminBillingPos
-            billingAdminMode={billingAdminMode}
-            setBillingAdminMode={setBillingAdminMode}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            grantForm={grantForm}
-            setGrantForm={setGrantForm}
-            grantLoading={grantLoading}
-            grantSelectedUser={grantSelectedUser}
-            setGrantSelectedUser={setGrantSelectedUser}
-            grantUserResults={grantUserResults}
-            setGrantUserResults={setGrantUserResults}
-            grantUserSearching={grantUserSearching}
-            searchGrantUser={searchGrantUser}
-            availablePlans={billingPlans}
-            planLabels={planLabels}
-            planBadgeColors={PLAN_BADGE_COLORS}
-            roleLabels={ROLE_LABELS}
-            handlePosSubmit={handlePosSubmit}
-            generateSuggestedReason={generateSuggestedReason}
-            pendingIntents={pendingIntents}
-            onConfirmPendingIntent={(intent) => setBillingConfirmIntent(intent)}
-            onViewPendingIntentDetail={(intent) => setSelectedDetailIntent(intent)}
-          />
-        )}
+          {/* ─── TAB: TRUNG TÂM LÊN GÓI & ĐƠN THANH TOÁN (ADMIN POS) ─── */}
+          {billingPlanView === 'pos_orders' && (
+            <AdminBillingPos
+              billingAdminMode={billingAdminMode}
+              setBillingAdminMode={setBillingAdminMode}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              grantForm={grantForm}
+              setGrantForm={setGrantForm}
+              grantLoading={grantLoading}
+              grantSelectedUser={grantSelectedUser}
+              setGrantSelectedUser={setGrantSelectedUser}
+              grantUserResults={grantUserResults}
+              setGrantUserResults={setGrantUserResults}
+              grantUserSearching={grantUserSearching}
+              searchGrantUser={searchGrantUser}
+              availablePlans={billingPlans}
+              planLabels={planLabels}
+              planBadgeColors={PLAN_BADGE_COLORS}
+              roleLabels={ROLE_LABELS}
+              handlePosSubmit={handlePosSubmit}
+              generateSuggestedReason={generateSuggestedReason}
+              pendingIntents={pendingIntents}
+              onConfirmPendingIntent={(intent) => setBillingConfirmIntent(intent)}
+              onViewPendingIntentDetail={(intent) => setSelectedDetailIntent(intent)}
+            />
+          )}
+        </div>
       </div>
 
       {/* Confirm payment intent dialog */}

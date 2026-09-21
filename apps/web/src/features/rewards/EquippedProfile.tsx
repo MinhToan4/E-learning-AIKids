@@ -127,9 +127,8 @@ export function EquippedProfile({
     : titleReward
       ? getGeneratedRewardAssetUrl('title-epic', 'primary', { release: '2026.08.01.6', format: 'webp' })
       : undefined
-  const titlePlaqueAsset = compact
-    ? undefined
-    : (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
+  const titlePlaqueAsset =
+    (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
   const img = profileAvatar?.url ?? avatarImage(avatarId)
   const companionReward = REWARD_CATALOG.find((item) => item.id === equipment.companion)
   const companionLevel = getLevelRewardNumber(equipment.companion, 'companion')

@@ -117,17 +117,57 @@ export function getVerifiedStaticRewardAssetUrl(
     : undefined
 }
 
-const antigravityTestAliases: Record<string, string> = {
-  'avatar-paco-blue': 'paco-cloud-companion',
-  'background-forest-guardian': 'background-forest-guardian',
-  'background-ocean-artist': 'background-ocean-artist',
-  'frame-cloud-summer': 'frame-cloud-summer',
-  'frame-galaxy': 'frame-galaxy',
-  'perk-sticker-sparkle': 'perk-sticker-sparkle',
-  'theme-community-legend': 'theme-paco-cosmic',
-  'theme-legend': 'theme-star-library',
-  'theme-paco-workshop': 'theme-future-workshop',
-  'theme-workshop': 'theme-future-workshop',
+const designerRewardFileMap: Record<string, { category: string; file: string }> = {
+  // Backgrounds
+  'background-ai-gate': { category: 'backgrounds', file: 'background-ai-gate' },
+  'background-forest-guardian': { category: 'backgrounds', file: 'background-forest-guardian' },
+  'background-ocean-artist': { category: 'backgrounds', file: 'background-ocean-artist' },
+  // Frames
+  'frame-galaxy': { category: 'frames', file: 'frame-galaxy' },
+  'frame-rainbow': { category: 'frames', file: 'frame-rainbow' },
+  'frame-cloud-summer': { category: 'frames', file: 'frame-cloud-summer' },
+  'frame-language-kingdom': { category: 'frames', file: 'frame-language-kingdom' },
+  'frame-summit-gold': { category: 'frames', file: 'frame-summit-gold' },
+  'frame-galaxy-storyteller': { category: 'frames', file: 'frame-galaxy-storyteller' },
+  // Themes
+  'theme-paco-workshop': { category: 'themes', file: 'theme-paco-workshop' },
+  'theme-community-legend': { category: 'themes', file: 'theme-community-legend' },
+  'theme-future-workshop': { category: 'themes', file: 'theme-future-workshop' },
+  'theme-legend': { category: 'themes', file: 'theme-legend' },
+  'theme-cloud-garden': { category: 'themes', file: 'theme-cloud-garden' },
+  'theme-colorful-city': { category: 'themes', file: 'theme-colorful-city' },
+  'theme-magical-forest': { category: 'themes', file: 'theme-magical-forest' },
+  'theme-ocean-ideas': { category: 'themes', file: 'theme-ocean-ideas' },
+  'theme-paco-cosmic': { category: 'themes', file: 'theme-paco-cosmic' },
+  'theme-star-library': { category: 'themes', file: 'theme-star-library' },
+  'theme-workshop': { category: 'themes', file: 'theme-paco-workshop' },
+  // Companions
+  'avatar-paco-blue': { category: 'companions', file: 'avatar-paco-blue' },
+  'companion-paco-cloud': { category: 'companions', file: 'paco-cloud-companion' },
+  'companion-paco-leaf': { category: 'companions', file: 'paco-leaf-companion' },
+  'companion-paco-sea': { category: 'companions', file: 'paco-sea-companion' },
+  'companion-paco-fire': { category: 'companions', file: 'paco-fire-companion' },
+  'paco-cloud-companion': { category: 'companions', file: 'paco-cloud-companion' },
+  'paco-fire-companion': { category: 'companions', file: 'paco-fire-companion' },
+  'paco-leaf-companion': { category: 'companions', file: 'paco-leaf-companion' },
+  'paco-sea-companion': { category: 'companions', file: 'paco-sea-companion' },
+  'paco-inventor': { category: 'companions', file: 'paco-inventor' },
+  'paco-star-companion': { category: 'companions', file: 'paco-star-companion' },
+  'paco-storyteller': { category: 'companions', file: 'paco-storyteller' },
+  // Effects
+  'effect-galaxy': { category: 'effects', file: 'effect-galaxy' },
+  'effect-rainbow': { category: 'effects', file: 'effect-rainbow' },
+  'effect-sunrise': { category: 'effects', file: 'effect-sunrise' },
+  'perk-sticker-sparkle': { category: 'effects', file: 'perk-sticker-sparkle' },
+  // Badges
+  'badge-ai-storyteller': { category: 'badges', file: 'badge-ai-storyteller' },
+  'badge-creative-superstar': { category: 'badges', file: 'badge-creative-superstar' },
+  'badge-legendary-persistence': { category: 'badges', file: 'badge-legendary-persistence' },
+  'badge-lightning-starter': { category: 'badges', file: 'badge-lightning-starter' },
+  'badge-little-explorer': { category: 'badges', file: 'badge-little-explorer' },
+  'badge-master-experimenter': { category: 'badges', file: 'badge-master-experimenter' },
+  'badge-prompt-architect': { category: 'badges', file: 'badge-prompt-architect' },
+  'badge-young-legend': { category: 'badges', file: 'badge-young-legend' },
 }
 
 export function isLocalRewardAssetTestMode(): boolean {
@@ -136,19 +176,18 @@ export function isLocalRewardAssetTestMode(): boolean {
     && new URLSearchParams(window.location.search).get('asset-test') === 'antigravity'
 }
 
-function localTestRewardAssetUrl(
+export function localDesignerRewardAssetUrl(
   assetId: string,
-  variant: RewardAssetVariant,
+  variant: RewardAssetVariant = 'primary',
 ): string | undefined {
-  if (!isLocalRewardAssetTestMode()) return undefined
-  const runtime = window.__AIKIDS_RUNTIME_CONFIG__
-  const rewardBase = getRewardAssetLocationConfig().baseUrl?.replace(/\/+$/g, '')
-  const testPath = runtime?.rewardAssetTestPath
-    ?? '/test-imports/2026.07.31-antigravity'
-  const alias = antigravityTestAliases[assetId]
-  if (!rewardBase || !testPath || !alias) return undefined
+  const mapped = designerRewardFileMap[assetId]
+  if (!mapped) return undefined
+  const basePath = ['/assets', 'rewards', mapped.category].join('/')
+  if (variant === 'thumbnail') {
+    return `${basePath}/${mapped.file}--thumb.webp`
+  }
   const suffix = variant === 'plaque' ? '--plaque' : ''
-  return `${rewardBase}/${testPath.replace(/^\/+|\/+$/g, '')}/${alias}${suffix}.jpg`
+  return `${basePath}/${mapped.file}${suffix}.webp`
 }
 
 export function getGeneratedRewardAssetUrl(
@@ -163,8 +202,18 @@ export function getGeneratedRewardAssetUrl(
   if (localLevelFrame) return localLevelFrame
   const localCompanion = localTransparentCompanionAssets[assetId]
   if (localCompanion) return localCompanion
-  const testAsset = localTestRewardAssetUrl(assetId, variant)
-  if (testAsset) return testAsset
+
+  // Allow custom remote test CDN overrides when explicitly configured
+  const runtimeBaseUrl = typeof window !== 'undefined'
+    ? window.__AIKIDS_RUNTIME_CONFIG__?.rewardAssetBaseUrl
+    : undefined
+  const isCustomTestCdn = Boolean(runtimeBaseUrl && runtimeBaseUrl.includes('example.com'))
+
+  if (!isCustomTestCdn) {
+    const designerAsset = localDesignerRewardAssetUrl(assetId, variant)
+    if (designerAsset) return designerAsset
+  }
+
   const remoteUrl = resolveRemoteRewardAssetUrl(assetId, variant, {
     ...getRewardAssetLocationConfig(),
     ...location,

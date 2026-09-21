@@ -3,6 +3,10 @@ import {
   computeNextIslandLessonSlug,
   isValidSixStageJourney,
   resolveIslandSixStageJourney,
+  isAikiRuleJourney,
+  extractRuleNumber,
+  AIKI_MODULE_0_COURSE_ID,
+  resolveIslandLessonJourney,
 } from './island-journey-resolver'
 import type { QuestDetail } from '@/shared/lib/api'
 
@@ -220,6 +224,105 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage2_confirmGoal.options[1].imageUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.jpg')
       expect(resolved.stage6_completion.nextLessonSlug).toBe('rule-2')
       expect(resolved.stage6_completion.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+    })
+  })
+
+  describe('isAikiRuleJourney', () => {
+    it('identifies aiki rule IDs correctly', () => {
+      expect(isAikiRuleJourney('rule-1')).toBe(true)
+      expect(isAikiRuleJourney('rule-10')).toBe(true)
+      expect(isAikiRuleJourney('qt-5')).toBe(true)
+      expect(isAikiRuleJourney('qt1-nghi-y-tuong')).toBe(true)
+      expect(isAikiRuleJourney('aiki-rules')).toBe(true)
+      expect(isAikiRuleJourney(AIKI_MODULE_0_COURSE_ID)).toBe(true)
+      expect(isAikiRuleJourney('muoi-quy-tac-xuong-sang-tao')).toBe(true)
+      expect(isAikiRuleJourney('QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!')).toBe(true)
+      expect(isAikiRuleJourney('QT10 — Bài tập ở trường là của con, đừng bắt AIKI phải làm nhé!')).toBe(true)
+      expect(isAikiRuleJourney('bai-1-1')).toBe(false)
+      expect(isAikiRuleJourney(null)).toBe(false)
+    })
+
+    it('identifies aiki rule quests by courseId or title', () => {
+      expect(isAikiRuleJourney({ id: 'quest-123', courseId: 'aiki-rules' })).toBe(true)
+      expect(isAikiRuleJourney({ id: 'quest-123', courseId: AIKI_MODULE_0_COURSE_ID })).toBe(true)
+      expect(isAikiRuleJourney({ id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad', title: 'QT1 — Hãy nghĩ ý tưởng của con' })).toBe(true)
+      expect(isAikiRuleJourney({ id: 'quest-123', title: '10 Quy Tắc Vàng AIKI' })).toBe(true)
+      expect(isAikiRuleJourney({ id: 'quest-123', title: 'Mười quy tắc của Xưởng sáng tạo' })).toBe(true)
+      expect(isAikiRuleJourney({ id: 'bai-2-1', courseId: 'dao-2' })).toBe(false)
+    })
+  })
+
+  describe('extractRuleNumber', () => {
+    it('extracts rule numbers from string IDs, slugs, or titles', () => {
+      expect(extractRuleNumber('rule-1')).toBe(1)
+      expect(extractRuleNumber('rule-10')).toBe(10)
+      expect(extractRuleNumber('qt-7')).toBe(7)
+      expect(extractRuleNumber('qt5-chia-viec-ra')).toBe(5)
+      expect(extractRuleNumber('QT1 — Hãy nghĩ ý tưởng của con')).toBe(1)
+      expect(extractRuleNumber('QT10 — Bài tập ở trường là của con')).toBe(10)
+      expect(extractRuleNumber('Quy tắc 3: Sản phẩm có giá trị')).toBe(3)
+    })
+
+    it('extracts rule numbers from quest objects with UUID and QT title', () => {
+      expect(extractRuleNumber({
+        id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad',
+        title: 'QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
+      })).toBe(1)
+
+      expect(extractRuleNumber({
+        id: '7edb9bdb-e51a-4614-aa6d-9f60f79a9b2a',
+        title: 'QT10 — Bài tập ở trường là của con, đừng bắt AIKI phải làm nhé!',
+      })).toBe(10)
+    })
+  })
+
+  describe('resolveIslandLessonJourney', () => {
+    it('resolves exactly 3 universal stages for a rule journey', () => {
+      const stages = resolveIslandLessonJourney('rule-1')
+      expect(stages).toHaveLength(3)
+
+      const [videoStage, quizStage, rewardStage] = stages
+      expect(videoStage.type).toBe('VIDEO')
+      expect(videoStage.stepNumber).toBe(1)
+      expect(videoStage.config.slides).toHaveLength(5)
+      expect(videoStage.config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+
+      expect(quizStage.type).toBe('QUIZ')
+      expect(quizStage.stepNumber).toBe(2)
+      expect(quizStage.config.questions).toHaveLength(2)
+      expect(quizStage.config.questions[0].visualUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.jpg')
+
+      expect(rewardStage.type).toBe('REWARD')
+      expect(rewardStage.stepNumber).toBe(3)
+      expect(rewardStage.config.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(rewardStage.config.nextLessonId).toBe('rule-2')
+    })
+
+    it('resolves 3 stages for DB UUID lesson when title matches QT1', () => {
+      const stages = resolveIslandLessonJourney({
+        id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad',
+        courseId: AIKI_MODULE_0_COURSE_ID,
+        title: 'QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
+      } as any)
+
+      expect(stages).toHaveLength(3)
+      expect(stages[0].type).toBe('VIDEO')
+      expect(stages[1].type).toBe('QUIZ')
+      expect(stages[2].type).toBe('REWARD')
+      expect(stages[0].config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+    })
+
+    it('resolves 6 stages for standard island lessons', () => {
+      const stages = resolveIslandLessonJourney('bai-1-1', 'Đừng Để AIKI Đoán Mò')
+      expect(stages).toHaveLength(6)
+      expect(stages.map((s) => s.type)).toEqual([
+        'GOAL',
+        'CONFIRM',
+        'VIDEO',
+        'QUIZ',
+        'PRACTICE',
+        'REWARD',
+      ])
     })
   })
 })

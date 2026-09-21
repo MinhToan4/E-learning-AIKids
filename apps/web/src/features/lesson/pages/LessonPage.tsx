@@ -13,7 +13,13 @@ import {
 } from '@/features/lesson/components/AikiRuleVisuals'
 
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
-import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
+import {
+  resolveIslandSixStageJourney,
+  isAikiRuleJourney as checkIsAikiRule,
+  extractRuleNumber,
+  AIKI_MODULE_0_COURSE_ID,
+} from '@/features/lesson/lib/island-journey-resolver'
+import { adaptRuleToStages } from '@/features/lesson/lib/stage-adapter'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { getAikiStudioConfig } from '@/features/lesson/data/aiki-studio-configs'
 import type { AikiRule } from '@/features/rules/types'
@@ -52,7 +58,7 @@ import {
   type PromptSlotKey,
 } from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
-import { ApiError, api, type QuestDetail } from '@/shared/lib/api'
+import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
@@ -630,14 +636,13 @@ export function LessonPage() {
 
   const promptText = useMemo(() => assemblePrompt(parts), [parts])
   const isAikiRuleJourney = Boolean(
-    questId.startsWith('rule-') ||
-    questId === 'aiki-rules' ||
+    checkIsAikiRule(routeCourseId) ||
+    checkIsAikiRule(questId) ||
     (quest && (
-      quest.courseId === 'aiki-rules' ||
-      quest.courseId === 'muoi-quy-tac-xuong-sang-tao' ||
-      quest.id.startsWith('rule-') ||
-      quest.title.toLowerCase().includes('quy tắc vàng') ||
-      quest.title.toLowerCase().includes('mười quy tắc')
+      checkIsAikiRule(quest.courseId) ||
+      checkIsAikiRule(quest.id) ||
+      checkIsAikiRule((quest as { slug?: string }).slug) ||
+      checkIsAikiRule(quest.title)
     ))
   )
 
@@ -655,17 +660,14 @@ export function LessonPage() {
 
   const ruleId = useMemo(() => {
     if (!isAikiRuleJourney) return 0
-    const match = questId.match(/rule-?(\d+)/i) || questId.match(/qt-?(\d+)/i)
-    if (match) return parseInt(match[1], 10)
-    if (quest?.order && quest.order >= 1 && quest.order <= 10) return quest.order
-    if (quest?.title) {
-      const titleMatch = quest.title.match(/quy tắc\s*(\d+)/i) || quest.title.match(/qt\s*(\d+)/i)
-      if (titleMatch) return parseInt(titleMatch[1], 10)
-    }
-    return 1
-  }, [isAikiRuleJourney, questId, quest?.order, quest?.title])
+    return extractRuleNumber(
+      quest
+        ? { ...quest, courseId: routeCourseId || quest.courseId }
+        : questId
+    )
+  }, [isAikiRuleJourney, questId, quest, routeCourseId])
 
-  const effectiveCourseId = routeCourseId || quest?.courseId || (isAikiRuleJourney ? 'aiki-rules' : '') || 'aiki-rules'
+  const effectiveCourseId = routeCourseId || quest?.courseId || (isAikiRuleJourney ? AIKI_MODULE_0_COURSE_ID : '') || 'aiki-rules'
 
   // Load nextQuestId when reviewing completed station
   useEffect(() => {
@@ -1207,6 +1209,8 @@ export function LessonPage() {
       setCheckResult(res)
       setPhase('done')
       setGameHint(null)
+      clearApiCache()
+      window.dispatchEvent(new CustomEvent('aikids:xp-updated'))
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa gửi được')
@@ -1525,6 +1529,31 @@ export function LessonPage() {
 
   if (!quest) {
     return <p className="text-muted">Không tìm thấy trạm.</p>
+  }
+
+  // ── TEMPLATE 1: 10 Quy Tắc Vàng AIKI (Module 0 - 3 Chặng Chuẩn: VIDEO ➔ QUIZ ➔ REWARD) ──
+  if (isAikiRuleJourney && quest) {
+    const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
+    const ruleStages = adaptRuleToStages(matchedRule)
+
+    return (
+      <div className="h-full max-h-full min-h-0 flex-1 bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-hidden">
+        <SixStageJourneyView
+          stages={ruleStages}
+          lessonId={quest.id}
+          lessonTitle={quest.title}
+          studentStars={liveStars || 42}
+          rewardXp={50}
+          onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
+          onNavigateNextLesson={(nextSlug) => {
+            navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)
+          }}
+          onFinishLesson={(_res) => {
+            void handleAikiFinish()
+          }}
+        />
+      </div>
+    )
   }
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──

@@ -49,7 +49,7 @@ export function resolveCatalogRewardAsset(
   if (directUrl) {
     try {
       const parsed = new URL(directUrl)
-      if (parsed.origin === environment.storagePublicUrl) return parsed.toString()
+      if ((environment.storagePublicUrl && parsed.origin === environment.storagePublicUrl) || (parsed.hostname.endsWith('storymee.com') && parsed.hostname.startsWith('storage.'))) return parsed.toString()
     } catch {
       if (directUrl.startsWith('/assets/')) return directUrl
     }

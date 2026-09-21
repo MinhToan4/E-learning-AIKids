@@ -106,9 +106,7 @@ function studentFeatureTone(pathname: string): StudentFeatureTone {
 function aikidStudentBackground(pathname: string): CSSProperties {
   const image = pathname.startsWith('/creative')
     ? designerAssets.lobby.bgArt
-    : pathname.startsWith('/profile') || pathname.startsWith('/backpack')
-      ? designerAssets.lobby.bgCharacter
-      : designerAssets.lobby.bgHome
+    : designerAssets.lobby.bgHome
 
   return {
     backgroundColor: 'var(--student-page-bg)',
@@ -186,10 +184,11 @@ const studentPinnedNav: StudentNavItem[] = [
   { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
-  { to: '/asmo',         label: 'Olympic 3D',  icon: KidBadgeImageIcon,     tone: 'sky' },
-  { to: '/events',       label: 'Sự kiện',      icon: KidEventImageIcon,     tone: 'coral' },
+  // Tạm thời ẩn Olympic 3D, Sự kiện, Cộng đồng để phát triển trên localhost
+  // { to: '/asmo',         label: 'Olympic 3D',  icon: KidBadgeImageIcon,     tone: 'sky' },
+  // { to: '/events',       label: 'Sự kiện',      icon: KidEventImageIcon,     tone: 'coral' },
   { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
-  { to: '/community',    label: 'Cộng đồng',   icon: KidProfileImageIcon,   tone: 'mint' },
+  // { to: '/community',    label: 'Cộng đồng',   icon: KidProfileImageIcon,   tone: 'mint' },
   { to: '/achievements', label: 'Huy hiệu',    icon: KidBadgeImageIcon,     tone: 'sun' },
   { to: '/backpack',     label: 'Ba lô',       icon: KidBackpackImageIcon,  tone: 'sun' },
   { to: '/profile',      label: 'Hồ sơ',       icon: KidProfileImageIcon,   tone: 'brand' },
@@ -197,10 +196,7 @@ const studentDrawerNav: StudentNavItem[] = [
 // Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
 const studentNav: StudentNavItem[] = [
   ...studentPinnedNav,
-  ...studentDrawerNav.slice(0, 1),
-  ...studentDrawerNav.slice(2, 3),
-  ...studentDrawerNav.slice(1, 2),
-  ...studentDrawerNav.slice(3),
+  ...studentDrawerNav,
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -833,7 +829,7 @@ export function AppShell() {
           : "min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8"
       )}
       data-feature-tone={featureTone}
-      style={location.pathname.startsWith('/profile') && profileTheme
+      style={(location.pathname.startsWith('/profile') || location.pathname.startsWith('/backpack')) && profileTheme
         ? profilePageThemeStyle(profileTheme)
         : aikidStudentBackground(location.pathname)}
     >
@@ -855,7 +851,7 @@ export function AppShell() {
               onFocus={() => prefetchRoute(to)}
               className={({ isActive }) =>
                 cn(
-                  'student-nav-link w-[4.5rem]',
+                  'student-nav-link w-[5.25rem]',
                   isActive && 'student-nav-link-active',
                 )
               }

@@ -14,6 +14,8 @@ import {
   ISLAND_CURRICULUM_MAP,
 } from '../data/island-curriculum-registry'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { adaptRuleToStages, adaptSixStageJourneyToStages } from './stage-adapter'
+import type { JourneyStageDefinition } from '../types/stage-schema'
 
 /**
  * Tính toán slug bài học tiếp theo cho các Đảo M1-M5
@@ -58,6 +60,148 @@ export function isValidSixStageJourney(journey?: unknown): journey is LessonSixS
     j.stage5_practice &&
     j.stage6_completion
   )
+}
+
+export const AIKI_MODULE_0_COURSE_ID = '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'
+
+/**
+ * Trích xuất số quy tắc (1 -> 10) từ ID, slug hoặc tiêu đề của bài học / quest.
+ * Nếu không nhận diện được số quy tắc, mặc định trả về 1.
+ */
+export function extractRuleNumber(
+  lessonIdOrQuest?: string | { id?: string; courseId?: string; slug?: string; title?: string; order?: number } | LessonSixStageJourney | null
+): number {
+  if (!lessonIdOrQuest) return 1
+
+  if (typeof lessonIdOrQuest === 'string') {
+    const s = lessonIdOrQuest.trim()
+    // Match 'rule-1', 'rule1', 'qt-1', 'qt1', 'qt10'
+    const idMatch = s.match(/(?:rule|qt)[-_]?(\d+)/i)
+    if (idMatch) {
+      const num = parseInt(idMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+    // Match 'QT1 — ...' or 'QT 1' or 'Quy tắc 1'
+    const titleMatch = s.match(/(?:qt|quy\s*tắc|quy\s*tac)\s*[-_–—:]?\s*(\d+)/i)
+    if (titleMatch) {
+      const num = parseInt(titleMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+    return 1
+  }
+
+  const q = lessonIdOrQuest as Record<string, any>
+  if (typeof q.order === 'number' && q.order >= 1 && q.order <= 10) {
+    return q.order
+  }
+  if (q.slug) {
+    const slugMatch = String(q.slug).match(/(?:rule|qt)[-_]?(\d+)/i)
+    if (slugMatch) {
+      const num = parseInt(slugMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+  }
+  if (q.id) {
+    const idMatch = String(q.id).match(/(?:rule|qt)[-_]?(\d+)/i)
+    if (idMatch) {
+      const num = parseInt(idMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+  }
+  if (q.title) {
+    const titleMatch = String(q.title).match(/(?:qt|quy\s*tắc|quy\s*tac)\s*[-_–—:]?\s*(\d+)/i)
+    if (titleMatch) {
+      const num = parseInt(titleMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+  }
+  if (q.stage1_goal?.title) {
+    const titleMatch = String(q.stage1_goal.title).match(/(?:qt|quy\s*tắc|quy\s*tac)\s*[-_–—:]?\s*(\d+)/i)
+    if (titleMatch) {
+      const num = parseInt(titleMatch[1], 10)
+      if (num >= 1 && num <= 10) return num
+    }
+  }
+  if (q.stage6_completion?.nextLessonSlug) {
+    const nextMatch = String(q.stage6_completion.nextLessonSlug).match(/(?:rule|qt)[-_]?(\d+)/i)
+    if (nextMatch) {
+      const nextNum = parseInt(nextMatch[1], 10)
+      if (nextNum > 1 && nextNum <= 11) return nextNum - 1
+    }
+  }
+  return 1
+}
+
+/**
+ * Kiểm tra xem một bài học hoặc quest có thuộc 10 Quy Tắc Vàng AIKI hay không
+ */
+export function isAikiRuleJourney(
+  lessonIdOrQuest?: string | { id?: string; courseId?: string; slug?: string; title?: string } | LessonSixStageJourney | null
+): boolean {
+  if (!lessonIdOrQuest) return false
+  if (typeof lessonIdOrQuest === 'string') {
+    const s = lessonIdOrQuest.toLowerCase().trim()
+    return (
+      s === AIKI_MODULE_0_COURSE_ID ||
+      s === 'aiki-rules' ||
+      s === 'muoi-quy-tac-xuong-sang-tao' ||
+      /^rule[-_]?\d+/i.test(s) ||
+      /^qt\s*[-_–—]?\s*\d+/i.test(s) ||
+      s.includes('quy-tac') ||
+      s.includes('quy-tắc') ||
+      s.includes('quy tắc') ||
+      s.includes('quy tac')
+    )
+  }
+  const q = lessonIdOrQuest as Record<string, any>
+  return Boolean(
+    q.courseId === AIKI_MODULE_0_COURSE_ID ||
+    q.courseId === 'aiki-rules' ||
+    q.courseId === 'muoi-quy-tac-xuong-sang-tao' ||
+    (q.id && isAikiRuleJourney(q.id)) ||
+    (q.slug && isAikiRuleJourney(q.slug)) ||
+    (q.title && (
+      /^qt\s*[-_–—]?\s*\d+/i.test(String(q.title).trim()) ||
+      String(q.title).toLowerCase().includes('quy tắc') ||
+      String(q.title).toLowerCase().includes('quy tac') ||
+      String(q.title).toLowerCase().includes('mười quy tắc')
+    )) ||
+    (q.stage1_goal?.title && isAikiRuleJourney(q.stage1_goal.title)) ||
+    (q.stage6_completion?.nextLessonSlug && isAikiRuleJourney(q.stage6_completion.nextLessonSlug))
+  )
+}
+
+/**
+ * Universal Lesson Journey Resolver:
+ * - Nếu isAikiRuleJourney(lessonId): tạo đúng 3 chặng thông qua adaptRuleToStages(rule)
+ * - Nếu bài học Đảo AIKids: giải quyết thành 6 chặng hoàn chỉnh
+ */
+export function resolveIslandLessonJourney(
+  questOrLesson: QuestDetail | string,
+  extraTitle?: string
+): JourneyStageDefinition[] {
+  const lessonId = typeof questOrLesson === 'string' ? questOrLesson : questOrLesson.id
+  const lessonTitle = typeof questOrLesson === 'string' ? (extraTitle || questOrLesson) : questOrLesson.title
+
+  if (isAikiRuleJourney(questOrLesson) || (lessonTitle && isAikiRuleJourney(lessonTitle))) {
+    const ruleNum = extractRuleNumber(
+      typeof questOrLesson === 'string'
+        ? (lessonTitle || questOrLesson)
+        : { ...questOrLesson, title: questOrLesson.title || extraTitle }
+    )
+    const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum) || AIKI_RULES_DATA[0]
+    return adaptRuleToStages(matchedRule)
+  }
+
+  const questObj: QuestDetail = typeof questOrLesson === 'string'
+    ? ({ id: questOrLesson, title: lessonTitle || questOrLesson } as QuestDetail)
+    : questOrLesson
+
+  const sixStage = resolveIslandSixStageJourney(questObj)
+  return adaptSixStageJourneyToStages(sixStage, {
+    lessonId,
+    lessonTitle,
+  })
 }
 
 /**

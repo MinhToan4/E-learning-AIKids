@@ -1,4 +1,4 @@
-const titleModules = import.meta.glob<string>(
+const titleSvgModules = import.meta.glob<string>(
   [
     '../../assets/rewards/titles/storybook-title-*.svg',
     '../../assets/rewards/titles/title-*.svg',
@@ -6,12 +6,39 @@ const titleModules = import.meta.glob<string>(
   { eager: true, import: 'default', query: '?url' },
 )
 
-const titleAssets = new Map(
-  Object.entries(titleModules).map(([path, url]) => [
-    path.split('/').at(-1)?.replace(/\.svg$/, '') ?? '',
-    url,
-  ]),
+const titlePngModules = import.meta.glob<string>(
+  [
+    '../../assets/rewards/badges/badge-title-*.png',
+    '../../assets/rewards/titles/title-*.png',
+  ],
+  { eager: true, import: 'default', query: '?url' },
 )
+
+const titleAssets = new Map<string, string>()
+
+// 1. First register SVGs (legacy fallback / storybook plaques)
+for (const [path, url] of Object.entries(titleSvgModules)) {
+  const fileName = path.split('/').at(-1)?.replace(/\.svg$/, '') ?? ''
+  if (fileName) {
+    titleAssets.set(fileName, url)
+  }
+}
+
+// 2. Register designer PNG badges and titles, taking precedence over SVGs
+for (const [path, url] of Object.entries(titlePngModules)) {
+  const fileName = path.split('/').at(-1)?.replace(/\.png$/, '') ?? ''
+  if (!fileName) continue
+  titleAssets.set(fileName, url)
+
+  if (fileName.startsWith('badge-title-')) {
+    // e.g. badge-title-first-light -> title-first-light
+    const titleId = fileName.replace(/^badge-/, '')
+    titleAssets.set(titleId, url)
+  } else if (fileName.startsWith('title-')) {
+    // e.g. title-gate-keeper -> badge-title-gate-keeper
+    titleAssets.set(`badge-${fileName}`, url)
+  }
+}
 
 /** Resolve only the approved title plaques exported from the Figma Title frame. */
 export function rewardTitleAsset(rewardId?: string): string | undefined {

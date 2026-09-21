@@ -20,12 +20,32 @@ import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
 import { FlatClayIcon } from '@/features/asmo/components/AsmoFlatClayIcons'
 
-// WHY: Sếp yêu cầu tạm thời unlock toàn bộ các đảo M1..M5 để test nội dung.
-// Đổi thành false bất kỳ lúc nào để bật lại luật Gatekeeper Island.
-export const FORCE_UNLOCK_ALL_ISLANDS = true
+// WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
+export const FORCE_UNLOCK_ALL_ISLANDS = false
+
+export const AIKID_CANONICAL_SLUGS = [
+  'muoi-quy-tac-xuong-sang-tao',
+  'dao-1-nha-tham-hiem-ai',
+  'dao-2-hoa-si-ai',
+  'dao-3-biet-doi-nhan-vat-ai',
+  'dao-4-vuong-quoc-truyen-tranh-ai',
+  'dao-5-nha-phat-minh-tro-choi-ai',
+] as const
+
+export const ISLAND_ALIAS_MAP: Record<string, string> = {
+  'dao-1': 'muoi-quy-tac-xuong-sang-tao',
+  'dao-2': 'dao-1-nha-tham-hiem-ai',
+  'dao-3': 'dao-2-hoa-si-ai',
+  'dao-4': 'dao-3-biet-doi-nhan-vat-ai',
+  'dao-5': 'dao-4-vuong-quoc-truyen-tranh-ai',
+  'dao-6': 'dao-5-nha-phat-minh-tro-choi-ai',
+  'aiki-rules': 'muoi-quy-tac-xuong-sang-tao',
+  'muoi-quy-tac': 'muoi-quy-tac-xuong-sang-tao',
+}
 
 export type PathwayCourse = {
   id: string
+  slug?: string
   title: string
   shortTitle: string
   status: 'completed' | 'active' | 'available' | 'locked'
@@ -43,6 +63,42 @@ export type PathwayCourse = {
   programUnlockMode?: 'sequential' | 'parallel' | 'graph'
   isGatekeeper?: boolean
   lockMessage?: string
+}
+
+export function findCourseByIdentifier(
+  courses: PathwayCourse[],
+  identifier?: string,
+): PathwayCourse | undefined {
+  if (!identifier) return undefined
+  const idOrSlug = identifier.trim().toLowerCase()
+  const canonicalSlug = ISLAND_ALIAS_MAP[idOrSlug] || idOrSlug
+
+  // 1. Match exact id or slug
+  let found = courses.find(
+    (c) => c.id.toLowerCase() === idOrSlug || (c.slug && c.slug.toLowerCase() === idOrSlug),
+  )
+  if (found) return found
+
+  // 2. Match canonical slug
+  found = courses.find((c) => c.slug && c.slug.toLowerCase() === canonicalSlug)
+  if (found) return found
+
+  // 3. Match by Island number: dao-1 -> index 0, dao-2 -> index 1...
+  const daoMatch = idOrSlug.match(/^dao-(\d+)$/)
+  if (daoMatch) {
+    const islandIndex = parseInt(daoMatch[1], 10) - 1
+    const sorted = sortAikiCourses(courses)
+    if (islandIndex >= 0 && islandIndex < sorted.length) {
+      return sorted[islandIndex]
+    }
+  }
+
+  // 4. Fallback: match by title / sort order
+  if (canonicalSlug === 'muoi-quy-tac-xuong-sang-tao') {
+    return courses.find((c, i) => isAikiRuleCourse(c, i))
+  }
+
+  return undefined
 }
 
 type Pathway = {
@@ -92,9 +148,13 @@ function buildStationPath(total: number) {
 }
 
 function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; index: number; total: number; courseId?: string }) {
-  const locked = !FORCE_UNLOCK_ALL_ISLANDS && quest.status === 'locked'
+  const isDevUnlock =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock
+  const locked = !forceUnlock && quest.status === 'locked'
   const done = quest.status === 'completed'
-  const available = FORCE_UNLOCK_ALL_ISLANDS || quest.status === 'available' || quest.status === 'in_progress'
+  const available = forceUnlock || quest.status === 'available' || quest.status === 'in_progress'
 
   const nodeEl = (
     <div className="quest-node-compact-wrap">
@@ -117,7 +177,12 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
           </span>
         )}
       </div>
-      {!locked && (
+      {locked ? (
+        <div className="quest-node-caption text-slate-400">
+          <span>Trạm {quest.order}</span>
+          <strong className="text-slate-400 font-bold">Chưa mở khóa</strong>
+        </div>
+      ) : (
         <div className={cn('quest-node-caption', available && 'quest-node-caption-current')}>
           <span>Trạm {quest.order}</span>
           {done ? <StarDisplay count={quest.stars} /> : <strong>Đang học</strong>}
@@ -126,7 +191,8 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
     </div>
   )
 
-  const lessonUrl = courseId ? `/world/${courseId}/lesson/${quest.id}` : `/lesson/${quest.id}`
+  const lessonSlug = (quest as any).slug || quest.id
+  const lessonUrl = courseId ? `/world/${courseId}/lesson/${lessonSlug}` : `/lesson/${lessonSlug}`
 
   return (
     <li
@@ -137,7 +203,7 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
       }}
     >
       {locked ? (
-        <div className="cursor-not-allowed">{nodeEl}</div>
+        <div className="cursor-not-allowed select-none" title={`Trạm ${quest.order}: Chưa mở khóa`}>{nodeEl}</div>
       ) : (
         <Link to={lessonUrl} className="block">
           {nodeEl}
@@ -187,22 +253,6 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const [regionIndex, setRegionIndex] = useState(0)
 
   useEffect(() => {
-    if (courseId === 'aiki-rules') {
-      void (async () => {
-        try {
-          const journey = cachedPathway ?? (await learningApi.getPathway())
-          const rawCourses = journey.courses as PathwayCourse[]
-          const foundRuleCourse = rawCourses.find((c, i) => isAikiRuleCourse(c, i))
-          if (foundRuleCourse) {
-            navigate('/world/' + foundRuleCourse.id, { replace: true })
-            return
-          }
-        } catch {
-          // ignore
-        }
-      })()
-      return
-    }
     void (async () => {
       // Avoid resetting loading state or wiping out data if we already have pathway loaded
       if (!courseId) {
@@ -297,52 +347,76 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           return
         }
 
+        // Khi có courseId trong URL (slug như 'dao-1', 'dao-2', 'muoi-quy-tac-xuong-sang-tao', hoặc UUID)
+        const journey = await learningApi.getPathway()
+        const rawCourses = journey.courses as PathwayCourse[]
+        const processedCourses = applyGatekeeperRules(rawCourses)
+        const finalPathway = { ...journey, courses: processedCourses }
+        cachedPathway = finalPathway
+
+        const pathRow =
+          findCourseByIdentifier(processedCourses, courseId) ||
+          processedCourses.find((row) => row.id === courseId)
+        const actualCourseId = pathRow?.id || courseId
+
         const now = Date.now()
-        const cachedProgress = courseProgressCache.get(courseId)
+        const cachedProgress = courseProgressCache.get(actualCourseId)
         const cachedProgressValid = cachedProgress && now < cachedProgress.expiresAt
 
-        const [journey, courseResp, progressData] = await Promise.all([
-          learningApi.getPathway(),
-          learningApi.getCourse<{ course: { title: string } }>(courseId),
+        const [courseResp, progressData] = await Promise.all([
+          learningApi.getCourse<{ course: { title: string } }>(actualCourseId),
           cachedProgressValid
             ? Promise.resolve({
                 quests: cachedProgress.progress.stations,
                 completedCount: cachedProgress.progress.completedCount,
                 totalStars: cachedProgress.progress.totalStars,
               })
-            : learningApi.getCourseProgress(courseId).then((prog) => {
-                courseProgressCache.set(courseId, {
-                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
-                  progress: {
-                    questCount: prog.quests.length,
-                    completedCount: prog.completedCount,
-                    totalStars: prog.totalStars,
-                    stations: prog.quests,
-                  },
+            : learningApi
+                .getCourseProgress(actualCourseId)
+                .then((prog) => {
+                  courseProgressCache.set(actualCourseId, {
+                    expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
+                    progress: {
+                      questCount: prog.quests.length,
+                      completedCount: prog.completedCount,
+                      totalStars: prog.totalStars,
+                      stations: prog.quests,
+                    },
+                  })
+                  return prog
                 })
-                return prog
-              }).catch(() => null),
+                .catch(() => null),
         ])
-        const processedCourses = applyGatekeeperRules(journey.courses)
-        const finalPathway = { ...journey, courses: processedCourses }
-        cachedPathway = finalPathway
-        const courseTitle = formatCourseTitle(courseResp.course.title)
-        const pathRow = processedCourses.find((row) => row.id === courseId)
-        const targetOrder = getAikiCourseSortOrder(pathRow || { id: courseId, title: courseTitle })
-        setRegionIndex(targetOrder < WORLD_REGIONS.length ? targetOrder : Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
 
-        if (!pathRow || (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'locked')) {
+        const courseTitle = formatCourseTitle(courseResp.course.title)
+        const targetOrder = getAikiCourseSortOrder(pathRow || { id: actualCourseId, title: courseTitle })
+        setRegionIndex(
+          targetOrder < WORLD_REGIONS.length
+            ? targetOrder
+            : Math.max(0, processedCourses.findIndex((row) => row.id === actualCourseId)),
+        )
+
+        const isDevUnlock =
+          typeof window !== 'undefined' &&
+          new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+        const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock
+
+        if (!pathRow || (!forceUnlock && pathRow.status === 'locked')) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
         }
         setPathway(finalPathway)
         setCourseTitle(courseTitle)
 
         if (progressData && progressData.quests && progressData.quests.length > 0) {
+          const sequentialQuests = applySequentialQuestRules(progressData.quests)
           const nextMeta = { totalStars: progressData.totalStars, completedCount: progressData.completedCount }
-          setQuests(progressData.quests)
+          setQuests(sequentialQuests)
           setMeta(nextMeta)
-          cachedIslandQuests.set(courseId, { quests: progressData.quests, meta: nextMeta })
-        } else if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
+          cachedIslandQuests.set(courseId, { quests: sequentialQuests, meta: nextMeta })
+          if (actualCourseId !== courseId) {
+            cachedIslandQuests.set(actualCourseId, { quests: sequentialQuests, meta: nextMeta })
+          }
+        } else if (!forceUnlock && pathRow.status === 'available') {
           setEnrollmentRequired(true)
         }
       } catch (e) {
@@ -392,7 +466,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
 
   if (courseId && error) {
     const ruleCourse = pathway?.courses.find((c, i) => isAikiRuleCourse(c, i))
-    const ruleCourseHref = `/world/${ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
+    const ruleCourseHref = `/world/${ruleCourse?.slug || 'dao-1'}`
     return (
       <div className="flex flex-col items-center justify-center py-10 px-4 page-enter">
         <div className="ui-card mx-auto w-full max-w-xl p-8 text-center border-2 border-amber-200 bg-white/95 shadow-clay rounded-3xl">
@@ -460,7 +534,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
                   <h2 className="font-display text-xl text-text">{next.title}</h2>
                   <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
                 </div>
-                <Link to={`/world/${courseId}/lesson/${next.id}`} className="course-map-primary-action animate-pop">
+                <Link to={`/world/${courseId}/lesson/${(next as any).slug || next.id}`} className="course-map-primary-action animate-pop">
                   {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
                 </Link>
               </aside>
@@ -581,6 +655,63 @@ export function isCourseRuleCompleted(course: PathwayCourse): boolean {
   return false
 }
 
+export function applySequentialQuestRules<
+  T extends {
+    status: 'completed' | 'in_progress' | 'available' | 'locked' | string
+    [key: string]: any
+  },
+>(
+  quests: T[],
+  forceUnlockOverride?: boolean,
+): T[] {
+  if (!Array.isArray(quests) || quests.length === 0) return []
+
+  const isDevUnlock =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const forceUnlock = forceUnlockOverride ?? (FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock)
+
+  if (forceUnlock) {
+    return quests.map((q) => ({
+      ...q,
+      status: (q.status === 'locked' ? 'available' : q.status) as T['status'],
+    }))
+  }
+
+  const result: T[] = []
+  for (let idx = 0; idx < quests.length; idx++) {
+    const quest = quests[idx]
+    if (idx === 0) {
+      // Trạm đầu tiên (index 0): Luôn mở (available hoặc in_progress, hoặc completed nếu đã làm xong)
+      const status = (quest.status === 'locked' ? 'available' : quest.status) as T['status']
+      result.push({
+        ...quest,
+        status,
+      })
+    } else {
+      // Trạm i (i > 0): Nếu Trạm i-1 chưa completed, gán status: 'locked' as const.
+      // Trạm i chỉ mở khi Trạm i-1 đã completed.
+      const prevQuest = result[idx - 1]
+      const isPrevCompleted = prevQuest.status === 'completed'
+
+      if (isPrevCompleted) {
+        const status = (quest.status === 'locked' ? 'available' : quest.status) as T['status']
+        result.push({
+          ...quest,
+          status,
+        })
+      } else {
+        result.push({
+          ...quest,
+          status: 'locked' as T['status'],
+        })
+      }
+    }
+  }
+
+  return result
+}
+
 export function applyGatekeeperRules(
   courses: PathwayCourse[],
   forceUnlockOverride?: boolean,
@@ -588,47 +719,72 @@ export function applyGatekeeperRules(
   if (courses.length === 0) return []
 
   const sortedCourses = sortAikiCourses(courses)
-  const forceUnlock = forceUnlockOverride ?? FORCE_UNLOCK_ALL_ISLANDS
-  const ruleCourseIndex = sortedCourses.findIndex((c, i) => isAikiRuleCourse(c, i))
-  if (ruleCourseIndex < 0) {
-    return sortedCourses
-  }
-  const targetRuleIndex = ruleCourseIndex
-  const ruleCourse = sortedCourses[targetRuleIndex]
+  const isDevUnlock =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const forceUnlock = forceUnlockOverride ?? (FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock)
 
-  const isRuleDone = ruleCourse ? isCourseRuleCompleted(ruleCourse) : false
+  const result: PathwayCourse[] = []
+  for (let idx = 0; idx < sortedCourses.length; idx++) {
+    const course = sortedCourses[idx]
+    const defaultSlug = idx < AIKID_CANONICAL_SLUGS.length ? AIKID_CANONICAL_SLUGS[idx] : undefined
+    const slug = course.slug || defaultSlug
+    const stations = course.stations ? applySequentialQuestRules(course.stations, forceUnlock) : undefined
 
-  return sortedCourses.map((course, idx) => {
-    const isThisRuleCourse = idx === targetRuleIndex
-    if (isThisRuleCourse) {
-      // Đảo Quy Tắc LUÔN LUÔN mở sẵn cho học sinh mới vào, không bao giờ bị khóa
+    if (idx === 0) {
+      // Đảo 1 (dao-1): Luôn mở (available / in_progress / active / completed)
       const status = course.status === 'locked' ? 'available' : course.status
-      return {
+      result.push({
         ...course,
+        slug,
         status,
+        stations,
         isGatekeeper: true,
-      }
+      })
+      continue
     }
 
-    if (forceUnlock || isRuleDone) {
-      // Đảo Quy Tắc ĐÃ HOÀN THÀNH HOẶC FORCE_UNLOCK: Mở khóa toàn bộ các khóa học
+    if (forceUnlock) {
       const status = course.status === 'locked' ? 'available' : course.status
-      return {
+      result.push({
         ...course,
+        slug,
         status,
+        stations,
         reasonCode: 'requirements_met',
         lockMessage: undefined,
-      }
-    } else {
-      // Đảo Quy Tắc CHƯA HOÀN THÀNH: Tất cả các đảo khác bị KHÓA
-      return {
-        ...course,
-        status: 'locked' as const,
-        reasonCode: 'gatekeeper_rule_incomplete',
-        lockMessage: 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!',
-      }
+      })
+      continue
     }
-  })
+
+    // Đảo N (N > 1): Chỉ mở khi Đảo N-1 có trạng thái completed
+    const prevCourse = result[idx - 1]
+    const isPrevDone = isCourseRuleCompleted(prevCourse)
+
+    if (isPrevDone) {
+      const status = course.status === 'locked' ? 'available' : course.status
+      result.push({
+        ...course,
+        slug,
+        status,
+        stations,
+        reasonCode: 'requirements_met',
+        lockMessage: undefined,
+      })
+    } else {
+      const prevTitle = formatCourseTitle(prevCourse.title) || 'đảo trước'
+      result.push({
+        ...course,
+        slug,
+        status: 'locked' as const,
+        stations,
+        reasonCode: 'previous_island_incomplete',
+        lockMessage: `Bé hãy hoàn thành ${prevTitle} trước để mở khóa hòn đảo tiếp theo nhé!`,
+      })
+    }
+  }
+
+  return result
 }
 
 export function isPathwayCourseVisible(course: PathwayCourse): boolean {
@@ -856,7 +1012,11 @@ function RoadmapCourseNode({
   const region = getRegionForCourse(course, index);
   const isCompleted = course.status === 'completed';
   const isActive = course.status === 'active';
-  const isLocked = !FORCE_UNLOCK_ALL_ISLANDS && course.status === 'locked';
+  const isDevUnlock =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('unlock_all') === 'true';
+  const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock;
+  const isLocked = !forceUnlock && course.status === 'locked';
   const stationCount = Math.max(0, Math.round(course.questCount ?? (course.stations?.length ?? 0)));
   const completedStations = Math.min(
     stationCount,
@@ -948,9 +1108,9 @@ function RoadmapCourseNode({
               const stationLabel = `Trạm ${stationNumber}: ${station?.title ?? ''}${isDone ? ', đã xong' : isCurrent ? ', tiếp theo' : ', chưa mở'}`;
               return (
                 <li key={station?.id ?? stationNumber}>
-                  {station && !isLocked && (FORCE_UNLOCK_ALL_ISLANDS || station.status !== 'locked') ? (
+                  {station && !isLocked && (forceUnlock || station.status !== 'locked') ? (
                     <Link
-                      to={`/world/${course.id}/lesson/${station.id}`}
+                      to={`/world/${course.slug || course.id}/lesson/${(station as any)?.slug || station.id}`}
                       className={dotClassName}
                       aria-label={stationLabel}
                       title={station.title}
@@ -1021,21 +1181,21 @@ function RoadmapCourseNode({
         <div className="flex flex-wrap items-center gap-2">
           {nextStation ? (
             <Link
-              to={`/world/${course.id}/lesson/${nextStation.id}`}
+              to={`/world/${course.slug || course.id}/lesson/${(nextStation as any)?.slug || nextStation.id}`}
               className="world-course-primary-action"
             >
               Học tiếp
             </Link>
           ) : (
             <Link
-              to={`/world/${course.id}`}
+              to={`/world/${course.slug || course.id}`}
               className="world-course-primary-action"
             >
               Bắt đầu học
             </Link>
           )}
           <Link
-            to={`/world/${course.id}`}
+            to={`/world/${course.slug || course.id}`}
             className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white"
           >
             {isCompleted ? 'Học lại' : 'Xem toàn bộ trạm'}
@@ -1201,7 +1361,7 @@ function PathwayOverview({
     },
   ]
   const ruleCourse = pathway.courses.find((c, i) => isAikiRuleCourse(c, i))
-  const ruleCourseHref = `/world/${ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
+  const ruleCourseHref = `/world/${ruleCourse?.slug || 'dao-1'}`
 
   const selectedCategory = categories.find((category) => category.id === selectedSource)
   const selectedCourses = sortAikiCourses(
@@ -1217,10 +1377,11 @@ function PathwayOverview({
     (station) => station.status === 'in_progress' || station.status === 'available',
   )
   const courseHref = (course: PathwayCourse) => {
-    if (isAikiRuleCourse(course)) return `/world/${course.id || ruleCourse?.id || '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b'}`
+    const slug = course.slug || course.id
+    if (isAikiRuleCourse(course)) return `/world/${course.slug || 'dao-1'}`
     return course.status === 'active' || course.status === 'completed'
-      ? `/world/${course.id}`
-      : `/course/${course.id}`
+      ? `/world/${slug}`
+      : `/course/${slug}`
   }
 
   const completedCount = selectedCourses.filter((c) => c.status === 'completed').length
@@ -1383,7 +1544,7 @@ function PathwayOverview({
                   🔒 Xem điều kiện mở
                 </Button>
               ) : (
-                <Link to={nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended)}>
+                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${(nextStation as any).slug || nextStation.id}` : courseHref(sourceRecommended)}>
                   <Button>
                     {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                   </Button>
@@ -1415,12 +1576,14 @@ function PathwayOverview({
               completedCount={completedCount}
               totalCourses={selectedCourses.length || 6}
               totalStars={totalStars}
+              courses={selectedCourses}
             />
-            <WorldProgramIslandCard type="asmo" />
+            {/* Tạm thời ẩn Olympic 3D (ASMO Lab) để phát triển trên localhost */}
+            {/* <WorldProgramIslandCard type="asmo" /> */}
           </div>
 
-          {/* 3. Nút nhỏ cuối trang */}
-          <div className="pt-4 text-center">
+          {/* 3. Nút nhỏ cuối trang: tạm thời ẩn để chỉ để lại chương trình học chính thức */}
+          {/* <div className="pt-4 text-center">
             <button
               type="button"
               onClick={() => navigate('/world/spaces')}
@@ -1429,7 +1592,7 @@ function PathwayOverview({
               <span>Xem các không gian khác (Trường học, Khóa học tự do)</span>
               <span>→</span>
             </button>
-          </div>
+          </div> */}
         </section>
 
         {/* Soft Clay Modal khi bấm vào đảo đang bị khóa */}
@@ -1595,9 +1758,9 @@ function PathwayOverview({
               <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
                 🔒 Xem điều kiện mở
               </Button>
-            ) : (
-              <Link to={nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended)}>
-                <Button>
+              ) : (
+                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${(nextStation as any).slug || nextStation.id}` : courseHref(sourceRecommended)}>
+                  <Button>
                   {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                 </Button>
               </Link>

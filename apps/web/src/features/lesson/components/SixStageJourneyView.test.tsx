@@ -10,6 +10,36 @@ const createRoot: typeof originalCreateRoot = (container, options) => {
   activeRoots.push(root)
   return root
 }
+
+let mockStorage: Record<string, string> = {}
+const mockLocalStorage = {
+  getItem: (key: string) => mockStorage[key] ?? null,
+  setItem: (key: string, val: string) => {
+    mockStorage[key] = String(val)
+  },
+  removeItem: (key: string) => {
+    delete mockStorage[key]
+  },
+  clear: () => {
+    mockStorage = {}
+  },
+  get length() {
+    return Object.keys(mockStorage).length
+  },
+  key: (i: number) => Object.keys(mockStorage)[i] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+  configurable: true,
+})
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: mockLocalStorage,
+    writable: true,
+    configurable: true,
+  })
+}
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { SixStageJourneyView } from './SixStageJourneyView'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
@@ -106,11 +136,13 @@ describe('SixStageJourneyView', () => {
   let container: HTMLDivElement
 
   beforeEach(() => {
+    mockStorage = {}
     container = document.createElement('div')
     document.body.appendChild(container)
   })
 
   afterEach(() => {
+    mockStorage = {}
     act(() => {
       while (activeRoots.length > 0) {
         try {
@@ -821,10 +853,10 @@ describe('SixStageJourneyView', () => {
     const twoColContainer = container.querySelector('.flex.flex-col.md\\:flex-row')
     expect(twoColContainer).not.toBeNull()
 
-    // Sidebar uses md:w-[300px]
+    // Sidebar uses md:w-[320px] lg:w-[340px]
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.className).toContain('md:w-[300px]')
-    expect(sidebar?.className).toContain('lg:w-[360px]')
+    expect(sidebar?.className).toContain('md:w-[320px]')
+    expect(sidebar?.className).toContain('lg:w-[340px]')
   })
 
   it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AIKI golden motto', async () => {
@@ -1964,8 +1996,8 @@ describe('SixStageJourneyView', () => {
     })
   })
 
-  it('hides image column and expands question box to md:col-span-12 when quiz has no image or image fails to load', () => {
-    const journeyWithQuizImages: LessonSixStageJourney = {
+  it('falls back to lesson poster image instead of hiding image column when quiz image fails or is missing', () => {
+    const journeyWithQuizImages: any = {
       ...mockJourney,
       stage4_quiz: {
         id: 'quiz-visual-test',
@@ -2007,28 +2039,30 @@ describe('SixStageJourneyView', () => {
     const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
     expect(quizSection).not.toBeNull()
 
-    // 1. Question 1 has valid visualUrl -> image column (md:col-span-5) is visible, question box has md:col-span-7
+    // 1. Question 1 has valid visualUrl -> image column (xl:col-span-5) is visible, question box has xl:col-span-7
     const imgEl = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_cat.jpg"]')
     expect(imgEl).not.toBeNull()
-    const imgCol = imgEl?.closest('.md\\:col-span-5')
+    const imgCol = imgEl?.closest('.xl\\:col-span-5')
     expect(imgCol).not.toBeNull()
 
-    // Question box should have md:col-span-7
+    // Question box should have xl:col-span-7
     const q1Box = imgCol?.nextElementSibling
-    expect(q1Box?.className).toContain('md:col-span-7')
-    expect(q1Box?.className).not.toContain('md:col-span-12')
+    expect(q1Box?.className).toContain('xl:col-span-7')
+    expect(q1Box?.className).not.toContain('xl:col-span-12')
 
-    // 2. Trigger onError on image -> image column should disappear and question box should expand to md:col-span-12
+    // 2. Trigger onError on image -> image should fallback to lesson poster instead of hiding column
     act(() => {
       imgEl?.dispatchEvent(new Event('error'))
     })
 
-    const imgAfterError = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_cat.jpg"]')
-    expect(imgAfterError).toBeNull()
+    const imgAfterError = quizSection?.querySelector('img')
+    expect(imgAfterError).not.toBeNull()
+    expect(imgAfterError?.src).toContain('/assets/aiki-islands/island1_lesson1_cat.jpg')
 
-    // Question box expands to md:col-span-12
-    const questionBoxes = quizSection?.querySelectorAll('.md\\:col-span-12')
-    expect(questionBoxes?.length).toBeGreaterThanOrEqual(1)
+    const imgColAfter = imgAfterError?.closest('.xl\\:col-span-5')
+    expect(imgColAfter).not.toBeNull()
+    const q1BoxAfter = imgColAfter?.nextElementSibling
+    expect(q1BoxAfter?.className).toContain('xl:col-span-7')
   })
 
   it('handles mobile drawer sidebar and backdrop close on mobile viewports without toggle buttons', () => {
@@ -2098,6 +2132,333 @@ describe('SixStageJourneyView', () => {
       expect((img as HTMLImageElement).getAttribute('loading')).toBe('lazy')
       expect((img as HTMLImageElement).getAttribute('decoding')).toBe('async')
     })
+    act(() => root.unmount())
+  })
+
+  it('renders AikidCatCharacter mascot in sidebar with dynamic pose and lip-sync', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialStageIndex={0}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const mascot = container.querySelector('[data-testid="aikid-cat-character"]')
+    expect(mascot).not.toBeNull()
+    expect(mascot?.getAttribute('data-pose')).toBe('welcome')
+    act(() => root.unmount())
+  })
+
+  it('renders Universal 3-Stage Rule Journey with Slide Cinema 16:9 for rule-1', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: Nghĩ ý tưởng trước"
+          initialStageIndex={0}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // 1. Should have 3 stages in progress indicator
+    expect(container.textContent).toContain('Chặng 1/3')
+
+    // 2. Stage 1 is Video Stage with Slide Cinema 16:9
+    const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
+    expect(speechBubble).not.toBeNull()
+    expect(speechBubble?.textContent).toContain('Mèo AIKI')
+
+    // 3. Auto-play button and 5 chapter nodes
+    const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
+    expect(autoPlayBtn).not.toBeNull()
+
+    const node5 = container.querySelector('[data-testid="video-chapter-node-5"]')
+    expect(node5).not.toBeNull()
+
+    act(() => root.unmount())
+  })
+
+  it('renders Universal 3-Stage Rule Journey when lessonId is DB UUID and lessonTitle is QT1', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="0da9d441-43a0-4d00-84d7-e8f8958e2aad"
+          lessonTitle="QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!"
+          initialStageIndex={0}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // 1. Should resolve to 3 stages
+    expect(container.textContent).toContain('Chặng 1/3')
+
+    // 2. Station label and header should be recognized as Rule 1
+    expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
+
+    // 3. Stage 1 is Video Stage with Slide Cinema 16:9
+    const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
+    expect(speechBubble).not.toBeNull()
+    expect(speechBubble?.textContent).toContain('Mèo AIKI')
+
+    // 4. Auto-play button and 5 chapter nodes
+    const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
+    expect(autoPlayBtn).not.toBeNull()
+
+    const node5 = container.querySelector('[data-testid="video-chapter-node-5"]')
+    expect(node5).not.toBeNull()
+
+    act(() => root.unmount())
+  })
+
+  it('verifies Smart Collapsible Sidebar: auto-collapses under 1280px, toggles with Aiki Assistant button, and closes via close button', () => {
+    const originalInnerWidth = window.innerWidth
+    try {
+      // 1. Under 1280px (e.g. 1024px laptop with left menu): sidebar defaults to collapsed
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 })
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney}
+            lessonId="bai-1-1"
+            lessonTitle="Đừng Để AIKI Đoán Mò"
+          />
+        )
+      })
+
+      // Sidebar should be collapsed by default to maximize learning canvas
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // Toggle button exists next to station badge
+      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('Trợ lý AIKI')
+      )
+      expect(toggleBtn).toBeDefined()
+      expect(toggleBtn?.textContent).toContain('▼') // indicates collapsed
+
+      // 2. Click toggle button -> sidebar expands
+      act(() => {
+        toggleBtn?.click()
+      })
+
+      const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+      expect(sidebar).not.toBeNull()
+      expect(toggleBtn?.textContent).toContain('▲') // indicates open
+
+      // 3. Click "✕ Đóng" button inside sidebar -> collapses
+      const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
+        b.textContent?.includes('✕ Đóng')
+      )
+      expect(closeBtn).toBeDefined()
+
+      act(() => {
+        closeBtn?.click()
+      })
+
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      act(() => root.unmount())
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
+    }
+  })
+
+  it('auto-collapses sidebar on mobile (< 1024px) during stage transitions and window resize', () => {
+    const originalInnerWidth = window.innerWidth
+    try {
+      // 1. Mobile viewport (390px): defaults to collapsed
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney}
+            lessonId="bai-1-1"
+            lessonTitle="Đừng Để AIKI Đoán Mò"
+          />
+        )
+      })
+
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // 2. User manually opens drawer
+      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('Trợ lý AIKI')
+      )
+      expect(toggleBtn).toBeDefined()
+      act(() => {
+        toggleBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+
+      // 3. Advancing stage automatically closes drawer on mobile
+      const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('Đã hiểu mục tiêu')
+      )
+      expect(nextBtn).toBeDefined()
+      act(() => {
+        nextBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // 4. Test resize event: expand window to desktop, open sidebar, resize to mobile -> auto-collapses
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1440 })
+      act(() => {
+        toggleBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+
+      // Shrink to mobile (< 1024px)
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 768 })
+      act(() => {
+        window.dispatchEvent(new Event('resize'))
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      act(() => root.unmount())
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
+    }
+  })
+
+  it('auto-collapses sidebar on mobile (< 1024px) when answering quiz or switching questions', () => {
+    const originalInnerWidth = window.innerWidth
+    try {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney}
+            lessonId="bai-1-1"
+            lessonTitle="Đừng Để AIKI Đoán Mò"
+            initialStageIndex={3} // Quiz stage
+          />
+        )
+      })
+
+      // Starts collapsed
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // Open drawer manually
+      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('Trợ lý AIKI')
+      )
+      act(() => {
+        toggleBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+
+      // Selecting an answer option collapses drawer immediately on mobile
+      const firstOption = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('AIKI sẽ đoán mò')
+      )
+      expect(firstOption).toBeDefined()
+      act(() => {
+        firstOption?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // Re-open drawer
+      act(() => {
+        toggleBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+
+      // Clicking "Câu tiếp theo" closes drawer immediately on mobile
+      const nextQBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('Câu tiếp theo')
+      )
+      expect(nextQBtn).toBeDefined()
+      act(() => {
+        nextQBtn?.click()
+      })
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      act(() => root.unmount())
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
+    }
+  })
+
+  it('restores current stage from localStorage when returning to lesson', () => {
+    const testLessonId = 'bai-1-1'
+    mockLocalStorage.setItem(`aikids_lesson_stage_${testLessonId}`, '2') // Chặng 2: Video
+    mockLocalStorage.setItem(`aikids_lesson_completed_stages_${testLessonId}`, JSON.stringify([0, 1]))
+
+    try {
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney as any}
+            lessonId={testLessonId}
+            lessonTitle="Test Restore"
+          />
+        )
+      })
+
+      // Đã khôi phục ngay tại Chặng 3 (Index 2: Video bài giảng)
+      expect(container.textContent).toContain('Chặng 3/6')
+      expect(container.textContent).toContain('Video')
+      act(() => root.unmount())
+    } finally {
+      mockLocalStorage.removeItem(`aikids_lesson_stage_${testLessonId}`)
+      mockLocalStorage.removeItem(`aikids_lesson_completed_stages_${testLessonId}`)
+    }
+  })
+
+  it('supports retrying a quiz question after wrong answer to reset and choose again', () => {
+    const testLessonId = 'bai-retry-test'
+    const root = createRoot(container)
+
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney as any}
+          lessonId={testLessonId}
+          lessonTitle="Quiz Retry Test"
+          initialStageIndex={3} // Chặng 3: Quiz
+        />
+      )
+    })
+
+    const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+
+    // Chọn một đáp án sai ('AIKI sẽ từ chối vẽ')
+    const wrongOpt = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('AIKI sẽ từ chối vẽ')
+    )
+    expect(wrongOpt).toBeDefined()
+    act(() => {
+      wrongOpt?.click()
+    })
+
+    // Xuất hiện nhãn chưa chính xác và nút Thử lại câu này
+    expect(quizSection?.textContent).toContain('✕ Chưa chính xác')
+    const retryBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Thử lại câu này')
+    )
+    expect(retryBtn).toBeDefined()
+
+    // Bấm Thử lại câu này
+    act(() => {
+      retryBtn?.click()
+    })
+
+    // Trạng thái trở về chưa chọn/chưa kiểm tra
+    expect(quizSection?.textContent).not.toContain('✕ Chưa chính xác')
     act(() => root.unmount())
   })
 })

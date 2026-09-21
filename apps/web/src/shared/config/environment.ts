@@ -30,10 +30,11 @@ function isLocalBrowser(): boolean {
   return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
 }
 
-const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
 const runtimeConfig = typeof window === 'undefined'
   ? undefined
   : window.__AIKIDS_RUNTIME_CONFIG__
+const configuredApiUrl = runtimeConfig?.apiBaseUrl?.trim()
+  || import.meta.env.VITE_API_URL?.trim()
 const configuredStorageUrl = runtimeConfig?.storagePublicUrl?.trim()
   || import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim()
 // A production bundle served locally must stay inside the local gateway even if

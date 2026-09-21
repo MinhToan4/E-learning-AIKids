@@ -5,11 +5,9 @@ describe('rewardTitleAsset', () => {
   it('maps catalog titles to the approved Figma plaques', () => {
     expect(rewardTitleAsset('storybook-title-p01')).toContain('storybook-title-p01')
     expect(rewardTitleAsset('storybook-title-p08')).toContain('storybook-title-p08')
-    expect(rewardTitleAsset('title-curious-seeker')).toContain('title-curious-seeker')
+    expect(rewardTitleAsset('title-curious-seeker')).toContain('curious-seeker')
     expect(rewardTitleAsset('title-creative-warrior')).toContain('title-creative-warrior')
-    // First Light currently has a crest icon, not a full-width title plaque.
-    // It must use the text badge renderer so the title name stays visible.
-    expect(rewardTitleAsset('title-first-light')).toBeUndefined()
+    expect(rewardTitleAsset('title-first-light')).toContain('badge-title-first-light')
   })
 
   it('fails closed for unknown title ids', () => {

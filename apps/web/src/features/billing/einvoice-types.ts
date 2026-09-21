@@ -248,19 +248,26 @@ export const INITIAL_E_INVOICES: EInvoice[] = [
 ]
 
 export function getStoredInvoices(): EInvoice[] {
-  if (memoryInvoices && memoryInvoices.length > 0) return memoryInvoices
+  const mockupIds = ['inv_0001001', 'inv_0001002', 'inv_0001003', 'inv_0001004', 'inv_0001005']
+  if (memoryInvoices && memoryInvoices.length > 0) {
+    const clean = memoryInvoices.filter((inv) => !mockupIds.includes(inv.id))
+    if (clean.length > 0) return clean
+  }
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const raw = localStorage.getItem(INVOICES_STORAGE_KEY)
       if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        let parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          parsed = parsed.filter((inv: EInvoice) => !mockupIds.includes(inv.id))
+          if (parsed.length > 0) return parsed
+        }
       }
     }
   } catch {
     /* ignore */
   }
-  return INITIAL_E_INVOICES
+  return []
 }
 
 export function saveInvoices(invoices: EInvoice[]): void {

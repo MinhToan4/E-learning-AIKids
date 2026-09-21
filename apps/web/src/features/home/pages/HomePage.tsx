@@ -19,6 +19,7 @@ import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { recentUnlockedAchievements } from '@/features/achievements/achievement-inventory'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
+import { nextExplorerLevel, explorerLevelProgress } from '@/shared/lib/creation/xp-levels'
 import {
   profileCardBackgroundStyle,
   readRewardEquipment,
@@ -123,25 +124,26 @@ function XpWidget({
 }: {
   xp: number
   level: number
-  xpIntoLevel: number
-  xpToNextLevel: number
+  xpIntoLevel?: number
+  xpToNextLevel?: number
 }) {
-  const levelSpan = Math.max(1, xpIntoLevel + xpToNextLevel)
-  const pct = Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
+  const nextLevel = nextExplorerLevel(xp, level)
+  const levelProgress = explorerLevelProgress(xp, level)
+  const remainingXp = xpToNextLevel !== undefined ? xpToNextLevel : Math.max(0, nextLevel.xpRequired - xp)
   return (
     <div className="home-xp-ticket">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Zap size={14} className="text-brand-500" aria-hidden />
           <span className="text-xs font-extrabold text-brand-700">
-            Còn {Math.max(0, xpToNextLevel).toLocaleString('vi-VN')} XP
+            Còn {Math.max(0, remainingXp).toLocaleString('vi-VN')} XP
           </span>
         </div>
         <span className="text-[10px] font-bold text-muted">
           {xp.toLocaleString('vi-VN')} XP
         </span>
       </div>
-      <CuteProgress value={pct} label={`Tiến độ đến Cấp ${level + 1}`} tone="violet" compact />
+      <CuteProgress value={levelProgress} label={`Tiến độ đến Cấp ${nextLevel.level}`} tone="violet" compact />
     </div>
   )
 }
@@ -322,8 +324,16 @@ export function HomePage() {
   } | null>(() => cachedHomeData?.mission ?? null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(() => !cachedHomeData)
-  const [explorerXp, setExplorerXp] = useState(() => cachedHomeData?.profile?.totalXp ?? 0)
-  const [explorerLevel, setExplorerLevel] = useState(() => cachedHomeData?.profile?.level ?? 1)
+  const [explorerXp, setExplorerXp] = useState(() => (
+    cachedHomeData?.profile?.totalXp ??
+    user?.xp ??
+    (typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_xp')) || 0 : 0)
+  ))
+  const [explorerLevel, setExplorerLevel] = useState(() => (
+    cachedHomeData?.profile?.level ??
+    (user?.level && user.level > 1 ? user.level : undefined) ??
+    (typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) || 1 : 1)
+  ))
   const [xpIntoLevel, setXpIntoLevel] = useState(() => cachedHomeData?.profile?.xpIntoLevel ?? 0)
   const [xpToNextLevel, setXpToNextLevel] = useState(() => cachedHomeData?.profile?.xpToNextLevel ?? 100)
   const [profileEquipment, setProfileEquipment] = useState(
@@ -406,6 +416,13 @@ export function HomePage() {
         setXpIntoLevel(profileRes.value.xpIntoLevel)
         setXpToNextLevel(profileRes.value.xpToNextLevel)
         cachedHomeData = { ...(cachedHomeData || { courses: [] }), profile: profileRes.value }
+        try {
+          localStorage.setItem('aiki_last_known_level', String(profileRes.value.level))
+          localStorage.setItem('aiki_last_known_xp', String(profileRes.value.totalXp))
+        } catch {}
+      } else if (user) {
+        if (typeof user.xp === 'number' && user.xp > 0) setExplorerXp(user.xp)
+        if (typeof user.level === 'number' && user.level > 1) setExplorerLevel(user.level)
       }
 
       if (user && storybookRes.status === 'fulfilled' && storybookRes.value) {
@@ -416,11 +433,17 @@ export function HomePage() {
     } catch {
       // Bỏ qua lỗi gamification do không chặn UI chính
     }
-  }, [user?.id])
+  }, [user?.id, user?.xp, user?.level])
 
 
   useEffect(() => {
     void load()
+  }, [load])
+
+  useEffect(() => {
+    const handleXpUpdate = () => { void load() }
+    window.addEventListener('aikids:xp-updated', handleXpUpdate)
+    return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
   }, [load])
 
   useEffect(() => {
@@ -508,16 +531,14 @@ export function HomePage() {
           </div>
         </div>
 
-        {explorerLevel < 100 && (
-          <div className="home-profile-progress">
-            <XpWidget
-              xp={explorerXp}
-              level={explorerLevel}
-              xpIntoLevel={xpIntoLevel}
-              xpToNextLevel={xpToNextLevel}
-            />
-          </div>
-        )}
+        <div className="home-profile-progress">
+          <XpWidget
+            xp={explorerXp}
+            level={explorerLevel}
+            xpIntoLevel={xpIntoLevel}
+            xpToNextLevel={xpToNextLevel}
+          />
+        </div>
       </header>
 
       {error && (
@@ -626,8 +647,8 @@ export function HomePage() {
         </section>
       )}
 
-      {/* ── ASMO Olympiad 3D Arena Featured Banner ──────────────── */}
-      <section className="relative overflow-hidden rounded-[2rem] border-2 border-indigo-200 bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 p-5 sm:p-6 text-white shadow-clay">
+      {/* ── ASMO Olympiad 3D Arena Featured Banner (Tạm thời ẩn trên localhost) ── */}
+      {/* <section className="relative overflow-hidden rounded-[2rem] border-2 border-indigo-200 bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 p-5 sm:p-6 text-white shadow-clay">
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-0.5 text-xs font-bold backdrop-blur-md mb-2">
@@ -659,7 +680,7 @@ export function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── Course catalog ──────────────────────────────────────── */}
       <section>

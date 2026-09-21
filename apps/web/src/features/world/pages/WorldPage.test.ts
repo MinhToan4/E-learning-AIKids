@@ -4,6 +4,7 @@ import {
   isAikiRuleCourse,
   isCourseRuleCompleted,
   applyGatekeeperRules,
+  applySequentialQuestRules,
   getAikiCourseSortOrder,
   sortAikiCourses,
   formatCourseTitle,
@@ -43,9 +44,9 @@ describe('World pathway enrollment visibility', () => {
   })
 })
 
-describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
-  it('exports FORCE_UNLOCK_ALL_ISLANDS set to true for testing', () => {
-    expect(FORCE_UNLOCK_ALL_ISLANDS).toBe(true)
+describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI & Khóa Tuần Tự)', () => {
+  it('exports FORCE_UNLOCK_ALL_ISLANDS set to false by default', () => {
+    expect(FORCE_UNLOCK_ALL_ISLANDS).toBe(false)
   })
 
   it('identifies rule island by id, prefix, or title', () => {
@@ -64,20 +65,20 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
     expect(isCourseRuleCompleted(course({ status: 'available', questCount: 5, completedCount: 0 }))).toBe(false)
   })
 
-  it('unlocks all islands for boss testing when FORCE_UNLOCK_ALL_ISLANDS is true', () => {
+  it('unlocks all islands when force unlock is true', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'locked', questCount: 5, completedCount: 2 }),
       course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'locked' }),
       course({ id: 'course-mountain', title: 'Dãy núi sáng tạo', status: 'locked' }),
     ]
 
-    const result = applyGatekeeperRules(courses)
+    const result = applyGatekeeperRules(courses, true)
 
     // Gatekeeper island must be open, never locked
     expect(result[0].isGatekeeper).toBe(true)
     expect(result[0].status).toBe('available')
 
-    // All other islands must be unlocked for testing
+    // All other islands must be unlocked when force unlock is active
     expect(result[1].status).toBe('available')
     expect(result[1].reasonCode).toBe('requirements_met')
     expect(result[1].lockMessage).toBeUndefined()
@@ -87,7 +88,7 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
     expect(result[2].lockMessage).toBeUndefined()
   })
 
-  it('keeps gatekeeper island open and locks all other islands when force unlock is disabled and gatekeeper is incomplete', () => {
+  it('keeps gatekeeper island open and locks subsequent islands when previous is incomplete', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'locked', questCount: 5, completedCount: 2 }),
       course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'available' }),
@@ -100,36 +101,74 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
     expect(result[0].isGatekeeper).toBe(true)
     expect(result[0].status).toBe('available')
 
-    // All other islands must be locked with friendly message
+    // Island 2 is locked because Island 1 is incomplete
     expect(result[1].status).toBe('locked')
-    expect(result[1].reasonCode).toBe('gatekeeper_rule_incomplete')
-    expect(result[1].lockMessage).toContain('Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước')
+    expect(result[1].reasonCode).toBe('previous_island_incomplete')
+    expect(result[1].lockMessage).toContain('Bé hãy hoàn thành')
 
+    // Island 3 is locked because Island 2 is incomplete
     expect(result[2].status).toBe('locked')
-    expect(result[2].reasonCode).toBe('gatekeeper_rule_incomplete')
-    expect(result[2].lockMessage).toContain('Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước')
+    expect(result[2].reasonCode).toBe('previous_island_incomplete')
+    expect(result[2].lockMessage).toContain('Bé hãy hoàn thành')
   })
 
-  it('unlocks all other islands simultaneously (parallel) once gatekeeper island is completed', () => {
+  it('unlocks islands sequentially (Island 2 unlocked when Island 1 completed, Island 3 still locked until Island 2 completed)', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'completed', questCount: 5, completedCount: 5 }),
-      course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'locked' }),
+      course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'locked', questCount: 4, completedCount: 1 }),
       course({ id: 'course-mountain', title: 'Dãy núi sáng tạo', status: 'locked' }),
     ]
 
-    const result = applyGatekeeperRules(courses)
+    const result = applyGatekeeperRules(courses, false)
 
     expect(result[0].isGatekeeper).toBe(true)
     expect(result[0].status).toBe('completed')
 
-    // Both other islands are unlocked in parallel
+    // Island 2 is unlocked because Island 1 is completed
     expect(result[1].status).toBe('available')
     expect(result[1].reasonCode).toBe('requirements_met')
     expect(result[1].lockMessage).toBeUndefined()
 
-    expect(result[2].status).toBe('available')
-    expect(result[2].reasonCode).toBe('requirements_met')
-    expect(result[2].lockMessage).toBeUndefined()
+    // Island 3 remains locked because Island 2 is incomplete (completedCount 1 < questCount 4)
+    expect(result[2].status).toBe('locked')
+    expect(result[2].reasonCode).toBe('previous_island_incomplete')
+    expect(result[2].lockMessage).toContain('Bé hãy hoàn thành')
+  })
+})
+
+describe('Sequential Quest Rules (Khóa tuần tự các Trạm học)', () => {
+  it('opens first quest (index 0) and locks subsequent quests if previous is not completed', () => {
+    const rawQuests = [
+      { id: 'q1', order: 1, title: 'Trạm 1', status: 'available' as const, stars: 0, score: 0 },
+      { id: 'q2', order: 2, title: 'Trạm 2', status: 'available' as const, stars: 0, score: 0 },
+      { id: 'q3', order: 3, title: 'Trạm 3', status: 'available' as const, stars: 0, score: 0 },
+    ]
+    const quests = applySequentialQuestRules(rawQuests, false)
+    expect(quests[0].status).toBe('available')
+    expect(quests[1].status).toBe('locked')
+    expect(quests[2].status).toBe('locked')
+  })
+
+  it('unlocks quest i when quest i-1 is completed', () => {
+    const rawQuests = [
+      { id: 'q1', order: 1, title: 'Trạm 1', status: 'completed' as const, stars: 3, score: 100 },
+      { id: 'q2', order: 2, title: 'Trạm 2', status: 'locked' as const, stars: 0, score: 0 },
+      { id: 'q3', order: 3, title: 'Trạm 3', status: 'locked' as const, stars: 0, score: 0 },
+    ]
+    const quests = applySequentialQuestRules(rawQuests, false)
+    expect(quests[0].status).toBe('completed')
+    expect(quests[1].status).toBe('available')
+    expect(quests[2].status).toBe('locked')
+  })
+
+  it('unlocks all quests when forceUnlockOverride is true', () => {
+    const rawQuests = [
+      { id: 'q1', order: 1, title: 'Trạm 1', status: 'locked' as const, stars: 0, score: 0 },
+      { id: 'q2', order: 2, title: 'Trạm 2', status: 'locked' as const, stars: 0, score: 0 },
+    ]
+    const quests = applySequentialQuestRules(rawQuests, true)
+    expect(quests[0].status).toBe('available')
+    expect(quests[1].status).toBe('available')
   })
 })
 
@@ -261,5 +300,63 @@ describe('WorldPage module cache management', () => {
     const { clearWorldPageCache } = await import('./WorldPage')
     expect(typeof clearWorldPageCache).toBe('function')
     expect(() => clearWorldPageCache()).not.toThrow()
+  })
+})
+
+describe('Clean Slug Resolution and findCourseByIdentifier', () => {
+  it('resolves island clean slugs and aliases correctly', async () => {
+    const { findCourseByIdentifier, AIKID_CANONICAL_SLUGS, ISLAND_ALIAS_MAP } = await import('./WorldPage')
+
+    expect(AIKID_CANONICAL_SLUGS).toHaveLength(6)
+    expect(AIKID_CANONICAL_SLUGS[0]).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(AIKID_CANONICAL_SLUGS[1]).toBe('dao-1-nha-tham-hiem-ai')
+
+    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-1-nha-tham-hiem-ai')
+    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-2-hoa-si-ai')
+    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-3-biet-doi-nhan-vat-ai')
+    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-6']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
+    expect(ISLAND_ALIAS_MAP['aiki-rules']).toBe('muoi-quy-tac-xuong-sang-tao')
+
+    const sampleCourses: PathwayCourse[] = [
+      course({ id: 'uuid-0', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo', slug: 'muoi-quy-tac-xuong-sang-tao' }),
+      course({ id: 'uuid-1', title: 'Module 1 — Nhà thám hiểm AI', slug: 'dao-1-nha-tham-hiem-ai' }),
+      course({ id: 'uuid-2', title: 'Module 2 — Tớ là hoạ sĩ AI!', slug: 'dao-2-hoa-si-ai' }),
+      course({ id: 'uuid-3', title: 'Module 3 — Biệt đội nhân vật AI', slug: 'dao-3-biet-doi-nhan-vat-ai' }),
+      course({ id: 'uuid-4', title: 'Module 4 — Vương quốc truyện tranh AI', slug: 'dao-4-vuong-quoc-truyen-tranh-ai' }),
+      course({ id: 'uuid-5', title: 'Module 5 — Nhà phát minh trò chơi AI', slug: 'dao-5-nha-phat-minh-tro-choi-ai' }),
+    ]
+
+    // Match by dao-1 alias
+    expect(findCourseByIdentifier(sampleCourses, 'dao-1')?.id).toBe('uuid-0')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-2')?.id).toBe('uuid-1')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-3')?.id).toBe('uuid-2')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-4')?.id).toBe('uuid-3')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-5')?.id).toBe('uuid-4')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-6')?.id).toBe('uuid-5')
+
+    // Match by canonical slug
+    expect(findCourseByIdentifier(sampleCourses, 'muoi-quy-tac-xuong-sang-tao')?.id).toBe('uuid-0')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-1-nha-tham-hiem-ai')?.id).toBe('uuid-1')
+
+    // Match by legacy aiki-rules alias
+    expect(findCourseByIdentifier(sampleCourses, 'aiki-rules')?.id).toBe('uuid-0')
+
+    // Match by direct UUID
+    expect(findCourseByIdentifier(sampleCourses, 'uuid-2')?.id).toBe('uuid-2')
+  })
+
+  it('automatically assigns canonical slugs to courses in applyGatekeeperRules if missing', () => {
+    const rawCourses: PathwayCourse[] = [
+      course({ id: 'uuid-0', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo' }),
+      course({ id: 'uuid-1', title: 'Module 1 — Nhà thám hiểm AI' }),
+      course({ id: 'uuid-2', title: 'Module 2 — Tớ là hoạ sĩ AI!' }),
+    ]
+
+    const result = applyGatekeeperRules(rawCourses)
+    expect(result[0].slug).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(result[1].slug).toBe('dao-1-nha-tham-hiem-ai')
+    expect(result[2].slug).toBe('dao-2-hoa-si-ai')
   })
 })

@@ -7,6 +7,9 @@ import {
   numberToVietnameseWords,
   getStoredCompanyInvoiceInfo,
   saveCompanyInvoiceInfo,
+  getStoredInvoices,
+  saveInvoices,
+  INVOICES_STORAGE_KEY,
   type CompanyInvoiceInfo,
 } from './einvoice-types'
 
@@ -74,5 +77,18 @@ describe('MISA e-Invoice & Vietnam Tax Accounting features', () => {
     expect(saved).not.toBeNull()
     expect(saved?.companyName).toBe(fakeInfo.companyName)
     expect(saved?.taxCode).toBe(fakeInfo.taxCode)
+  })
+
+  it('getStoredInvoices returns empty array by default and purges legacy mockup invoices', () => {
+    // 1. Initial state without memory/localStorage returns []
+    saveInvoices([])
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(INVOICES_STORAGE_KEY)
+    }
+    expect(getStoredInvoices()).toEqual([])
+
+    // 2. If legacy mockup data existed, it is filtered out
+    saveInvoices(INITIAL_E_INVOICES)
+    expect(getStoredInvoices()).toEqual([])
   })
 })

@@ -54,4 +54,28 @@ describe('dynamic level reward assets', () => {
     expect(getVerifiedStaticRewardAssetUrl('ticket-creative-challenge')).toBeUndefined()
     delete window.__AIKIDS_RUNTIME_CONFIG__
   })
+
+  it('resolves designer assets directly to local WebP files and thumbnails', () => {
+    expect(getGeneratedRewardAssetUrl('frame-galaxy', 'thumbnail')).toBe(
+      '/assets/rewards/frames/frame-galaxy--thumb.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('frame-galaxy', 'primary')).toBe(
+      '/assets/rewards/frames/frame-galaxy.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('background-ai-gate', 'thumbnail')).toBe(
+      '/assets/rewards/backgrounds/background-ai-gate--thumb.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('background-ocean-artist', 'thumbnail')).toBe(
+      '/assets/rewards/backgrounds/background-ocean-artist--thumb.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('theme-paco-workshop', 'thumbnail')).toBe(
+      '/assets/rewards/themes/theme-paco-workshop--thumb.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('background-forest-guardian', 'thumbnail')).toBe(
+      '/assets/rewards/backgrounds/background-forest-guardian--thumb.webp',
+    )
+    expect(getGeneratedRewardAssetUrl('theme-community-legend', 'thumbnail')).toBe(
+      '/assets/rewards/themes/theme-community-legend--thumb.webp',
+    )
+  })
 })

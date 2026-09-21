@@ -122,83 +122,94 @@ export function AdminBillingPos({
   const totalAmount = unitPrice * durationFactor
 
   return (
-    <div id="billing-grant-form" className="flex flex-col gap-4">
+    <div id="billing-grant-form" className="grid gap-6 xl:grid-cols-12 items-start">
       {/* ── 1. PHÂN VÙNG DUYỆT ĐƠN CHỜ THANH TOÁN (PENDING TRANSACTIONS) ── */}
-      {pendingIntents.length > 0 && (
-        <div className="rounded-3xl border-2 border-amber-300 bg-amber-50/80 p-3.5 shadow-clay">
-          <div className="flex items-center justify-between gap-2 mb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-200 text-amber-900 text-xs font-black">
-                <Clock size={14} />
-              </span>
-              <p className="text-xs font-black uppercase tracking-wider text-amber-900">
-                1. Duyệt đơn chờ thanh toán ({pendingIntents.length})
-              </p>
-            </div>
-            <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-black text-amber-900">
-              Cần xác nhận
-            </span>
-          </div>
-
-          <div className="max-h-56 overflow-y-auto p-1 space-y-2">
-            {pendingIntents.map((pi) => (
-              <div
-                key={pi.id}
-                role="button"
-                tabIndex={0}
-                onClick={() =>
-                  onViewPendingIntentDetail
-                    ? onViewPendingIntentDetail(pi)
-                    : onConfirmPendingIntent?.(pi)
-                }
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    if (onViewPendingIntentDetail) {
-                      onViewPendingIntentDetail(pi)
-                    } else {
-                      onConfirmPendingIntent?.(pi)
-                    }
-                  }
-                }}
-                className="flex items-center justify-between gap-2 rounded-2xl bg-white p-2.5 border border-amber-200 shadow-sm cursor-pointer hover:border-amber-400 hover:shadow-md transition text-left"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="font-bold text-xs truncate text-text">{pi.userName ?? 'Khách hàng'}</p>
-                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-900">
-                      {pi.paymentCode ?? pi.id.slice(0, 8)}
-                    </span>
-                    <span className="text-xs font-black text-amber-900 ml-auto mr-1">
-                      {Number(pi.amountMinor).toLocaleString('vi-VN')}₫
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted truncate mt-0.5">{pi.userEmail}</p>
-                </div>
-
-                {(onConfirmPendingIntent || onViewPendingIntentDetail) && (
-                  <Button
-                    className="shrink-0 text-xs font-bold !bg-amber-600 hover:!bg-amber-700 !text-white shadow-sm !py-1.5 !px-2.5 rounded-xl cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onConfirmPendingIntent ? onConfirmPendingIntent(pi) : onViewPendingIntentDetail?.(pi)
-                    }}
-                  >
-                    <CheckCircle2 size={13} className="mr-1" />
-                    Duyệt 1-Click
-                  </Button>
-                )}
+      <div className="xl:col-span-5 flex flex-col gap-4">
+        {pendingIntents.length > 0 ? (
+          <div className="rounded-3xl border-2 border-amber-300 bg-amber-50/80 p-4 shadow-clay">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-200 text-amber-900 text-xs font-black">
+                  <Clock size={16} />
+                </span>
+                <p className="text-xs font-black uppercase tracking-wider text-amber-900">
+                  1. Duyệt đơn chờ thanh toán ({pendingIntents.length})
+                </p>
               </div>
-            ))}
+              <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[10px] font-black text-amber-900">
+                Cần xác nhận
+              </span>
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto p-1 space-y-2.5">
+              {pendingIntents.map((pi) => (
+                <div
+                  key={pi.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    onViewPendingIntentDetail
+                      ? onViewPendingIntentDetail(pi)
+                      : onConfirmPendingIntent?.(pi)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      if (onViewPendingIntentDetail) {
+                        onViewPendingIntentDetail(pi)
+                      } else {
+                        onConfirmPendingIntent?.(pi)
+                      }
+                    }
+                  }}
+                  className="flex items-center justify-between gap-3 rounded-2xl bg-white p-3 border border-amber-200 shadow-sm cursor-pointer hover:border-amber-400 hover:shadow-md transition text-left"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-bold text-xs truncate text-text">{pi.userName ?? 'Khách hàng'}</p>
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-900">
+                        {pi.paymentCode ?? pi.id.slice(0, 8)}
+                      </span>
+                      <span className="text-xs font-black text-amber-900 ml-auto mr-1">
+                        {Number(pi.amountMinor).toLocaleString('vi-VN')}₫
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted truncate mt-0.5">{pi.userEmail}</p>
+                  </div>
+
+                  {(onConfirmPendingIntent || onViewPendingIntentDetail) && (
+                    <Button
+                      className="shrink-0 text-xs font-bold !bg-amber-600 hover:!bg-amber-700 !text-white shadow-sm !py-1.5 !px-2.5 rounded-xl cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onConfirmPendingIntent ? onConfirmPendingIntent(pi) : onViewPendingIntentDetail?.(pi)
+                      }}
+                    >
+                      <CheckCircle2 size={13} className="mr-1" />
+                      Duyệt 1-Click
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="rounded-3xl border-2 border-brand-100 bg-brand-50/30 p-8 flex flex-col items-center justify-center text-center shadow-sm min-h-[260px]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 mb-3 shadow-clay">
+              <CheckCircle2 size={24} />
+            </span>
+            <p className="text-sm font-bold text-text">Không có đơn chờ thanh toán</p>
+            <p className="text-xs text-muted mt-1 max-w-[240px]">Tất cả các đơn đã được duyệt hoặc chưa có giao dịch VietQR mới.</p>
+          </div>
+        )}
+      </div>
 
       {/* ── 2, 3, 4: POS FORM (XUẤT VIETQR, BẢNG GIÁ 129K & 5 GÓI AI, CẤP HỌC BỔNG) ── */}
-      <form
-        className="ui-card p-4 sm:p-5 border-2 border-brand-100/60 shadow-clay"
-        onSubmit={(e) => void handlePosSubmit(e)}
-      >
+      <div className="xl:col-span-7">
+        <form
+          className="ui-card p-4 sm:p-5 border-2 border-brand-100/60 shadow-clay"
+          onSubmit={(e) => void handlePosSubmit(e)}
+        >
         {/* POS Header */}
         <div className="mb-3">
           <div className="flex items-center gap-1.5">
@@ -438,7 +449,8 @@ export function AdminBillingPos({
             <div className="grid grid-cols-2 gap-2">
               {availablePlans.map((p) => {
                 const isSelected = grantForm.planId === p.id
-                const is129k = p.id === 'starter' || p.amountMinor === 129000
+                const is129k = p.amountMinor === 129000 || p.id === 'aikids_official_129k'
+                const isStarter = (p.id === 'starter' || p.amountMinor === 69000) && !is129k
                 return (
                   <div
                     key={p.id}
@@ -485,11 +497,19 @@ export function AdminBillingPos({
                     <div>
                       <div className="flex flex-wrap items-center gap-1">
                         <p className="font-bold text-xs text-text truncate">{p.name}</p>
-                        {is129k && (
+                        {is129k ? (
                           <span className="rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.2 text-[9px] font-black">
                             Tiêu chuẩn 129K
                           </span>
-                        )}
+                        ) : isStarter ? (
+                          <span className="rounded-full bg-sky-100 text-sky-800 border border-sky-300 px-1.5 py-0.2 text-[9px] font-black">
+                            Khởi đầu 69K
+                          </span>
+                        ) : p.badge ? (
+                          <span className="rounded-full bg-slate-100 text-slate-700 border border-slate-200 px-1.5 py-0.2 text-[9px] font-black">
+                            {p.badge}
+                          </span>
+                        ) : null}
                       </div>
                       <div className="mt-1 flex items-center gap-1">
                         <span
@@ -769,6 +789,7 @@ export function AdminBillingPos({
                 : '🎁 Xác nhận Cấp Gói Học Bổng (0đ)'}
         </Button>
       </form>
+      </div>
     </div>
   )
 }

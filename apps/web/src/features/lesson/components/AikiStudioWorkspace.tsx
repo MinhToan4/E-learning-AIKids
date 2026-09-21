@@ -1332,11 +1332,15 @@ export function getStudioAIArtwork(
   const cName = (characterName || '').toLowerCase()
   const t = (type || '').toLowerCase()
 
+  // 1. Phân giải ưu tiên theo từ khoá đặc thù trong characterName / prompt
   if (cName.includes('cún') || cName.includes('chó') || cName.includes('dog')) {
     return '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp'
   }
-  if (cName.includes('cá vàng') || cName.includes('fish')) {
+  if (cName.includes('mèo') || cName.includes('cat') || cName.includes('mèo mướp')) {
     return '/assets/aiki-islands/island1_lesson1_cat.jpg'
+  }
+  if (cName.includes('sóc') || cName.includes('fox') || cName.includes('cáo') || cName.includes('squirrel')) {
+    return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
   }
   if (cName.includes('xe') || cName.includes('đạp') || cName.includes('bicycle')) {
     return '/assets/aiki-islands/island1_lesson2_bicycle.jpg'
@@ -1347,6 +1351,9 @@ export function getStudioAIArtwork(
   if (cName.includes('đồng hồ') || cName.includes('clock')) {
     return '/assets/aiki-islands/island1_lesson2_clock.jpg'
   }
+  if (cName.includes('cốc') || cName.includes('ly') || cName.includes('teacup') || cName.includes('tách trà')) {
+    return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
+  }
   if (cName.includes('màu nước') || cName.includes('watercolor')) {
     return '/assets/aiki-islands/island1_lesson3_opt_a.jpg'
   }
@@ -1356,52 +1363,92 @@ export function getStudioAIArtwork(
   if (cName.includes('đất sét') || cName.includes('clay')) {
     return '/assets/aiki-islands/island1_lesson3_styles.jpg'
   }
-  if (cName.includes('hiệp sĩ') || cName.includes('5 ngón') || cName.includes('bàn tay')) {
-    return '/assets/aiki-islands/island1_lesson4_opt_a.jpg'
-  }
-  if (cName.includes('mũ len') || (cName.includes('sóc') && !lId.includes('3-2'))) {
-    return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
+  if (cName.includes('kỹ sư') || cName.includes('5 ngón') || cName.includes('bàn tay')) {
+    return '/assets/aiki-islands/island1_lesson4_engineer.jpg'
   }
   if (cName.includes('ghế mây')) {
     return '/assets/aiki-islands/island1_lesson1_cat.jpg'
   }
-  if (t === 'teacup' || lId.includes('1-2') || cName.includes('cốc') || cName.includes('ly')) {
-    return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
-  }
-  if (t === 'cat-fat' || lId.includes('1-1') || cName.includes('mèo')) {
+
+  // 2. Phân giải theo illustrationType hoặc lessonId cho 22 bài học từ Đảo 1 đến Đảo 5
+  // Đảo 1: Nhà Thám Hiểm AI
+  if (t === 'cat-fat' || lId.includes('1-1') || lId.includes('1.1')) {
     return '/assets/aiki-islands/island1_lesson1_cat.jpg'
   }
-  if (t === 'four-styles' || lId.includes('1-3')) {
+  if (t === 'teacup' || lId.includes('1-2') || lId.includes('1.2')) {
+    return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
+  }
+  if (t === 'four-styles' || lId.includes('1-3') || lId.includes('1.3')) {
     return '/assets/aiki-islands/island1_lesson3_styles.jpg'
   }
-  if (t === 'engineer-fix' || lId.includes('1-4') || cName.includes('kỹ sư')) {
+  if (t === 'engineer-fix' || lId.includes('1-4') || lId.includes('1.4')) {
     return '/assets/aiki-islands/island1_lesson4_engineer.jpg'
   }
-  if (t === 'storytelling' || lId.includes('2-1')) {
+
+  // Đảo 2: Hoạ Sĩ AI
+  if (t === 'storytelling' || lId.includes('2-1') || lId.includes('2.1')) {
     return '/assets/aiki-islands/island2_lesson1_story.jpg'
   }
-  if (t === 'magic-forest' || lId.includes('2-2')) {
+  if (t === 'magic-forest' || lId.includes('2-2') || lId.includes('2.2')) {
     return '/assets/aiki-islands/island2_lesson2_star.jpg'
   }
-  if (t === 'color-emotions' || lId.includes('2-3')) {
+  if (t === 'color-emotions' || lId.includes('2-3') || lId.includes('2.3')) {
     return '/assets/aiki-islands/island2_lesson3_colors.jpg'
   }
-  if (t === 'gallery-frame' || lId.includes('2-4')) {
+  if (t === 'gallery-frame' || lId.includes('2-4') || lId.includes('2.4')) {
     return '/assets/aiki-islands/island2_lesson4_masterpiece.jpg'
   }
-  if (t === 'profile-dna' || lId.includes('3-1')) {
+
+  // Đảo 3: Biệt Đội Nhân Vật
+  if (t === 'profile-dna' || lId.includes('3-1') || lId.includes('3.1')) {
     return '/assets/aiki-islands/island3_lesson1_profile.jpg'
   }
-  if (t === 'fire-fox' || lId.includes('3-2') || cName.includes('sóc bông')) {
+  if (t === 'fire-fox' || lId.includes('3-2') || lId.includes('3.2')) {
     return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
   }
-  if (t === 'six-expressions' || lId.includes('3-3')) {
+  if (t === 'six-expressions' || lId.includes('3-3') || lId.includes('3.3')) {
     return '/assets/aiki-islands/island3_lesson3_expressions.jpg'
   }
-  if (t === 'tree-hollow-base' || lId.includes('3-4')) {
+  if (t === 'tree-hollow-base' || lId.includes('3-4') || lId.includes('3.4')) {
     return '/assets/aiki-islands/island3_lesson4_base.jpg'
   }
-  return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
+
+  // Đảo 4: Vương Quốc Truyện Tranh
+  if (lId.includes('4-1') || lId.includes('4.1')) {
+    return '/assets/aiki-islands/island4_lesson1_3gates.jpg'
+  }
+  if (lId.includes('4-2') || lId.includes('4.2')) {
+    return '/assets/aiki-islands/island4_lesson2_4beats.jpg'
+  }
+  if (lId.includes('4-3') || lId.includes('4.3')) {
+    return '/assets/aiki-islands/island4_lesson3_storyboard1.jpg'
+  }
+  if (lId.includes('4-4') || lId.includes('4.4')) {
+    return '/assets/aiki-islands/island4_lesson4_storyboard2.jpg'
+  }
+  if (lId.includes('4-5') || lId.includes('4.5')) {
+    return '/assets/aiki-islands/island4_lesson5_comicbook.jpg'
+  }
+
+  // Đảo 5: Đấu Trường Trò Chơi
+  if (lId.includes('5-1') || lId.includes('5.1')) {
+    return '/assets/aiki-islands/island5_lesson1_hunting.jpg'
+  }
+  if (lId.includes('5-2') || lId.includes('5.2')) {
+    return '/assets/aiki-islands/island5_lesson2_magic.jpg'
+  }
+  if (lId.includes('5-3') || lId.includes('5.3')) {
+    return '/assets/aiki-islands/island5_lesson3_lockcards.jpg'
+  }
+  if (lId.includes('5-4') || lId.includes('5.4')) {
+    return '/assets/aiki-islands/island5_lesson4_rules.jpg'
+  }
+  if (lId.includes('5-5') || lId.includes('5.5')) {
+    return '/assets/aiki-islands/island5_lesson5_arena.jpg'
+  }
+
+  // Fallback an toàn chuẩn Hallmark UI: Mèo AIKI của AIKids
+  return '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
 }
 
 // MAIN COMPONENT AIKI STUDIO WORKSPACE
@@ -3358,80 +3405,116 @@ export function AikiStudioWorkspace({
       {selectedInspectImage && (
         <div
           data-testid="studio-inspect-modal"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 md:p-6 animate-fade-in"
           onClick={() => setSelectedInspectImage(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 text-left border-3 border-indigo-200"
+            className="bg-white rounded-3xl w-full max-w-lg md:max-w-4xl lg:max-w-5xl max-h-[92dvh] md:max-h-[85vh] shadow-2xl border-2 sm:border-3 border-indigo-200 flex flex-col overflow-hidden text-left"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-slate-900">
-                  🔍 Soi Chi Tiết · Lượt {selectedInspectImage.turn}
-                </h3>
-                <p className="text-xs font-semibold text-slate-400">
-                  {selectedInspectImage.time}
-                </p>
+            {/* Thân modal: 2 cột trên PC (md+), xếp dọc trên Mobile */}
+            <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
+              {/* CỘT TRÁI (56-60% trên md+): Khung tranh phóng to kích thước lớn, sắc nét */}
+              <div className="w-full md:w-[56%] lg:w-[60%] shrink-0 bg-slate-900/95 md:bg-slate-950 p-3.5 sm:p-5 md:p-6 flex items-center justify-center min-h-[260px] sm:min-h-[320px] md:min-h-0">
+                <div className="relative w-full h-full max-h-[48vh] md:max-h-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/80 p-2 border border-slate-800 shadow-inner">
+                  <img
+                    src={
+                      selectedInspectImage.url ||
+                      getStudioAIArtwork(
+                        illustrationType,
+                        lessonId,
+                        selectedInspectImage.prompt || activePartSubject || effectiveCharacterName
+                      )
+                    }
+                    alt={selectedInspectImage.prompt || 'Tranh phóng to'}
+                    className="max-h-full max-w-full object-contain rounded-xl drop-shadow-md select-none transition-transform duration-300"
+                    onError={(e) => {
+                      ;(e.target as HTMLImageElement).src =
+                        getStudioAIArtwork(
+                          illustrationType,
+                          lessonId,
+                          activePartSubject || effectiveCharacterName
+                        ) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                    }}
+                  />
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedInspectImage(null)}
-                className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-black cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Khung ảnh phóng to */}
-            <div className="w-full aspect-[4/3] max-h-[60vh] rounded-2xl bg-pink-50/70 border-2 border-pink-200 p-1 flex items-center justify-center overflow-hidden">
-              <img
-                src={selectedInspectImage.url || getStudioAIArtwork(illustrationType, lessonId, selectedInspectImage.prompt || activePartSubject || effectiveCharacterName)}
-                alt=""
-                className="size-full object-contain rounded-xl drop-shadow-xs"
-                onError={(e) => { (e.target as HTMLImageElement).src = getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
-              />
-            </div>
-
-            {/* Checklist kiểm chứng đặc điểm */}
-            <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-2">
-              <div className="text-xs font-black text-purple-900 uppercase tracking-wide">
-                Kiểm chứng mật mã đặc điểm:
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {effectiveLockedFeatures.map((feat, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs font-bold text-purple-950">
-                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
-                    <span>{feat}</span>
+              {/* CỘT PHẢI (40-44% trên md+): Bảng điều khiển thanh lịch */}
+              <div className="flex-1 min-w-0 flex flex-col justify-between p-4 sm:p-5 md:p-6 overflow-y-auto bg-white">
+                <div className="space-y-4">
+                  {/* Header: Lượt vẽ, giờ và nút đóng */}
+                  <div className="flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-black mb-1">
+                        <span>🎨 Lượt vẽ {selectedInspectImage.turn}</span>
+                      </div>
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
+                        🔍 Soi Chi Tiết Tác Phẩm
+                      </h3>
+                      <p className="text-xs font-semibold text-slate-400">
+                        Thời gian tạo: {selectedInspectImage.time}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedInspectImage(null)}
+                      className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-black cursor-pointer transition-colors shrink-0"
+                      title="Đóng modal"
+                    >
+                      ✕
+                    </button>
                   </div>
-                ))}
+
+                  {/* Checklist kiểm chứng đặc điểm */}
+                  <div className="bg-purple-50/70 border border-purple-200/90 rounded-2xl p-3.5 space-y-2">
+                    <div className="text-xs font-black text-purple-900 uppercase tracking-wide flex items-center gap-1.5">
+                      <span>🔐</span>
+                      <span>Kiểm chứng mật mã đặc điểm:</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      {effectiveLockedFeatures.map((feat, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs font-bold text-purple-950">
+                          <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                          <span className="leading-snug">{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lời tả câu lệnh của bé */}
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 space-y-1">
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider block">
+                      💬 Lời tả câu lệnh AI:
+                    </span>
+                    <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed italic break-words">
+                      "{selectedInspectImage.prompt}"
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cụm nút hành động */}
+                <div className="pt-4 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedInspectImage(null)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold cursor-pointer transition-colors order-2 sm:order-1 text-center"
+                  >
+                    Đóng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmittedCandidate(selectedInspectImage)
+                      setSelectedInspectImage(null)
+                      playInstantSound('star')
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs sm:text-sm font-black shadow-clay-sm cursor-pointer transition-all flex items-center justify-center gap-1.5 order-1 sm:order-2"
+                  >
+                    <span>Chọn bức này làm Tranh nộp bài ✨</span>
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <p className="text-xs font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl">
-              💬 Lời tả: "{selectedInspectImage.prompt}"
-            </p>
-
-            {/* Nút hành động */}
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmittedCandidate(selectedInspectImage)
-                  setSelectedInspectImage(null)
-                  playInstantSound('star')
-                }}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-sm cursor-pointer"
-              >
-                Chọn bức này làm Tranh nộp bài ✨
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedInspectImage(null)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
-              >
-                Đóng
-              </button>
             </div>
           </div>
         </div>

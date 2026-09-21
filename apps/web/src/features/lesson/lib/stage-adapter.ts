@@ -16,6 +16,7 @@ import { getDefaultPracticeParts } from './practice-parts'
 import { getCreativeEngineMode } from '../components/creative-engine/data/engine-presets'
 import { DEFAULT_NOTEBOOK_CONFIGS } from '../data/island-curriculum-registry'
 import type { CreativeNotebookConfig } from '../components/creative-engine/types'
+import type { AikiRule } from '@/features/rules/types'
 
 export const isValidImageUrl = (url?: string): boolean => {
   if (!url) return false
@@ -529,3 +530,102 @@ export function adaptSixStageJourneyToStages(
     },
   ]
 }
+
+/**
+ * Universal Block 3 Chặng cho 10 Quy Tắc Vàng:
+ * 1. VIDEO (VideoStageBlock): Rạp chiếu Slide Cinema 16:9 với config.slides = rule.slides
+ * 2. QUIZ (QuizStageBlock): Thử tài phản xạ với questions có visualUrl từ quiz options
+ * 3. REWARD (RewardStageBlock): Vinh danh với posterImage của rule, nextLessonId: rule.id < 10 ? 'rule-' + (rule.id + 1) : undefined
+ */
+export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
+  const nextLessonId = rule.id < 10 ? `rule-${rule.id + 1}` : undefined
+
+  // Chặng 1: VideoStageBlock với Slide Cinema 16:9
+  const videoConfig: VideoStageConfig = {
+    title: rule.title,
+    videoUrl: rule.videoUrl || '',
+    videoEmbedUrl: buildVideoEmbedUrl(rule.videoUrl),
+    durationSec: rule.durationSec || 60,
+    posterUrl: rule.posterImage,
+    slides: rule.slides,
+    timestamps: rule.slides.map((s, idx) => ({
+      label: s.stage,
+      startSec: idx * 12,
+      endSec: (idx + 1) * 12,
+      speech: s.dialogue,
+    })),
+    isDedicatedLessonVideo: true,
+    speech: rule.audioVoiceText || rule.slides?.[0]?.dialogue || 'Cùng Mèo AIKI khám phá quy tắc vàng nhé!',
+  }
+
+  const stageVideo: JourneyStageDefinition<VideoStageConfig> = {
+    id: `rule-${rule.id}-stage-video`,
+    type: 'VIDEO',
+    title: rule.shortTitle || rule.title || 'Rạp chiếu Quy tắc vàng',
+    stepNumber: 1,
+    icon: '🎬',
+    mascotRole: 'Mèo AIKI Kể Chuyện',
+    instruction: 'Theo dõi các hoạt cảnh 16:9 và lắng nghe Mèo AIKI giải thích quy tắc vàng nhé!',
+    speech: videoConfig.speech,
+    config: videoConfig,
+  }
+
+  // Chặng 2: QuizStageBlock với Thử tài phản xạ
+  const quizQuestions = (rule.questions || []).map((q, idx) => ({
+    id: q.id || `rule-${rule.id}-q-${idx + 1}`,
+    prompt: q.prompt,
+    options: q.options,
+    correctIndex: q.correctIndex,
+    explanation: q.successFeedback || q.hint,
+    visualUrl: q.visualUrl || (idx === 0 ? (rule.slides[1]?.image || rule.slides[0]?.image) : rule.posterImage),
+  }))
+
+  const quizConfig: QuizStageConfig = {
+    title: `Thử tài phản xạ: ${rule.shortTitle}`,
+    questions: quizQuestions,
+    passScore: 1,
+    speech: 'Cùng AIKI trả lời câu hỏi trắc nghiệm phản xạ để nhận huy hiệu vàng nhé!',
+  }
+
+  const stageQuiz: JourneyStageDefinition<QuizStageConfig> = {
+    id: `rule-${rule.id}-stage-quiz`,
+    type: 'QUIZ',
+    title: 'Thử tài phản xạ',
+    stepNumber: 2,
+    icon: '⚡',
+    mascotRole: 'Giám Khảo AIKI',
+    instruction: 'Chọn phương án đúng để khắc sâu quy tắc vàng và nhận cúp vinh danh.',
+    speech: quizConfig.speech,
+    config: quizConfig,
+  }
+
+  // Chặng 3: RewardStageBlock
+  const rewardConfig: RewardStageConfig = {
+    title: `Chúc mừng Hiệp Sĩ Quy Tắc ${rule.id}!`,
+    congratsMessage: `Tuyệt vời! Con đã làm chủ "${rule.shortTitle}" và sẵn sàng sáng tạo cùng AIKI!`,
+    rewardBadge: {
+      name: `Huy hiệu ${rule.code}: ${rule.shortTitle}`,
+      iconUrl: rule.posterImage,
+      stars: 3,
+      xp: 50,
+    },
+    nextLessonId,
+    nextLessonSlug: nextLessonId,
+    speech: rule.akiTip || `Chúc mừng con đã hoàn thành xuất sắc Quy Tắc ${rule.id}!`,
+  }
+
+  const stageReward: JourneyStageDefinition<RewardStageConfig> = {
+    id: `rule-${rule.id}-stage-reward`,
+    type: 'REWARD',
+    title: 'Vinh danh Hiệp Sĩ',
+    stepNumber: 3,
+    icon: '🏆',
+    mascotRole: 'Thần Đèn AIKI',
+    instruction: 'Chiêm ngưỡng Huy Hiệu Poster vàng và sẵn sàng cho bài tiếp theo nhé!',
+    speech: rewardConfig.speech,
+    config: rewardConfig,
+  }
+
+  return [stageVideo, stageQuiz, stageReward]
+}
+

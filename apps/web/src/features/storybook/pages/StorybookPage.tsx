@@ -151,7 +151,7 @@ export function StorybookPage() {
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <Link to="/home" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">← Về sảnh</Link>
-              <Link to="/community" className="storybook-community-gate">🏝️ Ghé Đảo cộng đồng</Link>
+              {/* Tạm ẩn Cộng đồng: <Link to="/community" className="storybook-community-gate">🏝️ Ghé Đảo cộng đồng</Link> */}
             </div>
           </div>
           <div className="storybook-hero-count" aria-label={`${publishedEarnedCount} trên ${publishedStickerIds.size} sticker đã mở`}>

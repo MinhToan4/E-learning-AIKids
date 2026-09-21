@@ -6,6 +6,8 @@ export type RuleQuestion = {
   hint: string
   successFeedback: string
   retryFeedback: string
+  visualUrl?: string
+  optionImages?: string[]
 }
 
 export type AikiRuleQuestion = RuleQuestion

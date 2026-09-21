@@ -57,6 +57,36 @@ function friendlyProjectTitle(title: string): string {
   return clean || 'Tác phẩm của con'
 }
 
+function readStoredNumber(key: string): number | undefined {
+  if (typeof window === 'undefined') return undefined
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return undefined
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) ? parsed : undefined
+  } catch {
+    return undefined
+  }
+}
+
+type ProfileCacheSnapshot = {
+  streak?: number
+  achievements?: AchievementRow[]
+  projects?: ShowcaseProject[]
+  totalXp?: number
+  level?: number
+}
+
+function readProfileOverviewCache(): ProfileCacheSnapshot | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem('aiki_profile_overview_cache')
+    return raw ? (JSON.parse(raw) as ProfileCacheSnapshot) : null
+  } catch {
+    return null
+  }
+}
+
 function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
   const [failed, setFailed] = useState(false)
   if (!project.thumbnail || failed) {
@@ -76,12 +106,21 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
-  const [loading, setLoading] = useState(true)
+  const [profileCache] = useState(() => readProfileOverviewCache())
+  const [loading, setLoading] = useState(() => !user)
   const [section, setSection] = useState<'overview' | 'customize'>('overview')
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
-  const [streak, setStreak] = useState(0)
-  const [achievements, setAchievements] = useState<AchievementRow[]>([])
-  const [projects, setProjects] = useState<ShowcaseProject[]>([])
+  const [streak, setStreak] = useState<number>(() =>
+    typeof profileCache?.streak === 'number' ? profileCache.streak : 0,
+  )
+  const [achievements, setAchievements] = useState<AchievementRow[]>(() =>
+    Array.isArray(profileCache?.achievements)
+      ? profileCache.achievements.filter((row) => row.unlocked)
+      : [],
+  )
+  const [projects, setProjects] = useState<ShowcaseProject[]>(() =>
+    Array.isArray(profileCache?.projects) ? profileCache.projects : [],
+  )
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
     themeKey: null as string | null,
@@ -92,8 +131,20 @@ export function ProfilePage() {
   const [selectedAvatar, setSelectedAvatar] = useState<ProfileAvatar | null>(
     () => user ? readProfileAvatar(user.id) : null,
   )
-  const [explorerXp, setExplorerXp] = useState(0)
-  const [explorerLevel, setExplorerLevel] = useState(1)
+  const [explorerXp, setExplorerXp] = useState<number>(() => {
+    if (typeof user?.xp === 'number' && user.xp > 0) return user.xp
+    const saved = readStoredNumber('aiki_last_known_xp')
+    if (saved !== undefined) return saved
+    if (typeof profileCache?.totalXp === 'number') return profileCache.totalXp
+    return user?.xp ?? 0
+  })
+  const [explorerLevel, setExplorerLevel] = useState<number>(() => {
+    if (user?.level && user.level > 1) return user.level
+    const saved = readStoredNumber('aiki_last_known_level')
+    if (saved !== undefined) return saved
+    if (typeof profileCache?.level === 'number') return profileCache.level
+    return user?.level ?? 1
+  })
   const [equipment, setEquipment] = useState(() =>
     user ? readRewardEquipment(user.id) : {},
   )
@@ -101,6 +152,71 @@ export function ProfilePage() {
   const [sharing, setSharing] = useState(() =>
     user ? readCommunitySettings(user.id) : DEFAULT_COMMUNITY_SETTINGS,
   )
+
+  // Fast-track gamification fetch: nạp ngay Cấp/XP mà không bị nghẽn bởi các request media/settings
+  useEffect(() => {
+    let active = true
+
+    const fetchFastGamification = () => {
+      api<{ totalXp: number; level: number }>('/api/gamification/profile')
+        .then((res) => {
+          if (!active) return
+          if (typeof res?.totalXp === 'number') {
+            setExplorerXp(res.totalXp)
+            try { localStorage.setItem('aiki_last_known_xp', String(res.totalXp)) } catch {}
+          }
+          if (typeof res?.level === 'number') {
+            setExplorerLevel(res.level)
+            try { localStorage.setItem('aiki_last_known_level', String(res.level)) } catch {}
+          }
+        })
+        .catch(() => undefined)
+    }
+
+    fetchFastGamification()
+
+    const handleXpUpdate = (event?: Event) => {
+      if (event instanceof StorageEvent) {
+        if (event.key === 'aiki_last_known_level' && event.newValue) {
+          const val = Number(event.newValue)
+          if (Number.isFinite(val)) setExplorerLevel(val)
+        }
+        if (event.key === 'aiki_last_known_xp' && event.newValue) {
+          const val = Number(event.newValue)
+          if (Number.isFinite(val)) setExplorerXp(val)
+        }
+        return
+      }
+
+      const customEvt = event as CustomEvent<{ xp?: number; level?: number }> | undefined
+      const detail = customEvt?.detail
+      if (detail && (typeof detail.xp === 'number' || typeof detail.level === 'number')) {
+        if (typeof detail.xp === 'number') {
+          setExplorerXp(detail.xp)
+          try { localStorage.setItem('aiki_last_known_xp', String(detail.xp)) } catch {}
+        }
+        if (typeof detail.level === 'number') {
+          setExplorerLevel(detail.level)
+          try { localStorage.setItem('aiki_last_known_level', String(detail.level)) } catch {}
+        }
+      } else {
+        const savedLvl = readStoredNumber('aiki_last_known_level')
+        const savedXp = readStoredNumber('aiki_last_known_xp')
+        if (savedLvl !== undefined) setExplorerLevel(savedLvl)
+        if (savedXp !== undefined) setExplorerXp(savedXp)
+        fetchFastGamification()
+      }
+    }
+
+    window.addEventListener('aikids:xp-updated', handleXpUpdate)
+    window.addEventListener('storage', handleXpUpdate)
+
+    return () => {
+      active = false
+      window.removeEventListener('aikids:xp-updated', handleXpUpdate)
+      window.removeEventListener('storage', handleXpUpdate)
+    }
+  }, [user?.id])
 
   useEffect(() => {
     let active = true
@@ -121,6 +237,20 @@ export function ProfilePage() {
           })))
         setExplorerXp(overview.totalXp)
         setExplorerLevel(overview.level)
+        try {
+          localStorage.setItem('aiki_last_known_xp', String(overview.totalXp))
+          localStorage.setItem('aiki_last_known_level', String(overview.level))
+          localStorage.setItem(
+            'aiki_profile_overview_cache',
+            JSON.stringify({
+              streak: overview.streak,
+              achievements: overview.achievements,
+              projects: overview.projects,
+              totalXp: overview.totalXp,
+              level: overview.level,
+            }),
+          )
+        } catch {}
 
         const profileSettings = overview.profileSettings
         if (profileSettings) {

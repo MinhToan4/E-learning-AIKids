@@ -34,6 +34,7 @@ export interface AikidCatCharacterProps {
   variant?: MeeCatVariant
   quote?: string
   className?: string
+  size?: 'sm' | 'md' | 'lg' | string
   isSpeaking?: boolean
   speechText?: string
   gesture?: Gesture
@@ -57,6 +58,7 @@ export function AikidCatCharacter({
   variant = 'full-body',
   quote,
   className,
+  size,
   isSpeaking,
   speechText,
   gesture,
@@ -66,12 +68,14 @@ export function AikidCatCharacter({
 }: AikidCatCharacterProps) {
   const catState = POSE_TO_STATE_MAP[pose] || 'idle'
   const effectiveGesture = gesture || POSE_TO_GESTURE_MAP[pose] || 'presentation'
+  const sizeClass = size === 'sm' ? 'w-16 h-16' : size === 'md' ? 'w-20 h-20 sm:w-24 sm:h-24' : size === 'lg' ? 'w-28 h-28 sm:w-32 sm:h-32' : ''
 
   return (
     <div
-      className={cn('aikid-cat-character inline-flex items-center justify-center', className)}
+      className={cn('aikid-cat-character inline-flex items-center justify-center', sizeClass, className)}
       data-testid="aikid-cat-character"
       data-pose={pose}
+      data-size={size}
     >
       <MeeCatInteractiveCanvas
         state={catState}

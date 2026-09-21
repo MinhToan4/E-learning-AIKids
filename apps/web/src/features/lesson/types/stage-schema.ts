@@ -111,6 +111,7 @@ export interface QuizStageConfig {
   questions: QuizQuestionItem[]
   passScore?: number
   speech?: string
+  posterUrl?: string
 }
 
 export interface PracticeStageConfig {
@@ -137,5 +138,6 @@ export interface RewardStageConfig {
     xp?: number
   }
   nextLessonSlug?: string
+  nextLessonId?: string
   speech?: string
 }

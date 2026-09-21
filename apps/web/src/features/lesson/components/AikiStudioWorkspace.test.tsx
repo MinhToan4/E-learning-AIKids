@@ -1388,6 +1388,85 @@ describe('AikiStudioWorkspace', () => {
     })
     container.remove()
   })
+
+  it('correctly resolves AI artwork for lessons and keywords via getStudioAIArtwork', () => {
+    // Import and test getStudioAIArtwork
+    const catArt = getStudioAIArtwork('cat-fat', 'bai-1-1', 'Chú Mèo Mướp')
+    expect(catArt).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg')
+
+    const keywordCatArt = getStudioAIArtwork('', 'bai-3-2', 'Con mèo mướp ngủ trên ghế')
+    expect(keywordCatArt).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg')
+
+    const foxArt = getStudioAIArtwork('fire-fox', 'bai-3-2', 'Sóc Bông')
+    expect(foxArt).toBe('/assets/aiki-islands/island3_lesson2_opt_b.jpg')
+
+    const comicArt = getStudioAIArtwork('', 'bai-4-5', '')
+    expect(comicArt).toBe('/assets/aiki-islands/island4_lesson5_comicbook.jpg')
+
+    const arenaArt = getStudioAIArtwork('', 'bai-5-5', '')
+    expect(arenaArt).toBe('/assets/aiki-islands/island5_lesson5_arena.jpg')
+  })
+
+  it('renders studio inspect modal with balanced 2-column responsive layout', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-1"
+          characterName="Mèo Mướp Béo"
+          preloadedImages={[
+            {
+              id: 'test-inspect-1',
+              url: '/sample-cat.jpg',
+              prompt: 'Con mèo mướp béo',
+              time: '14:00',
+              toneBg: 'from-amber-100 to-amber-200',
+              turn: 1,
+              partIndex: 0,
+              partTurn: 1,
+            },
+          ]}
+        />
+      )
+    })
+
+    // Click "Xem to, soi kỹ bức tranh này" (Inspect button)
+    const inspectBtn = container.querySelector('button[title="Xem to, soi kỹ bức tranh này"]') as HTMLButtonElement
+    expect(inspectBtn).not.toBeNull()
+    act(() => {
+      inspectBtn.click()
+    })
+
+    // Modal inspect xuất hiện
+    const modal = container.querySelector('[data-testid="studio-inspect-modal"]')
+    expect(modal).not.toBeNull()
+
+    // Kiểm tra cấu trúc 2 cột cân đối trên PC: container mở rộng max-w-4xl / max-w-5xl
+    const modalContainer = modal?.firstElementChild as HTMLElement
+    expect(modalContainer.className).toContain('md:max-w-4xl')
+    expect(modalContainer.className).toContain('overflow-hidden')
+
+    // Thân modal phân chia 2 cột (md:flex-row)
+    const modalBody = modalContainer.firstElementChild as HTMLElement
+    expect(modalBody.className).toContain('md:flex-row')
+
+    // Nút đóng modal
+    const closeBtn = modal?.querySelector('button[title="Đóng modal"]') as HTMLButtonElement
+    expect(closeBtn).not.toBeNull()
+    act(() => {
+      closeBtn.click()
+    })
+
+    expect(container.querySelector('[data-testid="studio-inspect-modal"]')).toBeNull()
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })
 
 

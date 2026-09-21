@@ -149,5 +149,52 @@ describe('LessonPage prefetch', () => {
     expect(getLessonSpy).toHaveBeenCalledWith('lesson-current')
     expect(getLessonSpy).toHaveBeenCalledWith('lesson-next')
   })
+
+  it('renders SixStageJourneyView with 3 stages for Aiki Rule lesson with DB UUID and QT1 title', async () => {
+    vi.spyOn(learningApi, 'startLesson').mockResolvedValue({
+      progress: {
+        status: 'in_progress',
+        phase: 'learn',
+        stars: 1,
+      },
+    })
+    vi.spyOn(learningApi, 'getLesson').mockImplementation(async () => {
+      return {
+        quest: {
+          id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad',
+          courseId: '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b',
+          order: 1,
+          title: 'QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
+          duration: '52 giây',
+          hook: 'Nghĩ ý tưởng trước khi hỏi AI',
+          accent: '#f59e0b',
+          practiceKind: 'chips',
+          skill: 'Khi con muốn sáng tạo, dừng lại 30 giây để hình dung',
+          reward: 'Huy hiệu Quy tắc 1',
+          goals: ['Bí quyết của con: Hãy luôn nghĩ ý tưởng của riêng con trước'],
+          learnCards: [],
+          check: [],
+        } as unknown as import('@/shared/lib/api').QuestDetail,
+      }
+    })
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/5a2221e2-91a7-42dc-8362-ac9e51d8cc5b/lesson/0da9d441-43a0-4d00-84d7-e8f8958e2aad']}>
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    // Should render SixStageJourneyView with 3 stages
+    expect(container.textContent).toContain('Chặng 1/3')
+    expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
+    // Legacy sidebar / 4-phase tabs should NOT be rendered
+    expect(container.querySelector('[data-testid="legacy-sidebar"]')).toBeNull()
+  })
 })
 

@@ -3,6 +3,7 @@
 type RewardAssetFormat = 'avif' | 'png' | 'svg' | 'webp'
 
 interface AikidsRuntimeConfig {
+  apiBaseUrl?: string
   storagePublicUrl?: string
   rewardAssetTestPath?: string
   rewardAssetBaseUrl?: string
