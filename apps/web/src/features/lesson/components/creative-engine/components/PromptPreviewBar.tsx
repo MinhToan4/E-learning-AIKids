@@ -133,7 +133,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
                   <span
                     data-testid={`prompt-block-chip-${block.id || idx}`}
                     className={cn(
-                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold text-[11px] sm:text-xs max-w-[260px] sm:max-w-[340px] truncate transition-all hover:scale-102 shadow-2xs',
+                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border font-bold text-[11px] sm:text-xs max-w-full break-words whitespace-normal leading-snug transition-all hover:scale-102 shadow-2xs',
                       colorClass
                     )}
                     title={
@@ -152,7 +152,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
                       {mode === 'prompt-doctor' && block.category !== 'subject' && '💊 Đơn thuốc: '}
                       {mode !== 'magic-keys' && mode !== 'prompt-doctor' && (block.icon || '✨')}
                     </span>
-                    <span className="leading-snug truncate">{block.text || block.label}</span>
+                    <span className="leading-snug break-words whitespace-normal">{block.text || block.label}</span>
                   </span>
                 </React.Fragment>
               )

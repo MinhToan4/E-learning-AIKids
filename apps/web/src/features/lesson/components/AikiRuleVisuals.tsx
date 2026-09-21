@@ -499,6 +499,7 @@ export type ZoomImageData = {
   title: string
   subtitle: string
   url?: string
+  fallbackUrl?: string
   isFallbackZico?: boolean
   isFallbackSonet?: boolean
   description: string
@@ -512,7 +513,34 @@ export function AikiPictureZoomModal({
   data: ZoomImageData | null
   onClose: () => void
 }) {
+  const [imgSrc, setImgSrc] = React.useState<string | undefined>(data?.url)
+
+  React.useEffect(() => {
+    setImgSrc(data?.url)
+  }, [data?.url])
+
+  React.useEffect(() => {
+    if (!data) return
+    const origOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = origOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [data, onClose])
+
   if (!data) return null
+
+  const handleImgError = () => {
+    const fallback = data.fallbackUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+    if (imgSrc !== fallback) {
+      setImgSrc(fallback)
+    }
+  }
 
   return (
     <div
@@ -523,14 +551,14 @@ export function AikiPictureZoomModal({
       aria-label={`Xem to ${data.title}`}
     >
       <div
-        className="relative max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border-3 border-amber-300 bg-white p-5 sm:p-6 shadow-clay animate-pop"
+        className="relative max-h-[92dvh] w-full max-w-5xl lg:max-w-6xl overflow-y-auto rounded-3xl border-3 border-amber-300 bg-white p-5 sm:p-7 shadow-clay animate-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Nút đóng X */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 grid size-10 place-items-center rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition active:scale-95"
+          className="absolute top-4 right-4 grid size-10 place-items-center rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition active:scale-95 cursor-pointer"
           aria-label="Đóng xem to"
         >
           <X size={20} />
@@ -545,13 +573,13 @@ export function AikiPictureZoomModal({
         </h3>
 
         {/* Khung ảnh to */}
-        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-amber-200 aspect-[4/3] bg-slate-50 flex items-center justify-center">
-          {data.url ? (
+        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-amber-200 aspect-[4/3] max-h-[62vh] bg-slate-50 flex items-center justify-center">
+          {imgSrc ? (
             <img
-              src={data.url}
+              src={imgSrc}
               alt={data.title}
               className="size-full object-contain"
-              onError={(e) => { e.currentTarget.style.display = 'none' }}
+              onError={handleImgError}
             />
           ) : data.isFallbackZico ? (
             <ZicoDrawingFallback className="size-full" />

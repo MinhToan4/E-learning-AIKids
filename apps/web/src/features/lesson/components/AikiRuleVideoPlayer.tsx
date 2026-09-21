@@ -485,7 +485,7 @@ export function AikiRuleVideoPlayer({
                 <ZicoDrawingFallback className="size-full min-h-0" />
               </div>
               <div className="text-amber-950 bg-white/95 border-t border-amber-200 p-2 text-center">
-                <p className="text-[11px] sm:text-xs font-bold text-amber-950 truncate">
+                <p className="text-[11px] sm:text-xs font-bold text-amber-950 break-words leading-snug">
                   Siêu anh hùng quen thuộc (gõ từ chung chung)
                 </p>
               </div>
@@ -523,7 +523,7 @@ export function AikiRuleVideoPlayer({
                 <SonetDrawingFallback className="size-full min-h-0" />
               </div>
               <div className="text-amber-950 bg-white/95 border-t border-amber-200 p-2 text-center">
-                <p className="text-[11px] sm:text-xs font-bold text-amber-950 truncate">
+                <p className="text-[11px] sm:text-xs font-bold text-amber-950 break-words leading-snug">
                   Siêu anh hùng bố sợ gián, cầm vợt muỗi ✨
                 </p>
               </div>
@@ -628,7 +628,7 @@ export function AikiRuleVideoPlayer({
             <span>·</span>
             <span className="text-amber-300">{currentSlide.speaker}</span>
           </div>
-          <p className="font-display text-xs sm:text-base font-bold text-white drop-shadow-md max-w-2xl mx-auto leading-snug line-clamp-2">
+          <p className="font-display text-xs sm:text-base font-bold text-white drop-shadow-md max-w-2xl mx-auto leading-snug break-words">
             "{currentSlide.dialogue}"
           </p>
         </div>

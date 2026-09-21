@@ -11,7 +11,7 @@ export interface ConfirmStageBlockProps {
   isCorrect?: boolean | null
   failedOptionImages?: Record<string, boolean>
   onSelectOption?: (index: number) => void
-  onImageClick?: (image: { url: string; title: string }) => void
+  onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onOptionImageError?: (optKey: string) => void
   onPrevious?: () => void
   onContinue?: () => void
@@ -29,6 +29,24 @@ export function ConfirmStageBlock({
   onContinue,
 }: ConfirmStageBlockProps) {
   const { config } = stage
+
+  const [displayedOptionSrcs, setDisplayedOptionSrcs] = React.useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {}
+    config.options.forEach((opt, idx) => {
+      const key = opt.id || `opt-${idx}`
+      if (opt.imageUrl) initial[key] = opt.imageUrl
+    })
+    return initial
+  })
+
+  React.useEffect(() => {
+    const updated: Record<string, string> = {}
+    config.options.forEach((opt, idx) => {
+      const key = opt.id || `opt-${idx}`
+      if (opt.imageUrl) updated[key] = opt.imageUrl
+    })
+    setDisplayedOptionSrcs(updated)
+  }, [config.options])
 
   const hasAnyValidOptionImg = useMemo(() => {
     return config.options.some((opt, idx) => {
@@ -162,9 +180,13 @@ export function ConfirmStageBlock({
                     <img
                       loading="lazy"
                       decoding="async"
-                      src={option.imageUrl}
+                      src={displayedOptionSrcs[optKey] || option.imageUrl}
                       alt={option.text}
                       className="w-full h-auto max-h-[220px] object-contain rounded-xl group-hover:scale-[1.02] transition-transform duration-200"
+                      onError={() => {
+                        const fallback = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                        setDisplayedOptionSrcs((prev) => ({ ...prev, [optKey]: fallback }))
+                      }}
                     />
                   </div>
                 ) : (
@@ -197,7 +219,7 @@ export function ConfirmStageBlock({
                           >
                             CHÌA {kIdx + 1}
                           </span>
-                          <span className="text-[11px] sm:text-xs font-black text-slate-800 line-clamp-2 leading-tight break-words text-center">
+                          <span className="text-[11px] sm:text-xs font-black text-slate-800 leading-tight break-words text-center">
                             {k.label}
                           </span>
                         </div>
@@ -295,11 +317,13 @@ export function ConfirmStageBlock({
                     <img
                       loading="lazy"
                       decoding="async"
-                      src={option.imageUrl}
+                      src={displayedOptionSrcs[optKey] || option.imageUrl}
                       alt={option.text}
                       className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
                       onError={() => {
                         onOptionImageError?.(optKey)
+                        const fallback = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                        setDisplayedOptionSrcs((prev) => ({ ...prev, [optKey]: fallback }))
                       }}
                     />
                     <span
@@ -308,15 +332,25 @@ export function ConfirmStageBlock({
                       aria-label="Xem ảnh phóng to"
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (option.imageUrl) {
-                          onImageClick?.({ url: option.imageUrl, title: option.text })
+                        const optSrc = displayedOptionSrcs[optKey] || option.imageUrl
+                        if (optSrc) {
+                          onImageClick?.({
+                            url: optSrc,
+                            title: option.text,
+                            fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                          })
                         }
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.stopPropagation()
-                          if (option.imageUrl) {
-                            onImageClick?.({ url: option.imageUrl, title: option.text })
+                          const optSrc = displayedOptionSrcs[optKey] || option.imageUrl
+                          if (optSrc) {
+                            onImageClick?.({
+                              url: optSrc,
+                              title: option.text,
+                              fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                            })
                           }
                         }
                       }}

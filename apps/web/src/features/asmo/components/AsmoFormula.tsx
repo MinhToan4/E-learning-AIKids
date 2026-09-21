@@ -5,6 +5,7 @@ import 'katex/dist/katex.min.css'
 type Props = {
   text: string
   className?: string
+  as?: 'div' | 'span'
 }
 
 export const KATEX_MACROS: Record<string, string> = {
@@ -175,7 +176,7 @@ export function sanitizeFormulaInput(raw: string): string {
   return clean
 }
 
-export function AsmoFormula({ text, className }: Props) {
+export function AsmoFormula({ text, className, as: Component = 'div' }: Props) {
   const html = useMemo(() => {
     if (!text) return ''
 
@@ -378,7 +379,7 @@ export function AsmoFormula({ text, className }: Props) {
   }, [text])
 
   return (
-    <div
+    <Component
       className={className}
       dangerouslySetInnerHTML={{ __html: html }}
     />

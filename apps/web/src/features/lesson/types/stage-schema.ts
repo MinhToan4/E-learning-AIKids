@@ -88,6 +88,13 @@ export interface VideoStageConfig {
   timestamps: VideoTimestampItem[]
   isDedicatedLessonVideo?: boolean
   speech?: string
+  slides?: Array<{
+    stage: string
+    speaker: string
+    dialogue: string
+    screenAction?: string
+    image?: string
+  }>
 }
 
 export interface QuizQuestionItem {

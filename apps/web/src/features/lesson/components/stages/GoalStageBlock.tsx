@@ -9,7 +9,7 @@ import { GOAL_CARD_STYLES } from '../../lib/stage-adapter'
 export interface GoalStageBlockProps {
   stage: JourneyStageDefinition<GoalStageConfig>
   onContinue?: () => void
-  onImageClick?: (image: { url: string; title: string }) => void
+  onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
 }
 
 export function GoalStageBlock({
@@ -18,6 +18,26 @@ export function GoalStageBlock({
   onImageClick,
 }: GoalStageBlockProps) {
   const { config } = stage
+  const [displayedSrc, setDisplayedSrc] = React.useState<string>(config.imageUrl)
+
+  React.useEffect(() => {
+    setDisplayedSrc(config.imageUrl)
+  }, [config.imageUrl])
+
+  const handleImageError = () => {
+    const fallback = config.fallbackImageUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+    if (displayedSrc !== fallback) {
+      setDisplayedSrc(fallback)
+    }
+  }
+
+  const handleImageZoom = () => {
+    onImageClick?.({
+      url: displayedSrc,
+      title: config.title,
+      fallbackUrl: config.fallbackImageUrl,
+    })
+  }
 
   return (
     <section
@@ -43,20 +63,11 @@ export function GoalStageBlock({
             <img
               fetchPriority="high"
               decoding="async"
-              src={config.imageUrl}
+              src={displayedSrc}
               alt={config.title}
               className="w-full h-full object-contain rounded-2xl cursor-pointer group-hover:scale-105 transition-transform duration-300"
-              onClick={() =>
-                onImageClick?.({
-                  url: config.imageUrl,
-                  title: config.title,
-                })
-              }
-              onError={(e) => {
-                if (config.fallbackImageUrl) {
-                  (e.target as HTMLImageElement).src = config.fallbackImageUrl
-                }
-              }}
+              onClick={handleImageZoom}
+              onError={handleImageError}
             />
             {/* sr-only text và nút Phóng to */}
             <div className="sr-only">
@@ -73,12 +84,7 @@ export function GoalStageBlock({
             </div>
             <button
               type="button"
-              onClick={() =>
-                onImageClick?.({
-                  url: config.imageUrl,
-                  title: config.title,
-                })
-              }
+              onClick={handleImageZoom}
               className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
               title="Xem ảnh phóng to"
             >
@@ -96,9 +102,9 @@ export function GoalStageBlock({
               <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
                 Mục Tiêu Cốt Lõi:
               </span>
-              <p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
+              <div className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
                 <AsmoFormula text={config.goalText} />
-              </p>
+              </div>
             </div>
           </div>
 
@@ -134,7 +140,7 @@ export function GoalStageBlock({
                         [{idx + 1}] {card.code}
                       </span>
                       <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
-                        <AsmoFormula text={card.val} />
+                        <AsmoFormula text={card.val} as="span" />
                       </p>
                       <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
                         ({card.sub})

@@ -753,10 +753,10 @@ describe('CreativeEngine Suite', () => {
       expect(html).toContain('sm:max-h-[82px]')
       expect(html).toContain('overflow-y-auto')
 
-      // Kiểm tra chip có truncate và max-w bảo vệ layout mobile/tablet
-      expect(html).toContain('max-w-[260px]')
-      expect(html).toContain('sm:max-w-[340px]')
-      expect(html).toContain('truncate')
+      // Kiểm tra chip có break-words và whitespace-normal bảo vệ layout mobile/tablet không bị cắt chữ
+      expect(html).toContain('max-w-full')
+      expect(html).toContain('break-words')
+      expect(html).toContain('whitespace-normal')
 
       // Kiểm tra 4 khối từ vựng
       expect(html).toContain('data-testid="prompt-block-chip-sub-cup"')

@@ -2291,12 +2291,18 @@ export function AikiStudioWorkspace({
     }
 
     setTimeout(() => {
-      setIsSubmitModalOpen(false)
-      onSubmitWork?.({
-        selectedImage: finalCandidate,
-        prompt: finalCandidate.prompt,
-        images: gallery.length > 0 ? gallery : [finalCandidate],
-      })
+      try {
+        if (typeof window !== 'undefined') {
+          setIsSubmitModalOpen(false)
+          onSubmitWork?.({
+            selectedImage: finalCandidate,
+            prompt: finalCandidate.prompt,
+            images: gallery.length > 0 ? gallery : [finalCandidate],
+          })
+        }
+      } catch {
+        // ignore unmounted component
+      }
     }, 1400)
   }
 
@@ -3013,7 +3019,7 @@ export function AikiStudioWorkspace({
           {/* 3. Khung kiểm chứng đặc điểm (Verification Step) nếu có đặt gọn gàng phía trên CreativeEngineShell */}
           {!isCreativeNotebook && (currentWorkflowStep >= 2 || (preloadedImages && preloadedImages.length > 0)) && (
             <div className="bg-amber-50/90 border border-amber-200/90 rounded-2xl px-3 py-1.5 flex items-center justify-between gap-2 shadow-2xs shrink-0 flex-wrap sm:flex-nowrap">
-              <p className="text-xs font-black text-amber-950 truncate">
+              <p className="text-xs font-black text-amber-950 break-words leading-snug">
                 {effectiveVerificationQuestion.question}
               </p>
 
@@ -3737,7 +3743,7 @@ export function AikiStudioWorkspace({
                               <span>{partDef?.icon || '🎨'}</span>
                               <span className="truncate">{itemTitle} · Lượt {turnNumber}</span>
                             </div>
-                            <p className="text-[10px] text-slate-500 font-medium truncate">
+                            <p className="text-[10px] text-slate-500 font-medium break-words line-clamp-2 sm:line-clamp-none">
                               {img.prompt}
                             </p>
                           </div>

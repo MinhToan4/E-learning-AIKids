@@ -201,5 +201,25 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage2_confirmGoal.options).toHaveLength(2)
       expect(resolved.stage5_practice.maxAttempts).toBe(6)
     })
+
+    it('accurately resolves rule quests (rule-1, qt-1) to /assets/aiki-rules/ without invalid /assets/aiki-islands/ URLs', () => {
+      const ruleQuest: QuestDetail = {
+        ...mockQuest,
+        id: 'rule-1',
+        courseId: 'aiki-rules',
+        title: 'Quy tắc 1: Hãy nghĩ ý tưởng của cậu',
+        coverImage: undefined,
+        sixStageJourney: undefined,
+      }
+
+      const resolved = resolveIslandSixStageJourney(ruleQuest)
+      // Must point to rule1 superhero dad poster, NEVER island1_lessonrule-1_cat.jpg
+      expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(resolved.stage1_goal.imageUrl).not.toContain('lessonrule-')
+      expect(resolved.stage2_confirmGoal.options[0].imageUrl).toBe('/assets/aiki-rules/rule1_opt_zico.jpg')
+      expect(resolved.stage2_confirmGoal.options[1].imageUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.jpg')
+      expect(resolved.stage6_completion.nextLessonSlug).toBe('rule-2')
+      expect(resolved.stage6_completion.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+    })
   })
 })

@@ -606,6 +606,86 @@ describe('SixStageJourneyView', () => {
     expect(document.body.querySelector('[data-testid="lightbox-modal"]')).toBeNull()
   })
 
+  it('verifies Responsive Full-Screen Lightbox Modal controls, self-healing image fallback, and zoom scaling', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialStageIndex={0}
+        />
+      )
+    })
+
+    const stage0Section = container.querySelector('section[data-testid="stage-0-goal"]')
+    expect(stage0Section).not.toBeNull()
+
+    // Find and click zoom button on Stage 0
+    const zoomBtn = Array.from(stage0Section?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Phóng to')
+    )
+    expect(zoomBtn).toBeDefined()
+
+    act(() => {
+      zoomBtn?.click()
+    })
+
+    const modal = document.body.querySelector('[data-testid="lightbox-modal"]')
+    expect(modal).not.toBeNull()
+    expect(modal?.className).toContain('fixed')
+    expect(modal?.className).toContain('bg-black/90')
+
+    // Verify PC control buttons: Fullscreen, Zoom In, Zoom Out, Reset, and Close
+    const fullscreenBtn = modal?.querySelector('button[title*="Toàn màn hình"]') as HTMLButtonElement | null
+    expect(fullscreenBtn).not.toBeNull()
+
+    const zoomInBtn = modal?.querySelector('button[title*="Phóng to"]') as HTMLButtonElement | null
+    expect(zoomInBtn).not.toBeNull()
+
+    const zoomOutBtn = modal?.querySelector('button[title*="Thu nhỏ"]') as HTMLButtonElement | null
+    expect(zoomOutBtn).not.toBeNull()
+
+    const resetBtn = modal?.querySelector('button[title*="Đặt lại"]') as HTMLButtonElement | null
+    expect(resetBtn).not.toBeNull()
+
+    const closeBtn = modal?.querySelector('button[aria-label="Đóng"]') as HTMLButtonElement | null
+    expect(closeBtn).not.toBeNull()
+
+    // Test Zoom In scaling
+    const modalImg = modal?.querySelector('img') as HTMLImageElement
+    expect(modalImg).not.toBeNull()
+    expect(modalImg.className).toContain('max-w-[95vw]')
+    expect(modalImg.className).toContain('object-contain')
+
+    act(() => {
+      zoomInBtn?.click()
+    })
+    expect(resetBtn?.textContent).toContain('125%')
+    expect(modalImg.style.transform).toBe('scale(1.25)')
+
+    // Test Reset scaling back to 100%
+    act(() => {
+      resetBtn?.click()
+    })
+    expect(resetBtn?.textContent).toContain('100%')
+    expect(modalImg.style.transform).toBe('')
+
+    // Test Self-Healing image fallback on error in Modal
+    act(() => {
+      modalImg.dispatchEvent(new Event('error'))
+    })
+    // Recovered to fallback
+    expect(modalImg.src).toContain('/assets/aiki-islands/island1_lesson1_cat.jpg?v=2')
+
+    // Close modal via close button
+    act(() => {
+      closeBtn?.click()
+    })
+    expect(document.body.querySelector('[data-testid="lightbox-modal"]')).toBeNull()
+  })
+
   it('verifies Stage 0 (Chặng 1) layout has 2 columns: left image container with aspect-[4/3] max-h-[380px] object-contain, right objective and 2x2 formula keys', () => {
     const root = createRoot(container)
     act(() => {

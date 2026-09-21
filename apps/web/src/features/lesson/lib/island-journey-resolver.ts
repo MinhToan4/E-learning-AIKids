@@ -13,6 +13,7 @@ import {
   findIslandCurriculum,
   ISLAND_CURRICULUM_MAP,
 } from '../data/island-curriculum-registry'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 
 /**
  * Tính toán slug bài học tiếp theo cho các Đảo M1-M5
@@ -123,8 +124,30 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   const islandMatch = quest.id.match(/bai-(\d+)/i)
   const islandNum = islandMatch ? islandMatch[1] : '1'
 
-  const defaultCover = `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_cat.jpg`
-  const resolvedCover = quest.coverImage || quest.media?.[0]?.url || quest.learnCards?.[0]?.imageUrl || defaultCover
+  const isRuleCourse =
+    quest.courseId === 'aiki-rules' ||
+    /^rule[-_]?\d+/i.test(quest.id) ||
+    /^qt[-_]?\d+/i.test(quest.id)
+
+  let defaultCover = `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_cat.jpg`
+  let ruleOptionAImg: string | undefined
+  let ruleOptionBImg: string | undefined
+  let ruleNum = 1
+
+  if (isRuleCourse) {
+    const ruleMatch = quest.id.match(/(?:rule|qt)[-_]?(\d+)/i)
+    ruleNum = ruleMatch ? parseInt(ruleMatch[1], 10) : 1
+    const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum)
+    defaultCover = matchedRule?.posterImage || `/assets/aiki-rules/rule${ruleNum}_superhero_dad.jpg`
+    if (matchedRule) {
+      ruleOptionAImg = matchedRule.slides?.[0]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_a.jpg`
+      ruleOptionBImg = matchedRule.slides?.[1]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_b.jpg`
+    }
+  }
+
+  const rawCover = quest.coverImage || quest.media?.[0]?.url || quest.learnCards?.[0]?.imageUrl
+  const isInvalidCover = !rawCover || rawCover.includes('lessonrule-')
+  const resolvedCover = isInvalidCover ? defaultCover : rawCover
 
   // ── Chặng 1: stage1_goal ──
   const stage1_goal: SixStageGoal = {
@@ -148,8 +171,18 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
 
   const optionADesc = riddleCard?.optionDescs?.[0] || quest.check?.[0]?.options?.[0] || 'Tùy chọn A cụ thể'
   const optionBDesc = riddleCard?.optionDescs?.[1] || quest.check?.[0]?.options?.[1] || 'Tùy chọn B cụ thể'
-  const optionAImg = riddleCard?.optionImages?.[0] || `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_a.jpg`
-  const optionBImg = riddleCard?.optionImages?.[1] || `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_b.jpg`
+
+  const defaultOptA = isRuleCourse
+    ? (ruleOptionAImg || `/assets/aiki-rules/rule1_opt_zico.jpg`)
+    : `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_a.jpg`
+  const defaultOptB = isRuleCourse
+    ? (ruleOptionBImg || `/assets/aiki-rules/rule1_opt_sonet.jpg`)
+    : `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_b.jpg`
+
+  const rawOptA = riddleCard?.optionImages?.[0]
+  const rawOptB = riddleCard?.optionImages?.[1]
+  const optionAImg = (rawOptA && !rawOptA.includes('lessonrule-')) ? rawOptA : defaultOptA
+  const optionBImg = (rawOptB && !rawOptB.includes('lessonrule-')) ? rawOptB : defaultOptB
 
   const stage2_confirmGoal: SixStageConfirmGoal = {
     id: `${quest.id}-confirm`,
@@ -285,6 +318,10 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   }
 
   // ── Chặng 6: stage6_completion ──
+  const nextLessonSlug = isRuleCourse
+    ? (ruleNum < 10 ? `rule-${ruleNum + 1}` : undefined)
+    : computeNextIslandLessonSlug(quest.id)
+
   const stage6_completion: SixStageCompletion = {
     id: `${quest.id}-complete`,
     title: 'Chúc mừng bé hoàn thành bài học!',
@@ -293,9 +330,9 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
       name: quest.title,
       stars: 3,
       xp: 50,
-      iconUrl: '/assets/icons/badge-gold.svg',
+      iconUrl: isRuleCourse ? defaultCover : '/assets/icons/badge-gold.svg',
     },
-    nextLessonSlug: computeNextIslandLessonSlug(quest.id),
+    nextLessonSlug,
   }
 
   return {

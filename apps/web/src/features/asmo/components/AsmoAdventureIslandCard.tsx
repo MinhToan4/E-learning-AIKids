@@ -370,7 +370,7 @@ export function AsmoAdventureIslandCard({
               <div className="flex items-center gap-1 text-amber-500 mb-0.5 text-[10px] uppercase font-black">
                 <span>🐾 Mèo Mee</span>
               </div>
-              <p className="line-clamp-2">
+              <p className="break-words leading-snug line-clamp-3 sm:line-clamp-none">
                 {theme.meeQuotes[0] || 'Cùng Mee chinh phục bài này nhé bé ơi!'}
               </p>
               {/* Bubble Arrow pointing right towards Mee */}

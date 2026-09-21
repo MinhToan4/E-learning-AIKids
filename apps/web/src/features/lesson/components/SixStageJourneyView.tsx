@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import {
   Target,
   HelpCircle,
@@ -17,6 +17,10 @@ import {
   MessageSquare,
   RotateCcw,
   Lock,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react'
 import { CourseCertificateModal } from './CourseCertificateModal'
 import { cn } from '@/shared/lib/cn'
@@ -248,18 +252,75 @@ export function SixStageJourneyView({
   const [practicePartsState, setPracticePartsState] = useState<PracticePartState[]>([])
 
   // Lightbox Modal state
-  const [zoomImage, setZoomImage] = useState<{ url: string; title: string } | null>(null)
+  const [zoomImage, setZoomImage] = useState<{ url: string; title: string; fallbackUrl?: string } | null>(null)
+  const [modalImgSrc, setModalImgSrc] = useState<string>('')
+  const [zoomScale, setZoomScale] = useState<number>(1)
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (zoomImage) {
+      setModalImgSrc(zoomImage.url)
+      setZoomScale(1)
+    }
+  }, [zoomImage])
 
   useEffect(() => {
     if (!zoomImage) return
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (document.fullscreenElement) {
+          document.exitFullscreen?.().catch(() => {})
+        }
         setZoomImage(null)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = originalOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
   }, [zoomImage])
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      const el = modalRef.current || document.documentElement
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {})
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement))
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
+  const handleModalImgError = useCallback(() => {
+    const fallback = zoomImage?.fallbackUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+    if (modalImgSrc !== fallback) {
+      setModalImgSrc(fallback)
+    } else if (modalImgSrc !== '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2') {
+      setModalImgSrc('/assets/aiki-islands/island1_lesson1_cat.jpg?v=2')
+    }
+  }, [modalImgSrc, zoomImage])
+
+  const handleCloseModal = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {})
+    }
+    setZoomImage(null)
+  }, [])
 
   const handleStageSelect = useCallback(
     (index: number) => {
@@ -638,6 +699,7 @@ export function SixStageJourneyView({
           className={cn(
             'flex-1 min-w-0 flex flex-col gap-4 pr-1',
             currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
+            currentStageDef?.type === 'REWARD' ? 'overflow-y-auto pb-28 sm:pb-6' : '',
             (isSidebarCollapsed || currentStageDef?.type === 'PRACTICE' || currentStageDef?.type === 'REWARD')
               ? 'w-full'
               : 'w-full md:flex-1'
@@ -720,6 +782,7 @@ export function SixStageJourneyView({
               onNavigateNextLesson={onNavigateNextLesson}
               onBackToMap={onBackToMap}
               onFinishLesson={onFinishLesson}
+              onOpenCertificate={() => setIsCertificateModalOpen(true)}
             />
           )}
 
@@ -1538,39 +1601,106 @@ export function SixStageJourneyView({
         )}
       </div>
 
-      {/* ── LIGHTBOX MODAL PHÓNG TO ẢNH FULL-SCREEN ── */}
+      {/* ── LIGHTBOX MODAL PHÓNG TO ẢNH FULL-SCREEN RESPONSIVE ── */}
       {zoomImage && (
         <div
+          ref={modalRef}
           data-testid="lightbox-modal"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
-          onClick={() => setZoomImage(null)}
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fade-in select-none"
+          onClick={handleCloseModal}
         >
+          {/* Bộ công cụ điều khiển trên PC / Tablet: Fullscreen, Zoom In, Zoom Out, Reset */}
           <div
-            className="relative max-w-4xl max-h-[90dvh] w-full flex flex-col items-center justify-center"
+            className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex items-center gap-1 sm:gap-1.5 bg-black/70 hover:bg-black/85 p-1 sm:p-1.5 rounded-full border border-white/25 backdrop-blur-md shadow-xl text-white"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Nút Toàn màn hình (Fullscreen Toggle ⛶) */}
             <button
               type="button"
-              aria-label="Đóng"
-              onClick={() => setZoomImage(null)}
-              className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-xl font-bold backdrop-blur-md transition cursor-pointer shadow-lg border border-white/30"
+              onClick={toggleFullscreen}
+              className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 active:scale-90 transition cursor-pointer flex items-center justify-center text-white"
+              title={isFullscreen ? 'Thu nhỏ cửa sổ' : 'Toàn màn hình (⛶)'}
+              aria-label="Toàn màn hình"
             >
-              <X size={24} />
+              {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
 
-            <img
-              decoding="async"
-              src={zoomImage.url}
-              alt={zoomImage.title}
-              className="max-w-4xl max-h-[85dvh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/20 bg-black/40"
-            />
+            <div className="h-4 w-[1px] bg-white/30 my-auto" />
 
+            {/* Nút Zoom Out (-) */}
+            <button
+              type="button"
+              disabled={zoomScale <= 1}
+              onClick={() => setZoomScale((prev) => Math.max(1, +(prev - 0.25).toFixed(2)))}
+              className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 disabled:opacity-40 disabled:hover:bg-transparent active:scale-90 transition cursor-pointer flex items-center justify-center text-white"
+              title="Thu nhỏ (-)"
+              aria-label="Thu nhỏ"
+            >
+              <ZoomOut size={18} />
+            </button>
+
+            {/* Nút Reset (↺) */}
+            <button
+              type="button"
+              onClick={() => setZoomScale(1)}
+              className="px-2 py-1 rounded-full hover:bg-white/20 active:scale-95 transition cursor-pointer flex items-center gap-1 text-white text-xs font-bold"
+              title="Đặt lại kích thước gốc 100% (↺)"
+              aria-label="Đặt lại kích thước gốc"
+            >
+              <span>{Math.round(zoomScale * 100)}%</span>
+              {zoomScale > 1 && <RotateCcw size={13} className="text-amber-300" />}
+            </button>
+
+            {/* Nút Zoom In (+) */}
+            <button
+              type="button"
+              disabled={zoomScale >= 2.5}
+              onClick={() => setZoomScale((prev) => Math.min(2.5, +(prev + 0.25).toFixed(2)))}
+              className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 disabled:opacity-40 disabled:hover:bg-transparent active:scale-90 transition cursor-pointer flex items-center justify-center text-white"
+              title="Phóng to (+)"
+              aria-label="Phóng to"
+            >
+              <ZoomIn size={18} />
+            </button>
+          </div>
+
+          {/* Nút Đóng (X) to rõ góc trên bên phải */}
+          <button
+            type="button"
+            aria-label="Đóng"
+            onClick={handleCloseModal}
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 text-white border border-white/30 active:scale-95 flex items-center justify-center transition cursor-pointer shadow-lg backdrop-blur-md"
+            title="Đóng xem ảnh (Esc)"
+          >
+            <X size={24} />
+          </button>
+
+          {/* Container ảnh to bản Full-Screen */}
+          <div
+            className="relative w-full h-full max-w-[96vw] max-h-[92vh] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex-1 min-h-0 w-full flex items-center justify-center overflow-auto p-1 sm:p-2">
+              <img
+                decoding="async"
+                src={modalImgSrc || zoomImage.url}
+                alt={zoomImage.title}
+                onError={handleModalImgError}
+                style={{
+                  transform: zoomScale > 1 ? `scale(${zoomScale})` : undefined,
+                  transformOrigin: 'center center',
+                }}
+                className="w-auto h-auto max-w-[95vw] max-h-[82vh] lg:max-h-[84vh] object-contain rounded-2xl sm:rounded-3xl shadow-2xl transition-transform duration-200 select-none border border-white/20 bg-black/40"
+              />
+            </div>
+
+            {/* Thẻ tiêu đề tranh dưới đáy */}
             {zoomImage.title && (
-              <p className="mt-3 text-sm sm:text-base text-white/90 font-medium text-center bg-black/60 px-4 py-1.5 rounded-full backdrop-blur-xs max-w-xl truncate">
+              <div className="mt-2.5 text-xs sm:text-sm font-bold text-white bg-black/75 px-4 py-1.5 rounded-full backdrop-blur-md max-w-[90vw] sm:max-w-2xl truncate text-center shadow-lg border border-white/10 shrink-0">
                 {zoomImage.title}
-              </p>
+              </div>
             )}
           </div>
         </div>

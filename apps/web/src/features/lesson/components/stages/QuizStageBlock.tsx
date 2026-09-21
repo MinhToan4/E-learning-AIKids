@@ -20,7 +20,7 @@ export interface QuizStageBlockProps {
   onSetActiveQuizQuestion?: (index: number | ((prev: number) => number)) => void
   onSubmitQuiz?: () => void
   onQuizImageError?: (questionIdx: number) => void
-  onImageClick?: (image: { url: string; title: string }) => void
+  onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onPrevious?: () => void
   onContinue?: () => void
 }
@@ -45,6 +45,22 @@ export function QuizStageBlock({
 }: QuizStageBlockProps) {
   const { config } = stage
   const questions = config.questions || []
+
+  const [displayedQuizSrcs, setDisplayedQuizSrcs] = React.useState<Record<number, string>>(() => {
+    const initial: Record<number, string> = {}
+    questions.forEach((q, idx) => {
+      if (q.visualUrl) initial[idx] = q.visualUrl
+    })
+    return initial
+  })
+
+  React.useEffect(() => {
+    const updated: Record<number, string> = {}
+    questions.forEach((q, idx) => {
+      if (q.visualUrl) updated[idx] = q.visualUrl
+    })
+    setDisplayedQuizSrcs(updated)
+  }, [questions])
 
   const handleOptionSelect = (qIdx: number, optIdx: number, correctIndex: number) => {
     if (checkedQuestions[qIdx] || quizSubmitted) return
@@ -159,21 +175,39 @@ export function QuizStageBlock({
                       <img
                         loading="lazy"
                         decoding="async"
-                        src={question.visualUrl}
+                        src={displayedQuizSrcs[qIdx] || question.visualUrl}
                         alt={question.prompt}
                         className="w-full h-full object-cover cursor-pointer group-hover:scale-103 transition-transform duration-300"
                         onError={() => {
                           onQuizImageError?.(qIdx)
+                          setDisplayedQuizSrcs((prev) => ({
+                            ...prev,
+                            [qIdx]: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                          }))
                         }}
-                        onClick={() =>
-                          onImageClick?.({ url: question.visualUrl!, title: question.prompt })
-                        }
+                        onClick={() => {
+                          const src = displayedQuizSrcs[qIdx] || question.visualUrl
+                          if (src) {
+                            onImageClick?.({
+                              url: src,
+                              title: question.prompt,
+                              fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                            })
+                          }
+                        }}
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          onImageClick?.({ url: question.visualUrl!, title: question.prompt })
-                        }
+                        onClick={() => {
+                          const src = displayedQuizSrcs[qIdx] || question.visualUrl
+                          if (src) {
+                            onImageClick?.({
+                              url: src,
+                              title: question.prompt,
+                              fallbackUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                            })
+                          }
+                        }}
                         className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1.5 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
                         title="Xem ảnh phóng to"
                       >
@@ -196,7 +230,7 @@ export function QuizStageBlock({
                         CÂU {qIdx + 1}
                       </span>
                     </div>
-                    <h3 className="text-sm sm:text-base md:text-lg font-black text-slate-900 leading-snug line-clamp-2">
+                    <h3 className="text-sm sm:text-base md:text-lg font-black text-slate-900 break-words leading-snug">
                       {question.prompt}
                     </h3>
                   </div>

@@ -11,7 +11,8 @@ export interface RewardStageBlockProps {
   onNavigateNextLesson?: (nextSlug: string) => void
   onBackToMap?: () => void
   onFinishLesson?: (summary: { stars: number; xp: number; nextLessonSlug?: string }) => void
-  onImageClick?: (image: { url: string; title: string }) => void
+  onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
+  onOpenCertificate?: () => void
 }
 
 export function RewardStageBlock({
@@ -23,18 +24,42 @@ export function RewardStageBlock({
   onBackToMap,
   onFinishLesson,
   onImageClick,
+  onOpenCertificate,
 }: RewardStageBlockProps) {
   const { config } = stage
 
-  const artworkUrl =
+  const fallbackRewardUrl = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+  const targetArtworkUrl =
     submittedArtwork?.image.url ||
     config.rewardBadge.iconUrl ||
-    '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+    fallbackRewardUrl
+
+  const [displayedSrc, setDisplayedSrc] = React.useState<string>(targetArtworkUrl)
+
+  React.useEffect(() => {
+    setDisplayedSrc(targetArtworkUrl)
+  }, [targetArtworkUrl])
+
+  const handleImageZoom = () => {
+    if (displayedSrc) {
+      onImageClick?.({
+        url: displayedSrc,
+        title: 'Tác phẩm kiệt xuất của bé',
+        fallbackUrl: fallbackRewardUrl,
+      })
+    }
+  }
+
+  const handleImageError = () => {
+    if (displayedSrc !== fallbackRewardUrl) {
+      setDisplayedSrc(fallbackRewardUrl)
+    }
+  }
 
   return (
     <section
       data-testid="stage-5-completion"
-      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border-2 border-brand-100 bg-white p-3.5 sm:p-5 lg:p-6 shadow-clay animate-fade-up overflow-hidden"
+      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border-2 border-brand-100 bg-white p-3.5 sm:p-5 lg:p-6 pb-28 sm:pb-8 shadow-clay animate-fade-up overflow-y-auto"
     >
       <div className="grid w-full max-w-full grid-cols-1 items-center gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
         {/* CỘT TRÁI (md:col-span-1 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
@@ -56,21 +81,15 @@ export function RewardStageBlock({
               <img
                 loading="lazy"
                 decoding="async"
-                src={artworkUrl}
+                src={displayedSrc}
                 alt="Kiệt tác của bé"
                 className="size-full object-cover cursor-pointer group-hover:scale-102 transition-transform duration-300"
-                onClick={() => {
-                  if (artworkUrl) onImageClick?.({ url: artworkUrl, title: 'Tác phẩm kiệt xuất của bé' })
-                }}
-                onError={(e) => {
-                  ;(e.target as HTMLImageElement).src = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                }}
+                onClick={handleImageZoom}
+                onError={handleImageError}
               />
               <button
                 type="button"
-                onClick={() => {
-                  if (artworkUrl) onImageClick?.({ url: artworkUrl, title: 'Tác phẩm kiệt xuất của bé' })
-                }}
+                onClick={handleImageZoom}
                 className="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
                 title="Xem ảnh phóng to"
               >
@@ -80,7 +99,7 @@ export function RewardStageBlock({
           </div>
 
           {submittedArtwork?.prompt && (
-            <p className="text-xs sm:text-sm text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 max-w-full overflow-hidden truncate">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 max-w-full break-words leading-relaxed">
               &ldquo;{submittedArtwork.prompt}&rdquo;
             </p>
           )}
@@ -151,6 +170,16 @@ export function RewardStageBlock({
                 <span>👉 Khám Phá Bài Tiếp Theo 🚀</span>
               </Button>
             ) : null}
+
+            {onOpenCertificate && (
+              <Button
+                variant="primary"
+                className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-amber-600 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white flex items-center justify-center gap-2 cursor-pointer"
+                onClick={onOpenCertificate}
+              >
+                <span>📜 Nhận Chứng Chỉ Hoàn Thành Khóa Học 🎓</span>
+              </Button>
+            )}
 
             {onBackToMap && (
               <Button
