@@ -56,14 +56,14 @@ describe('useAikiSituationNarrator', () => {
   const sampleDialogues: ParsedDialogue[] = [
     { id: 'd-1', speaker: 'zico', speakerName: 'Zico (áo cam)', text: 'Của tớ đẹp hơn!' },
     { id: 'd-2', speaker: 'sonet', speakerName: 'Sonet (áo xanh)', text: 'Không, của tớ đúng hơn!' },
-    { id: 'd-3', speaker: 'aki', speakerName: 'Mèo AKI', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
+    { id: 'd-3', speaker: 'aki', speakerName: 'Mèo AIKI', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
   ]
 
   describe('buildNarrativeLine', () => {
-    it('creates expressive storytelling leads for Zico, Sonet, and AKI', () => {
+    it('creates expressive storytelling leads for Zico, Sonet, and AIKI', () => {
       expect(buildNarrativeLine(sampleDialogues[0], 0)).toBe('Zico nói: Của tớ đẹp hơn!')
       expect(buildNarrativeLine(sampleDialogues[1], 1)).toBe('Sonet cãi: Không, của tớ đúng hơn!')
-      expect(buildNarrativeLine(sampleDialogues[2], 2)).toBe('Mèo AKI hô to: DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!')
+      expect(buildNarrativeLine(sampleDialogues[2], 2)).toBe('Mèo AIKI hô to: DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!')
     })
 
     it('cleans duplicate speaker prefix in text', () => {
@@ -92,7 +92,7 @@ describe('useAikiSituationNarrator', () => {
       const script = buildNarrativeScript(sampleDialogues)
       expect(script.fullStory).toContain('Zico nói: Của tớ đẹp hơn!')
       expect(script.fullStory).toContain('Sonet cãi: Không, của tớ đúng hơn!')
-      expect(script.fullStory).toContain('Mèo AKI hô to: DỪNG LẠIIII...!')
+      expect(script.fullStory).toContain('Mèo AIKI hô to: DỪNG LẠIIII...!')
       expect(script.lines).toHaveLength(3)
       expect(script.lines[0].start).toBe(0)
       expect(script.lines[0].end).toBeGreaterThan(0)

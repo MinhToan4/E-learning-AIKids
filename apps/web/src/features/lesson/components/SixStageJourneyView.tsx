@@ -416,7 +416,7 @@ export function SixStageJourneyView({
       { label: 'Tình huống mở đầu', startSec: 0, endSec: 30 },
       { label: 'Khám phá bí kíp', startSec: 30, endSec: 75 },
       { label: 'Quy tắc 4 chìa khóa', startSec: 75, endSec: 120 },
-      { label: 'Thực hành cùng AKI', startSec: 120, endSec: 150 },
+      { label: 'Thực hành cùng AIKI', startSec: 120, endSec: 150 },
       { label: 'Mẹo tránh lỗi đoán mò', startSec: 150, endSec: 175 },
       { label: 'Tổng kết bài học', startSec: 175, endSec: 180 },
     ]
@@ -623,7 +623,7 @@ export function SixStageJourneyView({
   }, [journey.stage2_confirmGoal.options, failedOptionImages])
 
 
-  // Web Speech synthesis for AKI
+  // Web Speech synthesis for AIKI
   const speakCurrentStage = useCallback((text: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     try {
@@ -639,17 +639,17 @@ export function SixStageJourneyView({
     }
   }, [])
 
-  // AKI voice speech for each stage
+  // AIKI voice speech for each stage
   const currentStageSpeech = useMemo(() => {
     switch (currentStage) {
       case 0:
-        return journey.stage1_goal.speech || 'Chào bạn nhỏ! Cùng AKI khám phá mục tiêu và điểm vàng bài học hôm nay nhé!'
+        return journey.stage1_goal.speech || 'Chào bạn nhỏ! Cùng AIKI khám phá mục tiêu và điểm vàng bài học hôm nay nhé!'
       case 1:
         return journey.stage2_confirmGoal.speech || 'Bé hãy chọn phương án chính xác nhất để chuẩn bị bước vào xem video nhé!'
       case 2:
         return (
           journey.stage3_video.timestamps?.[0]?.speech ||
-          'Cùng AKI xem video bài giảng để mở khóa các bí kíp câu lệnh thần kỳ nào!'
+          'Cùng AIKI xem video bài giảng để mở khóa các bí kíp câu lệnh thần kỳ nào!'
         )
       case 3:
         return 'Thử tài trí nhớ của bé qua các câu hỏi trắc nghiệm để mở khóa Xưởng Sáng Tạo AI!'
@@ -657,12 +657,12 @@ export function SixStageJourneyView({
         return (
           journey.stage5_practice.workflowSteps?.[0]?.akiSpeech ||
           journey.stage5_practice.akiMotto ||
-          'Cùng AKI bắt tay sáng tạo tranh trong Xưởng Sáng Tạo AI nào!'
+          'Cùng AIKI bắt tay sáng tạo tranh trong Xưởng Sáng Tạo AI nào!'
         )
       case 5:
         return journey.stage6_completion.congratsMessage || 'Chúc mừng Nhà Sáng Tạo Tí Hon đã xuất sắc hoàn thành trạm học!'
       default:
-        return 'Cùng AKI học thật vui nhé!'
+        return 'Cùng AIKI học thật vui nhé!'
     }
   }, [currentStage, journey])
 
@@ -688,19 +688,19 @@ export function SixStageJourneyView({
   const getStageMascotRole = (stage: number) => {
     switch (stage) {
       case 0:
-        return 'AKI Đồng Hành'
+        return 'AIKI Đồng Hành'
       case 1:
-        return 'AKI Cố Vấn'
+        return 'AIKI Cố Vấn'
       case 2:
-        return 'Thầy Giáo AKI'
+        return 'Thầy Giáo AIKI'
       case 3:
-        return 'Giám Khảo AKI'
+        return 'Giám Khảo AIKI'
       case 4:
         return 'Bậc Thầy AIKI'
       case 5:
         return 'Thần Đèn AIKI'
       default:
-        return 'Bạn Đồng Hành AKI'
+        return 'Bạn Đồng Hành AIKI'
     }
   }
 
@@ -985,22 +985,12 @@ export function SixStageJourneyView({
           </nav>
         </div>
 
-        {/* Phải: Huy hiệu 3 Sao + Nút Thu gọn/Bảng tương tác (chuyển sang sr-only bảo toàn 100% test assertions & trợ năng) */}
+        {/* Phải: Huy hiệu 3 Sao */}
         <div className="sr-only">
           <div data-testid="star-badge-sr">
             <Star className="size-3.5 fill-amber-400 text-amber-500" />
             <span>3 Sao</span>
           </div>
-
-          <button
-            type="button"
-            data-testid="toggle-sidebar-btn"
-            onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="sr-only"
-            title={isSidebarCollapsed ? 'Hiển thị bảng tương tác AKI' : 'Thu gọn bảng tương tác'}
-          >
-            <span>{isSidebarCollapsed ? '⛶ Bảng tương tác' : '⛶ Thu gọn'}</span>
-          </button>
         </div>
       </header>
 
@@ -1015,17 +1005,6 @@ export function SixStageJourneyView({
           <span className="text-amber-400 hidden md:inline">·</span>
           <span>{stationInfo.stationLabel}</span>
         </div>
-
-        {/* Nút Soft Clay mở/thu gọn Sidebar trên Mobile */}
-        <button
-          type="button"
-          data-testid="toggle-sidebar-mobile-btn"
-          onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-          className="md:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-black text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
-        >
-          <span>🐱</span>
-          <span>{isSidebarCollapsed ? 'Cố vấn AKI' : 'Đóng AKI'}</span>
-        </button>
 
         <div className="text-[11px] font-bold text-slate-500 hidden sm:flex items-center gap-1.5">
           <span>Đang học:</span>
@@ -1760,7 +1739,7 @@ export function SixStageJourneyView({
                 </div>
               </div>
 
-              {/* Thông báo ấm áp khi bài học dùng video chung của AKI */}
+              {/* Thông báo ấm áp khi bài học dùng video chung của AIKI */}
               {!isDedicatedLessonVideo && (
                 <div
                   data-testid="generic-video-notice"
@@ -2436,7 +2415,7 @@ export function SixStageJourneyView({
           )}
         </div>
 
-        {/* CỘT PHẢI: SIDEBAR TƯƠNG TÁC AKI ĐỒNG HÀNH (300-400px) */}
+        {/* CỘT PHẢI: SIDEBAR TƯƠNG TÁC AIKI ĐỒNG HÀNH (300-400px) */}
         {!isSidebarCollapsed && (
           <>
             <div
@@ -2471,7 +2450,7 @@ export function SixStageJourneyView({
                     type="button"
                     onClick={() => speakCurrentStage(currentStageSpeech)}
                     className="p-1.5 rounded-full bg-white hover:bg-brand-100 text-brand-700 transition shadow-2xs cursor-pointer"
-                    title="Nghe lời giảng của AKI"
+                    title="Nghe lời giảng của AIKI"
                   >
                     <Volume2 size={16} />
                   </button>
@@ -2489,9 +2468,9 @@ export function SixStageJourneyView({
                 </div>
               </div>
 
-            {/* Thân Sidebar: Mascot AKI + Hộp thoại + Thẻ tương tác chặng */}
+            {/* Thân Sidebar: Mascot AIKI + Hộp thoại + Thẻ tương tác chặng */}
             <div className="flex-1 overflow-y-auto hidden-scrollbar p-4 flex flex-col gap-4">
-              {/* Mascot Mèo AKI sinh động */}
+              {/* Mascot Mèo AIKI sinh động */}
               <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-b from-amber-50 to-orange-50/40 rounded-2xl border border-amber-200 shadow-2xs">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-amber-300 border-4 border-white shadow-md grid place-items-center text-4xl animate-bounce">
                   {getStageMascotEmoji(currentStage)}
@@ -2501,12 +2480,12 @@ export function SixStageJourneyView({
                 </span>
               </div>
 
-              {/* Lời thoại của AKI có nút nghe đọc */}
+              {/* Lời thoại của AIKI có nút nghe đọc */}
               <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs font-black text-amber-950">
                   <span className="flex items-center gap-1.5">
                     <MessageSquare size={14} className="text-amber-600" />
-                    {currentStage === 4 ? 'DẶN DÒ CỦA AKI' : 'LỜI THOẠI CỦA AKI'}
+                    {currentStage === 4 ? 'DẶN DÒ CỦA AIKI' : 'LỜI THOẠI CỦA AIKI'}
                   </span>
                   <button
                     type="button"
@@ -2522,7 +2501,7 @@ export function SixStageJourneyView({
                 </p>
               </div>
 
-              {/* Nếu ở Chặng 4 (Thực hành - Xưởng sáng tạo): Hiển thị chi tiết Bốn món đồ, Tiến trình 4 bước & Mẹo vàng AKI */}
+              {/* Nếu ở Chặng 4 (Thực hành - Xưởng sáng tạo): Hiển thị chi tiết Bốn món đồ, Tiến trình 4 bước & Mẹo vàng AIKI */}
               {currentStage === 4 ? (
                 <div className="flex flex-col gap-3">
                   {!isCreativeNotebook && (
@@ -2654,11 +2633,11 @@ export function SixStageJourneyView({
                         </div>
                       </div>
 
-                      {/* Lời dặn dò của AKI */}
+                      {/* Lời dặn dò của AIKI */}
                       <div className="bg-amber-100/70 rounded-xl p-2.5 border border-amber-200/90 flex flex-col gap-1 text-left">
                         <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
                           <span>💡</span>
-                          <span>Lời dặn của AKI:</span>
+                          <span>Lời dặn của AIKI:</span>
                         </div>
                         <p className="text-xs text-amber-900 font-bold leading-relaxed">
                           {effectiveNotebookConfig?.akiAdvice || journey.stage5_practice.akiMotto || 'Hãy viết bằng chính suy nghĩ của con! Cốt truyện này là của riêng con!'}
@@ -2770,16 +2749,16 @@ export function SixStageJourneyView({
                         </div>
                       </div>
 
-                      {/* Mẹo vàng của AKI */}
+                      {/* Mẹo vàng của AIKI */}
                       <div className="bg-amber-50/90 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-1.5 text-left">
                         <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
                           <span>💡</span>
-                          <span>MẸO VÀNG CỦA AKI</span>
+                          <span>MẸO VÀNG CỦA AIKI</span>
                         </div>
                         <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
                           {journey.stage5_practice.akiMotto ||
                             studioConfig?.akiMotto ||
-                            'Tả càng rõ, tranh càng đúng ý! Hãy miêu tả đủ chi tiết để AKI vẽ chuẩn nhé.'}
+                            'Tả càng rõ, tranh càng đúng ý! Hãy miêu tả đủ chi tiết để AIKI vẽ chuẩn nhé.'}
                         </p>
                       </div>
 
@@ -2818,14 +2797,14 @@ export function SixStageJourneyView({
                 </div>
               ) : (
                 <>
-                  {/* CHẶNG 0: Trợ Lý Đồng Hành Sư Phạm Của AKI (Không lặp lại 4 ô công thức) */}
+                  {/* CHẶNG 0: Trợ Lý Đồng Hành Sư Phạm Của AIKI (Không lặp lại 4 ô công thức) */}
                   {currentStage === 0 && (
                     <div className="flex flex-col gap-3">
                       <div className="bg-gradient-to-b from-amber-50/80 to-yellow-50/60 rounded-2xl p-3.5 border-2 border-amber-200 shadow-2xs flex flex-col gap-2.5 text-left">
                         <div className="flex items-center justify-between">
                           <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
                             <span>💡</span>
-                            <span>Mẹo Vàng Của AKI</span>
+                            <span>Mẹo Vàng Của AIKI</span>
                           </span>
                           <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
                             Bí Kíp Vàng
@@ -2850,7 +2829,7 @@ export function SixStageJourneyView({
                     </div>
                   )}
 
-                  {/* CHẶNG 1: Bảng Gợi Ý Mật Mã (Cheat-sheet) + Cố vấn AKI */}
+                  {/* CHẶNG 1: Bảng Gợi Ý Mật Mã (Cheat-sheet) + Cố vấn AIKI */}
                   {currentStage === 1 && (
                     <div className="flex flex-col gap-3">
                       <div className="bg-gradient-to-b from-amber-50/80 to-yellow-50/60 rounded-2xl p-3.5 border-2 border-amber-200 shadow-2xs flex flex-col gap-2.5 text-left">
@@ -2907,8 +2886,8 @@ export function SixStageJourneyView({
                               <span>{isConfirmCorrect ? '🎉' : '🧐'}</span>
                               <span>
                                 {isConfirmCorrect
-                                  ? 'AKI GIẢI THÍCH CHUẨN XÁC'
-                                  : 'AKI GỢI Ý CHO BÉ'}
+                                  ? 'AIKI GIẢI THÍCH CHUẨN XÁC'
+                                  : 'AIKI GỢI Ý CHO BÉ'}
                               </span>
                             </span>
                             <button
@@ -3012,7 +2991,7 @@ export function SixStageJourneyView({
                           <span>QUY TẮC CỐT LÕI CỦA VIDEO</span>
                         </div>
                         <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
-                          Tả càng rõ, tranh càng đúng ý! Nhớ quan sát kỹ cách thầy AKI ghép các từ khóa thành một câu lệnh hoàn chỉnh nhé.
+                          Tả càng rõ, tranh càng đúng ý! Nhớ quan sát kỹ cách thầy AIKI ghép các từ khóa thành một câu lệnh hoàn chỉnh nhé.
                         </p>
                       </div>
 
@@ -3030,7 +3009,7 @@ export function SixStageJourneyView({
                     </div>
                   )}
 
-                  {/* CHẶNG 3: Bảng Điểm Trực Tiếp + Góc Cố Vấn AKI */}
+                  {/* CHẶNG 3: Bảng Điểm Trực Tiếp + Góc Cố Vấn AIKI */}
                   {currentStage === 3 && (
                     <div className="flex flex-col gap-3">
                       <div className="bg-blue-50/70 rounded-2xl p-3.5 border-2 border-blue-200 shadow-2xs flex flex-col gap-2.5 text-left">
@@ -3091,7 +3070,7 @@ export function SixStageJourneyView({
                         <div className="flex items-center justify-between text-xs font-black text-amber-950">
                           <span className="flex items-center gap-1.5">
                             <span>🧐</span>
-                            <span>GÓC CỐ VẤN AKI</span>
+                            <span>GÓC CỐ VẤN AIKI</span>
                           </span>
                           {quizSubmitted && (
                             <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
@@ -3102,7 +3081,7 @@ export function SixStageJourneyView({
                         <p className="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium">
                           {quizSubmitted
                             ? quizScore >= journey.stage4_quiz.passScore
-                              ? 'Xuất sắc! Giám khảo AKI xác nhận bé đã nắm chắc bài học. Cánh cửa Xưởng Sáng Tạo AI đã mở toang chào đón bé!'
+                              ? 'Xuất sắc! Giám khảo AIKI xác nhận bé đã nắm chắc bài học. Cánh cửa Xưởng Sáng Tạo AI đã mở toang chào đón bé!'
                               : 'Chưa đủ điểm mở Xưởng rồi! Bé hãy xem lại video bài giảng và thử sức lại nhé!'
                             : 'Bé hãy đọc kỹ câu hỏi và hình minh họa ở cột bên trái. Hãy tự tin chọn đáp án chuẩn xác nhất!'}
                         </p>
@@ -3196,7 +3175,7 @@ export function SixStageJourneyView({
                           </span>
                         </div>
                         <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed font-medium">
-                          Lời dặn AKI: &ldquo;Bé hãy đem tranh khoe với bố mẹ ngay bây giờ, đố bố mẹ đoán xem bé đã vẽ gì nhé!&rdquo;
+                          Lời dặn AIKI: &ldquo;Bé hãy đem tranh khoe với bố mẹ ngay bây giờ, đố bố mẹ đoán xem bé đã vẽ gì nhé!&rdquo;
                         </p>
                       </div>
 

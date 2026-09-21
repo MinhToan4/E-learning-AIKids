@@ -143,7 +143,7 @@ export const AIKI_STUDIO_CONFIGS: Record<string, AikiStudioConfig> = {
     missionChecklist: [
       { id: '1', label: 'So sánh câu lệnh 1 từ và 5 chi tiết', done: true },
       { id: '2', label: 'Điền đủ 5 chi tiết vào câu lệnh', done: true },
-      { id: '3', label: 'Bắt AKI vẽ chú mèo mướp rồi soi thật kỹ', inProgress: true },
+      { id: '3', label: 'Bắt AIKI vẽ chú mèo mướp rồi soi thật kỹ', inProgress: true },
       { id: '4', label: 'Chọn bức tranh ưng nhất rồi nộp bài' },
     ],
     featuresAvailable: {
@@ -164,7 +164,7 @@ export const AIKI_STUDIO_CONFIGS: Record<string, AikiStudioConfig> = {
       'cạnh cửa sổ ngập nắng vàng buổi sớm',
       'đang lim dim mắt ngáy khò khò ngon lành',
     ],
-    akiMotto: 'Chỗ nào các cậu bỏ trống, AI như tớ sẽ tự điền vào. Tả càng rõ thì AKI vẽ càng đúng ý!',
+    akiMotto: 'Chỗ nào các cậu bỏ trống, AI như tớ sẽ tự điền vào. Tả càng rõ thì AIKI vẽ càng đúng ý!',
     initialAkiMessage:
       'Chào các cậu! Hãy giúp tớ vẽ chú mèo mướp béo bằng câu lệnh đủ 5 chi tiết: Ai, hình dáng, hành động, đồ vật, nơi chốn nhé!',
     initialPrompt: 'Con mèo mướp béo đang nằm ngủ cuộn tròn trên chiếc ghế mây cạnh cửa sổ ngập nắng',
@@ -910,7 +910,7 @@ export const AIKI_STUDIO_CONFIGS: Record<string, AikiStudioConfig> = {
     missionChecklist: [
       { id: '1', label: 'Chọn ảnh mẫu chuẩn', done: true },
       { id: '2', label: 'Viết ba đặc điểm nhận diện', done: true },
-      { id: '3', label: 'Bắt AKI vẽ rồi soi thật kỹ', inProgress: true },
+      { id: '3', label: 'Bắt AIKI vẽ rồi soi thật kỹ', inProgress: true },
       { id: '4', label: 'Chọn bức ưng nhất rồi nộp bài' },
     ],
     featuresAvailable: {
@@ -2105,7 +2105,7 @@ function resolveRawAikiStudioConfig(
         missionChecklist: [
           { id: '1', label: 'Dừng lại 30 giây nghĩ ý tưởng riêng', done: true },
           { id: '2', label: 'Viết ra điểm độc nhất vô nhị (Bố sợ gián, vợt muỗi)', done: true },
-          { id: '3', label: 'Bắt AKI vẽ siêu anh hùng có một không hai', inProgress: true },
+          { id: '3', label: 'Bắt AIKI vẽ siêu anh hùng có một không hai', inProgress: true },
           { id: '4', label: 'Nộp tác phẩm độc bản nhận huy hiệu QT1' },
         ],
         featuresAvailable: {
@@ -2124,7 +2124,7 @@ function resolveRawAikiStudioConfig(
           'áo choàng tung bay trong ánh đèn phòng khách ấm áp',
           'vẻ mặt quyết tâm pha chút hóm hỉnh đáng yêu',
         ],
-        akiMotto: 'Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé! Cậu nghĩ trước thì tranh mới độc nhất vô nhị!',
+        akiMotto: 'Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé! Cậu nghĩ trước thì tranh mới độc nhất vô nhị!',
         initialAkiMessage:
           'Chào Hiệp Sĩ Ý Tưởng! Đừng để tớ chọn hộ nhân vật quen thuộc, hãy cho tớ biết ý tưởng độc nhất của riêng cậu nào!',
         initialPrompt: 'Siêu anh hùng bố cầm chiếc vợt muỗi phát sáng, áo choàng hoa văn bay phấp phới trong phòng khách ấm cúng',

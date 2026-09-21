@@ -445,10 +445,10 @@ export function WorldProgramIslandCard({
             </Button>
           </div>
 
-          {/* Mèo Aki Trong Luồng Tự Nhiên Cho Mobile Phone (< md) - 100% Không Bao Giờ Đè Lên Nút */}
+          {/* Mèo Aiki Trong Luồng Tự Nhiên Cho Mobile Phone (< md) - 100% Không Bao Giờ Đè Lên Nút */}
           <div className="flex md:hidden flex-col items-center pt-6 pb-2 w-full relative z-20">
             <div className="py-2 px-4 rounded-2xl border-2 border-brand-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center gap-1.5">
-              <span>Cùng Aki chinh phục 6 hòn đảo nhé!</span>
+              <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
               <FlatClayIcon name="sparkles" size={14} />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
               <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
@@ -459,14 +459,14 @@ export function WorldProgramIslandCard({
           </div>
         </div>
 
-        {/* Cột Mèo Aki Riêng Biệt Cho Tablet & Desktop (>= md) - Không Bao Giờ Đè Lên Cột Trái */}
+        {/* Cột Mèo Aiki Riêng Biệt Cho Tablet & Desktop (>= md) - Không Bao Giờ Đè Lên Cột Trái */}
         <div className="hidden md:flex flex-col items-center justify-end w-[200px] lg:w-[240px] xl:w-[280px] shrink-0 relative z-20 self-stretch pb-2">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 border border-brand-200/80 shadow-2xs text-[11px] font-extrabold text-brand-700 backdrop-blur-xs mb-2">
             <FlatClayIcon name="compass" size={13} />
-            <span>Trợ lý đồng hành Aki</span>
+            <span>Trợ lý đồng hành Aiki</span>
           </div>
           <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border-2 border-brand-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center gap-1.5 mb-3 relative">
-            <span>Cùng Aki chinh phục 6 hòn đảo nhé!</span>
+            <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
             <FlatClayIcon name="sparkles" size={14} />
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
             <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />

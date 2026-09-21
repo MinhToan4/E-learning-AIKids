@@ -20,7 +20,7 @@ describe('CurriculumRegionList Component', () => {
         status: 'open',
         ageTrack: '1-2',
         lectures: [
-          { id: 'l-1', courseId: 'reg-1', order: 1, title: 'Trạm 1: Chào AKI', archived: false, accent: 'brand', videoUrl: null, skill: 'Tư duy', reward: '10', duration: '15m', hook: '', practiceKind: 'prompt_lab' },
+          { id: 'l-1', courseId: 'reg-1', order: 1, title: 'Trạm 1: Chào AIKI', archived: false, accent: 'brand', videoUrl: null, skill: 'Tư duy', reward: '10', duration: '15m', hook: '', practiceKind: 'prompt_lab' },
           { id: 'l-2', courseId: 'reg-1', order: 2, title: 'Trạm 2: Đố vui', archived: false, accent: 'brand', videoUrl: null, skill: 'Tư duy', reward: '10', duration: '15m', hook: '', practiceKind: 'prompt_lab' },
         ],
       },

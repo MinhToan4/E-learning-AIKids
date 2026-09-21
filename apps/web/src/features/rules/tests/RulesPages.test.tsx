@@ -39,8 +39,8 @@ describe('RulesRoadmapPage Component', () => {
     // Progress bar check
     expect(markup).toContain('mở lần lượt từng cái một')
 
-    // 3 Cards of AKI check
-    expect(markup).toContain('AKI Nhắn Con')
+    // 3 Cards of AIKI check
+    expect(markup).toContain('AIKI Nhắn Con')
     expect(markup).toContain('Mười quy tắc này ngắn thôi, xem một loáng là xong')
     expect(markup).toContain('Bộ sưu tập Poster Vàng')
     expect(markup).toContain('Đủ 10 tấm là con in được cả bộ, ký tên rồi dán ở bàn học')
@@ -56,7 +56,7 @@ describe('RuleLearningPage Component', () => {
     }
   })
 
-  it('renders full-screen split layout with video column and AKI interaction column according to Image 2-5', () => {
+  it('renders full-screen split layout with video column and AIKI interaction column according to Image 2-5', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -76,20 +76,20 @@ describe('RuleLearningPage Component', () => {
     expect(markup).toContain('Câu 1/2')
 
     // Big Rule Title check
-    expect(markup).toContain('Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!')
+    expect(markup).toContain('Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé!')
 
     // Left Column: Video & Controls check
     expect(markup).toContain('Xem lại video')
-    expect(markup).toContain('Nghe AKI đọc quy tắc')
+    expect(markup).toContain('Nghe AIKI đọc quy tắc')
     expect(markup).toContain('Video nằm yên ở đây suốt bài — con xem lại lúc nào cũng được')
 
-    // Right Column: AKI Interaction check
+    // Right Column: AIKI Interaction check
     expect(markup).toContain('Ôn lại một chút nhé')
     expect(markup).toContain('Sai cũng không sao, con thử lại được')
     expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[0])
     expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[1])
     expect(markup).toContain('Trả lời')
-    expect(markup).toContain('AKI mách nhỏ')
+    expect(markup).toContain('AIKI mách nhỏ')
   })
 })
 
@@ -130,7 +130,7 @@ describe('AikiRuleWorkspace direct integration', () => {
     expect(markup).toContain('QUY TẮC 2 / 10')
     expect(markup).toContain('Nội dung là do cậu viết')
     expect(markup).toContain('↺ Xem lại video')
-    expect(markup).toContain('🎙️ Nghe AKI đọc quy tắc')
+    expect(markup).toContain('🎙️ Nghe AIKI đọc quy tắc')
     expect(markup).toContain('Ôn lại một chút nhé')
   })
 

@@ -174,7 +174,7 @@ export function LessonInteractiveSidebar({
         correctIndex: 1,
         hint: 'Zico gõ trước nên ra nhân vật ai cũng vẽ được. Sonet nghĩ trước nên ra nhân vật chỉ mình bạn ấy nghĩ ra.',
         successFeedback:
-          'Và... đáp án chính là bức của Sonet! Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé! Zico gõ trước nên ra nhân vật ai cũng vẽ được. Sonet nghĩ trước nên ra nhân vật chỉ mình bạn ấy nghĩ ra.',
+          'Và... đáp án chính là bức của Sonet! Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé! Zico gõ trước nên ra nhân vật ai cũng vẽ được. Sonet nghĩ trước nên ra nhân vật chỉ mình bạn ấy nghĩ ra.',
         retryFeedback:
           'Gần đúng rồi! Nhưng tranh của Zico ai gõ "siêu anh hùng ngầu" cũng ra giống nhau. Còn cô giáo ra đề siêu anh hùng của con cơ mà!',
       }
@@ -217,7 +217,7 @@ export function LessonInteractiveSidebar({
   const coachSpeech = useMemo(() => {
     if (isAikiMode) {
       if (currentStageIndex === 0) {
-        return '🐱 AKI: DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này! Xem video bên trái để biết cô giáo ra đề gì nhé!'
+        return '🐱 AIKI: DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này! Xem video bên trái để biết cô giáo ra đề gì nhé!'
       }
       if (currentStageIndex === 1) {
         if (aikiQuizStatus === 'correct') {
@@ -226,10 +226,10 @@ export function LessonInteractiveSidebar({
         if (aikiQuizStatus === 'incorrect') {
           return '💡 Gần đúng rồi! Đề bài là siêu anh hùng của con, hãy xem lại tranh Sonet nhé!'
         }
-        return '🐱 AKI: Đố các cậu nhé: Bức tranh nào mới đúng yêu cầu của cô giáo? Bấm chọn đi nào!'
+        return '🐱 AIKI: Đố các cậu nhé: Bức tranh nào mới đúng yêu cầu của cô giáo? Bấm chọn đi nào!'
       }
       if (currentStageIndex === 2) {
-        return '⭐ Khắc ghi Quy tắc 1: Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!'
+        return '⭐ Khắc ghi Quy tắc 1: Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé!'
       }
       if (currentStageIndex === 3) {
         return '💡 Bí quyết: Kho hình AI chỉ có mẫu quen thuộc, còn ý tưởng độc nhất nằm trong đầu con!'
@@ -264,7 +264,7 @@ export function LessonInteractiveSidebar({
         // Clean out emojis and speaker prefix for natural TTS reading
         const cleanText = text
           .replace(/^[🐱👦🧒⭐💡🏆🎉]+\s*/gu, '')
-          .replace(/^AKI:\s*/gi, '')
+          .replace(/^AIKI:\s*/gi, '')
           .trim()
 
         if (!cleanText) return
@@ -415,10 +415,10 @@ export function LessonInteractiveSidebar({
             }
           }}
           className="flex flex-col items-center justify-between h-full min-h-[380px] sm:min-h-[420px] py-1 gap-3 w-full cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-2xl"
-          title="Bấm để mở rộng hỗ trợ AKI"
-          aria-label="Mở rộng bảng hỗ trợ AKI"
+          title="Bấm để mở rộng hỗ trợ AIKI"
+          aria-label="Mở rộng bảng hỗ trợ AIKI"
         >
-          {/* Top: Avatar Mascot AKI */}
+          {/* Top: Avatar Mascot AIKI */}
           <div className="flex flex-col items-center gap-1.5 pt-1">
             <div className="relative group">
               {hideMascotAvatar ? (
@@ -437,7 +437,7 @@ export function LessonInteractiveSidebar({
                   />
                   <span
                     className="absolute -bottom-0.5 -right-0.5 size-3.5 sm:size-4 rounded-full bg-mint-500 ring-2 ring-white shadow-xs"
-                    title="Trợ lý AKI sẵn sàng"
+                    title="Trợ lý AIKI sẵn sàng"
                   />
                 </div>
               )}
@@ -445,7 +445,7 @@ export function LessonInteractiveSidebar({
 
             {/* Tag nhận diện Soft Clay */}
             <span className="font-display text-[10px] sm:text-[11px] font-black text-brand-800 tracking-tight text-center whitespace-nowrap px-1.5 py-0.5 rounded-full bg-brand-50 border border-brand-100 shadow-2xs">
-              Hỗ trợ AKI
+              Hỗ trợ AIKI
             </span>
           </div>
 
@@ -546,13 +546,13 @@ export function LessonInteractiveSidebar({
               <div className="-mt-2 mb-1 z-10">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-amber-200 text-xs font-black text-amber-900 shadow-2xs">
                   <span className={cn("size-2 rounded-full", isVideoPlaying || isSpeaking ? "bg-mint-500 animate-pulse" : "bg-amber-400")} />
-                  {isVideoPlaying || isSpeaking ? "Mèo AKI đang giảng giải..." : "Gia sư AKI đồng hành"}
+                  {isVideoPlaying || isSpeaking ? "Mèo AIKI đang giảng giải..." : "Gia sư AIKI đồng hành"}
                 </span>
               </div>
             </div>
           )}
 
-          {/* Coach Speech Bubble với Avatar Mèo AKI Mini */}
+          {/* Coach Speech Bubble với Avatar Mèo AIKI Mini */}
           <div className="rounded-2xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/90 via-cream-50 to-orange-50/70 p-2.5 sm:p-3 shadow-2xs animate-fade-up shrink-0">
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <div className="flex items-center gap-2">
@@ -573,7 +573,7 @@ export function LessonInteractiveSidebar({
                 </div>
                 <div>
                   <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-900 leading-tight">
-                    Lời thoại của AKI
+                    Lời thoại của AIKI
                   </p>
                   {isSpeaking && (
                     <span className="text-[10px] font-bold text-mint-600 block animate-pulse">
@@ -587,7 +587,7 @@ export function LessonInteractiveSidebar({
                 type="button"
                 onClick={() => (isSpeaking ? stopSpeaking() : speakText(coachSpeech))}
                 className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-700 hover:text-brand-800 bg-brand-100/80 hover:bg-brand-200/80 px-2.5 py-1 rounded-full cursor-pointer transition-colors shadow-2xs"
-                title={isSpeaking ? 'Dừng đọc' : 'Nghe AKI đọc'}
+                title={isSpeaking ? 'Dừng đọc' : 'Nghe AIKI đọc'}
               >
                 {isSpeaking ? <Square size={11} /> : <RotateCcw size={11} />}
                 <span>{isSpeaking ? 'Dừng' : 'Nghe lại'}</span>
@@ -625,12 +625,12 @@ export function LessonInteractiveSidebar({
                   "Của tớ đẹp hơn!" — "Không, của tớ đúng hơn!"
                 </p>
                 <p className="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
-                  🐱 AKI hốt hoảng: <em>"DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này!"</em>
+                  🐱 AIKI hốt hoảng: <em>"DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này!"</em>
                 </p>
               </div>
 
               <p className="text-xs font-semibold text-slate-600 leading-snug">
-                Cô giáo ra đề bài gì mà hai bạn lại tranh cãi nảy lửa thế nhỉ? Cùng bấm nút bên dưới để xem câu đố của AKI nhé!
+                Cô giáo ra đề bài gì mà hai bạn lại tranh cãi nảy lửa thế nhỉ? Cùng bấm nút bên dưới để xem câu đố của AIKI nhé!
               </p>
 
               {onNextStage && (
@@ -642,14 +642,14 @@ export function LessonInteractiveSidebar({
                     onNextStage(1)
                   }}
                 >
-                  <span>Giúp AKI giải quyết ➔</span>
+                  <span>Giúp AIKI giải quyết ➔</span>
                   <ChevronRight className="size-5" />
                 </Button>
               )}
             </div>
           )}
 
-          {/* ── CHẶNG 1: CÂU ĐỐ CỦA AKI (Tranh nào đúng yêu cầu cô giáo?) ───────── */}
+          {/* ── CHẶNG 1: CÂU ĐỐ CỦA AIKI (Tranh nào đúng yêu cầu cô giáo?) ───────── */}
           {isAikiMode && currentStageIndex === 1 && (
             <div className="flex flex-col gap-3.5 rounded-3xl border-2 border-brand-200/90 bg-white p-4 sm:p-5 shadow-clay animate-fade-up">
               {/* Header */}
@@ -663,7 +663,7 @@ export function LessonInteractiveSidebar({
                       Chặng 2
                     </span>
                     <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                      Câu Đố Của AKI
+                      Câu Đố Của AIKI
                     </h3>
                   </div>
                 </div>
@@ -744,7 +744,7 @@ export function LessonInteractiveSidebar({
                   <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-3 text-xs sm:text-sm font-semibold text-amber-950 flex items-start gap-2">
                     <span className="text-xl">🐱</span>
                     <div>
-                      <span className="font-black text-amber-900 block mb-0.5">AKI mách nhỏ:</span>
+                      <span className="font-black text-amber-900 block mb-0.5">AIKI mách nhỏ:</span>
                       {activeQuestion.retryFeedback}
                     </div>
                   </div>
@@ -817,7 +817,7 @@ export function LessonInteractiveSidebar({
                   Quy Tắc Sáng Tạo 1
                 </span>
                 <p className="font-display text-base sm:text-lg font-black text-slate-950 leading-snug">
-                  "Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!"
+                  "Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé!"
                 </p>
               </div>
 
@@ -878,10 +878,10 @@ export function LessonInteractiveSidebar({
                 <div className="rounded-2xl bg-white border border-slate-200 p-3 text-xs text-slate-700">
                   <p className="font-black text-slate-900 mb-1 flex items-center gap-1.5">
                     <span>📦</span>
-                    <span>Kho Dữ Liệu Trong Đầu AKI:</span>
+                    <span>Kho Dữ Liệu Trong Đầu AIKI:</span>
                   </p>
                   <p className="leading-snug text-slate-600">
-                    Gõ "siêu anh hùng ngầu" là AKI lấy ngay cái quen thuộc nhất trong hàng trăm ngàn mẫu có sẵn ra.
+                    Gõ "siêu anh hùng ngầu" là AIKI lấy ngay cái quen thuộc nhất trong hàng trăm ngàn mẫu có sẵn ra.
                   </p>
                 </div>
 
@@ -905,14 +905,14 @@ export function LessonInteractiveSidebar({
                     onNextStage(4)
                   }}
                 >
-                  <span>Xem lời dặn của AKI ➔</span>
+                  <span>Xem lời dặn của AIKI ➔</span>
                   <ChevronRight className="size-5" />
                 </Button>
               )}
             </div>
           )}
 
-          {/* ── CHẶNG 4: CHỐT (Lời dặn của AKI, Nhận Cúp Hiệp Sĩ) ──────────────── */}
+          {/* ── CHẶNG 4: CHỐT (Lời dặn của AIKI, Nhận Cúp Hiệp Sĩ) ──────────────── */}
           {isAikiMode && currentStageIndex === 4 && (
             <div className="flex flex-col gap-3.5 rounded-3xl border-2 border-mint-300 bg-mint-50/70 p-4 sm:p-5 shadow-clay animate-fade-up">
               <div className="flex items-center justify-between border-b border-mint-200/60 pb-2">
@@ -923,11 +923,11 @@ export function LessonInteractiveSidebar({
                 <span className="text-xs font-black text-mint-800">5 / 5</span>
               </div>
 
-              {/* Lời nhắn nhủ AKI */}
+              {/* Lời nhắn nhủ AIKI */}
               <div className="rounded-2xl bg-white border border-mint-200 p-3.5 space-y-2">
                 <div className="flex items-center gap-2 text-brand-800 font-black text-xs">
                   <span>🐱</span>
-                  <span>Mèo AKI vẫy tay chong chóng tre:</span>
+                  <span>Mèo AIKI vẫy tay chong chóng tre:</span>
                 </div>
                 <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed italic bg-brand-50/60 p-2.5 rounded-xl border border-brand-100">
                   "Lần sau, cậu thử nghĩ xem nhân vật của mình có gì mà{' '}
@@ -1061,7 +1061,7 @@ export function LessonInteractiveSidebar({
               })}
             </div>
 
-            {/* Mẹo vàng từ AKI cho từng chặng (Contextual Tip) */}
+            {/* Mẹo vàng từ AIKI cho từng chặng (Contextual Tip) */}
             <div className="rounded-2xl bg-white/95 border border-amber-200/80 p-2.5 text-xs font-semibold text-amber-950 shadow-2xs flex items-start gap-2">
               <span className="text-base shrink-0 mt-[-1px]">💡</span>
               <p className="leading-snug flex-1">

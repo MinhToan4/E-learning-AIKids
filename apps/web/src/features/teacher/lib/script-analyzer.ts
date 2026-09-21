@@ -4,11 +4,11 @@
  *
  * Nhiệm vụ:
  * 1. Phân tích kịch bản bài học: trích xuất thực thể (nhân vật, bối cảnh).
- * 2. Phân loại nhân vật quen thuộc (Mèo AKI, Zico, Sonet) vs Nhân vật mới (Bé Bo, Robot Pi...).
+ * 2. Phân loại nhân vật quen thuộc (Mèo AIKI, Zico, Sonet) vs Nhân vật mới (Bé Bo, Robot Pi...).
  * 3. Tự động sinh prompt tiếng Việt chuẩn 2D Flat Soft Clay trên nền trơn studio pastel cho nhân vật mới.
  * 4. Phân loại bối cảnh quen thuộc vs Bối cảnh mới (gom cụm tối đa 2-3 bối cảnh góc rộng).
  * 5. Phân rã Trạm học chuẩn 4 pha AIKids: Khám phá, Trò chơi, Sáng tạo, Thử tài.
- * 6. Tự động đánh dấu skipGeneration cho cảnh AKI chào đầu.
+ * 6. Tự động đánh dấu skipGeneration cho cảnh AIKI chào đầu.
  * 7. Tự động đánh dấu hasTextPlaceholder cho cảnh có kiến thức trọng tâm/câu hỏi/tiêu đề.
  * 8. Ấn định thiết bị công nghệ cụ thể (tablet_pastel_blue hoặc laptop_silver), không dùng từ 'hoặc'.
  */
@@ -81,7 +81,7 @@ export interface ScriptAnalysisResult {
 export const PRESET_CHARACTERS: ScriptEntity[] = [
   {
     id: 'char-aki',
-    name: 'Mèo AKI',
+    name: 'Mèo AIKI',
     role: 'Linh vật dẫn dắt học tập AI',
     isPreset: true,
     status: 'ready',
@@ -129,7 +129,7 @@ export const PRESET_BACKGROUNDS: ScriptBackground[] = [
     name: 'Rừng táo',
     isPreset: true,
     status: 'ready',
-    description: 'Khu vườn kỳ diệu tươi mát với những cây táo sai trĩu quả của Mèo AKI.',
+    description: 'Khu vườn kỳ diệu tươi mát với những cây táo sai trĩu quả của Mèo AIKI.',
   },
   {
     id: 'bg-cozy-desk',
@@ -219,7 +219,7 @@ function extractCharacterNames(scriptText: string): string[] {
   }
 
   // 3. Quét các tên linh vật cốt lõi nếu xuất hiện trong văn bản
-  if (/mèo\s*aki|aki\b|aiki\b/i.test(scriptText)) names.add('Mèo AKI')
+  if (/mèo\s*aki|aki\b|aiki\b/i.test(scriptText)) names.add('Mèo AIKI')
   if (/zico\b/i.test(scriptText)) names.add('Bé Zico')
   if (/sonet\b/i.test(scriptText)) names.add('Cô Sonet')
 
@@ -308,17 +308,17 @@ function parseScenes(rawLines: string[], allBgs: string[]): ScriptScene[] {
     if (!trimmed) continue
 
     const dialogueMatch = trimmed.match(/^([A-Za-z0-9_\u00C0-\u024F\u1EA0-\u1EF9\s]+)[:：]\s*(.+)$/)
-    const speaker = dialogueMatch ? dialogueMatch[1].trim() : 'Mèo AKI'
+    const speaker = dialogueMatch ? dialogueMatch[1].trim() : 'Mèo AIKI'
     const speech = dialogueMatch ? dialogueMatch[2].trim() : trimmed
 
     sceneCount++
     const sceneId = `scene-${sceneCount}`
 
-    // 1. Cảnh AKI chào đầu: Tự động skipGeneration (đã có intro video sẵn)
+    // 1. Cảnh AIKI chào đầu: Tự động skipGeneration (đã có intro video sẵn)
     const isAkiGreeting = (
-      /aki/i.test(speaker) &&
+      /aiki|aki/i.test(speaker) &&
       sceneCount <= 2 &&
-      /(xin chào|chào các bạn|chào mừng|hello|tớ là aki|mình là aki)/i.test(speech)
+      /(xin chào|chào các bạn|chào mừng|hello|tớ là aiki|tớ là aki|mình là aiki|mình là aki)/i.test(speech)
     )
 
     // 2. Cảnh có kiến thức trọng tâm/câu hỏi/tiêu đề: hasTextPlaceholder = true
@@ -394,7 +394,7 @@ export function analyzeLessonScript(
     })
   }
 
-  // Luôn đưa Mèo AKI vào nếu kịch bản có yếu tố bài giảng
+  // Luôn đưa Mèo AIKI vào nếu kịch bản có yếu tố bài giảng
   const akiPreset = PRESET_CHARACTERS[0]
 
   rawCharNames.forEach((name) => {
@@ -421,7 +421,7 @@ export function analyzeLessonScript(
     }
   })
 
-  // Nếu danh sách quen thuộc chưa có AKI mà kịch bản nhắc đến thì thêm AKI
+  // Nếu danh sách quen thuộc chưa có AIKI mà kịch bản nhắc đến thì thêm AIKI
   if (!knownCharsMap.has('char-aki')) {
     knownCharsMap.set('char-aki', akiPreset)
   }
@@ -451,7 +451,7 @@ export function analyzeLessonScript(
   sectionsToProcess.forEach((sec, idx) => {
     const stationIndex = idx + 1
     const lines = sec.split('\n').map((l) => l.trim()).filter(Boolean)
-    const titleLine = lines[0] || `Trạm ${stationIndex}: Khám Phá Cùng Mèo AKI`
+    const titleLine = lines[0] || `Trạm ${stationIndex}: Khám Phá Cùng Mèo AIKI`
     const cleanStationTitle = titleLine.replace(/^(?:trạm|bài|chương|phần)\s*\d+[:：\s]*/i, '').trim() || `Trạm ${stationIndex}`
 
     const scenes = parseScenes(lines.slice(1), allBgNames)
@@ -462,7 +462,7 @@ export function analyzeLessonScript(
       {
         id: `aiki-rule-situation-${stationIndex}`,
         title: `1. Tình huống: Chuyện gì đang xảy ra?`,
-        body: lines[1] || `Mèo AKI cùng các bạn nhỏ gặp một tình huống thú vị về công nghệ và trí tuệ nhân tạo.`,
+        body: lines[1] || `Mèo AIKI cùng các bạn nhỏ gặp một tình huống thú vị về công nghệ và trí tuệ nhân tạo.`,
         tip: 'Quan sát thật kỹ hành động của các bạn trong tình huống nhé!',
         kind: 'situation',
         layout: 'split',
@@ -501,7 +501,7 @@ export function analyzeLessonScript(
         id: `aiki-rule-closing-${stationIndex}`,
         title: `5. Bản Cam Kết: Lời hứa Hiệp Sĩ`,
         body: `Tớ cam kết sẽ sử dụng công nghệ an toàn, văn minh và luôn sáng tạo điều tốt đẹp mỗi ngày!`,
-        tip: 'Hãy cùng dơ tay cam kết cùng Mèo AKI nào!',
+        tip: 'Hãy cùng dơ tay cam kết cùng Mèo AIKI nào!',
         kind: 'closing',
         layout: 'text',
         visualItems: [{ label: 'Cam kết hành động', text: 'Cam kết hành động', tone: 'brand' }],
@@ -556,13 +556,13 @@ export function analyzeLessonScript(
       id: `station-${stationIndex}`,
       title: cleanStationTitle,
       skill: 'Tư duy phản biện & Sáng tạo AI',
-      hook: `Cùng Mèo AKI khám phá bí mật của ${cleanStationTitle} nào!`,
+      hook: `Cùng Mèo AIKI khám phá bí mật của ${cleanStationTitle} nào!`,
       duration: '15 phút',
       reward: '50 XP · 1 Sao Hiệp Sĩ',
       gameType: selectedGame,
       gameInstruction: 'Tham gia trò chơi tương tác vượt chướng ngại vật để thu thập các từ khóa quan trọng.',
       practiceKind: 'journal',
-      practiceInstruction: 'Vẽ một bức tranh hoặc viết 1 lời nhắn gửi tới Mèo AKI về điều em vừa học được hôm nay.',
+      practiceInstruction: 'Vẽ một bức tranh hoặc viết 1 lời nhắn gửi tới Mèo AIKI về điều em vừa học được hôm nay.',
       product: 'Nhật ký Hiệp Sĩ AI nhí',
       learnCards,
       checkQuestions,

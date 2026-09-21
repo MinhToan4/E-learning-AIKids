@@ -291,7 +291,7 @@ export function AikiRuleVideoPlayer({
     return () => clearInterval(interval)
   }, [isPlaying, videoSource?.kind, rule.durationSec, rule.slides.length, currentSlideIndex, onSlideChange, selectedAnswer, correctIdx])
 
-  // Text-to-speech helper (AKI voice)
+  // Text-to-speech helper (AIKI voice)
   const speakText = (text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel()
@@ -397,7 +397,7 @@ export function AikiRuleVideoPlayer({
 
   const renderSceneContent = () => (
     <>
-      {/* ── STAGE 0: TÌNH HUỐNG (Zico & Sonet giằng co tranh, AKI hốt hoảng) ─ */}
+      {/* ── STAGE 0: TÌNH HUỐNG (Zico & Sonet giằng co tranh, AIKI hốt hoảng) ─ */}
       {currentSlideIndex === 0 && (
         <div className="relative size-full flex items-center justify-center p-4 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60">
           {currentSlide?.image ? (
@@ -438,11 +438,11 @@ export function AikiRuleVideoPlayer({
                 </div>
               </div>
 
-              {/* AKI hốt hoảng xuất hiện bên bảng */}
+              {/* AIKI hốt hoảng xuất hiện bên bảng */}
               <div className="rounded-3xl bg-white/95 border-2 border-amber-300 p-3 sm:p-4 max-w-lg shadow-clay animate-pulse">
                 <div className="flex items-center justify-center gap-2 text-amber-950 font-black text-xs sm:text-base">
                   <span className="text-2xl">🐱</span>
-                  <span>AKI: "DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này!"</span>
+                  <span>AIKI: "DỪNG LẠIII...! Các cậu ơi, hãy giúp tớ vụ này!"</span>
                 </div>
               </div>
             </div>
@@ -450,7 +450,7 @@ export function AikiRuleVideoPlayer({
         </div>
       )}
 
-      {/* ── STAGE 1: CÂU ĐỐ CỦA AKI (2 Tranh So Sánh A & B Tương Tác) ──── */}
+      {/* ── STAGE 1: CÂU ĐỐ CỦA AIKI (2 Tranh So Sánh A & B Tương Tác) ──── */}
       {currentSlideIndex === 1 && (
         <div className="relative size-full flex flex-col p-3 sm:p-5 bg-gradient-to-b from-amber-50/60 via-white to-brand-50/40">
           <div className="text-center mb-2">
@@ -553,7 +553,7 @@ export function AikiRuleVideoPlayer({
               QUY TẮC 1
             </h2>
             <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-amber-950 leading-snug max-w-lg mb-4">
-              "Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!"
+              "Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AIKI nhé!"
             </p>
 
             <div className="grid grid-cols-2 gap-3 w-full max-w-md pt-2 border-t border-amber-200 text-left">
@@ -590,7 +590,7 @@ export function AikiRuleVideoPlayer({
         </div>
       )}
 
-      {/* ── STAGE 4: CHỐT (Poster Quy tắc 1, AKI chong chóng tre bay lên) ─ */}
+      {/* ── STAGE 4: CHỐT (Poster Quy tắc 1, AIKI chong chóng tre bay lên) ─ */}
       {currentSlideIndex === 4 && (
         <div className="relative size-full flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-mint-50/70 via-white to-brand-50/60">
           <div className="relative max-w-xl w-full flex flex-col items-center text-center p-4 sm:p-6 rounded-3xl bg-white/95 border-2 border-mint-300 shadow-clay text-slate-800">
@@ -601,7 +601,7 @@ export function AikiRuleVideoPlayer({
             </div>
 
             <span className="rounded-full bg-brand-500 text-white text-xs font-black px-3.5 py-1 mb-2 shadow-xs">
-              Lời dặn của Mèo AKI
+              Lời dặn của Mèo AIKI
             </span>
 
             <p className="font-display text-sm sm:text-base lg:text-lg font-black text-amber-950 leading-relaxed mb-4 max-w-md">
@@ -793,7 +793,7 @@ export function AikiRuleVideoPlayer({
               className="inline-flex items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-amber-100 px-3 py-1.5 text-xs font-black text-amber-900 hover:bg-amber-200 shadow-2xs transition-all cursor-pointer active:scale-95"
             >
               <Volume2 size={14} className="text-amber-900" />
-              <span>🔊 Nghe AKI đọc quy tắc</span>
+              <span>🔊 Nghe AIKI đọc quy tắc</span>
             </button>
 
           </div>

@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
+import { getAffiliateRef } from '@/shared/lib/affiliate-tracker'
 import { cn } from '@/shared/lib/cn'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import {
@@ -87,7 +88,10 @@ export function ParentPlanTab({
         checkout?: { payUrl?: string | null; transferHint?: string | null; paymentReady?: boolean }
       }>('/api/parent/subscription', {
         method: 'POST',
-        body: JSON.stringify({ planCode: code }),
+        body: JSON.stringify({
+          planCode: code,
+          refCode: getAffiliateRef() || undefined,
+        }),
       })
       if (data.subscription) setSub(data.subscription)
       const rawPayUrl = data.checkout?.payUrl ?? null

@@ -99,7 +99,7 @@ export function AikiRuleWorkspace({
     return () => clearInterval(interval)
   }, [isPlaying, rule.durationSec, rule.slides.length])
 
-  // Text-to-speech helper (AKI voice)
+  // Text-to-speech helper (AIKI voice)
   const speakText = (text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel()
@@ -120,7 +120,7 @@ export function AikiRuleWorkspace({
     setIsPlaying(true)
   }
 
-  // Handle AKI read rule
+  // Handle AIKI read rule
   const handleReadRule = () => {
     speakText(rule.audioVoiceText)
   }
@@ -349,7 +349,7 @@ export function AikiRuleWorkspace({
                   className="inline-flex items-center gap-1.5 rounded-2xl border-2 border-brand-300 bg-brand-100 px-3.5 py-2 text-xs font-black text-brand-800 hover:bg-brand-200 shadow-2xs transition-all cursor-pointer"
                 >
                   <Mic size={14} />
-                  <span>🎙️ Nghe AKI đọc quy tắc</span>
+                  <span>🎙️ Nghe AIKI đọc quy tắc</span>
                 </button>
               </div>
 
@@ -360,7 +360,7 @@ export function AikiRuleWorkspace({
           </div>
 
           {/* ══════════════════════════════════════════════════════════
-              CỘT PHẢI (~38%): TƯƠNG TÁC CÙNG AKI
+              CỘT PHẢI (~38%): TƯƠNG TÁC CÙNG AIKI
              ══════════════════════════════════════════════════════════ */}
           <div className="lg:col-span-5 xl:col-span-5">
             <div className="rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay relative text-text">
@@ -608,10 +608,10 @@ export function AikiRuleWorkspace({
                     </div>
                   )}
 
-                  {/* Hộp AKI mách nhỏ (khi chưa trả lời) */}
+                  {/* Hộp AIKI mách nhỏ (khi chưa trả lời) */}
                   {questionState === 'answering' && (
                     <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
-                      <span className="font-extrabold text-amber-800">🐱 AKI mách nhỏ: </span>
+                      <span className="font-extrabold text-amber-800">🐱 AIKI mách nhỏ: </span>
                       <span className="font-medium text-amber-900">{currentQuestion.hint}</span>
                     </div>
                   )}

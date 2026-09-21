@@ -92,12 +92,12 @@ describe('CreativeNotebookEngine - 3-Card Soft Clay Layout', () => {
     // Khối 1: Tóm tắt thử thách
     expect(html).toContain('data-testid="challenge-summary-card"')
     expect(html).toContain('TÓM TẮT THỬ THÁCH')
-    expect(html).toContain('AKI vừa dặn đấy!')
+    expect(html).toContain('AIKI vừa dặn đấy!')
     expect(html).toContain('Tạo tên và ngoại hình cho nhân vật')
 
-    // Khối 2: Profile Card (Hồ sơ mẫu của AKI)
+    // Khối 2: Profile Card (Hồ sơ mẫu của AIKI)
     expect(html).toContain('data-testid="instructions-card"')
-    expect(html).toContain('HỒ SƠ MẪU CỦA AKI')
+    expect(html).toContain('HỒ SƠ MẪU CỦA AIKI')
     expect(html).toContain('Mẫu tham khảo')
     expect(html).toContain('data-testid="btn-use-sample-quick"')
     expect(html).toContain('📋 Dùng mẫu này')
@@ -592,7 +592,7 @@ describe('CreativeNotebookEngine - 3-Card Soft Clay Layout', () => {
     )
 
     // Header Profile Card
-    expect(html).toContain('HỒ SƠ MẪU CỦA AKI')
+    expect(html).toContain('HỒ SƠ MẪU CỦA AIKI')
     expect(html).toContain('🐿️')
     expect(html).toContain('Mẫu tham khảo')
     expect(html).toContain('btn-use-sample-quick')
@@ -611,7 +611,7 @@ describe('CreativeNotebookEngine - 3-Card Soft Clay Layout', () => {
     expect(html).toContain('data-testid="field-star-char-weakness"')
   })
 
-  it('renders AKI advice banner at top of notebook even when challengeSummary is present (Fix #1)', () => {
+  it('renders AIKI advice banner at top of notebook even when challengeSummary is present (Fix #1)', () => {
     const html = renderToStaticMarkup(
       <CreativeNotebookEngine
         onPromptChange={vi.fn()}
@@ -625,12 +625,12 @@ describe('CreativeNotebookEngine - 3-Card Soft Clay Layout', () => {
     )
 
     expect(html).toContain('data-testid="aki-advice-banner"')
-    expect(html).toContain('Lời dặn dò của AKI')
+    expect(html).toContain('Lời dặn dò của AIKI')
     expect(html).toContain('Hãy tạo một nhân vật bất kỳ: người, con vật, đồ vật, thậm chí một cái thang máy...')
     expect(html).toContain('🦉')
   })
 
-  it('renders backpack tag badge next to notebook title and inside AKI banner (Fix #2)', () => {
+  it('renders backpack tag badge next to notebook title and inside AIKI banner (Fix #2)', () => {
     const html = renderToStaticMarkup(
       <CreativeNotebookEngine
         onPromptChange={vi.fn()}
@@ -863,7 +863,7 @@ describe('CreativeNotebookEngine - 3-Card Soft Clay Layout', () => {
       />
     )
 
-    // 1. AKI Advice Banner
+    // 1. AIKI Advice Banner
     expect(html).toContain('data-testid="aki-advice-banner"')
     expect(html).toContain('thậm chí một cái thang máy cũng được')
 

@@ -3,7 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import { App } from './App'
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary'
+import { initAffiliateTracker } from '@/shared/lib/affiliate-tracker'
+import '../shared/styles/fonts.css'
 import '../shared/styles/index.css'
+
+initAffiliateTracker()
 
 window.addEventListener('vite:preloadError', (event) => {
   const lastReload = sessionStorage.getItem('vite_preload_error_reload')

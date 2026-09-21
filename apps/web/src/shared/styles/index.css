@@ -3056,8 +3056,6 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
   }
 
-  @import './adult-shell.css';
-
   /* ── Student drawer (Huy hiệu / Ba lô / Hồ sơ) ─────────── */
   .student-drawer-sheet {
     position: fixed;

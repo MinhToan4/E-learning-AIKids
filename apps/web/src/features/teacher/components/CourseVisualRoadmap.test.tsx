@@ -12,7 +12,7 @@ describe('CourseVisualRoadmap Component', () => {
       videoUrl: null,
       title: 'Khám Phá Thế Giới AI',
       skill: 'Tư duy phản biện',
-      hook: 'Bắt đầu hành trình cùng Mèo AKI',
+      hook: 'Bắt đầu hành trình cùng Mèo AIKI',
       duration: '15 phút',
       reward: '50 XP',
       learnCards: [{ id: 'lc-1', title: 'Tình huống' }],
@@ -62,7 +62,7 @@ describe('CourseVisualRoadmap Component', () => {
     expect(html).toContain('Trạm 2')
     expect(html).toContain('Trạm 3')
     expect(html).toContain('Tư duy phản biện')
-    expect(html).toContain('Bắt đầu hành trình cùng Mèo AKI')
+    expect(html).toContain('Bắt đầu hành trình cùng Mèo AIKI')
   })
 
   it('displays readiness status badges: Sẵn sàng, Cần nội dung, Đang ẩn', () => {

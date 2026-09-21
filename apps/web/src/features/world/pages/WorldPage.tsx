@@ -666,7 +666,7 @@ export const WORLD_REGIONS = [
     ribbon: '#7c3aed',
     trailLabel: 'Đường mòn 10 Quy Tắc Vàng',
     pose: 'guide' as const,
-    sceneLabel: 'AKI đang hướng dẫn 10 quy tắc an toàn sáng tạo AI',
+    sceneLabel: 'AIKI đang hướng dẫn 10 quy tắc an toàn sáng tạo AI',
   },
   {
     name: 'Đảo Khám Phá',
@@ -677,7 +677,7 @@ export const WORLD_REGIONS = [
     ribbon: '#10b981',
     trailLabel: 'Đường thám hiểm 4 chìa khoá lệnh',
     pose: 'thinking' as const,
-    sceneLabel: 'AKI đang cùng con mở 4 chiếc chìa khoá lệnh',
+    sceneLabel: 'AIKI đang cùng con mở 4 chiếc chìa khoá lệnh',
   },
   {
     name: 'Đảo Hoạ Sĩ',
@@ -688,7 +688,7 @@ export const WORLD_REGIONS = [
     ribbon: '#f59e0b',
     trailLabel: 'Đường mòn sắc màu hoạ sĩ',
     pose: 'celebrate' as const,
-    sceneLabel: 'AKI đang cầm cọ vẽ kiệt tác nghệ thuật',
+    sceneLabel: 'AIKI đang cầm cọ vẽ kiệt tác nghệ thuật',
   },
   {
     name: 'Đảo Nhân Vật',
@@ -699,7 +699,7 @@ export const WORLD_REGIONS = [
     ribbon: '#0284c7',
     trailLabel: 'Đường mật mã nhân vật',
     pose: 'support' as const,
-    sceneLabel: 'AKI đang cùng con thiết kế hồ sơ nhân vật độc quyền',
+    sceneLabel: 'AIKI đang cùng con thiết kế hồ sơ nhân vật độc quyền',
   },
   {
     name: 'Đảo Truyện Tranh',
@@ -710,7 +710,7 @@ export const WORLD_REGIONS = [
     ribbon: '#ec4899',
     trailLabel: 'Đường vương quốc truyện tranh 8 ô',
     pose: 'thinking' as const,
-    sceneLabel: 'AKI đang xem bản thảo truyện tranh 8 ô',
+    sceneLabel: 'AIKI đang xem bản thảo truyện tranh 8 ô',
   },
   {
     name: 'Đảo Trò Chơi',
@@ -721,7 +721,7 @@ export const WORLD_REGIONS = [
     ribbon: '#8b5cf6',
     trailLabel: 'Đấu trường thẻ bài đỉnh cao',
     pose: 'celebrate' as const,
-    sceneLabel: 'AKI đang thi đấu trận chung kết thẻ bài',
+    sceneLabel: 'AIKI đang thi đấu trận chung kết thẻ bài',
   },
 ] as const
 
@@ -1549,7 +1549,7 @@ function PathwayOverview({
             </h1>
             <p className="mt-1 text-base text-muted">
               {isCreatorTrack
-                ? 'Nắm vững 10 quy tắc vàng an toàn, cùng AKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.'
+                ? 'Nắm vững 10 quy tắc vàng an toàn, cùng AIKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.'
                 : (selectedCategory?.description || 'Khám phá các trạm học.')}
             </p>
 

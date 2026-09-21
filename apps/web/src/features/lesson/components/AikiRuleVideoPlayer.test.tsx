@@ -15,7 +15,7 @@ describe('AikiRuleVideoPlayer', () => {
     expect(markup).toContain('w-full aspect-video')
     expect(markup).toContain('1. TÌNH HUỐNG')
     expect(markup).toContain('Xem lại video')
-    expect(markup).toContain('Nghe AKI đọc quy tắc')
+    expect(markup).toContain('Nghe AIKI đọc quy tắc')
     expect(markup).not.toContain('Toàn màn hình')
   })
 
@@ -37,7 +37,7 @@ describe('AikiRuleVideoPlayer', () => {
 
     // Center celebration card exists
     expect(markup).toContain('Chúc mừng Hiệp Sĩ Sáng Tạo AIKI!')
-    expect(markup).toContain('Lời dặn của Mèo AKI')
+    expect(markup).toContain('Lời dặn của Mèo AIKI')
     // Live subtitles badge should NOT be rendered
     expect(markup).not.toContain('5. CHỐT')
   })

@@ -162,7 +162,7 @@ export {
 export const ENGINE_DEFAULT_MOTTOS: Record<string, string> = {
   'magic-keys': '4 Chìa khóa vạn năng: Xanh (Cái gì) · Vàng (Trông như thế nào) · Cam (Đang làm gì) · Đỏ (Ở đâu). Đủ 4 chìa là hết đoán bừa!',
   'style-prism': 'Lăng kính phù thủy: Giữ nguyên chủ thể, đổi màu phong cách nghệ thuật diệu kỳ!',
-  'prompt-doctor': 'Bác sĩ AKI: Bắt bệnh tranh lỗi, kê đơn thuốc thẻ chữ chữa lành chuẩn xác!',
+  'prompt-doctor': 'Bác sĩ AIKI: Bắt bệnh tranh lỗi, kê đơn thuốc thẻ chữ chữa lành chuẩn xác!',
   'layer-stacking': '3 Tầng sân khấu: Tách bạch Hậu cảnh, Ngôi sao 1/3 và Tiền cảnh cho bức tranh có chiều sâu!',
   'identity-lock': 'Khóa mật mã ADN: Giữ vững nhân vật bất biến qua muôn vàn biểu cảm thần thái!',
   'card-forge': 'Xưởng đúc thẻ bài: Kết hợp Hệ nguyên tố và Tuyệt chiêu để tôi luyện thẻ bài huyền thoại!',
@@ -201,7 +201,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
   {
     mode: 'prompt-doctor',
     title: 'Bác Sĩ Câu Lệnh',
-    shortName: 'Bác Sĩ AKI',
+    shortName: 'Bác Sĩ AIKI',
     icon: '🩺',
     desc: 'Bắt bệnh tranh lỗi & kê đơn thuốc thẻ chữ',
     activeBorder: 'border-rose-500 ring-2 ring-rose-400 bg-white',
@@ -261,7 +261,7 @@ const AVAILABLE_MODULES = [
   { id: 'voice', label: 'Mèo AIKI & Lipsync', icon: '🐱', desc: 'Studio tương tác, giọng đọc AI & khẩu hình Lipsync' },
   { id: 'video', label: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube phát tự động' },
   { id: 'versus-ab', label: '2 Ảnh Đối Đầu A/B', icon: '🖼️', desc: 'Upload & cấu hình 2 ảnh đối đầu A & B' },
-  { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Phân vai Zico / Sonet / AKI / Tùy chọn' },
+  { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Phân vai Zico / Sonet / AIKI / Tùy chọn' },
   { id: 'compare', label: 'Bảng So Sánh 2 Cột', icon: '⚖️', desc: 'Bảng 2 cột tiêu đề, nội dung & 2 ảnh so sánh' },
   { id: 'poster', label: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Quy tắc to bản, ảnh poster riêng & bí kíp bỏ túi' },
   { id: 'images', label: 'Bộ Sưu Tập Ảnh Minh Họa', icon: '📷', desc: 'Danh sách ảnh kèm caption chú thích' },
@@ -851,14 +851,14 @@ export const PracticeWorkflowStepsAccordion = React.memo(function PracticeWorkfl
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-              💬 Lời thoại &amp; Gợi ý từng lượt của AKI (Nâng cao)
+              💬 Lời thoại &amp; Gợi ý từng lượt của AIKI (Nâng cao)
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
               {workflowSteps.length} lượt
             </span>
           </div>
           <p className="text-[11px] text-slate-500 font-medium leading-normal">
-            Gợi ý câu lệnh nhanh xuất hiện trên thanh prompt (&apos;Chạm để thử ngay&apos;) và lời thoại động viên của AKI qua các lượt vẽ của bé.
+            Gợi ý câu lệnh nhanh xuất hiện trên thanh prompt (&apos;Chạm để thử ngay&apos;) và lời thoại động viên của AIKI qua các lượt vẽ của bé.
           </p>
         </div>
         <div className="text-slate-400 shrink-0 p-1">
@@ -897,12 +897,12 @@ export const PracticeWorkflowStepsAccordion = React.memo(function PracticeWorkfl
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Lời thoại AKI động viên bé</label>
+                <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Lời thoại AIKI động viên bé</label>
                 <textarea
                   rows={2}
                   value={ws.akiSpeech}
                   onChange={(e) => handleUpdateStep(wsIdx, { akiSpeech: e.target.value })}
-                  placeholder="Lời thoại AKI hướng dẫn..."
+                  placeholder="Lời thoại AIKI hướng dẫn..."
                   className="w-full rounded-lg border border-border bg-page p-2 text-xs italic text-text"
                 />
               </div>
@@ -1167,7 +1167,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                   { label: 'Tình huống mở đầu', startSec: 0, endSec: 30 },
                   { label: 'Khám phá bí kíp', startSec: 30, endSec: 75 },
                   { label: 'Quy tắc 4 chìa khóa', startSec: 75, endSec: 120 },
-                  { label: 'Thực hành cùng AKI', startSec: 120, endSec: 150 },
+                  { label: 'Thực hành cùng AIKI', startSec: 120, endSec: 150 },
                   { label: 'Mẹo tránh lỗi đoán mò', startSec: 150, endSec: 175 },
                   { label: 'Tổng kết bài học', startSec: 175, endSec: 180 },
                 ]
@@ -1315,12 +1315,12 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
 
                         <button
                           type="button"
-                          onClick={() => showToast(`🔊 AKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
+                          onClick={() => showToast(`🔊 AIKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
                           className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                          title="Nghe AKI giảng bài"
+                          title="Nghe AIKI giảng bài"
                         >
                           <Volume2 size={13} className="text-brand-600" />
-                          <span>Nghe AKI giảng</span>
+                          <span>Nghe AIKI giảng</span>
                         </button>
                       </div>
 
@@ -1452,7 +1452,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                     <span className="text-[10px] font-black uppercase text-brand-700 flex items-center gap-1">
                       {currentEngineMode === 'creative-notebook' ? '🎒 Sổ Tay Sáng Tạo Ba Lô (Text Engine)' :
                        currentEngineMode === 'style-prism' ? '🔮 Lăng Kính Phù Thủy' :
-                       currentEngineMode === 'prompt-doctor' ? '🩺 Bác Sĩ AKI' :
+                       currentEngineMode === 'prompt-doctor' ? '🩺 Bác Sĩ AIKI' :
                        currentEngineMode === 'layer-stacking' ? '🎭 3 Tầng Sân Khấu' :
                        currentEngineMode === 'identity-lock' ? '🔒 Khóa Mật Mã & Biểu Cảm' :
                        currentEngineMode === 'card-forge' ? '🃏 Xưởng Đúc Thẻ Bài TCG' :
@@ -1621,7 +1621,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                       <div className="flex flex-col gap-2.5 rounded-2xl border border-rose-200 bg-rose-50/70 p-3 shadow-2xs">
                         <div className="flex items-center justify-between border-b border-rose-200/60 pb-1.5">
                           <span className="text-[10px] font-black uppercase tracking-wider text-rose-900 flex items-center gap-1">
-                            🩺 Bác Sĩ AKI Bắt Bệnh
+                            🩺 Bác Sĩ AIKI Bắt Bệnh
                           </span>
                           <span className="text-[9px] font-black text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded-full">
                             Kê Đơn Thuốc
@@ -1992,7 +1992,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                     </div>
                   )}
 
-                  {/* Cột 3: Khung tranh AI Canvas & Thông tin AKI */}
+                  {/* Cột 3: Khung tranh AI Canvas & Thông tin AIKI */}
                   <div className="flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
                     <div>
                       <div className="flex items-center justify-between border-b border-border/60 pb-1.5 mb-2">
@@ -2045,12 +2045,12 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                     <button
                       type="button"
                       onClick={() => {
-                        showToast(`🎨 AKI nhận câu thần chú: "${currentWhat} ${currentHow} ${currentAction} ${currentWhere}"!`, 'success')
+                        showToast(`🎨 AIKI nhận câu thần chú: "${currentWhat} ${currentHow} ${currentAction} ${currentWhere}"!`, 'success')
                       }}
                       className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-600 to-sky-600 text-white font-black text-xs shadow-clay-sm flex items-center justify-center gap-1.5 cursor-pointer hover:brightness-105 active:scale-98 transition mt-2"
                     >
                       <Sparkles size={14} />
-                      <span>✨ AKI Vẽ Tranh (Còn 4/4 lượt)</span>
+                      <span>✨ AIKI Vẽ Tranh (Còn 4/4 lượt)</span>
                     </button>
                   </div>
                 </div>
@@ -4711,7 +4711,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       value={draft.hook}
                       readOnly={readOnly}
                       onChange={(e) => set('hook', e.target.value)}
-                      placeholder="VD: Tả càng rõ, AKI vẽ càng đúng!"
+                      placeholder="VD: Tả càng rõ, AIKI vẽ càng đúng!"
                       rows={3} style={textareaStyle}
                     />
                   </FormRow>
@@ -5054,14 +5054,14 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
                       <div>
                         <div className="flex items-center justify-between">
-                          <label className="block text-xs font-black uppercase text-slate-700">Lời chào & Thuyết minh của Mèo AKI</label>
+                          <label className="block text-xs font-black uppercase text-slate-700">Lời chào & Thuyết minh của Mèo AIKI</label>
                           <button
                             type="button"
                             onClick={() => previewAikiVoice(0, currentJourney.stage1_goal.speech)}
                             className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
                           >
                             <Volume2 size={13} />
-                            <span>Nghe thử giọng AKI</span>
+                            <span>Nghe thử giọng AIKI</span>
                           </button>
                         </div>
                         <textarea
@@ -5395,7 +5395,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                             {isEngineSelectorExpanded && (
                               <div className="animate-in fade-in duration-200 pt-3 border-t border-brand-200/60 mt-3 space-y-3">
                                 <p className="text-[11px] font-medium text-slate-600">
-                                  Chuyển đổi linh hoạt giữa 7 cơ chế chơi — Mọi nội dung (chủ thể, huy hiệu, thần chú AKI, món đồ bé vẽ) đều được tự động đồng bộ và giữ nguyên trọn vẹn!
+                                  Chuyển đổi linh hoạt giữa 7 cơ chế chơi — Mọi nội dung (chủ thể, huy hiệu, thần chú AIKI, món đồ bé vẽ) đều được tự động đồng bộ và giữ nguyên trọn vẹn!
                                 </p>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2">
@@ -5474,11 +5474,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         )
                       })()}
 
-                      {/* Khối Lời dẫn thử thách của AKI (Challenge Prompt) */}
+                      {/* Khối Lời dẫn thử thách của AIKI (Challenge Prompt) */}
                       <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/50 via-white to-indigo-50/30 p-4 shadow-clay-sm space-y-2">
                         <div className="flex items-center justify-between flex-wrap gap-1">
                           <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                            <span>🎯 Lời dẫn thử thách của AKI (Challenge Prompt)</span>
+                            <span>🎯 Lời dẫn thử thách của AIKI (Challenge Prompt)</span>
                             <span className="text-[10px] font-normal lowercase text-slate-400">
                               (lời dặn dò giao nhiệm vụ cho bé khi vào xưởng vẽ)
                             </span>
@@ -5513,7 +5513,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                               className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
                             >
                               <Volume2 size={11} />
-                              <span>Nghe thử giọng AKI</span>
+                              <span>Nghe thử giọng AIKI</span>
                             </button>
                           </div>
                         </div>
@@ -5562,7 +5562,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         showToast={showToast}
                       />
 
-                      {/* Lời thoại & Gợi ý từng lượt của AKI (Nâng cao) - Accordion tinh gọn */}
+                      {/* Lời thoại & Gợi ý từng lượt của AIKI (Nâng cao) - Accordion tinh gọn */}
                       <PracticeWorkflowStepsAccordion
                         workflowSteps={currentJourney.stage5_practice.workflowSteps}
                         onChange={(steps) => {

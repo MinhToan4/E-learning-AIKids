@@ -531,7 +531,7 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
           creativeEngineMode: 'creative-notebook',
           notebookConfig: {
             notebookTitle: 'Sổ Tay Thử Nghiệm',
-            akiAdvice: 'Lời khuyên từ AKI',
+            akiAdvice: 'Lời khuyên từ AIKI',
             challengeSummary: ['Bước 1', 'Bước 2'],
             fields: [{ id: 'f-1', label: 'Tiêu đề kịch bản', rows: 2 }],
           },
@@ -545,6 +545,6 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
     expect(html).toContain('CẤU HÌNH SỔ TAY SÁNG TẠO BA LÔ')
     expect(html).toContain('value="Sổ Tay Thử Nghiệm"')
     expect(html).toContain('Tiêu đề kịch bản')
-    expect(html).toContain('Lời khuyên từ AKI')
+    expect(html).toContain('Lời khuyên từ AIKI')
   })
 })

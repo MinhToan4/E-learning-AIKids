@@ -35,7 +35,7 @@ export const SurpriseRollButton: React.FC<SurpriseRollButtonProps> = ({
       data-testid="surprise-roll-btn"
       onClick={handleRoll}
       disabled={disabled || isRolling}
-      title="Tung xúc xắc để AKI phối ngẫu nhiên các thẻ cho bé!"
+      title="Tung xúc xắc để AIKI phối ngẫu nhiên các thẻ cho bé!"
       className={cn(
         'group relative min-h-[48px] px-3.5 py-2 rounded-2xl font-black text-xs sm:text-sm',
         'bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500',

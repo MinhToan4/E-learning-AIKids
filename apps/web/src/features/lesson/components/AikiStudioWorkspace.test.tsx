@@ -40,7 +40,7 @@ describe('AikiStudioWorkspace', () => {
     const html = renderToStaticMarkup(
       <AikiStudioWorkspace
         lessonId="bai-3-2"
-        lessonTitle="Bắt AKI vẽ Sóc Bông bằng mật mã của các cậu"
+        lessonTitle="Bắt AIKI vẽ Sóc Bông bằng mật mã của các cậu"
         lessonBadge="Bài 3.2"
         characterName="Sóc Bông"
         maxAttempts={6}
@@ -51,7 +51,7 @@ describe('AikiStudioWorkspace', () => {
     // 1. Kiểm tra Top Bar & Khởi tạo phiên tươi mới (đầy đủ 6/6 lượt, không mock dở dang)
     expect(html).toContain('data-testid="aiki-studio-workspace"')
     expect(html).toContain('XƯỞNG SÁNG TẠO')
-    expect(html).toContain('Bắt AKI vẽ Sóc Bông bằng mật mã của các cậu')
+    expect(html).toContain('Bắt AIKI vẽ Sóc Bông bằng mật mã của các cậu')
     expect(html).toContain('Còn')
     expect(html).toContain('6')
     expect(html).toContain('6 lượt của bài này')
@@ -59,7 +59,7 @@ describe('AikiStudioWorkspace', () => {
     expect(html).toContain('← Bài 3.2')
     expect(html).toContain('data-testid="studio-fullscreen-btn"')
 
-    // 2. Kiểm tra Cột 1: ĐÃ DỌN SẠCH (Chỉ có 2 card: Tiến Trình 4 Bước & Mẹo Vàng AKI)
+    // 2. Kiểm tra Cột 1: ĐÃ DỌN SẠCH (Chỉ có 2 card: Tiến Trình 4 Bước & Mẹo Vàng AIKI)
     expect(html).toContain('data-testid="studio-col-tasks"')
     expect(html).toContain('Tiến Trình 4 Bước Thực Hành')
     expect(html).toContain('Bước 1: Thử câu lệnh ban đầu (1-2 từ)')
@@ -70,14 +70,14 @@ describe('AikiStudioWorkspace', () => {
     // Đã loại bỏ hoàn toàn card cũ gây rối mắt với các dòng gạch chéo xám
     expect(html).not.toContain('Hôm nay Xưởng mở gì')
     expect(html).not.toContain('Vẽ biểu cảm — cất cho bài 3.3')
-    expect(html).toContain('Mẹo Vàng Của AKI')
+    expect(html).toContain('Mẹo Vàng Của AIKI')
     expect(html).toContain('↺ Tua lại video / Xem lại bài')
 
     // 3. Kiểm tra Cột 2: Studio Canvas Chat & Live Studio Coach
     expect(html).toContain('data-testid="studio-col-canvas"')
-    expect(html).toContain('AKI · Xưởng Bài 3.2')
+    expect(html).toContain('AIKI · Xưởng Bài 3.2')
     expect(html).toContain('Hôm nay chỉ vẽ Sóc Bông')
-    // Tin nhắn chào đón duy nhất từ AKI giải thích nhiệm vụ Bước 1
+    // Tin nhắn chào đón duy nhất từ AIKI giải thích nhiệm vụ Bước 1
     expect(html).toContain('Chào bé! Hôm nay chúng mình vào Xưởng để cùng tạo tranh Sóc Bông')
     expect(html).toContain('Bước 1: Hãy thử một câu lệnh thật ngắn')
     // Nút gợi ý 1-chạm TO RÕ
@@ -186,7 +186,7 @@ describe('AikiStudioWorkspace', () => {
     expect(html).toContain('mèo mướp vàng béo tròn')
     expect(html).toContain('lông vằn cam trắng')
     expect(html).toContain('đang nằm ngủ cuộn tròn')
-    expect(html).toContain('Mẹo Vàng Của AKI')
+    expect(html).toContain('Mẹo Vàng Của AIKI')
   })
 
   it('renders dynamically when provided with SSOT config for Island 5 (Bai 5.1 Dragon Card)', () => {
@@ -253,7 +253,7 @@ describe('AikiStudioWorkspace', () => {
       root.render(
         <AikiStudioWorkspace
           lessonId="bai-3-2"
-          lessonTitle="Bắt AKI vẽ Sóc Bông bằng mật mã của các cậu"
+          lessonTitle="Bắt AIKI vẽ Sóc Bông bằng mật mã của các cậu"
           lessonBadge="Bài 3.2"
           characterName="Sóc Bông"
         />
@@ -277,7 +277,7 @@ describe('AikiStudioWorkspace', () => {
       })
     )
 
-    // Kiểm tra tin nhắn chờ của AKI xuất hiện trong chat
+    // Kiểm tra tin nhắn chờ của AIKI xuất hiện trong chat
     expect(container.textContent).toContain('🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨')
 
     // Kiểm tra tin nhắn phản hồi thành công và ảnh mới được thêm vào gallery
@@ -347,7 +347,7 @@ describe('AikiStudioWorkspace', () => {
     const html = renderToStaticMarkup(
       <AikiStudioWorkspace
         lessonId="bai-3-2"
-        lessonTitle="Bắt AKI vẽ Sóc Bông"
+        lessonTitle="Bắt AIKI vẽ Sóc Bông"
         lessonBadge="Bài 3.2"
         characterName="Sóc Bông"
         maxAttempts={6}

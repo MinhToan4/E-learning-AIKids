@@ -616,7 +616,7 @@ export const DEFAULT_NOTEBOOK_CONFIGS: Record<string, CreativeNotebookConfig> = 
   '5.4': {
     notebookTitle: 'Luật chơi của tớ',
     akiAdvice:
-      'Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!',
+      'Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!',
     sampleHelperTitle: 'Cách làm kịch bản mẫu: 5 câu hỏi vàng & Thử nghiệm',
     sampleTemplate:
       '1. Có mấy người chơi: 2 người chơi đấu kháng\n2. Ai đi trước: Người đổ xúc xắc điểm cao hơn được đi trước\n3. Mỗi lượt người chơi làm gì: Lần lượt rút 1 thẻ trên tay và tung xúc xắc chọn chỉ số so tài\n4. So thẻ thế nào, nếu bằng nhau thì sao: Ai có điểm chỉ số cao hơn ăn thẻ của đối thủ; nếu bằng điểm thì mỗi bên rút thêm 1 thẻ để so tiếp\n5. Khi nào kết thúc và ai thắng: Ai ăn được 5 thẻ của đối thủ trước là người chiến thắng\nChỗ cả nhà phải dừng lại hỏi khi chơi thử: Khi tung vào mặt ngôi sao xúc xắc chưa biết tính sao, tớ đã bổ sung: Mặt sao được cộng thêm 3 điểm vào chỉ số bất kỳ!',
@@ -625,9 +625,9 @@ export const DEFAULT_NOTEBOOK_CONFIGS: Record<string, CreativeNotebookConfig> = 
     characterName: 'Trọng tài game',
     challengeSummary: [
       'Trả lời đủ 5 câu hỏi bằng lời của mình, ngắn cũng được',
-      'Rồi nhờ AKI viết lại thành một bộ luật ngắn, dễ hiểu — AKI chỉ sắp xếp cho rõ, không tự thêm luật mới',
+      'Rồi nhờ AIKI viết lại thành một bộ luật ngắn, dễ hiểu — AIKI chỉ sắp xếp cho rõ, không tự thêm luật mới',
       'Rủ ít nhất một người trong nhà chơi thử',
-      'Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AKI sửa lần nữa',
+      'Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AIKI sửa lần nữa',
     ],
     checklist: [
       {

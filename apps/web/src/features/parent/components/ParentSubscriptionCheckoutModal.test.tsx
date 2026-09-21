@@ -56,7 +56,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  it('renders modal with Soft-Clay UI, 129k package info, and AKI cat mascot', () => {
+  it('renders modal with Soft-Clay UI, 129k package info, and AIKI cat mascot', () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -77,7 +77,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
 
     // Header & Mascot
     expect(document.body.textContent).toContain('Nâng Cấp Gói AI Kid Toàn Diện')
-    expect(document.body.textContent).toContain('Mèo AKI Đồng Hành')
+    expect(document.body.textContent).toContain('Mèo AIKI Đồng Hành')
     const mascot = document.body.querySelector('[data-testid="aikid-modal-cat-character"]')
     expect(mascot).not.toBeNull()
 

@@ -276,7 +276,7 @@ export const IdentityLockEngine: React.FC<IdentityLockEngineProps> = ({
         </div>
 
         <p className="text-[11px] font-bold text-slate-500">
-          3 đặc điểm nhận diện này luôn được AKI khóa chặt để nhân vật không bao giờ bị "trôi hình"!
+          3 đặc điểm nhận diện này luôn được AIKI khóa chặt để nhân vật không bao giờ bị "trôi hình"!
         </p>
 
         {/* Danh sách 3 đặc điểm khóa */}

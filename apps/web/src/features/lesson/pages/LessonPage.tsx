@@ -1454,7 +1454,7 @@ export function LessonPage() {
         hints: [
           '🔍 Tầng 1: Hãy nhìn kỹ chủ thể chính và bối cảnh của câu hỏi.',
           '💡 Tầng 2: Đọc kỹ từng từ khóa để tìm ra phương án đầy đủ nhất.',
-          `🌟 Tầng 3: ${quest.hook || 'Tả càng rõ, AKI vẽ càng đúng!'}`,
+          `🌟 Tầng 3: ${quest.hook || 'Tả càng rõ, AIKI vẽ càng đúng!'}`,
         ],
       }
     }

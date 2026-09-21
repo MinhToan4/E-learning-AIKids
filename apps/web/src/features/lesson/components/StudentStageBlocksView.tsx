@@ -603,7 +603,7 @@ export function StudentStageBlocksView({
           const defaultDialogues: ParsedDialogue[] = [
             { id: 'd-1', speaker: 'zico', speakerName: 'Zico', text: 'Của tớ đẹp hơn!' },
             { id: 'd-2', speaker: 'sonet', speakerName: 'Sonet', text: 'Không, của tớ đúng hơn!' },
-            { id: 'd-3', speaker: 'aki', speakerName: 'Mèo AKI', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
+            { id: 'd-3', speaker: 'aki', speakerName: 'Mèo AIKI', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
           ]
           const lines = (block.dialogueLines && block.dialogueLines.length > 0)
             ? block.dialogueLines.map((d: DialogueLine) => ({
@@ -615,7 +615,7 @@ export function StudentStageBlocksView({
                     : d.speaker === 'sonet'
                     ? 'Sonet (áo xanh)'
                     : d.speaker === 'aki'
-                    ? 'Mèo AKI'
+                    ? 'Mèo AIKI'
                     : d.speaker === 'teacher'
                     ? 'Cô giáo'
                     : d.speaker,
@@ -787,7 +787,7 @@ export function StudentStageBlocksView({
                           )}
                         >
                           <span>🐱</span>
-                          <span>{d.speakerName || 'TIẾNG AKI'}</span>
+                          <span>{d.speakerName || 'TIẾNG AIKI'}</span>
                           {isLineActive && (
                             <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full">
                               <Volume2 size={9} /> Đang hô to

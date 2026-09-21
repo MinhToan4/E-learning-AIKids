@@ -15,11 +15,14 @@ const sourceFiles = globSync('**/*.{ts,tsx}', {
 //   features/parent/components/ParentSubscriptionCheckoutModal.tsx — VietQR PNG image blob download
 //                                             (api() only handles JSON; raw
 //                                              image downloads require blob pipeline)
+//   shared/lib/affiliate-tracker.ts — third-party affiliate tracking beacon
 const FETCH_ALLOWLIST = new Set([
   'shared/lib/api.ts',
   'features/lesson/lib/offline-learning.ts',
   'features/parent/components/ParentSubscriptionCheckoutModal.tsx',
+  'shared/lib/affiliate-tracker.ts',
 ])
+
 
 describe('frontend backend boundary', () => {
   it('keeps application HTTP calls inside the shared API client', () => {

@@ -59,14 +59,14 @@ describe('CurriculumBreadcrumbs Component', () => {
         currentLevel={4}
         programTitle="AI Foundation Cho Bé"
         regionTitle="Vùng 1: Nhập môn AI"
-        stationTitle="Trạm 1: Mèo AKI Chào Bạn"
+        stationTitle="Trạm 1: Mèo AIKI Chào Bạn"
         onBack={() => {}}
         onNavigateLevel={() => {}}
       />
     )
 
     expect(html).toContain('Vùng 1: Nhập môn AI')
-    expect(html).toContain('Soạn: Trạm 1: Mèo AKI Chào Bạn')
+    expect(html).toContain('Soạn: Trạm 1: Mèo AIKI Chào Bạn')
     expect(html).toContain('Cấp 4')
     expect(html).toContain('Studio Soạn Trạm')
     expect(html).toContain('Quay lại Bản đồ Trạm')

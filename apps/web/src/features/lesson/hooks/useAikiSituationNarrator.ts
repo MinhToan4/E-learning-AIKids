@@ -34,7 +34,7 @@ export function buildNarrativeLine(d: ParsedDialogue, _index: number): string {
     return `Sonet cãi: ${text}`
   }
   if (speaker === 'aki' || lowerName.includes('aki') || lowerName.includes('mèo')) {
-    return `Mèo AKI hô to: ${text}`
+    return `Mèo AIKI hô to: ${text}`
   }
   if (speaker === 'teacher' || lowerName.includes('cô') || lowerName.includes('giáo')) {
     return `Cô giáo nhắc: ${text}`
@@ -57,7 +57,7 @@ export function buildNarrativeScript(
         {
           index: 0,
           speaker: 'aki',
-          speakerName: 'Mèo AKI',
+          speakerName: 'Mèo AIKI',
           text: defaultText,
           narrativeText: defaultText,
           start: 0,

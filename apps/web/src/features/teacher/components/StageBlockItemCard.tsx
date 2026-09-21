@@ -1397,7 +1397,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                         >
                           <option value="zico">👦 Zico (áo cam)</option>
                           <option value="sonet">🧒 Sonet (áo xanh)</option>
-                          <option value="aki">🐱 Mèo AKI</option>
+                          <option value="aki">🐱 Mèo AIKI</option>
                           <option value="teacher">👩‍🏫 Cô giáo</option>
                           <option value="other">Tùy chọn khác</option>
                         </select>

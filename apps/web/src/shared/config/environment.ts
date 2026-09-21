@@ -49,4 +49,6 @@ export const environment = Object.freeze({
   storagePublicUrl: configuredStorageUrl
     ? normalizeOrigin(configuredStorageUrl, 'storagePublicUrl')
     : '',
+  affiliateApiUrl: (import.meta.env.VITE_AFFILIATE_API_URL as string | undefined) || 'http://173.249.19.167:3000',
 })
+

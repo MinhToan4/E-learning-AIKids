@@ -6,20 +6,20 @@ import { LessonInteractiveSidebar } from './LessonInteractiveSidebar'
 describe('LessonInteractiveSidebar', () => {
   const defaultGuideCopy = {
     eyebrow: 'Hiệp Sĩ Sáng Tạo',
-    title: 'Học Quy Tắc 1 Cùng Mèo AKI',
-    body: 'Chào con! Hôm nay hãy cùng AKI khám phá quy tắc sáng tạo đầu tiên nhé!',
+    title: 'Học Quy Tắc 1 Cùng Mèo AIKI',
+    body: 'Chào con! Hôm nay hãy cùng AIKI khám phá quy tắc sáng tạo đầu tiên nhé!',
     pose: 'guide' as const,
   }
 
   const sampleStages = [
     { id: 'stage-1', label: 'Tình Huống' },
-    { id: 'stage-2', label: 'Câu Đố Của AKI' },
+    { id: 'stage-2', label: 'Câu Đố Của AIKI' },
     { id: 'stage-3', label: 'Khắc Ghi Quy Tắc 1' },
     { id: 'stage-4', label: 'Bí Quyết Tư Duy' },
     { id: 'stage-5', label: 'Lời Dặn & Nhận Cúp' },
   ]
 
-  it('renders mini MeeTutorAvatar in AKI speech bubble', () => {
+  it('renders mini MeeTutorAvatar in AIKI speech bubble', () => {
     const markup = renderToStaticMarkup(
       createElement(LessonInteractiveSidebar, {
         guideCopy: defaultGuideCopy,
@@ -30,7 +30,7 @@ describe('LessonInteractiveSidebar', () => {
       })
     )
 
-    expect(markup).toContain('Lời thoại của AKI')
+    expect(markup).toContain('Lời thoại của AIKI')
     expect(markup).toContain('border-amber-300 bg-amber-100')
     expect(markup).toContain('DỪNG LẠIII')
   })
@@ -89,12 +89,12 @@ describe('LessonInteractiveSidebar', () => {
         currentStageIndex: 1,
       })
     )
-    expect(markup).toContain('Câu Đố Của AKI')
+    expect(markup).toContain('Câu Đố Của AIKI')
     expect(markup).toContain('Bức nào mới đúng yêu cầu của cô? Bấm chọn đi nào!')
     expect(markup).not.toContain('Thu nhỏ box')
   })
 
-  it('renders collapsed Soft Clay minimal state with Hỗ trợ AKI, stars, and expand pill', () => {
+  it('renders collapsed Soft Clay minimal state with Hỗ trợ AIKI, stars, and expand pill', () => {
     const markup = renderToStaticMarkup(
       createElement(LessonInteractiveSidebar, {
         guideCopy: defaultGuideCopy,
@@ -108,7 +108,7 @@ describe('LessonInteractiveSidebar', () => {
     )
 
     expect(markup).toContain('w-[76px] sm:w-[84px]')
-    expect(markup).toContain('Hỗ trợ AKI')
+    expect(markup).toContain('Hỗ trợ AIKI')
     expect(markup).toContain('2/3')
     expect(markup).toContain('Tiến độ')
     expect(markup).toContain('Mở')

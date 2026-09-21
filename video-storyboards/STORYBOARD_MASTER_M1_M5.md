@@ -2,7 +2,7 @@
 > **Bản kịch bản sản xuất chuẩn hoá bao gồm toàn bộ LỜI THOẠI, VOICE GEN (CÓ TAG CẢM XÚC), TIMELINE, HÌNH ẢNH TRÊN MÀN HÌNH và FILE ASSET ĐẤT NẶN 2D FLAT SOFT CLAY.**
 
 ## 📐 BỐ CỤC KHUNG HÌNH VIDEO CHUẨN (16:9 STUDIO SETUP)
-- **Bên Trái (25% khung hình):** Mèo AKI (Host Diễn Hoạt) cử động theo tag cảm xúc thoại, trỏ tay hướng dẫn.
+- **Bên Trái (25% khung hình):** Mèo AIKI (Host Diễn Hoạt) cử động theo tag cảm xúc thoại, trỏ tay hướng dẫn.
 - **Bên Phải (75% khung hình):** MÀN HÌNH NỘI DUNG CHÍNH (Smart Display) chiếu các asset tranh đất nặn và infographic.
 - **Lớp Đồ Họa (Overlay):** Kinetic Typography, Pop-up từ khóa và khung viền tương tác.
 
@@ -36,13 +36,13 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO ➔ Shot 1.1 (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Cùng đến với bài học đầu tiên của chủ đề NHÀ THÁM HIỂM ÂY AI: [curious] Một từ hay năm từ?
+> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Cùng đến với bài học đầu tiên của chủ đề NHÀ THÁM HIỂM ÂY AI: [curious] Một từ hay năm từ?
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Nhà Thám Hiểm AI - Mở cửa xưởng sáng tạo bài 1.1](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M1_Master_DaoNhaThamHiem.jpg)
 * **Asset File:** `assets/MasterIslands/M1_Master_DaoNhaThamHiem.jpg`
 * **Nội dung vẽ đất nặn:** Đảo Nhà Thám Hiểm AI - Mở cửa xưởng sáng tạo bài 1.1
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI mở cổng xưởng sáng tạo trên Đảo Nhà Thám Hiểm AI, vẫy tay chào các bạn nhỏ. Pop-up text 3D giới thiệu bài học.
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI mở cổng xưởng sáng tạo trên Đảo Nhà Thám Hiểm AI, vẫy tay chào các bạn nhỏ. Pop-up text 3D giới thiệu bài học.
 
 ---
 
@@ -66,19 +66,19 @@
 ![Bức tượng mèo xám 1 từ trơ trọi: Đúng là mèo rồi nhưng không phải con mèo trong đầu bạn ấy!](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_FrameA_MeoDonDieu_1Tu.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_FrameA_MeoDonDieu_1Tu.jpg`
 * **Nội dung vẽ đất nặn:** Bức tượng mèo xám 1 từ trơ trọi: Đúng là mèo rồi nhưng không phải con mèo trong đầu bạn ấy!
-* **Chỉ đạo hình ảnh / Cần tạo:** Cận cảnh bàn làm việc: Bức tượng mèo xám đơn điệu ngơ ngác đặt trơ trọi. Mèo AKI nhăn mặt gãi đầu hỏi các bạn nhỏ vì sao lại thế.
+* **Chỉ đạo hình ảnh / Cần tạo:** Cận cảnh bàn làm việc: Bức tượng mèo xám đơn điệu ngơ ngác đặt trơ trọi. Mèo AIKI nhăn mặt gãi đầu hỏi các bạn nhỏ vì sao lại thế.
 
 ---
 
 ### ⏱️ Phân đoạn: 3. XEM MẪU ➔ Shot 3.1 (0:50–1:20)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] AKI cho các cậu xem cái này nhé. [calm] Bên trái là con mèo tớ vừa làm ra, vì MIMI chỉ gõ đúng hai chữ thôi: con mèo. [curious] Còn bên phải này. [cheerful] Cùng một buổi sáng, cũng là MIMI. [deliberate] Bạn ý gõ: con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ. [curious] Các cậu thấy khác nhau chưa? [thoughtful] Hai bức đều là mèo cả. [amazed] Nhưng rõ ràng bức bên phải đẹp hơn và đúng con mèo mà MIMI nghĩ luôn.
+> [excited] AIKI cho các cậu xem cái này nhé. [calm] Bên trái là con mèo tớ vừa làm ra, vì MIMI chỉ gõ đúng hai chữ thôi: con mèo. [curious] Còn bên phải này. [cheerful] Cùng một buổi sáng, cũng là MIMI. [deliberate] Bạn ý gõ: con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ. [curious] Các cậu thấy khác nhau chưa? [thoughtful] Hai bức đều là mèo cả. [amazed] Nhưng rõ ràng bức bên phải đẹp hơn và đúng con mèo mà MIMI nghĩ luôn.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Bức tranh chia đôi đối chiếu: Bên trái (1 từ - Khung xám) vs Bên phải (5 điều - Khung cam)](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_FrameB_SoSanhBenTraiBenPhai.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_FrameB_SoSanhBenTraiBenPhai.jpg`
 * **Nội dung vẽ đất nặn:** Bức tranh chia đôi đối chiếu: Bên trái (1 từ - Khung xám) vs Bên phải (5 điều - Khung cam)
-* **Chỉ đạo hình ảnh / Cần tạo:** Màn hình chia đôi 2 khung tranh: Khung xám bên trái (mèo 1 từ đơn điệu) vs Khung cam bên phải (mèo mướp 5 từ ngủ ghế mây). AKI trỏ tay so sánh sự khác biệt.
+* **Chỉ đạo hình ảnh / Cần tạo:** Màn hình chia đôi 2 khung tranh: Khung xám bên trái (mèo 1 từ đơn điệu) vs Khung cam bên phải (mèo mướp 5 từ ngủ ghế mây). AIKI trỏ tay so sánh sự khác biệt.
 
 ---
 
@@ -102,7 +102,7 @@
 ![Bong bóng suy nghĩ: Trong đầu em có hình con mèo ấm áp, nhưng AI chỉ đọc được chữ](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_Shot4.1_HinhTrongDau_ChuMeoAmAp.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_Shot4.1_HinhTrongDau_ChuMeoAmAp.jpg`
 * **Nội dung vẽ đất nặn:** Bong bóng suy nghĩ: Trong đầu em có hình con mèo ấm áp, nhưng AI chỉ đọc được chữ
-* **Chỉ đạo hình ảnh / Cần tạo:** Cận cảnh bạn nhỏ ngồi bàn vẽ: Phía trên bung bong bóng suy nghĩ (Thought Bubble) ấm áp hiện chú mèo mướp ngủ say trên ghế. AKI đứng cạnh gãi đầu: 'Tớ không nhìn thấy được suy nghĩ này đâu!'
+* **Chỉ đạo hình ảnh / Cần tạo:** Cận cảnh bạn nhỏ ngồi bàn vẽ: Phía trên bung bong bóng suy nghĩ (Thought Bubble) ấm áp hiện chú mèo mướp ngủ say trên ghế. AIKI đứng cạnh gãi đầu: 'Tớ không nhìn thấy được suy nghĩ này đâu!'
 
 ---
 
@@ -114,7 +114,7 @@
 ![AI tự đoán 3 chỗ trống: Tự chọn màu xám, tự cho đứng đơ, tự đặt giữa nền xám trống trơn](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_Shot4.2_AiTuDoan_MeoXam3DauHoi.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_Shot4.2_AiTuDoan_MeoXam3DauHoi.jpg`
 * **Nội dung vẽ đất nặn:** AI tự đoán 3 chỗ trống: Tự chọn màu xám, tự cho đứng đơ, tự đặt giữa nền xám trống trơn
-* **Chỉ đạo hình ảnh / Cần tạo:** Màn hình chuyển sang căn phòng xám trơ trọi: 3 dấu hỏi chấm lơ lửng lần lượt rơi xuống tương ứng 3 câu hỏi (Màu gì? Làm gì? Ở đâu?). Chú mèo đất xám 4 chân đứng đơ xuất hiện cô đơn. AKI thở dài.
+* **Chỉ đạo hình ảnh / Cần tạo:** Màn hình chuyển sang căn phòng xám trơ trọi: 3 dấu hỏi chấm lơ lửng lần lượt rơi xuống tương ứng 3 câu hỏi (Màu gì? Làm gì? Ở đâu?). Chú mèo đất xám 4 chân đứng đơ xuất hiện cô đơn. AIKI thở dài.
 
 ---
 
@@ -126,7 +126,7 @@
 ![Quy tắc vàng: Khay câu lệnh có ô bỏ trống và AI tự điền đất sét vào chỗ trống](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_FrameC_QuyTacOTrong_TuDienVao.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_FrameC_QuyTacOTrong_TuDienVao.jpg`
 * **Nội dung vẽ đất nặn:** Quy tắc vàng: Khay câu lệnh có ô bỏ trống và AI tự điền đất sét vào chỗ trống
-* **Chỉ đạo hình ảnh / Cần tạo:** Khay câu lệnh đất nặn với các ô ghép màu, ô bỏ trống phát sáng để AI tự điền đất sét vào. Pop-up chữ Kinetic lớn: CHỖ BỎ TRỐNG → ÂY AI TỰ ĐIỀN VÀO. AKI giơ tay bắt nhịp.
+* **Chỉ đạo hình ảnh / Cần tạo:** Khay câu lệnh đất nặn với các ô ghép màu, ô bỏ trống phát sáng để AI tự điền đất sét vào. Pop-up chữ Kinetic lớn: CHỖ BỎ TRỐNG → ÂY AI TỰ ĐIỀN VÀO. AIKI giơ tay bắt nhịp.
 
 ---
 
@@ -150,7 +150,7 @@
 ![Tác phẩm hoàn chỉnh: Mèo mướp vàng béo ngủ ghế mây cạnh cửa sổ ngập nắng khi thêm đủ 5 điều](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_FrameC_MeoMuopNguGheMay_TaDu4ChiaKhoa.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_FrameC_MeoMuopNguGheMay_TaDu4ChiaKhoa.jpg`
 * **Nội dung vẽ đất nặn:** Tác phẩm hoàn chỉnh: Mèo mướp vàng béo ngủ ghế mây cạnh cửa sổ ngập nắng khi thêm đủ 5 điều
-* **Chỉ đạo hình ảnh / Cần tạo:** Bức tranh hoàn thiện xuất sắc: Chú mèo mướp vàng béo cuộn tròn ngủ say sưa trên chiếc ghế mây êm ái cạnh cửa sổ nắng vàng. AKI nhảy cẫng lên ăn mừng: 'Tớ chỉ thêm chữ thôi!'
+* **Chỉ đạo hình ảnh / Cần tạo:** Bức tranh hoàn thiện xuất sắc: Chú mèo mướp vàng béo cuộn tròn ngủ say sưa trên chiếc ghế mây êm ái cạnh cửa sổ nắng vàng. AIKI nhảy cẫng lên ăn mừng: 'Tớ chỉ thêm chữ thôi!'
 
 ---
 
@@ -162,7 +162,7 @@
 ![Bảng thử thách 2 bước: Lần 1 (1 từ/1 sao) vs Lần 2 (5 điều/5 sao) và 6 tim năng lượng tạo hình](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_FrameD_BangThuThach_2BuocTao.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_FrameD_BangThuThach_2BuocTao.jpg`
 * **Nội dung vẽ đất nặn:** Bảng thử thách 2 bước: Lần 1 (1 từ/1 sao) vs Lần 2 (5 điều/5 sao) và 6 tim năng lượng tạo hình
-* **Chỉ đạo hình ảnh / Cần tạo:** Bảng thử thách đất nặn: Thẻ Bước 1 (1 sao), Thẻ Bước 2 (5 sao màu sắc + huy hiệu mèo), khay dưới có đúng 6 quả tim năng lượng tạo hình. AKI chỉ bảng hướng dẫn các bạn nhỏ thực hành.
+* **Chỉ đạo hình ảnh / Cần tạo:** Bảng thử thách đất nặn: Thẻ Bước 1 (1 sao), Thẻ Bước 2 (5 sao màu sắc + huy hiệu mèo), khay dưới có đúng 6 quả tim năng lượng tạo hình. AIKI chỉ bảng hướng dẫn các bạn nhỏ thực hành.
 
 ---
 
@@ -174,7 +174,7 @@
 ![Nhiệm vụ ngoài màn hình: Cầm kính lúp đi quanh nhà quan sát kỹ 4 đồ vật chuẩn bị cho bài học sau](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_Shot7.1_NhiemVuNgoaiManHinh_4DoVat.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_Shot7.1_NhiemVuNgoaiManHinh_4DoVat.jpg`
 * **Nội dung vẽ đất nặn:** Nhiệm vụ ngoài màn hình: Cầm kính lúp đi quanh nhà quan sát kỹ 4 đồ vật chuẩn bị cho bài học sau
-* **Chỉ đạo hình ảnh / Cần tạo:** Khung cảnh ngoài màn hình: Bạn nhỏ cầm kính lúp đất nặn vui vẻ đi dạo quanh phòng khách, 4 đồ vật (cốc, đồng hồ, đèn bàn, chậu cây) phát vòng sáng mời gọi khám phá. AKI vẫy tay chào tạm biệt.
+* **Chỉ đạo hình ảnh / Cần tạo:** Khung cảnh ngoài màn hình: Bạn nhỏ cầm kính lúp đất nặn vui vẻ đi dạo quanh phòng khách, 4 đồ vật (cốc, đồng hồ, đèn bàn, chậu cây) phát vòng sáng mời gọi khám phá. AIKI vẫy tay chào tạm biệt.
 
 ---
 
@@ -182,7 +182,7 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài học số 2 của chủ đề NHÀ THÁM HIỂM ÂY AI - [curious] Bốn chiếc chìa khoá
+> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài học số 2 của chủ đề NHÀ THÁM HIỂM ÂY AI - [curious] Bốn chiếc chìa khoá
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Nhà Thám Hiểm AI - Mở cửa xưởng sáng tạo](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M1_Master_DaoNhaThamHiem.jpg)
@@ -207,7 +207,7 @@
 ### ⏱️ Phân đoạn: 3. XEM MẪU (0:50–2:00)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
 > [cheerful] Thế là Zico đã viết lại, Đây là câu tả hôm qua của cậu ấy. [playful] Tớ cắt nó ra làm bốn phần, mỗi phần một màu nhé. [deliberate] Xanh: CON MÈO. Đây là nó là cái gì?. [slowly] Vàng: MƯỚP, BÉO. Đây là nó trông như thế nào?. [deliberate] Cam: ĐANG NGỦ. Đây là nó đang làm gì?. [emphasized] Đỏ: TRÊN GHẾ MÂY CẠNH CỬA SỔ. Đây là nó ở đâu?. [proud] Bốn phần. [serious] Câu tả nào tốt cũng có đủ bốn cả. 
-> [curious] Giờ các cậu soi giúp AKI hai câu lệnh này nhé. [playful] Thiếu chìa khoá nào nha? [deliberate] Một con chó xù màu nâu đang chạy. [curious] Thiếu gì?  [emphasized] Thiếu Ở ĐÂU. [sighs] Nên tớ cho nó chạy giữa nền trắng trơn, chẳng ra đâu vào đâu. [deliberate] Một con voi trong rừng. [curious] Thiếu gì?  [emphasized] Thiếu TRÔNG NHƯ THẾ NÀO, thiếu luôn cả ĐANG LÀM GÌ. [disappointed] Nên nó đứng đơ ra thế kia.
+> [curious] Giờ các cậu soi giúp AIKI hai câu lệnh này nhé. [playful] Thiếu chìa khoá nào nha? [deliberate] Một con chó xù màu nâu đang chạy. [curious] Thiếu gì?  [emphasized] Thiếu Ở ĐÂU. [sighs] Nên tớ cho nó chạy giữa nền trắng trơn, chẳng ra đâu vào đâu. [deliberate] Một con voi trong rừng. [curious] Thiếu gì?  [emphasized] Thiếu TRÔNG NHƯ THẾ NÀO, thiếu luôn cả ĐANG LÀM GÌ. [disappointed] Nên nó đứng đơ ra thế kia.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Bạn Zico đất nặn bên 4 khối màu Xanh (Là gì) - Vàng (Trông thế nào) - Cam (Làm gì) - Đỏ (Ở đâu) và 4 chìa khoá](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_FrameB_Zico_4KhoiMau_4ChiaKhoa.jpg)
@@ -221,13 +221,13 @@
 
 ### ⏱️ Phân đoạn: 4. DẠY 1 KỸ NĂNG (2:00–4:00)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Bốn chiếc chìa khoá. [calm] Tớ đọc, các cậu nhớ nhé. [deliberate] Chìa thứ nhất: CÁI GÌ. [playful] Con mèo. Cái cốc. Cái xe đạp. [cheerful] Dễ nhất, ai cũng viết được. [deliberate] Chìa thứ hai: TRÔNG NHƯ THẾ NÀO. [slowly] Màu gì, to hay nhỏ, cũ hay mới, nhẵn hay xù. [deliberate] Chìa thứ ba: ĐANG LÀM GÌ. [serious] Cái này quan trọng lắm mà lại hay bị quên nhất. [thoughtful] Nhiều bạn nghĩ đồ vật thì làm gì được đâu. [excited] Được chứ! [playful] Cái cốc đang bốc khói. Cái xe đạp đang dựa vào tường. Quyển sách đang mở dở ở trang giữa. [deliberate] Chìa thứ tư: Ở ĐÂU. [slowly] Trên bàn, dưới gốc cây, cạnh cửa sổ. [proud] Điền đủ bốn ô là AKI hết chỗ để đoán bừa rồi. [encouraging] Mình đọc lại một lần cho thuộc nhé. [emphasized] CÁI GÌ...  ...TRÔNG NHƯ THẾ NÀO...  [deliberate] ...ĐANG LÀM GÌ...  ...Ở ĐÂU. [proud] Bốn chiếc. [warm] Nhớ nhé.
+> [excited] Bốn chiếc chìa khoá. [calm] Tớ đọc, các cậu nhớ nhé. [deliberate] Chìa thứ nhất: CÁI GÌ. [playful] Con mèo. Cái cốc. Cái xe đạp. [cheerful] Dễ nhất, ai cũng viết được. [deliberate] Chìa thứ hai: TRÔNG NHƯ THẾ NÀO. [slowly] Màu gì, to hay nhỏ, cũ hay mới, nhẵn hay xù. [deliberate] Chìa thứ ba: ĐANG LÀM GÌ. [serious] Cái này quan trọng lắm mà lại hay bị quên nhất. [thoughtful] Nhiều bạn nghĩ đồ vật thì làm gì được đâu. [excited] Được chứ! [playful] Cái cốc đang bốc khói. Cái xe đạp đang dựa vào tường. Quyển sách đang mở dở ở trang giữa. [deliberate] Chìa thứ tư: Ở ĐÂU. [slowly] Trên bàn, dưới gốc cây, cạnh cửa sổ. [proud] Điền đủ bốn ô là AIKI hết chỗ để đoán bừa rồi. [encouraging] Mình đọc lại một lần cho thuộc nhé. [emphasized] CÁI GÌ...  ...TRÔNG NHƯ THẾ NÀO...  [deliberate] ...ĐANG LÀM GÌ...  ...Ở ĐÂU. [proud] Bốn chiếc. [warm] Nhớ nhé.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Cận cảnh 4 chiếc chìa khoá vàng đất nặn: CÁI GÌ - TRÔNG NHƯ THẾ NÀO - ĐANG LÀM GÌ - Ở ĐÂU](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_FrameB_4ChiecChiaKhoaVang.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_FrameB_4ChiecChiaKhoaVang.jpg`
 * **Nội dung vẽ đất nặn:** Cận cảnh 4 chiếc chìa khoá vàng đất nặn: CÁI GÌ - TRÔNG NHƯ THẾ NÀO - ĐANG LÀM GÌ - Ở ĐÂU
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -241,7 +241,7 @@
 * **Nội dung vẽ đất nặn:** Thực hành điền đủ 4 ô: Chiếc cốc sứ trắng mẻ miệng bốc khói trên bàn gỗ cạnh cuốn sổ mở + nút Tạo sáng
 * **Chỉ đạo hình ảnh / Cần tạo:** 🎬 <strong>HƯỚNG DẪN DỰNG SHOT-BY-SHOT (Timeline 4:00–5:30):</strong><br>
             • <strong>Shot 1 (4:00–4:50):</strong> Chiếc cốc sứ trắng mẻ miệng bốc khói xuất hiện trên bàn gỗ cạnh cuốn sổ mở.<br>
-            • <strong>Shot 2 (4:50–5:30):</strong> Điền đủ 4 ô -> Nút Tạo màu xanh tròn phát sáng lên! AKI reo mừng: <em>"Bốn trên bốn. Tớ làm đúng vì các cậu đã nói đủ!"</em>
+            • <strong>Shot 2 (4:50–5:30):</strong> Điền đủ 4 ô -> Nút Tạo màu xanh tròn phát sáng lên! AIKI reo mừng: <em>"Bốn trên bốn. Tớ làm đúng vì các cậu đã nói đủ!"</em>
 
 ---
 
@@ -253,7 +253,7 @@
 ![Thử thách 4 đồ vật trong nhà: Cầm lên xoay 1 vòng nhìn kỹ đặc điểm riêng rồi mới tả](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_Extra_CocMeSut_DacDiemRieng.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_Extra_CocMeSut_DacDiemRieng.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách 4 đồ vật trong nhà: Cầm lên xoay 1 vòng nhìn kỹ đặc điểm riêng rồi mới tả
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -265,7 +265,7 @@
 ![Tổng kết 4 chìa khoá vàng tạo nên bức tranh hoàn chỉnh](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_FrameC_MeoMuopNguGheMay_TaDu4ChiaKhoa.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_FrameC_MeoMuopNguGheMay_TaDu4ChiaKhoa.jpg`
 * **Nội dung vẽ đất nặn:** Tổng kết 4 chìa khoá vàng tạo nên bức tranh hoàn chỉnh
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ 1 mình, Popup Text
 
 ---
 
@@ -273,7 +273,7 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài 1.3: [playful] Úm ba la... Biến hình
+> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài 1.3: [playful] Úm ba la... Biến hình
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Nhà Thám Hiểm AI - Mở cửa xưởng sáng tạo](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M1_Master_DaoNhaThamHiem.jpg)
@@ -303,7 +303,7 @@
 ![Cận cảnh 4 phong cách: Màu nước (nhoè êm), Comic (nét đậm), Đất nặn (khối bóng), Đông Hồ (mộc mạc)](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.3_FrameA_4PhongCachConTrau.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.3_FrameA_4PhongCachConTrau.jpg`
 * **Nội dung vẽ đất nặn:** Cận cảnh 4 phong cách: Màu nước (nhoè êm), Comic (nét đậm), Đất nặn (khối bóng), Đông Hồ (mộc mạc)
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -315,19 +315,19 @@
 ![Quy tắc đạo đức AI: Gọi tên kiểu vẽ chung, không bắt chước phong cách riêng của tác giả](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_Extra_VoiDungYen_ThieuDongTac.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_Extra_VoiDungYen_ThieuDongTac.jpg`
 * **Nội dung vẽ đất nặn:** Quy tắc đạo đức AI: Gọi tên kiểu vẽ chung, không bắt chước phong cách riêng của tác giả
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
 ### ⏱️ Phân đoạn: 5. LÀM CÙNG (4:00–5:30)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Mình thử với con cún của AKI nhé. [calm] Câu tả giữ nguyên, chỉ đổi chữ cuối thôi. [deliberate] Màu nước. Truyện tranh. Đất nặn. Đông Hồ. [proud] Bốn bức, đẹp cả bốn. [thoughtful] Giờ mới đến phần khó: chọn lấy một. [determined] Tớ chọn màu nước. [curious] Vì sao à? [warm] Vì tớ định treo bức này ở đầu giường. [gentle] Màu nước nhìn êm êm, tớ ngủ ngon. [playful] Đấy. [emphasized] Chọn xong là phải nói được vì sao nhé. [serious] Không phải kiểu cái nào cũng được rồi lấy đại đâu.
+> [excited] Mình thử với con cún của AIKI nhé. [calm] Câu tả giữ nguyên, chỉ đổi chữ cuối thôi. [deliberate] Màu nước. Truyện tranh. Đất nặn. Đông Hồ. [proud] Bốn bức, đẹp cả bốn. [thoughtful] Giờ mới đến phần khó: chọn lấy một. [determined] Tớ chọn màu nước. [curious] Vì sao à? [warm] Vì tớ định treo bức này ở đầu giường. [gentle] Màu nước nhìn êm êm, tớ ngủ ngon. [playful] Đấy. [emphasized] Chọn xong là phải nói được vì sao nhé. [serious] Không phải kiểu cái nào cũng được rồi lấy đại đâu.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
-![Làm cùng chú cún AKI: Tạo 4 bức và chọn bức tranh màu nước êm dịu treo đầu giường](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_Extra_ChoChay_DongTac.jpg)
+![Làm cùng chú cún AIKI: Tạo 4 bức và chọn bức tranh màu nước êm dịu treo đầu giường](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.2_Extra_ChoChay_DongTac.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.2_Extra_ChoChay_DongTac.jpg`
-* **Nội dung vẽ đất nặn:** Làm cùng chú cún AKI: Tạo 4 bức và chọn bức tranh màu nước êm dịu treo đầu giường
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Nội dung vẽ đất nặn:** Làm cùng chú cún AIKI: Tạo 4 bức và chọn bức tranh màu nước êm dịu treo đầu giường
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -339,7 +339,7 @@
 ![Thử thách 4 phong cách: Bảng chọn con vật yêu thích tạo 4 phong cách Màu nước, Comic, Đất nặn, Tranh dân gian](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.3_Shot5.1_BangThuThach_4PhongCachConVat.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.3_Shot5.1_BangThuThach_4PhongCachConVat.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách 4 phong cách: Bảng chọn con vật yêu thích tạo 4 phong cách Màu nước, Comic, Đất nặn, Tranh dân gian
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -351,7 +351,7 @@
 ![Nhiệm vụ ngoài màn hình: Quan sát tranh ảnh quanh nhà chuẩn bị bài sau](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.1_Shot7.1_NhiemVuNgoaiManHinh_4DoVat.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.1_Shot7.1_NhiemVuNgoaiManHinh_4DoVat.jpg`
 * **Nội dung vẽ đất nặn:** Nhiệm vụ ngoài màn hình: Quan sát tranh ảnh quanh nhà chuẩn bị bài sau
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ 1 mình, Popup Text
 
 ---
 
@@ -359,7 +359,7 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài một chấm bốn: [proud] Kỹ sư tài ba.
+> [excited] Xưởng sáng tạo Ây ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình cùng đến với bài một chấm bốn: [proud] Kỹ sư tài ba.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Nhà Thám Hiểm AI - Mở cửa xưởng sáng tạo](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M1_Master_DaoNhaThamHiem.jpg)
@@ -383,14 +383,14 @@
 
 ### ⏱️ Phân đoạn: 3. XEM MẪU (0:50–2:00)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] AKI dẫn các cậu đi xem chỗ này nhé. [dramatic] Tớ gọi nó là Bảo tàng thất bại. [deliberate] Năm bức hỏng. [proud] Tớ không giấu đi, tớ treo nó lên. [curious] Bức một: hỏng ở đâu?  [deliberate] Tay sáu ngón. [sighs] Tớ vẽ tay hay sai lắm. [curious] Bức hai?  [disappointed] Chữ trên hình sai chính tả. Tớ viết chữ cũng hay sai. [curious] Bức ba?  [confused] Các cậu tả là đội mũ. Mũ đâu? Không có. [curious] Bức bốn?  [surprised] Các cậu không tả con chim nào cả. Thế mà tớ tự thêm vào ba con. [curious] Bức năm?  [thoughtful] Nhân vật nhìn ra ngoài, đáng lẽ phải nhìn vào cái bánh. [serious] Các cậu để ý chưa: gọi được tên cái lỗi thì mới sửa được nó. [emphasized] Còn không gọi được tên thì chỉ biết bấm lại thôi.
+> [excited] AIKI dẫn các cậu đi xem chỗ này nhé. [dramatic] Tớ gọi nó là Bảo tàng thất bại. [deliberate] Năm bức hỏng. [proud] Tớ không giấu đi, tớ treo nó lên. [curious] Bức một: hỏng ở đâu?  [deliberate] Tay sáu ngón. [sighs] Tớ vẽ tay hay sai lắm. [curious] Bức hai?  [disappointed] Chữ trên hình sai chính tả. Tớ viết chữ cũng hay sai. [curious] Bức ba?  [confused] Các cậu tả là đội mũ. Mũ đâu? Không có. [curious] Bức bốn?  [surprised] Các cậu không tả con chim nào cả. Thế mà tớ tự thêm vào ba con. [curious] Bức năm?  [thoughtful] Nhân vật nhìn ra ngoài, đáng lẽ phải nhìn vào cái bánh. [serious] Các cậu để ý chưa: gọi được tên cái lỗi thì mới sửa được nó. [emphasized] Còn không gọi được tên thì chỉ biết bấm lại thôi.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Bảo tàng thất bại: 5 bức tranh treo tường chỉ rõ 5 lỗi cụ thể để gọi tên sửa](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.4_FrameB_BaoTangThatBai_5BucTranhLoi.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.4_FrameB_BaoTangThatBai_5BucTranhLoi.jpg`
 * **Nội dung vẽ đất nặn:** Bảo tàng thất bại: 5 bức tranh treo tường chỉ rõ 5 lỗi cụ thể để gọi tên sửa
 * **Chỉ đạo hình ảnh / Cần tạo:** 🎬 <strong>HƯỚNG DẪN DỰNG SHOT-BY-SHOT (Timeline 0:50–2:00):</strong><br>
-            • Mèo AKI dẫn đi xem Bảo tàng thất bại. Camera lia qua 5 bức tranh treo tường: 1. Tay 6 ngón -> 2. Sai chính tả -> 3. Mất mũ -> 4. Thừa 3 con chim -> 5. Nhìn lệch bánh.
+            • Mèo AIKI dẫn đi xem Bảo tàng thất bại. Camera lia qua 5 bức tranh treo tường: 1. Tay 6 ngón -> 2. Sai chính tả -> 3. Mất mũ -> 4. Thừa 3 con chim -> 5. Nhìn lệch bánh.
 
 ---
 
@@ -416,7 +416,7 @@
 ![Làm thật: Bàn tay bé 5 ngón hoàn hảo cầm bút chì màu vẽ ngôi sao khi sửa thêm chi tiết](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.4_Shot4.1_SuaCauLenh_BanTay5NgonCamBut.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.4_Shot4.1_SuaCauLenh_BanTay5NgonCamBut.jpg`
 * **Nội dung vẽ đất nặn:** Làm thật: Bàn tay bé 5 ngón hoàn hảo cầm bút chì màu vẽ ngôi sao khi sửa thêm chi tiết
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -428,7 +428,7 @@
 ![Thử thách & Sản phẩm M1: Cuốn sổ Nhật ký học AI dán ảnh lỗi có chú thích và ảnh đúng hoàn thành](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M1_NhaThamHiemAI/M1.4_FrameD_NhatKyAi_BiaVaSoSuuTam.jpg)
 * **Asset File:** `assets/M1_NhaThamHiemAI/M1.4_FrameD_NhatKyAi_BiaVaSoSuuTam.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách & Sản phẩm M1: Cuốn sổ Nhật ký học AI dán ảnh lỗi có chú thích và ảnh đúng hoàn thành
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -440,7 +440,7 @@
 ![Teaser tốt nghiệp M1 chuẩn bị bay sang Đảo Họa Sĩ AI (M2)](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg)
 * **Asset File:** `assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg`
 * **Nội dung vẽ đất nặn:** Teaser tốt nghiệp M1 chuẩn bị bay sang Đảo Họa Sĩ AI (M2)
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ 1 mình, Popup Text
 
 ---
 
@@ -450,13 +450,13 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO ➔ Shot 1.1 (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Chào mừng các cậu đến với chặng 2: TỚ LÀ HOẠ SĨ ÂY AI. Bài học đầu tiên: BỨC TRANH BIẾT NÓI.
+> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Chào mừng các cậu đến với chặng 2: TỚ LÀ HOẠ SĨ ÂY AI. Bài học đầu tiên: BỨC TRANH BIẾT NÓI.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.1: Bức tranh biết nói](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg)
 * **Asset File:** `assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg`
 * **Nội dung vẽ đất nặn:** Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.1: Bức tranh biết nói
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI mở cổng xưởng vẽ rực rỡ sắc màu của Đảo Họa Sĩ AI, vẫy tay chào các bạn nhỏ. Pop-up 3D: BỨC TRANH BIẾT NÓI.
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI mở cổng xưởng vẽ rực rỡ sắc màu của Đảo Họa Sĩ AI, vẫy tay chào các bạn nhỏ. Pop-up 3D: BỨC TRANH BIẾT NÓI.
 
 ---
 
@@ -528,7 +528,7 @@
 ![Nhiệm vụ ngoài đời: Mở album ảnh gia đình cũ, hỏi ông bà bố mẹ câu chuyện kỷ niệm sau từng bức ảnh](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M2_HoaSiAI/M2.1_Shot5.1_NhiemVuGiaDinh_AlbumAnhCu.jpg)
 * **Asset File:** `assets/M2_HoaSiAI/M2.1_Shot5.1_NhiemVuGiaDinh_AlbumAnhCu.jpg`
 * **Nội dung vẽ đất nặn:** Nhiệm vụ ngoài đời: Mở album ảnh gia đình cũ, hỏi ông bà bố mẹ câu chuyện kỷ niệm sau từng bức ảnh
-* **Chỉ đạo hình ảnh / Cần tạo:** Cuốn album ảnh gia đình vintage mở ra trên bàn gỗ ngập nắng ấm: Các bức ảnh chụp kỷ niệm ngày mưa, dã ngoại gia đình, tách cacao bốc khói và chiếc kính lúp soi ảnh. Mèo AKI vẫy tay chào hẹn gặp lại ở bài 2.2: AI LÀ NGÔI SAO.
+* **Chỉ đạo hình ảnh / Cần tạo:** Cuốn album ảnh gia đình vintage mở ra trên bàn gỗ ngập nắng ấm: Các bức ảnh chụp kỷ niệm ngày mưa, dã ngoại gia đình, tách cacao bốc khói và chiếc kính lúp soi ảnh. Mèo AIKI vẫy tay chào hẹn gặp lại ở bài 2.2: AI LÀ NGÔI SAO.
 
 ---
 
@@ -536,25 +536,25 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO ➔ Shot 1.1 (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài học số hai của chủ đề Tớ là Hoạ sĩ Ây Ai: Ai là ngôi sao?
+> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài học số hai của chủ đề Tớ là Hoạ sĩ Ây Ai: Ai là ngôi sao?
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.2: Ai là ngôi sao?](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg)
 * **Asset File:** `assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg`
 * **Nội dung vẽ đất nặn:** Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.2: Ai là ngôi sao?
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI mở cánh cửa xưởng vẽ của Đảo Họa Sĩ AI, vẫy tay chào các bạn nhỏ. Pop-up text 3D giới thiệu bài 2.2: AI LÀ NGÔI SAO?
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI mở cánh cửa xưởng vẽ của Đảo Họa Sĩ AI, vẫy tay chào các bạn nhỏ. Pop-up text 3D giới thiệu bài 2.2: AI LÀ NGÔI SAO?
 
 ---
 
 ### ⏱️ Phân đoạn: 2. HOOK / TÌNH HUỐNG ➔ Shot 2.1 (0:15–0:35)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [cheerful] Hôm qua cô chủ nhỏ Mimi của tớ làm một bức tranh tặng em Bống nhân dịp sinh nhật. [playful] Bạn ấy muốn vẽ thật nhiều thứ: cái bánh kem ba tầng, bóng bay đủ màu, hộp quà, hoa, bàn tiệc, rồi cả bà và mẹ đứng chung quanh nữa. [gasps] Ối giời. [dramatic] Thứ nào cũng to, thứ nào cũng rõ, thứ nào cũng chen lên phía trước. [disappointed] Em Bống là nhân vật quan trọng nhất thì lại bị cái bánh che gần mất nửa người. [confused] Bạn ấy hỏi: “AKI ơi, thế em đứng ở đâu trong bức tranh này ạ?”
+> [cheerful] Hôm qua cô chủ nhỏ Mimi của tớ làm một bức tranh tặng em Bống nhân dịp sinh nhật. [playful] Bạn ấy muốn vẽ thật nhiều thứ: cái bánh kem ba tầng, bóng bay đủ màu, hộp quà, hoa, bàn tiệc, rồi cả bà và mẹ đứng chung quanh nữa. [gasps] Ối giời. [dramatic] Thứ nào cũng to, thứ nào cũng rõ, thứ nào cũng chen lên phía trước. [disappointed] Em Bống là nhân vật quan trọng nhất thì lại bị cái bánh che gần mất nửa người. [confused] Bạn ấy hỏi: “AIKI ơi, thế em đứng ở đâu trong bức tranh này ạ?”
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Bữa tiệc sinh nhật hỗn loạn: 20 thứ chen chúc cùng cỡ, bánh khổng lồ che lấp em bé Bống](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M2_HoaSiAI/M2.2_FrameA_TinhHuong_TiecSinhNhatHonLoan.jpg)
 * **Asset File:** `assets/M2_HoaSiAI/M2.2_FrameA_TinhHuong_TiecSinhNhatHonLoan.jpg`
 * **Nội dung vẽ đất nặn:** Bữa tiệc sinh nhật hỗn loạn: 20 thứ chen chúc cùng cỡ, bánh khổng lồ che lấp em bé Bống
-* **Chỉ đạo hình ảnh / Cần tạo:** Toàn cảnh bàn tiệc sinh nhật hỗn loạn: Hơn 20 món đồ chen chúc cùng kích cỡ, chiếc bánh kem khổng lồ vô duyên che mất nửa người em bé Bống. AKI nhăn mặt hoang mang.
+* **Chỉ đạo hình ảnh / Cần tạo:** Toàn cảnh bàn tiệc sinh nhật hỗn loạn: Hơn 20 món đồ chen chúc cùng kích cỡ, chiếc bánh kem khổng lồ vô duyên che mất nửa người em bé Bống. AIKI nhăn mặt hoang mang.
 
 ---
 
@@ -566,7 +566,7 @@
 ![Bữa tiệc sinh nhật xếp lại chuẩn bố cục: Em Bống nổi bật ở giữa, bánh phía trước, mẹ và bà phía sau](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M2_HoaSiAI/M2.2_Shot2.2_SinhNhatEmBong_XepDungBoCuc.jpg)
 * **Asset File:** `assets/M2_HoaSiAI/M2.2_Shot2.2_SinhNhatEmBong_XepDungBoCuc.jpg`
 * **Nội dung vẽ đất nặn:** Bữa tiệc sinh nhật xếp lại chuẩn bố cục: Em Bống nổi bật ở giữa, bánh phía trước, mẹ và bà phía sau
-* **Chỉ đạo hình ảnh / Cần tạo:** Bức tranh sinh nhật sau khi xếp lại: Em Bống đứng tươi cười ở giữa (ngôi sao chính), bánh kem ở phía trước, bà và mẹ ở phía sau, bóng bay nép sang bên. AKI cười tự hào.
+* **Chỉ đạo hình ảnh / Cần tạo:** Bức tranh sinh nhật sau khi xếp lại: Em Bống đứng tươi cười ở giữa (ngôi sao chính), bánh kem ở phía trước, bà và mẹ ở phía sau, bóng bay nép sang bên. AIKI cười tự hào.
 
 ---
 
@@ -646,13 +646,13 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO ➔ Shot 1.1 (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài học số 3, của chủ đề Tớ là Hoạ sĩ Ây Ai: Cảm xúc của Sắc màu.
+> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài học số 3, của chủ đề Tớ là Hoạ sĩ Ây Ai: Cảm xúc của Sắc màu.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.3: Cảm xúc của sắc màu](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg)
 * **Asset File:** `assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg`
 * **Nội dung vẽ đất nặn:** Đảo Họa Sĩ AI - Mở cửa xưởng sáng tạo bài 2.3: Cảm xúc của sắc màu
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI mở cánh cửa xưởng vẽ của Đảo Họa Sĩ AI, trên tay cầm lồng đèn ánh sáng đổi màu. Pop-up 3D: CẢM XÚC CỦA SẮC MÀU.
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI mở cánh cửa xưởng vẽ của Đảo Họa Sĩ AI, trên tay cầm lồng đèn ánh sáng đổi màu. Pop-up 3D: CẢM XÚC CỦA SẮC MÀU.
 
 ---
 
@@ -720,13 +720,13 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO ➔ Shot 1.1 (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài cuối của chủ đề Tớ là Hoạ sĩ Ây Ai: Mảnh ghép hoàn hảo. [proud] Ba bài vừa rồi, các cậu đã có ba mảnh ghép rồi nhé: [deliberate] biết tranh đang kể chuyện gì, biết ai là ngôi sao, và biết dùng ánh sáng để tạo cảm xúc. [excited] Hôm nay, chúng mình sẽ ghép cả ba lại để làm một bức tranh hoàn chỉnh. [mischievous] Và trong lúc làm, tớ sẽ đưa cho các cậu mảnh ghép cuối cùng còn thiếu.
+> [excited] Xưởng sáng tạo AKID mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay mình đến với bài cuối của chủ đề Tớ là Hoạ sĩ Ây Ai: Mảnh ghép hoàn hảo. [proud] Ba bài vừa rồi, các cậu đã có ba mảnh ghép rồi nhé: [deliberate] biết tranh đang kể chuyện gì, biết ai là ngôi sao, và biết dùng ánh sáng để tạo cảm xúc. [excited] Hôm nay, chúng mình sẽ ghép cả ba lại để làm một bức tranh hoàn chỉnh. [mischievous] Và trong lúc làm, tớ sẽ đưa cho các cậu mảnh ghép cuối cùng còn thiếu.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Họa Sĩ AI - Bài 2.4: Mảnh ghép hoàn hảo](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg)
 * **Asset File:** `assets/MasterIslands/M2_Master_DaoHoaSiAI.jpg`
 * **Nội dung vẽ đất nặn:** Đảo Họa Sĩ AI - Bài 2.4: Mảnh ghép hoàn hảo
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI đứng trên Đảo Họa Sĩ AI, cầm chiếc hộp báu vật chứa 4 mảnh ghép nghệ thuật. Pop-up 3D: MẢNH GHÉP HOÀN HẢO.
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI đứng trên Đảo Họa Sĩ AI, cầm chiếc hộp báu vật chứa 4 mảnh ghép nghệ thuật. Pop-up 3D: MẢNH GHÉP HOÀN HẢO.
 
 ---
 
@@ -774,7 +774,7 @@
 ![Lễ trao Huy hiệu Họa Sĩ AI danh giá + Bản đồ & Khinh khí cầu chuẩn bị bay sang Đảo Biệt Đội Nhân Vật AI (M3)](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M2_HoaSiAI/M2.4_Shot5.2_HuyHieuHoaSiAI_TeaserM3.jpg)
 * **Asset File:** `assets/M2_HoaSiAI/M2.4_Shot5.2_HuyHieuHoaSiAI_TeaserM3.jpg`
 * **Nội dung vẽ đất nặn:** Lễ trao Huy hiệu Họa Sĩ AI danh giá + Bản đồ & Khinh khí cầu chuẩn bị bay sang Đảo Biệt Đội Nhân Vật AI (M3)
-* **Chỉ đạo hình ảnh / Cần tạo:** Bàn lễ tốt nghiệp Đảo Họa Sĩ AI: Huy hiệu bảng màu vàng ruy băng rực rỡ, bản đồ kho báu và chiếc khinh khí cầu đất nặn chỉ đường bay sang Đảo Biệt Đội Nhân Vật AI trong mây. AKI reo vui chúc mừng.
+* **Chỉ đạo hình ảnh / Cần tạo:** Bàn lễ tốt nghiệp Đảo Họa Sĩ AI: Huy hiệu bảng màu vàng ruy băng rực rỡ, bản đồ kho báu và chiếc khinh khí cầu đất nặn chỉ đường bay sang Đảo Biệt Đội Nhân Vật AI trong mây. AIKI reo vui chúc mừng.
 
 ---
 
@@ -784,7 +784,7 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây Ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay chúng mình bước vào 1 chủ đề siêu mới: BIỆT ĐỘI NHÂN VẬT AI. [curious] Bài đầu tiên có tên là Hồ sơ biệt đội.
+> [excited] Xưởng sáng tạo Ây Ai Kít mở cửa rồi! [giggles] Xin chào các cậu, tớ là AIKI, chú mèo máy thông minh nhì quả đất này. [cheerful] Hôm nay chúng mình bước vào 1 chủ đề siêu mới: BIỆT ĐỘI NHÂN VẬT AI. [curious] Bài đầu tiên có tên là Hồ sơ biệt đội.
 > [mischievous] Mà báo trước nhé: hôm nay không có nút tạo hình. [serious] Các cậu sẽ viết trước. [emphasized] Vì những gì viết hôm nay sẽ quyết định nhân vật của các cậu là ai trong suốt cả chương.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
@@ -823,7 +823,7 @@
 ![Hồ sơ 6 ô của chuột Tép tai lệch ôm hộp sưu tầm nắp chai sắc màu](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.1_FrameA_HoSoNhanVat_ChuotTepHopNapChai.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.1_FrameA_HoSoNhanVat_ChuotTepHopNapChai.jpg`
 * **Nội dung vẽ đất nặn:** Hồ sơ 6 ô của chuột Tép tai lệch ôm hộp sưu tầm nắp chai sắc màu
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -842,7 +842,7 @@
 ![Chuột Tép bị tuột dây giày ngã vấp, hộp nắp chai tung bay về miệng cống](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.1_Shot4.1_TepTuotDayGiay_BayHopNapChai.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.1_Shot4.1_TepTuotDayGiay_BayHopNapChai.jpg`
 * **Nội dung vẽ đất nặn:** Chuột Tép bị tuột dây giày ngã vấp, hộp nắp chai tung bay về miệng cống
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -859,7 +859,7 @@
 ![Bảng hồ sơ nhân vật 6 ô đất nặn: Tên - Thích - Sợ - Giỏi - Dở - Ước mơ](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.1_Shot5.1_BangHoSoNhanVat6O.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.1_Shot5.1_BangHoSoNhanVat6O.jpg`
 * **Nội dung vẽ đất nặn:** Bảng hồ sơ nhân vật 6 ô đất nặn: Tên - Thích - Sợ - Giỏi - Dở - Ước mơ
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -867,7 +867,7 @@
 
 ### ⏱️ Phân đoạn: 1. INTRO (0:00–0:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [excited] Xưởng sáng tạo Ây Ai Kít mở cửa rồi! [giggles] Xin chào các cậu, lại là tớ - AKI, chú mèo máy thông minh nhì quả đất này đây. [cheerful] Hôm nay mình đến với bài 3.2: Mật mã nhận diện. [encouraging] Cuối buổi, các cậu hãy viết ra một Bản luật vẽ nhân vật nhé, sau đó tớ sẽ ghi nhớ và lần sau tớ sẽ làm thật đúng ý của các cậu
+> [excited] Xưởng sáng tạo Ây Ai Kít mở cửa rồi! [giggles] Xin chào các cậu, lại là tớ - AIKI, chú mèo máy thông minh nhì quả đất này đây. [cheerful] Hôm nay mình đến với bài 3.2: Mật mã nhận diện. [encouraging] Cuối buổi, các cậu hãy viết ra một Bản luật vẽ nhân vật nhé, sau đó tớ sẽ ghi nhớ và lần sau tớ sẽ làm thật đúng ý của các cậu
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Đảo Biệt Đội Nhân Vật AI](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/MasterIslands/M3_Master_DaoBietDoiNhanVat.jpg)
@@ -879,7 +879,7 @@
 
 ### ⏱️ Phân đoạn: 2. TÌNH HUỐNG (0:15–0:50)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [calm] Hôm qua Sumi đưa cho tớ 1 Hồ sơ nhân vật và bảo: “AKI, vẽ bạn ấy đi!” [proud] Bức đầu tiên đẹp lắm. [cheerful] MIMI thích quá nên bảo vẽ thêm. [confused] Nhưng bức thứ hai... ơ, sao tóc đổi màu rồi. [surprised] Bức thứ ba... cái mũ cũng khác luôn. [disappointed] Vẽ tiếp vài bức nữa thì ôi thôi, nhìn như cả một nhóm bạn khác nhau. [worried] MIMI kêu: “AKI! Nhân vật của tớ đâu?” [sighs] Tớ phải thú thật: mỗi lần tạo hình, nếu các cậu không nhắc rõ những đặc điểm quan trọng, tớ có thể vẽ nhân vật khác đi. [curious] Vậy làm sao để dù bạn ấy đang chạy, ngồi hay nhảy, mình vẫn nhận ra đúng một người?
+> [calm] Hôm qua Sumi đưa cho tớ 1 Hồ sơ nhân vật và bảo: “AIKI, vẽ bạn ấy đi!” [proud] Bức đầu tiên đẹp lắm. [cheerful] MIMI thích quá nên bảo vẽ thêm. [confused] Nhưng bức thứ hai... ơ, sao tóc đổi màu rồi. [surprised] Bức thứ ba... cái mũ cũng khác luôn. [disappointed] Vẽ tiếp vài bức nữa thì ôi thôi, nhìn như cả một nhóm bạn khác nhau. [worried] MIMI kêu: “AIKI! Nhân vật của tớ đâu?” [sighs] Tớ phải thú thật: mỗi lần tạo hình, nếu các cậu không nhắc rõ những đặc điểm quan trọng, tớ có thể vẽ nhân vật khác đi. [curious] Vậy làm sao để dù bạn ấy đang chạy, ngồi hay nhảy, mình vẫn nhận ra đúng một người?
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Nhân vật bị trôi 3 kiểu: đổi mũ len, đổi màu tóc, đổi áo khoác](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.2_FrameA_TinhHuong_NhanVatBiTroi3Kieu.jpg)
@@ -899,7 +899,7 @@
 ![3 Mật mã nhận diện không đổi: Mũ len đỏ quả bông, áo xanh 2 túi, ủng vàng](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.2_Shot3.1_3MatMaNhanDien.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.2_Shot3.1_3MatMaNhanDien.jpg`
 * **Nội dung vẽ đất nặn:** 3 Mật mã nhận diện không đổi: Mũ len đỏ quả bông, áo xanh 2 túi, ủng vàng
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -911,7 +911,7 @@
 ![Bản xoay Turnaround 360° của Bí: Mũ len đỏ quả bông, áo xanh 2 túi, ủng vàng](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.2_FrameB_KetQua_MatMaNhanDien360Do.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.2_FrameB_KetQua_MatMaNhanDien360Do.jpg`
 * **Nội dung vẽ đất nặn:** Bản xoay Turnaround 360° của Bí: Mũ len đỏ quả bông, áo xanh 2 túi, ủng vàng
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -926,7 +926,7 @@
 ![Thử thách nhận diện nhân vật Bí giữa đám đông nhờ 3 mật mã](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.2_Shot5.1_NhanVatGiuaDamDong_3DacDiem.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.2_Shot5.1_NhanVatGiuaDamDong_3DacDiem.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách nhận diện nhân vật Bí giữa đám đông nhờ 3 mật mã
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -965,7 +965,7 @@
 ![Bộ biểu cảm 'Đổi mặt - Không đổi người' của cún cưng giữ nguyên chuông vàng](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.3_FrameA_BienHoaBieuCam_DoiMatKhongDoiNguoi.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.3_FrameA_BienHoaBieuCam_DoiMatKhongDoiNguoi.jpg`
 * **Nội dung vẽ đất nặn:** Bộ biểu cảm 'Đổi mặt - Không đổi người' của cún cưng giữ nguyên chuông vàng
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -977,7 +977,7 @@
 ![Kiểm tra luật vẽ nhân vật: Vòng cổ đỏ, chuông vàng, tai cụp — 3 trên 3: DUYỆT!](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.3_Shot4.1_KiemTraLuat_3Tren3_Duyet.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.3_Shot4.1_KiemTraLuat_3Tren3_Duyet.jpg`
 * **Nội dung vẽ đất nặn:** Kiểm tra luật vẽ nhân vật: Vòng cổ đỏ, chuông vàng, tai cụp — 3 trên 3: DUYỆT!
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -992,7 +992,7 @@
 ![Khay 6 biểu cảm hoàn chỉnh của cún Bông giữ nguyên chuông vàng và vòng cổ đỏ](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.3_Shot5.1_Bo6BieuCam_DoiMatKhongDoiNguoi.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.3_Shot5.1_Bo6BieuCam_DoiMatKhongDoiNguoi.jpg`
 * **Nội dung vẽ đất nặn:** Khay 6 biểu cảm hoàn chỉnh của cún Bông giữ nguyên chuông vàng và vòng cổ đỏ
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1032,7 +1032,7 @@
 ![Thiết kế căn cứ từ tính cách: Góc hốc cầu thang có võng, bản đồ, nắp chai và dây giày](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.4_Shot3.1_ThietKeCanCuDuoiCauThang.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.4_Shot3.1_ThietKeCanCuDuoiCauThang.jpg`
 * **Nội dung vẽ đất nặn:** Thiết kế căn cứ từ tính cách: Góc hốc cầu thang có võng, bản đồ, nắp chai và dây giày
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1044,7 +1044,7 @@
 ![Căn cứ ấm cúng hốc cây của Tép: bản đồ vẽ tay, hộp nắp chai, cuộn dây giày](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.4_FrameB_KetQua_CanCuAmCungHocCay.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.4_FrameB_KetQua_CanCuAmCungHocCay.jpg`
 * **Nội dung vẽ đất nặn:** Căn cứ ấm cúng hốc cây của Tép: bản đồ vẽ tay, hộp nắp chai, cuộn dây giày
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1059,7 +1059,7 @@
 ![Lễ trao Huy hiệu Biệt Đội Nhân Vật AI + Cổng Vương Quốc Truyện Tranh AI M4](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M3_BietDoiNhanVat/M3.4_Shot5.1_HuyHieuBietDoiNhanVat_TeaserM4.jpg)
 * **Asset File:** `assets/M3_BietDoiNhanVat/M3.4_Shot5.1_HuyHieuBietDoiNhanVat_TeaserM4.jpg`
 * **Nội dung vẽ đất nặn:** Lễ trao Huy hiệu Biệt Đội Nhân Vật AI + Cổng Vương Quốc Truyện Tranh AI M4
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1101,7 +1101,7 @@
 ![Xem mẫu Cổng 3 (Giải quyết): Mèo con tìm thấy chú cá bông yêu thích dưới hiên nắng chiều](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.1_FrameB_Cong3_GiaiQuyet_TimLaiCaBong.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.1_FrameB_Cong3_GiaiQuyet_TimLaiCaBong.jpg`
 * **Nội dung vẽ đất nặn:** Xem mẫu Cổng 3 (Giải quyết): Mèo con tìm thấy chú cá bông yêu thích dưới hiên nắng chiều
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1114,7 +1114,7 @@
 ![Sơ đồ 3 cổng câu chuyện: Cổng 1 Bình thường ➔ Cổng 2 Có chuyện ➔ Cổng 3 Giải quyết](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.1_Shot4.1_SoDo3CongChuyen.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.1_Shot4.1_SoDo3CongChuyen.jpg`
 * **Nội dung vẽ đất nặn:** Sơ đồ 3 cổng câu chuyện: Cổng 1 Bình thường ➔ Cổng 2 Có chuyện ➔ Cổng 3 Giải quyết
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1128,7 +1128,7 @@
 ![Bảng thử thách 3 cổng câu chuyện và máy ghi âm đất nặn để bé ghi âm kể chuyện](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.1_Shot5.1_BangThuThach_3Cong_MayGhiAm.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.1_Shot5.1_BangThuThach_3Cong_MayGhiAm.jpg`
 * **Nội dung vẽ đất nặn:** Bảng thử thách 3 cổng câu chuyện và máy ghi âm đất nặn để bé ghi âm kể chuyện
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1168,7 +1168,7 @@
 ![Sơ đồ 4 chặng khung xương: MUỐN ➔ CẢN ➔ LÀM ➔ KẾT](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.2_Shot3.1_SoDo4CongHanhTrinhTruyen.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.2_Shot3.1_SoDo4CongHanhTrinhTruyen.jpg`
 * **Nội dung vẽ đất nặn:** Sơ đồ 4 chặng khung xương: MUỐN ➔ CẢN ➔ LÀM ➔ KẾT
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1180,7 +1180,7 @@
 ![Làm cùng: Bạn Bơ cầm ô vàng vượt sấm cứu huy hiệu sao](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.2_FrameA_4ChangThuThach_CuuHuyHieuSao.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.2_FrameA_4ChangThuThach_CuuHuyHieuSao.jpg`
 * **Nội dung vẽ đất nặn:** Làm cùng: Bạn Bơ cầm ô vàng vượt sấm cứu huy hiệu sao
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1194,7 +1194,7 @@
 ![Bảng thử thách 4 dòng khung xương: Muốn - Cản - Làm - Kết bằng các dải đất nặn màu](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.2_Shot5.1_BangThuThach_4DongKhungXuong.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.2_Shot5.1_BangThuThach_4DongKhungXuong.jpg`
 * **Nội dung vẽ đất nặn:** Bảng thử thách 4 dòng khung xương: Muốn - Cản - Làm - Kết bằng các dải đất nặn màu
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1234,7 +1234,7 @@
 ![Bản phác thảo Storyboard 8 ô que nháp trên giấy: Một ô - Một việc](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.3_Shot2.1_BanVeNhao8OOQue.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.3_Shot2.1_BanVeNhao8OOQue.jpg`
 * **Nội dung vẽ đất nặn:** Bản phác thảo Storyboard 8 ô que nháp trên giấy: Một ô - Một việc
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1246,7 +1246,7 @@
 ![Làm cùng: Storyboard 8 ô hoàn chỉnh bằng đất nặn trực quan](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.3_FrameA_Storyboard8OOQue.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.3_FrameA_Storyboard8OOQue.jpg`
 * **Nội dung vẽ đất nặn:** Làm cùng: Storyboard 8 ô hoàn chỉnh bằng đất nặn trực quan
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1260,7 +1260,7 @@
 ![Thử thách: Bảng kiểm tra 8 ô que không trùng lặp, có kính lúp soi chi tiết](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.3_Shot5.1_BangThuThach_SoiLoi8O.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.3_Shot5.1_BangThuThach_SoiLoi8O.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách: Bảng kiểm tra 8 ô que không trùng lặp, có kính lúp soi chi tiết
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1298,7 +1298,7 @@
 ![Khung truyện mẫu: Bé áo cam nhìn chiếc máy bay giấy mắc trên cành cây](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.4_FrameA_KhoaHinh_MayBayGiayTrenCay.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.4_FrameA_KhoaHinh_MayBayGiayTrenCay.jpg`
 * **Nội dung vẽ đất nặn:** Khung truyện mẫu: Bé áo cam nhìn chiếc máy bay giấy mắc trên cành cây
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1310,7 +1310,7 @@
 ![Làm cùng: Bé bắc ghế cứu máy bay giấy, giữ nguyên nhân vật khóa hình](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.4_Shot4.1_GiaiQuyet_CuuMayBayGiay.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.4_Shot4.1_GiaiQuyet_CuuMayBayGiay.jpg`
 * **Nội dung vẽ đất nặn:** Làm cùng: Bé bắc ghế cứu máy bay giấy, giữ nguyên nhân vật khóa hình
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1326,7 +1326,7 @@
 ![Thử thách: Soi 2 khung cạnh nhau để khóa hình nhân vật Đúng người - Đúng việc - Đúng kiểu](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.4_Shot5.1_BangThuThach_Soi2KhungCanhNhau.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.4_Shot5.1_BangThuThach_Soi2KhungCanhNhau.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách: Soi 2 khung cạnh nhau để khóa hình nhân vật Đúng người - Đúng việc - Đúng kiểu
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1346,7 +1346,7 @@
 
 ### ⏱️ Phân đoạn: 2. TÌNH HUỐNG (0:15–0:50)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [cheerful] Hôm trước Mika xếp đủ tám khung rồi bảo: “AKI, viết lời thoại hộ tớ nhé!” [playful] Dễ thôi! [excited] Tớ viết một loạt câu thật nhanh. [confused] Lumi gặp chuyện cũng nói “Tuyệt quá!”, lúc lo lắng cũng “Tuyệt quá!”, đến một đồ vật trong tranh tớ cũng suýt cho nói luôn. [surprised] Mika đọc xong nhìn tớ: “AKI... đây là truyện của ai vậy?” [sighs] Ờ nhỉ. [thoughtful] Tớ nhìn được hình, nhưng tớ đâu biết chính xác Lumi đang nghĩ gì. [serious] Phần đó phải do người kể chuyện quyết định.
+> [cheerful] Hôm trước Mika xếp đủ tám khung rồi bảo: “AIKI, viết lời thoại hộ tớ nhé!” [playful] Dễ thôi! [excited] Tớ viết một loạt câu thật nhanh. [confused] Lumi gặp chuyện cũng nói “Tuyệt quá!”, lúc lo lắng cũng “Tuyệt quá!”, đến một đồ vật trong tranh tớ cũng suýt cho nói luôn. [surprised] Mika đọc xong nhìn tớ: “AIKI... đây là truyện của ai vậy?” [sighs] Ờ nhỉ. [thoughtful] Tớ nhìn được hình, nhưng tớ đâu biết chính xác Lumi đang nghĩ gì. [serious] Phần đó phải do người kể chuyện quyết định.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Tình huống: Bong bóng thoại khổng lồ che kín cả nhân vật và cảnh vật](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.5_Shot2.1_BongBongThoaiCheKinTranh.jpg)
@@ -1368,7 +1368,7 @@
 ![Cuốn truyện tranh 8 trang hoàn chỉnh mở ra trên bàn thủ công có bìa và tên truyện](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.5_FrameA_VuongMienHoanHao_CuonTruyen8Trang.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.5_FrameA_VuongMienHoanHao_CuonTruyen8Trang.jpg`
 * **Nội dung vẽ đất nặn:** Cuốn truyện tranh 8 trang hoàn chỉnh mở ra trên bàn thủ công có bìa và tên truyện
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1386,7 +1386,7 @@
 ![Huy hiệu Vương Quốc Truyện Tranh + Cuốn truyện thắt nơ + Rương game Teaser M5](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M4_VuongQuocTruyenTranh/M4.5_Shot5.2_HuyHieuTruyenTranh_TeaserM5.jpg)
 * **Asset File:** `assets/M4_VuongQuocTruyenTranh/M4.5_Shot5.2_HuyHieuTruyenTranh_TeaserM5.jpg`
 * **Nội dung vẽ đất nặn:** Huy hiệu Vương Quốc Truyện Tranh + Cuốn truyện thắt nơ + Rương game Teaser M5
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1408,7 +1408,7 @@
 
 ### ⏱️ Phân đoạn: 2. TÌNH HUỐNG (0:15–1:15)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
-> [calm] Hôm trước Nami muốn làm một bộ thẻ nhưng nghĩ mãi chẳng biết chọn gì. [curious] Bạn ấy hỏi tớ: “AKI ơi, cho tớ vài chủ đề hay đi!” [cheerful] Tớ đưa ra khủng long, vũ trụ, siêu anh hùng... Nami chọn khủng long. [surprised] Nhưng đến ngày cả lớp mang thẻ ra đổi, ôi thôi, rất nhiều bạn cũng có khủng long. [disappointed] Bộ nào cũng đẹp mà nhìn cứ na ná nhau. [thoughtful] Vì khi mình hỏi một câu quá chung chung, tớ rất dễ đưa ra những ý tưởng quen thuộc. [encouraging] Muốn có bộ thẻ của riêng mình, ý tưởng đầu tiên phải bắt đầu từ chính các cậu.
+> [calm] Hôm trước Nami muốn làm một bộ thẻ nhưng nghĩ mãi chẳng biết chọn gì. [curious] Bạn ấy hỏi tớ: “AIKI ơi, cho tớ vài chủ đề hay đi!” [cheerful] Tớ đưa ra khủng long, vũ trụ, siêu anh hùng... Nami chọn khủng long. [surprised] Nhưng đến ngày cả lớp mang thẻ ra đổi, ôi thôi, rất nhiều bạn cũng có khủng long. [disappointed] Bộ nào cũng đẹp mà nhìn cứ na ná nhau. [thoughtful] Vì khi mình hỏi một câu quá chung chung, tớ rất dễ đưa ra những ý tưởng quen thuộc. [encouraging] Muốn có bộ thẻ của riêng mình, ý tưởng đầu tiên phải bắt đầu từ chính các cậu.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Tình huống: Dụng cụ bếp hỗn loạn chưa có bộ quy tắc](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.1_Shot2.1_TinhHuong_DungCuBepHonLoan.jpg)
@@ -1428,7 +1428,7 @@
 ![Bộ sưu tập 12 món tiệm tạp hóa gần nhà trên khay gỗ pastel](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.1_Shot3.1_BoSuuTap12MonTapHoa.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.1_Shot3.1_BoSuuTap12MonTapHoa.jpg`
 * **Nội dung vẽ đất nặn:** Bộ sưu tập 12 món tiệm tạp hóa gần nhà trên khay gỗ pastel
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1440,7 +1440,7 @@
 ![Bộ sưu tập 12 món làm bếp đất nặn tí hon trên bàn gỗ](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.1_FrameA_BoSuuTap12MonLamBep.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.1_FrameA_BoSuuTap12MonLamBep.jpg`
 * **Nội dung vẽ đất nặn:** Bộ sưu tập 12 món làm bếp đất nặn tí hon trên bàn gỗ
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1448,7 +1448,7 @@
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
 > [encouraging] Bây giờ đến lượt các cậu. [deliberate] Đầu tiên, chọn một chủ đề thật gần với mình hoặc chủ đề cậu thích ơi là thích. [calm] Sau đó tìm đủ 12 thứ cùng một nhóm. [serious] Cuối cùng, đọc lại cả danh sách và kiểm tra: có món nào trùng không? Có món nào quá nhạt nhẽo không? [warm] Sửa xong thì giữ thật kỹ danh sách này nhé, vì những bài sau chúng mình sẽ biến từng món thành những chiếc thẻ thật sự.
 > 
-> [emphasized] Và nhớ câu hôm nay: Bí thì đi nhìn, đi hỏi, rồi mới nhờ AKI giúp. [warm] Ý tưởng ở quanh các cậu nhiều hơn các cậu nghĩ đấy.
+> [emphasized] Và nhớ câu hôm nay: Bí thì đi nhìn, đi hỏi, rồi mới nhờ AIKI giúp. [warm] Ý tưởng ở quanh các cậu nhiều hơn các cậu nghĩ đấy.
 > 
 > [excited] Buổi sau, chúng mình sẽ bắt đầu phù phép mặt thẻ, để 12 thứ bình thường này biến thành một bộ thẻ có thể chơi được. [cheerful] Tớ chờ các cậu! Bái bai!
 
@@ -1456,7 +1456,7 @@
 ![Bảng thử thách 12 ô kiểm tra không trùng và không nhạt nhẽo](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.1_Shot5.1_BangThuThach_12DongKhongTrung.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.1_Shot5.1_BangThuThach_12DongKhongTrung.jpg`
 * **Nội dung vẽ đất nặn:** Bảng thử thách 12 ô kiểm tra không trùng và không nhạt nhẽo
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1495,7 +1495,7 @@
 ![Túi 12 đồng điểm chia vào 3 đĩa cân: Tim (Sức) - Sét (Nhanh) - Sao (Khéo)](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.2_Shot3.1_Tui12Diem_ChaoVsDua.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.2_Shot3.1_Tui12Diem_ChaoVsDua.jpg`
 * **Nội dung vẽ đất nặn:** Túi 12 đồng điểm chia vào 3 đĩa cân: Tim (Sức) - Sét (Nhanh) - Sao (Khéo)
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1508,7 +1508,7 @@
 ![Thẻ chảo rán cân bằng 3 chỉ số Tim - Sét - Sao tổng 12 điểm](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.2_FrameB_KetQua_TheChaoRanCanBang12Diem.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.2_FrameB_KetQua_TheChaoRanCanBang12Diem.jpg`
 * **Nội dung vẽ đất nặn:** Thẻ chảo rán cân bằng 3 chỉ số Tim - Sét - Sao tổng 12 điểm
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1523,7 +1523,7 @@
 ![Bảng thiết kế bộ thẻ bài 12 dòng cân bằng chỉ số](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.2_Shot5.1_BangThietKeBoThe12Dong.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.2_Shot5.1_BangThietKeBoThe12Dong.jpg`
 * **Nội dung vẽ đất nặn:** Bảng thiết kế bộ thẻ bài 12 dòng cân bằng chỉ số
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1563,7 +1563,7 @@
 ![Sơ đồ công thức nền 4 phần: Phong cách - Nền pastel - Góc nhìn ngang - Bo viền](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.3_Shot3.1_CongThucNen4Phan.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.3_Shot3.1_CongThucNen4Phan.jpg`
 * **Nội dung vẽ đất nặn:** Sơ đồ công thức nền 4 phần: Phong cách - Nền pastel - Góc nhìn ngang - Bo viền
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1575,7 +1575,7 @@
 ![Bộ 12 thẻ bài cùng khuôn viền, góc nhìn ngang và nền pastel](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.3_FrameB_KetQua_Bo12TheKhoaPhongCach.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.3_FrameB_KetQua_Bo12TheKhoaPhongCach.jpg`
 * **Nội dung vẽ đất nặn:** Bộ 12 thẻ bài cùng khuôn viền, góc nhìn ngang và nền pastel
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1591,7 +1591,7 @@
 ![Trang in A4 bộ 12 thẻ bài có đường nét đứt cắt kéo hoàn chỉnh](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.3_Shot5.1_Bo12TheInA4DongBo.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.3_Shot5.1_Bo12TheInA4DongBo.jpg`
 * **Nội dung vẽ đất nặn:** Trang in A4 bộ 12 thẻ bài có đường nét đứt cắt kéo hoàn chỉnh
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1629,13 +1629,13 @@
 > 
 > [deliberate] Tớ có thể viết lại thành: “Trò chơi dành cho 2–4 người. Người có sinh nhật gần nhất đi trước. Mỗi lượt, tất cả cùng lật một thẻ. Người đi trước chọn một chỉ số: Sức, Nhanh hoặc Khéo. Người có điểm cao nhất ở chỉ số đó lấy các thẻ trên bàn. Nếu bằng điểm, các thẻ được để lại giữa bàn và người thắng lượt tiếp theo lấy tất cả. Khi hết bài, người giữ nhiều thẻ nhất thắng.” [proud] Đấy, cùng một ý tưởng thôi, nhưng đọc lên rõ hơn hẳn.
 > 
-> [thoughtful] Nhưng khoan nhé, luật viết xong vẫn chưa chắc chơi được. [emphasized] Phải đem ra chơi thử. [cheerful] Bố với Tomi chơi một ván, vừa chơi đã phát hiện một câu chưa rõ. [curious] Nếu ba người cùng bằng điểm thì sao? [thoughtful] À, vậy Tomi phải quyết định thêm, rồi nói lại cho tớ. Tớ sẽ cập nhật bộ luật. [emphasized] Nhớ nhé: AKI giúp viết cho rõ, còn các cậu quyết định luật.
+> [thoughtful] Nhưng khoan nhé, luật viết xong vẫn chưa chắc chơi được. [emphasized] Phải đem ra chơi thử. [cheerful] Bố với Tomi chơi một ván, vừa chơi đã phát hiện một câu chưa rõ. [curious] Nếu ba người cùng bằng điểm thì sao? [thoughtful] À, vậy Tomi phải quyết định thêm, rồi nói lại cho tớ. Tớ sẽ cập nhật bộ luật. [emphasized] Nhớ nhé: AIKI giúp viết cho rõ, còn các cậu quyết định luật.
 
 #### 📺 Nội Dung Chiếu Trong Màn Hình (On-Screen Display):
 ![Cuộn giấy da 5 câu hỏi vàng của bộ luật chơi](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.4_Shot3.1_CuonLuatChoi5CauHoi.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.4_Shot3.1_CuonLuatChoi5CauHoi.jpg`
 * **Nội dung vẽ đất nặn:** Cuộn giấy da 5 câu hỏi vàng của bộ luật chơi
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1643,7 +1643,7 @@
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
 > [encouraging] Bây giờ đến lượt các cậu. [deliberate] Hãy trả lời đủ 5 câu hỏi bằng lời của mình, rồi nhờ tớ viết lại thành một bộ luật ngắn, dễ hiểu. [cheerful] Sau đó rủ ít nhất một người trong nhà chơi thử. [serious] Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hoặc “Thế này tính sao?” thì đánh dấu lại, bổ sung câu trả lời rồi nhờ tớ sửa luật lần nữa.
 > 
-> [emphasized] Và nhớ câu hôm nay: Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử. [serious] Luật chưa chơi thử thì chưa phải luật hoàn chỉnh.
+> [emphasized] Và nhớ câu hôm nay: Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử. [serious] Luật chưa chơi thử thì chưa phải luật hoàn chỉnh.
 > 
 > [excited] Buổi sau là bài cuối cùng của cả khóa. [cheerful] Chúng mình sẽ làm bàn cờ, đóng bộ trò chơi và rủ cả nhà chơi một ván thật. [warm] Tớ chờ các cậu! Bái bai!
 
@@ -1651,7 +1651,7 @@
 ![Bàn cờ game phiêu lưu hoàn chỉnh sẵn sàng cho trận đấu](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.4_FrameA_DauTruongKhaiMo_BanCoHoanChinh.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.4_FrameA_DauTruongKhaiMo_BanCoHoanChinh.jpg`
 * **Nội dung vẽ đất nặn:** Bàn cờ game phiêu lưu hoàn chỉnh sẵn sàng cho trận đấu
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---
 
@@ -1693,7 +1693,7 @@
 ![Bàn cờ Dori 4 thành phần: Xuất phát - Đường đi - Ô mèo cướp đồ ăn - Đích đến](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.5_Shot3.1_BanCoDori_4ThanhPhan.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.5_Shot3.1_BanCoDori_4ThanhPhan.jpg`
 * **Nội dung vẽ đất nặn:** Bàn cờ Dori 4 thành phần: Xuất phát - Đường đi - Ô mèo cướp đồ ăn - Đích đến
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1707,7 +1707,7 @@
 ![Làm cùng: Hoàn thiện bàn cờ game phiêu lưu, xúc xắc và quân cờ](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.4_FrameA_DauTruongKhaiMo_BanCoHoanChinh.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.4_FrameA_DauTruongKhaiMo_BanCoHoanChinh.jpg`
 * **Nội dung vẽ đất nặn:** Làm cùng: Hoàn thiện bàn cờ game phiêu lưu, xúc xắc và quân cờ
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
@@ -1723,14 +1723,14 @@
 ![Thử thách: Cả gia đình quây quần ấm cúng chơi ván cờ game hoàn chỉnh đầu tiên](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.5_Shot5.1_GiaDinhChoiVanGameDauTien.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.5_Shot5.1_GiaDinhChoiVanGameDauTien.jpg`
 * **Nội dung vẽ đất nặn:** Thử thách: Cả gia đình quây quần ấm cúng chơi ván cờ game hoàn chỉnh đầu tiên
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ, diễn hoạt bảng trắng
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ, diễn hoạt bảng trắng
 
 ---
 
 ### ⏱️ Phân đoạn: 6.  + CHỐT + OUTRO (5:30 - 6:30)
 #### 🎙️ Lời thoại Voice Gen (kèm Tag cảm xúc):
 > [warm] Trước khi kết thúc khóa học, tớ muốn nhắc lại những điều chúng mình đã học: [deliberate] Tả càng rõ, tớ càng hiểu đúng. Bức tranh đẹp là bức tranh kể được một chuyện. [thoughtful] Nhân vật hay không phải vì đẹp, mà vì có tính cách. Tớ có thể giúp vẽ truyện, nhưng các cậu mới là người nghĩ ra câu chuyện. [emphasized] Và trò chơi hay là trò chơi công bằng.
-> [curious] Các cậu để ý không? [serious] Không có câu nào là “AKI làm hết.” [calm] Tớ có thể giúp các cậu tạo nhanh hơn, thử nhiều hơn và biến ý tưởng thành hình. [emphasized] Nhưng ý tưởng, câu chuyện, nhân vật và trò chơi phải bắt đầu từ chính các cậu.
+> [curious] Các cậu để ý không? [serious] Không có câu nào là “AIKI làm hết.” [calm] Tớ có thể giúp các cậu tạo nhanh hơn, thử nhiều hơn và biến ý tưởng thành hình. [emphasized] Nhưng ý tưởng, câu chuyện, nhân vật và trò chơi phải bắt đầu từ chính các cậu.
 > [playful] Việc cuối cùng nhé. [excited] Hãy bày những sản phẩm mình đã làm trong khóa học ra bàn: tranh, thẻ nhân vật, truyện tranh, bộ trò chơi... rồi gọi cả nhà lại xem. [proud] Đó chính là triển lãm của các cậu.
 > [warm] Cảm ơn các cậu đã đi cùng tớ đến tận đây. [cheerful] Xưởng sáng tạo Ây Ai Kít lúc nào cũng mở cửa. [gentle] Còn bây giờ... tớ chào các cậu nhé. [excited] Bái baiii!
 
@@ -1738,6 +1738,6 @@
 ![Đại lễ Tốt nghiệp Toàn Khóa AI Kids: Cúp vàng, 5 huy hiệu 5 đảo, bằng tốt nghiệp danh dự!](/Users/imam/storymee/1-Harness-Apps/E-learning-AIKids/video-storyboards/assets/M5_NhaPhatMinhTroChoi/M5.5_Shot5.2_DaiLeTotNghiepToanKhoa_CupVang.jpg)
 * **Asset File:** `assets/M5_NhaPhatMinhTroChoi/M5.5_Shot5.2_DaiLeTotNghiepToanKhoa_CupVang.jpg`
 * **Nội dung vẽ đất nặn:** Đại lễ Tốt nghiệp Toàn Khóa AI Kids: Cúp vàng, 5 huy hiệu 5 đảo, bằng tốt nghiệp danh dự!
-* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
+* **Chỉ đạo hình ảnh / Cần tạo:** Mèo AIKI chia sẻ  diễn hoạt bảng trắng + 1 mình, Popup Text
 
 ---

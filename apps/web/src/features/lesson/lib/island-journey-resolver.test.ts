@@ -56,7 +56,7 @@ describe('island-journey-resolver', () => {
       skill: 'Tạo câu lệnh chuẩn đủ 5 chi tiết',
       reward: 'Huy hiệu Mèo Mướp Béo',
       duration: '20–30 phút',
-      hook: 'Tả càng rõ, AKI vẽ càng đúng!',
+      hook: 'Tả càng rõ, AIKI vẽ càng đúng!',
       accent: '#f59e0b',
       practiceKind: 'prompt_lab',
       stage: 'learn',
@@ -150,7 +150,7 @@ describe('island-journey-resolver', () => {
       // Stage 2: Confirm Goal (Options cụ thể, TUYỆT ĐỐI KHÔNG "Phương án A/B")
       expect(resolved.stage2_confirmGoal.question).toBeTruthy()
       expect(resolved.stage2_confirmGoal.options).toHaveLength(3)
-      expect(resolved.stage2_confirmGoal.options[0].text).toContain('AKI tự đoán bừa')
+      expect(resolved.stage2_confirmGoal.options[0].text).toContain('AIKI tự đoán bừa')
       expect(resolved.stage2_confirmGoal.options[1].text).toContain('tự điền vào')
       expect(resolved.stage2_confirmGoal.correctIndex).toBe(1)
       expect(resolved.stage2_confirmGoal.options[0].text).not.toContain('Phương án A')

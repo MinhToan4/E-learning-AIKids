@@ -205,7 +205,7 @@ export function RuleAuthoringDrawer({ rule, isOpen, onClose, onSave }: Props) {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  🎙️ Nội dung AKI đọc diễn cảm (Audio Text)
+                  🎙️ Nội dung AIKI đọc diễn cảm (Audio Text)
                 </label>
                 <textarea
                   rows={2}
@@ -217,7 +217,7 @@ export function RuleAuthoringDrawer({ rule, isOpen, onClose, onSave }: Props) {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  🐱 AKI mách nhỏ (Aki Tip)
+                  🐱 AIKI mách nhỏ (Aiki Tip)
                 </label>
                 <textarea
                   rows={2}
@@ -291,7 +291,7 @@ export function RuleAuthoringDrawer({ rule, isOpen, onClose, onSave }: Props) {
                     <div className="grid grid-cols-1 gap-2 pt-2">
                       <div>
                         <label className="block text-[11px] font-bold text-purple-700">
-                          🐱 Gợi ý mách nhỏ của AKI:
+                          🐱 Gợi ý mách nhỏ của AIKI:
                         </label>
                         <input
                           type="text"

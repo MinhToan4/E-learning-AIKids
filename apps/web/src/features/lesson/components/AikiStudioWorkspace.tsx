@@ -1440,7 +1440,7 @@ export function AikiStudioWorkspace({
   const maxTurnsPerPart = turnsPerItem || effectiveConfig?.maxTurnsPerItem || 2
 
   const effectiveBadge = lessonBadge || effectiveConfig?.badge || 'Bài 3.2'
-  const effectiveTitle = lessonTitle || effectiveConfig?.subjectName || 'Bắt AKI vẽ Sóc Bông bằng mật mã của các cậu'
+  const effectiveTitle = lessonTitle || effectiveConfig?.subjectName || 'Bắt AIKI vẽ Sóc Bông bằng mật mã của các cậu'
   const effectiveCharacterName = characterName || effectiveConfig?.subjectName || 'Sóc Bông'
 
   const effectiveLockedFeatures = useMemo(() => {
@@ -1792,7 +1792,7 @@ export function AikiStudioWorkspace({
     }
   }, [])
 
-  // Lịch sử chat: Ban đầu chỉ có 1 tin nhắn chào đón duy nhất từ AKI
+  // Lịch sử chat: Ban đầu chỉ có 1 tin nhắn chào đón duy nhất từ AIKI
   const [chatMessages, setChatMessages] = useState<
     Array<{
       id: string
@@ -2057,7 +2057,7 @@ export function AikiStudioWorkspace({
       time: timeStr,
     }
 
-    // 2. Thêm tin nhắn chờ của AKI với nội dung dễ thương
+    // 2. Thêm tin nhắn chờ của AIKI với nội dung dễ thương
     const waitingAkiId = `msg-aki-waiting-${Date.now()}`
     const waitingAkiMsg = {
       id: waitingAkiId,
@@ -2080,7 +2080,7 @@ export function AikiStudioWorkspace({
     let isFallback = false
 
     if (isInstantFallback) {
-      // Chế độ demo nhanh/fallback tức thì (500ms để mô phỏng nhịp thở AKI)
+      // Chế độ demo nhanh/fallback tức thì (500ms để mô phỏng nhịp thở AIKI)
       await new Promise((resolve) => setTimeout(resolve, 500))
       const fallbackUrl = getNonRepeatingFallbackImage(
         rawPrompt || activePartSubject || effectiveCharacterName,
@@ -2942,11 +2942,11 @@ export function AikiStudioWorkspace({
           })}
         </div>
 
-        {/* Mẹo vàng AKI & Nút Tua lại video */}
+        {/* Mẹo vàng AIKI & Nút Tua lại video */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="hidden lg:flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-xl text-xs font-bold text-amber-950 max-w-[220px]">
             <span className="shrink-0">💡</span>
-            <span className="shrink-0 font-black">Mẹo Vàng Của AKI:</span>
+            <span className="shrink-0 font-black">Mẹo Vàng Của AIKI:</span>
             <span className="truncate text-amber-900">{effectiveAkiMotto}</span>
           </div>
 
@@ -2972,7 +2972,7 @@ export function AikiStudioWorkspace({
           {/* sr-only bảo toàn 100% test assertions line 52 AikiStudioWorkspace.test.tsx & trợ năng */}
           <div className="sr-only">
             <div className="size-8 rounded-full bg-amber-400">🐱</div>
-            <div>AKI · Xưởng {effectiveBadge}</div>
+            <div>AIKI · Xưởng {effectiveBadge}</div>
             <div>
               Còn <strong>{attemptsLeft}</strong>/{effectiveMaxAttempts} lượt vẽ
             </div>
@@ -2990,9 +2990,9 @@ export function AikiStudioWorkspace({
             <span>[4. Ở đâu]</span>
           </div>
 
-          {/* 2. Dặn dò của AKI - ẩn hoàn toàn khỏi vùng giữa canvas, giữ sr-only cho trợ năng & test assertions log */}
+          {/* 2. Dặn dò của AIKI - ẩn hoàn toàn khỏi vùng giữa canvas, giữ sr-only cho trợ năng & test assertions log */}
           <div className="sr-only" aria-live="polite" data-testid="studio-aki-instructions-log">
-            <span data-testid="studio-aki-instructions-title">Dặn Dò Của AKI</span>
+            <span data-testid="studio-aki-instructions-title">Dặn Dò Của AIKI</span>
             <span>Bước {currentWorkflowStep + 1}/4</span>
             <span className="sr-only">Hôm nay chỉ vẽ {effectiveCharacterName}</span>
             {effectiveLockedFeatures.map((feat, fIdx) => (
@@ -3285,11 +3285,11 @@ export function AikiStudioWorkspace({
             )}
           </div>
 
-          {/* KHỐI 3: "MẸO CỦA AKI / BẠN CÓ BIẾT?" */}
+          {/* KHỐI 3: "MẸO CỦA AIKI / BẠN CÓ BIẾT?" */}
           <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-2.5 text-left flex items-start gap-2 shadow-2xs shrink-0">
             <span className="text-sm shrink-0">💡</span>
             <div className="text-[11px] leading-tight text-amber-950 font-bold">
-              <span className="font-black text-amber-900">Mẹo của AKI: </span>
+              <span className="font-black text-amber-900">Mẹo của AIKI: </span>
               <span>{effectiveAkiMotto}</span>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import '@/shared/styles/adult-shell.css'
 import { Fragment, Suspense, useEffect, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'

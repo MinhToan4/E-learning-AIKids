@@ -51,19 +51,19 @@ interface ScriptCourseGeneratorModalProps {
   onApplyGeneratedCourse: (result: ScriptAnalysisResult) => void
 }
 
-const SAMPLE_SCRIPT = `Trạm 1: Cuộc Gặp Gỡ Với Mèo AKI Và Robot Pi
+const SAMPLE_SCRIPT = `Trạm 1: Cuộc Gặp Gỡ Với Mèo AIKI Và Robot Pi
 Bối cảnh: Lớp học AI
-Mèo AKI: Xin chào các bạn nhỏ, tớ là AKI! Chào mừng các bạn đến với học viện AIKids!
-Bé Bo: Chào Mèo AKI! Tớ muốn học cách dùng máy tính bảng để sáng tạo tranh vẽ!
+Mèo AIKI: Xin chào các bạn nhỏ, tớ là AIKI! Chào mừng các bạn đến với học viện AIKids!
+Bé Bo: Chào Mèo AIKI! Tớ muốn học cách dùng máy tính bảng để sáng tạo tranh vẽ!
 Robot Pi: Tớ là Pi, trợ lý robot mới đến từ Trạm vũ trụ AI. Tớ có thể đồng hành cùng các bạn trên laptop bạc!
-Mèo AKI: Quy tắc Vàng số 1: Luôn kiểm tra kỹ thông tin và hỏi ý kiến thầy cô trước khi chia sẻ dữ liệu nhé!
+Mèo AIKI: Quy tắc Vàng số 1: Luôn kiểm tra kỹ thông tin và hỏi ý kiến thầy cô trước khi chia sẻ dữ liệu nhé!
 
 Trạm 2: Bí Kíp Hiệp Sĩ An Toàn Trên Không Gian Mạng
 Bối cảnh: Thư viện thần tiên
 Robot Pi: Các bạn có biết máy tính bảng và mạng internet kết nối thế giới như thế nào không?
 Cô Sonet: Sonet lưu ý các bạn nhỏ không bao giờ được chia sẻ mật khẩu riêng tư cho người lạ.
 Bé Bo: Đố các bạn biết khi gặp thông tin lạ nghi ngờ là fake news, chúng mình nên làm gì?
-Mèo AKI: Chúng ta sẽ nhờ người lớn hỗ trợ và quét sự thật cùng Truth Patrol!`
+Mèo AIKI: Chúng ta sẽ nhờ người lớn hỗ trợ và quét sự thật cùng Truth Patrol!`
 
 export function ScriptCourseGeneratorModal({
   isOpen,
@@ -363,9 +363,9 @@ export function ScriptCourseGeneratorModal({
                 className="w-full rounded-2xl border-2 border-border p-4 font-mono text-sm leading-relaxed outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Ví dụ:
 Trạm 1: Khám phá AI
-Mèo AKI: Xin chào các bạn nhỏ!
-Bé Bo: Chào Mèo AKI, hôm nay chúng mình học gì thế?
-Mèo AKI: Quy tắc Vàng: Luôn kiểm tra kỹ thông tin..."
+Mèo AIKI: Xin chào các bạn nhỏ!
+Bé Bo: Chào Mèo AIKI, hôm nay chúng mình học gì thế?
+Mèo AIKI: Quy tắc Vàng: Luôn kiểm tra kỹ thông tin..."
                 value={scriptText}
                 onChange={(e) => setScriptText(e.target.value)}
               />

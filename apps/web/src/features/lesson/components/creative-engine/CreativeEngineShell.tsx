@@ -166,7 +166,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
           {isTurnLocked
             ? turnLockedMessage || '🔒 Lượt này đã vẽ xong'
             : attemptsLeft > 0
-            ? `Vẽ đi AKI! · còn ${attemptsLeft} lượt`
+            ? `Vẽ đi AIKI! · còn ${attemptsLeft} lượt`
             : 'Đã hết lượt vẽ của bài này'}
         </span>
       </button>
@@ -301,7 +301,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
                 {canvasSlot}
               </div>
 
-              {/* THANH CÂU LỆNH & NÚT VẼ ĐI AKI */}
+              {/* THANH CÂU LỆNH & NÚT VẼ ĐI AIKI */}
               <div className="w-full col-span-12 order-2 lg:order-3">
                 {promptBarContent}
               </div>

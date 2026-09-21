@@ -57,6 +57,12 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/katex/')) {
               return 'vendor-katex'
             }
+            if (id.includes('@rive-app/react-canvas')) {
+              return 'vendor-rive'
+            }
+            if (id.includes('island-curriculum-registry')) {
+              return 'data-island-curriculum'
+            }
             if (id.includes('node_modules/zustand/')) {
               return 'vendor-state'
             }

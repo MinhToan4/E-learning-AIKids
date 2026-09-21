@@ -34,16 +34,16 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
     "islandNumber": 1,
     "lessonNumber": "1.1",
     "title": "Bài 1.1 — Một từ hay năm từ?",
-    "subtitle": "Tả càng rõ, AKI vẽ càng đúng!",
+    "subtitle": "Tả càng rõ, AIKI vẽ càng đúng!",
     "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
-    "objective": "Trẻ đưa ra được câu lệnh đầu tiên cho AKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
+    "objective": "Trẻ đưa ra được câu lệnh đầu tiên cho AIKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
     "skillLearned": "Tạo câu lệnh chuẩn đủ 5 chi tiết: Đối tượng, Hình dáng, Hành động, Đồ vật đi kèm, Nơi chốn.",
     "nextLessonSlug": "bai-1-2-bon-chiec-chia-khoa",
     "journey": {
       "stage1_goal": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage1-goal",
         "title": "Mục tiêu bài học: Bài 1.1 — Một từ hay năm từ?",
-        "goalText": "Trẻ đưa ra được câu lệnh đầu tiên cho AKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
+        "goalText": "Trẻ đưa ra được câu lệnh đầu tiên cho AIKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
         "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "speech": "Mimi: Xong! Đây là con mèo. Đúng là con mèo rồi đấy... Nhưng mà con mèo trong đầu tớ không phải con này!\nAKI: Các cậu ơi, các cậu nghĩ Mimi làm sai ở chỗ nào nhỉ? Vì Mimi chỉ gõ đúng hai chữ 'con mèo' thôi đấy!",
         "keyPoints": [
@@ -55,21 +55,21 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage2_confirmGoal": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage2-confirm",
-        "question": "Nếu con chỉ viết đúng hai chữ “con mèo”, AKI sẽ làm gì với những chỗ con chưa tả?",
+        "question": "Nếu con chỉ viết đúng hai chữ “con mèo”, AIKI sẽ làm gì với những chỗ con chưa tả?",
         "options": [
           {
             "id": "opt-a",
-            "text": "AKI tự đoán bừa ra chú mèo bay vũ trụ ăn kem kỳ quặc",
+            "text": "AIKI tự đoán bừa ra chú mèo bay vũ trụ ăn kem kỳ quặc",
             "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_a.jpg"
           },
           {
             "id": "opt-b",
-            "text": "AKI tự điền vào chỗ trống! Muốn đúng ý, con phải tả đủ 5 chi tiết vàng như chú mèo mướp ngủ trên ghế mây",
+            "text": "AIKI tự điền vào chỗ trống! Muốn đúng ý, con phải tả đủ 5 chi tiết vàng như chú mèo mướp ngủ trên ghế mây",
             "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_b.jpg"
           },
           {
             "id": "opt-c",
-            "text": "AKI vẽ chú mèo sơ sài, trơ trọi không có bối cảnh",
+            "text": "AIKI vẽ chú mèo sơ sài, trơ trọi không có bối cảnh",
             "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_c.jpg"
           }
         ],
@@ -97,7 +97,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Chỗ nào các cậu bỏ trống, thì Ây Ai như tớ sẽ tự điền vào. Muốn tớ vẽ đúng ý thì đừng bỏ trống chỗ nào cả nhé!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Đến lượt các cậu rồi! Thử thách xưởng thực hành: Chọn một con vật, lần 1 gõ 1 từ, lần 2 gõ đủ 5 chi tiết vàng rồi so sánh kết quả nhé!"
@@ -134,14 +134,14 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-1-1-mot-tu-hay-nam-tu-q3",
-            "prompt": "AKI sửa con mèo bằng cách nào?",
+            "prompt": "AIKI sửa con mèo bằng cách nào?",
             "options": [
               "Bấm tạo lại từ đầu nhiều lần cho tới khi ưng",
               "Thêm dần từng chi tiết vào câu tả, không bấm lại",
               "Đổi sang một con vật khác cho dễ vẽ"
             ],
             "correctIndex": 1,
-            "explanation": "AKI chỉ thêm chữ: mướp → béo → đang ngủ → trên ghế mây → cạnh cửa sổ.",
+            "explanation": "AIKI chỉ thêm chữ: mướp → béo → đang ngủ → trên ghế mây → cạnh cửa sổ.",
             "visualUrl": ""
           }
         ],
@@ -158,7 +158,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           "lông vằn cam trắng",
           "đang nằm ngủ cuộn tròn trên ghế mây"
         ],
-        "akiMotto": "Chỗ nào các cậu bỏ trống, AI như tớ sẽ tự điền vào. Tả càng rõ thì AKI vẽ càng đúng ý!",
+        "akiMotto": "Chỗ nào các cậu bỏ trống, AI như tớ sẽ tự điền vào. Tả càng rõ thì AIKI vẽ càng đúng ý!",
         "maxAttempts": 6,
         "workflowSteps": [
           {
@@ -166,7 +166,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Chú Mèo\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Chú Mèo",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -305,7 +305,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Đọc cho thuộc",
             "startSec": 180,
             "endSec": 240,
-            "speech": "Bốn chiếc chìa khoá: Xanh là CÁI GÌ, Vàng là TRÔNG NHƯ THẾ NÀO, Cam là ĐANG LÀM GÌ, Đỏ là Ở ĐÂU! Đủ bốn chìa khoá là AKI hết chỗ đoán bừa!"
+            "speech": "Bốn chiếc chìa khoá: Xanh là CÁI GÌ, Vàng là TRÔNG NHƯ THẾ NÀO, Cam là ĐANG LÀM GÌ, Đỏ là Ở ĐÂU! Đủ bốn chìa khoá là AIKI hết chỗ đoán bừa!"
           },
           {
             "label": "Làm cùng",
@@ -334,7 +334,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
               "Ở ĐÂU"
             ],
             "correctIndex": 2,
-            "explanation": "Thiếu Ở ĐÂU nên AKI cho nó chạy giữa nền trắng trơn, chẳng ra đâu vào đâu.",
+            "explanation": "Thiếu Ở ĐÂU nên AIKI cho nó chạy giữa nền trắng trơn, chẳng ra đâu vào đâu.",
             "visualUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
           },
           {
@@ -343,10 +343,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "options": [
               "Vì dài chưa chắc đã rõ — cậu ấy chỉ khen đẹp chứ không tả đủ bốn chìa khoá",
               "Vì Zico viết sai chính tả",
-              "Vì AKI không đọc được câu dài"
+              "Vì AIKI không đọc được câu dài"
             ],
             "correctIndex": 0,
-            "explanation": "“Rất đẹp, đẹp lắm, đáng yêu vô cùng” không cho AKI biết gì thêm cả.",
+            "explanation": "“Rất đẹp, đẹp lắm, đáng yêu vô cùng” không cho AIKI biết gì thêm cả.",
             "visualUrl": ""
           },
           {
@@ -383,7 +383,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Cốc Sứ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Cốc Sứ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -471,13 +471,13 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 1.3 — Úm ba la... Biến hình",
         "goalText": "Trẻ phân biệt và áp dụng được 4 phong cách nghệ thuật (Đất nặn Clay, Màu nước Watercolor, Pixel Art, Xé dán Giấy Quilling) vào câu lệnh.",
         "imageUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
-        "speech": "Sonet: AKI ơi, tớ vẽ con trâu mà sao tranh nào cũng một màu chán ngắt thế này?\nAKI: Nhìn cái này đi Sonet! Tớ có bốn bức tranh con trâu. Tớ tả giống hệt nhau từng chữ một, thế mà bốn bức lại khác hẳn nhau!",
+        "speech": "Sonet: AIKI ơi, tớ vẽ con trâu mà sao tranh nào cũng một màu chán ngắt thế này?\nAKI: Nhìn cái này đi Sonet! Tớ có bốn bức tranh con trâu. Tớ tả giống hệt nhau từng chữ một, thế mà bốn bức lại khác hẳn nhau!",
         "keyPoints": [
           "[1] CÂU TẢ BỐN Ô — giữ nguyên, không đổi một chữ (Nền của mọi kiểu vẽ)",
           "[2] KIỂU VẼ — màu nước · truyện tranh · đất nặn · tranh Đông Hồ (Thêm vào CUỐI câu tả)",
           "[3] CHỌN MỘT BỨC — chọn lấy đúng một trong bốn (Phần khó nhất)",
           "[4] NÓI VÌ SAO — \"vì tớ định treo bức này ở đầu giường\" (Gắn với việc mình định dùng bức đó làm gì)",
-          "[5] LUẬT BẢN QUYỀN — Kiểu vẽ thì chung — tên người thì riêng (Không bảo AKI vẽ giống hệt một hoạ sĩ còn đang sống)"
+          "[5] LUẬT BẢN QUYỀN — Kiểu vẽ thì chung — tên người thì riêng (Không bảo AIKI vẽ giống hệt một hoạ sĩ còn đang sống)"
         ]
       },
       "stage2_confirmGoal": {
@@ -515,7 +515,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Sonet: AKI ơi, tớ vẽ con trâu mà sao tranh nào cũng một màu chán ngắt thế này?\nAKI: Nhìn cái này đi Sonet! Tớ có bốn bức tranh con trâu. Tớ tả giống hệt nhau từng chữ một, thế mà bốn bức lại khác hẳn nhau!"
+            "speech": "Sonet: AIKI ơi, tớ vẽ con trâu mà sao tranh nào cũng một màu chán ngắt thế này?\nAKI: Nhìn cái này đi Sonet! Tớ có bốn bức tranh con trâu. Tớ tả giống hệt nhau từng chữ một, thế mà bốn bức lại khác hẳn nhau!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -524,7 +524,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Phong cách nghệ thuật giống như thay chiếc áo thần kỳ cho bức tranh! Chỉ cần thêm tên phong cách vào cuối câu tả bốn ô là xong!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Việc của các cậu hôm nay: Chọn một con vật, tạo cùng một nội dung theo cả 4 phong cách nghệ thuật. Xong rồi chọn lấy một bức và nói lý do vì sao cậu thích nhé!"
@@ -537,11 +537,11 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "questions": [
           {
             "id": "bai-1-3-um-ba-la-bien-hinh-q1",
-            "prompt": "Bốn bức con trâu của AKI khác nhau vì sao?",
+            "prompt": "Bốn bức con trâu của AIKI khác nhau vì sao?",
             "options": [
-              "Vì AKI đổi đúng một điều ở cuối câu — kiểu vẽ",
-              "Vì AKI tả bốn con trâu khác nhau",
-              "Vì AKI bấm tạo bốn lần"
+              "Vì AIKI đổi đúng một điều ở cuối câu — kiểu vẽ",
+              "Vì AIKI tả bốn con trâu khác nhau",
+              "Vì AIKI bấm tạo bốn lần"
             ],
             "correctIndex": 0,
             "explanation": "Kiểu vẽ không đổi con trâu. Kiểu vẽ đổi CÁCH vẽ con trâu.",
@@ -552,7 +552,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "prompt": "Điều nào sau đây KHÔNG được làm?",
             "options": [
               "Gọi tên một kiểu vẽ như màu nước, đất nặn",
-              "Bảo AKI vẽ giống hệt một cô chú hoạ sĩ còn đang sống",
+              "Bảo AIKI vẽ giống hệt một cô chú hoạ sĩ còn đang sống",
               "Thử cùng một nội dung với bốn kiểu vẽ khác nhau"
             ],
             "correctIndex": 1,
@@ -561,10 +561,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-1-3-um-ba-la-bien-hinh-q3",
-            "prompt": "AKI chọn bức màu nước vì lý do gì?",
+            "prompt": "AIKI chọn bức màu nước vì lý do gì?",
             "options": [
               "Vì màu nước là đẹp nhất",
-              "Vì AKI định treo bức đó ở đầu giường, nhìn êm êm dễ ngủ",
+              "Vì AIKI định treo bức đó ở đầu giường, nhìn êm êm dễ ngủ",
               "Vì màu nước tạo nhanh nhất"
             ],
             "correctIndex": 1,
@@ -594,7 +594,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bảng 4\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bảng 4",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -682,7 +682,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 1.4 — Kỹ sư tài ba",
         "goalText": "Trẻ nắm được quy trình 3 bước sửa câu lệnh khi hình ảnh AI sinh ra bị lỗi, không bấm tạo lại vô thức.",
         "imageUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
-        "speech": "Nabi: Bấm... vẫn sai! Bấm... lại sai! Bàn tay hiệp sĩ cứ ra sáu ngón hoài à AKI ơi!\nAKI: Nabi bấm năm lần rồi đấy, hết cả lượt mà chả được gì! Nhìn bức tranh tay sáu ngón này xem, lỗi là do mình chưa sửa câu lệnh đấy!",
+        "speech": "Nabi: Bấm... vẫn sai! Bấm... lại sai! Bàn tay hiệp sĩ cứ ra sáu ngón hoài à AIKI ơi!\nAKI: Nabi bấm năm lần rồi đấy, hết cả lượt mà chả được gì! Nhìn bức tranh tay sáu ngón này xem, lỗi là do mình chưa sửa câu lệnh đấy!",
         "keyPoints": [
           "[1] GỌI TÊN LỖI — \"tay có sáu ngón\" · \"mất cái mũ\" · \"thừa ba con chim\" (Nói to lên — gọi được tên thì mới sửa được)",
           "[2] TÌM CHỖ THIẾU — câu tả không nói gì về ngón tay (Thường là chỗ mình bỏ trống)",
@@ -725,7 +725,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Nabi: Bấm... vẫn sai! Bấm... lại sai! Bàn tay hiệp sĩ cứ ra sáu ngón hoài à AKI ơi!\nAKI: Nabi bấm năm lần rồi đấy, hết cả lượt mà chả được gì! Nhìn bức tranh tay sáu ngón này xem, lỗi là do mình chưa sửa câu lệnh đấy!"
+            "speech": "Nabi: Bấm... vẫn sai! Bấm... lại sai! Bàn tay hiệp sĩ cứ ra sáu ngón hoài à AIKI ơi!\nAKI: Nabi bấm năm lần rồi đấy, hết cả lượt mà chả được gì! Nhìn bức tranh tay sáu ngón này xem, lỗi là do mình chưa sửa câu lệnh đấy!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -734,7 +734,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Khi Ây Ai vẽ sai thì sửa chữ, đừng bấm nút bừa! Bác sĩ câu lệnh phải bắt đúng bệnh, kê đúng thuốc!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Mở lại ba bài trước, tìm lấy một bức tranh chưa ưng ý của các cậu. Viết câu chú thích hỏng vì sao, sửa câu lệnh rồi tạo lại một bản xịn sò nhé! Bác sĩ câu lệnh ra tay nào!"
@@ -759,11 +759,11 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-1-4-ky-su-tai-ba-q2",
-            "prompt": "Vì sao AKI treo năm bức hỏng lên “Bảo tàng thất bại” chứ không giấu đi?",
+            "prompt": "Vì sao AIKI treo năm bức hỏng lên “Bảo tàng thất bại” chứ không giấu đi?",
             "options": [
               "Vì gọi được tên cái lỗi thì mới sửa được nó",
               "Vì năm bức đó đẹp",
-              "Vì AKI hết chỗ lưu"
+              "Vì AIKI hết chỗ lưu"
             ],
             "correctIndex": 0,
             "explanation": "Không gọi được tên lỗi thì chỉ biết bấm lại thôi.",
@@ -771,10 +771,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-1-4-ky-su-tai-ba-q3",
-            "prompt": "Vì sao AKI vẽ bàn tay có sáu ngón?",
+            "prompt": "Vì sao AIKI vẽ bàn tay có sáu ngón?",
             "options": [
               "Vì câu tả không nói gì về số ngón tay — chỗ bỏ trống thì AI tự điền",
-              "Vì AKI cố tình trêu",
+              "Vì AIKI cố tình trêu",
               "Vì hết lượt tạo"
             ],
             "correctIndex": 0,
@@ -803,7 +803,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bác Sĩ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bác Sĩ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -904,7 +904,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 2.1 — Bức tranh biết nói",
         "goalText": "Trẻ nhận ra một bức tranh đẹp cần có câu chuyện thông qua 3 câu hỏi tìm chuyện: Đang làm gì? Có gì lạ? Rồi sao?",
         "imageUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
-        "speech": "Nabi: AKI ơi xem này, tớ vẽ rất nhiều tranh đẹp lung linh luôn!\nAKI: Đẹp thật đấy Nabi! Nhưng xem xong một lúc tớ chẳng nhớ nổi bức nào. Vì các bức tranh này chỉ có hình đứng yên mà không có chuyện gì xảy ra cả!",
+        "speech": "Nabi: AIKI ơi xem này, tớ vẽ rất nhiều tranh đẹp lung linh luôn!\nAKI: Đẹp thật đấy Nabi! Nhưng xem xong một lúc tớ chẳng nhớ nổi bức nào. Vì các bức tranh này chỉ có hình đứng yên mà không có chuyện gì xảy ra cả!",
         "keyPoints": [
           "[1] ĐANG LÀM GÌ? — \"đang trèo lên ghế\" · \"đang giấu gì đó sau lưng\" (Không phải chỉ đứng cười hay nhìn máy ảnh)",
           "[2] CÓ GÌ LẠ? — \"ghế bị đổ\" · \"dấu chân bùn\" · \"cửa mở mà chẳng thấy ai\" (Manh mối cho biết chuyện gì vừa xảy ra)",
@@ -946,7 +946,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Nabi: AKI ơi xem này, tớ vẽ rất nhiều tranh đẹp lung linh luôn!\nAKI: Đẹp thật đấy Nabi! Nhưng xem xong một lúc tớ chẳng nhớ nổi bức nào. Vì các bức tranh này chỉ có hình đứng yên mà không có chuyện gì xảy ra cả!"
+            "speech": "Nabi: AIKI ơi xem này, tớ vẽ rất nhiều tranh đẹp lung linh luôn!\nAKI: Đẹp thật đấy Nabi! Nhưng xem xong một lúc tớ chẳng nhớ nổi bức nào. Vì các bức tranh này chỉ có hình đứng yên mà không có chuyện gì xảy ra cả!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -955,7 +955,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Bức tranh đẹp là bức tranh biết nói! Chỉ cần tự hỏi 3 câu: ĐANG LÀM GÌ? — CÓ GÌ LẠ? — RỒI SAO?"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Trong Xưởng hôm nay có 4 bức tranh. Các cậu hãy nhìn thật kỹ rồi kể bằng miệng câu chuyện mình nhìn thấy nhé! Hôm nay chúng mình luyện mắt nhìn chuyện của người họa sĩ!"
@@ -1024,7 +1024,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bức Tranh\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bức Tranh",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -1139,7 +1139,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 2.2 — Ai là ngôi sao?",
         "goalText": "Trẻ hiểu và sử dụng được 4 từ chỉ bố cục: Tiền cảnh, Ở giữa, Phía sau, Góc trái/Góc phải.",
         "imageUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
-        "speech": "Mimi: AKI ơi, tớ vẽ tranh sinh nhật cho em Bống mà tớ kể tận 20 thứ: bánh kem, bóng bay, gấu bông, quà, nến, pháo hoa... Tranh ra rối tinh mù chẳng thấy em Bống đâu cả!\nAKI: Mimi ơi, nhiều thứ quá thì chẳng ai biết ai là ngôi sao của bức tranh cả! Mình phải xếp chỗ cho từng bạn chứ!",
+        "speech": "Mimi: AIKI ơi, tớ vẽ tranh sinh nhật cho em Bống mà tớ kể tận 20 thứ: bánh kem, bóng bay, gấu bông, quà, nến, pháo hoa... Tranh ra rối tinh mù chẳng thấy em Bống đâu cả!\nAKI: Mimi ơi, nhiều thứ quá thì chẳng ai biết ai là ngôi sao của bức tranh cả! Mình phải xếp chỗ cho từng bạn chứ!",
         "keyPoints": [
           "[1] PHÍA TRƯỚC — thứ gần người xem hơn (Thường trông TO hơn)",
           "[2] Ở GIỮA — chỗ của NGÔI SAO (Thứ cậu muốn mọi người nhìn thấy đầu tiên)",
@@ -1183,7 +1183,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Mimi: AKI ơi, tớ vẽ tranh sinh nhật cho em Bống mà tớ kể tận 20 thứ: bánh kem, bóng bay, gấu bông, quà, nến, pháo hoa... Tranh ra rối tinh mù chẳng thấy em Bống đâu cả!\nAKI: Mimi ơi, nhiều thứ quá thì chẳng ai biết ai là ngôi sao của bức tranh cả! Mình phải xếp chỗ cho từng bạn chứ!"
+            "speech": "Mimi: AIKI ơi, tớ vẽ tranh sinh nhật cho em Bống mà tớ kể tận 20 thứ: bánh kem, bóng bay, gấu bông, quà, nến, pháo hoa... Tranh ra rối tinh mù chẳng thấy em Bống đâu cả!\nAKI: Mimi ơi, nhiều thứ quá thì chẳng ai biết ai là ngôi sao của bức tranh cả! Mình phải xếp chỗ cho từng bạn chứ!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -1192,10 +1192,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Bố cục là xếp chỗ cho mọi thứ trong tranh! Nhớ 3 lớp: Tiền cảnh (ở gần) · Ở giữa (ngôi sao chính) · Phía sau (hậu cảnh). Và đặt ngôi sao ở vị trí một phần ba nhé!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
-            "speech": "Lấy một tờ giấy cắt ba hình: một ngôi sao và hai cảnh vật. Xếp ba lớp trên bàn, chụp ảnh nộp cho AKI rồi mới tả đúng thứ tự đó để tạo tranh nhé!"
+            "speech": "Lấy một tờ giấy cắt ba hình: một ngôi sao và hai cảnh vật. Xếp ba lớp trên bàn, chụp ảnh nộp cho AIKI rồi mới tả đúng thứ tự đó để tạo tranh nhé!"
           }
         ]
       },
@@ -1261,7 +1261,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Thuyền Buồm\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Thuyền Buồm",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -1328,7 +1328,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 2.3 — Cảm xúc của sắc màu",
         "goalText": "Trẻ hiểu mối quan hệ giữa cảm xúc và ánh sáng, làm chủ 4 tông ánh sáng cốt lõi.",
         "imageUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
-        "speech": "Mimi: Lớp tớ đang làm phim kinh dị giật gân, tớ nhận làm poster và bảo AKI vẽ ngôi nhà cũ màu xanh... Thế mà tranh ra trông như khu resort nghỉ dưỡng mùa hè ấy!\nAKI: Ha ha! Vì Mimi chưa chọn cảm xúc mà đã chọn màu rồi! Ánh sáng ban ngày chan hòa thì làm sao kinh dị được!",
+        "speech": "Mimi: Lớp tớ đang làm phim kinh dị giật gân, tớ nhận làm poster và bảo AIKI vẽ ngôi nhà cũ màu xanh... Thế mà tranh ra trông như khu resort nghỉ dưỡng mùa hè ấy!\nAKI: Ha ha! Vì Mimi chưa chọn cảm xúc mà đã chọn màu rồi! Ánh sáng ban ngày chan hòa thì làm sao kinh dị được!",
         "keyPoints": [
           "[1] BUỔI SÁNG — nắng vàng nhạt (Cảnh trông nhẹ nhàng)",
           "[2] GIỮA TRƯA — ánh sáng mạnh, bóng đậm (Thấy nóng, bức bối)",
@@ -1372,7 +1372,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Mimi: Lớp tớ đang làm phim kinh dị giật gân, tớ nhận làm poster và bảo AKI vẽ ngôi nhà cũ màu xanh... Thế mà tranh ra trông như khu resort nghỉ dưỡng mùa hè ấy!\nAKI: Ha ha! Vì Mimi chưa chọn cảm xúc mà đã chọn màu rồi! Ánh sáng ban ngày chan hòa thì làm sao kinh dị được!"
+            "speech": "Mimi: Lớp tớ đang làm phim kinh dị giật gân, tớ nhận làm poster và bảo AIKI vẽ ngôi nhà cũ màu xanh... Thế mà tranh ra trông như khu resort nghỉ dưỡng mùa hè ấy!\nAKI: Ha ha! Vì Mimi chưa chọn cảm xúc mà đã chọn màu rồi! Ánh sáng ban ngày chan hòa thì làm sao kinh dị được!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -1381,7 +1381,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Chọn cảm xúc trước, chọn tông ánh sáng sau! 4 tông ánh sáng bảo bối: Bình minh nắng vàng ấm áp · Hoàng hôn cam tím lắng đọng · Đêm xanh trăng huyền bí · Đèn nến tương phản gay cấn!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Chọn một cảnh đơn giản như ngọn hải đăng hay căn phòng nhỏ. Đầu tiên, chọn một cảm xúc cậu muốn. Sau đó thử tạo cùng cảnh đó với bốn tông ánh sáng rồi chọn bức rung động nhất nhé!"
@@ -1450,7 +1450,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Ngọn Hải\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Ngọn Hải",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -1538,7 +1538,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 2.4 — Mảnh ghép hoàn hảo",
         "goalText": "Trẻ gộp 4 kỹ năng: Câu lệnh 4 ô, Bố cục 3 lớp, Ánh sáng cảm xúc và Kỹ năng đặt tên tranh để hoàn thiện tác phẩm A3.",
         "imageUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
-        "speech": "Zico: Tớ tạo xong bức tranh cậu bé thả diều trên sân thượng rồi, lưu về máy xong tắt luôn nhé AKI!\nAKI: Ơ kìa Zico! Tranh đẹp thế này mà không có tên, không được lồng khung thì sao thành tác phẩm triển lãm được! Mình phải ghép đủ bốn mảnh chứ!",
+        "speech": "Zico: Tớ tạo xong bức tranh cậu bé thả diều trên sân thượng rồi, lưu về máy xong tắt luôn nhé AIKI!\nAKI: Ơ kìa Zico! Tranh đẹp thế này mà không có tên, không được lồng khung thì sao thành tác phẩm triển lãm được! Mình phải ghép đủ bốn mảnh chứ!",
         "keyPoints": [
           "[1] CHUYỆN GÌ ĐANG XẢY RA? — \"cậu bé thả diều ngày cuối kỳ nghỉ hè\" (Mảnh thứ nhất)",
           "[2] AI LÀ NGÔI SAO? — \"cậu bé — người mình nhìn thấy đầu tiên\" (Mảnh thứ hai)",
@@ -1581,7 +1581,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Zico: Tớ tạo xong bức tranh cậu bé thả diều trên sân thượng rồi, lưu về máy xong tắt luôn nhé AKI!\nAKI: Ơ kìa Zico! Tranh đẹp thế này mà không có tên, không được lồng khung thì sao thành tác phẩm triển lãm được! Mình phải ghép đủ bốn mảnh chứ!"
+            "speech": "Zico: Tớ tạo xong bức tranh cậu bé thả diều trên sân thượng rồi, lưu về máy xong tắt luôn nhé AIKI!\nAKI: Ơ kìa Zico! Tranh đẹp thế này mà không có tên, không được lồng khung thì sao thành tác phẩm triển lãm được! Mình phải ghép đủ bốn mảnh chứ!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -1590,10 +1590,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Ghép đủ bốn mảnh: Chuyện gì xảy ra? Ai là ngôi sao? Muốn người xem cảm thấy gì? Góc nhìn nào? Và nhớ đặt tên tranh thật hay nhé!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
-            "speech": "Đến lượt các cậu làm bức tranh cuối chương! Ghép đủ bốn mảnh, đặt tên tranh, trả lời ba câu hỏi chấm điểm của AKI rồi bấm In A3 đóng khung treo lên góc học tập nhé!"
+            "speech": "Đến lượt các cậu làm bức tranh cuối chương! Ghép đủ bốn mảnh, đặt tên tranh, trả lời ba câu hỏi chấm điểm của AIKI rồi bấm In A3 đóng khung treo lên góc học tập nhé!"
           }
         ]
       },
@@ -1659,7 +1659,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Khung Tranh\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Khung Tranh",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -1726,7 +1726,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 3.1 — Hồ sơ biệt đội",
         "goalText": "Trẻ hiểu nhân vật hay không phải vì ngoại hình đẹp mà vì có tính cách thông qua việc điền đủ 6 ô Hồ sơ ADN nhân vật.",
         "imageUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
-        "speech": "Sonet: AKI ơi vẽ cho tớ một siêu hiệp sĩ cực mạnh, bay nhanh hơn gió, đấm vỡ núi đá, không sợ cái gì hết!\nAKI: Ơ... nhân vật cái gì cũng giỏi, chẳng sợ gì thì chán lắm Sonet ơi! Một nhân vật hay phải có điểm yếu và tính cách riêng cơ!",
+        "speech": "Sonet: AIKI ơi vẽ cho tớ một siêu hiệp sĩ cực mạnh, bay nhanh hơn gió, đấm vỡ núi đá, không sợ cái gì hết!\nAKI: Ơ... nhân vật cái gì cũng giỏi, chẳng sợ gì thì chán lắm Sonet ơi! Một nhân vật hay phải có điểm yếu và tính cách riêng cơ!",
         "keyPoints": [
           "[1] TÊN GÌ — \"Tép\" (Một chú chuột nhỏ, tai hơi lệch)",
           "[2] THÍCH GÌ — \"nhặt nắp chai rồi xếp theo màu\" (Càng riêng càng dễ nhớ)",
@@ -1771,7 +1771,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Sonet: AKI ơi vẽ cho tớ một siêu hiệp sĩ cực mạnh, bay nhanh hơn gió, đấm vỡ núi đá, không sợ cái gì hết!\nAKI: Ơ... nhân vật cái gì cũng giỏi, chẳng sợ gì thì chán lắm Sonet ơi! Một nhân vật hay phải có điểm yếu và tính cách riêng cơ!"
+            "speech": "Sonet: AIKI ơi vẽ cho tớ một siêu hiệp sĩ cực mạnh, bay nhanh hơn gió, đấm vỡ núi đá, không sợ cái gì hết!\nAKI: Ơ... nhân vật cái gì cũng giỏi, chẳng sợ gì thì chán lắm Sonet ơi! Một nhân vật hay phải có điểm yếu và tính cách riêng cơ!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -1780,7 +1780,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "QT1: Hãy nghĩ ý tưởng của cậu trước! Bảng ADN 6 ô là bảo bối giúp nhân vật đi qua 100 bức tranh vẫn giữ đúng linh hồn!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Bây giờ đến lượt các cậu. Hãy mở sổ và điền đủ 6 ô hồ sơ cho nhân vật của mình. Đọc to cho một người trong nhà nghe và hỏi họ xem họ hình dung bạn ấy trông thế nào nhé!"
@@ -1849,7 +1849,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Hồ Sơ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Hồ Sơ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -1997,12 +1997,12 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 3.2 — Mật mã nhận diện",
         "goalText": "Trẻ hiểu khái niệm nhất quán nhân vật và xác lập được Bản luật vẽ nhân vật với 3 đặc điểm nhận diện bất biến.",
         "imageUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
-        "speech": "Tina: Ối AKI ơi! Bức một Sóc Bông của tớ đội mũ len đỏ đuôi to xù. Sang bức hai tự nhiên biến thành sóc đội nón lá đuôi chuột cống! Làm sao để giữ đúng một bạn bây giờ?\nAKI: Vì Tina chưa có Mật Mã Nhận Diện đấy! AI mà không được khóa đặc điểm thì mỗi lần bấm lại vẽ ra một người lạ hoắc!",
+        "speech": "Tina: Ối AIKI ơi! Bức một Sóc Bông của tớ đội mũ len đỏ đuôi to xù. Sang bức hai tự nhiên biến thành sóc đội nón lá đuôi chuột cống! Làm sao để giữ đúng một bạn bây giờ?\nAKI: Vì Tina chưa có Mật Mã Nhận Diện đấy! AI mà không được khóa đặc điểm thì mỗi lần bấm lại vẽ ra một người lạ hoắc!",
         "keyPoints": [
-          "[1] ẢNH MẪU — một bức duy nhất để AKI biết “à, đúng bạn này” (Không phải cứ chọn bức ngầu nhất)",
+          "[1] ẢNH MẪU — một bức duy nhất để AIKI biết “à, đúng bạn này” (Không phải cứ chọn bức ngầu nhất)",
           "[2] ẢNH MẪU TỐT — nền đơn giản · chỉ một nhân vật · đứng trực diện hoặc nghiêng nhẹ (Rõ mặt, tóc, quần áo, toàn thân; không bị che; màu sáng rõ)",
           "[3] BA ĐẶC ĐIỂM NHẬN DIỆN — \"mũ len đỏ có quả bông trắng · áo khoác xanh dương hai túi lớn · ủng cao su màu vàng\" (Ba thứ này không được đổi)",
-          "[4] ĐỪNG CHỌN — \"mắt đẹp\" · \"tóc dài\" · \"trông ngầu\" · kể cả \"mũ đỏ\" (Chưa đủ rõ để AKI biết phải giữ lại điều gì)"
+          "[4] ĐỪNG CHỌN — \"mắt đẹp\" · \"tóc dài\" · \"trông ngầu\" · kể cả \"mũ đỏ\" (Chưa đủ rõ để AIKI biết phải giữ lại điều gì)"
         ]
       },
       "stage2_confirmGoal": {
@@ -2040,7 +2040,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Tina: Ối AKI ơi! Bức một Sóc Bông của tớ đội mũ len đỏ đuôi to xù. Sang bức hai tự nhiên biến thành sóc đội nón lá đuôi chuột cống! Làm sao để giữ đúng một bạn bây giờ?\nAKI: Vì Tina chưa có Mật Mã Nhận Diện đấy! AI mà không được khóa đặc điểm thì mỗi lần bấm lại vẽ ra một người lạ hoắc!"
+            "speech": "Tina: Ối AIKI ơi! Bức một Sóc Bông của tớ đội mũ len đỏ đuôi to xù. Sang bức hai tự nhiên biến thành sóc đội nón lá đuôi chuột cống! Làm sao để giữ đúng một bạn bây giờ?\nAKI: Vì Tina chưa có Mật Mã Nhận Diện đấy! AI mà không được khóa đặc điểm thì mỗi lần bấm lại vẽ ra một người lạ hoắc!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -2049,7 +2049,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Mật mã 3 điểm khóa: Đổi góc nhìn, không đổi đặc điểm nhận diện! Cả ba đặc điểm phải viết vào Bản Luật vẽ nhân vật và dán vào mọi câu lệnh!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Bây giờ đến lượt các cậu. Chọn và tả 3 đặc điểm thật cụ thể (từ 5 từ trở lên mỗi ô), viết vào Bản Luật vẽ nhân vật, ký tên rồi tạo bức chân dung đầu tiên nhé!"
@@ -2069,7 +2069,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
               "Nền tối và nhiều hiệu ứng cho ngầu"
             ],
             "correctIndex": 0,
-            "explanation": "Ảnh mẫu càng rõ, AKI càng ít phải đoán.",
+            "explanation": "Ảnh mẫu càng rõ, AIKI càng ít phải đoán.",
             "visualUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg"
           },
           {
@@ -2090,7 +2090,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "options": [
               "Tưởng tượng nhân vật đứng giữa đám đông — con sẽ nói ba điều gì để chỉ ra bạn ấy?",
               "Chọn thứ mình thích nhất",
-              "Chọn thứ AKI gợi ý"
+              "Chọn thứ AIKI gợi ý"
             ],
             "correctIndex": 0,
             "explanation": "Ba điều ấy chính là ba đặc điểm nhận diện.",
@@ -2118,7 +2118,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Sóc Bông\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Sóc Bông",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -2187,7 +2187,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "imageUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
         "speech": "Tina: Hôm qua tớ làm bộ sáu biểu cảm cho Bông: vui, buồn, sợ, giận, ngạc nhiên, buồn ngủ. Làm xong nhìn lại... ơ? Hình thì Bông có chuông vàng, hình lại mất chuông, hình vòng cổ đỏ hình lại đổi màu! Cứ như sáu chú chó khác nhau ấy!\nAKI: Vì Tina chỉ bảo tớ 'Bông đang vui', 'Bông đang giận' mà quên gửi kèm ảnh mẫu và luật vẽ nhân vật đấy!",
         "keyPoints": [
-          "[1] GỬI KÈM ẢNH MẪU — mỗi lần tạo đều đính kèm (Để AKI biết đúng bạn nào)",
+          "[1] GỬI KÈM ẢNH MẪU — mỗi lần tạo đều đính kèm (Để AIKI biết đúng bạn nào)",
           "[2] NHẮC LẠI ĐẶC ĐIỂM — \"vòng cổ đỏ, chuông vàng…\" (Những thứ trong Luật vẽ nhân vật)",
           "[3] RỒI MỚI THÊM BIỂU CẢM — \"Bông đang giận, lông mày chụm lại, hai chân trước chống xuống đất\" (Đừng chỉ nói “Bông đang giận”)",
           "[4] CÂU ĐỂ NHỚ — Đổi mặt, không đổi người (Sáu cái mặt khác nhau, vừa nhìn là biết ngay vẫn là một bạn)"
@@ -2237,7 +2237,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Câu thần chú của bài hôm nay: ĐỔI MẶT, KHÔNG ĐỔI NGƯỜI! Biểu cảm có thể thay đổi liên tục nhưng mật mã 3 điểm khóa tuyệt đối không được mất!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Bây giờ đến lượt các cậu. Hãy tạo trọn bộ 6 biểu cảm: vui, buồn, sợ, giận, ngạc nhiên và buồn ngủ. Sau mỗi hình nhớ soi kỹ lại Bản luật vẽ xem có bị trôi điểm nào không nhé!"
@@ -2306,7 +2306,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Lưới 6\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Lưới 6",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -2408,7 +2408,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 3.4 — Căn cứ bí mật của biệt đội",
         "goalText": "Trẻ tạo được căn cứ riêng và bối cảnh sống phản ánh đúng tính cách trong hồ sơ ADN của nhân vật.",
         "imageUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
-        "speech": "Sonet: AKI ơi xem phòng bí mật tớ dựng cho chú mèo Bum này: đèn chùm pha lê lung linh, ngai vàng dát bạc, tường đầy sách cổ... Đẹp mê ly luôn!\nAKI: Đẹp thật đấy Sonet... Nhưng Bum là chú mèo thích trèo cây đuổi bướm và sợ bóng tối. Ngồi trên ngai vàng nhìn Bum ngơ ngác như đi lạc vào nhà người khác ấy!",
+        "speech": "Sonet: AIKI ơi xem phòng bí mật tớ dựng cho chú mèo Bum này: đèn chùm pha lê lung linh, ngai vàng dát bạc, tường đầy sách cổ... Đẹp mê ly luôn!\nAKI: Đẹp thật đấy Sonet... Nhưng Bum là chú mèo thích trèo cây đuổi bướm và sợ bóng tối. Ngồi trên ngai vàng nhìn Bum ngơ ngác như đi lạc vào nhà người khác ấy!",
         "keyPoints": [
           "[1] NƠI Ở KỂ TÍNH CÁCH — Tép ngồi ngai vàng thì chẳng giống Tép chút nào (Căn cứ không cần to hay đẹp, nó cần ĐÚNG với người sống trong đó)",
           "[2] CÂU HỎI TRƯỚC KHI THÊM ĐỒ — \"Thứ này liên quan đến điều gì của bạn ấy?\" (Thích gì? Giỏi gì? Sợ gì? Mơ ước gì?)",
@@ -2451,7 +2451,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Sonet: AKI ơi xem phòng bí mật tớ dựng cho chú mèo Bum này: đèn chùm pha lê lung linh, ngai vàng dát bạc, tường đầy sách cổ... Đẹp mê ly luôn!\nAKI: Đẹp thật đấy Sonet... Nhưng Bum là chú mèo thích trèo cây đuổi bướm và sợ bóng tối. Ngồi trên ngai vàng nhìn Bum ngơ ngác như đi lạc vào nhà người khác ấy!"
+            "speech": "Sonet: AIKI ơi xem phòng bí mật tớ dựng cho chú mèo Bum này: đèn chùm pha lê lung linh, ngai vàng dát bạc, tường đầy sách cổ... Đẹp mê ly luôn!\nAKI: Đẹp thật đấy Sonet... Nhưng Bum là chú mèo thích trèo cây đuổi bướm và sợ bóng tối. Ngồi trên ngai vàng nhìn Bum ngơ ngác như đi lạc vào nhà người khác ấy!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -2460,7 +2460,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Nơi ở cũng phải kể được tính cách của nhân vật! Trước khi thêm một món đồ, hãy nhìn lại Hồ sơ và hỏi: 'Thứ này liên quan đến điều gì của bạn ấy?'"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Mở Hồ sơ ra, chọn vài chi tiết quan trọng để biến thành đồ vật trong căn cứ. Đính kèm ảnh mẫu và luật vẽ để tạo căn cứ riêng, rồi ghép thành Thẻ nhân vật 2 mặt hoàn chỉnh nhé!"
@@ -2530,7 +2530,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Căn Cứ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Căn Cứ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -2597,12 +2597,12 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 4.1 — 3 Cổng của Vương Quốc",
         "goalText": "Trẻ hiểu cấu trúc cốt truyện 3 phần cơ bản: Khởi đầu (Bình thường), Thắt nút (Có chuyện/Sự cố), Mở nút (Giải quyết).",
         "imageUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
-        "speech": "Bona: Hôm qua tớ kể chuyện về Chíp cho AKI nghe: 'Chíp thức dậy. Chíp ăn sáng. Chíp ra sân chơi. Chíp ăn trưa. Chíp về nhà ngủ. Hết!'\nAKI: Ơ... nghe xong tớ thấy thiếu thiếu Bona ơi! Mọi việc đều đúng, nhưng phẳng lì như tờ giấy vì chẳng có biến cố gì xảy ra cả!",
+        "speech": "Bona: Hôm qua tớ kể chuyện về Chíp cho AIKI nghe: 'Chíp thức dậy. Chíp ăn sáng. Chíp ra sân chơi. Chíp ăn trưa. Chíp về nhà ngủ. Hết!'\nAKI: Ơ... nghe xong tớ thấy thiếu thiếu Bona ơi! Mọi việc đều đúng, nhưng phẳng lì như tờ giấy vì chẳng có biến cố gì xảy ra cả!",
         "keyPoints": [
           "[1] CỔNG 1 — BÌNH THƯỜNG — \"Chíp mang quả bóng yêu thích ra sân chơi như mọi hôm\" (Lúc đầu nhân vật đang làm gì?)",
           "[2] CỔNG 2 — CÓ CHUYỆN — \"quả bóng lăn qua khe, mắc bên kia hàng rào\" (Điều gì bất ngờ xảy ra?)",
           "[3] CỔNG 3 — GIẢI QUYẾT — \"Chíp tìm một cành cây dài, khều quả bóng trở lại\" (Nhân vật làm gì để xử lý, cuối cùng ra sao?)",
-          "[4] LUẬT CỦA AKI — AKI không nghĩ câu chuyện thay con (Bí thì AKI chỉ hỏi: Rồi sao nữa? · Lúc ấy bạn ấy cảm thấy thế nào? · Cuối cùng thì sao?)"
+          "[4] LUẬT CỦA AIKI — AIKI không nghĩ câu chuyện thay con (Bí thì AIKI chỉ hỏi: Rồi sao nữa? · Lúc ấy bạn ấy cảm thấy thế nào? · Cuối cùng thì sao?)"
         ]
       },
       "stage2_confirmGoal": {
@@ -2640,7 +2640,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Bona: Hôm qua tớ kể chuyện về Chíp cho AKI nghe: 'Chíp thức dậy. Chíp ăn sáng. Chíp ra sân chơi. Chíp ăn trưa. Chíp về nhà ngủ. Hết!'\nAKI: Ơ... nghe xong tớ thấy thiếu thiếu Bona ơi! Mọi việc đều đúng, nhưng phẳng lì như tờ giấy vì chẳng có biến cố gì xảy ra cả!"
+            "speech": "Bona: Hôm qua tớ kể chuyện về Chíp cho AIKI nghe: 'Chíp thức dậy. Chíp ăn sáng. Chíp ra sân chơi. Chíp ăn trưa. Chíp về nhà ngủ. Hết!'\nAKI: Ơ... nghe xong tớ thấy thiếu thiếu Bona ơi! Mọi việc đều đúng, nhưng phẳng lì như tờ giấy vì chẳng có biến cố gì xảy ra cả!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -2649,7 +2649,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Mọi câu chuyện vĩ đại đều đi qua 3 Cổng: Cổng 1 Khởi đầu bình thường · Cổng 2 Thắt nút sự cố · Cổng 3 Mở nút giải quyết!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Lấy Thẻ nhân vật ra, nhìn lại Hồ sơ rồi kể một câu chuyện bằng miệng. Nhớ đủ ba cổng: Bình thường – Có chuyện – Giải quyết. Ghi âm lại, nghe một lần và tự sửa nếu thấy thiếu cổng nào nhé!"
@@ -2686,7 +2686,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-4-1-3-cong-cua-vuong-quoc-q3",
-            "prompt": "Khi con bí, AKI được làm gì?",
+            "prompt": "Khi con bí, AIKI được làm gì?",
             "options": [
               "Chỉ gợi ý bằng ba câu hỏi, không nghĩ chuyện thay con",
               "Viết luôn câu chuyện cho con",
@@ -2719,7 +2719,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Cốt Truyện\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Cốt Truyện",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -2882,7 +2882,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Khung xương 4 Chặng: MUỐN – CẢN – LÀM – KẾT! Thử thách càng lớn thì chiến thắng càng ngọt ngào! Nếu chưa nghĩ ra CẢN, hãy nhìn vào ô Sợ hoặc Dở trong Hồ sơ nhé!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Mở Hồ sơ nhân vật và viết 4 dòng: Bạn ấy muốn gì? Điều gì cản lại? Bạn ấy làm cách nào? Cuối cùng ra sao? Đọc to lên xem đã thấy hồi hộp chưa nhé!"
@@ -2922,7 +2922,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "prompt": "Viết xong bốn dòng, việc bắt buộc tiếp theo là gì?",
             "options": [
               "Đọc to cả bốn dòng một lần, chỗ nào nghe quá dễ thì làm khó hơn",
-              "Gửi ngay cho AKI vẽ",
+              "Gửi ngay cho AIKI vẽ",
               "In ra đóng khung"
             ],
             "correctIndex": 0,
@@ -2951,7 +2951,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Hành Trình\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Hành Trình",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -3122,10 +3122,10 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Bản đồ 8 ô (Storyboard) là bản nháp xương sống để mình nhìn được cả cuốn truyện trước khi làm thật! Vẽ hình que thật nhanh: đầu tròn, người một nét là đủ!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
-            "speech": "Lấy một tờ giấy, chia thành 8 ô. Vẽ hình que thật nhanh cho 4 ô đầu và viết một câu ngắn dưới mỗi ô xem chuyện gì đang xảy ra. Xong xuôi nhớ chụp ảnh nộp cho AKI nhé!"
+            "speech": "Lấy một tờ giấy, chia thành 8 ô. Vẽ hình que thật nhanh cho 4 ô đầu và viết một câu ngắn dưới mỗi ô xem chuyện gì đang xảy ra. Xong xuôi nhớ chụp ảnh nộp cho AIKI nhé!"
           }
         ]
       },
@@ -3151,7 +3151,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "options": [
               "Vẽ nhanh bằng hình que — đầu tròn, người một nét",
               "Vẽ thật đẹp và tô màu đầy đủ",
-              "Nhờ AKI vẽ hộ"
+              "Nhờ AIKI vẽ hộ"
             ],
             "correctIndex": 0,
             "explanation": "Gạch đi, vẽ lại thoải mái — đây chính là lúc để sửa.",
@@ -3192,7 +3192,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bản Đồ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bản Đồ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -3399,7 +3399,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Mỗi khung cần giữ ba thứ: Một: ĐÚNG NHÂN VẬT — dùng ảnh mẫu và giữ các đặc điểm trong Luật vẽ. Hai: ĐÚNG VIỆC — nhìn vào storyboard. Ba: ĐÚNG PHONG CÁCH — giữ nguyên từ khóa phong cách!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Làm lần lượt từ ô một đến ô tám. Trước mỗi khung hãy nhìn Storyboard chứ đừng nghĩ lại từ đầu. Sau mỗi khung, kiểm tra ngay: Nhân vật có đổi không? Việc có đúng không? Cùng hoàn thiện 8 khung truyện nào!"
@@ -3468,7 +3468,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bản Đồ\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bản Đồ",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -3584,7 +3584,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 4.5 — Vương miện hoàn hảo",
         "goalText": "Trẻ tự viết lời thoại ngắn gọn (tối đa 2 bong bóng/khung), đặt tên truyện, làm bìa sách và xuất bản cuốn truyện hoàn chỉnh.",
         "imageUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
-        "speech": "Mika: Hôm trước tớ xếp đủ tám khung rồi bảo: 'AKI ơi, viết lời thoại hộ tớ nhé!' Thế là AKI viết một loạt câu: lúc gặp quái vật nhân vật cũng 'Tuyệt quá!', lúc buồn cũng 'Tuyệt quá!'... Nghe giả tạo ghê luôn!\nAKI: Ha ha! Vì AI làm sao hiểu được cảm xúc thật của nhân vật bằng chính tác giả nhí là Mika chứ! Lời thoại là phần việc của các cậu mà!",
+        "speech": "Mika: Hôm trước tớ xếp đủ tám khung rồi bảo: 'AIKI ơi, viết lời thoại hộ tớ nhé!' Thế là AIKI viết một loạt câu: lúc gặp quái vật nhân vật cũng 'Tuyệt quá!', lúc buồn cũng 'Tuyệt quá!'... Nghe giả tạo ghê luôn!\nAKI: Ha ha! Vì AI làm sao hiểu được cảm xúc thật của nhân vật bằng chính tác giả nhí là Mika chứ! Lời thoại là phần việc của các cậu mà!",
         "keyPoints": [
           "[1] HỎI TỪNG KHUNG — \"Lúc này nhân vật thật sự muốn nói gì?\" (Viết thật ngắn, giống cách mình nói ngoài đời)",
           "[2] TỐI ĐA HAI BONG BÓNG — ❌ bốn câu che gần hết tranh → ✅ \"Kia rồi!\" và \"Nhưng... làm sao lấy xuống đây?\" (Để chữ không che mất hình)",
@@ -3628,16 +3628,16 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Mika: Hôm trước tớ xếp đủ tám khung rồi bảo: 'AKI ơi, viết lời thoại hộ tớ nhé!' Thế là AKI viết một loạt câu: lúc gặp quái vật nhân vật cũng 'Tuyệt quá!', lúc buồn cũng 'Tuyệt quá!'... Nghe giả tạo ghê luôn!\nAKI: Ha ha! Vì AI làm sao hiểu được cảm xúc thật của nhân vật bằng chính tác giả nhí là Mika chứ! Lời thoại là phần việc của các cậu mà!"
+            "speech": "Mika: Hôm trước tớ xếp đủ tám khung rồi bảo: 'AIKI ơi, viết lời thoại hộ tớ nhé!' Thế là AIKI viết một loạt câu: lúc gặp quái vật nhân vật cũng 'Tuyệt quá!', lúc buồn cũng 'Tuyệt quá!'... Nghe giả tạo ghê luôn!\nAKI: Ha ha! Vì AI làm sao hiểu được cảm xúc thật của nhân vật bằng chính tác giả nhí là Mika chứ! Lời thoại là phần việc của các cậu mà!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
             "startSec": 45,
             "endSec": 120,
-            "speech": "QT2: Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AKI! Bìa sách chính là vương miện của tác phẩm! Tự viết lời thoại thật ngắn và đặt tên truyện thật kêu!"
+            "speech": "QT2: Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AIKI! Bìa sách chính là vương miện của tác phẩm! Tự viết lời thoại thật ngắn và đặt tên truyện thật kêu!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Hoàn thiện cuốn truyện nào các tác giả nhí! Viết lời thoại cho tám khung, đặt tên truyện, làm bìa có tên mình, xuất file rồi nhờ người lớn in, gấp và đóng gáy sách nhé! Tớ nóng lòng được đọc truyện của các cậu lắm rồi!"
@@ -3676,8 +3676,8 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "id": "bai-4-5-vuong-mien-hoan-hao-q3",
             "prompt": "Câu quan trọng nhất của cả chương là gì?",
             "options": [
-              "AKI giúp vẽ truyện, nhưng con mới là người nghĩ ra câu chuyện",
-              "AKI nghĩ chuyện hay hơn con",
+              "AIKI giúp vẽ truyện, nhưng con mới là người nghĩ ra câu chuyện",
+              "AIKI nghĩ chuyện hay hơn con",
               "Truyện đẹp là truyện nhiều màu"
             ],
             "correctIndex": 0,
@@ -3706,7 +3706,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Vương Miện\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Vương Miện",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -3877,12 +3877,12 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 5.1 — Săn lùng Bộ sưu tập",
         "goalText": "Trẻ tự chọn được chủ đề riêng và liệt kê đủ 12 thứ cùng thuộc một nhóm mà không cần ỷ lại vào AI.",
         "imageUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
-        "speech": "Nami: AKI ơi tớ muốn làm một bộ thẻ game bài nhưng nghĩ mãi chẳng biết chọn gì. Bạn bảo AI gợi ý chủ đề cho tớ với!\nAKI: Không được đâu Nami ơi! Ý tưởng phải là của cậu cơ! Đi hỏi, đi nhìn thế giới quanh mình chứ đừng hỏi AI. Bộ thẻ hay nhất là bộ thẻ về những thứ cậu yêu thích nhất!",
+        "speech": "Nami: AIKI ơi tớ muốn làm một bộ thẻ game bài nhưng nghĩ mãi chẳng biết chọn gì. Bạn bảo AI gợi ý chủ đề cho tớ với!\nAKI: Không được đâu Nami ơi! Ý tưởng phải là của cậu cơ! Đi hỏi, đi nhìn thế giới quanh mình chứ đừng hỏi AI. Bộ thẻ hay nhất là bộ thẻ về những thứ cậu yêu thích nhất!",
         "keyPoints": [
           "[1] CHỦ ĐỀ CỦA RIÊNG MÌNH — \"12 món ở hàng tạp hoá gần nhà Nami\" (Người khác cũng làm được, nhưng khó có bộ nào giống hệt)",
           "[2] BÍ THÌ ĐỨNG DẬY VÀ ĐI NHÌN — trong bếp · ngăn kéo của bà · góc bàn học · con ngõ trước nhà · trong cặp (Đừng ngồi nhìn màn hình mãi)",
           "[3] HOẶC ĐI HỎI — bố mẹ, ông bà, một người bạn (Ý tưởng ở ngay quanh mình mà trước giờ chưa để ý)",
-          "[4] CÂU ĐỂ NHỚ — Bí thì đi nhìn, đi hỏi, rồi mới nhờ AKI giúp"
+          "[4] CÂU ĐỂ NHỚ — Bí thì đi nhìn, đi hỏi, rồi mới nhờ AIKI giúp"
         ]
       },
       "stage2_confirmGoal": {
@@ -3920,16 +3920,16 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Nami: AKI ơi tớ muốn làm một bộ thẻ game bài nhưng nghĩ mãi chẳng biết chọn gì. Bạn bảo AI gợi ý chủ đề cho tớ với!\nAKI: Không được đâu Nami ơi! Ý tưởng phải là của cậu cơ! Đi hỏi, đi nhìn thế giới quanh mình chứ đừng hỏi AI. Bộ thẻ hay nhất là bộ thẻ về những thứ cậu yêu thích nhất!"
+            "speech": "Nami: AIKI ơi tớ muốn làm một bộ thẻ game bài nhưng nghĩ mãi chẳng biết chọn gì. Bạn bảo AI gợi ý chủ đề cho tớ với!\nAKI: Không được đâu Nami ơi! Ý tưởng phải là của cậu cơ! Đi hỏi, đi nhìn thế giới quanh mình chứ đừng hỏi AI. Bộ thẻ hay nhất là bộ thẻ về những thứ cậu yêu thích nhất!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
             "startSec": 45,
             "endSec": 120,
-            "speech": "QT1: Hãy nghĩ ý tưởng của cậu trước, rồi mới chia sẻ với AKI! Săn lùng bộ sưu tập 12 thứ bằng cách quan sát và khám phá sở thích của chính mình!"
+            "speech": "QT1: Hãy nghĩ ý tưởng của cậu trước, rồi mới chia sẻ với AIKI! Săn lùng bộ sưu tập 12 thứ bằng cách quan sát và khám phá sở thích của chính mình!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Bây giờ đến lượt các cậu. Chọn một chủ đề thật gần gũi hoặc chủ đề cậu mê mẩn nhất. Liệt kê đủ 12 thứ. Đọc lại xem có món nào trùng hoặc nhạt nhòa không thì sửa lại nhé!"
@@ -3998,7 +3998,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bộ Sưu\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bộ Sưu",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -4170,7 +4170,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Trò chơi hay là trò chơi công bằng! Cả 12 lá bài đều phải có tổng điểm ba chỉ số bằng nhau! Có lá khỏe nhưng chậm, có lá nhanh nhẹn nhưng yếu sức!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Với từng lá bài trong 12 món, hãy ghi đủ: Tên thẻ – Sức – Nhanh – Khéo – Kỹ năng riêng. Nhớ cộng nhẩm kiểm tra: Cả 12 lá đều phải có tổng đúng bằng ngân sách quy định nhé!"
@@ -4239,7 +4239,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Phù Phép\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Phù Phép",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -4361,13 +4361,13 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           "[1] LÀM MỘT LÁ MẪU — chọn một món, làm thật cẩn thận đến khi ưng (Giữ bức ấy làm Ảnh mẫu của bộ thẻ)",
           "[2] CÔNG THỨC NỀN — PHONG CÁCH – NỀN – GÓC NHÌN – KHUNG VIỀN (Ví dụ: nét truyện tranh rõ màu phẳng – nền vàng nhạt – nhìn ngang vật ở giữa – khung bo tròn)",
           "[3] PHẦN RIÊNG · CÁCH 1 — tả bằng chữ: \"một cái rổ nhựa màu xanh, có quai, đan thưa\"",
-          "[4] PHẦN RIÊNG · CÁCH 2 — chụp ảnh món đồ thật trong nhà rồi bảo AKI vẽ lại theo phong cách thẻ mẫu (Chỉ chụp đồ vật, tránh để người hay thông tin riêng trong ảnh)",
+          "[4] PHẦN RIÊNG · CÁCH 2 — chụp ảnh món đồ thật trong nhà rồi bảo AIKI vẽ lại theo phong cách thẻ mẫu (Chỉ chụp đồ vật, tránh để người hay thông tin riêng trong ảnh)",
           "[5] CÂU ĐỂ NHỚ — Ảnh mẫu giữ cả bộ cùng kiểu · Công thức nền giữ thứ không đổi · Chỉ thay phần riêng"
         ]
       },
       "stage2_confirmGoal": {
         "id": "bai-5-3-khoa-the-stage2-confirm",
-        "question": "Để cả 12 lá bài nhìn như một bộ bài xịn sò chuyên nghiệp, con cần đưa cho AKI những gì?",
+        "question": "Để cả 12 lá bài nhìn như một bộ bài xịn sò chuyên nghiệp, con cần đưa cho AIKI những gì?",
         "options": [
           {
             "id": "opt-a",
@@ -4409,7 +4409,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Khóa thẻ bằng hai bảo bối: 1. Mặt trước dùng chung một CÔNG THỨC NỀN! 2. Mặt lưng phải GIỐNG HỆT NHAU 100% và đối xứng tâm để đảm bảo tính bí mật và công bằng!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Đầu tiên, chọn một món làm lá mẫu. Sau đó ghi lại Công thức nền. Tạo đủ 12 lá và kiểm tra: Có lá nào bị lạc không? Xong xuôi ghép vào khuôn thẻ và khóa mặt lưng bánh răng ma thuật nhé!"
@@ -4436,7 +4436,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "id": "bai-5-3-khoa-the-q2",
             "prompt": "Ngoài tả bằng chữ, con còn cách nào để làm phần riêng của một lá?",
             "options": [
-              "Chụp ảnh món đồ thật trong nhà rồi nhờ AKI vẽ lại theo phong cách thẻ mẫu",
+              "Chụp ảnh món đồ thật trong nhà rồi nhờ AIKI vẽ lại theo phong cách thẻ mẫu",
               "Vẽ tay rồi scan",
               "Không có cách nào khác"
             ],
@@ -4478,7 +4478,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Khóa Lưng\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Khóa Lưng",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -4629,7 +4629,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           "[3] MỖI LƯỢT LÀM GÌ? — \"Mỗi người lật một lá, người đi trước chọn Sức, Nhanh hoặc Khéo\" (Câu hỏi 3)",
           "[4] SO THẺ THẾ NÀO? — \"Ai điểm cao nhất thì lấy các lá. Nếu bằng nhau thì để giữa bàn\" (Câu hỏi 4 — chỗ hay phải bổ sung nhất)",
           "[5] KHI NÀO KẾT THÚC? — \"Khi hết bài, ai có nhiều lá nhất thì thắng\" (Câu hỏi 5)",
-          "[6] CÂU ĐỂ NHỚ — Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử"
+          "[6] CÂU ĐỂ NHỚ — Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử"
         ]
       },
       "stage2_confirmGoal": {
@@ -4676,7 +4676,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "Luật chơi là linh hồn của trò chơi! Chỉ cần trả lời đủ 5 câu hỏi: 1. Mấy người chơi? 2. Ai đi trước? 3. Mỗi lượt làm gì? 4. So thẻ thế nào (tương khắc)? 5. Khi nào kết thúc và ai thắng!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Hãy trả lời đủ 5 câu hỏi bằng lời của mình, rồi rủ một người trong nhà chơi thử ngay một ván! Chỗ nào họ phải dừng lại hỏi hoặc cãi nhau thì đánh dấu bút đỏ, sửa lại luật cho rõ ràng rồi in ra nhé!"
@@ -4705,7 +4705,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "options": [
               "Vì chơi thử mới lộ ra những câu chưa rõ, ví dụ ba người cùng bằng điểm thì sao",
               "Vì chơi thử cho vui",
-              "Vì AKI yêu cầu"
+              "Vì AIKI yêu cầu"
             ],
             "correctIndex": 0,
             "explanation": "Chỗ nào người chơi phải dừng lại hỏi thì đánh dấu và bổ sung.",
@@ -4715,7 +4715,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "id": "bai-5-4-luat-choi-q3",
             "prompt": "Câu để nhớ của bài này là gì?",
             "options": [
-              "Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử",
+              "Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử",
               "Luật càng dài càng tốt",
               "Cứ chơi rồi tính sau"
             ],
@@ -4745,7 +4745,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bộ Đôi\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Bộ Đôi",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -4773,7 +4773,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "creativeEngineMode": "creative-notebook",
         "notebookConfig": {
           "notebookTitle": "Luật chơi của tớ",
-          "akiAdvice": "Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!",
+          "akiAdvice": "Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!",
           "sampleHelperTitle": "Cách làm kịch bản mẫu: 5 câu hỏi vàng & Thử nghiệm",
           "sampleTemplate": "1. Có mấy người chơi: 2 người chơi đấu kháng\n2. Ai đi trước: Người đổ xúc xắc điểm cao hơn được đi trước\n3. Mỗi lượt người chơi làm gì: Lần lượt rút 1 thẻ trên tay và tung xúc xắc chọn chỉ số so tài\n4. So thẻ thế nào, nếu bằng nhau thì sao: Ai có điểm chỉ số cao hơn ăn thẻ của đối thủ; nếu bằng điểm thì mỗi bên rút thêm 1 thẻ để so tiếp\n5. Khi nào kết thúc và ai thắng: Ai ăn được 5 thẻ của đối thủ trước là người chiến thắng\nChỗ cả nhà phải dừng lại hỏi khi chơi thử: Khi tung vào mặt ngôi sao xúc xắc chưa biết tính sao, tớ đã bổ sung: Mặt sao được cộng thêm 3 điểm vào chỉ số bất kỳ!",
           "backpackCategory": "game-rules",
@@ -4781,9 +4781,9 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           "characterName": "Trọng tài game",
           "challengeSummary": [
             "Trả lời đủ 5 câu hỏi bằng lời của mình, ngắn cũng được",
-            "Rồi nhờ AKI viết lại thành một bộ luật ngắn, dễ hiểu — AKI chỉ sắp xếp cho rõ, không tự thêm luật mới",
+            "Rồi nhờ AIKI viết lại thành một bộ luật ngắn, dễ hiểu — AIKI chỉ sắp xếp cho rõ, không tự thêm luật mới",
             "Rủ ít nhất một người trong nhà chơi thử",
-            "Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AKI sửa lần nữa"
+            "Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AIKI sửa lần nữa"
           ],
           "checklist": [
             {
@@ -4878,7 +4878,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Mục tiêu bài học: Bài 5.5 — Đấu trường khai mở",
         "goalText": "Trẻ hoàn thiện trọn bộ sản phẩm trò chơi (Bàn cờ 4 thành phần, vỏ hộp gấp được, 12 thẻ bài) và chơi thật một ván với gia đình.",
         "imageUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
-        "speech": "Dori: AKI ơi xem bàn cờ tớ vẽ này: có đường đi ngoằn ngoèo, có ô số vẽ đẹp lắm! Cả nhà chơi được một lúc thì bố hỏi: 'Ơ thế đi đến đâu thì thắng hả con?' Tớ nhìn lại... quên mất ô Đích!\nAKI: Ha ha! Giống như chạy thi mà không có vạch đích thì chạy vòng quanh mãi sao được! Trước khi làm, tớ dẫn các cậu đến Kho Trò Chơi Ngủ Quên nhé!",
+        "speech": "Dori: AIKI ơi xem bàn cờ tớ vẽ này: có đường đi ngoằn ngoèo, có ô số vẽ đẹp lắm! Cả nhà chơi được một lúc thì bố hỏi: 'Ơ thế đi đến đâu thì thắng hả con?' Tớ nhìn lại... quên mất ô Đích!\nAKI: Ha ha! Giống như chạy thi mà không có vạch đích thì chạy vòng quanh mãi sao được! Trước khi làm, tớ dẫn các cậu đến Kho Trò Chơi Ngủ Quên nhé!",
         "keyPoints": [
           "[1] XUẤT PHÁT — nơi bắt đầu (Thành phần 1)",
           "[2] ĐƯỜNG ĐI — cho mình biết phải đi thế nào (Thành phần 2)",
@@ -4922,7 +4922,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "label": "Tình huống khám phá",
             "startSec": 0,
             "endSec": 45,
-            "speech": "Dori: AKI ơi xem bàn cờ tớ vẽ này: có đường đi ngoằn ngoèo, có ô số vẽ đẹp lắm! Cả nhà chơi được một lúc thì bố hỏi: 'Ơ thế đi đến đâu thì thắng hả con?' Tớ nhìn lại... quên mất ô Đích!\nAKI: Ha ha! Giống như chạy thi mà không có vạch đích thì chạy vòng quanh mãi sao được! Trước khi làm, tớ dẫn các cậu đến Kho Trò Chơi Ngủ Quên nhé!"
+            "speech": "Dori: AIKI ơi xem bàn cờ tớ vẽ này: có đường đi ngoằn ngoèo, có ô số vẽ đẹp lắm! Cả nhà chơi được một lúc thì bố hỏi: 'Ơ thế đi đến đâu thì thắng hả con?' Tớ nhìn lại... quên mất ô Đích!\nAKI: Ha ha! Giống như chạy thi mà không có vạch đích thì chạy vòng quanh mãi sao được! Trước khi làm, tớ dẫn các cậu đến Kho Trò Chơi Ngủ Quên nhé!"
           },
           {
             "label": "Quy tắc & Bí kíp vàng",
@@ -4931,7 +4931,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "speech": "QT3: Sản phẩm làm ra phải có giá trị và mang lại niềm vui cho ai đó! Trò chơi chỉ thật sự hoàn thành khi được mang ra chơi thật với cả nhà chứ không phải cất vào ngăn kéo!"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Thực hành cùng AIKI",
             "startSec": 120,
             "endSec": 180,
             "speech": "Chúc mừng các Nhà phát minh trò chơi đại tài! Bước cuối cùng và quan trọng nhất: Rủ cả nhà chơi một ván thật, quay clip kỷ niệm ba mươi giây và cùng nâng cúp vô địch nhé! Các cậu đã chính thức tốt nghiệp khóa học AI Kids xuất sắc! Tớ tự hào về các cậu!"
@@ -4947,7 +4947,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "prompt": "Ô đặc biệt nên lấy ý từ đâu?",
             "options": [
               "Từ một chuyện vui có thật trong nhà mình",
-              "Từ gợi ý của AKI",
+              "Từ gợi ý của AIKI",
               "Từ trò chơi bán ngoài hàng"
             ],
             "correctIndex": 0,
@@ -5000,7 +5000,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Thử câu lệnh ban đầu (1-2 từ)",
             "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Đấu Trường\" xem tớ vẽ thế nào nhé!",
             "quickPrompt": "Đấu Trường",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AKI"
+            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
           },
           {
             "step": 2,
@@ -5731,7 +5731,7 @@ export const DEFAULT_NOTEBOOK_CONFIGS: Record<string, CreativeNotebookConfig> = 
   '5.4': {
     notebookTitle: 'Luật chơi của tớ',
     akiAdvice:
-      'Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!',
+      'Nói luật của cậu trước – AIKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh!',
     sampleHelperTitle: 'Cách làm kịch bản mẫu: 5 câu hỏi vàng & Thử nghiệm',
     sampleTemplate:
       '1. Có mấy người chơi: 2 người chơi đấu kháng\n2. Ai đi trước: Người đổ xúc xắc điểm cao hơn được đi trước\n3. Mỗi lượt người chơi làm gì: Lần lượt rút 1 thẻ trên tay và tung xúc xắc chọn chỉ số so tài\n4. So thẻ thế nào, nếu bằng nhau thì sao: Ai có điểm chỉ số cao hơn ăn thẻ của đối thủ; nếu bằng điểm thì mỗi bên rút thêm 1 thẻ để so tiếp\n5. Khi nào kết thúc và ai thắng: Ai ăn được 5 thẻ của đối thủ trước là người chiến thắng\nChỗ cả nhà phải dừng lại hỏi khi chơi thử: Khi tung vào mặt ngôi sao xúc xắc chưa biết tính sao, tớ đã bổ sung: Mặt sao được cộng thêm 3 điểm vào chỉ số bất kỳ!',
@@ -5740,9 +5740,9 @@ export const DEFAULT_NOTEBOOK_CONFIGS: Record<string, CreativeNotebookConfig> = 
     characterName: 'Trọng tài game',
     challengeSummary: [
       'Trả lời đủ 5 câu hỏi bằng lời của mình, ngắn cũng được',
-      'Rồi nhờ AKI viết lại thành một bộ luật ngắn, dễ hiểu — AKI chỉ sắp xếp cho rõ, không tự thêm luật mới',
+      'Rồi nhờ AIKI viết lại thành một bộ luật ngắn, dễ hiểu — AIKI chỉ sắp xếp cho rõ, không tự thêm luật mới',
       'Rủ ít nhất một người trong nhà chơi thử',
-      'Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AKI sửa lần nữa',
+      'Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hay “Thế này tính sao?” thì đánh dấu lại, bổ sung rồi nhờ AIKI sửa lần nữa',
     ],
     checklist: [
       {

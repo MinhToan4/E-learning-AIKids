@@ -17,7 +17,7 @@ import type { LessonSixStageJourney } from '@/shared/lib/api'
 const mockJourney: LessonSixStageJourney = {
   stage1_goal: {
     id: 'bai-1-1-stage1-goal',
-    title: 'Mục tiêu: Đừng Để AKI Đoán Mò',
+    title: 'Mục tiêu: Đừng Để AIKI Đoán Mò',
     goalText: 'Con hiểu được AI tạo ảnh không tự nghĩ được, nó chỉ vẽ theo từ ngữ mà con cho nó.',
     imageUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg',
     speech: 'Chào bạn nhỏ! Hôm nay tớ sẽ giúp bạn làm quen với xưởng vẽ AIKI!',
@@ -29,13 +29,13 @@ const mockJourney: LessonSixStageJourney = {
   },
   stage2_confirmGoal: {
     id: 'bai-1-1-stage2-confirm',
-    question: 'Tại sao AKI lại vẽ ra chú mèo mướp màu vàng thay vì màu đen?',
+    question: 'Tại sao AIKI lại vẽ ra chú mèo mướp màu vàng thay vì màu đen?',
     options: [
       { id: 'opt-a', text: 'Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo', imageUrl: '/assets/aiki-islands/island1_lesson1_opt_a.jpg' },
-      { id: 'opt-b', text: 'Vì AKI thích màu vàng hơn', imageUrl: '/assets/aiki-islands/island1_lesson1_opt_b.jpg' },
+      { id: 'opt-b', text: 'Vì AIKI thích màu vàng hơn', imageUrl: '/assets/aiki-islands/island1_lesson1_opt_b.jpg' },
     ],
     correctIndex: 0,
-    explanation: 'Chính xác! Khi bé không tả màu lông, AKI sẽ tự đoán mò!',
+    explanation: 'Chính xác! Khi bé không tả màu lông, AIKI sẽ tự đoán mò!',
     speech: 'Bé hãy chọn phương án chính xác nhất nhé!',
   },
   stage3_video: {
@@ -47,7 +47,7 @@ const mockJourney: LessonSixStageJourney = {
     timestamps: [
       { label: 'Tình huống khởi động', startSec: 0, endSec: 45, speech: 'Chào mừng các bạn!' },
       { label: 'Bí kíp 4 chìa khóa', startSec: 45, endSec: 120, speech: 'Ghi nhớ 4 chìa khóa nhé!' },
-      { label: 'Thực hành cùng AKI', startSec: 120, endSec: 180, speech: 'Cùng bắt tay vào làm nào!' },
+      { label: 'Thực hành cùng AIKI', startSec: 120, endSec: 180, speech: 'Cùng bắt tay vào làm nào!' },
     ],
   },
   stage4_quiz: {
@@ -57,7 +57,7 @@ const mockJourney: LessonSixStageJourney = {
       {
         id: 'q1',
         prompt: 'Nếu câu lệnh chỉ có chữ "Con mèo", điều gì sẽ xảy ra?',
-        options: ['AKI sẽ đoán mò hình dáng và màu sắc', 'AKI sẽ từ chối vẽ', 'AKI luôn vẽ đúng ý bé'],
+        options: ['AIKI sẽ đoán mò hình dáng và màu sắc', 'AIKI sẽ từ chối vẽ', 'AIKI luôn vẽ đúng ý bé'],
         correctIndex: 0,
         explanation: 'AI không tự nghĩ được nên phải đoán mò nếu câu lệnh quá ngắn!',
       },
@@ -125,14 +125,14 @@ describe('SixStageJourneyView', () => {
     }
   })
 
-  it('renders 2-column layout: Left Main Learning Canvas & Right AKI Interactive Sidebar', () => {
+  it('renders 2-column layout: Left Main Learning Canvas & Right AIKI Interactive Sidebar', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialSidebarCollapsed={false}
         />
       )
@@ -150,16 +150,16 @@ describe('SixStageJourneyView', () => {
     const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
     expect(mainCanvas).not.toBeNull()
     expect(mainCanvas?.querySelector('[data-testid="stage-0-goal"]')).not.toBeNull()
-    expect(mainCanvas?.textContent).toContain('Mục tiêu: Đừng Để AKI Đoán Mò')
+    expect(mainCanvas?.textContent).toContain('Mục tiêu: Đừng Để AIKI Đoán Mò')
     expect(mainCanvas?.textContent).toContain('Con hiểu được AI tạo ảnh không tự nghĩ được')
 
-    // Right Column: Companion Sidebar with AKI Tip & Key points
+    // Right Column: Companion Sidebar with AIKI Tip & Key points
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
     expect(sidebar?.textContent).toContain('Chặng 1/6: Mục tiêu')
-    expect(sidebar?.textContent).toContain('AKI Đồng Hành')
-    expect(sidebar?.textContent).toContain('LỜI THOẠI CỦA AKI')
-    expect(sidebar?.textContent).toContain('Mẹo Vàng Của AKI')
+    expect(sidebar?.textContent).toContain('AIKI Đồng Hành')
+    expect(sidebar?.textContent).toContain('LỜI THOẠI CỦA AIKI')
+    expect(sidebar?.textContent).toContain('Mẹo Vàng Của AIKI')
     expect(sidebar?.textContent).toContain('Nhiệm vụ chặng này')
     expect(sidebar?.textContent).toContain('42 Sao tích lũy')
   })
@@ -176,7 +176,7 @@ describe('SixStageJourneyView', () => {
             },
           }}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
         />
       )
     })
@@ -186,38 +186,24 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('toggles sidebar collapse/expand smoothly', () => {
+  it('respects initialSidebarCollapsed prop and does not render toggle buttons', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialSidebarCollapsed={true}
         />
       )
     })
 
-    // Initially, sidebar is collapsed by default
+    // Sidebar is collapsed and no toggle buttons exist in the DOM
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-    const toggleBtn = container.querySelector('[data-testid="toggle-sidebar-btn"]') as HTMLButtonElement
-    expect(toggleBtn).not.toBeNull()
-    expect(toggleBtn.textContent).toContain('Bảng tương tác')
-
-    // Click toggle to expand
-    act(() => {
-      toggleBtn.click()
-    })
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-    expect(toggleBtn.textContent).toContain('Thu gọn')
-
-    // Click toggle again to collapse
-    act(() => {
-      toggleBtn.click()
-    })
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-    expect(toggleBtn.textContent).toContain('Bảng tương tác')
+    expect(container.querySelector('[data-testid="toggle-sidebar-btn"]')).toBeNull()
+    expect(container.querySelector('[data-testid="toggle-sidebar-mobile-btn"]')).toBeNull()
+    act(() => root.unmount())
   })
 
   it('synchronizes stage transition from 0 to 1 between Main Block and Sidebar', () => {
@@ -227,7 +213,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialSidebarCollapsed={false}
         />
       )
@@ -244,12 +230,12 @@ describe('SixStageJourneyView', () => {
 
     // Both Main Canvas and Sidebar advance to Stage 1 (Confirm goal)
     expect(container.querySelector('[data-testid="stage-1-confirm"]')).not.toBeNull()
-    expect(container.textContent).toContain('Tại sao AKI lại vẽ ra chú mèo mướp màu vàng')
+    expect(container.textContent).toContain('Tại sao AIKI lại vẽ ra chú mèo mướp màu vàng')
     expect(container.textContent).toContain('Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo')
 
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar?.textContent).toContain('Chặng 2/6: Xác nhận')
-    expect(sidebar?.textContent).toContain('AKI Cố Vấn')
+    expect(sidebar?.textContent).toContain('AIKI Cố Vấn')
   })
 
   it('handles Stage 1 quiz answer and unlocks video stage', () => {
@@ -259,7 +245,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={1}
           initialSidebarCollapsed={false}
         />
@@ -296,7 +282,7 @@ describe('SixStageJourneyView', () => {
 
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar?.textContent).toContain('Chặng 3/6: Video')
-    expect(sidebar?.textContent).toContain('Thầy Giáo AKI')
+    expect(sidebar?.textContent).toContain('Thầy Giáo AIKI')
   })
 
   it('renders Stage 3 (Quiz) and computes score on submit, updating Sidebar action', () => {
@@ -306,7 +292,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -318,7 +304,7 @@ describe('SixStageJourneyView', () => {
 
     // Select answers
     const ans1 = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('AKI sẽ đoán mò hình dáng')
+      b.textContent?.includes('AIKI sẽ đoán mò hình dáng')
     )
     const ans2 = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Miêu tả càng rõ tranh càng đúng ý')
@@ -356,7 +342,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={5}
           onFinishLesson={onFinishLesson}
           onNavigateNextLesson={onNavigateNextLesson}
@@ -399,7 +385,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={5}
           initialSidebarCollapsed={false}
           onNavigateNextLesson={onNavigateNextLesson}
@@ -468,7 +454,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={0}
           initialSidebarCollapsed={false}
         />
@@ -527,7 +513,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={1}
         />
       )
@@ -561,7 +547,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={1}
         />
       )
@@ -620,7 +606,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={0}
         />
       )
@@ -659,7 +645,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={2}
           initialSidebarCollapsed={false}
         />
@@ -728,7 +714,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={journeyWithQuizImage}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -754,14 +740,14 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.className).toContain('lg:w-[360px]')
   })
 
-  it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AKI golden motto', async () => {
+  it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AIKI golden motto', async () => {
     const root = createRoot(container)
     await act(async () => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={4}
           initialSidebarCollapsed={false}
         />
@@ -798,8 +784,8 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.textContent).toContain('Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng')
     expect(sidebar?.textContent).toContain('Bước 4: Soi kỹ tranh & nộp vào Balo')
 
-    // Sidebar displays AKI golden motto & locked features
-    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AKI')
+    // Sidebar displays AIKI golden motto & locked features
+    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AIKI')
     expect(sidebar?.textContent).toContain('Tả càng rõ, tranh càng đúng ý!')
     expect(sidebar?.textContent).toContain('Mật mã đặc điểm vàng')
     expect(sidebar?.textContent).toContain('mèo mướp vàng béo tròn')
@@ -819,24 +805,24 @@ describe('SixStageJourneyView', () => {
   it('verifies specialized sidebar widgets across Stages 0, 1, 3, and 5 according to pedagogical design', () => {
     const root = createRoot(container)
 
-    // Stage 0: 4-slot formula & AKI advice
+    // Stage 0: 4-slot formula & AIKI advice
     act(() => {
       root.render(
         <SixStageJourneyView
           key="stage-0"
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={0}
           initialSidebarCollapsed={false}
         />
       )
     })
     const sidebar0 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar0?.textContent).toContain('Mẹo Vàng Của AKI')
+    expect(sidebar0?.textContent).toContain('Mẹo Vàng Của AIKI')
     expect(sidebar0?.textContent).toContain('Bí Kíp Vàng')
-    expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AKI')
-    expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AKI')
+    expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AIKI')
+    expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AIKI')
 
     // Bốn Chiếc Chìa Khóa Mở Khóa Câu Lệnh được hiển thị ở Main Learning Canvas
     const main0 = container.querySelector('[data-testid="stage-0-goal"]')
@@ -853,7 +839,7 @@ describe('SixStageJourneyView', () => {
           key="stage-1"
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={1}
           initialSidebarCollapsed={false}
         />
@@ -862,17 +848,17 @@ describe('SixStageJourneyView', () => {
     const sidebar1 = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar1?.textContent).toContain('Bảng Gợi Ý Mật Mã')
     expect(sidebar1?.textContent).toContain('Cheat-sheet')
-    expect(sidebar1?.textContent).toContain('LỜI THOẠI CỦA AKI')
-    expect(sidebar1?.textContent).not.toContain('CỐ VẤN AKI DẶN DÒ')
+    expect(sidebar1?.textContent).toContain('LỜI THOẠI CỦA AIKI')
+    expect(sidebar1?.textContent).not.toContain('CỐ VẤN AIKI DẶN DÒ')
 
-    // Stage 3: Live Scoreboard and AKI Advisor
+    // Stage 3: Live Scoreboard and AIKI Advisor
     act(() => {
       root.render(
         <SixStageJourneyView
           key="stage-3"
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -880,11 +866,11 @@ describe('SixStageJourneyView', () => {
     })
     const sidebar3 = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar3?.textContent).toContain('Bảng Điểm Trực Tiếp')
-    expect(sidebar3?.textContent).toContain('GÓC CỐ VẤN AKI')
+    expect(sidebar3?.textContent).toContain('GÓC CỐ VẤN AIKI')
 
     // Select answers and submit quiz in Stage 3
     const ans1 = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('AKI sẽ đoán mò hình dáng')
+      b.textContent?.includes('AIKI sẽ đoán mò hình dáng')
     )
     const ans2 = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Miêu tả càng rõ tranh càng đúng ý')
@@ -909,7 +895,7 @@ describe('SixStageJourneyView', () => {
           key="stage-5"
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={5}
           initialSidebarCollapsed={false}
         />
@@ -971,8 +957,8 @@ describe('SixStageJourneyView', () => {
 
     expect(part2Btn.textContent).toContain('PHẦN 2 - ĐANG LÀM')
 
-    // 4. Mẹo vàng AKI và nút Tua lại video
-    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AKI')
+    // 4. Mẹo vàng AIKI và nút Tua lại video
+    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AIKI')
     expect(sidebar?.textContent).toContain('↺ Tua lại video')
   })
 
@@ -1084,7 +1070,7 @@ describe('SixStageJourneyView', () => {
         title: 'Bài 1.2 — Bốn chiếc chìa khoá',
         goalText: 'Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu',
         imageUrl: '/assets/aiki-islands/island1_lesson2_keys.jpg',
-        speech: 'Zico: Một con mèo rất đẹp... AKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
+        speech: 'Zico: Một con mèo rất đẹp... AIKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
         keyPoints: [
           "CÁI GÌ (Xanh Sky): 'một cái cốc'",
           "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'sứ trắng, có vết mẻ ở miệng'",
@@ -1309,7 +1295,7 @@ describe('SixStageJourneyView', () => {
         title: 'Bài 1.2 — Bốn chiếc chìa khoá',
         goalText: 'Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu',
         imageUrl: '/assets/aiki-islands/island1_lesson2_keys.jpg',
-        speech: 'Zico: Một con mèo rất đẹp... AKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
+        speech: 'Zico: Một con mèo rất đẹp... AIKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
         keyPoints: [
           "CÁI GÌ (Xanh Sky): 'một cái cốc'",
           "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'sứ trắng, có vết mẻ ở miệng'",
@@ -1494,7 +1480,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -1543,7 +1529,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -1555,7 +1541,7 @@ describe('SixStageJourneyView', () => {
 
     // 1. Câu 1: Chọn đáp án A (đúng)
     const optA_Q1 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
-      b.textContent?.includes('AKI sẽ đoán mò hình dáng và màu sắc')
+      b.textContent?.includes('AIKI sẽ đoán mò hình dáng và màu sắc')
     )
     expect(optA_Q1).toBeDefined()
     act(() => {
@@ -1614,7 +1600,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={3}
           initialSidebarCollapsed={false}
         />
@@ -1633,7 +1619,7 @@ describe('SixStageJourneyView', () => {
 
     // 2. Chọn đáp án đúng cho Câu 1
     const optA_Q1 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
-      b.textContent?.includes('AKI sẽ đoán mò hình dáng và màu sắc')
+      b.textContent?.includes('AIKI sẽ đoán mò hình dáng và màu sắc')
     )
     expect(optA_Q1).toBeDefined()
     act(() => {
@@ -1692,7 +1678,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={2}
           initialSidebarCollapsed={true}
         />
@@ -1709,7 +1695,7 @@ describe('SixStageJourneyView', () => {
     expect(timelineStepper?.textContent).toContain('Nghe AIKI giảng')
     expect(timelineStepper?.textContent).toContain('Tình huống khởi động')
 
-    // Bấm mốc "Thực hành cùng AKI" (node thứ 3, startSec = 120)
+    // Bấm mốc "Thực hành cùng AIKI" (node thứ 3, startSec = 120)
     const node3 = container.querySelector('[data-testid="video-chapter-node-3"]') as HTMLButtonElement
     expect(node3).not.toBeNull()
     act(() => {
@@ -1722,7 +1708,7 @@ describe('SixStageJourneyView', () => {
   })
 
   it('renders warm notice when lesson uses generic AIKid video and hides it for dedicated lessons 1.2 and 1.3', () => {
-    // 1. Bài 1.1 (Generic video): Phải hiển thị thông báo ấm áp của AKI
+    // 1. Bài 1.1 (Generic video): Phải hiển thị thông báo ấm áp của AIKI
     const root1 = createRoot(container)
     act(() => {
       root1.render(
@@ -1809,7 +1795,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={customJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={5}
           onFinishLesson={onFinishLessonMock}
           onNavigateNextLesson={onNavigateNextLessonMock}
@@ -1864,7 +1850,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialStageIndex={5}
           rewardXp={100}
           onFinishLesson={onFinishLessonMock}
@@ -1958,7 +1944,7 @@ describe('SixStageJourneyView', () => {
     expect(questionBoxes?.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('handles mobile drawer sidebar, mobile toggle button, and backdrop close on mobile viewports', () => {
+  it('handles mobile drawer sidebar and backdrop close on mobile viewports without toggle buttons', () => {
     const originalInnerWidth = window.innerWidth
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
 
@@ -1969,30 +1955,22 @@ describe('SixStageJourneyView', () => {
           <SixStageJourneyView
             journey={mockJourney}
             lessonId="bai-1-1"
-            lessonTitle="Đừng Để AKI Đoán Mò"
+            lessonTitle="Đừng Để AIKI Đoán Mò"
+            initialSidebarCollapsed={false}
           />
         )
       })
 
-      // 1. On mobile (< 768px), sidebar is collapsed by default when initialSidebarCollapsed is not passed
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      // 1. Verify no toggle buttons exist
+      expect(container.querySelector('[data-testid="toggle-sidebar-mobile-btn"]')).toBeNull()
+      expect(container.querySelector('[data-testid="toggle-sidebar-btn"]')).toBeNull()
 
-      // 2. Mobile toggle button is present
-      const mobileToggleBtn = container.querySelector('[data-testid="toggle-sidebar-mobile-btn"]') as HTMLButtonElement
-      expect(mobileToggleBtn).not.toBeNull()
-      expect(mobileToggleBtn.textContent).toContain('Cố vấn AKI')
-
-      // 3. Click mobile toggle button opens the sidebar drawer
-      act(() => {
-        mobileToggleBtn.click()
-      })
-
+      // 2. Sidebar drawer is open as mobile fixed drawer
       const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
       expect(sidebar).not.toBeNull()
       expect(sidebar?.className).toContain('fixed')
-      expect(mobileToggleBtn.textContent).toContain('Đóng AKI')
 
-      // 4. Backdrop is rendered and clicking it closes the drawer
+      // 3. Backdrop is rendered and clicking it closes the drawer
       const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]') as HTMLElement
       expect(backdrop).not.toBeNull()
 
@@ -2001,7 +1979,6 @@ describe('SixStageJourneyView', () => {
       })
 
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-      expect(mobileToggleBtn.textContent).toContain('Cố vấn AKI')
       act(() => root.unmount())
     } finally {
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
@@ -2015,7 +1992,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           journey={mockJourney}
           lessonId="bai-1-1"
-          lessonTitle="Đừng Để AKI Đoán Mò"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
           initialSidebarCollapsed={false}
         />
       )

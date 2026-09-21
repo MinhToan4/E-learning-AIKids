@@ -175,7 +175,7 @@ export const FEATURE_BLOCK_PEDAGOGY_MAP: Record<string, PedagogyGuide> = {
   },
   'practice-prompt-doctor': {
     useWhen: 'Học cách bắt bệnh hình ảnh lỗi (thiếu ngón, lơ lửng, mất đồ) và kê đơn thuốc thẻ chữ chữa lành câu lệnh.',
-    studentSees: 'Bệnh viện tranh AKI với hồ sơ bệnh án tranh lỗi và tủ thuốc thẻ chữ chữa lành.',
+    studentSees: 'Bệnh viện tranh AIKI với hồ sơ bệnh án tranh lỗi và tủ thuốc thẻ chữ chữa lành.',
   },
   'practice-layer-stacking': {
     useWhen: 'Luyện tập tư duy bố cục thị giác theo quy tắc 3 tầng: Hậu cảnh - Ngôi sao 1/3 - Tiền cảnh.',
@@ -676,7 +676,7 @@ function renderMiniWireframe(id: string, blockName: string, blockIcon: string) {
       return (
         <div data-testid="wireframe-practice-prompt-doctor" className="rounded-lg border border-rose-200 bg-rose-50/80 p-1.5 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-[7px] font-black text-rose-900 px-1">
-            <span>🩺 Bác Sĩ AKI Bắt Bệnh</span>
+            <span>🩺 Bác Sĩ AIKI Bắt Bệnh</span>
             <span className="rounded bg-rose-200 text-rose-900 px-1">Đơn Thuốc</span>
           </div>
           <div className="grid grid-cols-2 gap-1 text-[6.5px]">

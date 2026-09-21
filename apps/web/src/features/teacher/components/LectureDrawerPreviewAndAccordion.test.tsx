@@ -36,12 +36,12 @@ describe('PracticeWorkflowStepsAccordion Component', () => {
     )
 
     // Tiêu đề khối Accordion
-    expect(html).toContain('Lời thoại &amp; Gợi ý từng lượt của AKI (Nâng cao)')
+    expect(html).toContain('Lời thoại &amp; Gợi ý từng lượt của AIKI (Nâng cao)')
     expect(html).toContain('4 lượt')
 
     // Dòng chú thích tinh tế
     expect(html).toContain('Gợi ý câu lệnh nhanh xuất hiện trên thanh prompt')
-    expect(html).toContain('lời thoại động viên của AKI qua các lượt vẽ của bé')
+    expect(html).toContain('lời thoại động viên của AIKI qua các lượt vẽ của bé')
 
     // Mặc định đóng: aria-expanded="false", không render form input của các bước
     expect(html).toContain('aria-expanded="false"')
@@ -75,7 +75,7 @@ const mockJourney = {
     timestamps: [{ label: 'Mở đầu', startSec: 0, endSec: 60 }],
   },
   stage4_quiz: {
-    title: 'Thử tài cùng AKI',
+    title: 'Thử tài cùng AIKI',
     passScore: 1,
     questions: [
       {
@@ -192,7 +192,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
     expect(html).toContain('Còn 4/4 lượt vẽ')
     expect(html).toContain('Men sứ trắng tinh')
     expect(html).toContain('Tả đủ 4 Chìa Khóa, tranh hiện ra ngay!')
-    expect(html).toContain('AKI Vẽ Tranh (Còn 4/4 lượt)')
+    expect(html).toContain('AIKI Vẽ Tranh (Còn 4/4 lượt)')
   })
 
   it('renders Fullscreen Modal with light theme Soft Clay header, light backdrop, and realistic phone frame for mobile', () => {
@@ -494,7 +494,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
     container.remove()
   })
 
-  it('renders auxiliary buttons: rewatch video, hear AKI speech, and stage navigation footer', () => {
+  it('renders auxiliary buttons: rewatch video, hear AIKI speech, and stage navigation footer', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -511,7 +511,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
 
     // Hàng nút phụ
     expect(container.textContent).toContain('Xem lại video')
-    expect(container.textContent).toContain('Nghe AKI giảng')
+    expect(container.textContent).toContain('Nghe AIKI giảng')
     expect(container.textContent).toContain('Video gồm 6 mốc — con bấm tua xem lại bất kỳ lúc nào nhé!')
 
     // Footer chuyển chặng
@@ -882,7 +882,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
         stageIndex={4}
       />
     )
-    expect(htmlPromptDoctor).toContain('Bác Sĩ AKI')
+    expect(htmlPromptDoctor).toContain('Bác Sĩ AIKI')
     expect(htmlPromptDoctor).toContain('HỒ SƠ BỆNH ÁN TRANH HỎNG')
     expect(htmlPromptDoctor).toContain('Kê đơn 5 ngón tay đầy đủ chuẩn xác')
     expect(htmlPromptDoctor).toContain('Chiếc cốc sứ ấm áp')
@@ -974,12 +974,12 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     expect(htmlCreativeNotebook).toContain('Sổ Tay Sáng Tạo Ba Lô')
     expect(htmlCreativeNotebook).toContain('Hồ sơ nhân vật của tớ')
     expect(htmlCreativeNotebook).toContain('TÓM TẮT THỬ THÁCH')
-    expect(htmlCreativeNotebook).toContain('HỒ SƠ MẪU CỦA AKI')
+    expect(htmlCreativeNotebook).toContain('HỒ SƠ MẪU CỦA AIKI')
     expect(htmlCreativeNotebook).toContain('Tên nhân vật')
     expect(htmlCreativeNotebook).toContain('Cất vào Ba Lô')
     expect(htmlCreativeNotebook).not.toContain('Bàn phím 4 Chìa Khóa')
     expect(htmlCreativeNotebook).not.toContain('Khung Tranh AI Canvas')
-    expect(htmlCreativeNotebook).not.toContain('AKI Vẽ Tranh (Còn 4/4 lượt)')
+    expect(htmlCreativeNotebook).not.toContain('AIKI Vẽ Tranh (Còn 4/4 lượt)')
   })
 
   it('renders StudentStagePreview with hideHeaderToolbar=true and viewport="pc" properly without nested toolbar and with 2-column video layout', () => {
@@ -1120,7 +1120,7 @@ describe('Creative Engine Selector - Collapse / Expand in LectureDrawer', () => 
     // Mô tả chi tiết và danh sách các engine hiển thị
     expect(container.textContent).toContain('Chuyển đổi linh hoạt giữa 7 cơ chế chơi')
     expect(container.textContent).toContain('Lăng Kính')
-    expect(container.textContent).toContain('Bác Sĩ AKI')
+    expect(container.textContent).toContain('Bác Sĩ AIKI')
     expect(container.textContent).toContain('3 Tầng')
     expect(container.textContent).toContain('Khóa Mật Mã')
     expect(container.textContent).toContain('Đúc Thẻ Bài')

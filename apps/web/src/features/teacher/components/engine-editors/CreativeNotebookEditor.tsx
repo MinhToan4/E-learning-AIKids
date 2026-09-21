@@ -162,7 +162,7 @@ export function CreativeNotebookEditor({
         </span>
       </div>
 
-      {/* 1. Tiêu đề sổ tay & Lời dặn AKI */}
+      {/* 1. Tiêu đề sổ tay & Lời dặn AIKI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-black text-slate-700 mb-1">
@@ -202,7 +202,7 @@ export function CreativeNotebookEditor({
 
       <div>
         <label className="block text-xs font-black text-slate-700 mb-1">
-          Lời dặn dò của AKI (Hiển thị đầu bài):
+          Lời dặn dò của AIKI (Hiển thị đầu bài):
         </label>
         <textarea
           rows={2}

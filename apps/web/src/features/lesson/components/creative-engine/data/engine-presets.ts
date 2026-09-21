@@ -39,7 +39,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
   'prompt-doctor': {
     mode: 'prompt-doctor',
     title: 'Bác Sĩ Câu Lệnh',
-    shortName: 'Bác Sĩ AKI',
+    shortName: 'Bác Sĩ AIKI',
     icon: '🩺',
     description: 'Bắt bệnh tranh hỏng và gắn thẻ thuốc chữa lành câu lệnh',
     badge: 'M1.4',

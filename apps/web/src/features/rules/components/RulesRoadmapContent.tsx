@@ -293,22 +293,22 @@ export function RulesRoadmapContent({
           </div>
 
           {/* ══════════════════════════════════════════════════════════
-              CỘT PHẢI (4 COLS): 3 THẺ TƯƠNG TÁC CỦA MÈO AKI
+              CỘT PHẢI (4 COLS): 3 THẺ TƯƠNG TÁC CỦA MÈO AIKI
              ══════════════════════════════════════════════════════════ */}
           <div className="space-y-5 lg:col-span-4">
-            {/* Card 1: AKI Nhắn Con */}
+            {/* Card 1: AIKI Nhắn Con */}
             <div className="relative overflow-hidden rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay text-text">
               <div className="flex items-center gap-2.5 text-brand-700">
                 <span className="text-2xl">🐱</span>
                 <h2 className="font-display text-base font-extrabold uppercase tracking-wide text-brand-900">
-                  AKI Nhắn Con
+                  AIKI Nhắn Con
                 </h2>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-text font-medium">
                 "Mười quy tắc này ngắn thôi, xem một loáng là xong. Xong hết là cửa Khoá học mở ra cho cậu ngay!"
               </p>
               <div className="mt-4 flex items-center justify-end">
-                <span className="text-[11px] font-bold text-brand-600 italic">— Bạn Mèo AKI thân mến</span>
+                <span className="text-[11px] font-bold text-brand-600 italic">— Bạn Mèo AIKI thân mến</span>
               </div>
             </div>
 

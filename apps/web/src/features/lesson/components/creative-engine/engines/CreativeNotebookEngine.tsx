@@ -265,8 +265,8 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
 
   // Tiêu đề Profile Card: Hồ sơ mẫu hoặc Kịch bản mẫu
   const profileCardTitle = isStageMode
-    ? 'KỊCH BẢN MẪU CỦA AKI'
-    : 'HỒ SƠ MẪU CỦA AKI'
+    ? 'KỊCH BẢN MẪU CỦA AIKI'
+    : 'HỒ SƠ MẪU CỦA AIKI'
 
   // Icon đại diện Profile Card
   const profileIcon = useMemo(() => {
@@ -498,7 +498,7 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
         </div>
       )}
 
-      {/* ── BANNER LỜI DẶN DÒ CỦA AKI (HIỂN THỊ ĐẦU SỔ TAY) ── */}
+      {/* ── BANNER LỜI DẶN DÒ CỦA AIKI (HIỂN THỊ ĐẦU SỔ TAY) ── */}
       {advice && (
         <div
           data-testid="aki-advice-banner"
@@ -510,7 +510,7 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span className="font-black text-amber-950 text-xs sm:text-sm tracking-wide uppercase">
-                Lời dặn dò của AKI
+                Lời dặn dò của AIKI
               </span>
               <span
                 data-testid="aki-banner-backpack-badge"
@@ -544,7 +544,7 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
               </h3>
             </div>
             <span className="bg-amber-100/90 text-amber-900 border border-amber-300/80 text-xs font-bold px-3 py-1 rounded-full shrink-0">
-              AKI vừa dặn đấy!
+              AIKI vừa dặn đấy!
             </span>
           </div>
 
@@ -637,7 +637,7 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
           )}
         </div>
 
-        {/* KHỐI 2: 🐿️ HỒ SƠ MẪU CỦA AKI / KỊCH BẢN MẪU CỦA AKI (PROFILE CARD) */}
+        {/* KHỐI 2: 🐿️ HỒ SƠ MẪU CỦA AIKI / KỊCH BẢN MẪU CỦA AIKI (PROFILE CARD) */}
         <div
           data-testid="instructions-card"
           className="rounded-2xl sm:rounded-3xl border border-sky-200/90 bg-white/95 p-3 sm:p-4 shadow-2xs flex flex-col gap-2.5"
@@ -672,7 +672,7 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
 
           {/* Dòng phụ (Subtitle) */}
           <p className="text-xs text-slate-500 font-medium">
-            Bé tham khảo mẫu của AKI rồi gõ tiếp hoặc bấm vào từng dòng để viết nhé!
+            Bé tham khảo mẫu của AIKI rồi gõ tiếp hoặc bấm vào từng dòng để viết nhé!
           </p>
 
           {/* Body của Profile Card: Danh sách các dòng mẫu */}

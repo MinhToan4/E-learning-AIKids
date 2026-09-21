@@ -514,7 +514,7 @@ describe('CreativeEngine Suite', () => {
       expect(html).toContain('data-testid="prompt-preview-bar"')
       expect(html).toContain('data-testid="studio-prompt-input"')
       expect(html).toContain('data-testid="studio-draw-btn"')
-      expect(html).toContain('Vẽ đi AKI! · còn 6 lượt')
+      expect(html).toContain('Vẽ đi AIKI! · còn 6 lượt')
     })
 
     it('renders BlockPalette with 3 distinct step tabs and without "Tất cả" tab', () => {

@@ -10,10 +10,10 @@ import {
 describe('script-analyzer engine', () => {
   const sampleScript = `
 Trạm 1: Hành Trình Làm Quen Với AI
-Mèo AKI: Xin chào các bạn nhỏ, tớ là AKI! Hôm nay chúng mình sẽ cùng khám phá trí tuệ nhân tạo nhé!
-Bé Bo: Ôi tuyệt quá Mèo AKI ơi! Tớ muốn học cách vẽ tranh trên máy tính bảng!
+Mèo AIKI: Xin chào các bạn nhỏ, tớ là AIKI! Hôm nay chúng mình sẽ cùng khám phá trí tuệ nhân tạo nhé!
+Bé Bo: Ôi tuyệt quá Mèo AIKI ơi! Tớ muốn học cách vẽ tranh trên máy tính bảng!
 Robot Pi: Tớ là Pi, trợ lý robot mới đến từ Trạm vũ trụ AI. Tớ có thể lập trình trên laptop cùng các bạn!
-Mèo AKI: Quy tắc Vàng số 1: Luôn hỏi ý kiến cha mẹ khi chia sẻ thông tin trên mạng nhé!
+Mèo AIKI: Quy tắc Vàng số 1: Luôn hỏi ý kiến cha mẹ khi chia sẻ thông tin trên mạng nhé!
 
 Trạm 2: Đấu Trí Cùng Thử Thách AI
 Bé Bo: Đố bạn biết AI có thể tự nghĩ ra cảm xúc thật không?
@@ -21,13 +21,13 @@ Robot Pi: Chúng mình cùng mở màn hình cảm ứng để làm bài kiểm 
 Cô Sonet: Sonet khuyên các bạn hãy cẩn thận kiểm tra nguồn dữ liệu trước khi tin tưởng nhé.
 `
 
-  it('nhận diện đúng Mèo AKI và Cô Sonet là nhân vật quen thuộc (isPreset: true, status: ready)', () => {
+  it('nhận diện đúng Mèo AIKI và Cô Sonet là nhân vật quen thuộc (isPreset: true, status: ready)', () => {
     const result = analyzeLessonScript(sampleScript)
 
-    const aki = result.knownCharacters.find((c) => c.name.toLowerCase().includes('aki'))
-    expect(aki).toBeDefined()
-    expect(aki?.isPreset).toBe(true)
-    expect(aki?.status).toBe('ready')
+    const aiki = result.knownCharacters.find((c) => c.name.toLowerCase().includes('aiki') || c.name.toLowerCase().includes('aki'))
+    expect(aiki).toBeDefined()
+    expect(aiki?.isPreset).toBe(true)
+    expect(aiki?.status).toBe('ready')
 
     const sonet = result.knownCharacters.find((c) => c.name.toLowerCase().includes('sonet'))
     expect(sonet).toBeDefined()
@@ -82,7 +82,7 @@ Cảnh 4: Quay về Nông trại thông minh
     })
   })
 
-  it('phân rã trạm, gắn cờ skipGeneration cho cảnh AKI chào đầu và cấu hình text placeholder / tech device', () => {
+  it('phân rã trạm, gắn cờ skipGeneration cho cảnh AIKI chào đầu và cấu hình text placeholder / tech device', () => {
     const result = analyzeLessonScript(sampleScript)
 
     expect(result.stations.length).toBeGreaterThanOrEqual(2)
@@ -92,7 +92,7 @@ Cảnh 4: Quay về Nông trại thông minh
     expect(station1.learnCards.length).toBe(5)
     expect(station1.checkQuestions.length).toBeGreaterThan(0)
 
-    // Cảnh đầu tiên: Mèo AKI chào đầu
+    // Cảnh đầu tiên: Mèo AIKI chào đầu
     const firstScene = station1.scenes[0]
     expect(firstScene).toBeDefined()
     expect(firstScene.skipGeneration).toBe(true) // Đã có video intro có sẵn

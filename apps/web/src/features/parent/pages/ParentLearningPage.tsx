@@ -555,7 +555,7 @@ function LearningOverview({
               </span>
             </div>
             <p className="mt-0.5 text-xs text-muted">
-              Bé thỏa sức sáng tác truyện tranh và mở rộng trí tưởng tượng cùng AI Cat AKI. Lượt tạo ảnh không bao giờ hết hạn.
+              Bé thỏa sức sáng tác truyện tranh và mở rộng trí tưởng tượng cùng AI Cat AIKI. Lượt tạo ảnh không bao giờ hết hạn.
             </p>
           </div>
         </div>

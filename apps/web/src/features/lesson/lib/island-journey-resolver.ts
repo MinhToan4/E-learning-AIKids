@@ -167,7 +167,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
       },
     ],
     correctIndex: 1, // Default option B
-    explanation: quest.learnCards?.[2]?.body || quest.check?.[0]?.mee?.strategy || 'Chính xác! Câu lệnh cụ thể giúp AKI hiểu rõ ý tưởng của bé nhất!',
+    explanation: quest.learnCards?.[2]?.body || quest.check?.[0]?.mee?.strategy || 'Chính xác! Câu lệnh cụ thể giúp AIKI hiểu rõ ý tưởng của bé nhất!',
     speech: riddleCard?.mee?.readText || 'Hãy chọn đáp án đúng để mở khóa video bài học nhé!',
   }
 
@@ -203,7 +203,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
             id: `${quest.id}-quiz-1`,
             prompt: 'Quy tắc quan trọng nhất trong bài học này là gì?',
             options: [
-              'Tả càng rõ, AKI vẽ càng đúng',
+              'Tả càng rõ, AIKI vẽ càng đúng',
               'Chỉ cần gõ ngắn 1 từ là đủ',
             ],
             correctIndex: 0,
@@ -239,7 +239,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
           title: 'Thử câu lệnh ban đầu (1-2 từ)',
           akiSpeech: `Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn "${firstWords}" xem tớ vẽ thế nào nhé!`,
           quickPrompt: firstWords,
-          instruction: 'Gõ từ khóa ngắn khởi đầu để thử thách AKI',
+          instruction: 'Gõ từ khóa ngắn khởi đầu để thử thách AIKI',
         },
         {
           step: 2,

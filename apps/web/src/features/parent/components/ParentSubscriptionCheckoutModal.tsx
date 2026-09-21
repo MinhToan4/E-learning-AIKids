@@ -444,7 +444,7 @@ export function ParentSubscriptionCheckoutModal({
         className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border-2 border-cream-300 bg-gradient-to-b from-cream-50 via-sun-50/40 to-white shadow-clay text-text"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with AKI Mascot & Title */}
+        {/* Header with AIKI Mascot & Title */}
         <div className="relative flex items-center justify-between border-b border-cream-300/70 bg-gradient-to-r from-amber-100/70 via-sun-100/50 to-cream-100/80 px-5 py-3.5 sm:px-6">
           <div className="flex items-center gap-3">
             <AikidModalCatCharacter
@@ -455,7 +455,7 @@ export function ParentSubscriptionCheckoutModal({
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-amber-900">
                 <Sparkles size={12} className="text-amber-600" />
-                Mèo AKI Đồng Hành
+                Mèo AIKI Đồng Hành
               </div>
               <h2
                 id="subscription-checkout-modal-title"
@@ -564,7 +564,7 @@ export function ParentSubscriptionCheckoutModal({
                     </li>
                     <li className="flex items-center gap-2">
                       <Check size={16} className="text-mint-600 shrink-0" />
-                      <span>Mở khóa đầy đủ các phong cách vẽ tranh AKI</span>
+                      <span>Mở khóa đầy đủ các phong cách vẽ tranh AIKI</span>
                     </li>
                   </ul>
                 )}

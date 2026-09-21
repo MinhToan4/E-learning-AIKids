@@ -40,7 +40,7 @@ describe('CoursePaywallModal Component', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  it('renders mode="course" with 129k benefits, title, and AKI cat mascot', () => {
+  it('renders mode="course" with 129k benefits, title, and AIKI cat mascot', () => {
     act(() => {
       root.render(
         createElement(CoursePaywallModal, {

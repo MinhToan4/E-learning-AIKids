@@ -13,8 +13,10 @@ const applicationFiles = globSync('**/*.{ts,tsx}', {
     'shared/lib/gateway-normalizers.ts',
     'shared/lib/normalizers/**',
     'shared/lib/api-route-tree.ts',
+    'shared/lib/affiliate-tracker.ts',
   ],
 })
+
 
 // Captures the stable portion of string and template-literal API paths. A
 // dynamic suffix is irrelevant for registry ownership because matching is by

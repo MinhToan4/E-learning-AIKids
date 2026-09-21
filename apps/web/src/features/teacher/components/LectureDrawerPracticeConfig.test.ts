@@ -67,7 +67,7 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
 
     expect(ENGINE_DEFAULT_MOTTOS['magic-keys']).toContain('4 Chìa khóa vạn năng')
     expect(ENGINE_DEFAULT_MOTTOS['style-prism']).toContain('Lăng kính phù thủy')
-    expect(ENGINE_DEFAULT_MOTTOS['prompt-doctor']).toContain('Bác sĩ AKI')
+    expect(ENGINE_DEFAULT_MOTTOS['prompt-doctor']).toContain('Bác sĩ AIKI')
     expect(ENGINE_DEFAULT_MOTTOS['layer-stacking']).toContain('3 Tầng sân khấu')
     expect(ENGINE_DEFAULT_MOTTOS['identity-lock']).toContain('Khóa mật mã ADN')
     expect(ENGINE_DEFAULT_MOTTOS['card-forge']).toContain('Xưởng đúc thẻ bài')

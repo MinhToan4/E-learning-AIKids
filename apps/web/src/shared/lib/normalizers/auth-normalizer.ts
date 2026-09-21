@@ -162,10 +162,15 @@ export function normalizeAuthGatewayRequest(
       const headers = new Headers(options.headers)
       const key = `aikids-plan-${plan}-${createUuid()}`
       headers.set('Idempotency-Key', key)
+      const refCode = body.refCode ?? body.ref_code
       return {
         path: '/api/v1/billing/me/checkout',
         options: {
-          ...withJson(options, { plan, idempotencyKey: key }),
+          ...withJson(options, {
+            plan,
+            idempotencyKey: key,
+            ...(refCode !== undefined ? { refCode } : {}),
+          }),
           headers,
         },
       }

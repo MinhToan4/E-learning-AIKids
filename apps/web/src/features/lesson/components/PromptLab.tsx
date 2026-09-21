@@ -326,7 +326,7 @@ export function PromptLab({
             </button>
             {generatedSuccess && filledPartsCount === 4 && (
               <p className="text-center text-xs font-black text-emerald-600 animate-in fade-in">
-                🎉 Tuyệt vời! AKI đã nhận đủ 4 chìa khóa và sẵn sàng vẽ đúng ý tưởng của con!
+                🎉 Tuyệt vời! AIKI đã nhận đủ 4 chìa khóa và sẵn sàng vẽ đúng ý tưởng của con!
               </p>
             )}
           </div>
