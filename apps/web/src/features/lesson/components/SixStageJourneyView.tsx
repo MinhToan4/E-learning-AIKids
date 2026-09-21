@@ -171,7 +171,7 @@ export function SixStageJourneyView({
   onNavigateNextLesson,
   initialStageIndex = 0,
   onStageChange,
-  initialSidebarCollapsed = true,
+  initialSidebarCollapsed,
 }: SixStageJourneyViewProps) {
   const matchedCurriculum = useMemo(() => {
     return findIslandCurriculum({ id: lessonId, slug: lessonId, title: lessonTitle })
@@ -265,7 +265,15 @@ export function SixStageJourneyView({
 
   const [currentStage, setCurrentStage] = useState<number>(initialStageIndex)
   const [completedStages, setCompletedStages] = useState<Set<number>>(() => new Set([0]))
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(initialSidebarCollapsed)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof initialSidebarCollapsed === 'boolean') {
+      return initialSidebarCollapsed
+    }
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768
+    }
+    return false
+  })
 
   // Stage 1 (Confirm goal) state
   const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(null)
@@ -1008,6 +1016,17 @@ export function SixStageJourneyView({
           <span>{stationInfo.stationLabel}</span>
         </div>
 
+        {/* Nút Soft Clay mở/thu gọn Sidebar trên Mobile */}
+        <button
+          type="button"
+          data-testid="toggle-sidebar-mobile-btn"
+          onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+          className="md:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-black text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
+        >
+          <span>🐱</span>
+          <span>{isSidebarCollapsed ? 'Cố vấn AKI' : 'Đóng AKI'}</span>
+        </button>
+
         <div className="text-[11px] font-bold text-slate-500 hidden sm:flex items-center gap-1.5">
           <span>Đang học:</span>
           <span className="text-brand-600 font-black">
@@ -1021,11 +1040,12 @@ export function SixStageJourneyView({
         {/* CỘT TRÁI (MAIN LEARNING BLOCKS - 60-65% WIDTH HOẶC 100% KHI THU GỌN SIDEBAR) */}
         <div
           data-testid="main-learning-canvas"
+          style={{ WebkitOverflowScrolling: 'touch' }}
           className={cn(
             'flex-1 min-w-0 flex flex-col gap-4 pr-1',
-            'min-h-0 h-full overflow-y-auto overscroll-contain touch-pan-y',
-            currentStage === 4 ? 'gap-2 pr-0.5 sm:pr-1' : 'hidden-scrollbar',
-            (isSidebarCollapsed || currentStage === 4 || currentStage === 5) && 'w-full'
+            'min-h-0 h-full overflow-y-auto w-full md:overscroll-contain md:touch-pan-y',
+            currentStage === 4 ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
+            (isSidebarCollapsed || currentStage === 4 || currentStage === 5) ? 'w-full' : 'w-full md:flex-1'
           )}
         >
           {/* ──────────────────────────────────────────────────────────── */}
@@ -1053,6 +1073,7 @@ export function SixStageJourneyView({
                 <div className="w-full lg:w-1/2 flex flex-col">
                   <div className="w-full aspect-[4/3] max-h-[380px] rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative flex items-center justify-center p-1.5">
                     <img
+                      fetchPriority="high"
                       decoding="async"
                       src={journey.stage1_goal.imageUrl}
                       alt={journey.stage1_goal.title}
@@ -1127,6 +1148,7 @@ export function SixStageJourneyView({
                             )}
                           >
                             <img
+                              loading="lazy"
                               decoding="async"
                               src={card.image}
                               alt={card.code}
@@ -1315,6 +1337,7 @@ export function SixStageJourneyView({
                           >
                             <span className="sr-only">{isPick ? '🔓' : '🔒'}</span>
                             <img
+                              loading="lazy"
                               decoding="async"
                               src={lockImg}
                               alt={isPick ? "Ổ khóa đã mở" : "Ổ khóa đóng"}
@@ -1340,6 +1363,7 @@ export function SixStageJourneyView({
                         {option.imageUrl ? (
                           <div className="my-2 rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 flex-1 flex items-center justify-center p-1 min-h-[160px]">
                             <img
+                              loading="lazy"
                               decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
@@ -1364,6 +1388,7 @@ export function SixStageJourneyView({
                                   className="flex flex-col items-center text-center p-1.5 sm:p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs gap-1 transition-transform hover:scale-[1.02]"
                                 >
                                   <img
+                                    loading="lazy"
                                     decoding="async"
                                     src={keyThumbnail}
                                     alt={k.label}
@@ -1480,6 +1505,7 @@ export function SixStageJourneyView({
                         {hasValidImg ? (
                           <div className="aspect-[16/10] max-h-[220px] w-full rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1.5">
                             <img
+                              loading="lazy"
                               decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
@@ -1966,6 +1992,7 @@ export function SixStageJourneyView({
                           <div className="flex min-h-0 flex-col justify-center md:col-span-5">
                             <div className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm lg:max-h-[340px]">
                               <img
+                                loading="lazy"
                                 decoding="async"
                                 src={question.visualUrl}
                                 alt={question.prompt}
@@ -2267,6 +2294,7 @@ export function SixStageJourneyView({
                   <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
                     <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
                       <img
+                        loading="lazy"
                         decoding="async"
                         src={
                           submittedArtwork?.image.url ||
@@ -2321,6 +2349,7 @@ export function SixStageJourneyView({
                   <div className="flex items-center justify-center gap-3 sm:gap-4 lg:justify-start">
                     <div className="relative shrink-0">
                       <img
+                        loading="lazy"
                         decoding="async"
                         src="/assets/trophy-clay-gold.png"
                         alt="Cúp Vàng Sáng Tạo"
@@ -2410,20 +2439,26 @@ export function SixStageJourneyView({
         {/* CỘT PHẢI: SIDEBAR TƯƠNG TÁC AKI ĐỒNG HÀNH (300-400px) */}
         {!isSidebarCollapsed && (
           <>
-            {(currentStage === 4 || currentStage === 5) && (
-              <div
-                data-testid="sidebar-overlay-backdrop"
-                className="fixed inset-0 bg-black/20 backdrop-blur-2xs z-30 transition-opacity"
-                onClick={() => setIsSidebarCollapsed(true)}
-              />
-            )}
+            <div
+              data-testid="sidebar-overlay-backdrop"
+              className={cn(
+                'fixed inset-0 backdrop-blur-2xs z-30 transition-opacity',
+                (currentStage === 4 || currentStage === 5)
+                  ? 'bg-black/20'
+                  : 'bg-black/30 md:hidden'
+              )}
+              onClick={() => setIsSidebarCollapsed(true)}
+            />
             <aside
               data-testid="interactive-sidebar"
               className={cn(
-                'shrink-0 flex flex-col bg-white rounded-3xl border-2 border-brand-100 shadow-clay overflow-hidden',
+                'shrink-0 flex flex-col bg-white rounded-3xl overflow-hidden',
+                // Mobile (< md): Always fixed drawer
+                'fixed top-14 right-2 sm:right-4 bottom-2 z-40 w-[min(calc(100vw-1.5rem),380px)] shadow-2xl border-2 border-brand-300',
+                // Desktop (>= md):
                 (currentStage === 4 || currentStage === 5)
-                  ? 'fixed top-16 right-2 sm:right-4 bottom-4 w-[min(calc(100vw-1rem),380px)] z-40 shadow-2xl border-2 border-brand-300'
-                  : 'w-full md:w-[300px] lg:w-[360px] xl:w-[400px]'
+                  ? 'md:fixed md:top-16 md:right-4 md:bottom-4 md:z-40 md:w-[min(calc(100vw-2rem),400px)] md:border-2 md:border-brand-300 md:shadow-2xl'
+                  : 'md:static md:w-[300px] lg:w-[360px] xl:w-[400px] md:border-2 md:border-brand-100 md:shadow-clay'
               )}
             >
               {/* Header Sidebar: Chặng X/6 + Tên Chặng + Nút Âm Thanh */}
@@ -2440,16 +2475,17 @@ export function SixStageJourneyView({
                   >
                     <Volume2 size={16} />
                   </button>
-                  {(currentStage === 4 || currentStage === 5) && (
-                    <button
-                      type="button"
-                      onClick={() => setIsSidebarCollapsed(true)}
-                      className="px-2.5 py-0.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all cursor-pointer ml-1"
-                      title="Đóng bảng tương tác"
-                    >
-                      ✕ Đóng
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className={cn(
+                      'px-2.5 py-0.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all cursor-pointer ml-1',
+                      (currentStage === 4 || currentStage === 5) ? 'inline-flex' : 'inline-flex md:hidden'
+                    )}
+                    title="Đóng bảng tương tác"
+                  >
+                    ✕ Đóng
+                  </button>
                 </div>
               </div>
 
@@ -2574,6 +2610,7 @@ export function SixStageJourneyView({
                                 <div className="flex items-center gap-2">
                                   {part.iconImage ? (
                                     <img
+                                      loading="lazy"
                                       decoding="async"
                                       src={part.iconImage}
                                       alt={part.title}
@@ -2837,6 +2874,7 @@ export function SixStageJourneyView({
                               className="p-1.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-1.5 shadow-2xs"
                             >
                               <img
+                                loading="lazy"
                                 decoding="async"
                                 src={card.image}
                                 alt={card.code}

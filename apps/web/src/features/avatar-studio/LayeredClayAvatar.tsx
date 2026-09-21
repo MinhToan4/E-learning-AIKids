@@ -3,11 +3,11 @@ import type { AvatarSelection } from './avatar-options'
 const ROOT = '/assets/mee/avatar-v2'
 
 export const CLAY_ASSETS = {
-  hair: [`${ROOT}/baseline-bob.png`, `${ROOT}/baseline-pigtails-v2.png`],
-  eyes: [null, `${ROOT}/eyes-sky.png`],
-  outfit: [null, `${ROOT}/outfit-explorer.png`],
-  shoes: [null, `${ROOT}/shoes-coral.png`],
-  hat: [null, `${ROOT}/hat-beanie.png`],
+  hair: [`${ROOT}/baseline-bob.webp`, `${ROOT}/baseline-pigtails-v2.webp`],
+  eyes: [null, `${ROOT}/eyes-sky.webp`],
+  outfit: [null, `${ROOT}/outfit-explorer.webp`],
+  shoes: [null, `${ROOT}/shoes-coral.webp`],
+  hat: [null, `${ROOT}/hat-beanie.webp`],
 } as const
 
 export const CLAY_READY_CATEGORIES = ['hair', 'eyes', 'outfit', 'shoes', 'hat'] as const

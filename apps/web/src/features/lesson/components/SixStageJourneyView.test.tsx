@@ -194,6 +194,7 @@ describe('SixStageJourneyView', () => {
           journey={mockJourney}
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
+          initialSidebarCollapsed={true}
         />
       )
     })
@@ -1955,6 +1956,85 @@ describe('SixStageJourneyView', () => {
     // Question box expands to md:col-span-12
     const questionBoxes = quizSection?.querySelectorAll('.md\\:col-span-12')
     expect(questionBoxes?.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('handles mobile drawer sidebar, mobile toggle button, and backdrop close on mobile viewports', () => {
+    const originalInnerWidth = window.innerWidth
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
+
+    try {
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney}
+            lessonId="bai-1-1"
+            lessonTitle="Đừng Để AKI Đoán Mò"
+          />
+        )
+      })
+
+      // 1. On mobile (< 768px), sidebar is collapsed by default when initialSidebarCollapsed is not passed
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+      // 2. Mobile toggle button is present
+      const mobileToggleBtn = container.querySelector('[data-testid="toggle-sidebar-mobile-btn"]') as HTMLButtonElement
+      expect(mobileToggleBtn).not.toBeNull()
+      expect(mobileToggleBtn.textContent).toContain('Cố vấn AKI')
+
+      // 3. Click mobile toggle button opens the sidebar drawer
+      act(() => {
+        mobileToggleBtn.click()
+      })
+
+      const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+      expect(sidebar).not.toBeNull()
+      expect(sidebar?.className).toContain('fixed')
+      expect(mobileToggleBtn.textContent).toContain('Đóng AKI')
+
+      // 4. Backdrop is rendered and clicking it closes the drawer
+      const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]') as HTMLElement
+      expect(backdrop).not.toBeNull()
+
+      act(() => {
+        backdrop.click()
+      })
+
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(mobileToggleBtn.textContent).toContain('Cố vấn AKI')
+      act(() => root.unmount())
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
+    }
+  })
+
+  it('verifies image optimization: fetchPriority="high" on Stage 0 hero image and loading="lazy" on options/formula cards', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // 1. Stage 0 hero image has fetchPriority="high" and decoding="async"
+    const heroImg = container.querySelector('section[data-testid="stage-0-goal"] img') as HTMLImageElement
+    expect(heroImg).not.toBeNull()
+    expect(heroImg.getAttribute('fetchpriority')).toBe('high')
+    expect(heroImg.getAttribute('decoding')).toBe('async')
+
+    // 2. Formula card images have loading="lazy" and decoding="async"
+    const formulaImgs = container.querySelectorAll('section[data-testid="stage-0-goal"] .grid img')
+    expect(formulaImgs.length).toBeGreaterThan(0)
+    formulaImgs.forEach((img) => {
+      expect((img as HTMLImageElement).getAttribute('loading')).toBe('lazy')
+      expect((img as HTMLImageElement).getAttribute('decoding')).toBe('async')
+    })
+    act(() => root.unmount())
   })
 })
 
