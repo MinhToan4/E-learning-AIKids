@@ -167,7 +167,7 @@ export function VideoStageBlock({
       {/* CỘT PHẢI: Thanh tiến trình stepper & Vertical Playlist & Action Dock */}
       <div
         data-testid="video-timeline-stepper"
-        className="relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-full lg:h-full"
+        className="relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-full lg:h-full"
       >
         {/* Header mốc & Thời gian */}
         <div className="shrink-0 flex items-center justify-between gap-1 pb-1 border-b border-amber-200/80 text-xs">
@@ -225,7 +225,7 @@ export function VideoStageBlock({
             </div>
 
             {/* Nodes Container */}
-            <div className="relative w-full h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
+            <div className="relative w-full h-full landscape:h-max lg:h-max landscape:min-h-full lg:min-h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
               {videoChapters.map((m, idx) => {
                 const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
                 const isPassed = (videoSeekSec || 0) >= m.startSec
@@ -234,7 +234,7 @@ export function VideoStageBlock({
                 return (
                   <div
                     key={idx}
-                    className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full left-[var(--portrait-left)]"
+                    className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full landscape:shrink-0 lg:shrink-0 left-[var(--portrait-left)]"
                     style={{ '--portrait-left': `${posPercent}%` } as React.CSSProperties}
                   >
                     {/* Node Circle */}

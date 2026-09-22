@@ -3046,6 +3046,15 @@ describe('SixStageJourneyView', () => {
     const stepper = container.querySelector('[data-testid="video-timeline-stepper"]') as HTMLElement
     expect(stepper).not.toBeNull()
     expect(stepper.className).toContain('[@media(max-height:760px)]:py-1')
+    expect(stepper.className).toContain('overflow-hidden')
+
+    // Vertical chapter labels must be taller than their viewport and scroll
+    // inside the track instead of painting over the pinned continue button.
+    const chapterTrack = stepper.querySelector('[data-testid="video-chapter-node-1"]')
+      ?.parentElement?.parentElement as HTMLElement
+    expect(chapterTrack.className).toContain('lg:h-max')
+    expect(chapterTrack.className).toContain('lg:min-h-full')
+    expect(chapterTrack.firstElementChild?.className).toContain('lg:shrink-0')
 
     // 3. Check sidebar has pinned footer independent from the scroll body
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]') as HTMLElement
