@@ -37,6 +37,11 @@ const localLevelFrameModules = import.meta.glob<string>(
   { eager: true, import: 'default', query: '?url' },
 )
 
+const localLevelFramePreviewModules = import.meta.glob<string>(
+  '../../assets/rewards/frames/frame-level-*--preview.webp',
+  { eager: true, import: 'default', query: '?url' },
+)
+
 const localSvgFrameModules = import.meta.glob<string>(
   '../../assets/rewards/frames/frame-*.svg',
   { eager: true, import: 'default', query: '?url' },
@@ -47,6 +52,11 @@ function localLevelFrameAssetUrl(
   variant: RewardAssetVariant,
 ): string | undefined {
   if (!/^frame-level-(?:15|25|35|45|55|65|75|85|95|100)$/.test(assetId)) return undefined
+  if (variant === 'thumbnail' || variant === 'preview') {
+    return localLevelFramePreviewModules[
+      `../../assets/rewards/frames/${assetId}--preview.webp`
+    ]
+  }
   if (variant !== 'primary') return undefined
   return localLevelFrameModules[`../../assets/rewards/frames/${assetId}.webp`]
 }

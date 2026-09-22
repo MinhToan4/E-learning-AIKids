@@ -26,7 +26,7 @@ describe('short-lived API response cache', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 
-  it('keeps unrelated cached projections after a scoped mutation', async () => {
+  it('keeps policy cache but invalidates gamification after a progress mutation', async () => {
     const fetchMock = vi.fn().mockImplementation(async () => ok())
     vi.stubGlobal('fetch', fetchMock)
 
@@ -36,7 +36,7 @@ describe('short-lived API response cache', () => {
     await api('/api/learning/age-policy')
     await api('/api/gamification/profile')
 
-    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock).toHaveBeenCalledTimes(4)
   })
 
   it('clears cache explicitly with clearApiCache', async () => {

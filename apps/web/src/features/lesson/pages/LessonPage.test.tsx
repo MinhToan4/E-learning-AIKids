@@ -72,7 +72,7 @@ describe('LessonPage prefetch', () => {
     vi.restoreAllMocks()
   })
 
-  it('prefetches next lesson in background when current quest loads', async () => {
+  it('loads only the current lesson and does not prefetch the next lesson', async () => {
     vi.spyOn(learningApi, 'startLesson').mockResolvedValue({
       progress: {
         status: 'in_progress',
@@ -147,7 +147,8 @@ describe('LessonPage prefetch', () => {
     })
 
     expect(getLessonSpy).toHaveBeenCalledWith('lesson-current')
-    expect(getLessonSpy).toHaveBeenCalledWith('lesson-next')
+    expect(getLessonSpy).not.toHaveBeenCalledWith('lesson-next')
+    expect(getLessonSpy).toHaveBeenCalledTimes(1)
   })
 
   it('renders SixStageJourneyView with 3 stages for Aiki Rule lesson with DB UUID and QT1 title', async () => {

@@ -87,6 +87,8 @@ import { LessonCelebrationModal } from '@/features/lesson/components/LessonCeleb
 import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { useAuth } from '@/shared/store/auth'
+import { queryClient } from '@/shared/lib/query-client'
+import { applyConfirmedXpDelta } from '@/shared/lib/progression-query'
 import { LessonNavigationHeader } from '@/features/lesson/components/LessonNavigationHeader'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
@@ -518,13 +520,6 @@ export function LessonPage() {
           })),
         } as any)
         setLoading(false)
-        const nextSlug =
-          (islandCurriculum.journey as any)?.nextSlug ||
-          islandCurriculum.journey?.stage6_completion?.nextLessonSlug ||
-          islandCurriculum.nextLessonSlug
-        if (nextSlug) {
-          learningApi.getLesson(nextSlug).catch(() => {})
-        }
         return
       }
 
@@ -536,16 +531,6 @@ export function LessonPage() {
         if (cancelled) return
         setQuest(data.quest)
         setLiveStars(start.progress.stars)
-
-        // Prefetch ngầm trạm học kế tiếp sau khi tải trạm hiện tại thành công (0ms SWR cache khi chuyển trạm)
-        const nextSlug =
-          (data.quest.sixStageJourney as any)?.nextSlug ||
-          data.quest.sixStageJourney?.stage6_completion?.nextLessonSlug ||
-          (data.quest as any)?.nextQuestId ||
-          (data.quest as any)?.nextLessonSlug
-        if (nextSlug) {
-          learningApi.getLesson(nextSlug).catch(() => {})
-        }
 
         // Resume mid-quest; completed stations open on celebrate/review
         if (start.progress.status === 'completed') {
@@ -608,7 +593,10 @@ export function LessonPage() {
   }, [phase])
 
   useEffect(() => {
-    if (!quest || !navigator.onLine) return
+    // rule-* and bai-* are local curriculum manifests. Sending their synthetic
+    // ids to the Hub creates a guaranteed failed resume request on every phase.
+    const isLocalCurriculum = questId.startsWith('rule-') || questId.startsWith('bai-') || questId === 'aiki-rules'
+    if (!quest || !navigator.onLine || isLocalCurriculum) return
     const percentByPhase: Record<Phase, number> = {
       learn: 10,
       game: 35,
@@ -616,22 +604,25 @@ export function LessonPage() {
       check: 90,
       done: 100,
     }
-    const occurredAt = new Date().toISOString()
-    void api(`/api/learning/quests/${questId}/resume`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        percent: percentByPhase[phase],
-        positionSeconds: 0,
-        sectionId: phase,
-        occurredAt,
-      }),
-    }).catch(() => {
-      queueOfflineProgress(questId, {
-        percent: percentByPhase[phase],
-        positionSeconds: 0,
-        sectionId: phase,
+    const timer = window.setTimeout(() => {
+      const occurredAt = new Date().toISOString()
+      void api(`/api/learning/quests/${questId}/resume`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          percent: percentByPhase[phase],
+          positionSeconds: 0,
+          sectionId: phase,
+          occurredAt,
+        }),
+      }).catch(() => {
+        queueOfflineProgress(questId, {
+          percent: percentByPhase[phase],
+          positionSeconds: 0,
+          sectionId: phase,
+        })
       })
-    })
+    }, 750)
+    return () => window.clearTimeout(timer)
   }, [phase, quest, questId])
 
   const promptText = useMemo(() => assemblePrompt(parts), [parts])
@@ -709,12 +700,6 @@ export function LessonPage() {
       }
     })()
   }, [quest, phase, checkResult?.nextQuestId, isAikiRuleJourney, ruleId])
-
-  useEffect(() => {
-    if (checkResult?.nextQuestId) {
-      learningApi.getLesson(checkResult.nextQuestId).catch(() => {})
-    }
-  }, [checkResult?.nextQuestId])
 
   const ruleData = useMemo(() => {
     if (!isAikiRuleJourney) return null
@@ -849,6 +834,12 @@ export function LessonPage() {
         nextQuestId: checkRes.nextQuestId || nextRuleTarget,
       })
       setPhase('done')
+      if (user) {
+        const progression = applyConfirmedXpDelta(queryClient, user, earnedXp)
+        window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
+          detail: { xp: progression.totalXp, level: progression.level },
+        }))
+      }
     } catch {
       setLiveStars(finalStars)
       setCheckResult({

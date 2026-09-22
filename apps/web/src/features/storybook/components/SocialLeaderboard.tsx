@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/shared/lib/api'
+import { avatarImage } from '@/shared/config/avatars'
 
 type Leader = { id: string; name: string; avatarUrl?: string | null; score: number }
 
@@ -44,8 +45,8 @@ export function SocialLeaderboard() {
                   <span className={`flex h-10 w-10 items-center justify-center rounded-full font-black ${
                     index === 0 ? 'bg-amber-300 text-amber-950' : 'bg-slate-100 text-slate-600'
                   }`}>{index + 1}</span>
-                  {leader.avatarUrl
-                    ? <img src={leader.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                  {avatarImage(leader.avatarUrl)
+                    ? <img src={avatarImage(leader.avatarUrl)} alt="" className="h-9 w-9 rounded-full object-cover" />
                     : <span className="text-2xl">🧑‍🎨</span>}
                   <p className="min-w-0 flex-1 truncate font-extrabold">{leader.name}</p>
                   <strong className="rounded-full bg-pink-50 px-3 py-1 text-pink-700">{leader.score}</strong>

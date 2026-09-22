@@ -24,7 +24,7 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
     : undefined
 
   return (
-    <div className="h-full max-h-full min-h-0 flex-1 bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-hidden">
+    <div className="h-auto min-h-full flex-none bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-visible md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
       <SixStageJourneyView
         stages={stages}
         journey={journey}

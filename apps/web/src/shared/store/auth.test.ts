@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   api: vi.fn(),
   clearAccessToken: vi.fn(),
+  getAccessToken: vi.fn(() => 'test-token'),
   clearApiCache: vi.fn(),
   disconnectFirebaseSession: vi.fn().mockResolvedValue(undefined),
   signInWithFirebasePassword: vi.fn().mockResolvedValue('firebase-id-token'),
@@ -14,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/shared/lib/api', () => ({
   api: mocks.api,
   clearAccessToken: mocks.clearAccessToken,
+  getAccessToken: mocks.getAccessToken,
   clearApiCache: mocks.clearApiCache,
 }))
 
@@ -248,6 +250,27 @@ describe('auth store', () => {
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
   })
 
+  it('refreshes the server-owned avatar without browser storage', async () => {
+    useAuth.setState({
+      user: {
+        id: 'child-1', role: 'student', email: null, nickname: 'Mây',
+        avatarId: 'avatar-robot', level: 2, xp: 20, onboarded: true,
+        goal: null, parentId: 'parent-1', classId: null,
+      },
+    })
+    mocks.api.mockResolvedValueOnce({
+      user: {
+        ...useAuth.getState().user,
+        avatarId: 'https://media.aikid.vn/avatar-new.webp',
+      },
+    })
+
+    await useAuth.getState().refreshMe()
+
+    expect(mocks.api).toHaveBeenCalledWith('/api/auth/me')
+    expect(useAuth.getState().user?.avatarId).toBe('https://media.aikid.vn/avatar-new.webp')
+  })
+
   it('clears API cache and session tokens upon logout', async () => {
     useAuth.setState({
       user: {
@@ -386,4 +409,3 @@ describe('auth store', () => {
     }
   })
 })
-

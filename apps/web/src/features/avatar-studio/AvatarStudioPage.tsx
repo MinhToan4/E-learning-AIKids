@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router'
 import { Shuffle } from 'lucide-react'
 import { uploadProfileAvatar, updateMyProfileAvatar } from '@/shared/lib/media-api'
 import { useAuth } from '@/shared/store/auth'
-import { saveProfileAvatar } from '@/features/profile/profile-showcase'
 import { CLAY_READY_CATEGORIES, LayeredClayAvatar, renderLayeredClayAvatar } from './LayeredClayAvatar'
 import {
   AVATAR_CATEGORIES,
@@ -39,8 +38,8 @@ export function AvatarStudioPage() {
         source: 'generated' as const,
       }
       await updateMyProfileAvatar(avatar)
-      saveProfileAvatar(user.id, avatar)
       useAuth.getState().setUser({ ...user, avatarId: avatar.url })
+      await useAuth.getState().refreshMe().catch(() => undefined)
       navigate('/profile', { replace: true })
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Chưa lưu được avatar. Con thử lại nhé.')

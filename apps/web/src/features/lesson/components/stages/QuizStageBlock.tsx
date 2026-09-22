@@ -24,6 +24,7 @@ export interface QuizStageBlockProps {
   onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onPrevious?: () => void
   onContinue?: () => void
+  continueLabel?: string
 }
 
 export function QuizStageBlock({
@@ -44,6 +45,7 @@ export function QuizStageBlock({
   onImageClick,
   onPrevious,
   onContinue,
+  continueLabel = '👉 Vào Xưởng Sáng Tạo AI 🎨',
 }: QuizStageBlockProps) {
   const { config } = stage
   const questions = config.questions || []
@@ -429,7 +431,7 @@ export function QuizStageBlock({
             className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-2 cursor-pointer"
             onClick={onContinue}
           >
-            <span>👉 Vào Xưởng Sáng Tạo AI 🎨</span>
+            <span>{continueLabel}</span>
             <ArrowRight size={20} />
           </Button>
         )}

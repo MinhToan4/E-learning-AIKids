@@ -299,67 +299,16 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             return
           }
 
-          // 2. Read directly from course.stations or module cache (courseProgressCache with 2min TTL)
-          // to eliminate N+1 waterfall requests
-          // Paint the course map immediately from pathway data. Missing station
-          // progress hydrates in the background instead of holding the whole
-          // learning screen behind the slowest course request.
+          // Paint the course map from pathway summaries only. Fetching progress
+          // for every course here creates an invisible N+1 burst, including
+          // locked/off-screen islands. Detailed progress is loaded only after
+          // the learner opens that course.
           const provisionalPathway = {
             ...journey,
             courses: applyGatekeeperRules(rawCourses),
           }
           cachedPathway = provisionalPathway
           setPathway(provisionalPathway)
-          setLoading(false)
-
-          const now = Date.now()
-          const coursesWithStations = await Promise.all(
-            rawCourses.map(async (course) => {
-              if (Array.isArray(course.stations) && course.stations.length > 0) {
-                // Populate/update cache with backend data
-                courseProgressCache.set(course.id, {
-                  expiresAt: now + COURSE_PROGRESS_CACHE_TTL,
-                  progress: {
-                    questCount: course.questCount ?? course.stations.length,
-                    completedCount: course.completedCount ?? 0,
-                    totalStars: course.totalStars ?? 0,
-                    stations: course.stations,
-                  },
-                })
-                return course
-              }
-              const cached = courseProgressCache.get(course.id)
-              if (cached && now < cached.expiresAt) {
-                return {
-                  ...course,
-                  ...cached.progress,
-                }
-              }
-              try {
-                const progress = await learningApi.getCourseProgress(course.id)
-                const progressData = {
-                  questCount: progress.quests.length,
-                  completedCount: progress.completedCount,
-                  totalStars: progress.totalStars,
-                  stations: progress.quests,
-                }
-                courseProgressCache.set(course.id, {
-                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
-                  progress: progressData,
-                })
-                return {
-                  ...course,
-                  ...progressData,
-                }
-              } catch {
-                return course
-              }
-            }),
-          )
-          const finalCourses = applyGatekeeperRules(coursesWithStations)
-          const finalPathway = { ...journey, courses: finalCourses }
-          cachedPathway = finalPathway
-          setPathway(finalPathway)
           setLoading(false)
           return
         }
@@ -380,32 +329,32 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         const cachedProgress = courseProgressCache.get(actualCourseId)
         const cachedProgressValid = cachedProgress && now < cachedProgress.expiresAt
 
-        const [courseResp, progressData] = await Promise.all([
-          learningApi.getCourse<{ course: { title: string } }>(actualCourseId),
-          cachedProgressValid
-            ? Promise.resolve({
-                quests: cachedProgress.progress.stations,
-                completedCount: cachedProgress.progress.completedCount,
-                totalStars: cachedProgress.progress.totalStars,
-              })
-            : learningApi
-                .getCourseProgress(actualCourseId)
-                .then((prog) => {
-                  courseProgressCache.set(actualCourseId, {
-                    expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
-                    progress: {
-                      questCount: prog.quests.length,
-                      completedCount: prog.completedCount,
-                      totalStars: prog.totalStars,
-                      stations: prog.quests,
-                    },
-                  })
-                  return prog
+        // The pathway already owns the course title and access state. Calling
+        // /api/courses/:id again here duplicated data before the station list
+        // could render, so the island only requests its progress projection.
+        const progressData = cachedProgressValid
+          ? {
+              quests: cachedProgress.progress.stations,
+              completedCount: cachedProgress.progress.completedCount,
+              totalStars: cachedProgress.progress.totalStars,
+            }
+          : await learningApi
+              .getCourseProgress(actualCourseId)
+              .then((prog) => {
+                courseProgressCache.set(actualCourseId, {
+                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
+                  progress: {
+                    questCount: prog.quests.length,
+                    completedCount: prog.completedCount,
+                    totalStars: prog.totalStars,
+                    stations: prog.quests,
+                  },
                 })
-                .catch(() => null),
-        ])
+                return prog
+              })
+              .catch(() => null)
 
-        const courseTitle = formatCourseTitle(courseResp.course.title)
+        const courseTitle = formatCourseTitle(pathRow?.title || pathRow?.shortTitle || 'Hành trình sáng tạo')
         const targetOrder = getAikiCourseSortOrder(pathRow || { id: actualCourseId, title: courseTitle })
         setRegionIndex(
           targetOrder < WORLD_REGIONS.length

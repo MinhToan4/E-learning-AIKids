@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Check, ChevronRight, Lock } from 'lucide-react'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import {
   NavBadgeIcon,
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
 import { api } from '@/shared/lib/api'
+import { useProgression } from '@/shared/lib/progression-query'
+import { useAuth } from '@/shared/store/auth'
 import { displayableLevelRewards, levelForReward } from '../level-reward-inventory'
 
 type LevelReward = {
@@ -22,13 +23,7 @@ type LevelReward = {
   content?: { level?: number; track?: string }
 }
 
-type GamificationProfile = {
-  level: number
-  totalXp: number
-  xpIntoLevel: number
-  xpToNextLevel: number
-  nextLevelRewards: Array<{ id: string; name: string; icon: string; kind: string }>
-}
+type NextLevelReward = { id: string; name: string; icon: string; kind: string }
 
 type RewardState = {
   inventory: Array<{ rewardId: string }>
@@ -49,13 +44,14 @@ function rewardLevel(reward: LevelReward) {
   return levelForReward(reward)
 }
 
-function rewardIcon(reward: LevelReward | GamificationProfile['nextLevelRewards'][number] | undefined) {
+function rewardIcon(reward: LevelReward | NextLevelReward | undefined) {
   if (!reward) return undefined
   return 'icon' in reward ? reward.icon : reward.displayConfig?.icon
 }
 
 export function ExplorerLevelPage() {
-  const [profile, setProfile] = useState<GamificationProfile | null>(null)
+  const user = useAuth((state) => state.user)
+  const { data: progression } = useProgression(user)
   const [catalog, setCatalog] = useState<LevelReward[]>([])
   const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
@@ -65,19 +61,12 @@ export function ExplorerLevelPage() {
     setLoading(true)
     setError(null)
     try {
-      // WHY: Gộp profile, catalog và storybook vào một batch duy nhất.
-      // Profile là bắt buộc — nếu fail thì quăng lỗi.
-      // Catalog và storybook là optional (Hub có thể chưa route) — fallback an toàn.
-      const [profileResult, catalogResult, storybookResult] = await Promise.allSettled([
-        api<GamificationProfile>('/api/gamification/profile'),
+      // XP/level comes from the app-wide progression cache. Only page-specific
+      // reward data is loaded here, in parallel and without blocking XP display.
+      const [catalogResult, storybookResult] = await Promise.allSettled([
         api<{ items: LevelReward[] }>('/api/gamification/catalog?type=reward'),
         api<RewardState>('/api/gamification/storybook'),
       ])
-
-      if (profileResult.status === 'rejected') {
-        throw profileResult.reason
-      }
-      setProfile(profileResult.value)
 
       if (catalogResult.status === 'fulfilled') {
         setCatalog(catalogResult.value.items ?? [])
@@ -100,17 +89,15 @@ export function ExplorerLevelPage() {
     [catalog],
   )
 
-  if (loading) return <PageSkeleton rows={5} />
-
-  const level = profile?.level ?? 1
-  const xpIntoLevel = Math.max(0, profile?.xpIntoLevel ?? 0)
-  const xpToNextLevel = Math.max(0, profile?.xpToNextLevel ?? 0)
+  const level = progression?.level ?? user?.level ?? 1
+  const xpIntoLevel = Math.max(0, progression?.xpIntoLevel ?? 0)
+  const xpToNextLevel = Math.max(0, progression?.xpToNextLevel ?? 100)
   const levelSpan = Math.max(1, xpIntoLevel + xpToNextLevel)
   const progress = Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
   const maxRewardLevel = levelRewards.at(-1) ? rewardLevel(levelRewards.at(-1)!) : 100
   const completedSeason = levelRewards.length > 0 && level >= maxRewardLevel
   const upcoming = levelRewards.filter((reward) => rewardLevel(reward) >= level).slice(0, 6)
-  const nextReward = profile?.nextLevelRewards[0] ?? upcoming.find((reward) => rewardLevel(reward) > level)
+  const nextReward = upcoming.find((reward) => rewardLevel(reward) > level)
   return (
     <PageMotion className="flex flex-col gap-5">
       <header className="ui-card overflow-hidden p-5 sm:p-6">
@@ -135,8 +122,13 @@ export function ExplorerLevelPage() {
       </header>
 
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
+      {loading && (
+        <p role="status" className="text-sm font-bold text-muted">
+          Đang đồng bộ phần thưởng…
+        </p>
+      )}
 
-      {!error && profile && (
+      {!error && (
         <>
           <section className="ui-card overflow-hidden" aria-labelledby="current-level-title">
             <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
@@ -149,7 +141,7 @@ export function ExplorerLevelPage() {
                     </h2>
                   </div>
                   <p className="rounded-2xl bg-white px-4 py-2 font-display text-xl text-brand-700 shadow-soft">
-                    {profile.totalXp.toLocaleString('vi-VN')} XP
+                    {(progression?.totalXp ?? user?.xp ?? 0).toLocaleString('vi-VN')} XP
                   </p>
                 </div>
                 <div

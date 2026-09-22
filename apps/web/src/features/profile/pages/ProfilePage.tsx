@@ -31,13 +31,7 @@ import {
 } from '@/features/community/community-store'
 import { AvatarPickerModal } from '../components/AvatarPickerModal'
 import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
-import {
-  readProfileAvatar,
-  saveProfileAvatar,
-  saveProfileShowcase,
-  type ProfileAvatar,
-  type ShowcaseProject,
-} from '../profile-showcase'
+import type { ProfileAvatar, ShowcaseProject } from '../profile-showcase'
 import { updateMyProfileAvatar } from '@/shared/lib/media-api'
 import {
   explorerLevelProgress,
@@ -47,6 +41,7 @@ import {
   loadProfileOverview,
   type PublicProfileSettings,
 } from '../profile-overview-api'
+import { useProgression } from '@/shared/lib/progression-query'
 
 function friendlyProjectTitle(title: string): string {
   const clean = title
@@ -55,18 +50,6 @@ function friendlyProjectTitle(title: string): string {
     .replace(/\s+/g, ' ')
     .trim()
   return clean || 'Tác phẩm của con'
-}
-
-function readStoredNumber(key: string): number | undefined {
-  if (typeof window === 'undefined') return undefined
-  try {
-    const raw = localStorage.getItem(key)
-    if (!raw) return undefined
-    const parsed = Number(raw)
-    return Number.isFinite(parsed) ? parsed : undefined
-  } catch {
-    return undefined
-  }
 }
 
 type ProfileCacheSnapshot = {
@@ -106,6 +89,7 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
+  const { data: progression } = useProgression(user)
   const [profileCache] = useState(() => readProfileOverviewCache(user?.id))
   const [loading, setLoading] = useState(() => !user)
   const [section, setSection] = useState<'overview' | 'customize'>('overview')
@@ -128,23 +112,8 @@ export function ProfilePage() {
     backgroundKey: null as string | null,
   })
   const [avatarChoices, setAvatarChoices] = useState<ProfileAvatar[]>([])
-  const [selectedAvatar, setSelectedAvatar] = useState<ProfileAvatar | null>(
-    () => user ? readProfileAvatar(user.id) : null,
-  )
-  const [explorerXp, setExplorerXp] = useState<number>(() => {
-    if (typeof user?.xp === 'number' && user.xp > 0) return user.xp
-    const saved = readStoredNumber('aiki_last_known_xp')
-    if (saved !== undefined) return saved
-    if (typeof profileCache?.totalXp === 'number') return profileCache.totalXp
-    return user?.xp ?? 0
-  })
-  const [explorerLevel, setExplorerLevel] = useState<number>(() => {
-    if (user?.level && user.level > 1) return user.level
-    const saved = readStoredNumber('aiki_last_known_level')
-    if (saved !== undefined) return saved
-    if (typeof profileCache?.level === 'number') return profileCache.level
-    return user?.level ?? 1
-  })
+  const explorerXp = progression?.totalXp ?? user?.xp ?? 0
+  const explorerLevel = progression?.level ?? user?.level ?? 1
   const [equipment, setEquipment] = useState(() =>
     user ? readRewardEquipment(user.id) : {},
   )
@@ -153,77 +122,12 @@ export function ProfilePage() {
     user ? readCommunitySettings(user.id) : DEFAULT_COMMUNITY_SETTINGS,
   )
 
-  // Fast-track gamification fetch: nạp ngay Cấp/XP mà không bị nghẽn bởi các request media/settings
-  useEffect(() => {
-    let active = true
-
-    const fetchFastGamification = () => {
-      api<{ totalXp: number; level: number }>('/api/gamification/profile')
-        .then((res) => {
-          if (!active) return
-          if (typeof res?.totalXp === 'number') {
-            setExplorerXp(res.totalXp)
-            try { localStorage.setItem('aiki_last_known_xp', String(res.totalXp)) } catch {}
-          }
-          if (typeof res?.level === 'number') {
-            setExplorerLevel(res.level)
-            try { localStorage.setItem('aiki_last_known_level', String(res.level)) } catch {}
-          }
-        })
-        .catch(() => undefined)
-    }
-
-    fetchFastGamification()
-
-    const handleXpUpdate = (event?: Event) => {
-      if (event instanceof StorageEvent) {
-        if (event.key === 'aiki_last_known_level' && event.newValue) {
-          const val = Number(event.newValue)
-          if (Number.isFinite(val)) setExplorerLevel(val)
-        }
-        if (event.key === 'aiki_last_known_xp' && event.newValue) {
-          const val = Number(event.newValue)
-          if (Number.isFinite(val)) setExplorerXp(val)
-        }
-        return
-      }
-
-      const customEvt = event as CustomEvent<{ xp?: number; level?: number }> | undefined
-      const detail = customEvt?.detail
-      if (detail && (typeof detail.xp === 'number' || typeof detail.level === 'number')) {
-        if (typeof detail.xp === 'number') {
-          setExplorerXp(detail.xp)
-          try { localStorage.setItem('aiki_last_known_xp', String(detail.xp)) } catch {}
-        }
-        if (typeof detail.level === 'number') {
-          setExplorerLevel(detail.level)
-          try { localStorage.setItem('aiki_last_known_level', String(detail.level)) } catch {}
-        }
-      } else {
-        const savedLvl = readStoredNumber('aiki_last_known_level')
-        const savedXp = readStoredNumber('aiki_last_known_xp')
-        if (savedLvl !== undefined) setExplorerLevel(savedLvl)
-        if (savedXp !== undefined) setExplorerXp(savedXp)
-        fetchFastGamification()
-      }
-    }
-
-    window.addEventListener('aikids:xp-updated', handleXpUpdate)
-    window.addEventListener('storage', handleXpUpdate)
-
-    return () => {
-      active = false
-      window.removeEventListener('aikids:xp-updated', handleXpUpdate)
-      window.removeEventListener('storage', handleXpUpdate)
-    }
-  }, [user?.id])
-
   useEffect(() => {
     let active = true
     const loadVersion = equipmentMutationVersion.current
     // Avatar media is only needed when the picker opens; avoid downloading the
     // complete backpack on every profile visit.
-    loadProfileOverview(api, 3500, false)
+    loadProfileOverview(api, 3500, false, false)
       .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
@@ -237,19 +141,13 @@ export function ProfilePage() {
             label: asset.name,
             source: asset.type.includes('generated') ? 'generated' : 'library',
           })))
-        setExplorerXp(overview.totalXp)
-        setExplorerLevel(overview.level)
         try {
-          localStorage.setItem('aiki_last_known_xp', String(overview.totalXp))
-          localStorage.setItem('aiki_last_known_level', String(overview.level))
           localStorage.setItem(
             `aiki_profile_overview_cache.${user?.id ?? 'guest'}`,
             JSON.stringify({
               streak: overview.streak,
               achievements: overview.achievements,
               projects: overview.projects,
-              totalXp: overview.totalXp,
-              level: overview.level,
             }),
           )
         } catch {}
@@ -324,16 +222,6 @@ export function ProfilePage() {
     }
   }, [avatarChoices.length, avatarPickerOpen])
 
-  // Avatar trước đây chỉ được giữ trong localStorage của LMS, nên AI Studio
-  // không thể thấy. Migrate lựa chọn hiện tại sang child profile chung.
-  useEffect(() => {
-    if (!user || user.role !== 'student' || !selectedAvatar?.url) return
-    if (user.avatarId === selectedAvatar.url) return
-    void updateMyProfileAvatar(selectedAvatar).then(() => {
-      useAuth.getState().setUser({ ...user, avatarId: selectedAvatar.url })
-    }).catch(() => undefined)
-  }, [selectedAvatar?.mediaId, selectedAvatar?.url, user?.id])
-
   useEffect(() => {
     const sync = () => {
       if (!user) return
@@ -351,19 +239,6 @@ export function ProfilePage() {
     window.addEventListener('aikids:reward-equipped', sync)
     return () => window.removeEventListener('aikids:reward-equipped', sync)
   }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    saveProfileShowcase({
-      childId: user.id,
-      nickname: user.nickname ?? 'Nhà sáng tạo nhí',
-      avatar: selectedAvatar,
-      projects: projects.filter((project) =>
-        ['approved', 'public', 'shared'].includes(project.shareStatus),
-      ),
-      updatedAt: new Date().toISOString(),
-    })
-  }, [projects, selectedAvatar, user])
 
   async function persistProfileSettings(
     next: typeof sharing,
@@ -492,7 +367,7 @@ export function ProfilePage() {
                 Mở Studio
               </span>
             </Link>
-            <RewardCollection userId={user.id} xpLevel={explorerLevel} />
+            <RewardCollection userId={user.id} xpLevel={explorerLevel} avatarUrl={user.avatarId} />
           </div>
         </>
       )}
@@ -535,9 +410,8 @@ export function ProfilePage() {
             if (user.role === 'student') {
               await updateMyProfileAvatar(choice)
               useAuth.getState().setUser({ ...user, avatarId: choice.url })
+              await useAuth.getState().refreshMe().catch(() => undefined)
             }
-            saveProfileAvatar(user.id, choice)
-            setSelectedAvatar(choice)
             setAvatarPickerOpen(false)
           }}
         />

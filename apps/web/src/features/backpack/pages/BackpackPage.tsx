@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
@@ -37,6 +37,7 @@ import {
 } from '@/features/rewards/profile-backgrounds'
 import { profilePageThemeStyle } from '@/features/rewards/student-theme'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
+import { useProgression } from '@/shared/lib/progression-query'
 
 export const PROJECT_FILTERS = [
   { id: 'all', label: 'Tác phẩm của con' },
@@ -385,6 +386,9 @@ function readLocalBackpackWorks(): Project[] {
 
 export function BackpackPage() {
   const user = useAuth((state) => state.user)
+  const { data: progression } = useProgression(user)
+  const progressionLevelRef = useRef(progression?.level ?? user?.level ?? 1)
+  progressionLevelRef.current = progression?.level ?? user?.level ?? 1
   const snapshotKey = `aiki_backpack_cache_snapshot.${user?.id ?? 'guest'}`
   const [equipment, setEquipment] = useState<RewardEquipment>(() => readRewardEquipment(user?.id ?? 'guest'))
 
@@ -432,7 +436,7 @@ export function BackpackPage() {
     } catch {}
 
     const savedLevel = typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) : undefined
-    const initialLevel = (user?.level && user.level > 1 ? user.level : undefined) || savedLevel || 107
+    const initialLevel = Math.max(user?.level ?? 1, savedLevel || 1)
     const baseCatalog: GamificationReward[] = (REWARD_CATALOG || []).map((item) => ({
       code: item.id,
       name: item.name,
@@ -443,7 +447,7 @@ export function BackpackPage() {
       assets: {
         assetId: item.id,
         primary: { assetId: item.id, variant: 'primary' as const },
-        thumbnail: { assetId: item.id, variant: 'thumbnail' as const },
+        thumbnail: { assetId: item.id, variant: 'thumbnail' as const, format: 'webp' as const },
       },
     }))
 
@@ -475,92 +479,74 @@ export function BackpackPage() {
   const [formatFilter, setFormatFilter] = useState<ProjectFormat>('all')
 
   const [selectedItem, setSelectedItem] = useState<Project | Asset | GamificationReward | null>(null)
+  const loadedSections = useRef(new Set<BackpackSection>())
 
-  const load = useCallback(async () => {
-    if (assets.length === 0 && projects.length === 0 && rewards.length === 0 && achievements.length === 0) {
-      setLoading(true)
-    } else {
-      setSyncing(true)
-    }
-    setError(null)
-
+  const writeSnapshot = useCallback((patch: Record<string, unknown>) => {
     try {
-      const [galleryResult, inventoryResult, catalogResult, achievementsResult, profileResult] = await Promise.allSettled([
-        fetchWithTimeout(
-          Promise.all([
-            api<{ assets: Asset[] }>('/api/backpack').catch(() => ({ assets: [] })),
-            api<{ projects: Project[] }>('/api/projects').catch(() => ({ projects: [] })),
-          ]).then(([b, p]) => ({ _mockFallback: true, assets: b.assets || [], projects: p.projects || [] })),
-        ),
+      const current = localStorage.getItem(snapshotKey)
+      localStorage.setItem(snapshotKey, JSON.stringify({
+        ...(current ? JSON.parse(current) : {}),
+        ...patch,
+      }))
+    } catch {}
+  }, [snapshotKey])
+
+  const loadCreations = useCallback(async () => {
+    if (loadedSections.current.has('creations')) return
+    projects.length === 0 && assets.length === 0 ? setLoading(true) : setSyncing(true)
+    setError(null)
+    try {
+      const [backpack, projectResult] = await fetchWithTimeout(Promise.all([
+        api<{ assets: Asset[] }>('/api/backpack'),
+        api<{ projects: Project[] }>('/api/projects'),
+      ]))
+      const remoteAssets = backpack.assets ?? []
+      const remoteProjects = projectResult.projects ?? []
+      const localProjects = readLocalBackpackWorks()
+      const mergedProjects = [
+        ...localProjects,
+        ...remoteProjects.filter((remote) => !localProjects.some((local) => local.id === remote.id)),
+      ].filter((project) => !isRawInternalFile(project.title))
+      setAssets(remoteAssets)
+      setProjects(mergedProjects)
+      writeSnapshot({ assets: remoteAssets, projects: mergedProjects })
+      loadedSections.current.add('creations')
+    } catch {
+      if (projects.length === 0) setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
+    } finally {
+      setLoading(false)
+      setSyncing(false)
+    }
+  }, [assets.length, projects.length, writeSnapshot])
+
+  const loadAchievements = useCallback(async () => {
+    if (loadedSections.current.has('achievements')) return
+    setSyncing(true)
+    try {
+      const result = await fetchWithTimeout(api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'))
+      const unlocked = result.achievements?.filter((achievement) => achievement.unlocked) ?? []
+      setAchievements(unlocked)
+      writeSnapshot({ achievements: unlocked })
+      loadedSections.current.add('achievements')
+    } catch {
+      if (achievements.length === 0) setError('Huy hiệu chưa tải được. Con thử lại nhé.')
+    } finally {
+      setSyncing(false)
+    }
+  }, [achievements.length, writeSnapshot])
+
+  const loadTreasures = useCallback(async () => {
+    if (loadedSections.current.has('treasures')) return
+    setSyncing(true)
+    try {
+      const [inventory, catalog] = await Promise.all([
         fetchWithTimeout(api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook')),
         fetchWithTimeout(api<{ items: GamificationReward[] }>('/api/gamification/catalog?type=reward')),
-        fetchWithTimeout(api<{ achievements: AchievementRow[] }>('/api/gamification/achievements')),
-        fetchWithTimeout(api<{ totalXp: number; level: number }>('/api/gamification/profile')),
       ])
-
-      let remoteAssets: Asset[] = []
-      let remoteProjects: Project[] = []
-      let loadedRewards: GamificationReward[] = []
-      let loadedAchievements: AchievementRow[] = []
-
-      if (galleryResult.status === 'fulfilled') {
-        const val = galleryResult.value as any
-        if (val._mockFallback) {
-          remoteAssets = val.assets
-          remoteProjects = val.projects
-        } else {
-          const items = val.items || []
-          remoteAssets = items.flatMap((row: any) => {
-            const item = normalizeGalleryItem(row)
-            if (item.isProject) return []
-            return [{
-              id: item.id,
-              type: item.kind,
-              name: item.title,
-              thumbnail: item.url,
-              private: true,
-              questId: item.questId,
-              jobId: item.jobId,
-              createdAt: item.createdAt,
-            }]
-          })
-          remoteProjects = items.flatMap((row: any) => {
-            const item = normalizeGalleryItem(row)
-            if (!item.isProject || isRawInternalFile(item.title)) return []
-            return [{
-              id: item.id,
-              title: item.title,
-              kind: item.kind,
-              thumbnail: item.url,
-              content: item.content,
-              shareStatus: item.shareStatus,
-              jobId: item.jobId,
-              questId: item.questId,
-            }]
-          })
-        }
-      }
-
-      const savedLocalProjects = readLocalBackpackWorks()
-      const mergedProjects = [
-        ...savedLocalProjects,
-        ...remoteProjects.filter((rp) => !savedLocalProjects.some((lp) => lp.id === rp.id)),
-      ].filter((p) => !isRawInternalFile(p.title))
-
-      const levelFromApi = profileResult.status === 'fulfilled' ? profileResult.value?.level : undefined
-      const savedLevel = typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) : undefined
-      const userLevel = levelFromApi || (user?.level && user.level > 1 ? user.level : undefined) || savedLevel || 107
-      if (levelFromApi) {
-        try { localStorage.setItem('aiki_last_known_level', String(levelFromApi)) } catch {}
-      }
-
-      const owned = new Set(
-        inventoryResult.status === 'fulfilled'
-          ? (inventoryResult.value?.inventory ?? []).map((item) => item.rewardId)
-          : [],
-      )
-      const serverCatalog: GamificationReward[] = catalogResult.status === 'fulfilled' ? (catalogResult.value?.items ?? []) : []
-      const baseCatalog: GamificationReward[] = (REWARD_CATALOG || []).map((item) => ({
+      const savedLevel = Number(localStorage.getItem('aiki_last_known_level'))
+      const level = Math.max(progressionLevelRef.current, savedLevel || 1)
+      const owned = new Set((inventory.inventory ?? []).map((item) => item.rewardId))
+      const localCatalog: GamificationReward[] = REWARD_CATALOG.map((item) => ({
         code: item.id,
         name: item.name,
         description: item.description,
@@ -573,63 +559,37 @@ export function BackpackPage() {
           thumbnail: { assetId: item.id, variant: 'thumbnail' as const },
         },
       }))
-      const combinedCatalog: GamificationReward[] = Array.from(
-        new Map([...baseCatalog, ...serverCatalog].map((item) => [item.code, item])).values(),
-      )
-
-      loadedRewards = combinedCatalog.filter((item) => {
-        if (owned.has(item.code)) return true
-        if (item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number') {
-          return item.unlock.value <= userLevel
-        }
-        return false
-      })
-
-      if (achievementsResult.status === 'fulfilled') {
-        loadedAchievements = achievementsResult.value?.achievements?.filter((a) => a.unlocked) || []
-      }
-
-      setAssets(remoteAssets)
-      setProjects(mergedProjects)
-      setRewards(loadedRewards)
-      setAchievements(loadedAchievements)
-
-      try {
-        localStorage.setItem(
-          snapshotKey,
-          JSON.stringify({
-            assets: remoteAssets,
-            projects: mergedProjects,
-            rewards: loadedRewards,
-            achievements: loadedAchievements,
-          }),
-        )
-      } catch {}
-
-      const rejected = [galleryResult, inventoryResult, catalogResult, achievementsResult].find(
-        (r) => r.status === 'rejected',
-      )
-      if (rejected && mergedProjects.length === 0) {
-        setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
-      }
+      const combined = Array.from(new Map([...localCatalog, ...(catalog.items ?? [])]
+        .map((item) => [item.code, item])).values())
+      const nextRewards = combined.filter((item) => owned.has(item.code) || (
+        item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number' && item.unlock.value <= level
+      ))
+      setRewards(nextRewards)
+      writeSnapshot({ rewards: nextRewards })
+      loadedSections.current.add('treasures')
+    } catch {
+      if (rewards.length === 0) setError('Bảo bối chưa tải được. Con thử lại nhé.')
     } finally {
-      setLoading(false)
       setSyncing(false)
     }
-  // Keep the loader stable. Depending on collection lengths made the mount
-  // effect run again after this function populated those same collections,
-  // duplicating the complete six-request backpack sync.
-  }, [snapshotKey, user?.level])
+  }, [rewards.length, writeSnapshot])
+
+  useEffect(() => { void loadCreations() }, [loadCreations])
 
   useEffect(() => {
-    void load()
-  }, [load])
+    setError(null)
+    if (section === 'achievements') void loadAchievements()
+    if (section === 'treasures') void loadTreasures()
+  }, [loadAchievements, loadTreasures, section])
 
   useEffect(() => {
-    const handleXpUpdate = () => { void load() }
+    const handleXpUpdate = () => {
+      loadedSections.current.delete('treasures')
+      if (section === 'treasures') void loadTreasures()
+    }
     window.addEventListener('aikids:xp-updated', handleXpUpdate)
     return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
-  }, [load])
+  }, [loadTreasures, section])
 
   const visibleProjects = useMemo(() => {
     return projects.filter((p) => {
@@ -643,6 +603,10 @@ export function BackpackPage() {
   const treasureRewards = rewards.filter((r) =>
     ['event_ticket', 'perk', 'effect'].includes(r.kind) || r.unlock?.type === 'storybook_sticker',
   )
+  const equippedTitleLabel = equipment.title
+    ? REWARD_CATALOG.find((item) => item.id === equipment.title)?.equipValue
+      ?? rewards.find((item) => item.code === equipment.title)?.name
+    : undefined
 
   async function requestShare(projectId: string) {
     try {
@@ -651,7 +615,7 @@ export function BackpackPage() {
         body: JSON.stringify({ destination: 'family' }),
       })
       setMsg('Đã gửi Ba/Mẹ duyệt!')
-      await load()
+      await loadCreations()
     } catch {
       setMsg('Chưa gửi được. Thử lại sau nhé.')
     }
@@ -707,9 +671,9 @@ export function BackpackPage() {
                   <h1 className="font-display text-2xl font-extrabold leading-tight text-text sm:text-3xl drop-shadow-sm">
                     Ba lô của con
                   </h1>
-                  {equipment?.title && (
+                  {equippedTitleLabel && (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100/90 text-amber-800 text-xs font-black shadow-sm border border-amber-200">
-                      <span>🎖️</span> {equipment.title}
+                      <NavBadgeIcon size={16} aria-hidden /> {equippedTitleLabel}
                     </span>
                   )}
                 </div>
@@ -748,7 +712,17 @@ export function BackpackPage() {
       )}
 
       {msg && <p className="rounded-xl bg-mint-100 px-3 py-2 text-sm text-success font-bold">{msg}</p>}
-      {error && <ErrorState message={error} onRetry={() => void load()} inline />}
+      {error && <ErrorState message={error} onRetry={() => {
+        if (section === 'creations') void loadCreations()
+        if (section === 'achievements') {
+          loadedSections.current.delete('achievements')
+          void loadAchievements()
+        }
+        if (section === 'treasures') {
+          loadedSections.current.delete('treasures')
+          void loadTreasures()
+        }
+      }} inline />}
 
       <nav aria-label="Các ngăn trong Ba lô" className="grid gap-3 sm:grid-cols-3">
         {[

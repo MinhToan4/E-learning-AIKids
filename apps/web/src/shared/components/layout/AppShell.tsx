@@ -909,7 +909,7 @@ export function AppShell() {
       </div>
 
       {isLessonOrRule ? (
-        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 py-1 sm:py-2 overflow-hidden flex flex-col">
+        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 py-1 sm:py-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col md:overflow-hidden">
           <RouteOutlet />
         </main>
       ) : isCreative ? (

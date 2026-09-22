@@ -4,7 +4,6 @@ import { designerAssets } from '@/shared/config/assets'
 import { api, type User } from '@/shared/lib/api'
 import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
 import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
-import { readProfileAvatar } from '@/features/profile/profile-showcase'
 import {
   readRewardEquipment,
   rewardFrameStyle,
@@ -63,24 +62,19 @@ export function EquippedProfile({
 }) {
   const [cachedEquipment, setCachedEquipment] = useState(() => readRewardEquipment(user.id))
   const equipment = controlledEquipment ?? cachedEquipment
-  const [profileAvatar, setProfileAvatar] = useState(() => readProfileAvatar(user.id))
   const [profileCardLayout, setProfileCardLayout] = useState<ProfileCardLayout>(DEFAULT_PROFILE_CARD_LAYOUT)
   const [catalogAssetUrls, setCatalogAssetUrls] = useState<Record<string, string>>({})
   const activeLayout = layoutOverride ?? profileCardLayout
   const editorOutline = (slot: keyof ProfileCardLayout['slots']) => editorSelectedSlot === slot ? ' outline outline-4 outline-sky-400 outline-offset-2' : ''
   useEffect(() => {
     const sync = () => setCachedEquipment(readRewardEquipment(user.id))
-    const syncAvatar = () => setProfileAvatar(readProfileAvatar(user.id))
     const syncStorage = (event: StorageEvent) => {
       if (event.key === `aikids.reward-equipment.${user.id}`) sync()
-      if (event.key === `aikids.profile-avatar.${user.id}`) syncAvatar()
     }
     window.addEventListener('aikids:reward-equipped', sync)
-    window.addEventListener('aikids:profile-avatar', syncAvatar)
     window.addEventListener('storage', syncStorage)
     return () => {
       window.removeEventListener('aikids:reward-equipped', sync)
-      window.removeEventListener('aikids:profile-avatar', syncAvatar)
       window.removeEventListener('storage', syncStorage)
     }
   }, [user.id])
@@ -130,7 +124,7 @@ export function EquippedProfile({
       : undefined
   const titlePlaqueAsset =
     (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
-  const img = profileAvatar?.url ?? avatarImage(avatarId)
+  const img = avatarImage(avatarId)
   const companionReward = REWARD_CATALOG.find((item) => item.id === equipment.companion)
   const companionLevel = getLevelRewardNumber(equipment.companion, 'companion')
   const companionSharedAsset = getSharedLevelRewardAssetId(equipment.companion)
@@ -303,7 +297,7 @@ export function EquippedProfile({
           {frame?.icon ?? '⭕'} {frame?.name ?? 'Khung cơ bản'}
         </span>
         <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">
-          📷 {profileAvatar?.label ?? avatarReward?.name ?? 'Avatar của con'}
+          📷 {avatarReward?.name ?? 'Avatar của con'}
         </span>
         {companion && (
           <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">

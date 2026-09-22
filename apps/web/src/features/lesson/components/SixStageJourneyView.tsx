@@ -47,7 +47,7 @@ import {
 import { isAikiRuleJourney, extractRuleNumber, resolveIslandSixStageJourney } from '../lib/island-journey-resolver'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { STAGE_REGISTRY } from './stages'
-import type { JourneyStageDefinition, ParsedGoalCard } from '../types/stage-schema'
+import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig } from '../types/stage-schema'
 
 // Re-export helpers for 100% backward compatibility
 export { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES }
@@ -68,6 +68,7 @@ export interface SixStageJourneyViewProps {
   initialStageIndex?: number
   onStageChange?: (stageIndex: number) => void
   initialSidebarCollapsed?: boolean
+  isFinalStation?: boolean
 }
 
 /**
@@ -107,11 +108,17 @@ export function SixStageJourneyView({
   initialStageIndex = 0,
   onStageChange,
   initialSidebarCollapsed,
+  isFinalStation: isFinalStationProp,
 }: SixStageJourneyViewProps) {
   const journey = useMemo(() => {
     if (rawJourney) return rawJourney
     return resolveIslandSixStageJourney({ id: lessonId, title: lessonTitle } as any)
   }, [rawJourney, lessonId, lessonTitle])
+
+  const isRuleLesson = useMemo(
+    () => isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle) || isAikiRuleJourney(journey),
+    [journey, lessonId, lessonTitle],
+  )
 
   const matchedCurriculum = useMemo(() => {
     return findIslandCurriculum({ id: lessonId, slug: lessonId, title: lessonTitle })
@@ -217,7 +224,7 @@ export function SixStageJourneyView({
   // Adapter transforms journey data into declarative stages without hardcoded lesson checks
   const stages = useMemo(() => {
     if (stagesProp && stagesProp.length > 0) return stagesProp
-    if (isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle) || isAikiRuleJourney(journey)) {
+    if (isRuleLesson) {
       const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
       const rule = AIKI_RULES_DATA.find((r) => r.id === rNum) || AIKI_RULES_DATA[0]
       return adaptRuleToStages(rule)
@@ -229,7 +236,25 @@ export function SixStageJourneyView({
       stationInfo,
       matchedCurriculum,
     })
-  }, [stagesProp, journey, lessonId, lessonTitle, stationInfo, matchedCurriculum])
+  }, [stagesProp, journey, lessonId, lessonTitle, stationInfo, matchedCurriculum, isRuleLesson])
+
+  const isFinalStation = useMemo(() => {
+    if (typeof isFinalStationProp === 'boolean') {
+      return isFinalStationProp
+    }
+    if (isRuleLesson) {
+      return extractRuleNumber({ id: lessonId, title: lessonTitle }) === 10
+    }
+    const rewardStageDef = stages.find((s) => s.type === 'REWARD')
+    const rewardConfig = (rewardStageDef?.config as RewardStageConfig | undefined) ?? journey?.stage6_completion
+    if (matchedCurriculum) {
+      const num = String(matchedCurriculum.lessonNumber || '')
+      if (['1.4', '2.4', '3.4', '4.5', '5.5'].includes(num)) return true
+      if (!rewardConfig?.nextLessonSlug) return true
+      return false
+    }
+    return !rewardConfig?.nextLessonSlug
+  }, [isFinalStationProp, isRuleLesson, lessonId, lessonTitle, matchedCurriculum, stages, journey])
 
   const [currentStage, setCurrentStage] = useState<number>(() => {
     if (initialStageIndex > 0) return initialStageIndex
@@ -321,12 +346,6 @@ export function SixStageJourneyView({
     setCheckedQuestions({})
     setFailedQuizImages({})
   }, [currentStage, lessonId])
-
-  useEffect(() => {
-    if (currentStage >= 2) {
-      void import('./AikiStudioWorkspace')
-    }
-  }, [currentStage])
 
   // Stage 4 (Practice) submitted artwork state
   const [submittedArtwork, setSubmittedArtwork] = useState<{
@@ -707,7 +726,7 @@ export function SixStageJourneyView({
             className="w-full py-2.5 px-3 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-1.5 cursor-pointer"
             onClick={() => advanceToStage(stageIdx + 1)}
           >
-            <span>🎨 Vào xưởng thực hành</span>
+            <span>{isRuleLesson ? 'Vinh danh Hiệp sĩ' : 'Vào xưởng thực hành'}</span>
             <ArrowRight size={14} />
           </Button>
         ) : (
@@ -764,7 +783,7 @@ export function SixStageJourneyView({
   const StageComp = STAGE_REGISTRY[currentStageDef?.type]
 
   return (
-    <div className="w-full h-full min-h-0 flex-1 flex flex-col gap-2 overflow-hidden">
+    <div className="w-full h-auto min-h-full flex-none flex flex-col gap-2 overflow-visible md:h-full md:min-h-0 md:flex-1 md:overflow-hidden">
       {/* ── TOP HEADER: NẤC TIẾN ĐỘ SƯ PHẠM ĐỘNG + NÚT BẢN ĐỒ ── */}
       <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 min-h-12 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
         {/* Trái: Nút Bản đồ + Nấc kẹo dẻo Soft Clay render linh hoạt */}
@@ -889,13 +908,13 @@ export function SixStageJourneyView({
       </div>
 
       {/* ── 2 CỘT TƯƠNG THÍCH HOÀN HẢO ── */}
-      <div className="flex flex-col md:flex-row items-stretch gap-4 flex-1 min-h-0 w-full overflow-hidden">
+      <div className="flex flex-none flex-col items-stretch gap-4 min-h-0 w-full overflow-visible md:flex-1 md:flex-row md:overflow-hidden">
         {/* CỘT TRÁI (MAIN LEARNING CANVAS QUA STAGE_REGISTRY) */}
         <div
           data-testid="main-learning-canvas"
           style={{ WebkitOverflowScrolling: 'touch' }}
           className={cn(
-            'flex-1 min-w-0 flex flex-col gap-4 pr-1',
+            'flex-1 min-w-0 flex flex-col gap-4 pr-1 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain',
             currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
             currentStageDef?.type === 'REWARD' ? 'overflow-y-auto pb-28 sm:pb-6' : '',
             currentStageDef?.type === 'VIDEO' ? 'overflow-y-auto overflow-x-hidden overscroll-contain pb-24 sm:pb-6' : '',
@@ -908,6 +927,7 @@ export function SixStageJourneyView({
             <StageComp
               stage={currentStageDef}
               onContinue={() => advanceToStage(currentStage + 1)}
+              continueLabel={isRuleLesson ? 'Vinh danh Hiệp sĩ' : undefined}
               onPrevious={currentStage > 0 ? () => handleStageSelect(currentStage - 1) : undefined}
               onImageClick={setZoomImage}
               // Confirm stage props
@@ -999,7 +1019,8 @@ export function SixStageJourneyView({
               onNavigateNextLesson={onNavigateNextLesson}
               onBackToMap={onBackToMap}
               onFinishLesson={onFinishLesson}
-              onOpenCertificate={() => setIsCertificateModalOpen(true)}
+              isFinalStation={isFinalStation}
+              onOpenCertificate={isFinalStation ? () => setIsCertificateModalOpen(true) : undefined}
             />
           )}
 
@@ -1420,7 +1441,7 @@ export function SixStageJourneyView({
                           </p>
                         </div>
 
-                        <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
+                        {!isRuleLesson && <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
                             🎯 Nhiệm vụ chặng này:
                           </p>
@@ -1428,7 +1449,7 @@ export function SixStageJourneyView({
                             Đọc kỹ mục tiêu và ghi nhớ công thức 4 ô bên cạnh để giải câu đố ở chặng sau nhé!
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
-                        </div>
+                        </div>}
                       </div>
                     )}
 
@@ -1516,7 +1537,7 @@ export function SixStageJourneyView({
                           </div>
                         )}
 
-                        <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
+                        {!isRuleLesson && <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
                             🎯 Nhiệm vụ chặng này:
                           </p>
@@ -1524,7 +1545,7 @@ export function SixStageJourneyView({
                             {getStageInstruction(1)}
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
-                        </div>
+                        </div>}
                       </div>
                     )}
 
@@ -1596,7 +1617,7 @@ export function SixStageJourneyView({
                           </p>
                         </div>
 
-                        <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
+                        {!isRuleLesson && <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
                             🎯 Nhiệm vụ chặng này:
                           </p>
@@ -1604,7 +1625,7 @@ export function SixStageJourneyView({
                             {getStageInstruction(2)}
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
-                        </div>
+                        </div>}
                       </div>
                     )}
 
@@ -1618,7 +1639,7 @@ export function SixStageJourneyView({
                               <span>Bảng Điểm Trực Tiếp</span>
                             </span>
                             <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                              Đạt {journey.stage4_quiz?.passScore ?? 2} câu để mở Xưởng
+                              {isRuleLesson ? 'Đạt chuẩn để được vinh danh' : `Đạt ${currentStageDef.config.passScore ?? 2} câu để mở Xưởng`}
                             </span>
                           </div>
 
@@ -1636,10 +1657,12 @@ export function SixStageJourneyView({
                                 ))}
                               </div>
                               <div className="text-sm font-black text-blue-950">
-                                ✓ Đã đúng {quizScore}/{journey.stage4_quiz?.passScore ?? 2} câu để mở Xưởng!
+                                {isRuleLesson
+                                  ? `✓ Đã đúng ${quizScore}/${currentStageDef.config.questions?.length ?? 0} câu · Sẵn sàng vinh danh!`
+                                  : `✓ Đã đúng ${quizScore}/${currentStageDef.config.questions?.length ?? 0} câu để mở Xưởng!`}
                               </div>
                               <p className="text-xs sm:text-sm text-slate-600">
-                                Tổng điểm: {quizScore}/{journey.stage4_quiz?.questions?.length || 0} câu đúng.
+                                Tổng điểm: {quizScore}/{currentStageDef.config.questions?.length || 0} câu đúng.
                               </p>
                             </div>
                           ) : (
@@ -1647,19 +1670,21 @@ export function SixStageJourneyView({
                               <div className="flex justify-between text-xs sm:text-sm font-bold text-slate-700">
                                 <span>Đã chọn:</span>
                                 <span className="text-blue-600 font-black">
-                                  {Object.keys(quizAnswers).length}/{journey.stage4_quiz?.questions?.length || 0} câu
+                                  {Object.keys(quizAnswers).length}/{currentStageDef.config.questions?.length || 0} câu
                                 </span>
                               </div>
                               <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                                 <div
                                   className="h-full bg-blue-500 rounded-full transition-all duration-300"
                                   style={{
-                                    width: `${(Object.keys(quizAnswers).length / (journey.stage4_quiz?.questions?.length || 1)) * 100}%`,
+                                    width: `${(Object.keys(quizAnswers).length / (currentStageDef.config.questions?.length || 1)) * 100}%`,
                                   }}
                                 />
                               </div>
                               <span className="text-xs text-slate-500 text-center font-medium">
-                                Cần đạt ít nhất {journey.stage4_quiz?.passScore ?? 2} câu đúng để mở xưởng vẽ!
+                                {isRuleLesson
+                                  ? `Cần đạt ít nhất ${currentStageDef.config.passScore ?? 2} câu đúng để được vinh danh!`
+                                  : `Cần đạt ít nhất ${currentStageDef.config.passScore ?? 2} câu đúng để mở xưởng vẽ!`}
                               </span>
                             </div>
                           )}
@@ -1673,20 +1698,24 @@ export function SixStageJourneyView({
                             </span>
                             {quizSubmitted && (
                               <span className="text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
-                                {quizScore >= (journey.stage4_quiz?.passScore ?? 2) ? 'ĐÃ ĐẠT CHUẨN' : 'CẦN ÔN LẠI'}
+                                {quizScore >= (currentStageDef.config.passScore ?? 2) ? 'ĐÃ ĐẠT CHUẨN' : 'CẦN ÔN LẠI'}
                               </span>
                             )}
                           </div>
                           <p className="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium">
                             {quizSubmitted
-                              ? quizScore >= (journey.stage4_quiz?.passScore ?? 2)
-                                ? 'Xuất sắc! Giám khảo AIKI xác nhận bé đã nắm chắc bài học. Cánh cửa Xưởng Sáng Tạo AI đã mở toang chào đón bé!'
-                                : 'Chưa đủ điểm mở Xưởng rồi! Bé hãy xem lại video bài giảng và thử sức lại nhé!'
+                              ? quizScore >= (currentStageDef.config.passScore ?? 2)
+                                ? isRuleLesson
+                                  ? 'Xuất sắc! Giám khảo AIKI xác nhận bé đã nắm chắc quy tắc. Bé đã sẵn sàng bước vào lễ vinh danh Hiệp sĩ!'
+                                  : 'Xuất sắc! Giám khảo AIKI xác nhận bé đã nắm chắc bài học. Cánh cửa Xưởng Sáng Tạo AI đã mở toang chào đón bé!'
+                                : isRuleLesson
+                                  ? 'Bé cần thêm một chút cố gắng để được vinh danh. Hãy xem lại video và thử sức lại nhé!'
+                                  : 'Chưa đủ điểm mở Xưởng rồi! Bé hãy xem lại video bài giảng và thử sức lại nhé!'
                               : 'Bé hãy đọc kỹ câu hỏi và hình minh họa ở cột bên trái. Hãy tự tin chọn đáp án chuẩn xác nhất!'}
                           </p>
                         </div>
 
-                        <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
+                        {!isRuleLesson && <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
                             🎯 Nhiệm vụ chặng này:
                           </p>
@@ -1694,7 +1723,7 @@ export function SixStageJourneyView({
                             {getStageInstruction(3)}
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
-                        </div>
+                        </div>}
                       </div>
                     )}
 

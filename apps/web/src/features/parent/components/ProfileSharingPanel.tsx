@@ -3,6 +3,7 @@ import { Copy, ExternalLink, Link2, ShieldCheck, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { api } from '@/shared/lib/api'
+import { avatarImage } from '@/shared/config/avatars'
 
 type ChildSummary = {
   id: string
@@ -179,8 +180,8 @@ export function ProfileSharingPanel() {
               <article key={child.id} className="rounded-3xl border border-border bg-white p-4 shadow-soft">
                 <div className="flex items-center gap-3">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-100">
-                    {child.avatarId
-                      ? <img src={child.avatarId} alt="" className="h-full w-full object-cover" />
+                    {avatarImage(child.avatarId)
+                      ? <img src={avatarImage(child.avatarId)} alt="" className="h-full w-full object-cover" />
                       : <Link2 size={26} className="text-brand-600" aria-hidden="true" />}
                   </div>
                   <div className="min-w-0 flex-1">

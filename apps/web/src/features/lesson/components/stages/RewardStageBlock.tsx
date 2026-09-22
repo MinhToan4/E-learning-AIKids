@@ -13,6 +13,7 @@ export interface RewardStageBlockProps {
   onFinishLesson?: (summary: { stars: number; xp: number; nextLessonSlug?: string }) => void
   onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onOpenCertificate?: () => void
+  isFinalStation?: boolean
 }
 
 export function RewardStageBlock({
@@ -25,6 +26,7 @@ export function RewardStageBlock({
   onFinishLesson,
   onImageClick,
   onOpenCertificate,
+  isFinalStation,
 }: RewardStageBlockProps) {
   const { config } = stage
 
@@ -171,7 +173,7 @@ export function RewardStageBlock({
               </Button>
             ) : null}
 
-            {onOpenCertificate && (
+            {onOpenCertificate && (isFinalStation ?? !config.nextLessonSlug) && (
               <Button
                 variant="primary"
                 className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-amber-600 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white flex items-center justify-center gap-2 cursor-pointer"

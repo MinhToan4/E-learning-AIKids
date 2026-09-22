@@ -4,6 +4,7 @@ import { ShieldCheck } from 'lucide-react'
 import { ApiError, api } from '@/shared/lib/api'
 import { designerAssets } from '@/shared/config/assets'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
+import { avatarImage } from '@/shared/config/avatars'
 
 type SharedProfile = {
   share: {
@@ -117,8 +118,8 @@ export function PublicProfileSharePage() {
 
         <header className="ui-card flex flex-col items-center gap-5 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-8 border-white bg-brand-100 shadow-clay">
-            {data.profile.avatarUrl
-              ? <img src={data.profile.avatarUrl} alt="" className="h-full w-full object-cover" />
+            {avatarImage(data.profile.avatarUrl)
+              ? <img src={avatarImage(data.profile.avatarUrl)} alt="" className="h-full w-full object-cover" />
               : <img src={designerAssets.brand.mascot} alt="" className="h-full w-full object-contain" />}
           </div>
           <div className="min-w-0 flex-1">

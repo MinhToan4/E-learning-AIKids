@@ -292,8 +292,23 @@ function invalidateCachePrefixes(prefixes: string[]): void {
 }
 
 function mutationInvalidationPrefixes(path: string): string[] | null {
+  if (path.startsWith('/api/v1/account/family/me/avatar')) {
+    return [
+      '/api/auth/me',
+      '/api/parent/children',
+      '/api/public/profiles/',
+      '/api/public/profile-shares/',
+      '/api/gamification/social',
+    ]
+  }
   if (path.startsWith('/api/progress/')) {
-    return ['/api/progress/', '/api/learning/pathway']
+    return [
+      '/api/progress/',
+      '/api/learning/pathway',
+      '/api/gamification/profile',
+      '/api/gamification/achievements',
+      '/api/gamification/storybook',
+    ]
   }
   if (path.startsWith('/api/enrollments')) {
     return ['/api/enrollments', '/api/learning/pathway', '/api/courses', '/api/progress/']

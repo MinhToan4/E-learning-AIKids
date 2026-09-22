@@ -2468,4 +2468,81 @@ describe('SixStageJourneyView', () => {
     expect(quizSection?.textContent).not.toContain('✕ Chưa chính xác')
     act(() => root.unmount())
   })
+
+  it('Quy tắc 1 (QT1): Chặng Reward KHÔNG hiển thị nút Nhận Chứng Chỉ, chỉ hiển thị Khám Phá Bài Tiếp Theo', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI"
+          initialStageIndex={2}
+          onNavigateNextLesson={() => {}}
+          onBackToMap={() => {}}
+        />
+      )
+    })
+
+    // Ở Chặng 3 (Reward) của Quy tắc 1, KHÔNG được xuất hiện nút nhận chứng chỉ
+    expect(container.textContent).not.toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    // Phải hiển thị nút chuyển sang bài tiếp theo
+    expect(container.textContent).toContain('Khám Phá Bài Tiếp Theo')
+    expect(container.textContent).toContain('Quay Về Bản Đồ Đảo')
+    act(() => root.unmount())
+  })
+
+  it('Quy tắc 10 (QT10): Chặng Reward CÓ hiển thị nút Nhận Chứng Chỉ vì là trạm cuối', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-10"
+          lessonTitle="Quy tắc 10: Tự hào tác phẩm của chính con"
+          initialStageIndex={2}
+          onBackToMap={() => {}}
+        />
+      )
+    })
+
+    // Ở Chặng 3 (Reward) của Quy tắc 10 (trạm cuối), PHẢI có nút nhận chứng chỉ
+    expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    expect(container.textContent).not.toContain('Khám Phá Bài Tiếp Theo')
+    expect(container.textContent).toContain('Quay Về Bản Đồ Đảo')
+    act(() => root.unmount())
+  })
+
+  it('Đảo 1 bài 1.1: Chặng Reward KHÔNG hiển thị nút Nhận Chứng Chỉ', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="bai-1-1"
+          lessonTitle="Bài 1.1 — Một từ hay năm từ?"
+          initialStageIndex={5}
+          onNavigateNextLesson={() => {}}
+        />
+      )
+    })
+
+    expect(container.textContent).not.toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    expect(container.textContent).toContain('Khám Phá Bài Tiếp Theo')
+    act(() => root.unmount())
+  })
+
+  it('Đảo 1 bài 1.4: Chặng Reward CÓ hiển thị nút Nhận Chứng Chỉ vì là trạm cuối của Đảo 1', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="bai-1-4"
+          lessonTitle="Bài 1.4 — Kỹ sư tài ba"
+          initialStageIndex={5}
+          onNavigateNextLesson={() => {}}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    act(() => root.unmount())
+  })
 })

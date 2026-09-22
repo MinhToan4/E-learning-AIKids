@@ -73,6 +73,7 @@ async function loadLegacyProfileOverview(
   request: ProfileRequest,
   timeoutMs = 3500,
   includeMedia = true,
+  includeProgression = true,
 ): Promise<ProfileOverviewData> {
   const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
 
@@ -84,7 +85,12 @@ async function loadLegacyProfileOverview(
       includeMedia
         ? safeReq<{ assets: ProfileMediaAsset[] }>('/api/backpack')
         : Promise.resolve({ assets: [] as ProfileMediaAsset[] }),
-      safeReq<{ totalXp: number; level: number }>('/api/gamification/profile'),
+      includeProgression
+        ? safeReq<{ totalXp: number; level: number }>('/api/gamification/profile')
+        : Promise.resolve({
+            totalXp: readStoredNumber('aiki_last_known_xp') ?? 0,
+            level: readStoredNumber('aiki_last_known_level') ?? 1,
+          }),
       safeReq<PublicProfileSettings>('/api/profile/settings'),
       safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
     ])
@@ -138,6 +144,7 @@ export async function loadProfileOverview(
   request: ProfileRequest = api,
   timeoutMs = 3500,
   includeMedia = true,
+  includeProgression = true,
 ): Promise<ProfileOverviewData> {
-  return loadLegacyProfileOverview(request, timeoutMs, includeMedia)
+  return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression)
 }

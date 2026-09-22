@@ -14,7 +14,6 @@ import {
   syncRewardEquipment,
   unequipReward,
 } from './reward-equipment'
-import { readProfileAvatar } from '@/features/profile/profile-showcase'
 import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
 import {
   resolveCatalogRewardAsset,
@@ -77,9 +76,9 @@ function catalogAssetsFor(item: { code: string; assets?: RewardCatalogAssets }) 
       preview: { assetId: item.code, variant: 'primary' as const, release: '2026.08.01.5', format: 'png' as const },
       thumbnail: {
         assetId: item.code,
-        variant: 'primary' as const,
+        variant: 'thumbnail' as const,
         release: '2026.08.01.5',
-        format: 'png' as const,
+        format: 'webp' as const,
       },
     }
   }
@@ -217,10 +216,12 @@ function isEquippedReward(
 export function RewardCollection({
   userId,
   xpLevel,
+  avatarUrl,
   compact = false,
 }: {
   userId: string
   xpLevel: number
+  avatarUrl?: string | null
   compact?: boolean
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
@@ -231,7 +232,6 @@ export function RewardCollection({
   const [previewReward, setPreviewReward] = useState<CatalogReward | null>(null)
   const [pendingRewardId, setPendingRewardId] = useState<string | null>(null)
   const equipmentMutationVersion = useRef(0)
-  const currentProfileAvatar = readProfileAvatar(userId)
   const bundles = useMemo(() => {
     const grouped = new Map<string, { name: string; rewards: CatalogReward[] }>()
     for (const reward of catalog) {
@@ -449,12 +449,12 @@ export function RewardCollection({
           {wardrobeKinds.map((kind) => {
             const rewardId = equipment[kind]
             const reward = catalog.find((item) => item.id === rewardId)
-            const assetUrl = kind === 'avatar' && currentProfileAvatar?.url
-              ? currentProfileAvatar.url
+            const assetUrl = kind === 'avatar' && avatarUrl
+              ? avatarUrl
               : kind === 'title' && reward
               ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? rewardTitleAsset(reward.id)
               : kind === 'frame' && reward
-              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
+              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id, 'thumbnail')
               : reward
               ? resolveCatalogRewardAsset(reward, 'thumbnail')
               : undefined
@@ -486,8 +486,8 @@ export function RewardCollection({
                   {kindLabels[kind]}
                 </span>
                 <span className="block truncate text-sm font-extrabold text-text">
-                  {kind === 'avatar' && currentProfileAvatar
-                    ? currentProfileAvatar.label
+                  {kind === 'avatar' && avatarUrl
+                    ? 'Avatar tài khoản'
                     : reward?.name ?? 'Chưa chọn'}
                 </span>
               </button>
@@ -617,7 +617,7 @@ export function RewardCollection({
           const unlocked = isRewardUnlocked(reward, owned, xpLevel)
           const equipped = isEquippedReward(reward, equipment)
           const assetUrl = reward.kind === 'frame'
-            ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
+            ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id, 'thumbnail')
             : resolveCatalogRewardAsset(reward, 'thumbnail')
           return (
             <article

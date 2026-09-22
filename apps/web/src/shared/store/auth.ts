@@ -15,6 +15,7 @@ import {
 } from '@/shared/lib/firebase-client'
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
+import { clearStudentProgressionCache } from '@/shared/lib/query-client'
 
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
@@ -39,6 +40,7 @@ type AuthState = {
    */
   enteredFromParent: boolean
   bootstrap: () => Promise<void>
+  refreshMe: () => Promise<User | null>
   loginStudent: (
     nickname: string,
     second?: string | undefined,
@@ -207,6 +209,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   setUser: (u) => set({ user: u }),
 
   expireSession: () => {
+    clearStudentProgressionCache(get().user?.id)
     clearAccessToken()
     clearApiCache()
     void clearPreviousLearnerData()
@@ -239,6 +242,15 @@ export const useAuth = create<AuthState>((set, get) => ({
     }
   },
 
+  refreshMe: async () => {
+    const current = get().user
+    if (!current || !getAccessToken()) return null
+    const { user } = await api<{ user: User }>('/api/auth/me')
+    // A late response must never replace a session that changed meanwhile.
+    if (get().user?.id === current.id && user.id === current.id) set({ user })
+    return user
+  },
+
   loginStudent: async (nickname, _second, opts) => {
     set({ error: null })
     const { user } = await api<{ user: User }>('/api/auth/login/student', {
@@ -248,6 +260,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         ...(opts?.pin ? { pin: opts.pin } : {}),
       }),
     })
+    if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
     // WHY: loginStudent là con tự đăng nhập — KHÔNG phải từ phụ huynh chuyển sang
     set({ user, access: null, activeContext: null, enteredFromParent: false })
     return user
@@ -273,6 +286,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         }),
       },
     )
+    if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
     // WHY: enteredFromParent = true là flag duy nhất phân biệt phiên này với loginStudent.
     // Không dùng parentId vì học sinh tự đăng nhập cũng có parentId.
     set({ user, access: null, activeContext: null, enteredFromParent: true })
@@ -323,6 +337,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   setSessionUser: (user) => {
+    if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
     void clearPreviousLearnerData()
     set({ user, access: null, activeContext: null, error: null })
   },
@@ -363,6 +378,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
+      clearStudentProgressionCache(get().user?.id)
       await clearPreviousLearnerData()
       clearAccessToken()
       clearApiCache()
@@ -402,4 +418,3 @@ export const useAuth = create<AuthState>((set, get) => ({
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   ;(window as unknown as { __AUTH_STORE__: typeof useAuth }).__AUTH_STORE__ = useAuth
 }
-

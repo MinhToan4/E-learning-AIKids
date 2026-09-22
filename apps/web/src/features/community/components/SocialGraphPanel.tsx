@@ -7,6 +7,7 @@ import {
   normalizeFriendCode,
 } from '@/shared/lib/creation/social-rules'
 import { api } from '@/shared/lib/api'
+import { avatarImage } from '@/shared/config/avatars'
 
 type Connection = {
   id: string
@@ -145,8 +146,8 @@ export function SocialGraphPanel({ childId: _childId }: { childId: string }) {
               {connection.favorite ? '⭐' : '☆'}
             </button>
             <Link to={`/u/${connection.friend.slug}`} className="block w-full" aria-label={`Xem hồ sơ ${connection.friend.name}`}>
-              {connection.friend.avatarUrl
-                ? <img src={connection.friend.avatarUrl} alt="" className="mx-auto h-10 w-10 rounded-full object-cover" />
+              {avatarImage(connection.friend.avatarUrl)
+                ? <img src={avatarImage(connection.friend.avatarUrl)} alt="" className="mx-auto h-10 w-10 rounded-full object-cover" />
                 : <span className="text-3xl">🧑‍🎨</span>}
               <span className="mt-1 block text-xs font-extrabold">{connection.friend.name}</span>
               <span className="block text-[10px] text-muted">Cấp {connection.friend.level}</span>

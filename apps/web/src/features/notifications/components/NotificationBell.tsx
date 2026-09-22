@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { api, type NotificationRow } from '@/shared/lib/api'
@@ -14,6 +14,7 @@ export function NotificationBell() {
   const [unread, setUnread] = useState(0)
   const [message, setMessage] = useState('')
   const [updating, setUpdating] = useState(false)
+  const hasLoaded = useRef(false)
 
   const load = useCallback(async () => {
     try {
@@ -25,15 +26,15 @@ export function NotificationBell() {
       setItems(notifications)
       setUnread(normalizedUnreadCount(data.unreadCount, notifications))
       setMessage('')
+      hasLoaded.current = true
     } catch {
       setMessage('Chưa tải được thông báo.')
     }
   }, [])
 
   useEffect(() => {
-    void load()
     const refreshVisible = () => {
-      if (document.visibilityState === 'visible') void load()
+      if (hasLoaded.current && document.visibilityState === 'visible') void load()
     }
     document.addEventListener('visibilitychange', refreshVisible)
     window.addEventListener('focus', refreshVisible)
@@ -111,7 +112,7 @@ export function NotificationBell() {
         aria-haspopup="dialog"
         onClick={() => {
           setOpen((o) => !o)
-          if (!open) void load()
+          if (!open && !hasLoaded.current) void load()
         }}
       >
         <Bell size={20} strokeWidth={2.2} />

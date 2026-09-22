@@ -6,6 +6,7 @@ import {
   profileCardBackgroundTone,
   profilePageThemeStyle,
 } from '@/features/rewards/reward-equipment'
+import { avatarImage } from '@/shared/config/avatars'
 
 type PublicProfileProjection = {
   profile: {
@@ -124,8 +125,8 @@ export function PublicProfilePage() {
           data-profile-composition="v1"
         >
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-8 border-white bg-brand-100 text-5xl shadow-clay">
-            {profile.avatarUrl
-              ? <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
+            {avatarImage(profile.avatarUrl)
+              ? <img src={avatarImage(profile.avatarUrl)} alt="" className="h-full w-full object-cover" />
               : '🎨'}
           </div>
           <div className="flex-1">

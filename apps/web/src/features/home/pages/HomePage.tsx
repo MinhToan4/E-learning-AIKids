@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { Play, Zap, Trophy, ArrowRight, Box } from 'lucide-react'
-import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
+import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
@@ -11,21 +11,12 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavBadgeIcon } from '@/shared/components/icons/KidNavIcons'
-import { KidProfileStreakImageIcon } from '@/shared/components/icons/KidImageIcons'
-import type { RewardKind } from '@/shared/lib/creation/rewards'
-import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
-import { recentUnlockedAchievements } from '@/features/achievements/achievement-inventory'
-import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
 import { nextExplorerLevel, explorerLevelProgress } from '@/shared/lib/creation/xp-levels'
-import {
-  profileCardBackgroundStyle,
-  readRewardEquipment,
-  rewardEquipmentFromRows,
-  syncRewardEquipment,
-} from '@/features/rewards/reward-equipment'
+import { useProgression } from '@/shared/lib/progression-query'
+import { avatarImage } from '@/shared/config/avatars'
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
@@ -99,21 +90,6 @@ function streakState(current: number, lastActivityDate: string | null) {
     return { label: `${current} ngày đang chờ`, hint: 'Học hôm nay để giữ chuỗi' }
   }
   return { label: 'Chuỗi đã gián đoạn', hint: 'Hoàn thành 1 bài để bắt đầu lại' }
-}
-
-function StreakWidget({ current, longest, lastActivityDate }: { current: number; longest: number; lastActivityDate: string | null }) {
-  const state = streakState(current, lastActivityDate)
-  return (
-    <div className="home-streak-ticket">
-      <span className="home-streak-icon" aria-hidden="true">
-        <KidProfileStreakImageIcon size={34} />
-      </span>
-      <div className="flex flex-col min-w-0">
-        <p className="font-display text-base text-text leading-none">{state.label}</p>
-        <p className="mt-1 text-[11px] font-semibold text-muted">{state.hint} · Kỷ lục {longest} ngày</p>
-      </div>
-    </div>
-  )
 }
 
 function XpWidget({
@@ -293,11 +269,7 @@ function ContinueLearningCard({ course }: { course: CourseSummary }) {
 
 let cachedHomeData: {
   courses: CourseSummary[]
-  streak?: { current: number; longest: number; lastActivityDate: string | null }
-  badges?: AchievementRow[]
   mission?: any
-  storybook?: any
-  profile?: { totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }
 } | null = null
 
 export function clearHomePageCache(): void {
@@ -307,9 +279,6 @@ export function clearHomePageCache(): void {
 export function HomePage() {
   const user = useAuth((s) => s.user)
   const [courses, setCourses] = useState<CourseSummary[]>(() => cachedHomeData?.courses || [])
-  const [streak, setStreak] = useState(() => cachedHomeData?.streak || { current: 0, longest: 0, lastActivityDate: null as string | null })
-
-  const [badges, setBadges] = useState<AchievementRow[]>(() => cachedHomeData?.badges || [])
   const [dailyMission, setDailyMission] = useState<{
     title: string
     key: string
@@ -324,21 +293,11 @@ export function HomePage() {
   } | null>(() => cachedHomeData?.mission ?? null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(() => !cachedHomeData)
-  const [explorerXp, setExplorerXp] = useState(() => (
-    cachedHomeData?.profile?.totalXp ??
-    user?.xp ??
-    (typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_xp')) || 0 : 0)
-  ))
-  const [explorerLevel, setExplorerLevel] = useState(() => (
-    cachedHomeData?.profile?.level ??
-    (user?.level && user.level > 1 ? user.level : undefined) ??
-    (typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) || 1 : 1)
-  ))
-  const [xpIntoLevel, setXpIntoLevel] = useState(() => cachedHomeData?.profile?.xpIntoLevel ?? 0)
-  const [xpToNextLevel, setXpToNextLevel] = useState(() => cachedHomeData?.profile?.xpToNextLevel ?? 100)
-  const [profileEquipment, setProfileEquipment] = useState(
-    () => user ? readRewardEquipment(user.id) : {},
-  )
+  const { data: progression } = useProgression(user)
+  const explorerXp = progression?.totalXp ?? user?.xp ?? 0
+  const explorerLevel = progression?.level ?? user?.level ?? 1
+  const xpIntoLevel = progression?.xpIntoLevel ?? 0
+  const xpToNextLevel = progression?.xpToNextLevel ?? 100
 
   const load = useCallback(async () => {
     if (!cachedHomeData) {
@@ -346,7 +305,8 @@ export function HomePage() {
     }
     setError(null)
 
-    // Progressive Hydration: Chạy cả 2 nhóm request song song ngay từ đầu
+    // Home is action-first: only learning data and today's mission belong here.
+    // Profile decoration, achievements and inventory are loaded by their owning routes.
     const coursesPromise = Promise.all([
       api<{ courses: CourseSummary[] }>('/api/courses'),
       api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments').catch(() => ({
@@ -354,13 +314,8 @@ export function HomePage() {
       })),
     ])
 
-    const gamificationPromise = Promise.allSettled([
-      api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-      api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile'),
-      api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
-      api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission'),
-      api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook'),
-    ])
+    const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
+      .catch(() => ({ mission: null }))
 
     try {
       // Đợi khóa học xong trước tiên để hiển thị UI ngay lập tức
@@ -378,94 +333,22 @@ export function HomePage() {
     }
 
     try {
-      // Đợi gamification hoàn tất song song để cập nhật widget phụ
-      const [
-        achievementsRes,
-        profileRes,
-        streakRes,
-        missionRes,
-        storybookRes,
-      ] = await gamificationPromise
-
-      if (streakRes.status === 'fulfilled' && streakRes.value) {
-        const nextStreak = {
-          current: streakRes.value.current,
-          longest: streakRes.value.longest,
-          lastActivityDate: streakRes.value.lastActivityDate,
-        }
-        setStreak(nextStreak)
-        cachedHomeData = { ...(cachedHomeData || { courses: [] }), streak: nextStreak }
-      }
-
-      if (achievementsRes.status === 'fulfilled' && achievementsRes.value) {
-        const nextBadges = recentUnlockedAchievements(achievementsRes.value.achievements, 3)
-        setBadges(nextBadges)
-        cachedHomeData = { ...(cachedHomeData || { courses: [] }), badges: nextBadges }
-      }
-
-      if (missionRes.status === 'fulfilled' && missionRes.value?.mission) {
-        setDailyMission(missionRes.value.mission)
-        cachedHomeData = { ...(cachedHomeData || { courses: [] }), mission: missionRes.value.mission }
+      const missionRes = await missionPromise
+      if (missionRes.mission) {
+        setDailyMission(missionRes.mission)
+        cachedHomeData = { ...(cachedHomeData || { courses: [] }), mission: missionRes.mission }
       } else {
         setDailyMission(null)
-      }
-
-      if (profileRes.status === 'fulfilled' && profileRes.value) {
-        setExplorerXp(profileRes.value.totalXp)
-        setExplorerLevel(profileRes.value.level)
-        setXpIntoLevel(profileRes.value.xpIntoLevel)
-        setXpToNextLevel(profileRes.value.xpToNextLevel)
-        cachedHomeData = { ...(cachedHomeData || { courses: [] }), profile: profileRes.value }
-        try {
-          localStorage.setItem('aiki_last_known_level', String(profileRes.value.level))
-          localStorage.setItem('aiki_last_known_xp', String(profileRes.value.totalXp))
-        } catch {}
-      } else if (user) {
-        if (typeof user.xp === 'number' && user.xp > 0) setExplorerXp(user.xp)
-        if (typeof user.level === 'number' && user.level > 1) setExplorerLevel(user.level)
-      }
-
-      if (user && storybookRes.status === 'fulfilled' && storybookRes.value) {
-        const synced = rewardEquipmentFromRows(storybookRes.value.equipment)
-        setProfileEquipment(syncRewardEquipment(user.id, synced))
-        cachedHomeData = { ...(cachedHomeData || { courses: [] }), storybook: storybookRes.value.equipment }
       }
     } catch {
       // Bỏ qua lỗi gamification do không chặn UI chính
     }
-  }, [user?.id, user?.xp, user?.level])
+  }, [user?.id])
 
 
   useEffect(() => {
     void load()
   }, [load])
-
-  useEffect(() => {
-    const handleXpUpdate = () => { void load() }
-    window.addEventListener('aikids:xp-updated', handleXpUpdate)
-    return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
-  }, [load])
-
-  useEffect(() => {
-    const syncEquipment = (event: Event) => {
-      if (!user) return
-      const detail = (event as CustomEvent<typeof profileEquipment>).detail
-      setProfileEquipment(detail && typeof detail === 'object'
-        ? detail
-        : readRewardEquipment(user.id))
-    }
-    const syncStoredEquipment = (event: StorageEvent) => {
-      if (user && event.key === `aikids.reward-equipment.${user.id}`) {
-        setProfileEquipment(readRewardEquipment(user.id))
-      }
-    }
-    window.addEventListener('aikids:reward-equipped', syncEquipment)
-    window.addEventListener('storage', syncStoredEquipment)
-    return () => {
-      window.removeEventListener('aikids:reward-equipped', syncEquipment)
-      window.removeEventListener('storage', syncStoredEquipment)
-    }
-  }, [user])
 
   const open = courses
     .filter((c) => c.status === 'open')
@@ -495,43 +378,28 @@ export function HomePage() {
     accessibleCourses.find((c) => c.recommended) ??
     accessibleCourses[0]
 
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-6">
-        <PageSkeleton rows={2} />
-        <CardGridSkeleton count={6} />
-      </div>
-    )
-  }
-
   return (
     <PageMotion className="flex flex-col gap-6">
-      {/* ── Hero banner ─────────────────────────────────────────── */}
       <header
-        className="home-profile-banner"
+        className="rounded-[2rem] border-4 border-white p-4 shadow-soft sm:p-5"
         style={{
-          ...profileCardBackgroundStyle(profileEquipment.background),
-          backgroundPosition: 'center',
+          backgroundColor: '#f4fbff',
+          backgroundImage: 'radial-gradient(circle at 8% 18%, rgba(14,165,233,0.10), transparent 30%), radial-gradient(circle at 92% 82%, rgba(109,94,252,0.09), transparent 32%)',
         }}
       >
-        <div className="home-profile-banner-wash" />
-        <div className="home-profile-banner-grid">
-          {user && (
-            <EquippedProfile
-              user={user}
-              xp={explorerXp}
-              level={explorerLevel}
-              compact
-              equipment={profileEquipment}
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
+          <Link to="/profile" className="flex min-w-0 items-center gap-3 rounded-2xl focus-visible:outline-focus">
+            <img
+              src={avatarImage(user?.avatarId) || designerAssets.brand.mascot}
+              alt=""
+              className="h-14 w-14 shrink-0 rounded-full border-2 border-white bg-white object-cover shadow-soft"
             />
-          )}
-
-          <div className="min-w-0 md:w-[20rem]">
-            <StreakWidget current={streak.current} longest={streak.longest} lastActivityDate={streak.lastActivityDate} />
-          </div>
-        </div>
-
-        <div className="home-profile-progress">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-extrabold text-muted">Chào {user?.nickname || 'nhà khám phá'}!</p>
+              <p className="font-display text-xl text-text">Cấp {explorerLevel}</p>
+            </div>
+          </Link>
+          <div className="min-w-0 flex-1 sm:ml-auto sm:max-w-xl">
           <XpWidget
             xp={explorerXp}
             level={explorerLevel}
@@ -539,8 +407,16 @@ export function HomePage() {
             xpToNextLevel={xpToNextLevel}
           />
         </div>
+        </div>
       </header>
 
+      {loading ? (
+        <div className="flex flex-col gap-6" aria-label="Đang tải nội dung trang Nhà">
+          <PageSkeleton rows={2} />
+          <CardGridSkeleton count={6} />
+        </div>
+      ) : (
+        <>
       {error && (
         <ErrorState message={error} onRetry={() => void load()} inline />
       )}
@@ -598,52 +474,6 @@ export function HomePage() {
               </Link>
             </article>
           )}
-        </section>
-      )}
-
-      {badges.length > 0 && (
-        <section className="rounded-[2rem] border-2 border-sun-100 bg-white/70 p-5 sm:p-6" aria-labelledby="recent-achievements-title">
-              <div className="flex items-center justify-between gap-2 mb-4">
-                <h2 id="recent-achievements-title" className="font-display text-xl flex items-center gap-2">
-                  <NavBadgeIcon size={24} aria-hidden />
-                  Huy hiệu mới nhất
-                </h2>
-                <Link
-                  to="/achievements"
-                  className="text-xs font-extrabold text-brand-500 hover:underline"
-                >
-                  Xem tất cả
-                </Link>
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-3">
-                {badges.map((b) => {
-                  const badgeAsset = achievementBadgeAsset(b)
-                  return (
-                  <Link
-                    key={b.type}
-                    to="/achievements"
-                    className="flex min-w-0 items-center gap-3 rounded-[1.5rem] border-2 border-sun-100 bg-sun-50/55 p-3 transition-colors hover:bg-sun-50 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
-                  >
-                    <span className="grid h-14 w-14 flex-shrink-0 place-items-center" aria-hidden="true">
-                      {badgeAsset ? (
-                        <img src={badgeAsset} alt="" loading="lazy" decoding="async" className="h-14 w-14 object-contain" />
-                      ) : (
-                        <NavBadgeIcon size={38} />
-                      )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-extrabold leading-snug text-text">
-                        {b.title}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs font-bold text-mint-700">
-                        Đã mở · +{(b.points ?? 0).toLocaleString('vi-VN')} điểm
-                      </p>
-                    </div>
-                  </Link>
-                  )
-                })}
-              </div>
         </section>
       )}
 
@@ -747,6 +577,8 @@ export function HomePage() {
           />
         )}
       </section>
+        </>
+      )}
     </PageMotion>
   )
 }

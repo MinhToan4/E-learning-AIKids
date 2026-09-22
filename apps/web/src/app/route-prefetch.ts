@@ -57,42 +57,6 @@ function loadRouteChunk(key: string) {
                                 : null
 }
 
-function warmRouteData(path: string): Promise<unknown> | null {
-  const normalized = path.split('?')[0]
-  const lessonMatch = normalized.match(/\/(?:lesson|quests|rule)\/([^/]+)$/)
-  if (lessonMatch) {
-    const lessonId = decodeURIComponent(lessonMatch[1])
-    const data = import('@/shared/lib/learning-api').then(({ learningApi }) =>
-      learningApi.getLesson(lessonId).catch(() => undefined),
-    )
-    if (lessonId.startsWith('bai-') || lessonId.startsWith('rule-')) {
-      return Promise.all([
-        data,
-        import('@/features/lesson/components/LessonJourneyRenderer'),
-        lessonId.startsWith('bai-') ? import('@/features/lesson/data/island-curriculum-registry') : Promise.resolve(),
-      ])
-    }
-    return data
-  }
-  const courseMatch = normalized.match(/^\/course\/([^/]+)$/)
-  if (courseMatch) {
-    return Promise.all([
-      import('@/shared/lib/learning-api').then(({ learningApi }) =>
-        learningApi.getCourse(decodeURIComponent(courseMatch[1])).catch(() => undefined),
-      ),
-      import('@/shared/lib/api').then(({ api }) =>
-        api('/api/enrollments').catch(() => undefined),
-      ),
-    ])
-  }
-  if (normalized.startsWith('/world')) {
-    return import('@/shared/lib/learning-api').then(({ learningApi }) =>
-      learningApi.getPathway().catch(() => undefined),
-    )
-  }
-  return null
-}
-
 /** Cancel a pending prefetch timer if mouse leaves before debounce expires. */
 export function cancelPrefetchRoute(path?: string) {
   if (path) {
@@ -135,8 +99,10 @@ export function prefetchRoute(path: string) {
     if (prefetched.has(key)) return
     prefetched.add(key)
     const chunk = loadRouteChunk(key)
-    const data = warmRouteData(path)
-    const work = [chunk, data].filter(Boolean) as Promise<unknown>[]
+    // Navigation intent may warm executable code, but must never start page
+    // data requests. Hover/focus can be accidental and invisible API work
+    // competes with the page the child is currently using.
+    const work = [chunk].filter(Boolean) as Promise<unknown>[]
     if (work.length === 0) {
       prefetched.delete(key)
       return
@@ -159,8 +125,7 @@ export function prefetchRouteImmediately(path: string) {
   if (prefetched.has(key)) return
   prefetched.add(key)
   const chunk = loadRouteChunk(key)
-  const data = warmRouteData(path)
-  const work = [chunk, data].filter(Boolean) as Promise<unknown>[]
+  const work = [chunk].filter(Boolean) as Promise<unknown>[]
   if (work.length === 0) {
     prefetched.delete(key)
     return

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from '@/shared/store/auth'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
@@ -296,14 +296,43 @@ function Guard({
 
 export function App() {
   const bootstrap = useAuth((s) => s.bootstrap)
+  const refreshMe = useAuth((s) => s.refreshMe)
   const expireSession = useAuth((s) => s.expireSession)
+  const userId = useAuth((s) => s.user?.id)
+  const lastIdentityRefresh = useRef(0)
   useEffect(() => {
     void bootstrap()
   }, [bootstrap])
   useEffect(() => {
+    if (!userId) return
+    // Remove obsolete per-origin avatar copies left by older releases. Avatar
+    // identity now lives only in the account service.
+    try {
+      localStorage.removeItem(`aikids.profile-avatar.${userId}`)
+      localStorage.removeItem(`aikids.profile-showcase.${userId}`)
+    } catch {}
+  }, [userId])
+  useEffect(() => {
     window.addEventListener(AUTH_UNAUTHORIZED_EVENT, expireSession)
     return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, expireSession)
   }, [expireSession])
+  useEffect(() => {
+    const refreshIdentity = () => {
+      if (document.visibilityState !== 'visible' || !useAuth.getState().user) return
+      const now = Date.now()
+      if (now - lastIdentityRefresh.current < 15_000) return
+      lastIdentityRefresh.current = now
+      void refreshMe().catch(() => undefined)
+    }
+    document.addEventListener('visibilitychange', refreshIdentity)
+    window.addEventListener('focus', refreshIdentity)
+    window.addEventListener('online', refreshIdentity)
+    return () => {
+      document.removeEventListener('visibilitychange', refreshIdentity)
+      window.removeEventListener('focus', refreshIdentity)
+      window.removeEventListener('online', refreshIdentity)
+    }
+  }, [refreshMe])
 
   return (
     // AgeExperienceProvider fetches age-band policy for students and exposes

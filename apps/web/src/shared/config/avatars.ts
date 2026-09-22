@@ -102,6 +102,7 @@ export function avatarImage(id: string | null | undefined): string | undefined {
   if (
     id?.startsWith('http://') ||
     id?.startsWith('https://') ||
+    id?.startsWith('/') ||
     id?.startsWith('data:') ||
     id?.startsWith('blob:')
   ) {

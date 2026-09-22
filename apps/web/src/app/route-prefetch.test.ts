@@ -46,4 +46,12 @@ describe('route-prefetch debounce and hover storm handling', () => {
     vi.advanceTimersByTime(200)
     expect(true).toBe(true)
   })
+
+  it('warms route code without issuing invisible page API requests', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    prefetchRoute('/world/dao-1/lesson/rule-1')
+    await vi.advanceTimersByTimeAsync(200)
+    expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
 })

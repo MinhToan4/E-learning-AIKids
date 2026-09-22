@@ -41,6 +41,15 @@ describe('dynamic level reward assets', () => {
     expect(getResolvedRewardAssetUrl('frame-creative-arena')).toMatch(/frame-creative-arena\.svg/)
   })
 
+  it('uses lightweight WebP previews for level-frame collection cards', () => {
+    expect(getResolvedRewardAssetUrl('frame-level-15', 'thumbnail')).toMatch(
+      /frame-level-15--preview\.webp/,
+    )
+    expect(getResolvedRewardAssetUrl('frame-level-75', 'preview')).toMatch(
+      /frame-level-75--preview\.webp/,
+    )
+  })
+
   it('does not invent broken URLs for icon-only static rewards', () => {
     window.__AIKIDS_RUNTIME_CONFIG__ = {
       rewardAssetBaseUrl: 'https://cdn.example.com',
