@@ -307,22 +307,19 @@ export function HomePage() {
 
     // Home is action-first: only learning data and today's mission belong here.
     // Profile decoration, achievements and inventory are loaded by their owning routes.
-    const coursesPromise = Promise.all([
-      api<{ courses: CourseSummary[] }>('/api/courses'),
-      api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments').catch(() => ({
-        enrollments: [] as EnrollmentSummary[],
-      })),
-    ])
+    // The courses boundary already contains authoritative enrollment and
+    // progress summaries. Fetching /api/enrollments again both delayed Home
+    // and could incorrectly hide every course when that secondary call failed.
+    const coursesPromise = api<{ courses: CourseSummary[] }>('/api/courses')
 
     const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
       .catch(() => ({ mission: null }))
 
     try {
       // Đợi khóa học xong trước tiên để hiển thị UI ngay lập tức
-      const [coursesRes, enrollmentsRes] = await coursesPromise
-      const mergedCourses = coursesWithEnrollments(coursesRes.courses, enrollmentsRes.enrollments)
-      setCourses(mergedCourses)
-      cachedHomeData = { ...(cachedHomeData || { courses: [] }), courses: mergedCourses }
+      const coursesRes = await coursesPromise
+      setCourses(coursesRes.courses)
+      cachedHomeData = { ...(cachedHomeData || { courses: [] }), courses: coursesRes.courses }
       setLoading(false) // Gỡ bỏ Skeleton ngay lập tức
     } catch (e) {
       if (!cachedHomeData) {
