@@ -488,8 +488,8 @@ export function ConfirmStageBlock({
         </div>
       )}
 
-      {/* Action button & Mint Feedback - Sticky đáy luôn nhìn thấy */}
-      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-col sm:flex-row justify-between items-center gap-2 border-t border-slate-100 sticky bottom-0 z-20">
+      {/* Action button & Mint Feedback - Đáy tự nhiên không đè nội dung */}
+      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-col sm:flex-row justify-between items-center gap-2 border-t border-slate-100">
         <Button
           variant="secondary"
           onClick={onPrevious}

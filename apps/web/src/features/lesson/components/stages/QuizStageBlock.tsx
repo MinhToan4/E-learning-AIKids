@@ -99,7 +99,7 @@ export function QuizStageBlock({
   return (
     <section
       data-testid="stage-3-quiz"
-      className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4"
+      className="flex min-h-0 h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4 gap-2.5"
     >
       <h2 className="sr-only">{config.title}</h2>
 
@@ -171,8 +171,8 @@ export function QuizStageBlock({
         </div>
       </div>
 
-      {/* Danh sách câu hỏi Single Question Stepper 2 Cột */}
-      <div className="w-full min-h-0">
+      {/* Danh sách câu hỏi Single Question Stepper 2 Cột cuộn độc lập */}
+      <div className="w-full flex-1 min-h-0 overflow-y-auto pr-1 pb-3">
         {questions.map((question, qIdx) => {
           const selectedOpt = quizAnswers[qIdx]
           const isActive = qIdx === activeQuizQuestionIdx
@@ -406,8 +406,8 @@ export function QuizStageBlock({
         })}
       </div>
 
-      {/* Action buttons - Sticky đáy */}
-      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-wrap gap-2 sm:gap-3 justify-between items-center border-t border-slate-100 sticky bottom-0 z-20">
+      {/* Action buttons - Đáy cố định độc lập không đè nội dung (Layout Defense) */}
+      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-wrap gap-2 sm:gap-3 justify-between items-center border-t border-slate-100">
         <Button
           variant="secondary"
           onClick={onPrevious}

@@ -189,4 +189,34 @@ describe('QuizStageBlock', () => {
     })
     expect(onSelectQuizAnswer).not.toHaveBeenCalled()
   })
+
+  it('verifies Layout Defense: bottom action bar does not use sticky to prevent floating over options', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <QuizStageBlock
+          stage={mockQuizStage}
+          activeQuizQuestionIdx={0}
+          quizAnswers={{}}
+          checkedQuestions={{}}
+        />
+      )
+    })
+
+    const section = container.querySelector('section[data-testid="stage-3-quiz"]') as HTMLElement
+    expect(section).not.toBeNull()
+    expect(section.className).toContain('overflow-hidden')
+
+    // Find scroll body containing options
+    const scrollBody = section.querySelector('div[class*="overflow-y-auto"]') as HTMLElement
+    expect(scrollBody).not.toBeNull()
+
+    // Find bottom action bar: must NOT contain "sticky" or "bottom-0"
+    const bottomBar = section.lastElementChild as HTMLElement
+    expect(bottomBar).not.toBeNull()
+    expect(bottomBar.className).not.toContain('sticky')
+    expect(bottomBar.className).not.toContain('bottom-0')
+    expect(bottomBar.textContent).toContain('Xem lại video')
+    expect(bottomBar.textContent).toContain('Nộp bài kiểm tra')
+  })
 })
