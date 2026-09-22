@@ -33,10 +33,29 @@ export function VideoStageBlock({
   isVideoCompleted = false,
 }: VideoStageBlockProps) {
   const { config } = stage
+  const stageRef = useRef<HTMLElement | null>(null)
+  const [useHorizontalTimeline, setUseHorizontalTimeline] = React.useState(false)
   const slides = useMemo(() => config.slides || [], [config.slides])
   const hasSlides = slides.length > 0
 
   const hasPlayedSoundRef = useRef(false)
+
+  useEffect(() => {
+    const element = stageRef.current
+    if (!element || typeof ResizeObserver === 'undefined') return
+    const updateLayout = (width: number, height: number) => {
+      // Measure the real learning canvas after navigation and AIKI consume
+      // their space. Viewport-only media queries misclassify this area.
+      setUseHorizontalTimeline(width < 768 || width / Math.max(height, 1) <= 1.5)
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) updateLayout(entry.contentRect.width, entry.contentRect.height)
+    })
+    observer.observe(element)
+    const rect = element.getBoundingClientRect()
+    updateLayout(rect.width, rect.height)
+    return () => observer.disconnect()
+  }, [])
 
   // Reset khi đổi bài học
   useEffect(() => {
@@ -117,7 +136,9 @@ export function VideoStageBlock({
 
   return (
     <section
+      ref={stageRef}
       data-testid="stage-2-video"
+      data-timeline-layout={useHorizontalTimeline ? 'horizontal' : 'vertical'}
       className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
