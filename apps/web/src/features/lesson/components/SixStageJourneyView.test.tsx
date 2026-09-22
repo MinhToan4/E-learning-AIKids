@@ -2159,7 +2159,7 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('renders Universal 3-Stage Rule Journey with Slide Cinema 16:9 for rule-1', () => {
+  it('renders Universal 3-Stage Rule Journey with YouTube Video 16:9 for rule-1', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -2175,39 +2175,15 @@ describe('SixStageJourneyView', () => {
     // 1. Should have 3 stages in progress indicator
     expect(container.textContent).toContain('Chặng 1/3')
 
-    // 2. Video stage has tabs to switch between YouTube Video & Slide Cinema
-    const tabVideoBtn = container.querySelector('[data-testid="tab-video-btn"]')
-    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]')
-    expect(tabVideoBtn).not.toBeNull()
-    expect(tabSlidesBtn).not.toBeNull()
-
-    // Default is YouTube Video tab
+    // 2. YouTube Video iframe 16:9
     const iframe = container.querySelector('iframe')
     expect(iframe).not.toBeNull()
     expect(iframe?.src).toContain('opYm3mvrnqI')
 
-    // Switch to Slide Cinema tab
-    act(() => {
-      ;(tabSlidesBtn as HTMLButtonElement).click()
-    })
-
-    // Stage 1 is now in Slide Cinema 16:9 mode
-    const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
-    expect(speechBubble).not.toBeNull()
-    expect(speechBubble?.textContent).toContain('Mèo AIKI')
-
-    // Video stages must grow as one scrollable document. A fixed-height stage or an
-    // overflow-hidden media wrapper clips the speech bubble at laptop/mobile heights.
-    const videoStage = container.querySelector('[data-testid="stage-2-video"]')
-    expect(videoStage?.className).toContain('h-auto')
-    expect(videoStage?.className).not.toContain('sm:h-full')
-    expect(speechBubble?.parentElement?.className).not.toContain('overflow-hidden')
-
-    // 3. Auto-play button and 5 chapter nodes
-    const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
-    expect(autoPlayBtn).not.toBeNull()
-
+    // 3. Chapter nodes 1-5 in horizontal timeline stepper
+    const node1 = container.querySelector('[data-testid="video-chapter-node-1"]')
     const node5 = container.querySelector('[data-testid="video-chapter-node-5"]')
+    expect(node1).not.toBeNull()
     expect(node5).not.toBeNull()
 
     act(() => root.unmount())
@@ -2232,20 +2208,10 @@ describe('SixStageJourneyView', () => {
     // 2. Station label and header should be recognized as Rule 1
     expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
 
-    // 3. Has tab switcher between Video & Slide Cinema
-    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]')
-    expect(tabSlidesBtn).not.toBeNull()
-    act(() => {
-      ;(tabSlidesBtn as HTMLButtonElement).click()
-    })
-
-    // 4. In Slide Cinema mode: Speech bubble, Auto-play button and 5 chapter nodes
-    const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
-    expect(speechBubble).not.toBeNull()
-    expect(speechBubble?.textContent).toContain('Mèo AIKI')
-
-    const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
-    expect(autoPlayBtn).not.toBeNull()
+    // 3. Directly renders YouTube Video iframe
+    const iframe = container.querySelector('iframe')
+    expect(iframe).not.toBeNull()
+    expect(iframe?.src).toContain('opYm3mvrnqI')
 
     const node5 = container.querySelector('[data-testid="video-chapter-node-5"]')
     expect(node5).not.toBeNull()
@@ -3011,7 +2977,7 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('supports seamless tab switching between YouTube Video and Slide Cinema for Rule Lessons with 16:9 layout and star accumulation', async () => {
+  it('renders dedicated YouTube Video Player for Rule Lessons with 16:9 layout and star accumulation', async () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -3023,12 +2989,6 @@ describe('SixStageJourneyView', () => {
         />
       )
     })
-
-    // Both tabs are rendered
-    const tabVideoBtn = container.querySelector('[data-testid="tab-video-btn"]') as HTMLButtonElement | null
-    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]') as HTMLButtonElement | null
-    expect(tabVideoBtn).not.toBeNull()
-    expect(tabSlidesBtn).not.toBeNull()
 
     // 1. Initially in YouTube Video Mode: contains iframe with _8Ig_cX25-4
     const iframe = container.querySelector('iframe')
@@ -3045,19 +3005,10 @@ describe('SixStageJourneyView', () => {
     })
     expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
 
-    // 2. Switch to Slide Cinema Mode
-    act(() => {
-      tabSlidesBtn?.click()
-    })
-    expect(container.querySelector('[data-testid="slide-speech-bubble"]')).not.toBeNull()
-    expect(container.querySelector('[data-testid="slide-autoplay-btn"]')).not.toBeNull()
-
-    // 3. Switch back to YouTube Video Mode
-    act(() => {
-      tabVideoBtn?.click()
-    })
-    expect(container.querySelector('iframe')).not.toBeNull()
-    expect(container.querySelector('[data-testid="slide-speech-bubble"]')).toBeNull()
+    // 2. Action button to continue to next stage (Stage 2 Quiz)
+    const continueBtn = container.querySelector('button.bg-brand-600') as HTMLButtonElement | null
+    expect(continueBtn).not.toBeNull()
+    expect(container.textContent).toContain('Tiếp tục sang Thử Tài Phản Xạ')
 
     act(() => root.unmount())
   })
@@ -3084,11 +3035,12 @@ describe('SixStageJourneyView', () => {
     expect(videoSection.className).toContain('overflow-y-auto')
     expect(videoSection.className).toContain('flex-1')
 
-    // Check video iframe wrapper has low-height responsive classes
+    // Check video iframe wrapper has expanded responsive dimensions
     const iframeWrapper = videoSection.querySelector('iframe')?.parentElement as HTMLElement
     expect(iframeWrapper).not.toBeNull()
-    expect(iframeWrapper.className).toContain('[@media(max-height:760px)]:max-h-[34vh]')
-    expect(iframeWrapper.style.width).toContain('clamp')
+    expect(iframeWrapper.className).toContain('aspect-video')
+    expect(iframeWrapper.style.width).toContain('100dvh - 280px')
+    expect(iframeWrapper.style.maxHeight).toContain('100dvh - 280px')
 
     // 2. Check timeline stepper has low-height responsive padding
     const stepper = container.querySelector('[data-testid="video-timeline-stepper"]') as HTMLElement
