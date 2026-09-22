@@ -126,9 +126,9 @@ export function VideoStageBlock({
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
 
       {/* Khung video 16:9 to rõ ở trung tâm */}
-      <div className="flex w-full flex-1 min-h-0 items-center justify-center py-1">
+      <div className="flex w-full flex-1 min-h-0 items-center justify-center py-0.5 overflow-hidden">
         <div
-          className="relative aspect-video w-full max-w-5xl xl:max-w-6xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black"
+          className="relative aspect-video max-w-full max-h-full w-full max-w-5xl xl:max-w-6xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black shrink-0"
           style={{
             width: 'min(100%, 1100px, calc((100dvh - 280px) * 16 / 9))',
             maxHeight: 'min(58vh, calc(100dvh - 280px))',
@@ -169,7 +169,7 @@ export function VideoStageBlock({
       {/* Thanh tiến trình stepper dàn ngang chuẩn AikiRuleVideoPlayer */}
       <div
         data-testid="video-timeline-stepper"
-        className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 p-1.5 sm:p-2.5 [@media(max-height:760px)]:py-1 [@media(max-height:760px)]:px-2 shadow-xs shrink-0 flex flex-col gap-1 sm:gap-1.5 [@media(max-height:760px)]:gap-0.5"
+        className="relative z-10 w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 p-1.5 sm:p-2.5 [@media(max-height:760px)]:py-1 [@media(max-height:760px)]:px-2 shadow-xs shrink-0 flex flex-col gap-1 sm:gap-1.5 [@media(max-height:760px)]:gap-0.5"
       >
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5">
           <button

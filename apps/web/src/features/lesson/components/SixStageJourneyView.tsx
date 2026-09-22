@@ -841,7 +841,21 @@ export function SixStageJourneyView({
 
   // Helper values for the sidebar
   const formulaCards = stages[0]?.config?.formulaCards || []
-  const videoChapters = stages[2]?.config?.timestamps || []
+  const videoStageDef = stages.find((s) => s.type === 'VIDEO') || stages[2]
+  const rawTimestamps = (videoStageDef?.config as any)?.timestamps
+  const videoChapters = useMemo(() => {
+    if (rawTimestamps && rawTimestamps.length > 0) {
+      return rawTimestamps
+    }
+    return [
+      { label: 'Tình huống mở đầu', startSec: 0, endSec: 30 },
+      { label: 'Khám phá bí kíp', startSec: 30, endSec: 75 },
+      { label: 'Quy tắc 4 chìa khóa', startSec: 75, endSec: 120 },
+      { label: 'Thực hành cùng AIKI', startSec: 120, endSec: 150 },
+      { label: 'Mẹo tránh lỗi đoán mò', startSec: 150, endSec: 175 },
+      { label: 'Tổng kết bài học', startSec: 175, endSec: 180 },
+    ]
+  }, [rawTimestamps])
   const practiceConfig = stages[4]?.config
   const isCreativeNotebook = practiceConfig?.creativeEngineMode === 'creative-notebook'
   const defaultPracticeParts = practiceConfig?.defaultPracticeParts || []
@@ -1819,15 +1833,15 @@ export function SixStageJourneyView({
                           </p>
                         </div>
 
-                        {!isRuleLesson && <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
+                        <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
                             🎯 Nhiệm vụ chặng này:
                           </p>
                           <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                            {getStageInstruction(2)}
+                            {isRuleLesson ? 'Theo dõi video bài giảng quy tắc và nắm chắc các mốc phân đoạn.' : getStageInstruction(2)}
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
-                        </div>}
+                        </div>
                       </div>
                     )}
 
