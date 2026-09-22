@@ -128,8 +128,8 @@ export function VideoStageBlock({
         <div
           className="relative aspect-video max-w-full max-h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black flex items-center justify-center shrink-0 w-full lg:max-w-none"
           style={{
-            width: 'min(100%, 1100px, calc((100dvh - 280px) * 16 / 9))',
-            maxHeight: 'min(58vh, calc(100dvh - 280px))',
+            width: 'min(100%, 1100px, calc((100dvh - 190px) * 16 / 9))',
+            maxHeight: 'min(68vh, calc(100dvh - 190px))',
           }}
         >
           <iframe
@@ -202,7 +202,7 @@ export function VideoStageBlock({
           </button>
 
           {/* TRACK TIẾN ĐỘ */}
-          <div className="col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1">
+          <div className="col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
             
             {/* Horizontal Line (Portrait) */}
             <div className="absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">

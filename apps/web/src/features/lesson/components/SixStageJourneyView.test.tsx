@@ -3039,8 +3039,8 @@ describe('SixStageJourneyView', () => {
     const iframeWrapper = videoSection.querySelector('iframe')?.parentElement as HTMLElement
     expect(iframeWrapper).not.toBeNull()
     expect(iframeWrapper.className).toContain('aspect-video')
-    expect(iframeWrapper.style.width).toContain('100dvh - 280px')
-    expect(iframeWrapper.style.maxHeight).toContain('100dvh - 280px')
+    expect(iframeWrapper.style.width).toContain('100dvh - 190px')
+    expect(iframeWrapper.style.maxHeight).toContain('100dvh - 190px')
 
     // 2. Check timeline stepper has low-height responsive padding
     const stepper = container.querySelector('[data-testid="video-timeline-stepper"]') as HTMLElement
