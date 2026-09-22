@@ -86,6 +86,83 @@
   --shadow-press: 0 3px 0 0 rgba(109, 94, 252, 0.22);
 }
 
+/* A wide CSS breakpoint alone misclassifies square tablets/windows as a
+   landscape workspace. In that shape, keep the video and timestamp rail in a
+   compact vertical flow so 16:9 media does not float inside a tall blank box. */
+@media (min-width: 768px) and (min-height: 800px) and (max-aspect-ratio: 4 / 3) {
+  .lesson-video-stage {
+    height: auto !important;
+    flex: none !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+
+  .lesson-video-main {
+    height: auto !important;
+    flex: none !important;
+    justify-content: flex-start !important;
+  }
+
+  .lesson-video-frame {
+    width: min(100%, 1100px) !important;
+    max-height: none !important;
+  }
+
+  .lesson-video-timeline {
+    width: 100% !important;
+    max-height: none !important;
+    align-self: stretch !important;
+  }
+
+  .lesson-video-controls {
+    display: grid !important;
+  }
+
+  .lesson-video-play {
+    order: initial !important;
+  }
+
+  .lesson-video-track {
+    order: initial !important;
+    width: auto !important;
+    min-height: 40px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .lesson-video-horizontal-line {
+    display: flex !important;
+  }
+
+  .lesson-video-vertical-line {
+    display: none !important;
+  }
+
+  .lesson-video-nodes {
+    height: 100% !important;
+    min-height: 0 !important;
+    flex-direction: row !important;
+    gap: 0 !important;
+  }
+
+  .lesson-video-node-row {
+    position: absolute !important;
+    top: 50% !important;
+    left: var(--portrait-left) !important;
+    width: fit-content !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .lesson-video-node-label {
+    display: none !important;
+  }
+
+  .lesson-video-secondary {
+    order: initial !important;
+    min-width: 0 !important;
+  }
+}
+
 html[data-sticker-effect='sparkle'] .ui-badge-clay {
   filter: drop-shadow(0 0 7px rgb(250 204 21 / 70%));
 }

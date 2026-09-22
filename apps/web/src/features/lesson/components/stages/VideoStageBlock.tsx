@@ -118,15 +118,15 @@ export function VideoStageBlock({
   return (
     <section
       data-testid="stage-2-video"
-      className="flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
+      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
 
       {/* CỘT TRÁI (Main Video Cinema - Phóng to cực đại theo chiều cao khả dụng) */}
-      <div className="flex flex-1 min-w-0 flex-col items-center justify-center h-full min-h-0 py-0.5 overflow-hidden">
+      <div className="lesson-video-main flex flex-1 min-w-0 flex-col items-center justify-center h-full min-h-0 py-0.5 overflow-hidden">
         <div
-          className="relative aspect-video max-w-full max-h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black flex items-center justify-center shrink-0 w-full lg:max-w-none"
+          className="lesson-video-frame relative aspect-video max-w-full max-h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black flex items-center justify-center shrink-0 w-full lg:max-w-none"
           style={{
             width: 'min(100%, 1100px, calc((100dvh - 190px) * 16 / 9))',
             maxHeight: 'min(68vh, calc(100dvh - 190px))',
@@ -167,7 +167,7 @@ export function VideoStageBlock({
       {/* CỘT PHẢI: Thanh tiến trình stepper & Vertical Playlist & Action Dock */}
       <div
         data-testid="video-timeline-stepper"
-        className="relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-center lg:self-center"
+        className="lesson-video-timeline relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-center lg:self-center"
       >
         {/* Header mốc & Thời gian */}
         <div className="shrink-0 flex items-center justify-between gap-1 pb-1 border-b border-amber-200/80 text-xs">
@@ -187,14 +187,14 @@ export function VideoStageBlock({
         </div>
 
         {/* TRACK & CONTROLS GRID */}
-        <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
+        <div className="lesson-video-controls grid grid-cols-[auto_1fr] grid-rows-[auto_auto] landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
           
           {/* NÚT PLAY / TUA LẠI */}
           <button
             type="button"
             data-testid="video-timeline-play-btn"
             onClick={() => onSeekVideo?.((videoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-            className="col-start-1 row-start-1 landscape:order-2 lg:order-2 size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center gap-1 cursor-pointer transition-all self-center shrink-0 z-10"
+            className="lesson-video-play col-start-1 row-start-1 landscape:order-2 lg:order-2 size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center gap-1 cursor-pointer transition-all self-center shrink-0 z-10"
             aria-label="Tua lại từ đầu"
             title="Tua lại từ đầu"
           >
@@ -202,10 +202,10 @@ export function VideoStageBlock({
           </button>
 
           {/* TRACK TIẾN ĐỘ */}
-          <div className="col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
+          <div className="lesson-video-track col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
             
             {/* Horizontal Line (Portrait) */}
-            <div className="absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
+            <div className="lesson-video-horizontal-line absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
                 style={{
@@ -215,7 +215,7 @@ export function VideoStageBlock({
             </div>
 
             {/* Vertical Line (Landscape) */}
-            <div className="absolute left-[11px] top-4 bottom-4 w-1.5 bg-amber-200 rounded-full shadow-inner hidden landscape:block lg:block z-0">
+            <div className="lesson-video-vertical-line absolute left-[11px] top-4 bottom-4 w-1.5 bg-amber-200 rounded-full shadow-inner hidden landscape:block lg:block z-0">
               <div
                 className="w-full rounded-full bg-gradient-to-b from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
                 style={{
@@ -225,7 +225,7 @@ export function VideoStageBlock({
             </div>
 
             {/* Nodes Container */}
-            <div className="relative w-full h-full landscape:h-max lg:h-max landscape:min-h-full lg:min-h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
+            <div className="lesson-video-nodes relative w-full h-full landscape:h-max lg:h-max landscape:min-h-full lg:min-h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
               {videoChapters.map((m, idx) => {
                 const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
                 const isPassed = (videoSeekSec || 0) >= m.startSec
@@ -234,7 +234,7 @@ export function VideoStageBlock({
                 return (
                   <div
                     key={idx}
-                    className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full landscape:shrink-0 lg:shrink-0 left-[var(--portrait-left)]"
+                    className="lesson-video-node-row absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full landscape:shrink-0 lg:shrink-0 left-[var(--portrait-left)]"
                     style={{ '--portrait-left': `${posPercent}%` } as React.CSSProperties}
                   >
                     {/* Node Circle */}
@@ -260,7 +260,7 @@ export function VideoStageBlock({
                       type="button"
                       onClick={() => onSeekVideo?.(m.startSec)}
                       className={cn(
-                        "hidden landscape:flex lg:flex flex-1 text-left px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all min-w-0 flex-col gap-0 shadow-2xs cursor-pointer",
+                        "lesson-video-node-label hidden landscape:flex lg:flex flex-1 text-left px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all min-w-0 flex-col gap-0 shadow-2xs cursor-pointer",
                         isCurrent ? 'bg-brand-500 text-white border-brand-600 ring-1 ring-brand-300 shadow-clay-xs' :
                         isPassed ? 'bg-amber-100/90 text-amber-950 border-amber-300 hover:bg-amber-200' :
                         'bg-white text-slate-700 border-amber-200 hover:bg-amber-50'
@@ -278,7 +278,7 @@ export function VideoStageBlock({
           </div>
 
           {/* CỤM NÚT PHỤ */}
-          <div className="col-span-2 col-start-1 row-start-2 landscape:order-3 lg:order-3 landscape:flex-1 lg:flex-1 landscape:min-w-0 lg:min-w-0 flex gap-1.5 self-center">
+          <div className="lesson-video-secondary col-span-2 col-start-1 row-start-2 landscape:order-3 lg:order-3 landscape:flex-1 lg:flex-1 landscape:min-w-0 lg:min-w-0 flex gap-1.5 self-center">
             <button
               type="button"
               onClick={() => onSeekVideo?.(0)}
