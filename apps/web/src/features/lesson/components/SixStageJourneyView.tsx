@@ -1113,7 +1113,10 @@ export function SixStageJourneyView({
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="inline-flex min-h-11 items-center justify-center gap-1 px-3 rounded-full text-xs font-black shadow-xs bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 cursor-pointer transition-all active:scale-95 shrink-0"
+            className={cn(
+              'inline-flex min-h-11 items-center justify-center gap-1 px-3 rounded-full text-xs font-black shadow-xs bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 cursor-pointer transition-all active:scale-95 shrink-0',
+              isRuleLesson && isSidebarCollapsed && 'md:hidden',
+            )}
             title={isSidebarCollapsed ? 'Mở trợ lý AIKI' : 'Thu gọn trợ lý AIKI'}
           >
             <span>🐱</span>
@@ -1265,42 +1268,51 @@ export function SixStageJourneyView({
           <aside
             data-testid="aiki-compact-rail"
             aria-label={`Trợ lý AIKI, chặng ${currentStage + 1} trên ${stages.length}`}
-            className="hidden md:flex w-16 shrink-0 self-stretch flex-col items-center gap-2 rounded-3xl border-2 border-brand-100 bg-white px-2 py-3 shadow-clay"
+            className="hidden md:flex w-20 shrink-0 self-center flex-col items-center gap-2.5 rounded-[28px] border-2 border-brand-100 bg-gradient-to-b from-white via-brand-50/70 to-amber-50 px-2.5 py-3 shadow-clay"
           >
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed(false)}
-              className="flex size-11 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 text-xl shadow-2xs transition hover:-translate-y-0.5 hover:bg-amber-100"
+              className="flex size-14 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-amber-100 shadow-md ring-2 ring-amber-200 transition hover:-translate-y-0.5"
               title="Mở trợ lý AIKI"
               aria-label="Mở trợ lý AIKI"
             >
-              🐱
+              <AikidCatCharacter
+                pose={currentStageDef?.type === 'QUIZ' ? 'thinking' : 'welcome'}
+                isSpeaking={isSpeakingCurrentStage}
+                size="sm"
+              />
             </button>
 
-            <strong className="text-xs font-black text-brand-700">
-              {currentStage + 1}/{stages.length}
-            </strong>
+            <div className="text-center leading-tight">
+              <strong className="block text-[10px] font-black uppercase tracking-wide text-amber-800">AIKI</strong>
+              <span className="mt-1 inline-flex rounded-full bg-brand-500 px-2 py-0.5 text-[11px] font-black text-white shadow-2xs">
+                {currentStage + 1}/{stages.length}
+              </span>
+            </div>
 
-            <div className="flex flex-1 flex-col items-center justify-center gap-1.5" aria-hidden="true">
+            <div className="flex items-center justify-center gap-1.5 py-0.5" aria-hidden="true">
               {stages.map((_, index) => (
                 <span
                   key={index}
                   className={cn(
-                    'size-2.5 rounded-full border transition-colors',
+                    'size-2 rounded-full border transition-colors',
                     index < currentStage
                       ? 'border-mint-500 bg-mint-400'
                       : index === currentStage
-                        ? 'size-3.5 border-brand-300 bg-brand-500 ring-2 ring-brand-100'
+                        ? 'size-3 border-brand-300 bg-brand-500 ring-2 ring-brand-100'
                         : 'border-slate-200 bg-slate-100',
                   )}
                 />
               ))}
             </div>
 
+            <div className="h-px w-10 bg-brand-100" />
+
             <button
               type="button"
               onClick={() => speakCurrentStage(currentStageSpeech)}
-              className="flex size-10 items-center justify-center rounded-2xl border border-brand-100 bg-brand-50 text-brand-700 transition hover:bg-brand-100"
+              className="flex size-9 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-2xs transition hover:bg-brand-100"
               title="Nghe AIKI hướng dẫn"
               aria-label="Nghe AIKI hướng dẫn"
             >
@@ -1310,8 +1322,9 @@ export function SixStageJourneyView({
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed(false)}
-              className="text-[10px] font-black uppercase tracking-wide text-brand-700"
+              className="inline-flex items-center gap-0.5 rounded-xl bg-brand-500 px-2 py-1.5 text-[10px] font-black text-white shadow-2xs transition hover:bg-brand-600"
             >
+              <ChevronLeft size={12} />
               Mở
             </button>
           </aside>
