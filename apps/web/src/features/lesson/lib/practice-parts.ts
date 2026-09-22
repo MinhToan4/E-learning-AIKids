@@ -75,7 +75,7 @@ export function getDefaultPracticeParts(
   if (lessonNum === '1.1' || normId.includes('1-1') || normId.includes('1.1')) {
     return [
       { partNumber: 1, title: 'Con mèo', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
-      { partNumber: 2, title: 'Con cá vàng', icon: '🐠', emoji: '🐠', iconImage: '/assets/aiki-islands/island1_lesson1_cat.jpg' },
+      { partNumber: 2, title: 'Con cá vàng', icon: '🐠', emoji: '🐠', iconImage: '/assets/pregenerated-fallback/magic-keys/goldfish_full_details_v1.webp' },
       { partNumber: 3, title: 'Con cún', icon: '🐶', emoji: '🐶', iconImage: '/assets/pregenerated-fallback/magic-keys/dog_one_word_v1.webp' },
     ]
   }
@@ -115,10 +115,10 @@ export function getDefaultPracticeParts(
   // 6. Bài 2.3: Đúng 4 món đồ ánh sáng: Ánh sáng Ban Mai, Ánh sáng Nắng Trưa, Ánh sáng Hoàng Hôn, Ánh sáng Ánh Trăng
   if (lessonNum === '2.3' || normId.includes('2-3') || normId.includes('2.3')) {
     return [
-      { partNumber: 1, title: 'Ánh sáng Ban Mai', icon: '🌅', emoji: '🌅', iconImage: '/assets/aiki-islands/island2_lesson3_colors.jpg' },
-      { partNumber: 2, title: 'Ánh sáng Nắng Trưa', icon: '☀️', emoji: '☀️', iconImage: '/assets/aiki-islands/island2_lesson3_colors.jpg' },
-      { partNumber: 3, title: 'Ánh sáng Hoàng Hôn', icon: '🌇', emoji: '🌇', iconImage: '/assets/aiki-islands/island2_lesson3_colors.jpg' },
-      { partNumber: 4, title: 'Ánh sáng Ánh Trăng', icon: '🌙', emoji: '🌙', iconImage: '/assets/aiki-islands/island2_lesson3_colors.jpg' },
+      { partNumber: 1, title: 'Ánh sáng Ban Mai', icon: '🌅', emoji: '🌅', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_morning_v1.webp' },
+      { partNumber: 2, title: 'Ánh sáng Nắng Trưa', icon: '☀️', emoji: '☀️', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_noon_v1.webp' },
+      { partNumber: 3, title: 'Ánh sáng Hoàng Hôn', icon: '🌇', emoji: '🌇', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_sunset_v1.webp' },
+      { partNumber: 4, title: 'Ánh sáng Ánh Trăng', icon: '🌙', emoji: '🌙', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_moon_v1.webp' },
     ]
   }
 
@@ -139,12 +139,12 @@ export function getDefaultPracticeParts(
   // 9. Bài 3.3: Đúng 6 biểu cảm: Vui 😊, Buồn 😢, Sợ 😨, Giận 😠, Ngạc nhiên 😲, Buồn ngủ 😴
   if (lessonNum === '3.3' || normId.includes('3-3') || normId.includes('3.3')) {
     return [
-      { partNumber: 1, title: 'Biểu cảm Vui 😊', icon: '😊', emoji: '😊', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
-      { partNumber: 2, title: 'Biểu cảm Buồn 😢', icon: '😢', emoji: '😢', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
-      { partNumber: 3, title: 'Biểu cảm Sợ 😨', icon: '😨', emoji: '😨', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
-      { partNumber: 4, title: 'Biểu cảm Giận 😠', icon: '😠', emoji: '😠', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
-      { partNumber: 5, title: 'Biểu cảm Ngạc nhiên 😲', icon: '😲', emoji: '😲', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
-      { partNumber: 6, title: 'Biểu cảm Buồn ngủ 😴', icon: '😴', emoji: '😴', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp' },
+      { partNumber: 1, title: 'Biểu cảm Vui 😊', icon: '😊', emoji: '😊', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_happy_v1.webp' },
+      { partNumber: 2, title: 'Biểu cảm Buồn 😢', icon: '😢', emoji: '😢', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_sad_v1.webp' },
+      { partNumber: 3, title: 'Biểu cảm Sợ 😨', icon: '😨', emoji: '😨', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_scared_v1.webp' },
+      { partNumber: 4, title: 'Biểu cảm Giận 😠', icon: '😠', emoji: '😠', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_angry_v1.webp' },
+      { partNumber: 5, title: 'Biểu cảm Ngạc nhiên 😲', icon: '😲', emoji: '😲', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_surprised_v1.webp' },
+      { partNumber: 6, title: 'Biểu cảm Buồn ngủ 😴', icon: '😴', emoji: '😴', iconImage: '/assets/pregenerated-fallback/identity-lock/fox_zico_sleepy_v1.webp' },
     ]
   }
 

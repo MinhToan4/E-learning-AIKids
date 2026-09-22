@@ -16,6 +16,13 @@ describe('gamification API facades', () => {
     expect(fetchMock.mock.calls[0][0]).toBe('https://dev-hub.storymee.com/api/v1/gamification/me/achievements')
   })
 
+  it('routes XP bars through the lightweight progression projection', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({ totalXp: 120, level: 2 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await gamificationApi.profile()
+    expect(fetchMock.mock.calls[0][0]).toBe('https://dev-hub.storymee.com/api/v1/gamification/me/progression')
+  })
+
   it('routes CMS updates through the admin studio boundary', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({ item: {} }))
     vi.stubGlobal('fetch', fetchMock)

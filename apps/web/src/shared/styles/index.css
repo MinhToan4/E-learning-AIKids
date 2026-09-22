@@ -3627,6 +3627,28 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     scrollbar-gutter: stable;
   }
 
+  .adventure-modal.course-paywall-modal {
+    width: min(calc(100vw - 2rem), 44rem);
+    max-height: min(94vh, 44rem);
+  }
+
+  .course-paywall-modal .adventure-modal-content {
+    padding-inline: clamp(1rem, 3.5vw, 2.25rem);
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .course-paywall-modal h2 {
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  .course-paywall-modal .adventure-modal-mascot {
+    right: -0.5rem;
+    top: 2rem;
+    width: 6.5rem;
+  }
+
   .adventure-modal-landscape {
     position: absolute;
     inset: 0 0 auto;
@@ -3794,6 +3816,18 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
     .lesson-completion-modal .adventure-modal-content {
       padding-inline: 2.5rem;
+    }
+
+    .course-paywall-modal .adventure-modal-content {
+      padding-inline: 2.25rem;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .course-paywall-modal .adventure-modal-mascot {
+      right: -0.75rem;
+      top: 2rem;
+      width: 7rem;
     }
   }
 

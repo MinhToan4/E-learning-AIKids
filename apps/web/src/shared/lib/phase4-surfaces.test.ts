@@ -15,13 +15,12 @@ function read(rel: string) {
 describe('Phase 4 FE surfaces call shipped APIs', () => {
   it('HomePage loads private progress and courses without a public leaderboard', () => {
     const src = read('features/home/pages/HomePage.tsx')
-    expect(src).toContain('/api/gamification/streak')
+    expect(src).toContain('useProgression(user)')
     expect(src).toContain('/api/enrollments')
     expect(src).toContain('lastActivityDate')
     expect(src).not.toContain('/api/gamification/check-in')
-    expect(src).toContain('/api/gamification/achievements')
-    expect(src).toContain('recentUnlockedAchievements')
-    expect(src).toContain('achievementBadgeAsset')
+    expect(src).not.toContain('/api/gamification/achievements')
+    expect(src).toContain('Profile decoration, achievements and inventory are loaded by their owning routes')
     expect(src).not.toContain('/api/gamification/leaderboard')
     expect(src).toContain('claimedAt')
     expect(src).not.toContain('aikids.daily-mission-seen.')
@@ -75,8 +74,12 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
 
   it('loads lessons through the learning boundary and supports visual quiz image options', () => {
     const lesson = read('features/lesson/pages/LessonPage.tsx')
-    expect(lesson).toContain('learningApi.getLesson(questId)')
-    expect(lesson).toContain('learningApi.startLesson(questId)')
+    const learningApi = read('shared/lib/learning-api.ts')
+    expect(lesson).toContain('learningApi.openLesson(questId)')
+    expect(learningApi).toContain('`/api/progress/${encodeURIComponent(lessonId)}/open`')
+    expect(learningApi).toContain('const [lesson, started] = await Promise.all([')
+    expect(learningApi).toContain('cachedLessonDetail(lessonId)')
+    expect(learningApi).toContain('dedupedLessonStart(lessonId)')
     expect(lesson).toContain("opt.startsWith('http')")
     expect(lesson).toContain('alt={`Option ${String.fromCharCode(65 + idx)}`}')
   })

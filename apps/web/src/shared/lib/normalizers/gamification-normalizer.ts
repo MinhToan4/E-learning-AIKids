@@ -13,7 +13,7 @@ export function normalizeGamificationGatewayRequest(
     '/api/gamification/social/discover': '/api/v1/gamification/me/social/discover',
     '/api/gamification/social/invites/pending-review': '/api/v1/gamification/me/social/invites/pending-review',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
-    '/api/gamification/profile': '/api/v1/gamification/me',
+    '/api/gamification/profile': '/api/v1/gamification/me/progression',
     '/api/gamification/class-celebration': '/api/v1/gamification/me/celebration',
     '/api/gamification/catalog': '/api/v1/gamification/catalog',
   }

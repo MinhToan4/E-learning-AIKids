@@ -6,7 +6,7 @@ import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 
 describe('AikiRuleVideoPlayer', () => {
   it('renders video player with 16:9 box, slide dialogue and timeline', () => {
-    const rule = AIKI_RULES_DATA[0]
+    const rule = { ...AIKI_RULES_DATA[0], videoUrl: undefined }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, { rule })
     )
@@ -20,7 +20,7 @@ describe('AikiRuleVideoPlayer', () => {
   })
 
   it('renders interactive quiz on stage 1', () => {
-    const rule = AIKI_RULES_DATA[0]
+    const rule = { ...AIKI_RULES_DATA[0], videoUrl: undefined }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, { rule, activeSlideIndex: 1 })
     )
@@ -30,7 +30,7 @@ describe('AikiRuleVideoPlayer', () => {
   })
 
   it('hides live subtitles overlay on stage 4 to prevent overlapping text', () => {
-    const rule = AIKI_RULES_DATA[0]
+    const rule = { ...AIKI_RULES_DATA[0], videoUrl: undefined }
     const markup = renderToStaticMarkup(
       createElement(AikiRuleVideoPlayer, { rule, activeSlideIndex: 4 })
     )

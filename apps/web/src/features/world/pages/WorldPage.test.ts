@@ -13,6 +13,8 @@ import {
   WORLD_REGIONS,
   FORCE_UNLOCK_ALL_ISLANDS,
   type PathwayCourse,
+  mergeQuestsWithLocalProgress,
+  enrichCoursesWithLocalProgress,
 } from './WorldPage'
 
 type PathwayCourseInput = Parameters<typeof isPathwayCourseVisible>[0]
@@ -358,5 +360,85 @@ describe('Clean Slug Resolution and findCourseByIdentifier', () => {
     expect(result[0].slug).toBe('muoi-quy-tac-xuong-sang-tao')
     expect(result[1].slug).toBe('dao-1-nha-tham-hiem-ai')
     expect(result[2].slug).toBe('dao-2-hoa-si-ai')
+  })
+})
+
+describe('Merging Local Progress into World map quests and courses', () => {
+  it('merges aikids_golden_rules_progress_v1 for rule course: Rule 1 completed unlocks Station 2 with 3 stars', () => {
+    const rawQuests: Array<{
+      id: string
+      order: number
+      title: string
+      status: 'completed' | 'available' | 'locked' | 'in_progress'
+      stars: number
+      score: number
+    }> = [
+      { id: 'rule-1', order: 1, title: 'Quy tắc 1', status: 'available', stars: 0, score: 0 },
+      { id: 'rule-2', order: 2, title: 'Quy tắc 2', status: 'locked', stars: 0, score: 0 },
+      { id: 'rule-3', order: 3, title: 'Quy tắc 3', status: 'locked', stars: 0, score: 0 },
+    ]
+
+    const mockGoldenRules = {
+      1: { status: 'completed', starsEarned: 3 },
+    }
+
+    const merged = mergeQuestsWithLocalProgress(rawQuests, true, {}, mockGoldenRules)
+    const sequential = applySequentialQuestRules(merged, false)
+
+    expect(sequential[0].status).toBe('completed')
+    expect(sequential[0].stars).toBe(3)
+    expect(sequential[1].status).toBe('available')
+    expect(sequential[2].status).toBe('locked')
+
+    const completedCount = sequential.filter((q) => q.status === 'completed').length
+    const totalStars = sequential.reduce((sum, q) => sum + (q.stars || 0), 0)
+    expect(completedCount).toBe(1)
+    expect(totalStars).toBe(3)
+  })
+
+  it('merges aikids_completed_lessons by id or slug and unlocks next station', () => {
+    const rawQuests: Array<{
+      id: string
+      slug: string
+      order: number
+      title: string
+      status: 'completed' | 'available' | 'locked' | 'in_progress'
+      stars: number
+    }> = [
+      { id: 'bai-1-1', slug: 'bai-1-1-meo-aiki', order: 1, title: 'Trạm 1: Mèo AIKI', status: 'available', stars: 0 },
+      { id: 'bai-1-2', slug: 'bai-1-2-bon-chia-khoa', order: 2, title: 'Trạm 2: 4 Chìa Khóa', status: 'locked', stars: 0 },
+    ]
+
+    const mockCompleted = {
+      'bai-1-1-meo-aiki': { stars: 3, xp: 100 },
+    }
+
+    const merged = mergeQuestsWithLocalProgress(rawQuests, false, mockCompleted, {})
+    const sequential = applySequentialQuestRules(merged, false)
+
+    expect(sequential[0].status).toBe('completed')
+    expect(sequential[0].stars).toBe(3)
+    expect(sequential[1].status).toBe('available')
+  })
+
+  it('enrichCoursesWithLocalProgress unlocks Island 2 when all 10 rules completed in local storage', () => {
+    const courses: PathwayCourse[] = [
+      course({ id: 'aiki-rules', title: 'Module 0 — Mười quy tắc', status: 'available', questCount: 10, completedCount: 0 }),
+      course({ id: 'dao-1-tham-hiem', title: 'Module 1 — Nhà thám hiểm AI', status: 'locked' }),
+    ]
+
+    const mockGoldenRules: Record<number, { status: string; starsEarned: number }> = {}
+    for (let i = 1; i <= 10; i++) {
+      mockGoldenRules[i] = { status: 'completed', starsEarned: 3 }
+    }
+
+    const enriched = enrichCoursesWithLocalProgress(courses, {}, mockGoldenRules)
+    const result = applyGatekeeperRules(enriched, false)
+
+    expect(result[0].status).toBe('completed')
+    expect(result[0].completedCount).toBe(10)
+    expect(result[0].totalStars).toBe(30)
+    // Island 2 must now be unlocked!
+    expect(result[1].status).toBe('available')
   })
 })

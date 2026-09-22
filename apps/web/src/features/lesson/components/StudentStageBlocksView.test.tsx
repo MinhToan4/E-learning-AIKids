@@ -124,7 +124,7 @@ describe('StudentStageBlocksView', () => {
         type: 'layout-split',
         title: 'Bố Cục 2 Cột Chữ & Media',
         body: 'Bên trái là chữ, bên phải là tranh minh họa tuyệt đẹp.',
-        imageUrl: 'https://cdn.example.com/split-art.jpg',
+        imageUrl: 'https://cdn.example.com/split-art.webp',
       },
       {
         id: 'blk-grid',
@@ -185,7 +185,7 @@ describe('StudentStageBlocksView', () => {
       {
         id: 'blk-images',
         type: 'images',
-        imageUrl: 'https://cdn.example.com/hero-art.jpg',
+        imageUrl: 'https://cdn.example.com/hero-art.webp',
         imageAlt: 'Tranh chính',
       },
     ]
@@ -228,7 +228,7 @@ describe('StudentStageBlocksView', () => {
     expect(html).toContain('Mèo AIKI chào đón các bạn nhỏ khám phá thế giới AI!')
 
     expect(html).toContain('data-testid="block-images"')
-    expect(html).toContain('hero-art.jpg')
+    expect(html).toContain('hero-art.webp')
   })
 
   it('maintains backwards compatibility for legacy lesson cards without contentBlocks', () => {
@@ -261,7 +261,7 @@ describe('StudentStageBlocksView', () => {
       tip: 'Zico vẽ đẹp nhưng Sonet có câu chuyện riêng.',
       kind: 'aiki-riddle',
       layout: 'text',
-      optionImages: ['https://cdn.example.com/optA.jpg', 'https://cdn.example.com/optB.jpg'],
+      optionImages: ['https://cdn.example.com/optA.webp', 'https://cdn.example.com/optB.webp'],
       optionLabels: ['Zico', 'Sonet'],
       visualItems: [],
     }
@@ -282,7 +282,7 @@ describe('StudentStageBlocksView', () => {
       tip: 'Ai cũng nghĩ mình đúng.',
       kind: 'situation',
       layout: 'text',
-      imageUrl: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+      imageUrl: '/assets/aiki-rules/rule1_superhero_dad.webp',
       dialogueLines: [
         { id: 'd1', speaker: 'zico', role: 'left', text: 'Của tớ đẹp hơn!' },
         { id: 'd2', speaker: 'sonet', role: 'right', text: 'Không, của tớ đúng hơn!' },
@@ -295,7 +295,7 @@ describe('StudentStageBlocksView', () => {
     )
 
     expect(html).toContain('data-testid="block-images"')
-    expect(html).toContain('rule1_superhero_dad.jpg')
+    expect(html).toContain('rule1_superhero_dad.webp')
     expect(html).toContain('data-testid="block-dialogue"')
     // Hero image appears before dialogue
     const imgIdx = html.indexOf('data-testid="block-images"')
@@ -338,9 +338,9 @@ describe('StudentStageBlocksView', () => {
     )
 
     expect(html).toContain('data-testid="block-versus-ab"')
-    // Fallback image cho trạm 2 phải là rule2_opt_a.jpg và rule2_opt_b.jpg
-    expect(html).toContain('rule2_opt_a.jpg')
-    expect(html).toContain('rule2_opt_b.jpg')
+    // Fallback image cho trạm 2 phải là rule2_opt_a.webp và rule2_opt_b.webp
+    expect(html).toContain('rule2_opt_a.webp')
+    expect(html).toContain('rule2_opt_b.webp')
     // Không được chứa nhãn Zico
     expect(html).not.toContain('Bức tranh của Zico')
     // Chứa nhãn được parse từ options
@@ -385,7 +385,7 @@ describe('StudentStageBlocksView', () => {
           type: 'layout-split',
           title: 'Split Block',
           body: 'Nội dung chia 2 cột',
-          imageUrl: '/assets/sample.jpg',
+          imageUrl: '/assets/sample.webp',
         },
         {
           id: 'blk-grid',
@@ -434,8 +434,8 @@ describe('StudentStageBlocksView', () => {
           type: 'images',
           title: 'Album ảnh',
           additionalImages: [
-            { id: 'img-1', url: '/img1.jpg', alt: 'Ảnh 1', caption: 'Ảnh 1' },
-            { id: 'img-2', url: '/img2.jpg', alt: 'Ảnh 2', caption: 'Ảnh 2' },
+            { id: 'img-1', url: '/img1.webp', alt: 'Ảnh 1', caption: 'Ảnh 1' },
+            { id: 'img-2', url: '/img2.webp', alt: 'Ảnh 2', caption: 'Ảnh 2' },
           ],
         },
       ],

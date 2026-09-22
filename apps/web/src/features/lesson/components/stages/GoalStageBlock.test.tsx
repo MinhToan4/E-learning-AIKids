@@ -157,7 +157,7 @@ describe('GoalStageBlock', () => {
       ...mockGoalStage,
       config: {
         ...mockGoalStage.config,
-        imageUrl: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+        imageUrl: '/assets/aiki-rules/rule1_superhero_dad.webp',
       },
     }
 
@@ -165,6 +165,6 @@ describe('GoalStageBlock', () => {
       root.render(<GoalStageBlock stage={updatedStage} />)
     })
 
-    expect(heroImg.src).toContain('/assets/aiki-rules/rule1_superhero_dad.jpg')
+    expect(heroImg.src).toContain('/assets/aiki-rules/rule1_superhero_dad.webp')
   })
 })

@@ -55,6 +55,7 @@ import {
 } from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
+import { clearWorldPageCache } from '@/features/world/pages/WorldPage'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
@@ -68,6 +69,7 @@ import type { GameEvidence } from '@/features/lesson/components/CurriculumGame'
 import type { GameHint } from '@/features/lesson/components/games/types'
 
 const LessonJourneyRenderer = React.lazy(() => import('@/features/lesson/components/LessonJourneyRenderer'))
+const RuleLessonJourneyRenderer = React.lazy(() => import('@/features/lesson/components/RuleLessonJourneyRenderer'))
 
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -90,7 +92,6 @@ import { useAuth } from '@/shared/store/auth'
 import { queryClient } from '@/shared/lib/query-client'
 import { applyConfirmedXpDelta } from '@/shared/lib/progression-query'
 import { LessonNavigationHeader } from '@/features/lesson/components/LessonNavigationHeader'
-import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
 
@@ -99,6 +100,11 @@ type PlayState = 'idle' | 'playing' | 'ended'
 const AikiStudioWorkspace = React.lazy(() =>
   import('@/features/lesson/components/AikiStudioWorkspace').then((m) => ({
     default: m.AikiStudioWorkspace,
+  })),
+)
+const StudentStageBlocksView = React.lazy(() =>
+  import('@/features/lesson/components/StudentStageBlocksView').then((module) => ({
+    default: module.StudentStageBlocksView,
   })),
 )
 const CurriculumGame = React.lazy(() =>
@@ -201,8 +207,8 @@ export function createAikiRuleCardsFromData(rule: AikiRule): QuestDetail['learnC
       body: rule.questions[0]?.prompt || 'Bức tranh nào thể hiện đúng quy tắc?',
       tip: rule.questions[0]?.hint,
       optionImages: [
-        rule.slides[1]?.image || `/assets/aiki-rules/rule${rule.id}_opt_a.jpg`,
-        rule.slides[2]?.image || `/assets/aiki-rules/rule${rule.id}_opt_b.jpg`,
+        rule.slides[1]?.image || `/assets/aiki-rules/rule${rule.id}_opt_a.webp`,
+        rule.slides[2]?.image || `/assets/aiki-rules/rule${rule.id}_opt_b.webp`,
       ],
       optionLabels: [
         rule.questions[0]?.options[0] || 'Phương án A',
@@ -242,12 +248,12 @@ export function createAikiRuleCardsFromData(rule: AikiRule): QuestDetail['learnC
         leftText: rule.compareMindset?.aiWarehouse || 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.',
         rightTitle: 'Bộ Não Sáng Tạo Của Con',
         rightText: rule.compareMindset?.kidMind || 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!',
-        leftImage: '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg',
-        rightImage: '/assets/aiki-rules/aiki_compare_kid_mind.jpg',
+        leftImage: '/assets/aiki-rules/aiki_compare_ai_warehouse.webp',
+        rightImage: '/assets/aiki-rules/aiki_compare_kid_mind.webp',
       },
       compareImages: {
-        left: '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg',
-        right: '/assets/aiki-rules/aiki_compare_kid_mind.jpg',
+        left: '/assets/aiki-rules/aiki_compare_ai_warehouse.webp',
+        right: '/assets/aiki-rules/aiki_compare_kid_mind.webp',
       },
       enabledModules: ['compare'],
       mee: {
@@ -524,31 +530,28 @@ export function LessonPage() {
       }
 
       try {
-        const [start, data] = await Promise.all([
-          learningApi.startLesson(questId),
-          learningApi.getLesson(questId),
-        ])
+        const opened = await learningApi.openLesson(questId)
         if (cancelled) return
-        setQuest(data.quest)
-        setLiveStars(start.progress.stars)
+        setQuest(opened.quest)
+        setLiveStars(opened.progress.stars)
 
         // Resume mid-quest; completed stations open on celebrate/review
-        if (start.progress.status === 'completed') {
+        if (opened.progress.status === 'completed') {
           setPhase('done')
           setCheckResult({
-            stars: start.progress.stars,
-            message: start.progress.stars > 0
+            stars: opened.progress.stars,
+            message: opened.progress.stars > 0
               ? 'Con đã hoàn thành trạm này! Có thể thử lại để nâng số sao.'
               : 'Lần trước con chưa nhận được sao. Hãy thử lại phần Thử tài nhé!',
             nextQuestId: null,
           })
           // Still fetch next from course map if needed on UI
         } else if (
-          start.progress.phase === 'game' ||
-          start.progress.phase === 'practice' ||
-          start.progress.phase === 'check'
+          opened.progress.phase === 'game' ||
+          opened.progress.phase === 'practice' ||
+          opened.progress.phase === 'check'
         ) {
-          setPhase(start.progress.phase)
+          setPhase(opened.progress.phase)
         } else {
           setPhase('learn')
         }
@@ -806,16 +809,26 @@ export function LessonPage() {
     stopSituationNarrator()
   }, [aikiRuleStage, phase, stopSituationNarrator])
 
-  async function handleAikiFinish() {
+  async function handleAikiFinish(customSummary?: { stars?: number; xp?: number; nextLessonSlug?: string }) {
     if (!quest || busy) return
     if (isAikiRuleJourney) {
       completeRule(ruleId)
     }
     setBusy(true)
     const earnedRuleStars = (aikiQuizAnswerCorrect ? 1 : 0) + (hasAcknowledgedRule ? 1 : 0) + (hasCommitted ? 1 : 0)
-    const finalStars = Math.max(1, earnedRuleStars)
+    const finalStars = customSummary?.stars ?? Math.max(1, earnedRuleStars)
     const xpMap: Record<number, number> = { 1: 30, 2: 60, 3: 100 }
-    const earnedXp = xpMap[finalStars] || 100
+    const earnedXp = customSummary?.xp ?? (xpMap[finalStars] || 100)
+    try {
+      const raw = localStorage.getItem('aikids_completed_lessons')
+      const completed = raw ? JSON.parse(raw) : {}
+      completed[quest.id] = { stars: finalStars, xp: earnedXp, completedAt: new Date().toISOString() }
+      if (isAikiRuleJourney && ruleId) {
+        completed[`rule-${ruleId}`] = { stars: finalStars, xp: earnedXp, completedAt: new Date().toISOString() }
+      }
+      localStorage.setItem('aikids_completed_lessons', JSON.stringify(completed))
+    } catch {}
+    clearWorldPageCache()
     const celebrationMsg = isIslandJourney
       ? `Xuất sắc! Con đã hoàn thành ${quest.title} và nhận ${finalStars} Sao (+${earnedXp} XP)!`
       : finalStars === 3
@@ -824,8 +837,25 @@ export function LessonPage() {
           ? `Rất tốt! Con đạt 2 Sao và nhận +${earnedXp} XP! Cùng tiến lên trạm tiếp theo nhé! 🌟`
           : `Hoan hô! Con đã hoàn thành trạm và nhận +${earnedXp} XP! Cùng cố gắng giành 3 Sao nhé! ⭐`
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
+    const answersPayload = isAikiRuleJourney
+      ? [
+          {
+            questionId: (quest.check && quest.check[0]?.id) || `${(quest as any).slug || quest.id}-check-1`,
+            optionIndex: (quest.check && typeof (quest.check[0] as any)?.correctIndex === 'number')
+              ? (quest.check[0] as any).correctIndex
+              : ((quest as any).correctIndex ?? ruleData?.questions?.[0]?.correctIndex ?? 1),
+          },
+        ]
+      : (quest.check && quest.check.length > 0)
+        ? quest.check.map((q) => ({
+            questionId: q.id,
+            optionIndex: typeof (q as any).correctIndex === 'number'
+              ? (q as any).correctIndex
+              : ((answers && typeof answers[q.id] === 'number') ? answers[q.id] : 0),
+          }))
+        : []
     try {
-      const checkRes = await learningApi.submitCheck(quest.id, { answers: [] })
+      const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
       setLiveStars(finalStars)
       setCheckResult({
         ...checkRes,
@@ -1525,7 +1555,7 @@ export function LessonPage() {
   if (isAikiRuleJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer mode="rule" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={() => void handleAikiFinish()} />
+        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={(customSummary) => void handleAikiFinish(customSummary)} />
       </Suspense>
     )
   }
@@ -1534,7 +1564,7 @@ export function LessonPage() {
   if (isIslandJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={() => void handleAikiFinish()} />
+        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={(customSummary) => void handleAikiFinish(customSummary)} />
       </Suspense>
     )
   }
@@ -1759,6 +1789,7 @@ export function LessonPage() {
               {visibleLearnCards.map((card, idx) => {
                 const currentStageIndex = is5StageJourney ? aikiRuleStage : idx
                 return (
+                  <Suspense fallback={<div className="h-32 animate-pulse rounded-2xl bg-slate-100" />}>
                   <StudentStageBlocksView
                     key={card.id || currentStageIndex}
                     card={card as unknown as LearnCardDraft}
@@ -1816,6 +1847,7 @@ export function LessonPage() {
                     onNextStage={(nextIdx) => setAikiRuleStage(nextIdx)}
                     busy={busy}
                   />
+                  </Suspense>
                 )
               })}
             </section>

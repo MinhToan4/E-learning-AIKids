@@ -3,7 +3,7 @@ import { Sparkles, ArrowRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, GoalStageConfig } from '../../types/stage-schema'
-import { GOAL_CARD_STYLES } from '../../lib/stage-adapter'
+import { GOAL_CARD_STYLES } from '../../lib/stage-view-utils'
 
 export interface GoalStageBlockProps {
   stage: JourneyStageDefinition<GoalStageConfig>

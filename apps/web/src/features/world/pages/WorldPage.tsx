@@ -19,6 +19,7 @@ import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 
 // WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
 export const FORCE_UNLOCK_ALL_ISLANDS = false
@@ -241,6 +242,138 @@ export function clearWorldPageCache(): void {
   cachedIslandQuests.clear()
 }
 
+export function readLocalCompletedLessons(): Record<string, { stars?: number; xp?: number; completedAt?: string }> {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem('aikids_completed_lessons')
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function readLocalGoldenRulesProgress(): Record<number, { status?: string; starsEarned?: number }> {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem('aikids_golden_rules_progress_v1')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed.rules === 'object' && parsed.rules !== null) {
+        return parsed.rules
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return {}
+}
+
+export function mergeQuestsWithLocalProgress<
+  T extends {
+    id: string
+    status: 'completed' | 'in_progress' | 'available' | 'locked' | string
+    stars?: number
+    order?: number
+    slug?: string
+    [key: string]: any
+  },
+>(
+  quests: T[],
+  isRuleCourse: boolean,
+  localCompletedLessons?: Record<string, { stars?: number; xp?: number; completedAt?: string }>,
+  localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
+): T[] {
+  if (!Array.isArray(quests) || quests.length === 0) return []
+  const completedLessons = localCompletedLessons ?? readLocalCompletedLessons()
+  const goldenRules = localGoldenRules ?? readLocalGoldenRulesProgress()
+
+  return quests.map((q, index) => {
+    let status = q.status
+    let stars = q.stars || 0
+
+    // 1. Nếu là rule course: ánh xạ từng quest q theo ruleId = q.order || (index + 1)
+    if (isRuleCourse) {
+      const ruleId = q.order || (index + 1)
+      const ruleUserProgress = goldenRules[ruleId]
+      if (ruleUserProgress?.status === 'completed') {
+        status = 'completed'
+        stars = Math.max(stars, ruleUserProgress.starsEarned || 3)
+      }
+    }
+
+    // 2. Đồng thời kiểm tra aikids_completed_lessons: Nếu q.id hoặc q.slug có trong aikids_completed_lessons
+    const qSlug = (q as any).slug
+    const ruleFallbackKey = isRuleCourse ? `rule-${q.order || (index + 1)}` : undefined
+    const completedItem =
+      completedLessons[q.id] ||
+      (qSlug ? completedLessons[qSlug] : undefined) ||
+      (ruleFallbackKey ? completedLessons[ruleFallbackKey] : undefined)
+
+    if (completedItem) {
+      status = 'completed'
+      stars = Math.max(stars, completedItem.stars || 3)
+    }
+
+    return {
+      ...q,
+      status,
+      stars,
+    }
+  })
+}
+
+export function enrichCoursesWithLocalProgress(
+  courses: PathwayCourse[],
+  localCompletedLessons?: Record<string, { stars?: number; xp?: number; completedAt?: string }>,
+  localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
+): PathwayCourse[] {
+  const completedLessons = localCompletedLessons ?? readLocalCompletedLessons()
+  const goldenRules = localGoldenRules ?? readLocalGoldenRulesProgress()
+
+  return courses.map((course, idx) => {
+    const isRule = isAikiRuleCourse(course, idx)
+    let completedCount = course.completedCount || 0
+    let totalStars = course.totalStars || 0
+    let status = course.status
+
+    if (isRule) {
+      let localRuleCompleted = 0
+      let localRuleStars = 0
+      for (let r = 1; r <= 10; r++) {
+        const ruleProg = goldenRules[r]
+        const compItem = completedLessons[`rule-${r}`]
+        if (ruleProg?.status === 'completed' || compItem) {
+          localRuleCompleted++
+          localRuleStars += Math.max(ruleProg?.starsEarned || 0, compItem?.stars || 3)
+        }
+      }
+      if (localRuleCompleted > 0) {
+        completedCount = Math.max(completedCount, localRuleCompleted)
+        totalStars = Math.max(totalStars, localRuleStars)
+        if (completedCount >= (course.questCount || 10)) {
+          status = 'completed'
+        }
+      }
+    } else if (course.stations && course.stations.length > 0) {
+      const mergedStations = mergeQuestsWithLocalProgress(course.stations, false, completedLessons, goldenRules)
+      const localDone = mergedStations.filter((s) => s.status === 'completed').length
+      const localStars = mergedStations.reduce((acc, s) => acc + (s.stars || 0), 0)
+      completedCount = Math.max(completedCount, localDone)
+      totalStars = Math.max(totalStars, localStars)
+      if (course.questCount && completedCount >= course.questCount) {
+        status = 'completed'
+      }
+    }
+
+    return {
+      ...course,
+      completedCount,
+      totalStars,
+      status,
+    }
+  })
+}
+
 export interface WorldPageProps {
   showSpacesSelector?: boolean
 }
@@ -248,6 +381,7 @@ export interface WorldPageProps {
 export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const { courseId, programId, trackId } = useParams<{ courseId?: string; programId?: string; trackId?: string }>()
   const navigate = useNavigate()
+  const [refreshTick, setRefreshTick] = useState(0)
   const cachedIsland = courseId ? cachedIslandQuests.get(courseId) : undefined
   const [quests, setQuests] = useState<QuestProgress[]>(() => cachedIsland?.quests || [])
   const [meta, setMeta] = useState(() => cachedIsland?.meta || { totalStars: 0, completedCount: 0 })
@@ -257,6 +391,19 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const [loading, setLoading] = useState(() => (courseId ? !cachedIslandQuests.has(courseId) : !cachedPathway))
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
+
+  // Lắng nghe sự kiện hoàn thành bài học để xóa cache và tự động re-render bản đồ
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleLessonCompleted = () => {
+      clearWorldPageCache()
+      setRefreshTick((prev) => prev + 1)
+    }
+    window.addEventListener('aikids:lesson-completed', handleLessonCompleted)
+    return () => {
+      window.removeEventListener('aikids:lesson-completed', handleLessonCompleted)
+    }
+  }, [])
 
   useEffect(() => {
     void (async () => {
@@ -282,16 +429,17 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         if (!courseId) {
           const journey = await learningApi.getPathway()
           const rawCourses = journey.courses as PathwayCourse[]
+          const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
 
           // 1. If backend returns stations for all courses, read directly
           const hasAllStations =
-            rawCourses.length > 0 &&
-            rawCourses.every(
+            enrichedCourses.length > 0 &&
+            enrichedCourses.every(
               (course) => Array.isArray(course.stations) && course.stations.length > 0,
             )
 
           if (hasAllStations) {
-            const finalCourses = applyGatekeeperRules(rawCourses)
+            const finalCourses = applyGatekeeperRules(enrichedCourses)
             const finalPathway = { ...journey, courses: finalCourses }
             cachedPathway = finalPathway
             setPathway(finalPathway)
@@ -305,7 +453,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           // the learner opens that course.
           const provisionalPathway = {
             ...journey,
-            courses: applyGatekeeperRules(rawCourses),
+            courses: applyGatekeeperRules(enrichedCourses),
           }
           cachedPathway = provisionalPathway
           setPathway(provisionalPathway)
@@ -316,7 +464,8 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         // Khi có courseId trong URL (slug như 'dao-1', 'dao-2', 'muoi-quy-tac-xuong-sang-tao', hoặc UUID)
         const journey = cachedPathway ?? await learningApi.getPathway()
         const rawCourses = journey.courses as PathwayCourse[]
-        const processedCourses = applyGatekeeperRules(rawCourses)
+        const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
+        const processedCourses = applyGatekeeperRules(enrichedCourses)
         const finalPathway = { ...journey, courses: processedCourses }
         cachedPathway = finalPathway
 
@@ -373,9 +522,41 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         setPathway(finalPathway)
         setCourseTitle(courseTitle)
 
-        if (progressData && progressData.quests && progressData.quests.length > 0) {
-          const sequentialQuests = applySequentialQuestRules(progressData.quests)
-          const nextMeta = { totalStars: progressData.totalStars, completedCount: progressData.completedCount }
+        const isRuleCourse = Boolean(pathRow && isAikiRuleCourse(pathRow))
+        let rawQuests = progressData?.quests?.length
+          ? progressData.quests
+          : pathRow?.stations?.length
+            ? pathRow.stations
+            : []
+
+        if (rawQuests.length === 0 && isRuleCourse) {
+          rawQuests = AIKI_RULES_DATA.map((r, idx) => ({
+            id: `rule-${r.id}`,
+            slug: `rule-${r.id}`,
+            order: r.id,
+            title: `Quy tắc ${r.id}: ${r.shortTitle}`,
+            skill: 'Sáng tạo an toàn',
+            reward: 'Huy hiệu Hiệp sĩ AIKI',
+            duration: '5 phút',
+            hook: r.title,
+            accent: 'mint',
+            practiceKind: 'quiz',
+            status: (idx === 0 ? 'available' : 'locked') as QuestProgress['status'],
+            phase: 'learn' as const,
+            stars: 0,
+            xpEarned: 0,
+          }))
+        }
+
+        if (rawQuests.length > 0) {
+          const mergedQuests = mergeQuestsWithLocalProgress(rawQuests, isRuleCourse)
+          const sequentialQuests = applySequentialQuestRules(mergedQuests, forceUnlock)
+          const calculatedCompletedCount = sequentialQuests.filter((q) => q.status === 'completed').length
+          const calculatedTotalStars = sequentialQuests.reduce((sum, q) => sum + (q.stars || 0), 0)
+          const nextMeta = {
+            totalStars: Math.max(progressData?.totalStars ?? 0, calculatedTotalStars),
+            completedCount: Math.max(progressData?.completedCount ?? 0, calculatedCompletedCount),
+          }
           setQuests(sequentialQuests)
           setMeta(nextMeta)
           cachedIslandQuests.set(courseId, { quests: sequentialQuests, meta: nextMeta })
@@ -393,7 +574,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         setLoading(false)
       }
     })()
-  }, [courseId])
+  }, [courseId, refreshTick])
 
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',

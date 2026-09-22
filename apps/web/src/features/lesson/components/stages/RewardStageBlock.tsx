@@ -1,5 +1,6 @@
 import React from 'react'
 import { Award, CheckCircle2, Trophy, Sparkles, Star } from 'lucide-react'
+import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, RewardStageConfig } from '../../types/stage-schema'
 
@@ -33,7 +34,7 @@ export function RewardStageBlock({
   const fallbackRewardUrl = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
   const targetArtworkUrl =
     submittedArtwork?.image.url ||
-    config.rewardBadge.iconUrl ||
+    config?.rewardBadge?.iconUrl ||
     fallbackRewardUrl
 
   const [displayedSrc, setDisplayedSrc] = React.useState<string>(targetArtworkUrl)
@@ -73,7 +74,7 @@ export function RewardStageBlock({
             </span>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-xs sm:text-sm font-black shrink-0">
               <CheckCircle2 size={13} className="text-mint-600 shrink-0" />
-              <span>{config.rewardBadge.name}</span>
+              <span>{config?.rewardBadge?.name || 'Hoàn thành xuất sắc'}</span>
             </div>
           </div>
 
@@ -138,7 +139,12 @@ export function RewardStageBlock({
                 <Star
                   key={star}
                   size={22}
-                  className="fill-amber-400 text-amber-500 drop-shadow-md animate-pulse"
+                  className={cn(
+                    'drop-shadow-md transition-all',
+                    star <= effectiveStars
+                      ? 'fill-amber-400 text-amber-500 animate-pulse'
+                      : 'fill-slate-200 text-slate-300'
+                  )}
                 />
               ))}
             </div>
@@ -147,33 +153,41 @@ export function RewardStageBlock({
           {/* Tiêu đề & Lời chúc mừng */}
           <div className="space-y-1">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 leading-tight break-words">
-              {config.title}
+              {config?.title || 'Chúc mừng con!'}
             </h2>
             <p className="text-xs sm:text-sm lg:text-base text-slate-600 font-medium leading-relaxed break-words">
-              {config.congratsMessage}
+              {config?.congratsMessage || 'Con đã hoàn thành bài học xuất sắc!'}
             </p>
           </div>
 
           {/* Cụm Nút điều hướng kết thúc */}
           <div className="flex flex-col gap-2 sm:gap-2.5 w-full pt-1">
-            {config.nextLessonSlug && onNavigateNextLesson ? (
+            {config?.nextLessonSlug && onNavigateNextLesson ? (
               <Button
                 variant="primary"
                 className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
                 onClick={() => {
+                  try {
+                    if (config?.nextLessonSlug) {
+                      localStorage.removeItem(`aikids_lesson_stage_${config.nextLessonSlug}`)
+                      localStorage.removeItem(`aikids_lesson_completed_stages_${config.nextLessonSlug}`)
+                    }
+                  } catch {}
                   onFinishLesson?.({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
-                    nextLessonSlug: config.nextLessonSlug,
+                    nextLessonSlug: config?.nextLessonSlug,
                   })
-                  onNavigateNextLesson(config.nextLessonSlug!)
+                  if (config?.nextLessonSlug) {
+                    onNavigateNextLesson(config.nextLessonSlug)
+                  }
                 }}
               >
                 <span>👉 Khám Phá Bài Tiếp Theo 🚀</span>
               </Button>
             ) : null}
 
-            {onOpenCertificate && (isFinalStation ?? !config.nextLessonSlug) && (
+            {onOpenCertificate && (isFinalStation ?? !config?.nextLessonSlug) && (
               <Button
                 variant="primary"
                 className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-amber-600 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white flex items-center justify-center gap-2 cursor-pointer"

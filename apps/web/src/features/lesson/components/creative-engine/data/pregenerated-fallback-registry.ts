@@ -138,6 +138,16 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
     description: 'Chú thỏ đơn sắc (1 từ thử nghiệm)',
   },
   {
+    id: 'magic-goldfish-details',
+    engineMode: 'magic-keys',
+    keywords: ['cá vàng', 'bơi lội', 'bong bóng', 'goldfish', 'chú cá', 'bể cá', 'cá'],
+    variants: [
+      '/assets/pregenerated-fallback/magic-keys/goldfish_full_details_v1.webp',
+      '/assets/pregenerated-fallback/magic-keys/goldfish_one_word_v1.webp',
+    ],
+    description: 'Chú cá vàng béo tròn bơi lội tung tăng trong làn nước trong vắt với bọt khí đất nặn',
+  },
+  {
     id: 'magic-teacup',
     engineMode: 'magic-keys',
     keywords: ['tách trà', 'khói sao', 'mẻ miệng', 'teacup', 'ngôi sao lấp lánh', 'trà'],
@@ -292,6 +302,18 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
     ],
     description: 'Khinh khí cầu sắc màu nổi bật giữa 3 tầng mây và thung lũng',
   },
+  {
+    id: 'layer-lighting-atmosphere',
+    engineMode: 'layer-stacking',
+    keywords: ['ban mai', 'nắng trưa', 'hoàng hôn', 'ánh trăng', 'mặt trời', 'buổi sáng', 'buổi tối', 'morning', 'sunset', 'noon', 'moonlight', 'ánh sáng'],
+    variants: [
+      '/assets/pregenerated-fallback/light-atmosphere/light_morning_v1.webp',
+      '/assets/pregenerated-fallback/light-atmosphere/light_noon_v1.webp',
+      '/assets/pregenerated-fallback/light-atmosphere/light_sunset_v1.webp',
+      '/assets/pregenerated-fallback/light-atmosphere/light_moon_v1.webp',
+    ],
+    description: 'Các tầng ánh sáng cảm xúc: Ban Mai, Nắng Trưa, Hoàng Hôn và Đêm Trăng Soft Clay',
+  },
 
   // ── 5. IDENTITY LOCK (KHÓA 3 MẬT MÃ & BIỂU CẢM) ─────────────────────────
   {
@@ -303,6 +325,20 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
       '/assets/pregenerated-fallback/identity-lock/fox_zico_v2.webp',
     ],
     description: 'Cáo Lửa Zico Hiệp Sĩ giữ trọn vẹn 3 mật mã ADN (áo choàng đỏ sao vàng)',
+  },
+  {
+    id: 'identity-fox-emotions',
+    engineMode: 'identity-lock',
+    keywords: ['biểu cảm', 'vui', 'buồn', 'sợ', 'giận', 'ngạc nhiên', 'buồn ngủ', 'cảm xúc', 'khóc', 'cười', 'hờn dỗi'],
+    variants: [
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_happy_v1.webp',
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_sad_v1.webp',
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_scared_v1.webp',
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_angry_v1.webp',
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_surprised_v1.webp',
+      '/assets/pregenerated-fallback/identity-lock/fox_zico_sleepy_v1.webp',
+    ],
+    description: 'Trọn bộ 6 biểu cảm ADN của Cáo Lửa Zico (Vui, Buồn, Sợ, Giận, Ngạc nhiên, Buồn ngủ)',
   },
   {
     id: 'identity-robot-leo',
@@ -345,6 +381,16 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
       '/assets/pregenerated-fallback/card-forge/card_fire_fox_v2.webp',
     ],
     description: 'Thẻ bài TCG Hiệp Sĩ Cáo Lửa nguyên tố Hỏa với chỉ số chiến đấu',
+  },
+  {
+    id: 'card-thunder-dragon',
+    engineMode: 'card-forge',
+    keywords: ['thẻ bài', 'lôi long', 'sấm sét', 'sét', 'rồng sét', 'thunder dragon', 'lightning', 'card'],
+    variants: [
+      '/assets/pregenerated-fallback/card-forge/card_thunder_dragon_v1.webp',
+      '/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp',
+    ],
+    description: 'Thẻ bài TCG Rồng Sấm Sét viền vàng lấp lánh hệ Lôi',
   },
 ]
 

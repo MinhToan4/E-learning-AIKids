@@ -1,5 +1,6 @@
 import {
   api,
+  ApiError,
   type CourseSummary,
   type QuestDetail,
   type QuestProgress,
@@ -57,6 +58,37 @@ type LessonCheckInput = {
   answers: Array<{ questionId: string; optionIndex: number }>
 }
 
+const LESSON_DETAIL_TTL_MS = 60_000
+const LESSON_START_DEDUPE_MS = 5_000
+const lessonDetailCache = new Map<string, { expiresAt: number; request: Promise<{ quest: QuestDetail }> }>()
+const lessonStartRequests = new Map<string, { expiresAt: number; request: Promise<{ progress: LessonProgress }> }>()
+
+function cachedLessonDetail(lessonId: string) {
+  const now = Date.now()
+  const cached = lessonDetailCache.get(lessonId)
+  if (cached && cached.expiresAt > now) return cached.request
+  const request = api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
+  lessonDetailCache.set(lessonId, { expiresAt: now + LESSON_DETAIL_TTL_MS, request })
+  void request.catch(() => lessonDetailCache.delete(lessonId))
+  return request
+}
+
+function dedupedLessonStart(lessonId: string) {
+  const now = Date.now()
+  const cached = lessonStartRequests.get(lessonId)
+  if (cached && cached.expiresAt > now) return cached.request
+  const request = api<{ progress: LessonProgress }>(
+    `/api/progress/${encodeURIComponent(lessonId)}/start`,
+    { method: 'POST' },
+  )
+  lessonStartRequests.set(lessonId, { expiresAt: now + LESSON_START_DEDUPE_MS, request })
+  globalThis.setTimeout(() => {
+    if (lessonStartRequests.get(lessonId)?.request === request) lessonStartRequests.delete(lessonId)
+  }, LESSON_START_DEDUPE_MS)
+  void request.catch(() => lessonStartRequests.delete(lessonId))
+  return request
+}
+
 /**
  * Learning is the public frontend boundary. Route compatibility and future
  * canonical migration stay inside this adapter, so child-facing components
@@ -83,14 +115,29 @@ export const learningApi = {
   },
 
   getLesson(lessonId: string) {
-    return api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
+    return cachedLessonDetail(lessonId)
   },
 
   startLesson(lessonId: string) {
-    return api<{ progress: LessonProgress }>(
-      `/api/progress/${encodeURIComponent(lessonId)}/start`,
-      { method: 'POST' },
-    )
+    return dedupedLessonStart(lessonId)
+  },
+
+  async openLesson(lessonId: string) {
+    try {
+      return await api<{ quest: QuestDetail; progress: LessonProgress }>(
+        `/api/progress/${encodeURIComponent(lessonId)}/open`,
+        { method: 'POST' },
+      )
+    } catch (error) {
+      // Rolling deploy compatibility: older Hub/LMS versions do not expose
+      // the aggregate route yet. Keep the app usable until backend catches up.
+      if (!(error instanceof ApiError) || (error.status !== 404 && error.status !== 405)) throw error
+      const [lesson, started] = await Promise.all([
+        cachedLessonDetail(lessonId),
+        dedupedLessonStart(lessonId),
+      ])
+      return { quest: lesson.quest, progress: started.progress }
+    }
   },
 
   advanceLesson(lessonId: string, input: LessonAdvanceInput) {

@@ -2,7 +2,7 @@ import React from 'react'
 import { Check, X, Star, ArrowRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
-import { isValidImageUrl } from '../../lib/stage-adapter'
+import { isValidImageUrl } from '../../lib/stage-view-utils'
 import { playInstantSound } from '../LessonInteractiveSidebar'
 import type { JourneyStageDefinition, QuizStageConfig } from '../../types/stage-schema'
 

@@ -93,8 +93,8 @@ export interface StudentStageBlocksViewProps {
 }
 
 export const getStationFallbackImages = (sNum: number): [string, string] => {
-  if (sNum === 1) return ['/assets/aiki-rules/rule1_opt_zico.jpg', '/assets/aiki-rules/rule1_opt_sonet.jpg']
-  return [`/assets/aiki-rules/rule${sNum}_opt_a.jpg`, `/assets/aiki-rules/rule${sNum}_opt_b.jpg`]
+  if (sNum === 1) return ['/assets/aiki-rules/rule1_opt_zico.webp', '/assets/aiki-rules/rule1_opt_sonet.webp']
+  return [`/assets/aiki-rules/rule${sNum}_opt_a.webp`, `/assets/aiki-rules/rule${sNum}_opt_b.webp`]
 }
 
 export function StudentStageBlocksView({
@@ -1113,7 +1113,7 @@ export function StudentStageBlocksView({
             compData?.leftImage ||
             block.compareImages?.left ||
             card.compareImages?.left ||
-            (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg' : undefined)
+            (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_ai_warehouse.webp' : undefined)
 
           const rightTitle = compData?.rightTitle || card.visualItems?.[1]?.label || 'Ý tưởng độc nhất vô nhị'
           const rightText =
@@ -1124,7 +1124,7 @@ export function StudentStageBlocksView({
             compData?.rightImage ||
             block.compareImages?.right ||
             card.compareImages?.right ||
-            (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_kid_mind.jpg' : undefined)
+            (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_kid_mind.webp' : undefined)
 
           return (
             <div

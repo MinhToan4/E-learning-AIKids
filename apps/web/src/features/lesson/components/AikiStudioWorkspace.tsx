@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ArrowLeft,
@@ -31,7 +31,7 @@ import {
 } from '../data/aiki-studio-configs'
 import { CreativeEngineShell, getCreativeEngineMode, type CreativeNotebookConfig } from './creative-engine'
 import { getNonRepeatingFallbackImage } from './creative-engine/data/pregenerated-fallback-registry'
-import { findIslandCurriculum } from '../data/island-curriculum-registry'
+import { resolveExactComboImage } from '../lib/combo-image-resolver'
 import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { api } from '@/shared/lib/api'
 import {
@@ -1510,32 +1510,16 @@ export function AikiStudioWorkspace({
 
   const effectiveMode = useMemo(() => {
     if (creativeEngineMode) return creativeEngineMode
-    const curriculumLesson = findIslandCurriculum({
-      id: lessonId,
-      slug: lessonId,
-      title: lessonTitle,
-    })
-    if (curriculumLesson?.journey?.stage5_practice?.creativeEngineMode) {
-      return curriculumLesson.journey.stage5_practice.creativeEngineMode
-    }
     return getCreativeEngineMode(lessonId, illustrationType)
-  }, [creativeEngineMode, lessonId, lessonTitle, illustrationType])
+  }, [creativeEngineMode, lessonId, illustrationType])
 
   const isCreativeNotebook = effectiveMode === 'creative-notebook'
 
   const effectiveNotebookConfig = useMemo(() => {
     if (notebookConfig) return notebookConfig
     if ((config as any)?.notebookConfig) return (config as any).notebookConfig
-    const curriculumLesson = findIslandCurriculum({
-      id: lessonId,
-      slug: lessonId,
-      title: lessonTitle,
-    })
-    if (curriculumLesson?.journey?.stage5_practice?.notebookConfig) {
-      return curriculumLesson.journey.stage5_practice.notebookConfig
-    }
     return undefined
-  }, [notebookConfig, config, lessonId, lessonTitle])
+  }, [notebookConfig, config])
 
   const effectiveAkiMotto = useMemo(() => {
     if (isCreativeNotebook && effectiveNotebookConfig?.akiAdvice) {
@@ -1680,6 +1664,16 @@ export function AikiStudioWorkspace({
   const [currentPrompt, setCurrentPrompt] = useState<string>(() =>
     initialPrompt !== undefined ? initialPrompt : ''
   )
+  const [activeBlockIds, setActiveBlockIds] = useState<string[]>([])
+
+  const handlePromptChange = useCallback((prompt: string, blocks?: Array<{ id: string }>) => {
+    setCurrentPrompt(prompt)
+    if (blocks && blocks.length > 0) {
+      setActiveBlockIds(blocks.map((b) => b.id))
+    } else if (!prompt) {
+      setActiveBlockIds([])
+    }
+  }, [])
   const [activeRefImageUrl, setActiveRefImageUrl] = useState<string | undefined>(undefined)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isInstantFallback, setIsInstantFallback] = useState<boolean>(
@@ -2129,11 +2123,12 @@ export function AikiStudioWorkspace({
     if (isInstantFallback) {
       // Chế độ demo nhanh/fallback tức thì (500ms để mô phỏng nhịp thở AIKI)
       await new Promise((resolve) => setTimeout(resolve, 500))
-      const fallbackUrl = getNonRepeatingFallbackImage(
-        rawPrompt || activePartSubject || effectiveCharacterName,
-        lastGeneratedUrl,
-        effectiveMode
-      )
+      const fallbackUrl = resolveExactComboImage({
+        blockIds: activeBlockIds,
+        prompt: rawPrompt || activePartSubject || effectiveCharacterName,
+        lastImageUrl: lastGeneratedUrl,
+        engineMode: effectiveMode,
+      })
       resultImageUrl = fallbackUrl || sampleUrl
       setLastGeneratedUrl(resultImageUrl)
       isFallback = true
@@ -2154,11 +2149,12 @@ export function AikiStudioWorkspace({
         // 4. Cơ chế Graceful Fallback khi gặp lỗi kết nối hoặc worker bận
         console.warn('Gateway Google Flow connection error or worker busy, falling back gracefully to curated sample:', error)
         isFallback = true
-        const fallbackUrl = getNonRepeatingFallbackImage(
-          rawPrompt || activePartSubject || effectiveCharacterName,
-          lastGeneratedUrl,
-          effectiveMode
-        )
+        const fallbackUrl = resolveExactComboImage({
+          blockIds: activeBlockIds,
+          prompt: rawPrompt || activePartSubject || effectiveCharacterName,
+          lastImageUrl: lastGeneratedUrl,
+          engineMode: effectiveMode,
+        })
         resultImageUrl = fallbackUrl || sampleUrl
         setLastGeneratedUrl(resultImageUrl)
       }
@@ -3120,7 +3116,7 @@ export function AikiStudioWorkspace({
               practiceSlot={practiceColumn}
               canvasSlot={previewCanvasColumn}
               currentPrompt={currentPrompt}
-              onPromptChange={setCurrentPrompt}
+              onPromptChange={handlePromptChange}
               onRefImageChange={setActiveRefImageUrl}
               activePartIndex={activePartIndex}
               onPartChange={handleSelectPart}

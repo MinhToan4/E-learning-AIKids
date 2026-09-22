@@ -455,7 +455,7 @@ describe('authoring ids and readiness', () => {
     const cardWithHero: any = {
       id: 'qt1-situation',
       title: 'Tình huống',
-      imageUrl: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+      imageUrl: '/assets/aiki-rules/rule1_superhero_dad.webp',
       dialogueLines: [{ id: 'd1', speaker: 'zico', role: 'left', text: 'Chào!' }],
     }
     const modules = getActiveModules(cardWithHero, 0)
@@ -464,7 +464,7 @@ describe('authoring ids and readiness', () => {
 
     const blocks = getStageBlocks(cardWithHero, 0)
     expect(blocks[0].type).toBe('images')
-    expect(blocks[0].imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+    expect(blocks[0].imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
   })
 
   it('creates an editable four-key layout without sharing template item references', () => {

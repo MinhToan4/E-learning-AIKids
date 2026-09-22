@@ -2135,7 +2135,7 @@ function resolveRawAikiStudioConfig(
             prompt: 'Siêu anh hùng cầm vợt muỗi',
             time: '08:00',
             toneBg: 'bg-amber-100',
-            url: '/assets/aiki-rules/rule1_opt_sonet.jpg',
+            url: '/assets/aiki-rules/rule1_opt_sonet.webp',
           },
           {
             id: 'img-qt-1-2',
@@ -2143,7 +2143,7 @@ function resolveRawAikiStudioConfig(
             prompt: 'Siêu anh hùng bố vỗ khẽ chiếc vợt muỗi giải cứu gian bếp',
             time: '08:08',
             toneBg: 'bg-rose-100',
-            url: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+            url: '/assets/aiki-rules/rule1_superhero_dad.webp',
           },
         ],
         verificationQuestion: {

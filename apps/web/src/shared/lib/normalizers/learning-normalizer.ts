@@ -186,7 +186,7 @@ export function normalizeLearningGatewayRequest(
     }
   }
   const lessonAction = path.match(
-    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check|check-answer)$/,
+    /^\/api\/progress\/([^/?]+)\/(open|start|advance|practice|check|check-answer)$/,
   )
   if (lessonAction) {
     const headers = new Headers(options.headers)

@@ -14,7 +14,8 @@ import {
   ISLAND_CURRICULUM_MAP,
 } from '../data/island-curriculum-registry'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
-import { adaptRuleToStages, adaptSixStageJourneyToStages } from './stage-adapter'
+import { adaptSixStageJourneyToStages } from './stage-adapter'
+import { adaptRuleToStages } from './rule-stage-adapter'
 import type { JourneyStageDefinition } from '../types/stage-schema'
 export {
   AIKI_MODULE_0_COURSE_ID,
@@ -183,10 +184,10 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
     const ruleMatch = quest.id.match(/(?:rule|qt)[-_]?(\d+)/i)
     ruleNum = ruleMatch ? parseInt(ruleMatch[1], 10) : 1
     matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum)
-    defaultCover = matchedRule?.posterImage || `/assets/aiki-rules/rule${ruleNum}_superhero_dad.jpg`
+    defaultCover = matchedRule?.posterImage || `/assets/aiki-rules/rule${ruleNum}_superhero_dad.webp`
     if (matchedRule) {
-      ruleOptionAImg = matchedRule.slides?.[0]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_a.jpg`
-      ruleOptionBImg = matchedRule.slides?.[1]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_b.jpg`
+      ruleOptionAImg = matchedRule.slides?.[0]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_a.webp`
+      ruleOptionBImg = matchedRule.slides?.[1]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_b.webp`
     }
   }
 
@@ -218,10 +219,10 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   const optionBDesc = riddleCard?.optionDescs?.[1] || quest.check?.[0]?.options?.[1] || 'Tùy chọn B cụ thể'
 
   const defaultOptA = isRuleCourse
-    ? (ruleOptionAImg || `/assets/aiki-rules/rule1_opt_zico.jpg`)
+    ? (ruleOptionAImg || `/assets/aiki-rules/rule1_opt_zico.webp`)
     : `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_a.jpg`
   const defaultOptB = isRuleCourse
-    ? (ruleOptionBImg || `/assets/aiki-rules/rule1_opt_sonet.jpg`)
+    ? (ruleOptionBImg || `/assets/aiki-rules/rule1_opt_sonet.webp`)
     : `/assets/aiki-islands/island${islandNum}_lesson${lessonSub}_opt_b.jpg`
 
   const rawOptA = riddleCard?.optionImages?.[0]

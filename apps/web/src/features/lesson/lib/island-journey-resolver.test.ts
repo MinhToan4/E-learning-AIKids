@@ -218,12 +218,12 @@ describe('island-journey-resolver', () => {
 
       const resolved = resolveIslandSixStageJourney(ruleQuest)
       // Must point to rule1 superhero dad poster, NEVER island1_lessonrule-1_cat.jpg
-      expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
       expect(resolved.stage1_goal.imageUrl).not.toContain('lessonrule-')
-      expect(resolved.stage2_confirmGoal.options[0].imageUrl).toBe('/assets/aiki-rules/rule1_opt_zico.jpg')
-      expect(resolved.stage2_confirmGoal.options[1].imageUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.jpg')
+      expect(resolved.stage2_confirmGoal.options[0].imageUrl).toBe('/assets/aiki-rules/rule1_opt_zico.webp')
+      expect(resolved.stage2_confirmGoal.options[1].imageUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.webp')
       expect(resolved.stage6_completion.nextLessonSlug).toBe('rule-2')
-      expect(resolved.stage6_completion.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(resolved.stage6_completion.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
     })
   })
 
@@ -285,16 +285,16 @@ describe('island-journey-resolver', () => {
       expect(videoStage.type).toBe('VIDEO')
       expect(videoStage.stepNumber).toBe(1)
       expect(videoStage.config.slides).toHaveLength(5)
-      expect(videoStage.config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(videoStage.config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
 
       expect(quizStage.type).toBe('QUIZ')
       expect(quizStage.stepNumber).toBe(2)
       expect(quizStage.config.questions).toHaveLength(2)
-      expect(quizStage.config.questions[0].visualUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.jpg')
+      expect(quizStage.config.questions[0].visualUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.webp')
 
       expect(rewardStage.type).toBe('REWARD')
       expect(rewardStage.stepNumber).toBe(3)
-      expect(rewardStage.config.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(rewardStage.config.rewardBadge.iconUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
       expect(rewardStage.config.nextLessonId).toBe('rule-2')
     })
 
@@ -309,7 +309,7 @@ describe('island-journey-resolver', () => {
       expect(stages[0].type).toBe('VIDEO')
       expect(stages[1].type).toBe('QUIZ')
       expect(stages[2].type).toBe('REWARD')
-      expect(stages[0].config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+      expect(stages[0].config.posterUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.webp')
     })
 
     it('resolves 6 stages for standard island lessons', () => {

@@ -32,22 +32,17 @@ import {
   type PracticePartState,
 } from '../lib/practice-parts'
 import { playInstantSound } from './LessonInteractiveSidebar'
-import { StudentStageBlocksView } from './StudentStageBlocksView'
 import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
 import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
-import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
-import {
-  adaptSixStageJourneyToStages,
-  adaptRuleToStages,
-  isValidImageUrl,
-  parseGoalCard,
-  GOAL_CARD_STYLES,
-} from '../lib/stage-adapter'
-import { isAikiRuleJourney, extractRuleNumber, resolveIslandSixStageJourney } from '../lib/island-journey-resolver'
-import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES } from '../lib/stage-view-utils'
+import { isAikiRuleJourney, extractRuleNumber } from '../lib/rule-journey-identifiers'
 import { STAGE_REGISTRY } from './stages'
 import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig } from '../types/stage-schema'
+
+const StudentStageBlocksView = React.lazy(() =>
+  import('./StudentStageBlocksView').then((module) => ({ default: module.StudentStageBlocksView })),
+)
 
 // Re-export helpers for 100% backward compatibility
 export { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES }
@@ -69,6 +64,13 @@ export interface SixStageJourneyViewProps {
   onStageChange?: (stageIndex: number) => void
   initialSidebarCollapsed?: boolean
   isFinalStation?: boolean
+  matchedCurriculum?: {
+    lessonNumber?: string
+    islandNumber: number
+    islandName?: string
+    title: string
+    journey?: Partial<LessonSixStageJourney>
+  }
 }
 
 /**
@@ -109,20 +111,26 @@ export function SixStageJourneyView({
   onStageChange,
   initialSidebarCollapsed,
   isFinalStation: isFinalStationProp,
+  matchedCurriculum: matchedCurriculumProp,
 }: SixStageJourneyViewProps) {
-  const journey = useMemo(() => {
-    if (rawJourney) return rawJourney
-    return resolveIslandSixStageJourney({ id: lessonId, title: lessonTitle } as any)
-  }, [rawJourney, lessonId, lessonTitle])
+  const journey = rawJourney as LessonSixStageJourney
+
+  const matchedCurriculum = useMemo(() => {
+    if (matchedCurriculumProp) return matchedCurriculumProp
+    const match = `${lessonId} ${lessonTitle}`.match(/(?:bai[-_]|bài\s+)(\d+)[-_.\s]+(\d+)/i)
+    if (!match) return undefined
+    return {
+      islandNumber: Number(match[1]),
+      lessonNumber: `${match[1]}.${match[2]}`,
+      title: lessonTitle,
+      journey,
+    }
+  }, [journey, lessonId, lessonTitle, matchedCurriculumProp])
 
   const isRuleLesson = useMemo(
     () => isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle) || isAikiRuleJourney(journey),
     [journey, lessonId, lessonTitle],
   )
-
-  const matchedCurriculum = useMemo(() => {
-    return findIslandCurriculum({ id: lessonId, slug: lessonId, title: lessonTitle })
-  }, [lessonId, lessonTitle])
 
   const stationInfo = useMemo(() => {
     const curriculum = matchedCurriculum
@@ -203,12 +211,12 @@ export function SixStageJourneyView({
 
     if (isAikiRuleJourney(lessonId) || isAikiRuleJourney(lessonTitle)) {
       const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
-      const rule = AIKI_RULES_DATA.find((r) => r.id === rNum) || AIKI_RULES_DATA[0]
+      const ruleStageTitle = String(stagesProp?.[0]?.title || '')
       return {
-        stationLabel: `Quy tắc ${rule.id}: ${rule.shortTitle}`,
+        stationLabel: ruleStageTitle ? `Quy tắc ${rNum}: ${ruleStageTitle}` : lessonTitle || `Quy tắc ${rNum}`,
         icon: '⭐',
         islandName: 'Xưởng Sáng Tạo — 10 Quy Tắc Vàng',
-        lessonNumber: String(rule.id),
+        lessonNumber: String(rNum),
       }
     }
 
@@ -219,24 +227,9 @@ export function SixStageJourneyView({
       islandName: 'Đảo Sáng Tạo',
       lessonNumber: '1',
     }
-  }, [matchedCurriculum, lessonId, lessonTitle])
+  }, [matchedCurriculum, lessonId, lessonTitle, stagesProp])
 
-  // Adapter transforms journey data into declarative stages without hardcoded lesson checks
-  const stages = useMemo(() => {
-    if (stagesProp && stagesProp.length > 0) return stagesProp
-    if (isRuleLesson) {
-      const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
-      const rule = AIKI_RULES_DATA.find((r) => r.id === rNum) || AIKI_RULES_DATA[0]
-      return adaptRuleToStages(rule)
-    }
-    if (!journey) return []
-    return adaptSixStageJourneyToStages(journey, {
-      lessonId,
-      lessonTitle,
-      stationInfo,
-      matchedCurriculum,
-    })
-  }, [stagesProp, journey, lessonId, lessonTitle, stationInfo, matchedCurriculum, isRuleLesson])
+  const stages = useMemo(() => stagesProp || [], [stagesProp])
 
   const isFinalStation = useMemo(() => {
     if (typeof isFinalStationProp === 'boolean') {
@@ -263,8 +256,13 @@ export function SixStageJourneyView({
         const saved = localStorage.getItem(`aikids_lesson_stage_${lessonId}`)
         if (saved !== null) {
           const parsed = parseInt(saved, 10)
-          if (!isNaN(parsed) && parsed >= 0) {
+          const maxAllowedResumeStage = Math.max(0, stages.length - 2)
+          if (!isNaN(parsed) && parsed >= 0 && parsed <= maxAllowedResumeStage) {
             return parsed
+          } else if (parsed > maxAllowedResumeStage) {
+            // Tự động dọn dẹp cache bị kẹt ở chặng cuối
+            localStorage.removeItem(`aikids_lesson_stage_${lessonId}`)
+            localStorage.removeItem(`aikids_lesson_completed_stages_${lessonId}`)
           }
         }
       } catch {
@@ -275,15 +273,25 @@ export function SixStageJourneyView({
   })
 
   const [completedStages, setCompletedStages] = useState<Set<number>>(() => {
-    const initial = new Set<number>([0])
+    const initial = new Set<number>()
     if (typeof window !== 'undefined' && lessonId) {
       try {
+        const maxAllowedResumeStage = Math.max(0, stages.length - 2)
+        const savedStage = localStorage.getItem(`aikids_lesson_stage_${lessonId}`)
+        if (savedStage !== null) {
+          const parsedStage = parseInt(savedStage, 10)
+          if (!isNaN(parsedStage) && parsedStage > maxAllowedResumeStage) {
+            return initial
+          }
+        }
         const saved = localStorage.getItem(`aikids_lesson_completed_stages_${lessonId}`)
         if (saved) {
           const arr = JSON.parse(saved)
           if (Array.isArray(arr)) {
             arr.forEach((num: number) => {
-              if (typeof num === 'number') initial.add(num)
+              if (typeof num === 'number' && num <= maxAllowedResumeStage) {
+                initial.add(num)
+              }
             })
           }
         }
@@ -316,6 +324,8 @@ export function SixStageJourneyView({
   }, [])
 
   const prevStageRef = useRef(currentStage)
+  const prevLessonIdRef = useRef(lessonId)
+  const hasAutoFinishedRef = useRef(false)
   useEffect(() => {
     if (prevStageRef.current !== currentStage) {
       prevStageRef.current = currentStage
@@ -330,8 +340,9 @@ export function SixStageJourneyView({
   const [isConfirmCorrect, setIsConfirmCorrect] = useState<boolean | null>(null)
   const [failedOptionImages, setFailedOptionImages] = useState<Record<string, boolean>>({})
 
-  // Stage 2 (Video) seek state
+  // Stage 2 (Video) seek & completion state
   const [videoSeekSec, setVideoSeekSec] = useState<number | null>(null)
+  const [isVideoCompleted, setIsVideoCompleted] = useState<boolean>(false)
 
   // Stage 3 (Quiz) state
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({})
@@ -430,15 +441,22 @@ export function SixStageJourneyView({
 
   useEffect(() => {
     if (typeof window === 'undefined' || !lessonId) return
+    if (prevLessonIdRef.current !== lessonId) return
     try {
-      localStorage.setItem(`aikids_lesson_stage_${lessonId}`, String(currentStage))
+      const maxAllowedResumeStage = Math.max(0, stages.length - 2)
+      if (currentStage <= maxAllowedResumeStage) {
+        localStorage.setItem(`aikids_lesson_stage_${lessonId}`, String(currentStage))
+      } else {
+        localStorage.removeItem(`aikids_lesson_stage_${lessonId}`)
+      }
     } catch {
       // ignore
     }
-  }, [currentStage, lessonId])
+  }, [currentStage, lessonId, stages.length])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !lessonId) return
+    if (prevLessonIdRef.current !== lessonId) return
     try {
       localStorage.setItem(
         `aikids_lesson_completed_stages_${lessonId}`,
@@ -469,8 +487,11 @@ export function SixStageJourneyView({
 
   const advanceToStage = useCallback(
     (nextStage: number) => {
+      if (stages[currentStage]?.type === 'VIDEO' || (stages.length === 3 && currentStage === 0) || (stages.length > 3 && currentStage === 2)) {
+        setIsVideoCompleted(true)
+      }
       setCompletedStages((prev) => {
-        const updated = new Set([...prev, currentStage, nextStage])
+        const updated = new Set([...prev, currentStage])
         if (typeof window !== 'undefined' && lessonId) {
           try {
             localStorage.setItem(
@@ -562,6 +583,39 @@ export function SixStageJourneyView({
     setIsSpeakingCurrentStage(false)
   }, [currentStage, lessonId])
 
+  // Reset local journey state if lessonId changes on the same instance
+  useEffect(() => {
+    if (prevLessonIdRef.current !== lessonId) {
+      prevLessonIdRef.current = lessonId
+      hasAutoFinishedRef.current = false
+      setCurrentStage(0)
+      setCompletedStages(new Set<number>())
+      setIsVideoCompleted(false)
+      setSelectedConfirmOption(null)
+      setIsConfirmCorrect(null)
+      setFailedOptionImages({})
+      setVideoSeekSec(null)
+      setQuizAnswers({})
+      setQuizSubmitted(false)
+      setActiveQuizQuestionIdx(0)
+      setCheckedQuestions({})
+      setFailedQuizImages({})
+      setIsCertificateModalOpen(false)
+      setSubmittedArtwork(null)
+      setActivePracticePartIndex(0)
+      setPracticePartsState([])
+      setZoomImage(null)
+      setIsSpeakingCurrentStage(false)
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel()
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, [lessonId])
+
   const currentStageDef = stages[currentStage] || stages[0]
   const currentStageSpeech = currentStageDef?.speech || 'Cùng AIKI học thật vui nhé!'
 
@@ -625,31 +679,148 @@ export function SixStageJourneyView({
   const earnedStars = useMemo(() => {
     if (stages.length === 3) {
       let stars = 0
-      if (completedStages.has(0)) stars += 1
-      if (quizScore >= 1) stars += 1
-      if (currentStage === 2 || completedStages.has(1)) stars += 1
-      return Math.max(1, Math.min(3, stars))
+      const videoDone = completedStages.has(0) || isVideoCompleted || currentStage > 0
+      const quizDone = completedStages.has(1) || quizScore >= 1 || currentStage > 1
+      const rewardDone = currentStage === 2 || completedStages.has(2)
+
+      if (videoDone) stars += 1
+      if (quizDone) stars += 1
+      if (rewardDone) stars += 1
+      return Math.min(3, stars)
     }
+
+    // Khóa học chính các Đảo AIKids (6 chặng)
     let stars = 0
-    if (completedStages.has(0) && completedStages.has(1) && completedStages.has(2)) {
-      stars += 1
-    }
+
+    // ⭐ Ngôi sao 1: Khám phá & Nắm vững bài giảng (Chặng 0, 1 & 2 Video)
+    const videoPhaseDone =
+      (completedStages.has(2) || isVideoCompleted || currentStage > 2) &&
+      (completedStages.has(0) || currentStage > 0)
+
+    // ⭐⭐ Ngôi sao 2: Thử tài kiến thức / Phản xạ (Chặng 3 Quiz)
     const quizTotal = effectiveQuizQuestions.length || 1
-    if (quizScore / quizTotal >= 0.8) {
-      stars += 1
-    }
-    if (submittedArtwork) {
-      stars += 1
-    }
-    if (currentStage === 5 && completedStages.size <= 1 && stars === 0) {
+    const quizPhaseDone =
+      completedStages.has(3) ||
+      currentStage > 3 ||
+      (quizScore / quizTotal >= 0.7) ||
+      (quizSubmitted && quizScore >= 1)
+
+    // ⭐⭐⭐ Ngôi sao 3: Thực hành sáng tạo & Vinh danh (Chặng 4 Practice -> Chặng 5 Reward)
+    const practiceRewardDone =
+      Boolean(submittedArtwork) ||
+      currentStage === 5 ||
+      completedStages.has(4) ||
+      completedStages.has(5)
+
+    if (videoPhaseDone) stars += 1
+    if (quizPhaseDone) stars += 1
+    if (practiceRewardDone) stars += 1
+
+    if (currentStage === 5 && stars < 3) {
       return defaultStars
     }
-    return Math.max(1, stars)
-  }, [stages.length, completedStages, quizScore, effectiveQuizQuestions, submittedArtwork, currentStage, defaultStars])
+
+    return Math.min(3, stars)
+  }, [
+    stages.length,
+    completedStages,
+    isVideoCompleted,
+    quizScore,
+    effectiveQuizQuestions,
+    quizSubmitted,
+    submittedArtwork,
+    currentStage,
+    defaultStars,
+  ])
 
   const calculatedXp = rewardXpProp ?? rewardStageDef?.config?.rewardBadge?.xp ?? journey?.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
   const effectiveStars = isReplay ? 0 : earnedStars
   const effectiveRewardXp = isReplay ? 0 : calculatedXp
+
+  // Tự động lưu tiến trình và thông báo mở khóa ngay khi tới chặng Vinh danh Hiệp Sĩ (REWARD)
+  useEffect(() => {
+    if (currentStageDef?.type === 'REWARD' && !hasAutoFinishedRef.current) {
+      hasAutoFinishedRef.current = true
+      try {
+        // Lưu tiến trình bài học hoàn thành vào aikids_completed_lessons
+        const raw = localStorage.getItem('aikids_completed_lessons')
+        const completed = raw ? JSON.parse(raw) : {}
+        completed[lessonId] = {
+          stars: effectiveStars,
+          xp: effectiveRewardXp,
+          completedAt: new Date().toISOString(),
+        }
+        if (isRuleLesson) {
+          const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
+          if (rNum) {
+            completed[`rule-${rNum}`] = {
+              stars: effectiveStars,
+              xp: effectiveRewardXp,
+              completedAt: new Date().toISOString(),
+            }
+          }
+        }
+        localStorage.setItem('aikids_completed_lessons', JSON.stringify(completed))
+
+        if (isRuleLesson) {
+          const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
+          const rulesRaw = localStorage.getItem('aikids_golden_rules_progress_v1')
+          let rulesProg: any = rulesRaw ? JSON.parse(rulesRaw) : null
+          if (!rulesProg || !rulesProg.rules || Object.keys(rulesProg.rules).length < 10) {
+            const initialRules: Record<number, any> = {}
+            for (let i = 1; i <= 10; i++) {
+              initialRules[i] = {
+                ruleId: i,
+                status: i === 1 ? 'available' : 'locked',
+                completedQuestions: 0,
+                starsEarned: 0,
+              }
+            }
+            rulesProg = {
+              rules: { ...initialRules, ...(rulesProg?.rules || {}) },
+              totalStars: rulesProg?.totalStars || 0,
+              totalXp: rulesProg?.totalXp || 0,
+              unlockedPosters: rulesProg?.unlockedPosters || [],
+            }
+          }
+          const currentRule = rulesProg.rules[rNum]
+          const wasCompleted = currentRule?.status === 'completed'
+          rulesProg.rules[rNum] = {
+            ruleId: rNum,
+            status: 'completed',
+            completedQuestions: 2,
+            starsEarned: effectiveStars || 3,
+            completedAt: new Date().toISOString(),
+          }
+          const nextId = rNum + 1
+          if (nextId <= 10 && rulesProg.rules[nextId] && rulesProg.rules[nextId].status === 'locked') {
+            rulesProg.rules[nextId].status = 'available'
+          }
+          if (!wasCompleted) {
+            rulesProg.totalStars = (rulesProg.totalStars || 0) + (effectiveStars || 3)
+            rulesProg.totalXp = (rulesProg.totalXp || 0) + (effectiveRewardXp || 10)
+          }
+          if (!rulesProg.unlockedPosters?.includes(rNum)) {
+            rulesProg.unlockedPosters = [...(rulesProg.unlockedPosters || []), rNum].sort((a: number, b: number) => a - b)
+          }
+          localStorage.setItem('aikids_golden_rules_progress_v1', JSON.stringify(rulesProg))
+        }
+      } catch {}
+
+      onFinishLesson?.({
+        stars: effectiveStars,
+        xp: effectiveRewardXp,
+        nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
+      })
+
+      // Thông báo cho toàn bộ ứng dụng và bản đồ cập nhật ngay lập tức
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aikids:lesson-completed', {
+          detail: { lessonId, stars: effectiveStars, xp: effectiveRewardXp }
+        }))
+      }
+    }
+  }, [currentStageDef, effectiveStars, effectiveRewardXp, lessonId, lessonTitle, isRuleLesson, onFinishLesson])
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
@@ -749,6 +920,10 @@ export function SixStageJourneyView({
                 variant="primary"
                 className="w-full py-2.5 px-3 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-1.5 cursor-pointer"
                 onClick={() => {
+                  try {
+                    localStorage.removeItem(`aikids_lesson_stage_${stageItem.config.nextLessonSlug}`)
+                    localStorage.removeItem(`aikids_lesson_completed_stages_${stageItem.config.nextLessonSlug}`)
+                  } catch {}
                   onFinishLesson?.({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
@@ -806,11 +981,19 @@ export function SixStageJourneyView({
           >
             {stages.map((stageItem, idx) => {
               const isActive = currentStage === idx
-              const isDone = completedStages.has(idx) && currentStage > idx
+              const isDone = (
+                isRuleLesson || stages.length === 3
+                  ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
+                    (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
+                    (idx === 2 && completedStages.has(2))
+                  : completedStages.has(idx)
+              ) && currentStage > idx
               const isUnlocked =
                 idx <= currentStage ||
                 completedStages.has(idx) ||
-                completedStages.has(idx - 1)
+                completedStages.has(idx - 1) ||
+                (idx === 1 && !isRuleLesson && stages.length > 3) ||
+                (idx === 1 && isVideoCompleted)
 
               return (
                 <React.Fragment key={stageItem.id || idx}>
@@ -864,11 +1047,30 @@ export function SixStageJourneyView({
           </nav>
         </div>
 
-        {/* Phải: Huy hiệu 3 Sao */}
-        <div className="sr-only">
-          <div data-testid="star-badge-sr">
-            <Star className="size-3.5 fill-amber-400 text-amber-500" />
-            <span>3 Sao</span>
+        {/* Phải: Live Star Pill */}
+        <div
+          data-testid="star-badge-header"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 shadow-2xs text-amber-900 text-xs font-black shrink-0"
+          title={`Bé đã đạt ${earnedStars}/3 Sao trong bài học này`}
+        >
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3].map((s) => (
+              <Star
+                key={s}
+                size={14}
+                className={cn(
+                  s <= earnedStars
+                    ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
+                    : 'text-slate-300 fill-slate-100'
+                )}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] sm:text-xs font-black ml-0.5">
+            {earnedStars}/3
+          </span>
+          <div className="sr-only" data-testid="star-badge-sr">
+            <span>{earnedStars} Sao</span>
           </div>
         </div>
       </header>
@@ -897,13 +1099,9 @@ export function SixStageJourneyView({
             <span>Trợ lý AIKI</span>
             <span className="text-[10px]">{isSidebarCollapsed ? '▼' : '▲'}</span>
           </button>
-        </div>
 
-        <div className="hidden items-center gap-1.5 text-[11px] font-bold text-slate-500 xl:flex">
-          <span>Đang học:</span>
-          <span className="text-brand-600 font-black">
-            Chặng {currentStage + 1}/{stages.length} · {currentStageDef?.title}
-          </span>
+          {/* Chỉ báo chặng ẩn cho a11y, loại bỏ hiển thị trực quan để tối ưu diện tích banner */}
+          <span className="sr-only">Chặng {currentStage + 1}/{stages.length}</span>
         </div>
       </div>
 
@@ -949,6 +1147,8 @@ export function SixStageJourneyView({
               videoSeekSec={videoSeekSec}
               onSeekVideo={handleSeekVideo}
               onSpeakCurrentStage={speakCurrentStage}
+              isVideoCompleted={isVideoCompleted}
+              onVideoCompleted={() => setIsVideoCompleted(true)}
               // Quiz stage props
               activeQuizQuestionIdx={activeQuizQuestionIdx}
               quizAnswers={quizAnswers}
@@ -1026,12 +1226,14 @@ export function SixStageJourneyView({
 
           {supplementalStageCard && (
             <section aria-label="Nội dung bổ sung của chặng" className="animate-fade-up">
-              <StudentStageBlocksView
-                card={supplementalStageCard}
-                stageIndex={currentStage}
-                onNextStage={currentStage < stages.length - 1 ? advanceToStage : undefined}
-                onZoomImage={(image) => image.url && setZoomImage({ url: image.url, title: image.title })}
-              />
+              <React.Suspense fallback={<div className="h-24 animate-pulse rounded-2xl bg-slate-100" />}>
+                <StudentStageBlocksView
+                  card={supplementalStageCard}
+                  stageIndex={currentStage}
+                  onNextStage={currentStage < stages.length - 1 ? advanceToStage : undefined}
+                  onZoomImage={(image) => image.url && setZoomImage({ url: image.url, title: image.title })}
+                />
+              </React.Suspense>
             </section>
           )}
         </div>
@@ -1265,7 +1467,7 @@ export function SixStageJourneyView({
                           </div>
                           <p className="text-xs text-amber-900 font-bold leading-relaxed">
                             {effectiveNotebookConfig?.akiAdvice ||
-                              journey.stage5_practice?.akiMotto ||
+                              journey?.stage5_practice?.akiMotto ||
                               'Hãy viết bằng chính suy nghĩ của con! Cốt truyện này là của riêng con!'}
                           </p>
                         </div>
@@ -1382,7 +1584,7 @@ export function SixStageJourneyView({
                             <span>MẸO VÀNG CỦA AIKI</span>
                           </div>
                           <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
-                            {journey.stage5_practice?.akiMotto ||
+                            {journey?.stage5_practice?.akiMotto ||
                               studioConfig?.akiMotto ||
                               'Tả càng rõ, tranh càng đúng ý! Hãy miêu tả đủ chi tiết để AIKI vẽ chuẩn nhé.'}
                           </p>
@@ -1437,7 +1639,7 @@ export function SixStageJourneyView({
                             </span>
                           </div>
                           <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">
-                            {journey.stage1_goal?.keyPoints?.[2] || 'Tả càng rõ - Vẽ càng đúng! Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào đấy nhé!'}
+                            {journey?.stage1_goal?.keyPoints?.[2] || 'Tả càng rõ - Vẽ càng đúng! Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào đấy nhé!'}
                           </p>
                         </div>
 
@@ -1519,7 +1721,7 @@ export function SixStageJourneyView({
                                 onClick={() =>
                                   speakCurrentStage(
                                     isConfirmCorrect
-                                      ? journey.stage2_confirmGoal?.explanation || ''
+                                      ? journey?.stage2_confirmGoal?.explanation || ''
                                       : 'Chưa chuẩn rồi! Bé hãy đọc câu hỏi và liếc sang Bảng Gợi Ý Mật Mã ở trên để chọn lại nhé!'
                                   )
                                 }
@@ -1531,7 +1733,7 @@ export function SixStageJourneyView({
                             </div>
                             <p className="text-xs sm:text-sm leading-relaxed font-medium">
                               {isConfirmCorrect
-                                ? journey.stage2_confirmGoal?.explanation
+                                ? journey?.stage2_confirmGoal?.explanation
                                 : 'Chưa chuẩn rồi! Bé hãy đọc câu hỏi và liếc sang Bảng Gợi Ý Mật Mã ở trên để chọn lại nhé!'}
                             </p>
                           </div>
@@ -1781,7 +1983,7 @@ export function SixStageJourneyView({
                               <span className="text-lg">🏅</span>
                               <div className="min-w-0">
                                 <span className="text-xs sm:text-sm font-black text-amber-900 block truncate">
-                                  {journey.stage6_completion?.rewardBadge?.name}
+                                  {rewardStageDef?.config?.rewardBadge?.name || journey?.stage6_completion?.rewardBadge?.name || 'Huy hiệu Sáng Tạo'}
                                 </span>
                                 <span className="text-[11px] text-slate-500 font-semibold">Huy hiệu vàng</span>
                               </div>
@@ -1806,14 +2008,14 @@ export function SixStageJourneyView({
                         </div>
 
                         {/* Teaser Bài Sau */}
-                        {journey.stage6_completion?.nextLessonSlug && (
+                        {(rewardStageDef?.config?.nextLessonSlug || journey?.stage6_completion?.nextLessonSlug) && (
                           <div className="bg-indigo-50/80 rounded-2xl p-3.5 border border-indigo-200 flex flex-col gap-1.5 text-left shadow-2xs">
                             <div className="text-xs sm:text-sm font-black text-indigo-950 flex items-center gap-1.5">
                               <span>🔮</span>
                               <span>TEASER BÀI HỌC TIẾP THEO</span>
                             </div>
                             <p className="text-xs sm:text-sm text-indigo-900 font-bold leading-relaxed">
-                              Chủ đề tiếp theo: {journey.stage6_completion.nextLessonSlug.replace(/[-_]/g, ' ')}
+                              Chủ đề tiếp theo: {(rewardStageDef?.config?.nextLessonSlug || journey?.stage6_completion?.nextLessonSlug || '').replace(/[-_]/g, ' ')}
                             </p>
                             <span className="text-xs text-slate-500">
                               Nhiều điều bí ẩn và công thức thần kỳ mới đang chờ đón bé khám phá!

@@ -41,8 +41,10 @@ if (typeof window !== 'undefined') {
   })
 }
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { SixStageJourneyView } from './SixStageJourneyView'
+import { SixStageJourneyView } from './SixStageJourneyViewLegacy'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { adaptRuleToStages } from '../lib/rule-stage-adapter'
 
 const mockJourney: LessonSixStageJourney = {
   stage1_goal: {
@@ -196,9 +198,10 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.textContent).toContain('42 Sao tích lũy')
   })
 
-  it('renders teacher drag-and-drop blocks appended to the matching course stage', () => {
+  it('renders teacher drag-and-drop blocks appended to the matching course stage', async () => {
+    await import('./StudentStageBlocksView')
     const root = createRoot(container)
-    act(() => {
+    await act(async () => {
       root.render(
         <SixStageJourneyView
           journey={{
@@ -211,6 +214,7 @@ describe('SixStageJourneyView', () => {
           lessonTitle="Đừng Để AIKI Đoán Mò"
         />
       )
+      await Promise.resolve()
     })
 
     expect(container.querySelector('[data-testid="block-layout-callout"]')).not.toBeNull()
@@ -2516,6 +2520,7 @@ describe('SixStageJourneyView', () => {
     act(() => {
       root.render(
         <SixStageJourneyView
+          journey={mockJourney}
           lessonId="bai-1-1"
           lessonTitle="Bài 1.1 — Một từ hay năm từ?"
           initialStageIndex={5}
@@ -2534,6 +2539,7 @@ describe('SixStageJourneyView', () => {
     act(() => {
       root.render(
         <SixStageJourneyView
+          journey={mockJourney}
           lessonId="bai-1-4"
           lessonTitle="Bài 1.4 — Kỹ sư tài ba"
           initialStageIndex={5}
@@ -2543,6 +2549,443 @@ describe('SixStageJourneyView', () => {
     })
 
     expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    act(() => root.unmount())
+  })
+
+  it('never resumes to final REWARD stage from localStorage and cleans up corrupted cache', () => {
+    const testLessonId = 'rule-2'
+    // Stale cache pointing to final stage 2 of 3-stage rule journey
+    mockLocalStorage.setItem(`aikids_lesson_stage_${testLessonId}`, '2')
+    mockLocalStorage.setItem(`aikids_lesson_completed_stages_${testLessonId}`, JSON.stringify([0, 1, 2]))
+
+    try {
+      const root = createRoot(container)
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            lessonId={testLessonId}
+            lessonTitle="Quy tắc 2"
+          />
+        )
+      })
+
+      // Must start at Stage 0 (Chặng 1/3: Video bài giảng) and NOT jump to Stage 2 (Vinh danh Hiệp Sĩ)
+      expect(container.textContent).toContain('Chặng 1/3')
+      expect(container.textContent).not.toContain('Vinh danh Hiệp Sĩ Sáng Tạo')
+      // Corrupted final stage cache must NOT remain
+      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).not.toBe('2')
+      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).toBe('0')
+      act(() => root.unmount())
+    } finally {
+      mockLocalStorage.removeItem(`aikids_lesson_stage_${testLessonId}`)
+      mockLocalStorage.removeItem(`aikids_lesson_completed_stages_${testLessonId}`)
+    }
+  })
+
+  it('resets stage to 0 when lessonId changes on same instance', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1"
+          initialStageIndex={1}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('Chặng 2/3')
+
+    // Change lessonId to rule-2 on same instance
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-2"
+          lessonTitle="Quy tắc 2"
+        />
+      )
+    })
+
+    // Must reset to Chặng 1/3
+    expect(container.textContent).toContain('Chặng 1/3')
+    act(() => root.unmount())
+  })
+
+  it('automatically triggers onFinishLesson and writes to aikids_completed_lessons when reaching REWARD stage without clicking buttons', () => {
+    const onFinishSpy = vi.fn()
+    const eventSpy = vi.fn()
+    window.addEventListener('aikids:lesson-completed', eventSpy)
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: AI không tự nghĩ được"
+          initialStageIndex={2} // Chặng 3/3: REWARD (Vinh danh Hiệp Sĩ)
+          onFinishLesson={onFinishSpy}
+        />
+      )
+    })
+
+    // Expect onFinishLesson to have been called automatically
+    expect(onFinishSpy).toHaveBeenCalledTimes(1)
+    expect(onFinishSpy).toHaveBeenCalledWith(expect.objectContaining({
+      stars: expect.any(Number),
+      xp: expect.any(Number),
+    }))
+
+    // Expect localStorage aikids_completed_lessons to contain rule-1
+    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
+    expect(rawCompleted).toBeTruthy()
+    const completedMap = JSON.parse(rawCompleted!)
+    expect(completedMap['rule-1']).toBeTruthy()
+    expect(completedMap['rule-1'].stars).toBeGreaterThanOrEqual(1)
+
+    // Expect custom event aikids:lesson-completed to have been dispatched
+    expect(eventSpy).toHaveBeenCalledTimes(1)
+    window.removeEventListener('aikids:lesson-completed', eventSpy)
+
+    act(() => root.unmount())
+  })
+
+  it('accumulates 3 stars step by step for Rule Lesson: 0 initial -> 1 on video completion (>= 75%) -> 2 on quiz correct -> 3 on reward stage', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: AI không tự nghĩ được"
+        />
+      )
+    })
+
+    // 1. Initial state at Stage 0 (Video / Slide Cinema): stars must be 0!
+    const headerPill = container.querySelector('[data-testid="star-badge-header"]')
+    expect(headerPill).not.toBeNull()
+    expect(headerPill?.textContent).toContain('0/3')
+
+    // Video completed badge should not be visible yet
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).toBeNull()
+
+    // 2. Click chapter node 4 (index 3 out of 5 slides, >= 75%)
+    const chapterNode4 = container.querySelector('[data-testid="video-chapter-node-4"]') as HTMLButtonElement | null
+    expect(chapterNode4).not.toBeNull()
+    act(() => {
+      chapterNode4?.click()
+    })
+
+    // Now video is completed: 1 star earned!
+    expect(headerPill?.textContent).toContain('1/3')
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
+    expect(container.textContent).toContain('⭐ Đã nhận 1/3 Sao: Bạn đã hoàn thành Rạp chiếu bài giảng!')
+
+    // Click next to reach the final slide
+    const nextSlideBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Kế tiếp')
+    )
+    act(() => {
+      nextSlideBtn?.click()
+    })
+
+    // 3. Advance to Stage 1 (Quiz)
+    const continueBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Tiếp tục sang Thử Tài Phản Xạ')
+    )
+    expect(continueBtn).toBeDefined()
+    act(() => {
+      continueBtn?.click()
+    })
+
+    // Now at Stage 1 (Quiz). Still 1/3 stars before answering quiz correctly!
+    expect(container.querySelector('[data-testid="stage-3-quiz"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('1/3')
+
+    // Select the correct option for quiz (Sonet's own idea, option index 1)
+    const options = container.querySelectorAll('[data-testid="stage-3-quiz"] button')
+    const sonetOption = Array.from(options).find((b) =>
+      b.textContent?.includes('ý riêng của Sonet')
+    )
+    expect(sonetOption).toBeDefined()
+    act(() => {
+      ;(sonetOption as HTMLButtonElement)?.click()
+    })
+
+    // Now quiz is correct: 2 stars earned!
+    expect(headerPill?.textContent).toContain('2/3')
+
+    // Click "Câu tiếp theo" to go to Question 2
+    const nextQBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Câu tiếp theo')
+    )
+    expect(nextQBtn).toBeDefined()
+    act(() => {
+      nextQBtn?.click()
+    })
+
+    // Answer Question 2 correctly
+    const q2Options = container.querySelectorAll('[data-testid="stage-3-quiz"] button')
+    const q2CorrectOpt = Array.from(q2Options).find((b) =>
+      b.textContent?.includes('quen thuộc nhất trong kho hình')
+    )
+    expect(q2CorrectOpt).toBeDefined()
+    act(() => {
+      ;(q2CorrectOpt as HTMLButtonElement)?.click()
+    })
+
+    // Click "Nộp bài kiểm tra"
+    const submitBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Nộp bài kiểm tra')
+    )
+    expect(submitBtn).toBeDefined()
+    act(() => {
+      submitBtn?.click()
+    })
+
+    // Advance to Stage 2 (Reward)
+    const rewardBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vinh danh Hiệp sĩ') || b.textContent?.includes('Tiếp tục')
+    )
+    expect(rewardBtn).toBeDefined()
+    act(() => {
+      rewardBtn?.click()
+    })
+
+    // 4. Now at Stage 2 (Reward): 3 stars earned!
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('3/3')
+
+    // LocalStorage aikids_completed_lessons has 3 stars
+    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
+    expect(rawCompleted).toBeTruthy()
+    const completedMap = JSON.parse(rawCompleted!)
+    expect(completedMap['rule-1'].stars).toBe(3)
+
+    // LocalStorage aikids_golden_rules_progress_v1 has 3 stars
+    const rawRules = mockLocalStorage.getItem('aikids_golden_rules_progress_v1')
+    expect(rawRules).toBeTruthy()
+    const rulesProg = JSON.parse(rawRules!)
+    expect(rulesProg.rules[1].starsEarned).toBe(3)
+
+    act(() => root.unmount())
+  })
+
+  it('accumulates 3 stars step by step for 6-stage Island Lesson: 0 initial -> 1 on video completion -> 2 on quiz pass -> 3 on practice submit / reward', async () => {
+    vi.useFakeTimers()
+    const root = createRoot(container)
+    await act(async () => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const headerPill = container.querySelector('[data-testid="star-badge-header"]')
+    expect(headerPill).not.toBeNull()
+
+    // 1. Initial state at Stage 0 (Goal): exactly 0/3 stars!
+    expect(headerPill?.textContent).toContain('0/3')
+    expect(container.querySelector('[data-testid="stage-0-goal"]')).not.toBeNull()
+
+    // Advance to Stage 1 (Confirm Goal)
+    const goalBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Đã hiểu mục tiêu')
+    )
+    expect(goalBtn).toBeDefined()
+    await act(async () => {
+      goalBtn?.click()
+    })
+
+    // 2. Stage 1 (Confirm Goal): still 0/3 stars!
+    expect(container.querySelector('[data-testid="stage-1-confirm"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('0/3')
+
+    // Select correct answer in Confirm Goal (option 0)
+    const confirmOptions = container.querySelectorAll('[data-testid="stage-1-confirm"] button')
+    expect(confirmOptions.length).toBeGreaterThanOrEqual(2)
+    await act(async () => {
+      ;(confirmOptions[0] as HTMLButtonElement)?.click()
+    })
+
+    // Advance to Stage 2 (Video)
+    const toVideoBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xem video bài học')
+    )
+    expect(toVideoBtn).toBeDefined()
+    await act(async () => {
+      toVideoBtn?.click()
+    })
+
+    // 3. Stage 2 (Video): still 0/3 stars before completing video!
+    expect(container.querySelector('[data-testid="stage-2-video"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('0/3')
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).toBeNull()
+
+    // Click chapter node 3 (startSec: 120s / 180s, which is chapter index 2 >= length - 2)
+    const chapterNode3 = container.querySelector('[data-testid="video-chapter-node-3"]') as HTMLButtonElement | null
+    expect(chapterNode3).not.toBeNull()
+    await act(async () => {
+      chapterNode3?.click()
+    })
+
+    // Video completed: 1 star earned!
+    expect(headerPill?.textContent).toContain('1/3')
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
+    expect(container.textContent).toContain('⭐ Đã nhận 1/3 Sao: Bạn đã hoàn thành Rạp chiếu bài giảng!')
+
+    // Advance to Stage 3 (Quiz)
+    const toQuizBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Làm bài test thử tài')
+    )
+    expect(toQuizBtn).toBeDefined()
+    await act(async () => {
+      toQuizBtn?.click()
+    })
+
+    // 4. Stage 3 (Quiz): still 1/3 stars before answering quiz!
+    expect(container.querySelector('[data-testid="stage-3-quiz"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('1/3')
+
+    // Answer Q1 correctly (opt 0: AIKI sẽ đoán mò)
+    const q1Options = container.querySelectorAll('[data-testid="stage-3-quiz"] button')
+    const q1Correct = Array.from(q1Options).find((b) =>
+      b.textContent?.includes('AIKI sẽ đoán mò')
+    )
+    expect(q1Correct).toBeDefined()
+    await act(async () => {
+      ;(q1Correct as HTMLButtonElement)?.click()
+    })
+
+    // Click "Câu tiếp theo"
+    const nextQBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Câu tiếp theo')
+    )
+    expect(nextQBtn).toBeDefined()
+    await act(async () => {
+      nextQBtn?.click()
+    })
+
+    // Answer Q2 correctly (opt 0: Miêu tả càng rõ)
+    const q2Options = container.querySelectorAll('[data-testid="stage-3-quiz"] button')
+    const q2Correct = Array.from(q2Options).find((b) =>
+      b.textContent?.includes('Miêu tả càng rõ')
+    )
+    expect(q2Correct).toBeDefined()
+    await act(async () => {
+      ;(q2Correct as HTMLButtonElement)?.click()
+    })
+
+    // Submit quiz
+    const submitQuizBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Nộp bài kiểm tra')
+    )
+    expect(submitQuizBtn).toBeDefined()
+    await act(async () => {
+      submitQuizBtn?.click()
+    })
+
+    // Quiz passed: 2 stars earned!
+    expect(headerPill?.textContent).toContain('2/3')
+
+    // Preload practice artwork in session cache so the student has an artwork to submit
+    mockLocalStorage.setItem(
+      'aiki_studio_session_bai-1-1',
+      JSON.stringify([
+        {
+          id: 'img-bai-1-1-artwork',
+          url: '/assets/aiki-islands/island1_lesson1_cat.jpg',
+          prompt: 'Chú mèo mướp béo nằm ngủ',
+          time: '08:30',
+          turn: 1,
+          partIndex: 0,
+          partTurn: 1,
+        },
+      ])
+    )
+
+    // Advance to Stage 4 (Practice)
+    const toPracticeBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vào xưởng thực hành')
+    )
+    expect(toPracticeBtn).toBeDefined()
+    await act(async () => {
+      toPracticeBtn?.click()
+    })
+
+    // 5. Stage 4 (Practice): still 2/3 stars before submitting artwork!
+    expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('2/3')
+
+    // Open submit modal in practice studio
+    const submitStudioBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement | null
+    expect(submitStudioBtn).not.toBeNull()
+    await act(async () => {
+      submitStudioBtn?.click()
+    })
+
+    // Confirm submit in studio modal
+    const confirmSubmitBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement | null
+    expect(confirmSubmitBtn).not.toBeNull()
+    await act(async () => {
+      confirmSubmitBtn?.click()
+    })
+
+    // Fast-forward the submission timeout (1400ms) to advance to Stage 5 (Reward)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500)
+    })
+
+    // 6. Stage 5 (Reward): 3 stars earned!
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('3/3')
+
+    // LocalStorage aikids_completed_lessons has 3 stars saved
+    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
+    expect(rawCompleted).toBeTruthy()
+    const completedMap = JSON.parse(rawCompleted!)
+    expect(completedMap['bai-1-1'].stars).toBe(3)
+    expect(completedMap['bai-1-1'].xp).toBe(50)
+
+    vi.useRealTimers()
+    act(() => root.unmount())
+  })
+
+  it('renders REWARD stage smoothly when journey is undefined without crashing or throwing errors', async () => {
+    const root = createRoot(container)
+    const ruleStages = adaptRuleToStages(AIKI_RULES_DATA[0])
+    const onFinishLesson = vi.fn()
+    const onNavigateNextLesson = vi.fn()
+
+    await act(async () => {
+      root.render(
+        <SixStageJourneyView
+          journey={undefined}
+          stages={ruleStages}
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: Không Nói Bừa Khi Dùng AI"
+          initialStageIndex={2}
+          onFinishLesson={onFinishLesson}
+          onNavigateNextLesson={onNavigateNextLesson}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // Verify stage REWARD / completion section rendered without crashing
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
+    expect(container.textContent).toContain('Chúc mừng Hiệp Sĩ Quy Tắc 1!')
+    expect(container.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
+    expect(container.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
+
+    // Verify sidebar rendered smoothly without throwing TypeError
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+    expect(sidebar?.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
+
     act(() => root.unmount())
   })
 })

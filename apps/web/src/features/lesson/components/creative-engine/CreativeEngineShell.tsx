@@ -17,7 +17,7 @@ export interface CreativeEngineShellProps {
   mode?: CreativeEngineMode
   onModeChange?: (mode: CreativeEngineMode) => void
   currentPrompt: string
-  onPromptChange: (prompt: string) => void
+  onPromptChange: (prompt: string, blocks?: CreativeBlock[]) => void
   onGenerate: () => void
   attemptsLeft: number
   maxAttempts: number
@@ -109,7 +109,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
   const handleEnginePromptChange = useCallback(
     (prompt: string, blocks: CreativeBlock[]) => {
       setActiveBlocks(blocks)
-      onPromptChange(prompt)
+      onPromptChange(prompt, blocks)
     },
     [onPromptChange]
   )

@@ -73,4 +73,22 @@ describe('learning API facade', () => {
       'https://dev-hub.storymee.com/api/v1/lms/family/children/child-1/teacher-feedback',
     )
   })
+
+  it('opens a lesson with one aggregate LMS request', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: {
+        quest: { id: 'lesson-1' },
+        progress: { status: 'in_progress', phase: 'learn', stars: 0 },
+      },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await learningApi.openLesson('lesson-1')
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/lesson-1/open',
+    )
+  })
 })

@@ -73,16 +73,10 @@ describe('LessonPage prefetch', () => {
   })
 
   it('loads only the current lesson and does not prefetch the next lesson', async () => {
-    vi.spyOn(learningApi, 'startLesson').mockResolvedValue({
-      progress: {
-        status: 'in_progress',
-        phase: 'learn',
-        stars: 1,
-      },
-    })
-    const getLessonSpy = vi.spyOn(learningApi, 'getLesson').mockImplementation(async (id: string) => {
+    const openLessonSpy = vi.spyOn(learningApi, 'openLesson').mockImplementation(async (id: string) => {
       if (id === 'lesson-current') {
         return {
+          progress: { status: 'in_progress', phase: 'learn', stars: 1 },
           quest: {
             id: 'lesson-current',
             courseId: 'course-1',
@@ -116,6 +110,7 @@ describe('LessonPage prefetch', () => {
         }
       }
       return {
+        progress: { status: 'in_progress', phase: 'learn', stars: 0 },
         quest: {
           id: 'lesson-next',
           courseId: 'course-1',
@@ -146,37 +141,33 @@ describe('LessonPage prefetch', () => {
       )
     })
 
-    expect(getLessonSpy).toHaveBeenCalledWith('lesson-current')
-    expect(getLessonSpy).not.toHaveBeenCalledWith('lesson-next')
-    expect(getLessonSpy).toHaveBeenCalledTimes(1)
+    expect(openLessonSpy).toHaveBeenCalledWith('lesson-current')
+    expect(openLessonSpy).not.toHaveBeenCalledWith('lesson-next')
+    expect(openLessonSpy).toHaveBeenCalledTimes(1)
   })
 
   it('renders SixStageJourneyView with 3 stages for Aiki Rule lesson with DB UUID and QT1 title', async () => {
-    vi.spyOn(learningApi, 'startLesson').mockResolvedValue({
+    vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
       progress: {
         status: 'in_progress',
         phase: 'learn',
         stars: 1,
       },
-    })
-    vi.spyOn(learningApi, 'getLesson').mockImplementation(async () => {
-      return {
-        quest: {
-          id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad',
-          courseId: '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b',
-          order: 1,
-          title: 'QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
-          duration: '52 giây',
-          hook: 'Nghĩ ý tưởng trước khi hỏi AI',
-          accent: '#f59e0b',
-          practiceKind: 'chips',
-          skill: 'Khi con muốn sáng tạo, dừng lại 30 giây để hình dung',
-          reward: 'Huy hiệu Quy tắc 1',
-          goals: ['Bí quyết của con: Hãy luôn nghĩ ý tưởng của riêng con trước'],
-          learnCards: [],
-          check: [],
-        } as unknown as import('@/shared/lib/api').QuestDetail,
-      }
+      quest: {
+        id: '0da9d441-43a0-4d00-84d7-e8f8958e2aad',
+        courseId: '5a2221e2-91a7-42dc-8362-ac9e51d8cc5b',
+        order: 1,
+        title: 'QT1 — Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
+        duration: '52 giây',
+        hook: 'Nghĩ ý tưởng trước khi hỏi AI',
+        accent: '#f59e0b',
+        practiceKind: 'chips',
+        skill: 'Khi con muốn sáng tạo, dừng lại 30 giây để hình dung',
+        reward: 'Huy hiệu Quy tắc 1',
+        goals: ['Bí quyết của con: Hãy luôn nghĩ ý tưởng của riêng con trước'],
+        learnCards: [],
+        check: [],
+      } as unknown as import('@/shared/lib/api').QuestDetail,
     })
 
     const activeRoot = createRoot(container)
