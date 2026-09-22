@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef, useCallback } from 'react'
+import React, { useMemo, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import {
   Play,
   RotateCcw,
@@ -40,19 +40,21 @@ export function VideoStageBlock({
 
   const hasPlayedSoundRef = useRef(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = stageRef.current
     if (!element || typeof ResizeObserver === 'undefined') return
+    const canvas = element.closest<HTMLElement>('[data-testid="main-learning-canvas"]') ?? element
     const updateLayout = (width: number, height: number) => {
-      // Measure the real learning canvas after navigation and AIKI consume
-      // their space. Viewport-only media queries misclassify this area.
+      // Observe the stable parent canvas, not this stage. Measuring the stage
+      // itself creates a feedback loop: horizontal layout changes its height,
+      // which can immediately switch it back to vertical and make it flicker.
       setUseHorizontalTimeline(width < 768 || width / Math.max(height, 1) <= 1.5)
     }
     const observer = new ResizeObserver(([entry]) => {
       if (entry) updateLayout(entry.contentRect.width, entry.contentRect.height)
     })
-    observer.observe(element)
-    const rect = element.getBoundingClientRect()
+    observer.observe(canvas)
+    const rect = canvas.getBoundingClientRect()
     updateLayout(rect.width, rect.height)
     return () => observer.disconnect()
   }, [])
