@@ -1768,7 +1768,7 @@ export function SixStageJourneyView({
                     {/* CHẶNG 2: Danh Sách Mốc Phân Đoạn (Interactive Chapters) + Quy Tắc Cốt Lõi */}
                     {currentStageDef?.type === 'VIDEO' && (
                       <div className="flex flex-col gap-3">
-                        <div className="bg-purple-50/70 rounded-2xl p-3.5 border-2 border-purple-200 shadow-2xs flex flex-col gap-2.5 text-left">
+                        <div className="bg-purple-50/70 rounded-2xl p-3.5 border-2 border-purple-200 shadow-2xs flex flex-col gap-2.5 text-left lg:hidden">
                           <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-purple-950 flex items-center gap-1.5">
                               <Video size={14} className="text-purple-600" />

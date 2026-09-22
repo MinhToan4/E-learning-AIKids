@@ -167,7 +167,7 @@ export function VideoStageBlock({
       {/* CỘT PHẢI: Thanh tiến trình stepper & Vertical Playlist & Action Dock */}
       <div
         data-testid="video-timeline-stepper"
-        className="relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-full lg:h-full"
+        className="relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-center lg:self-center"
       >
         {/* Header mốc & Thời gian */}
         <div className="shrink-0 flex items-center justify-between gap-1 pb-1 border-b border-amber-200/80 text-xs">

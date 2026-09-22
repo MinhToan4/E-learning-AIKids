@@ -794,7 +794,8 @@ describe('SixStageJourneyView', () => {
     expect(iframe).not.toBeNull()
     expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/NMdHhsLY5jc')
 
-    // Timestamps are cleanly displayed in Companion Sidebar (Interactive Chapters)
+    // Timestamps remain available in the companion sidebar on compact screens,
+    // but are hidden on desktop where the main timeline already shows them.
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
     expect(sidebar?.textContent).toContain('Mốc Phân Đoạn Video')
@@ -806,6 +807,7 @@ describe('SixStageJourneyView', () => {
       b.textContent?.includes('Bí kíp 4 chìa khóa')
     )
     expect(chapterBtn).toBeDefined()
+    expect(chapterBtn?.closest('[class*="bg-purple-50/70"]')?.className).toContain('lg:hidden')
     act(() => {
       chapterBtn?.click()
     })
@@ -3047,6 +3049,9 @@ describe('SixStageJourneyView', () => {
     expect(stepper).not.toBeNull()
     expect(stepper.className).toContain('[@media(max-height:760px)]:py-1')
     expect(stepper.className).toContain('overflow-hidden')
+    expect(stepper.className).toContain('lg:h-fit')
+    expect(stepper.className).toContain('lg:max-h-full')
+    expect(stepper.className).toContain('lg:self-center')
 
     // Vertical chapter labels must be taller than their viewport and scroll
     // inside the track instead of painting over the pinned continue button.
