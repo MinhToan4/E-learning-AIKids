@@ -88,8 +88,6 @@ export function VideoStageBlock({
     return idx !== -1 ? idx : 0
   }, [videoChapters, videoSeekSec])
 
-  const currentChapter = videoChapters[currentChapterIndex] || videoChapters[0]
-
   const videoEmbedSrc = useMemo(() => {
     return buildVideoEmbedUrl(config.videoUrl, videoSeekSec)
   }, [config.videoUrl, videoSeekSec])
@@ -120,7 +118,7 @@ export function VideoStageBlock({
   return (
     <section
       data-testid="stage-2-video"
-      className="flex h-full min-h-0 flex-1 overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
+      className="flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
@@ -188,133 +186,123 @@ export function VideoStageBlock({
           </span>
         </div>
 
-        {/* Thanh Scrubbable Track + Nút Play */}
-        <div className="shrink-0 flex items-center gap-2">
+        {/* TRACK & CONTROLS GRID */}
+        <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
+          
+          {/* NÚT PLAY / TUA LẠI */}
           <button
             type="button"
             data-testid="video-timeline-play-btn"
             onClick={() => onSeekVideo?.((videoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-            className="size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
+            className="col-start-1 row-start-1 landscape:order-2 lg:order-2 size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center gap-1 cursor-pointer transition-all self-center shrink-0 z-10"
             aria-label="Tua lại từ đầu"
             title="Tua lại từ đầu"
           >
-            <Play size={16} className="translate-x-0.5 fill-white" />
+            <Play size={16} className="translate-x-0.5 fill-white shrink-0" />
           </button>
 
-          <div className="relative flex-1 min-w-[80px] py-1">
-            <div className="relative h-2.5 sm:h-3 w-full rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center">
+          {/* TRACK TIẾN ĐỘ */}
+          <div className="col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1">
+            
+            {/* Horizontal Line (Portrait) */}
+            <div className="absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
                 style={{
                   width: `${Math.min(100, Math.max(4, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
                 }}
               />
+            </div>
 
-              {/* Numbered Chapter Markers (cho kiểm thử và tua nhanh) */}
+            {/* Vertical Line (Landscape) */}
+            <div className="absolute left-[11px] top-4 bottom-4 w-1.5 bg-amber-200 rounded-full shadow-inner hidden landscape:block lg:block z-0">
+              <div
+                className="w-full rounded-full bg-gradient-to-b from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
+                style={{
+                  height: `${Math.min(100, Math.max(0, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
+                }}
+              />
+            </div>
+
+            {/* Nodes Container */}
+            <div className="relative w-full h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
               {videoChapters.map((m, idx) => {
                 const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
                 const isPassed = (videoSeekSec || 0) >= m.startSec
                 const isCurrent = currentChapterIndex === idx
+                
                 return (
-                  <button
+                  <div
                     key={idx}
-                    type="button"
-                    data-testid={`video-chapter-node-${idx + 1}`}
-                    onClick={() => onSeekVideo?.(m.startSec)}
-                    className={cn(
-                      'absolute top-1/2 z-10 flex size-6 sm:size-7 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none'
-                    )}
-                    style={{ left: `${posPercent}%` }}
-                    title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
+                    className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full left-[var(--portrait-left)]"
+                    style={{ '--portrait-left': `${posPercent}%` } as React.CSSProperties}
                   >
-                    <span
+                    {/* Node Circle */}
+                    <button
+                      type="button"
+                      data-testid={`video-chapter-node-${idx + 1}`}
+                      onClick={() => onSeekVideo?.(m.startSec)}
                       className={cn(
-                        'flex items-center justify-center rounded-full border border-white shadow-clay transition-all duration-200 text-[10px]',
+                        'flex items-center justify-center rounded-full font-display font-black text-[10px] sm:text-xs select-none cursor-pointer border shadow-clay transition-all duration-200 shrink-0 z-10',
                         isCurrent
-                          ? 'size-5 sm:size-6 bg-brand-500 text-white ring-2 ring-brand-200'
+                          ? 'size-5 sm:size-6 landscape:size-6 lg:size-6 bg-brand-500 text-white border-brand-200 ring-2 ring-brand-300'
                           : isPassed
-                          ? 'size-4 sm:size-5 bg-amber-400 text-amber-950'
-                          : 'size-4 sm:size-5 border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200'
+                          ? 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-amber-400 text-amber-950 border-white hover:bg-amber-500'
+                          : 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-amber-100 text-amber-600 border-white hover:bg-amber-200'
                       )}
+                      title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
                     >
                       {idx + 1}
-                    </span>
-                  </button>
+                    </button>
+
+                    {/* Node Label (Landscape only) */}
+                    <button
+                      type="button"
+                      onClick={() => onSeekVideo?.(m.startSec)}
+                      className={cn(
+                        "hidden landscape:flex lg:flex flex-1 text-left px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all min-w-0 flex-col gap-0 shadow-2xs cursor-pointer",
+                        isCurrent ? 'bg-brand-500 text-white border-brand-600 ring-1 ring-brand-300 shadow-clay-xs' :
+                        isPassed ? 'bg-amber-100/90 text-amber-950 border-amber-300 hover:bg-amber-200' :
+                        'bg-white text-slate-700 border-amber-200 hover:bg-amber-50'
+                      )}
+                    >
+                      <div className="text-xs sm:text-[13px] font-bold truncate leading-tight w-full">{m.label}</div>
+                      <div className={cn("text-[10px] sm:text-[11px] font-mono", isCurrent ? 'text-brand-100 font-black' : 'text-amber-800')}>
+                        {Math.floor(m.startSec / 60)}:{String(m.startSec % 60).padStart(2, '0')}
+                      </div>
+                    </button>
+                  </div>
                 )
               })}
             </div>
           </div>
-        </div>
 
-        {/* Hàng nút phụ Xem lại video & Nghe AIKI giảng */}
-        <div className="shrink-0 flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onSeekVideo?.(0)}
-            className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-0.5"
-            title="Xem lại từ đầu"
-          >
-            <RotateCcw size={12} className="text-amber-700" />
-            <span>Xem lại video</span>
-          </button>
+          {/* CỤM NÚT PHỤ */}
+          <div className="col-span-2 col-start-1 row-start-2 landscape:order-3 lg:order-3 landscape:flex-1 lg:flex-1 landscape:min-w-0 lg:min-w-0 flex gap-1.5 self-center">
+            <button
+              type="button"
+              onClick={() => onSeekVideo?.(0)}
+              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-1 min-w-0"
+              title="Xem lại từ đầu"
+            >
+              <RotateCcw size={12} className="text-amber-700 shrink-0" />
+              <span className="truncate">Xem lại video</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => onSpeakCurrentStage?.(stage.speech || '')}
-            className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-0.5"
-            title="Nghe AIKI giảng bài"
-          >
-            <Volume2 size={12} className="text-brand-600" />
-            <span>Nghe AIKI giảng</span>
-          </button>
-        </div>
-
-        {/* Vertical Chapter Playlist (Cuộn độc lập, rõ ràng từng mốc) */}
-        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-0.5 max-h-[160px] landscape:max-h-none lg:max-h-none">
-          {videoChapters.map((ch, idx) => {
-            const isPassed = (videoSeekSec || 0) >= ch.startSec
-            const isCurrent = currentChapterIndex === idx
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => onSeekVideo?.(ch.startSec)}
-                className={cn(
-                  'w-full p-1.5 sm:p-2 rounded-xl border flex items-center justify-between gap-2 text-left transition cursor-pointer shadow-2xs',
-                  isCurrent
-                    ? 'bg-brand-500 text-white border-brand-600 font-black ring-2 ring-brand-300 shadow-clay-xs'
-                    : isPassed
-                    ? 'bg-amber-100/90 text-amber-950 border-amber-300 hover:bg-amber-200'
-                    : 'bg-white text-slate-700 border-amber-200 hover:bg-amber-50'
-                )}
-                title={`${Math.floor(ch.startSec / 60)}:${String(ch.startSec % 60).padStart(2, '0')}: ${ch.label}`}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className={cn(
-                      'size-5 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0',
-                      isCurrent ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900'
-                    )}
-                  >
-                    {idx + 1}
-                  </span>
-                  <span className="text-xs truncate font-bold">{ch.label}</span>
-                </div>
-                <span
-                  className={cn(
-                    'text-[10px] font-mono shrink-0 px-1 py-0.5 rounded',
-                    isCurrent ? 'bg-white/20 text-white font-black' : 'text-amber-800'
-                  )}
-                >
-                  {Math.floor(ch.startSec / 60)}:{String(ch.startSec % 60).padStart(2, '0')}
-                </span>
-              </button>
-            )
-          })}
+            <button
+              type="button"
+              onClick={() => onSpeakCurrentStage?.(stage.speech || '')}
+              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-1 min-w-0"
+              title="Nghe AIKI giảng bài"
+            >
+              <Volume2 size={12} className="text-brand-600 shrink-0" />
+              <span className="truncate">Nghe AIKI giảng</span>
+            </button>
+          </div>
         </div>
 
         {/* Action Button Footer Neo Ở Chân Cột Phải */}
-        <div className="shrink-0 flex justify-between items-center pt-1 border-t border-amber-200/80 gap-2">
+        <div className="shrink-0 flex justify-between items-center pt-1 border-t border-amber-200/80 gap-2 mt-auto">
           {onPrevious ? (
             <Button
               variant="secondary"
