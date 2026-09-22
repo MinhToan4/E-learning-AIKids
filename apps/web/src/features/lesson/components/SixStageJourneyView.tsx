@@ -306,22 +306,29 @@ export function SixStageJourneyView({
       return initialSidebarCollapsed
     }
     if (typeof window !== 'undefined') {
+      if (isRuleLesson) {
+        return window.innerWidth < 1440 || window.innerHeight < 800
+      }
       return window.innerWidth < 1280
     }
     return false
   })
 
-  // Guard mobile responsive (< 1024px): Luôn tự động đóng sidebar trên mobile khi resize hoặc đổi chặng
+  // Keep the learning canvas usable when a Rule lesson loses horizontal or
+  // vertical room. The compact rail still exposes progress and AIKI actions.
   useEffect(() => {
     if (typeof window === 'undefined') return
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
+      const constrainedRuleViewport = isRuleLesson && (
+        window.innerWidth < 1440 || window.innerHeight < 800
+      )
+      if (window.innerWidth < 1024 || constrainedRuleViewport) {
         setIsSidebarCollapsed(true)
       }
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [isRuleLesson])
 
   const prevStageRef = useRef(currentStage)
   const prevLessonIdRef = useRef(lessonId)
@@ -1110,7 +1117,7 @@ export function SixStageJourneyView({
             title={isSidebarCollapsed ? 'Mở trợ lý AIKI' : 'Thu gọn trợ lý AIKI'}
           >
             <span>🐱</span>
-            <span>Trợ lý AIKI</span>
+            <span>{isRuleLesson && isSidebarCollapsed ? `AIKI · ${currentStage + 1}/${stages.length}` : 'Trợ lý AIKI'}</span>
             <span className="text-[10px]">{isSidebarCollapsed ? '▼' : '▲'}</span>
           </button>
 
@@ -1251,6 +1258,64 @@ export function SixStageJourneyView({
             </section>
           )}
         </div>
+
+        {/* Rule lessons keep a compact AIKI learning rail when the full tutor
+            would take too much room. Essential progress never disappears. */}
+        {isRuleLesson && isSidebarCollapsed && (
+          <aside
+            data-testid="aiki-compact-rail"
+            aria-label={`Trợ lý AIKI, chặng ${currentStage + 1} trên ${stages.length}`}
+            className="hidden md:flex w-16 shrink-0 self-stretch flex-col items-center gap-2 rounded-3xl border-2 border-brand-100 bg-white px-2 py-3 shadow-clay"
+          >
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed(false)}
+              className="flex size-11 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 text-xl shadow-2xs transition hover:-translate-y-0.5 hover:bg-amber-100"
+              title="Mở trợ lý AIKI"
+              aria-label="Mở trợ lý AIKI"
+            >
+              🐱
+            </button>
+
+            <strong className="text-xs font-black text-brand-700">
+              {currentStage + 1}/{stages.length}
+            </strong>
+
+            <div className="flex flex-1 flex-col items-center justify-center gap-1.5" aria-hidden="true">
+              {stages.map((_, index) => (
+                <span
+                  key={index}
+                  className={cn(
+                    'size-2.5 rounded-full border transition-colors',
+                    index < currentStage
+                      ? 'border-mint-500 bg-mint-400'
+                      : index === currentStage
+                        ? 'size-3.5 border-brand-300 bg-brand-500 ring-2 ring-brand-100'
+                        : 'border-slate-200 bg-slate-100',
+                  )}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => speakCurrentStage(currentStageSpeech)}
+              className="flex size-10 items-center justify-center rounded-2xl border border-brand-100 bg-brand-50 text-brand-700 transition hover:bg-brand-100"
+              title="Nghe AIKI hướng dẫn"
+              aria-label="Nghe AIKI hướng dẫn"
+            >
+              <Volume2 size={17} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed(false)}
+              className="text-[10px] font-black uppercase tracking-wide text-brand-700"
+            >
+              Mở
+            </button>
+          </aside>
+        )}
 
         {/* CỘT PHẢI: SIDEBAR TƯƠNG TÁC AIKI ĐỒNG HÀNH (300-400px) */}
         {!isSidebarCollapsed && (

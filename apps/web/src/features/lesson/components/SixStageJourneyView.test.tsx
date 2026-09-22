@@ -3015,6 +3015,32 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
+  it('keeps AIKI progress available as a compact rail when a Rule sidebar is collapsed', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-1"
+          lessonTitle="Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI"
+          initialStageIndex={0}
+          initialSidebarCollapsed
+        />
+      )
+    })
+
+    const rail = container.querySelector('[data-testid="aiki-compact-rail"]') as HTMLElement
+    expect(rail).not.toBeNull()
+    expect(rail.textContent).toContain('1/3')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+
+    const openButton = rail.querySelector('button[aria-label="Mở trợ lý AIKI"]') as HTMLButtonElement
+    act(() => openButton.click())
+    expect(container.querySelector('[data-testid="aiki-compact-rail"]')).toBeNull()
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+
+    act(() => root.unmount())
+  })
+
   it('verifies Layout Defense Engine on short viewport height: responsive video classes and pinned sidebar progress footer', async () => {
     const root = createRoot(container)
 
