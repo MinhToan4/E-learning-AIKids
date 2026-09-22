@@ -1,0 +1,305 @@
+[
+  {
+    "code": "QT1",
+    "title": "Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!",
+    "videoUrl": "https://youtu.be/opYm3mvrnqI",
+    "questions": [
+      {
+        "prompt": "Cô giáo ra đề vẽ siêu anh hùng CỦA RIÊNG mỗi bạn. Vì sao bức tranh nguệch ngoạc của Sonet lại đúng yêu cầu hơn?",
+        "options": [
+          "Vì Sonet vẽ nhanh hơn Zico",
+          "Vì đó là ý riêng của Sonet",
+          "Vì bức của Sonet nhiều màu hơn"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chuẩn rồi! Đúng yêu cầu không phải là đẹp hơn, mà là KHÔNG GIỐNG AI.",
+        "retryFeedback": "Chưa đúng nhé. Bức của Zico đẹp nhưng rất quen — ai gõ AI cũng ra được. Bức của Sonet mới là của riêng bạn ấy.",
+        "imageDriveLink": "https://drive.google.com/file/d/1clH4Pdi8kGVwzxW1Kh2cGnleCi0Boqgw/view?usp=drive_link"
+      },
+      {
+        "prompt": "Vì sao cứ gõ cho AKI câu “siêu anh hùng ngầu” thì hay ra những nhân vật giống hệt nhau?",
+        "options": [
+          "Vì AKI vẽ xấu",
+          "Vì AKI lấy ngay cái quen thuộc nhất trong kho hình có sẵn",
+          "Vì máy chạy chậm"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Câu tả chung chung thì AKI chỉ lấy được cái ai cũng nghĩ tới.",
+        "retryFeedback": "Chưa đúng. AKI có cả kho hình trong đầu, gõ chung chung là nó lấy cái quen thuộc nhất — nên ai cũng ra giống nhau.",
+        "imageDriveLink": "https://drive.google.com/file/d/1OxqYxs5isNVhE1EAdlGGiauJHFNuLwC8/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT2",
+    "title": "Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AKI!",
+    "videoUrl": "https://youtu.be/_8Ig_cX25-4",
+    "questions": [
+      {
+        "prompt": "Tờ giấy TÌM CHÓ LẠC viết đúng chính tả, dán khắp phố, vậy mà không ai nhận ra Bông. Vì sao?",
+        "options": [
+          "Vì chữ trên tờ giấy nhỏ quá",
+          "Vì thiếu chi tiết riêng của Bông: chuông vàng ở cổ, chân sau đi khập khiễng",
+          "Vì tờ giấy dán sai chỗ"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chính xác! Đúng chính tả chưa đủ — phải có chi tiết chỉ riêng Bông mới có.",
+        "retryFeedback": "Chưa đúng nhé. Người đi qua đọc xong, nhìn xuống con chó nâu ngay cạnh chân rồi vẫn bỏ đi — vì tờ giấy không tả gì riêng của Bông.",
+        "imageDriveLink": "https://drive.google.com/file/d/1NVOMdFbjVk1-Jn8y97ETbVp8yYjjMyzM/view?usp=drive_link"
+      },
+      {
+        "prompt": "Trong tờ tìm chó ấy, phần nào là việc của cậu, phần nào là việc của AKI?",
+        "options": [
+          "Trẻ viết chi tiết riêng của Bông — AKI giúp trang trí cho tờ giấy đẹp",
+          "AKI viết hết tất cả từ chi tiết Bông cho đến vẽ giấy, trẻ chỉ việc đem đi dán",
+          "Trẻ chỉ chọn màu cho đẹp thôi, còn chữ và ý tưởng cứ để AKI lo"
+        ],
+        "correctIndex": 0,
+        "successFeedback": "Đúng rồi! Nội dung là của các cậu, AKI chỉ giúp phần trang trí.",
+        "retryFeedback": "Chưa đúng. AKI viết được câu đúng ngữ pháp, nhưng nó không biết Bông đi khập khiễng — chỉ các cậu mới biết.",
+        "imageDriveLink": "https://drive.google.com/file/d/1-owyTz8zmzqoAahwprWvqTZUi58_9TGN/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT3",
+    "title": "Sản phẩm mà cậu tạo ra phải có giá trị cho ai đó nhé!",
+    "videoUrl": "https://youtu.be/c-QyfBspnlY",
+    "questions": [
+      {
+        "prompt": "Hai trăm tấm hình đẹp long lanh bị mẹ lắc đầu, còn một tấm thẻ chẳng đẹp bằng lại được bà giữ suốt hai năm. Vì sao?",
+        "options": [
+          "Vì tấm thẻ được in to hơn",
+          "Vì bà cần dùng nó mỗi ngày",
+          "Vì tấm thẻ nhiều màu hơn"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Thứ có người cần — dù chỉ một người — mới được giữ lại.",
+        "retryFeedback": "Chưa đúng nhé. Không phải to hơn hay đẹp hơn, mà là có người thật sự dùng tới nó.",
+        "imageDriveLink": "https://drive.google.com/file/d/1EG0WweHB6er6WTdCvkSnoWkw31uHLY0y/view?usp=drive_link"
+      },
+      {
+        "prompt": "Trước khi bắt tay làm tấm thẻ, Mimi đã làm một việc rất quan trọng. Đó là việc gì?",
+        "options": [
+          "Bấm tạo thật nhiều hình rồi chọn tấm đẹp nhất",
+          "Hỏi bà một câu: bà ơi, bà hay quên cái gì nhất ạ?",
+          "Hỏi AKI xem nên làm gì"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chuẩn! Hỏi trước — làm cho ai, để làm gì — rồi mới bắt tay vào làm.",
+        "retryFeedback": "Chưa đúng. Mimi hỏi bà trước, biết bà hay quên số điện thoại, nên mới làm tấm thẻ ghi số chữ thật to.",
+        "imageDriveLink": "https://drive.google.com/file/d/1MaZrtyvq9JnvOOqR8qMuV8WVaTr2mzAo/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT4",
+    "title": "Cậu phải luôn chia sẻ được vì sao cậu chọn ý tưởng này!",
+    "videoUrl": "https://youtu.be/hYA-syKR58c",
+    "questions": [
+      {
+        "prompt": "Hai bức tranh đẹp như nhau, cô giáo hỏi “vì sao con chọn thế này?”. Ai mới là người trả lời được câu đó?",
+        "options": [
+          "AKI",
+          "Chính các bạn nhỏ"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng rồi! Chỉ con mới biết vì sao con chọn.",
+        "retryFeedback": "Chưa đúng nhé. AKI làm ra được màu vàng, nhưng nó không biết bà của con mặc áo màu gì.",
+        "imageDriveLink": "https://drive.google.com/drive/u/0/folders/1W7UbpUS2KwJm4YUm7DveXMGv-YP-Akz_"
+      },
+      {
+        "prompt": "Sonet đã trả lời như thế nào mà cả hội trường vỗ tay?",
+        "options": [
+          "Tớ chọn màu vàng, vì màu vàng đẹp nhất",
+          "Tớ chọn màu vàng, vì cái áo bà tớ hay mặc màu vàng",
+          "Tớ chọn màu vàng, vì AKI gợi ý thế"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chính xác! Chỉ cần một câu “tớ chọn cái này vì...” là bức tranh thành của riêng con.",
+        "retryFeedback": "Chưa đúng. Câu của Sonet gắn với một điều thật trong nhà bạn ấy — cái áo vàng của bà.",
+        "imageDriveLink": "https://drive.google.com/drive/u/0/folders/1W7UbpUS2KwJm4YUm7DveXMGv-YP-Akz_"
+      }
+    ]
+  },
+  {
+    "code": "QT5",
+    "title": "Không để AKI làm 1 mình, hãy chia việc ra nhé!",
+    "videoUrl": "https://youtu.be/zOth3oOcJ4U",
+    "questions": [
+      {
+        "prompt": "Zico nhờ AKI làm bức tranh từ đầu đến cuối. Đến lúc ghi tên thì bút không chịu ăn mực. Vì sao?",
+        "options": [
+          "Vì cái bút bị hỏng",
+          "Vì Zico để AKI làm hết, chẳng còn phần việc nào là của bạn ấy",
+          "Vì tấm bảng tên bị ướt"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Làm phần nào thì mới ghi tên được phần đó.",
+        "retryFeedback": "Chưa đúng nhé. Bút vẫn tốt — chỉ là cả bức tranh không có phần việc nào của Zico cả.",
+        "imageDriveLink": "https://drive.google.com/file/d/1JghYrkioFKoD5RBjHKQ0V_bTDILIAPi4/view?usp=drive_link"
+      },
+      {
+        "prompt": "Sau khi chia lại việc, phần nào là của Zico?",
+        "options": [
+          "Vẽ nền và tô màu",
+          "Nghĩ ý tưởng, chọn màu, viết chữ trong tranh",
+          "Không phần nào cả, AKI vẫn làm hết"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chuẩn rồi! Cậu một cột, AKI một cột — rồi ghi cả hai tên.",
+        "retryFeedback": "Chưa đúng. Vẽ nền với tô màu là phần của AKI; ý tưởng, chọn màu và viết chữ mới là phần của Zico.",
+        "imageDriveLink": "https://drive.google.com/file/d/1MsBlT7hWYEuiIk1l-wLER_H7tCLjyNXV/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT6",
+    "title": "Để bảo vệ cậu và mọi người, hình ảnh cá nhân là điều hạn chế nhé!",
+    "videoUrl": "https://youtu.be/K-AOZvWGoj4",
+    "questions": [
+      {
+        "prompt": "Tấm ảnh hai bạn chụp trước cổng trường trông rất bình thường. Thật ra trong ảnh có mấy chỗ nguy hiểm?",
+        "options": [
+          "Một chỗ",
+          "Ba chỗ",
+          "Không có chỗ nào"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Ba chỗ: bảng tên trên áo, tên trường trên cổng, và người lạ đứng phía sau.",
+        "retryFeedback": "Chưa đúng nhé. Có tới ba chỗ lận: bảng tên áo, tên trường trên cổng, và người lạ phía sau.",
+        "imageDriveLink": "https://drive.google.com/file/d/1QD4Flm4Q4-IHBH3VuL1HyRyDfzfGI2m7/view?usp=drive_link"
+      },
+      {
+        "prompt": "Trước khi đưa một tấm ảnh cho AI, con phải kiểm ba thứ nào?",
+        "options": [
+          "Màu sắc — ánh sáng — độ nét",
+          "NGƯỜI — THÔNG TIN — ĐỊA ĐIỂM",
+          "Ngày — giờ — thời tiết"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chính xác! Có thì che đi hoặc chọn tấm khác, rồi hỏi bố mẹ một câu cho chắc.",
+        "retryFeedback": "Chưa đúng. Ba thứ phải kiểm là NGƯỜI (có ai khác không), THÔNG TIN (tên, bảng tên, giấy tờ) và ĐỊA ĐIỂM (trường, nhà, chỗ hay đến).",
+        "imageDriveLink": "https://drive.google.com/file/d/18KGTA2wKPo0ajOaHfDnGl4cLbgbtE_KB/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT7",
+    "title": "Hãy tôn trọng sự thật & đưa những thông tin chính xác!",
+    "videoUrl": "https://youtu.be/V25rcXxSLGw",
+    "questions": [
+      {
+        "prompt": "AKI nói cá voi xanh dài ba trăm mét, giọng chắc như đinh đóng cột — mà lại sai. Làm sao biết lúc nào AKI đang nói sai?",
+        "options": [
+          "Nghe giọng AKI là biết ngay",
+          "Mở sách, hỏi thầy cô và bố mẹ"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Nghe AKI xong thì phải kiểm lại, chắc chắn đúng rồi mới kể cho người khác.",
+        "retryFeedback": "Chưa đúng nhé. AKI sai cũng nói to như đúng — nghe giọng thì không biết được đâu, phải kiểm lại.",
+        "imageDriveLink": "https://drive.google.com/file/d/1tWyWH7j9Y-fvYUsjknZS9SYhds4nLNHV/view?usp=drive_link"
+      },
+      {
+        "prompt": "Ba thứ AKI hay nói sai, phải kiểm lại là gì?",
+        "options": [
+          "Màu sắc — hình dáng — kích thước",
+          "Số liệu — ngày tháng — tên người",
+          "Chữ viết — dấu câu — chính tả"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chuẩn rồi! Ba thứ này gặp là phải mở sách hoặc hỏi người lớn.",
+        "retryFeedback": "Chưa đúng. Ba chỗ AKI hay sai nhất là số liệu, ngày tháng và tên người.",
+        "imageDriveLink": "https://drive.google.com/file/d/1zS0DPZfX749LEkT9Z5mGPzT3n_hI5TmW/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT8",
+    "title": "Nếu AKI làm chưa tốt, cậu hãy thử sửa mô tả, đừng chỉ bấm nhé!",
+    "videoUrl": "https://youtu.be/G_CSEYb3FhA",
+    "questions": [
+      {
+        "prompt": "Mimi bấm bảy lần rồi mà AKI vẫn ra sai con mèo. Bấm tiếp lần thứ tám thì có ra đúng không?",
+        "options": [
+          "Có chứ, bấm mãi rồi cũng ra",
+          "Không đâu — bấm lại nghĩa là hỏi AKI y hệt câu cũ"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Câu hỏi không đổi thì câu trả lời cũng thế thôi.",
+        "retryFeedback": "Chưa đúng nhé. Bấm lại là hỏi lại đúng câu cũ, nên AKI vẫn trả lời y như vậy.",
+        "imageDriveLink": "https://drive.google.com/file/d/1984n1FuvHK0skW0EZEc2cihvuy6Etp9H/view?usp=drive_link"
+      },
+      {
+        "prompt": "Khi AKI làm chưa đúng, ba bước sửa là gì?",
+        "options": [
+          "Bấm lại — đợi một lúc — bấm tiếp",
+          "Gọi tên chỗ sai — tìm chỗ thiếu trong câu tả — viết thêm rồi mới tạo"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chính xác! “Dễ thương” có cả triệu kiểu, còn “tai trái bị rách” thì chỉ có đúng một.",
+        "retryFeedback": "Chưa đúng. Ba bước là: gọi tên chỗ sai, tìm chỗ thiếu trong câu tả, viết thêm rồi mới bấm tạo.",
+        "imageDriveLink": "https://drive.google.com/file/d/16CDBughX38E9SmJDtXkEhk1aO7Skyug5/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT9",
+    "title": "Hãy luôn kiểm tra và đọc kỹ lại những gì AKI viết ra!",
+    "videoUrl": "https://youtu.be/xuiCccbt1VQ",
+    "questions": [
+      {
+        "prompt": "Tấm băng rôn in nhầm chữ VIỆT NEM. Ai mới là người phải đọc lại những gì AKI viết ra?",
+        "options": [
+          "AKI",
+          "Chính các bạn nhỏ"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng rồi! AKI viết nhanh nên cũng gõ nhầm — người dùng phải đọc lại.",
+        "retryFeedback": "Chưa đúng nhé. AKI đâu biết tên trường, tên cô của con viết thế nào — con mới là người đọc lại.",
+        "imageDriveLink": "https://drive.google.com/file/d/1Gul4kpI1_2IkexB7l_GIgcP2Ejnfaqg5/view?usp=drive_link"
+      },
+      {
+        "prompt": "Vì sao phải đọc TO lên chứ không đọc thầm bằng mắt?",
+        "options": [
+          "Vì đọc to thì nhanh hơn",
+          "Vì đọc thầm thì mắt tự đoán và bỏ qua chỗ sai, còn đọc to thì tai bắt được ngay",
+          "Vì đọc to thì AKI nghe thấy"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chuẩn! Đọc TO một lượt trước khi in hoặc gửi đi.",
+        "retryFeedback": "Chưa đúng. Mắt đọc thầm hay tự đoán rồi lướt qua chỗ sai; đọc to lên thì cái tai sẽ bắt được.",
+        "imageDriveLink": "https://drive.google.com/file/d/1fc7lJZI9sy5fMSIpnM1JVcyUPoY_Pg2F/view?usp=drive_link"
+      }
+    ]
+  },
+  {
+    "code": "QT10",
+    "title": "Bài tập ở trường là của cậu, đừng bắt AKI phải làm nhé!",
+    "videoUrl": "https://youtu.be/5OH5fFoBWvY",
+    "questions": [
+      {
+        "prompt": "Zico nhờ AKI làm hộ bài về nhà, được mười điểm. Hôm sau đi kiểm tra, Zico có làm được không?",
+        "options": [
+          "Làm được chứ",
+          "Không làm được — vì hôm ấy AKI đâu có ngồi cạnh"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Đúng! Làm hộ thì tờ giấy được điểm, còn cái đầu vẫn chưa hiểu.",
+        "retryFeedback": "Chưa đúng nhé. Bài tập giống tập thể dục — có người tập hộ thì mình đâu có cao lên được.",
+        "imageDriveLink": "https://drive.google.com/file/d/12FSvhktwFWBelkNceqRx5eibf52PQqW-/view?usp=drive_link"
+      },
+      {
+        "prompt": "Nhờ AKI kiểu nào thì được?",
+        "options": [
+          "AKI làm hộ tớ bài này",
+          "AKI giảng cho tớ hiểu vì sao 7 cộng 5 bằng 12"
+        ],
+        "correctIndex": 1,
+        "successFeedback": "Chính xác! Nhờ GIẢNG thì được, nhờ LÀM HỘ thì không.",
+        "retryFeedback": "Chưa đúng. Nhờ làm hộ thì con vẫn không hiểu; nhờ giảng thì con tự làm được.",
+        "imageDriveLink": "https://drive.google.com/file/d/1RJQLIRihQBKmpVX3Zmy23Xoe8JzQfr0Z/view?usp=drive_link"
+      }
+    ]
+  }
+]

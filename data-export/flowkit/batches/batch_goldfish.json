@@ -1,0 +1,962 @@
+[
+  {
+    "id": "combo__sub-con-ca-vang",
+    "batchName": "goldfish_level1",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng (1 từ thử nghiệm, chưa có chìa khóa)",
+    "promptEn": "In the exact same handmade polymer clay diorama style: A plain simple clay chubby orange goldfish standing blankly and looking confused alone on the wooden floor, minimal texture, warm pastel room, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan",
+    "batchName": "goldfish_level2",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron",
+    "batchName": "goldfish_level2",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac",
+    "batchName": "goldfish_level2",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-dop-bot",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Ngoi lên đớp bọt",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang ngoi lên đớp bọt",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, ngoi lên đớp bọt, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-nap-da",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Nấp sau hòn đá",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang nấp sau hòn đá",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, nấp sau hòn đá, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-ria-rong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Rỉa nhánh rong xanh",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang rỉa nhánh rong xanh",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, rỉa nhánh rong xanh, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-dop-bot",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Ngoi lên đớp bọt",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang ngoi lên đớp bọt",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, ngoi lên đớp bọt, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-nap-da",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Nấp sau hòn đá",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang nấp sau hòn đá",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, nấp sau hòn đá, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-ria-rong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Rỉa nhánh rong xanh",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang rỉa nhánh rong xanh",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, rỉa nhánh rong xanh, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-dop-bot",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Ngoi lên đớp bọt",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang ngoi lên đớp bọt",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, ngoi lên đớp bọt, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-nap-da",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Nấp sau hòn đá",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang nấp sau hòn đá",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, nấp sau hòn đá, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong",
+    "batchName": "goldfish_level3",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-ria-rong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Rỉa nhánh rong xanh",
+      "context": ""
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang rỉa nhánh rong xanh",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, rỉa nhánh rong xanh, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang ngoi lên đớp bọt, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, ngoi lên đớp bọt, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang ngoi lên đớp bọt, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, ngoi lên đớp bọt, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang ngoi lên đớp bọt, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, ngoi lên đớp bọt, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang nấp sau hòn đá, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, nấp sau hòn đá, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang nấp sau hòn đá, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, nấp sau hòn đá, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang nấp sau hòn đá, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, nấp sau hòn đá, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang rỉa nhánh rong xanh, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, rỉa nhánh rong xanh, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang rỉa nhánh rong xanh, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, rỉa nhánh rong xanh, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-duoi-voan",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Đuôi voan dài mềm",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, đuôi voan dài mềm, đang rỉa nhánh rong xanh, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with đuôi voan dài mềm, rỉa nhánh rong xanh, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-duoi-voan__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang ngoi lên đớp bọt, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, ngoi lên đớp bọt, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang ngoi lên đớp bọt, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, ngoi lên đớp bọt, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang ngoi lên đớp bọt, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, ngoi lên đớp bọt, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang nấp sau hòn đá, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, nấp sau hòn đá, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang nấp sau hòn đá, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, nấp sau hòn đá, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang nấp sau hòn đá, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, nấp sau hòn đá, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang rỉa nhánh rong xanh, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, rỉa nhánh rong xanh, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang rỉa nhánh rong xanh, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, rỉa nhánh rong xanh, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-than-tron",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Thân tròn mắt lồi",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, thân tròn mắt lồi, đang rỉa nhánh rong xanh, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with thân tròn mắt lồi, rỉa nhánh rong xanh, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-than-tron__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang ngoi lên đớp bọt, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, ngoi lên đớp bọt, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang ngoi lên đớp bọt, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, ngoi lên đớp bọt, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-dop-bot",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Ngoi lên đớp bọt",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang ngoi lên đớp bọt, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, ngoi lên đớp bọt, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang nấp sau hòn đá, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, nấp sau hòn đá, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang nấp sau hòn đá, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, nấp sau hòn đá, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-nap-da",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Nấp sau hòn đá",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang nấp sau hòn đá, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, nấp sau hòn đá, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-nap-da__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-binh-thuy-tinh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-binh-thuy-tinh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bình thuỷ tinh tròn"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang rỉa nhánh rong xanh, trong bình thuỷ tinh tròn",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, rỉa nhánh rong xanh, trong bình thuỷ tinh tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-binh-thuy-tinh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-be-ca-soi",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-be-ca-soi"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong bể cá rải sỏi trắng"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang rỉa nhánh rong xanh, trong bể cá rải sỏi trắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, rỉa nhánh rong xanh, trong bể cá rải sỏi trắng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-be-ca-soi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-chum-sanh",
+    "batchName": "goldfish",
+    "subjectKey": "goldfish",
+    "subjectLabel": "Con Cá Vàng",
+    "blockIds": {
+      "subject": "sub-con-ca-vang",
+      "colorShape": "cs-fish-vay-anh-bac",
+      "action": "act-fish-ria-rong",
+      "context": "ctx-fish-chum-sanh"
+    },
+    "blockLabels": {
+      "subject": "Con cá vàng",
+      "colorShape": "Vảy ánh bạc lấp lánh",
+      "action": "Rỉa nhánh rong xanh",
+      "context": "Trong chum sành ngoài sân"
+    },
+    "promptVi": "Con cá vàng, vảy ánh bạc lấp lánh, đang rỉa nhánh rong xanh, trong chum sành ngoài sân",
+    "promptEn": "In the exact same handmade polymer clay diorama style: chubby orange goldfish with vảy ánh bạc lấp lánh, rỉa nhánh rong xanh, trong chum sành ngoài sân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-ria-rong__ctx-fish-chum-sanh.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  }
+]

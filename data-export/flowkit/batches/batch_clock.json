@@ -1,0 +1,2546 @@
+[
+  {
+    "id": "combo__sub-dong-ho",
+    "batchName": "clock_level1",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn (1 từ thử nghiệm, chưa có chìa khóa)",
+    "promptEn": "In the exact same handmade polymer clay diorama style: A plain simple clay vintage alarm clock standing blankly and looking confused alone on the wooden floor, minimal texture, warm pastel room, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go",
+    "batchName": "clock_level2",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so",
+    "batchName": "clock_level2",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho",
+    "batchName": "clock_level2",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac",
+    "batchName": "clock_level2",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de",
+    "batchName": "clock_level2",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-diem-chuong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đang điểm chuông ngân",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đang điểm chuông ngân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-tich-tac",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Tích tắc đếm từng giây",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, tích tắc đếm từng giây, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-phan-chieu",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Phản chiếu nắng chiều",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, phản chiếu nắng chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-vung-chai",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đứng vững chãi yên bình",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đứng vững chãi yên bình, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-diem-chuong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đang điểm chuông ngân",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đang điểm chuông ngân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-tich-tac",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Tích tắc đếm từng giây",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, tích tắc đếm từng giây, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-phan-chieu",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Phản chiếu nắng chiều",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, phản chiếu nắng chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-vung-chai",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đứng vững chãi yên bình",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đứng vững chãi yên bình, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-diem-chuong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đang điểm chuông ngân",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đang điểm chuông ngân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-tich-tac",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Tích tắc đếm từng giây",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, tích tắc đếm từng giây, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-phan-chieu",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Phản chiếu nắng chiều",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, phản chiếu nắng chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-vung-chai",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đứng vững chãi yên bình",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đứng vững chãi yên bình, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-diem-chuong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đang điểm chuông ngân",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đang điểm chuông ngân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-tich-tac",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Tích tắc đếm từng giây",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, tích tắc đếm từng giây, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-phan-chieu",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Phản chiếu nắng chiều",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, phản chiếu nắng chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-vung-chai",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đứng vững chãi yên bình",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đứng vững chãi yên bình, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-diem-chuong",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đang điểm chuông ngân",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đang điểm chuông ngân, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-tich-tac",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Tích tắc đếm từng giây",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, tích tắc đếm từng giây, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-phan-chieu",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Phản chiếu nắng chiều",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, phản chiếu nắng chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai",
+    "batchName": "clock_level3",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-vung-chai",
+      "context": ""
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đứng vững chãi yên bình",
+      "context": ""
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đứng vững chãi yên bình, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đang điểm chuông ngân",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đang điểm chuông ngân, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đang điểm chuông ngân, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đang điểm chuông ngân, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đang điểm chuông ngân",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đang điểm chuông ngân, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, tích tắc đếm từng giây, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, tích tắc đếm từng giây, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, tích tắc đếm từng giây, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, tích tắc đếm từng giây, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, phản chiếu nắng chiều, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, phản chiếu nắng chiều, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, phản chiếu nắng chiều, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, phản chiếu nắng chiều, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đứng vững chãi yên bình, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đứng vững chãi yên bình, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đứng vững chãi yên bình, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-vo-go",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Vỏ gỗ mun cổ kính",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with vỏ gỗ mun cổ kính, đứng vững chãi yên bình, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đang điểm chuông ngân",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đang điểm chuông ngân, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đang điểm chuông ngân, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đang điểm chuông ngân, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đang điểm chuông ngân",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đang điểm chuông ngân, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, tích tắc đếm từng giây, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, tích tắc đếm từng giây, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, tích tắc đếm từng giây, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, tích tắc đếm từng giây, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, phản chiếu nắng chiều, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, phản chiếu nắng chiều, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, phản chiếu nắng chiều, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, phản chiếu nắng chiều, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đứng vững chãi yên bình, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đứng vững chãi yên bình, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đứng vững chãi yên bình, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-mat-so",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Mặt số la mã vàng",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, mặt số la mã mạ vàng sáng lấp lánh tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with mặt số la mã vàng, đứng vững chãi yên bình, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-mat-so__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đang điểm chuông ngân",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đang điểm chuông ngân, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đang điểm chuông ngân, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đang điểm chuông ngân, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đang điểm chuông ngân",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đang điểm chuông ngân, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, tích tắc đếm từng giây, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, tích tắc đếm từng giây, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, tích tắc đếm từng giây, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, tích tắc đếm từng giây, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, phản chiếu nắng chiều, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, phản chiếu nắng chiều, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, phản chiếu nắng chiều, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, phản chiếu nắng chiều, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đứng vững chãi yên bình, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đứng vững chãi yên bình, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đứng vững chãi yên bình, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-kim-dong-ho",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Kim đồng hồ tích tắc",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, đôi kim thanh mảnh uốn lượn phong cách quý tộc, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with kim đồng hồ tích tắc, đứng vững chãi yên bình, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đang điểm chuông ngân, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đang điểm chuông ngân, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đang điểm chuông ngân, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đang điểm chuông ngân, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, tích tắc đếm từng giây, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, tích tắc đếm từng giây, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, tích tắc đếm từng giây, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, tích tắc đếm từng giây, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, phản chiếu nắng chiều, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, phản chiếu nắng chiều, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, phản chiếu nắng chiều, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, phản chiếu nắng chiều, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đứng vững chãi yên bình, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đứng vững chãi yên bình, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đứng vững chãi yên bình, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-qua-lac",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Quả lắc đồng đu đưa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with quả lắc đồng đu đưa, đứng vững chãi yên bình, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-qua-lac__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đang điểm chuông ngân, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đang điểm chuông ngân, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đang điểm chuông ngân, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-diem-chuong",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đang điểm chuông ngân",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đang điểm chuông ngân, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-diem-chuong__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, tích tắc đếm từng giây, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, tích tắc đếm từng giây, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, tích tắc đếm từng giây, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-tich-tac",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Tích tắc đếm từng giây",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, tích tắc đếm từng giây, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-tich-tac__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, phản chiếu nắng chiều, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, phản chiếu nắng chiều, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, phản chiếu nắng chiều, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-phan-chieu",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Phản chiếu nắng chiều",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, phản chiếu nắng chiều, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-phan-chieu__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-tuong-gach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-tuong-gach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Treo trên tường gạch"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, treo trang trọng trên bức tường gạch đỏ mộc mạc",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đứng vững chãi yên bình, treo trên tường gạch, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-tuong-gach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-lo-suoi",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-lo-suoi"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên lò sưởi ấm áp"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đứng vững chãi yên bình, trên lò sưởi ấm áp, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-lo-suoi.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-ke-sach",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-ke-sach"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Trên kệ sách phòng khách"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, trên kệ sách gỗ phòng khách sang trọng ấm cúng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đứng vững chãi yên bình, trên kệ sách phòng khách, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-ke-sach.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  },
+  {
+    "id": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-cua-so",
+    "batchName": "clock",
+    "subjectKey": "clock",
+    "subjectLabel": "Đồng Hồ Báo Thức",
+    "blockIds": {
+      "subject": "sub-dong-ho",
+      "colorShape": "cs-clk-chan-de",
+      "action": "act-clk-vung-chai",
+      "context": "ctx-clk-cua-so"
+    },
+    "blockLabels": {
+      "subject": "Đồng hồ để bàn",
+      "colorShape": "Chân đế chạm hoa",
+      "action": "Đứng vững chãi yên bình",
+      "context": "Bên cửa sổ nhìn ra vườn"
+    },
+    "promptVi": "Chiếc đồng hồ để bàn, chân đế bằng đồng chạm khắc hoa văn tinh xảo, đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển, bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng",
+    "promptEn": "In the exact same handmade polymer clay diorama style: vintage alarm clock with chân đế chạm hoa, đứng vững chãi yên bình, bên cửa sổ nhìn ra vườn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "targetFilename": "combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "targetAssetPath": "/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-chan-de__act-clk-vung-chai__ctx-clk-cua-so.webp",
+    "aspectRatio": "4:3",
+    "status": "pending"
+  }
+]
