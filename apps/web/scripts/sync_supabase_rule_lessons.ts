@@ -81,6 +81,7 @@ async function main() {
             akiTip: rule.akiTip,
             goals: [rule.goal],
             duration: `${rule.durationSec} giây`,
+            videoUrl: rule.videoUrl,
             posterImage: rule.posterImage,
             audioVoiceText: rule.audioVoiceText,
             slides: rule.slides,

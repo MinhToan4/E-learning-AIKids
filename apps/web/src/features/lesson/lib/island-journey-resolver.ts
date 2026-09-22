@@ -177,11 +177,12 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   let ruleOptionAImg: string | undefined
   let ruleOptionBImg: string | undefined
   let ruleNum = 1
+  let matchedRule: (typeof AIKI_RULES_DATA)[number] | undefined
 
   if (isRuleCourse) {
     const ruleMatch = quest.id.match(/(?:rule|qt)[-_]?(\d+)/i)
     ruleNum = ruleMatch ? parseInt(ruleMatch[1], 10) : 1
-    const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum)
+    matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum)
     defaultCover = matchedRule?.posterImage || `/assets/aiki-rules/rule${ruleNum}_superhero_dad.jpg`
     if (matchedRule) {
       ruleOptionAImg = matchedRule.slides?.[0]?.image || `/assets/aiki-rules/rule${ruleNum}_opt_a.jpg`
@@ -252,7 +253,11 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   const stage3_video: SixStageVideo = {
     id: `${quest.id}-video`,
     title: `Video hướng dẫn: ${quest.title}`,
-    videoUrl: quest.videoUrl || quest.learnCards?.find((c) => Boolean(c.videoUrl))?.videoUrl || 'https://www.youtube.com/embed/NMdHhsLY5jc',
+    videoUrl:
+      quest.videoUrl ||
+      quest.learnCards?.find((c) => Boolean(c.videoUrl))?.videoUrl ||
+      matchedRule?.videoUrl ||
+      'https://www.youtube.com/embed/NMdHhsLY5jc',
     durationSec: 180,
     posterUrl: resolvedCover,
     timestamps: [

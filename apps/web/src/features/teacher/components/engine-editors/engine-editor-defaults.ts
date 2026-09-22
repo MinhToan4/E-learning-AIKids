@@ -134,10 +134,10 @@ export function getEngineConfigMeta(mode?: string): EngineConfigMeta {
 }
 
 export const DEFAULT_FOUR_KEYS_OPTIONS: SixStageFourKeysOptions = {
-  what: ['Cốc sứ trắng', 'Cái xe đạp', 'Cuốn sổ tay', 'Đồng hồ để bàn cổ'],
-  how: ['men bóng mẻ miệng', 'màu xanh mini xinh xắn', 'bìa da nâu cổ điển', 'vỏ đồng sáng bóng'],
-  action: ['đang bốc khói nghi ngút', 'đang dựng chân chống', 'đang mở sẵn trang giấy', 'đang tích tắc báo thức'],
-  where: ['trên bàn gỗ mộc', 'bên hiên cửa sổ nắng', 'trong phòng đọc ấm áp', 'trên kệ đầu giường'],
+  what: ['Cốc sứ trắng', 'Con cún', 'Cái xe đạp', 'Cuốn sách', 'Cái đồng hồ cổ'],
+  how: ['men bóng mẻ miệng', 'lông vàng hai tai cụp', 'cũ sơn xanh bong từng mảng', 'bìa cứng màu nâu sờn góc', 'vỏ gỗ nâu chạm hoa văn'],
+  action: ['đang bốc khói nghi ngút', 'đang chạy đuổi quả bóng', 'đang dựa nghiêng vào tường', 'đang mở dở ở trang giữa', 'kim đang chỉ đúng mười hai giờ'],
+  where: ['trên bàn gỗ mộc', 'ở góc sân gạch đỏ', 'trước cổng trường', 'trên bàn học cạnh đèn', 'treo trên tường phòng khách'],
 }
 
 export const DEFAULT_LOCKED_FEATURES: string[] = [
