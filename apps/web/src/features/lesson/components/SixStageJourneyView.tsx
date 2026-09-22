@@ -960,7 +960,7 @@ export function SixStageJourneyView({
   return (
     <div className="w-full h-auto min-h-full flex-none flex flex-col gap-2 overflow-visible md:h-full md:min-h-0 md:flex-1 md:overflow-hidden">
       {/* ── TOP HEADER: NẤC TIẾN ĐỘ SƯ PHẠM ĐỘNG + NÚT BẢN ĐỒ ── */}
-      <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 min-h-12 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
+      <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 min-h-12 [@media(max-height:760px)]:min-h-10 [@media(max-height:760px)]:py-0.5 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
         {/* Trái: Nút Bản đồ + Nấc kẹo dẻo Soft Clay render linh hoạt */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5">
           {onBackToMap && (
@@ -1080,7 +1080,7 @@ export function SixStageJourneyView({
         <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           <div
             data-testid="current-station-badge"
-            className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-2xl border border-amber-300/80 bg-amber-100/90 px-3 py-1.5 text-xs font-black text-amber-950 shadow-2xs select-none sm:rounded-full sm:text-sm"
+            className="flex min-h-11 [@media(max-height:760px)]:min-h-9 min-w-0 flex-1 items-center gap-1.5 rounded-2xl border border-amber-300/80 bg-amber-100/90 px-3 py-1.5 [@media(max-height:760px)]:py-0.5 text-xs font-black text-amber-950 shadow-2xs select-none sm:rounded-full sm:text-sm"
           >
             <span className="shrink-0">{stationInfo.icon}</span>
             <span className="hidden shrink-0 font-bold text-amber-800 xl:inline">{stationInfo.islandName}</span>
@@ -1115,7 +1115,7 @@ export function SixStageJourneyView({
             'flex-1 min-w-0 flex flex-col gap-4 pr-1 md:overflow-y-auto md:overflow-x-hidden md:overscroll-contain',
             currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
             currentStageDef?.type === 'REWARD' ? 'overflow-y-auto pb-28 sm:pb-6' : '',
-            currentStageDef?.type === 'VIDEO' ? 'overflow-y-auto overflow-x-hidden overscroll-contain pb-24 sm:pb-6' : '',
+            currentStageDef?.type === 'VIDEO' ? 'overflow-y-auto overflow-x-hidden overscroll-contain pb-20 md:pb-1' : '',
             (isSidebarCollapsed || currentStageDef?.type === 'PRACTICE' || currentStageDef?.type === 'REWARD')
               ? 'w-full'
               : 'w-full md:flex-1'
@@ -1292,7 +1292,7 @@ export function SixStageJourneyView({
               <div className="flex-1 overflow-y-auto hidden-scrollbar p-4 flex flex-col gap-4">
                 {/* Mascot Mèo AIKI sinh động */}
                 <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-b from-amber-50 to-orange-50/40 rounded-2xl border border-amber-200 shadow-2xs">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-amber-200/60 border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 [@media(max-height:760px)]:w-14 [@media(max-height:760px)]:h-14 rounded-full bg-amber-200/60 border-4 border-white shadow-md flex items-center justify-center overflow-hidden">
                     <AikidCatCharacter
                       pose={currentStageDef?.type === 'QUIZ' ? 'thinking' : currentStageDef?.type === 'REWARD' ? 'celebrate' : 'welcome'}
                       isSpeaking={isSpeakingCurrentStage}
@@ -2034,16 +2034,20 @@ export function SixStageJourneyView({
                   </>
                 )}
 
-                {/* Tiến độ sao & danh hiệu */}
-                <div className="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-                  <span className="font-bold flex items-center gap-1 text-amber-600">
-                    <Star size={14} className="fill-amber-400 text-amber-400" />
-                    Tiến độ: {currentStage + 1}/{stages.length} chặng
-                  </span>
-                  <span className="font-extrabold text-brand-600">
-                    ⭐ {studentStars} Sao tích lũy
-                  </span>
-                </div>
+              </div>
+
+              {/* Tiến độ sao & danh hiệu (ghim cố định ở đáy sidebar) */}
+              <div
+                data-testid="sidebar-footer-progress"
+                className="shrink-0 px-4 py-2.5 bg-white/95 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 select-none shadow-xs"
+              >
+                <span className="font-bold flex items-center gap-1 text-amber-600">
+                  <Star size={14} className="fill-amber-400 text-amber-400" />
+                  Tiến độ: {currentStage + 1}/{stages.length} chặng
+                </span>
+                <span className="font-extrabold text-brand-600">
+                  ⭐ {studentStars} Sao tích lũy
+                </span>
               </div>
             </aside>
           </>

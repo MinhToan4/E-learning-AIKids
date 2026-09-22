@@ -214,7 +214,7 @@ export function VideoStageBlock({
     return (
       <section
         data-testid="stage-2-video"
-        className="flex h-auto min-h-0 shrink-0 flex-col gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:gap-2.5 sm:p-3"
+        className="flex h-auto min-h-0 flex-1 overflow-y-auto flex-col justify-between gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:gap-2.5 sm:p-3"
       >
         {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
         <h2 className="sr-only">{config.title || 'Rạp chiếu Quy tắc vàng'}</h2>
@@ -228,7 +228,7 @@ export function VideoStageBlock({
 
         {/* Khung hình hiển thị Slide Cinema */}
         <div className="flex w-full flex-col items-center justify-start gap-2 sm:gap-2.5">
-          <div className="relative aspect-video max-sm:aspect-[4/3] sm:aspect-video w-full max-w-5xl max-h-[32vh] sm:max-h-[54vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-slate-950 flex items-center justify-center group shrink-0">
+          <div className="relative aspect-video max-sm:aspect-[4/3] sm:aspect-video w-full max-w-5xl max-h-[28vh] sm:max-h-[44vh] [@media(max-height:760px)]:max-h-[34vh] [@media(max-height:680px)]:max-h-[28vh] [@media(max-height:600px)]:max-h-[24vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-slate-950 flex items-center justify-center group shrink-0">
             <img
               src={currentSlide?.image || config.posterUrl || '/assets/aiki-rules/rule1_superhero_dad.webp'}
               alt={currentSlide?.stage || config.title}
@@ -252,7 +252,7 @@ export function VideoStageBlock({
           {/* Lời thoại Mèo AIKI hiển thị dưới dạng Speech Bubble sinh động */}
           <div
             data-testid="slide-speech-bubble"
-            className="w-full max-w-5xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-300/90 p-2.5 sm:p-4 shadow-sm flex flex-col gap-1 sm:gap-1.5 shrink-0"
+            className="w-full max-w-5xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-300/90 p-2 sm:p-3.5 [@media(max-height:760px)]:p-2 [@media(max-height:760px)]:py-1.5 shadow-sm flex flex-col gap-1 sm:gap-1.5 shrink-0"
           >
             <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-1">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -295,7 +295,7 @@ export function VideoStageBlock({
         {/* Timeline Stepper gồm 5 mốc */}
         <div
           data-testid="video-timeline-stepper"
-          className="w-full max-w-5xl mx-auto rounded-2xl bg-amber-50/90 border-2 border-amber-200 p-2 sm:p-3 shadow-xs shrink-0 flex flex-col gap-1.5 sm:gap-2"
+          className="w-full max-w-5xl mx-auto rounded-2xl bg-amber-50/90 border-2 border-amber-200 p-1.5 sm:p-2.5 [@media(max-height:760px)]:py-1 [@media(max-height:760px)]:px-2 shadow-xs shrink-0 flex flex-col gap-1 sm:gap-1.5 [@media(max-height:760px)]:gap-0.5"
         >
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Nút Tự động phát */}
@@ -303,7 +303,7 @@ export function VideoStageBlock({
               type="button"
               data-testid="slide-autoplay-btn"
               onClick={() => setIsAutoPlaying((prev) => !prev)}
-              className="size-11 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition shrink-0"
+              className="size-9 sm:size-10 [@media(max-height:760px)]:size-8 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition shrink-0"
               title={isAutoPlaying ? 'Tạm dừng tự động phát' : 'Tự động phát'}
             >
               {isAutoPlaying ? (
@@ -315,7 +315,7 @@ export function VideoStageBlock({
 
             {/* Stepper track */}
             <div className="relative flex-1 min-w-[140px] py-1">
-              <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
+              <div className="relative h-3.5 sm:h-4.5 [@media(max-height:760px)]:h-3 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-200 pointer-events-none"
                   style={{
@@ -340,7 +340,7 @@ export function VideoStageBlock({
                         setIsAutoPlaying(false)
                       }}
                       className={cn(
-                        'absolute top-1/2 z-10 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none'
+                        'absolute top-1/2 z-10 flex size-9 sm:size-10 [@media(max-height:760px)]:size-8 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none'
                       )}
                       style={{ left: `${posPercent}%` }}
                       title={label}
@@ -348,7 +348,7 @@ export function VideoStageBlock({
                       <span
                         className={cn(
                           'flex items-center justify-center rounded-full border-2 border-white shadow-clay transition-all duration-200',
-                          isCurrent ? 'size-9 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-7 sm:size-9',
+                          isCurrent ? 'size-7 sm:size-8 [@media(max-height:760px)]:size-6 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-6 sm:size-7 [@media(max-height:760px)]:size-5',
                           !isCurrent && isPassed
                             ? 'bg-amber-400 text-amber-950'
                             : !isCurrent
@@ -370,14 +370,16 @@ export function VideoStageBlock({
           </div>
 
           {/* Dòng nhãn nổi bật mốc đang chọn hiển thị trên mobile/tablet (< lg) */}
-          <div className="lg:hidden flex items-center justify-center text-xs font-bold text-amber-900 bg-amber-100/70 py-1 px-2.5 rounded-lg border border-amber-200/60 text-center">
-            <span>
-              🎯 Mốc {currentSlideIdx + 1}: {DEFAULT_SLIDE_STEPS[currentSlideIdx] || currentSlide?.stage || `Mốc ${currentSlideIdx + 1}`}
-            </span>
-          </div>
+          {currentSlide && (
+            <div className="lg:hidden flex items-center justify-center text-xs font-bold text-amber-900 bg-amber-100/70 py-1 px-2.5 rounded-lg border border-amber-200/60 text-center">
+              <span>
+                🎯 Mốc {currentSlideIdx + 1}: {DEFAULT_SLIDE_STEPS[currentSlideIdx] || currentSlide?.stage || `Mốc ${currentSlideIdx + 1}`}
+              </span>
+            </div>
+          )}
 
           {/* Nhãn 5 mốc timeline chỉ hiển thị trên màn hình rộng lg */}
-          <div className="hidden lg:grid grid-cols-5 gap-1 pt-1 border-t border-amber-200/60 text-[11px] font-bold text-center text-amber-900">
+          <div className="hidden lg:grid grid-cols-5 gap-1 pt-1 border-t border-amber-200/60 text-[11px] font-bold text-center text-amber-900 [@media(max-height:640px)]:hidden [@media(max-height:760px)]:text-[10px]">
             {slides.map((_, idx) => (
               <button
                 key={idx}
@@ -387,7 +389,7 @@ export function VideoStageBlock({
                   setIsAutoPlaying(false)
                 }}
                 className={cn(
-                  'min-h-11 truncate rounded-lg px-1 transition cursor-pointer',
+                  'min-h-9 truncate rounded-lg px-1 transition cursor-pointer [@media(max-height:760px)]:min-h-7',
                   currentSlideIdx === idx
                     ? 'bg-amber-200 text-amber-950 font-black'
                     : 'text-amber-800 hover:bg-amber-100'
@@ -409,7 +411,7 @@ export function VideoStageBlock({
                   setCurrentSlideIdx((prev) => Math.max(0, prev - 1))
                   setIsAutoPlaying(false)
                 }}
-                className="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 transition cursor-pointer shadow-2xs active:scale-95"
+                className="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-white px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 transition cursor-pointer shadow-2xs active:scale-95 [@media(max-height:760px)]:py-1"
               >
                 <ChevronLeft size={14} />
                 <span>Trước</span>
@@ -418,7 +420,7 @@ export function VideoStageBlock({
               <Button
                 variant="secondary"
                 onClick={onPrevious}
-                className="rounded-xl text-xs sm:text-sm py-2 px-3 shrink-0"
+                className="rounded-xl text-xs sm:text-sm py-1.5 sm:py-2 px-3 shrink-0 [@media(max-height:760px)]:py-1"
               >
                 Quay lại
               </Button>
@@ -428,7 +430,7 @@ export function VideoStageBlock({
           {currentSlideIdx < slides.length - 1 ? (
             <Button
               variant="primary"
-              className="px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-xl bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 cursor-pointer ml-auto"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 [@media(max-height:760px)]:py-1.5 [@media(max-height:760px)]:px-4 text-xs sm:text-sm font-black rounded-xl bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 cursor-pointer ml-auto"
               onClick={() => {
                 setCurrentSlideIdx((prev) => Math.min(slides.length - 1, prev + 1))
                 setIsAutoPlaying(false)
@@ -440,7 +442,7 @@ export function VideoStageBlock({
           ) : (
             <Button
               variant="primary"
-              className="px-5 sm:px-7 py-2 sm:py-3 text-xs sm:text-base font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 animate-pulse ml-auto"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 [@media(max-height:760px)]:py-1.5 [@media(max-height:760px)]:px-4 text-xs sm:text-sm font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 animate-pulse ml-auto"
               onClick={handleContinue}
             >
               <span>⚡ Tiếp tục sang Thử Tài Phản Xạ</span>
@@ -458,7 +460,7 @@ export function VideoStageBlock({
   return (
     <section
       data-testid="stage-2-video"
-      className="flex h-full min-h-0 shrink-0 flex-col justify-between gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:gap-2.5 sm:p-3"
+      className="flex h-full min-h-0 flex-1 overflow-y-auto flex-col justify-between gap-2 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:gap-2.5 sm:p-3"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
@@ -473,9 +475,9 @@ export function VideoStageBlock({
       {/* Khung video 16:9 to rõ ở trung tâm */}
       <div className="flex w-full items-center justify-center py-1 sm:py-0">
         <div
-          className="relative aspect-video w-full max-w-7xl max-h-[32vh] sm:max-h-[54vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black"
+          className="relative aspect-video w-full max-w-7xl max-h-[28vh] sm:max-h-[44vh] [@media(max-height:760px)]:max-h-[34vh] [@media(max-height:680px)]:max-h-[28vh] [@media(max-height:600px)]:max-h-[24vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black"
           style={{
-            width: 'min(100%, 1100px, calc((100dvh - 360px) * 16 / 9))',
+            width: 'min(100%, 1100px, calc(clamp(160px, (100dvh - 440px), 540px) * 16 / 9))',
           }}
         >
           <iframe
@@ -513,14 +515,14 @@ export function VideoStageBlock({
       {/* Thanh tiến trình stepper dàn ngang chuẩn AikiRuleVideoPlayer */}
       <div
         data-testid="video-timeline-stepper"
-        className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-xs shrink-0 flex flex-col gap-1 sm:gap-1.5"
+        className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/80 border-2 border-amber-200 p-1.5 sm:p-2.5 [@media(max-height:760px)]:py-1 [@media(max-height:760px)]:px-2 shadow-xs shrink-0 flex flex-col gap-1 sm:gap-1.5 [@media(max-height:760px)]:gap-0.5"
       >
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5">
           <button
             type="button"
             data-testid="video-timeline-play-btn"
             onClick={() => onSeekVideo?.((videoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-            className="size-10 sm:size-11 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
+            className="size-9 sm:size-10 [@media(max-height:760px)]:size-8 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
             aria-label="Tua lại từ đầu"
             title="Tua lại từ đầu"
           >
@@ -529,7 +531,7 @@ export function VideoStageBlock({
 
           {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
           <div className="relative flex-1 min-w-[120px] py-1">
-            <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
+            <div className="relative h-3.5 sm:h-4.5 [@media(max-height:760px)]:h-3 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
                 style={{
@@ -549,7 +551,7 @@ export function VideoStageBlock({
                     data-testid={`video-chapter-node-${idx + 1}`}
                     onClick={() => onSeekVideo?.(m.startSec)}
                     className={cn(
-                      'absolute top-1/2 z-10 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none sm:text-sm'
+                      'absolute top-1/2 z-10 flex size-9 sm:size-10 [@media(max-height:760px)]:size-8 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full font-display font-black text-xs select-none sm:text-sm'
                     )}
                     style={{ left: `${posPercent}%` }}
                     title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
@@ -557,7 +559,7 @@ export function VideoStageBlock({
                     <span
                       className={cn(
                         'flex items-center justify-center rounded-full border-2 border-white shadow-clay transition-all duration-200',
-                        isCurrent ? 'size-9 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-7 sm:size-9',
+                        isCurrent ? 'size-7 sm:size-8 [@media(max-height:760px)]:size-6 bg-brand-500 text-white ring-4 ring-brand-200' : 'size-6 sm:size-7 [@media(max-height:760px)]:size-5',
                         !isCurrent && isPassed
                           ? 'bg-amber-400 text-amber-950'
                           : !isCurrent
@@ -582,7 +584,7 @@ export function VideoStageBlock({
             <button
               type="button"
               onClick={() => onSeekVideo?.(0)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-0.5 [@media(max-height:760px)]:px-2 [@media(max-height:760px)]:text-[11px]"
               title="Xem lại từ đầu"
             >
               <RotateCcw size={13} className="text-amber-700" />
@@ -592,7 +594,7 @@ export function VideoStageBlock({
             <button
               type="button"
               onClick={() => onSpeakCurrentStage?.(stage.speech || '')}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-0.5 [@media(max-height:760px)]:px-2 [@media(max-height:760px)]:text-[11px]"
               title="Nghe AIKI giảng bài"
             >
               <Volume2 size={13} className="text-brand-600" />
@@ -612,7 +614,7 @@ export function VideoStageBlock({
 
         {/* Lưới 5 mốc chỉ hiển thị trên màn hình rộng lg */}
         {videoChapters.length > 0 && (
-          <div className="hidden lg:grid grid-cols-5 gap-1 pt-1 border-t border-amber-200/60 text-[11px] font-bold text-center text-amber-900">
+          <div className="hidden lg:grid grid-cols-5 gap-1 pt-1 border-t border-amber-200/60 text-[11px] font-bold text-center text-amber-900 [@media(max-height:640px)]:hidden [@media(max-height:760px)]:text-[10px]">
             {videoChapters.slice(0, 5).map((ch, idx) => (
               <button
                 key={idx}
@@ -647,7 +649,7 @@ export function VideoStageBlock({
           <Button
             variant="secondary"
             onClick={onPrevious}
-            className="rounded-xl text-xs sm:text-sm py-2 px-3 sm:px-4 shrink-0"
+            className="rounded-xl text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 shrink-0 [@media(max-height:760px)]:py-1"
           >
             Quay lại câu đố
           </Button>
@@ -655,7 +657,7 @@ export function VideoStageBlock({
 
         <Button
           variant="primary"
-          className="px-4 sm:px-7 py-2 sm:py-3 text-xs sm:text-base font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ml-auto"
+          className="px-4 sm:px-6 py-2 sm:py-2.5 [@media(max-height:760px)]:py-1.5 [@media(max-height:760px)]:px-4 text-xs sm:text-sm font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ml-auto"
           onClick={handleContinue}
         >
           <span>{hasSlides ? '⚡ Tiếp tục sang Thử Tài Phản Xạ' : '📝 Làm bài test thử tài →'}</span>

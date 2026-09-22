@@ -3061,4 +3061,47 @@ describe('SixStageJourneyView', () => {
 
     act(() => root.unmount())
   })
+
+  it('verifies Layout Defense Engine on short viewport height: responsive video classes and pinned sidebar progress footer', async () => {
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="test-lesson-layout-defense"
+          lessonTitle="Bảo vệ Giao diện Chiều cao Thấp"
+          studentStars={42}
+          initialStageIndex={2}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // 1. Check Video Stage container has flex-1 overflow-y-auto and responsive height classes
+    const videoSection = container.querySelector('[data-testid="stage-2-video"]') as HTMLElement
+    expect(videoSection).not.toBeNull()
+    expect(videoSection.className).toContain('overflow-y-auto')
+    expect(videoSection.className).toContain('flex-1')
+
+    // Check video iframe wrapper has low-height responsive classes
+    const iframeWrapper = videoSection.querySelector('iframe')?.parentElement as HTMLElement
+    expect(iframeWrapper).not.toBeNull()
+    expect(iframeWrapper.className).toContain('[@media(max-height:760px)]:max-h-[34vh]')
+    expect(iframeWrapper.style.width).toContain('clamp')
+
+    // 2. Check timeline stepper has low-height responsive padding
+    const stepper = container.querySelector('[data-testid="video-timeline-stepper"]') as HTMLElement
+    expect(stepper).not.toBeNull()
+    expect(stepper.className).toContain('[@media(max-height:760px)]:py-1')
+
+    // 3. Check sidebar has pinned footer independent from the scroll body
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]') as HTMLElement
+    expect(sidebar).not.toBeNull()
+    const pinnedFooter = container.querySelector('[data-testid="sidebar-footer-progress"]') as HTMLElement
+    expect(pinnedFooter).not.toBeNull()
+    expect(pinnedFooter.parentElement).toBe(sidebar)
+    expect(pinnedFooter.textContent).toContain('Tiến độ:')
+    expect(pinnedFooter.textContent).toContain('42 Sao tích lũy')
+  })
 })
