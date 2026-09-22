@@ -49,6 +49,8 @@ export function VideoStageBlock({
   const { config } = stage
   const slides = useMemo(() => config.slides || [], [config.slides])
   const hasSlides = slides.length > 0
+  const hasVideoUrl = Boolean(config.videoUrl && config.videoUrl.trim() !== '')
+  const [activeTab, setActiveTab] = useState<'video' | 'slides'>(() => (hasVideoUrl ? 'video' : 'slides'))
 
   // State cho Slide Cinema 16:9
   const [currentSlideIdx, setCurrentSlideIdx] = useState<number>(0)
@@ -59,7 +61,8 @@ export function VideoStageBlock({
   // Reset khi đổi bài học
   useEffect(() => {
     hasPlayedSoundRef.current = false
-  }, [config.title])
+    setActiveTab(hasVideoUrl ? 'video' : 'slides')
+  }, [config.title, config.videoUrl, hasVideoUrl])
 
   const handleTriggerComplete = useCallback(() => {
     if (!isVideoCompleted && !hasPlayedSoundRef.current) {
@@ -75,13 +78,13 @@ export function VideoStageBlock({
 
   // Theo dõi tiến độ Slide Cinema
   useEffect(() => {
-    if (hasSlides && slides.length > 0) {
+    if (hasSlides && slides.length > 0 && activeTab === 'slides') {
       const threshold = Math.floor((slides.length - 1) * 0.75)
       if (currentSlideIdx >= threshold || currentSlideIdx === slides.length - 1) {
         handleTriggerComplete()
       }
     }
-  }, [hasSlides, slides.length, currentSlideIdx, handleTriggerComplete])
+  }, [hasSlides, slides.length, currentSlideIdx, handleTriggerComplete, activeTab])
 
   // Tự động phát mỗi slide ~7-10s (8s)
   useEffect(() => {
@@ -145,9 +148,9 @@ export function VideoStageBlock({
     return buildVideoEmbedUrl(config.videoUrl, videoSeekSec)
   }, [config.videoUrl, videoSeekSec])
 
-  // Theo dõi tiến độ Video YouTube (các đảo AIKids M1-M5)
+  // Theo dõi tiến độ Video YouTube (các đảo AIKids M1-M5 hoặc video bài giảng 10 quy tắc)
   useEffect(() => {
-    if (!hasSlides) {
+    if (activeTab === 'video' || !hasSlides) {
       const seek = videoSeekSec || 0
       const isTimePassed = totalDurationSec > 0 && seek / totalDurationSec >= 0.75
       const isChapterPassed =
@@ -158,6 +161,7 @@ export function VideoStageBlock({
       }
     }
   }, [
+    activeTab,
     hasSlides,
     videoSeekSec,
     totalDurationSec,
@@ -171,10 +175,42 @@ export function VideoStageBlock({
     onContinue?.()
   }, [handleTriggerComplete, onContinue])
 
+  const canSwitchTab = Boolean(hasVideoUrl && hasSlides)
+  const pillTabs = canSwitchTab ? (
+    <div className="flex items-center gap-1.5 self-end bg-amber-100/90 p-1 rounded-2xl border border-amber-300/80 shadow-xs shrink-0">
+      <button
+        type="button"
+        data-testid="tab-video-btn"
+        onClick={() => setActiveTab('video')}
+        className={cn(
+          'px-3 py-1 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer flex items-center gap-1.5',
+          activeTab === 'video'
+            ? 'bg-brand-600 text-white shadow-sm'
+            : 'text-amber-900 hover:bg-amber-200/70'
+        )}
+      >
+        <span>🎬 Video bài giảng</span>
+      </button>
+      <button
+        type="button"
+        data-testid="tab-slides-btn"
+        onClick={() => setActiveTab('slides')}
+        className={cn(
+          'px-3 py-1 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer flex items-center gap-1.5',
+          activeTab === 'slides'
+            ? 'bg-brand-600 text-white shadow-sm'
+            : 'text-amber-900 hover:bg-amber-200/70'
+        )}
+      >
+        <span>🖼️ Hoạt cảnh slide</span>
+      </button>
+    </div>
+  ) : null
+
   // ═══════════════════════════════════════════════════════════════════════════
   // CHẾ ĐỘ 1: RẠP CHIẾU SLIDE CINEMA 16:9 CHO 10 QUY TẮC VÀNG
   // ═══════════════════════════════════════════════════════════════════════════
-  if (hasSlides) {
+  if (activeTab === 'slides' && hasSlides) {
     return (
       <section
         data-testid="stage-2-video"
@@ -182,6 +218,13 @@ export function VideoStageBlock({
       >
         {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
         <h2 className="sr-only">{config.title || 'Rạp chiếu Quy tắc vàng'}</h2>
+
+        {/* Pill Tab chuyển đổi Chế độ Video / Slide */}
+        {pillTabs && (
+          <div className="flex items-center justify-end w-full max-w-5xl mx-auto px-1">
+            {pillTabs}
+          </div>
+        )}
 
         {/* Khung hình hiển thị Slide Cinema */}
         <div className="flex w-full flex-col items-center justify-start gap-2 sm:gap-2.5">
@@ -420,6 +463,13 @@ export function VideoStageBlock({
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
 
+      {/* Pill Tab chuyển đổi Chế độ Video / Slide */}
+      {pillTabs && (
+        <div className="flex items-center justify-end w-full max-w-7xl mx-auto px-1 shrink-0">
+          {pillTabs}
+        </div>
+      )}
+
       {/* Khung video 16:9 to rõ ở trung tâm */}
       <div className="flex w-full items-center justify-center py-1 sm:py-0">
         <div
@@ -439,7 +489,7 @@ export function VideoStageBlock({
       </div>
 
       {/* Thông báo ấm áp khi bài học dùng video chung của AIKI */}
-      {!config.isDedicatedLessonVideo && (
+      {!config.isDedicatedLessonVideo && !hasSlides && (
         <div
           data-testid="generic-video-notice"
           className="w-full max-w-6xl xl:max-w-7xl mx-auto rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3.5 py-2 sm:px-5 sm:py-2.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
@@ -608,7 +658,7 @@ export function VideoStageBlock({
           className="px-4 sm:px-7 py-2 sm:py-3 text-xs sm:text-base font-black rounded-2xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ml-auto"
           onClick={handleContinue}
         >
-          <span>📝 Làm bài test thử tài →</span>
+          <span>{hasSlides ? '⚡ Tiếp tục sang Thử Tài Phản Xạ' : '📝 Làm bài test thử tài →'}</span>
           <ArrowRight size={16} />
         </Button>
       </div>

@@ -20,6 +20,25 @@ import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import { isAikiRuleJourney, extractRuleNumber } from '@/features/lesson/lib/rule-journey-identifiers'
+
+const isUuid = (val: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val)
+
+export function getStationSlug(station: any, isRuleCourse?: boolean): string {
+  if (!station) return ''
+  if (station.slug && typeof station.slug === 'string' && !isUuid(station.slug)) {
+    return station.slug
+  }
+  if (isRuleCourse || isAikiRuleJourney(station)) {
+    const ruleNum = station.order || extractRuleNumber(station)
+    if (ruleNum >= 1 && ruleNum <= 10) return `rule-${ruleNum}`
+  }
+  const matched = findIslandCurriculum({ id: station.id, title: station.title, slug: station.slug })
+  if (matched?.slug) return matched.slug
+  if (matched?.id && !isUuid(matched.id)) return matched.id
+  return !isUuid(station.id) ? station.id : (station.slug || station.id)
+}
 
 // WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
 export const FORCE_UNLOCK_ALL_ISLANDS = false
@@ -192,7 +211,8 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
     </div>
   )
 
-  const lessonSlug = (quest as any).slug || quest.id
+  const isRule = courseId ? isAikiRuleJourney(courseId) : false
+  const lessonSlug = getStationSlug(quest, isRule)
   const lessonUrl = courseId ? `/world/${courseId}/lesson/${lessonSlug}` : `/lesson/${lessonSlug}`
 
   return (
@@ -581,6 +601,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   ) ?? (quests.length > 0 ? quests[0] : undefined)
   const progressPct = quests.length > 0 ? Math.round((meta.completedCount / quests.length) * 100) : 0
   const currentRegion = WORLD_REGIONS[regionIndex % WORLD_REGIONS.length]
+  const isCurrentCourseRule = Boolean(courseId && (isAikiRuleJourney(courseId) || pathway?.courses.some((c) => (c.id === courseId || c.slug === courseId) && isAikiRuleCourse(c))))
 
   if (!courseId) {
     if (loading) {
@@ -674,24 +695,28 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
                 {meta.completedCount}/{quests.length} trạm đã chinh phục
               </p>
             </div>
-            {next && (
-              <aside className="course-map-next-ticket flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-extrabold text-mint-700">TRẠM TIẾP THEO</p>
-                  <h2 className="font-display text-xl text-text">{next.title}</h2>
-                  <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
-                </div>
-                <Link
-                  to={`/world/${courseId}/lesson/${(next as any).slug || next.id}`}
-                  className="course-map-primary-action animate-pop"
-                  onPointerEnter={() => prefetchRoute(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
-                  onPointerDown={() => prefetchRouteImmediately(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
-                  onFocus={() => prefetchRoute(`/world/${courseId}/lesson/${(next as any).slug || next.id}`)}
-                >
-                  {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
-                </Link>
-              </aside>
-            )}
+            {next && (() => {
+              const nextStationSlug = getStationSlug(next, isCurrentCourseRule)
+              const nextLessonUrl = `/world/${courseId}/lesson/${nextStationSlug}`
+              return (
+                <aside className="course-map-next-ticket flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-extrabold text-mint-700">TRẠM TIẾP THEO</p>
+                    <h2 className="font-display text-xl text-text">{next.title}</h2>
+                    <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
+                  </div>
+                  <Link
+                    to={nextLessonUrl}
+                    className="course-map-primary-action animate-pop"
+                    onPointerEnter={() => prefetchRoute(nextLessonUrl)}
+                    onPointerDown={() => prefetchRouteImmediately(nextLessonUrl)}
+                    onFocus={() => prefetchRoute(nextLessonUrl)}
+                  >
+                    {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
+                  </Link>
+                </aside>
+              )
+            })()}
           </div>
 
           {quests.length > 0 && (
@@ -1189,6 +1214,7 @@ function RoadmapCourseNode({
   const nextStation = course.stations?.find(
     (station) => station.status === 'available' || station.status === 'in_progress',
   ) ?? (course.stations && course.stations.length > 0 ? course.stations[0] : undefined);
+  const isRuleCourse = isAikiRuleCourse(course, index);
   const previousRegion = index > 0 ? WORLD_REGIONS[(index - 1) % WORLD_REGIONS.length] : null;
 
   const handleLockedClick = (e?: React.MouseEvent | React.KeyboardEvent) => {
@@ -1274,7 +1300,7 @@ function RoadmapCourseNode({
                 <li key={station?.id ?? stationNumber}>
                   {station && !isLocked && (forceUnlock || station.status !== 'locked') ? (
                     <Link
-                      to={`/world/${course.slug || course.id}/lesson/${(station as any)?.slug || station.id}`}
+                      to={`/world/${course.slug || course.id}/lesson/${getStationSlug(station, isRuleCourse)}`}
                       className={dotClassName}
                       aria-label={stationLabel}
                       title={station.title}
@@ -1345,7 +1371,7 @@ function RoadmapCourseNode({
         <div className="flex flex-wrap items-center gap-2">
           {nextStation ? (
             <Link
-              to={`/world/${course.slug || course.id}/lesson/${(nextStation as any)?.slug || nextStation.id}`}
+              to={`/world/${course.slug || course.id}/lesson/${getStationSlug(nextStation, isRuleCourse)}`}
               className="world-course-primary-action"
             >
               Học tiếp
@@ -1708,7 +1734,7 @@ function PathwayOverview({
                   🔒 Xem điều kiện mở
                 </Button>
               ) : (
-                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${(nextStation as any).slug || nextStation.id}` : courseHref(sourceRecommended)}>
+                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${getStationSlug(nextStation, isAikiRuleCourse(sourceRecommended))}` : courseHref(sourceRecommended)}>
                   <Button>
                     {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                   </Button>
@@ -1923,7 +1949,7 @@ function PathwayOverview({
                 🔒 Xem điều kiện mở
               </Button>
               ) : (
-                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${(nextStation as any).slug || nextStation.id}` : courseHref(sourceRecommended)}>
+                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${getStationSlug(nextStation, isAikiRuleCourse(sourceRecommended))}` : courseHref(sourceRecommended)}>
                   <Button>
                   {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                 </Button>

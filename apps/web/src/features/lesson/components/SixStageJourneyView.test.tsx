@@ -2175,7 +2175,23 @@ describe('SixStageJourneyView', () => {
     // 1. Should have 3 stages in progress indicator
     expect(container.textContent).toContain('Chặng 1/3')
 
-    // 2. Stage 1 is Video Stage with Slide Cinema 16:9
+    // 2. Video stage has tabs to switch between YouTube Video & Slide Cinema
+    const tabVideoBtn = container.querySelector('[data-testid="tab-video-btn"]')
+    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]')
+    expect(tabVideoBtn).not.toBeNull()
+    expect(tabSlidesBtn).not.toBeNull()
+
+    // Default is YouTube Video tab
+    const iframe = container.querySelector('iframe')
+    expect(iframe).not.toBeNull()
+    expect(iframe?.src).toContain('opYm3mvrnqI')
+
+    // Switch to Slide Cinema tab
+    act(() => {
+      ;(tabSlidesBtn as HTMLButtonElement).click()
+    })
+
+    // Stage 1 is now in Slide Cinema 16:9 mode
     const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
     expect(speechBubble).not.toBeNull()
     expect(speechBubble?.textContent).toContain('Mèo AIKI')
@@ -2216,12 +2232,18 @@ describe('SixStageJourneyView', () => {
     // 2. Station label and header should be recognized as Rule 1
     expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
 
-    // 3. Stage 1 is Video Stage with Slide Cinema 16:9
+    // 3. Has tab switcher between Video & Slide Cinema
+    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]')
+    expect(tabSlidesBtn).not.toBeNull()
+    act(() => {
+      ;(tabSlidesBtn as HTMLButtonElement).click()
+    })
+
+    // 4. In Slide Cinema mode: Speech bubble, Auto-play button and 5 chapter nodes
     const speechBubble = container.querySelector('[data-testid="slide-speech-bubble"]')
     expect(speechBubble).not.toBeNull()
     expect(speechBubble?.textContent).toContain('Mèo AIKI')
 
-    // 4. Auto-play button and 5 chapter nodes
     const autoPlayBtn = container.querySelector('[data-testid="slide-autoplay-btn"]')
     expect(autoPlayBtn).not.toBeNull()
 
@@ -2985,6 +3007,57 @@ describe('SixStageJourneyView', () => {
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
     expect(sidebar?.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
+
+    act(() => root.unmount())
+  })
+
+  it('supports seamless tab switching between YouTube Video and Slide Cinema for Rule Lessons with 16:9 layout and star accumulation', async () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId="rule-2"
+          lessonTitle="Quy tắc 2: Tự viết nội dung trước"
+          initialStageIndex={0}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    // Both tabs are rendered
+    const tabVideoBtn = container.querySelector('[data-testid="tab-video-btn"]') as HTMLButtonElement | null
+    const tabSlidesBtn = container.querySelector('[data-testid="tab-slides-btn"]') as HTMLButtonElement | null
+    expect(tabVideoBtn).not.toBeNull()
+    expect(tabSlidesBtn).not.toBeNull()
+
+    // 1. Initially in YouTube Video Mode: contains iframe with _8Ig_cX25-4
+    const iframe = container.querySelector('iframe')
+    expect(iframe).not.toBeNull()
+    expect(iframe?.src).toContain('_8Ig_cX25-4')
+
+    // Timeline chapter nodes present in Video Mode
+    const chapterNode5 = container.querySelector('[data-testid="video-chapter-node-5"]') as HTMLButtonElement | null
+    expect(chapterNode5).not.toBeNull()
+
+    // Clicking chapter node 5 completes video and earns star
+    act(() => {
+      chapterNode5?.click()
+    })
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
+
+    // 2. Switch to Slide Cinema Mode
+    act(() => {
+      tabSlidesBtn?.click()
+    })
+    expect(container.querySelector('[data-testid="slide-speech-bubble"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="slide-autoplay-btn"]')).not.toBeNull()
+
+    // 3. Switch back to YouTube Video Mode
+    act(() => {
+      tabVideoBtn?.click()
+    })
+    expect(container.querySelector('iframe')).not.toBeNull()
+    expect(container.querySelector('[data-testid="slide-speech-bubble"]')).toBeNull()
 
     act(() => root.unmount())
   })

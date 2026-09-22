@@ -15,6 +15,7 @@ import {
   type PathwayCourse,
   mergeQuestsWithLocalProgress,
   enrichCoursesWithLocalProgress,
+  getStationSlug,
 } from './WorldPage'
 
 type PathwayCourseInput = Parameters<typeof isPathwayCourseVisible>[0]
@@ -440,5 +441,41 @@ describe('Merging Local Progress into World map quests and courses', () => {
     expect(result[0].totalStars).toBe(30)
     // Island 2 must now be unlocked!
     expect(result[1].status).toBe('available')
+  })
+
+  it('generates friendly /rule-X links for all 10 Golden Rules stations even when DB supplies raw UUIDs (Kịch bản 2)', () => {
+    const mockDbStations = [
+      { id: 'c0363e77-2148-4373-b41a-0d0be4a4e4be', order: 1, title: 'QT1 — Hãy nghĩ ý tưởng' },
+      { id: '11111111-2148-4373-b41a-0d0be4a4e4be', order: 2, title: 'QT2 — Tự viết nội dung' },
+      { id: '22222222-2148-4373-b41a-0d0be4a4e4be', order: 3, title: 'QT3 — Có giá trị' },
+      { id: '33333333-2148-4373-b41a-0d0be4a4e4be', order: 4, title: 'QT4 — Giải thích vì sao' },
+      { id: '44444444-2148-4373-b41a-0d0be4a4e4be', order: 5, title: 'QT5 — Chia việc ra' },
+      { id: '55555555-2148-4373-b41a-0d0be4a4e4be', order: 6, title: 'QT6 — Bảo vệ hình ảnh' },
+      { id: '66666666-2148-4373-b41a-0d0be4a4e4be', order: 7, title: 'QT7 — Tôn trọng sự thật' },
+      { id: '77777777-2148-4373-b41a-0d0be4a4e4be', order: 8, title: 'QT8 — Sửa mô tả' },
+      { id: '88888888-2148-4373-b41a-0d0be4a4e4be', order: 9, title: 'QT9 — Kiểm tra kỹ' },
+      { id: '99999999-2148-4373-b41a-0d0be4a4e4be', order: 10, title: 'QT10 — Bài tập ở trường' },
+    ]
+
+    const slugs = mockDbStations.map((station) => getStationSlug(station, true))
+    expect(slugs).toEqual([
+      'rule-1',
+      'rule-2',
+      'rule-3',
+      'rule-4',
+      'rule-5',
+      'rule-6',
+      'rule-7',
+      'rule-8',
+      'rule-9',
+      'rule-10',
+    ])
+
+    // TUYỆT ĐỐI KHÔNG xuất hiện chuỗi UUID thô
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    slugs.forEach((slug) => {
+      expect(uuidRegex.test(slug)).toBe(false)
+      expect(slug).toMatch(/^rule-[1-9]|rule-10$/)
+    })
   })
 })

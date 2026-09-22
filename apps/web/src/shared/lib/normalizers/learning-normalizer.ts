@@ -766,6 +766,7 @@ export function normalizeLearningGatewayResponse(
         stars: Number(row.stars ?? 0),
         xpEarned: Number(row.xpEarned ?? 0),
         videoUrl: typeof row.videoUrl === 'string' ? row.videoUrl : null,
+        slug: (row as any).slug ? String((row as any).slug) : undefined,
         access: (row as any).access ?? ((row as any).metadata as any)?.access,
       })),
     }

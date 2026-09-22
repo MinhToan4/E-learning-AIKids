@@ -3,7 +3,7 @@
 
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { MemoryRouter, Routes, Route } from 'react-router'
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { LessonPage, createAikiRuleCardsFromData } from './LessonPage'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
@@ -187,5 +187,55 @@ describe('LessonPage prefetch', () => {
     expect(container.textContent).toContain('Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI')
     // Legacy sidebar / 4-phase tabs should NOT be rendered
     expect(container.querySelector('[data-testid="legacy-sidebar"]')).toBeNull()
+  })
+
+  it('automatically normalizes raw UUID in URL to friendly /rule-2 slug (Kịch bản 3)', async () => {
+    vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
+      progress: {
+        status: 'in_progress',
+        phase: 'learn',
+        stars: 1,
+      },
+      quest: {
+        id: 'c0363e77-2148-4373-b41a-0d0be4a4e4be',
+        courseId: 'dao-1-nha-tham-hiem-ai',
+        order: 2,
+        title: 'QT2 — Nội dung là do con viết, hãy đảm bảo viết xong mới gửi cho AIKI!',
+        duration: '50 giây',
+        hook: 'Tự viết nội dung trước khi gửi',
+        accent: '#f59e0b',
+        practiceKind: 'chips',
+        skill: 'Tự suy nghĩ và viết nội dung trước',
+        reward: 'Huy hiệu Quy tắc 2',
+        goals: [],
+        learnCards: [],
+        check: [],
+      } as unknown as import('@/shared/lib/api').QuestDetail,
+    })
+
+    let currentLocation = ''
+    function LocationTracker() {
+      const location = useLocation()
+      currentLocation = location.pathname
+      return null
+    }
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/dao-1/lesson/c0363e77-2148-4373-b41a-0d0be4a4e4be']}>
+          <LocationTracker />
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+            <Route path="/world/:courseId/lesson/rule-2" element={<div data-testid="rule-2-page">Rule 2 Normalized</div>} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    await vi.waitFor(() => {
+      expect(currentLocation).toBe('/world/dao-1/lesson/rule-2')
+    })
   })
 })

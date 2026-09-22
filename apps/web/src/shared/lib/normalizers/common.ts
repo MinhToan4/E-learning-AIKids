@@ -226,6 +226,7 @@ export function mapCourse(raw: Record<string, unknown>): CourseSummary {
       accent: String(metadata.accent ?? '#7c3aed'),
       practiceKind: String(lesson.lessonType ?? 'lesson'),
       stage: 'learn',
+      slug: (lesson as any).slug ? String((lesson as any).slug) : undefined,
       access: (lesson as any).access ?? ((lesson as any).metadata as any)?.access,
     })),
   }
@@ -234,6 +235,7 @@ export function mapCourse(raw: Record<string, unknown>): CourseSummary {
 export function mapQuest(rawQuest: Record<string, unknown>) {
   return {
     ...rawQuest,
+    slug: (rawQuest as any).slug ? String((rawQuest as any).slug) : undefined,
     access: (rawQuest as any).access ?? ((rawQuest as any).metadata as any)?.access,
   }
 }

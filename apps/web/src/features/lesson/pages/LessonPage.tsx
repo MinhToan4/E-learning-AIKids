@@ -17,6 +17,7 @@ import {
   extractRuleNumber,
   AIKI_MODULE_0_COURSE_ID,
 } from '@/features/lesson/lib/rule-journey-identifiers'
+import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { getAikiStudioConfig } from '@/features/lesson/data/aiki-studio-configs'
 import type { AikiRule } from '@/features/rules/types'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
@@ -661,6 +662,27 @@ export function LessonPage() {
   }, [isAikiRuleJourney, questId, quest, routeCourseId])
 
   const effectiveCourseId = routeCourseId || quest?.courseId || (isAikiRuleJourney ? AIKI_MODULE_0_COURSE_ID : '') || 'aiki-rules'
+
+  // Chuẩn hóa URL sang friendly slug nếu questId trên URL là raw UUID
+  useEffect(() => {
+    if (!quest || !questId) return
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(questId)
+    if (!isUuid) return
+
+    if (isAikiRuleJourney && ruleId >= 1 && ruleId <= 10) {
+      navigate(`/world/${effectiveCourseId}/lesson/rule-${ruleId}`, { replace: true })
+      return
+    }
+
+    const curriculum = findIslandCurriculum({
+      id: quest.id,
+      title: quest.title,
+      slug: (quest as any).slug,
+    })
+    if (curriculum?.slug) {
+      navigate(`/world/${effectiveCourseId}/lesson/${curriculum.slug}`, { replace: true })
+    }
+  }, [quest, questId, isAikiRuleJourney, ruleId, effectiveCourseId, navigate])
 
   // Load nextQuestId when reviewing completed station
   useEffect(() => {
