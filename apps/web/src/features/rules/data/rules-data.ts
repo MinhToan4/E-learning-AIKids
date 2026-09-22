@@ -10,7 +10,7 @@ export const AIKI_RULES_DATA: AikiRule[] = [
     skill: 'Khi con muốn sáng tạo, dừng lại 30 giây để hình dung và vẽ ra ý của mình trước khi mở AI.',
     durationSec: 52,
     videoUrl: 'https://www.youtube.com/embed/opYm3mvrnqI',
-    posterImage: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+    posterImage: '/assets/aiki-rules/rule1_superhero_dad.webp',
     audioVoiceText: 'Quy tắc một: Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé! Con nghĩ trước, AIKI mới giúp con vẽ tranh độc nhất vô nhị được!',
     akiTip: 'Bạn Sonet nghĩ về siêu anh hùng bố sợ gián cầm vợt muỗi trước khi nhờ AIKI, nên tranh của bạn ấy mới độc nhất vô nhị đấy!',
     slides: [
@@ -19,21 +19,21 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         speaker: 'Mèo AIKI',
         dialogue: 'Dừng lại nào các bạn ơi! Hai bạn đang tranh nhau xem bức tranh nào đúng yêu cầu của cô giáo hơn. Con hãy giúp AIKI phân xử xem nhé!',
         screenAction: 'Hai bạn nhỏ đang giằng bức tranh vẽ ➔ AIKI xuất hiện khuyên ngăn.',
-        image: '/assets/aiki-rules/rule1_opt_zico.jpg',
+        image: '/assets/aiki-rules/rule1_opt_zico.webp',
       },
       {
         stage: '2. CÂU ĐỐ CỦA AIKI',
         speaker: 'Mèo AIKI',
         dialogue: 'Cô giáo ra đề bài: Vẽ nhân vật siêu anh hùng của con. Đố con biết bức tranh nào mới đúng yêu cầu của cô? Con bấm chọn giúp AIKI nào!',
         screenAction: 'So sánh hai bức tranh: Một bức siêu anh hùng áo choàng đỏ quen thuộc, một bức bố sợ gián cầm vợt muỗi.',
-        image: '/assets/aiki-rules/rule1_opt_sonet.jpg',
+        image: '/assets/aiki-rules/rule1_opt_sonet.webp',
       },
       {
         stage: '3. QUY TẮC VÀNG',
         speaker: 'Mèo AIKI',
         dialogue: 'Hoan hô con! Đáp án chính là bức của Sonet! Quy tắc một của chúng mình là: Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
         screenAction: 'Bức tranh bố cầm vợt muỗi sáng bừng dấu tích xanh. Poster Quy tắc 1 hiện lên rực rỡ.',
-        image: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+        image: '/assets/aiki-rules/rule1_superhero_dad.webp',
       },
       {
         stage: '4. GIẢI THÍCH SO SÁNH',
@@ -47,7 +47,7 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         speaker: 'Mèo AIKI',
         dialogue: 'Lần sau, con hãy thử nghĩ xem nhân vật của mình có nét gì KHÔNG GIỐNG ai hết nhé! Giờ thì cùng AIKI bước sang phần thử tài phản xạ nào!',
         screenAction: 'Poster Quy tắc 1 tỏa sáng, AIKI vẫy tay chào vui vẻ.',
-        image: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+        image: '/assets/aiki-rules/rule1_superhero_dad.webp',
       },
     ],
         questions: [

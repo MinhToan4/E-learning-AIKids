@@ -290,7 +290,7 @@ describe('island-journey-resolver', () => {
       expect(quizStage.type).toBe('QUIZ')
       expect(quizStage.stepNumber).toBe(2)
       expect(quizStage.config.questions).toHaveLength(2)
-      expect(quizStage.config.questions[0].visualUrl).toBe('/assets/aiki-rules/rule1_opt_sonet.webp')
+      expect(quizStage.config.questions[0].visualUrl).toBe('/assets/aiki-rules/rule1_q1_clay.webp')
 
       expect(rewardStage.type).toBe('REWARD')
       expect(rewardStage.stepNumber).toBe(3)
