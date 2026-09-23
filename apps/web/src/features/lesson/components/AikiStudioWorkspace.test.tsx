@@ -935,14 +935,14 @@ describe('AikiStudioWorkspace', () => {
       submitBtn.click()
     })
 
-    const modal = container.querySelector('[data-testid="studio-submit-modal"]')
+    const modal = document.querySelector('[data-testid="studio-submit-modal"]')
     expect(modal).not.toBeNull()
     expect(modal?.textContent).toContain('Chọn một tranh để nộp bài')
     expect(modal?.textContent).toContain('Chạm vào ảnh để xem rõ và chọn')
     expect(modal?.textContent).toContain('ĐANG CHỌN')
 
     // 3. Bấm xác nhận nộp bài
-    const confirmBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
+    const confirmBtn = document.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
     expect(confirmBtn).not.toBeNull()
 
     await act(async () => {
@@ -1223,7 +1223,7 @@ describe('AikiStudioWorkspace', () => {
       submitBtn.click()
     })
 
-    const confirmBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
+    const confirmBtn = document.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
     await act(async () => {
       confirmBtn.click()
     })
@@ -1441,7 +1441,7 @@ describe('AikiStudioWorkspace', () => {
     })
 
     // Modal inspect xuất hiện
-    const modal = container.querySelector('[data-testid="studio-inspect-modal"]')
+    const modal = document.querySelector('[data-testid="studio-inspect-modal"]')
     expect(modal).not.toBeNull()
 
     // Kiểm tra cấu trúc 2 cột cân đối trên PC: container mở rộng max-w-4xl / max-w-5xl
@@ -1460,7 +1460,7 @@ describe('AikiStudioWorkspace', () => {
       closeBtn.click()
     })
 
-    expect(container.querySelector('[data-testid="studio-inspect-modal"]')).toBeNull()
+    expect(document.querySelector('[data-testid="studio-inspect-modal"]')).toBeNull()
 
     act(() => {
       root.unmount()
@@ -1468,4 +1468,3 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 })
-
