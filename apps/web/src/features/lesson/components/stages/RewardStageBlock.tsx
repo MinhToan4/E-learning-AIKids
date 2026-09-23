@@ -1,5 +1,5 @@
 import React from 'react'
-import { Award, CheckCircle2, Trophy, Sparkles, Star } from 'lucide-react'
+import { Award, BookOpen, CheckCircle2, Trophy, Sparkles, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, RewardStageConfig } from '../../types/stage-schema'
@@ -14,6 +14,7 @@ export interface RewardStageBlockProps {
   onFinishLesson?: (summary: { stars: number; xp: number; nextLessonSlug?: string }) => void
   onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onOpenCertificate?: () => void
+  onOpenCourse?: () => void
   isFinalStation?: boolean
 }
 
@@ -27,6 +28,7 @@ export function RewardStageBlock({
   onFinishLesson,
   onImageClick,
   onOpenCertificate,
+  onOpenCourse,
   isFinalStation,
 }: RewardStageBlockProps) {
   const { config } = stage
@@ -67,14 +69,14 @@ export function RewardStageBlock({
       <div className="grid w-full max-w-full grid-cols-1 items-center gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
         {/* CỘT TRÁI (md:col-span-1 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
         <div className="flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3 sm:p-4 md:col-span-1 lg:col-span-6 lg:h-full min-w-0 max-w-full overflow-hidden">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-black text-amber-900 uppercase tracking-wider mb-2 min-w-0">
-            <span className="flex items-center gap-1.5 min-w-0">
+          <div className="mb-2 flex min-w-0 flex-col items-stretch gap-2 text-xs font-black uppercase tracking-wider text-amber-900">
+            <span className="flex min-w-0 items-start gap-1.5">
               <Award size={16} className="text-amber-600 shrink-0" />
-              <span>Tác phẩm kiệt xuất vừa cất vào Balo</span>
+              <span className="min-w-0 break-words leading-snug">Tác phẩm kiệt xuất vừa cất vào Balo</span>
             </span>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-xs sm:text-sm font-black shrink-0">
+            <div className="flex w-full min-w-0 items-start gap-1.5 rounded-xl bg-mint-100 px-2.5 py-1 text-left text-xs font-black normal-case tracking-normal text-mint-800 sm:text-sm">
               <CheckCircle2 size={13} className="text-mint-600 shrink-0" />
-              <span>{config?.rewardBadge?.name || 'Hoàn thành xuất sắc'}</span>
+              <span className="min-w-0 break-words leading-snug">{config?.rewardBadge?.name || 'Hoàn thành xuất sắc'}</span>
             </div>
           </div>
 
@@ -194,6 +196,17 @@ export function RewardStageBlock({
                 onClick={onOpenCertificate}
               >
                 <span>📜 Nhận Chứng Chỉ Hoàn Thành Khóa Học 🎓</span>
+              </Button>
+            )}
+
+            {onOpenCourse && (isFinalStation ?? !config?.nextLessonSlug) && (
+              <Button
+                variant="primary"
+                className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
+                onClick={onOpenCourse}
+              >
+                <BookOpen size={18} aria-hidden="true" />
+                <span>Sang khu khóa học</span>
               </Button>
             )}
 

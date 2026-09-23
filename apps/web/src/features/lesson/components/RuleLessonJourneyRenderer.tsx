@@ -121,6 +121,7 @@ export default function RuleLessonJourneyRenderer({
         rewardXp={50}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)}
+        onOpenCourse={() => navigate('/world/program/aikid_official')}
         onFinishLesson={onFinish}
       />
     </div>

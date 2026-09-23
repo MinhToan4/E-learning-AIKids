@@ -2498,6 +2498,7 @@ describe('SixStageJourneyView', () => {
 
   it('Quy tắc 10 (QT10): Chặng Reward CÓ hiển thị nút Nhận Chứng Chỉ vì là trạm cuối', () => {
     const root = createRoot(container)
+    const onOpenCourse = vi.fn()
     act(() => {
       root.render(
         <SixStageJourneyView
@@ -2505,6 +2506,7 @@ describe('SixStageJourneyView', () => {
           lessonTitle="Quy tắc 10: Tự hào tác phẩm của chính con"
           initialStageIndex={2}
           onBackToMap={() => {}}
+          onOpenCourse={onOpenCourse}
         />
       )
     })
@@ -2513,6 +2515,14 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
     expect(container.textContent).not.toContain('Khám Phá Bài Tiếp Theo')
     expect(container.textContent).toContain('Quay Về Bản Đồ Đảo')
+    expect(container.textContent).toContain('Sang khu khóa học')
+    expect(container.textContent).not.toContain('Việc Ngoài Màn Hình (Home Mission)')
+    expect(container.textContent).not.toContain('Hành động tiếp theo')
+    const courseButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Sang khu khóa học'),
+    )
+    act(() => courseButton?.click())
+    expect(onOpenCourse).toHaveBeenCalledTimes(1)
     act(() => root.unmount())
   })
 

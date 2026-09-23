@@ -730,7 +730,7 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         hint: "Người làm chủ tác phẩm chính là người kiểm duyệt cuối cùng trước khi in ấn!",
         successFeedback: "Đúng rồi! AKI viết nhanh nên cũng gõ nhầm — người dùng phải đọc lại.",
         retryFeedback: "Chưa đúng nhé. AKI đâu biết tên trường, tên cô của con viết thế nào — con mới là người đọc lại.",
-        visualUrl: "/assets/aiki-rules/rule9_q1_clay.webp",
+        visualUrl: "/assets/aiki-rules/rule9_read_aloud.webp",
         optionImages: [
           "/assets/aiki-rules/rule9_opt_a.webp",
           "/assets/aiki-rules/rule9_opt_b.webp",
@@ -813,7 +813,7 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         hint: "Nếu để người khác làm hộ bài tập thì kiến thức không vào đầu của mình được!",
         successFeedback: "Đúng! Làm hộ thì tờ giấy được điểm, còn cái đầu vẫn chưa hiểu.",
         retryFeedback: "Chưa đúng nhé. Bài tập giống tập thể dục — có người tập hộ thì mình đâu có cao lên được.",
-        visualUrl: "/assets/aiki-rules/rule10_q1_clay.webp",
+        visualUrl: "/assets/aiki-rules/rule10_opt_a.webp",
         optionImages: [
           "/assets/aiki-rules/rule10_opt_a.webp",
           "/assets/aiki-rules/rule10_opt_b.webp",

@@ -275,17 +275,17 @@ export function QuizStageBlock({
                       if (isQuestionChecked) {
                         if (isSelected && isOptCorrect) {
                           optClass =
-                            'border-mint-500 bg-mint-50 text-mint-900 font-bold ring-2 ring-mint-300'
+                            'border-mint-600 bg-mint-50 text-mint-900 font-bold ring-2 ring-inset ring-mint-300'
                         } else if (isSelected && !isOptCorrect) {
                           optClass =
-                            'border-rose-400 bg-rose-50 text-rose-900 font-medium ring-2 ring-rose-200'
+                            'border-rose-500 bg-rose-50 text-rose-900 font-medium ring-2 ring-inset ring-rose-200'
                         } else if (!isCorrect && !isOptionDisabled) {
                           optClass =
                             'border-slate-200 bg-white hover:bg-amber-50/80 text-slate-800 hover:border-amber-400'
                         }
                       } else if (isSelected) {
                         optClass =
-                          'border-brand-500 bg-brand-50 text-brand-900 font-bold ring-2 ring-brand-300 shadow-clay-xs scale-[1.01]'
+                          'border-brand-600 bg-brand-50 text-brand-900 font-bold ring-2 ring-inset ring-brand-300 shadow-clay-xs'
                       }
 
                       return (

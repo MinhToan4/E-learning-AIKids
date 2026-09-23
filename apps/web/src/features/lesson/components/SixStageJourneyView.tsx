@@ -60,6 +60,7 @@ export interface SixStageJourneyViewProps {
   onFinishLesson?: (result: { stars: number; xp: number; nextLessonSlug?: string }) => void
   onBackToMap?: () => void
   onNavigateNextLesson?: (nextLessonSlug: string) => void
+  onOpenCourse?: () => void
   initialStageIndex?: number
   onStageChange?: (stageIndex: number) => void
   initialSidebarCollapsed?: boolean
@@ -107,6 +108,7 @@ export function SixStageJourneyView({
   onFinishLesson,
   onBackToMap,
   onNavigateNextLesson,
+  onOpenCourse,
   initialStageIndex = 0,
   onStageChange,
   initialSidebarCollapsed,
@@ -1247,6 +1249,7 @@ export function SixStageJourneyView({
               onFinishLesson={onFinishLesson}
               isFinalStation={isFinalStation}
               onOpenCertificate={isFinalStation ? () => setIsCertificateModalOpen(true) : undefined}
+              onOpenCourse={isFinalStation ? onOpenCourse : undefined}
             />
           )}
 
@@ -2086,6 +2089,7 @@ export function SixStageJourneyView({
                           </div>
                         </div>
 
+                        {!isRuleLesson && <>
                         {/* Việc Ngoài Màn Hình (Home Mission) */}
                         <div className="bg-emerald-50/80 rounded-2xl p-3.5 border-2 border-emerald-200 flex flex-col gap-2 text-left shadow-2xs">
                           <div className="flex items-center justify-between text-xs sm:text-sm font-black text-emerald-950">
@@ -2124,6 +2128,7 @@ export function SixStageJourneyView({
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
                         </div>
+                        </>}
                       </div>
                     )}
                   </>
