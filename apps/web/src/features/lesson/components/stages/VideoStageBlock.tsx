@@ -269,7 +269,7 @@ export function VideoStageBlock({
                       data-testid={`video-chapter-node-${idx + 1}`}
                       onClick={() => onSeekVideo?.(m.startSec)}
                       className={cn(
-                        'flex items-center justify-center rounded-full font-display font-black text-[10px] sm:text-xs select-none cursor-pointer border shadow-clay transition-all duration-200 shrink-0 z-10',
+                        'lesson-video-node-button flex items-center justify-center rounded-full font-display font-black text-[10px] sm:text-xs select-none cursor-pointer border shadow-clay transition-all duration-200 shrink-0 z-10',
                         isCurrent
                           ? 'size-5 sm:size-6 landscape:size-6 lg:size-6 bg-brand-500 text-white border-brand-200 ring-2 ring-brand-300'
                           : isPassed

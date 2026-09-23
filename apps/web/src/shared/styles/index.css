@@ -130,6 +130,8 @@
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-horizontal-line {
     display: flex !important;
+    left: 12px !important;
+    right: 12px !important;
   }
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-vertical-line {
@@ -153,6 +155,12 @@
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-node-label {
     display: none !important;
+  }
+
+  .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-node-button {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 11px !important;
   }
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-secondary {

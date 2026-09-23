@@ -1268,7 +1268,7 @@ export function SixStageJourneyView({
           <aside
             data-testid="aiki-compact-rail"
             aria-label={`Trợ lý AIKI, chặng ${currentStage + 1} trên ${stages.length}`}
-            className="hidden md:flex w-20 shrink-0 self-center flex-col items-center gap-2.5 rounded-[28px] border-2 border-brand-100 bg-gradient-to-b from-white via-brand-50/70 to-amber-50 px-2.5 py-3 shadow-clay"
+            className="hidden md:flex w-20 shrink-0 self-start flex-col items-center gap-2.5 rounded-[28px] border-2 border-brand-100 bg-gradient-to-b from-white via-brand-50/70 to-amber-50 px-2.5 py-3 shadow-clay"
           >
             <button
               type="button"
