@@ -1,100 +1,36 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { useAuth } from '@/shared/store/auth'
-import { ApiError } from '@/shared/lib/api'
-import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
+import { ToastContainer } from '@/shared/components/ui/Toast'
 import { designerAssets } from '@/shared/config/assets'
 import { useToast } from '@/shared/hooks/useToast'
-import { ToastContainer } from '@/shared/components/ui/Toast'
-import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import type { User } from '@/shared/lib/api'
-
-const PinPadModal = lazy(() =>
-  import('@/shared/components/ui/PinPadModal').then((m) => ({
-    default: m.PinPadModal,
-  })),
-)
-import { authFeedback } from '@/features/auth/lib/auth-feedback'
+import { useAuth } from '@/shared/store/auth'
 import { LoginCatFrame } from '@/features/auth/components/LoginCatFrame'
+import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
 export function LoginPage() {
-  const [params] = useSearchParams()
-  const initial =
-    params.get('mode') === 'adult' ||
-    params.get('role') === 'parent' ||
-    params.get('role') === 'teacher' ||
-    params.get('role') === 'admin'
-      ? 'adult'
-      : 'student'
-  const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
-  const [adultRole, setAdultRole] = useState<'parent' | 'teacher'>(
-    params.get('role') === 'teacher' ? 'teacher' : 'parent',
-  )
-  const [nickname, setNickname] = useState('')
-  const [email, setEmail] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
-  const [pin, setPin] = useState('')
-  const [showPinModal, setShowPinModal] = useState(false)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
-  const loginStudent = useAuth((s) => s.loginStudent)
-  const loginAdult = useAuth((s) => s.loginAdult)
+  const loginAdult = useAuth((state) => state.loginAdult)
   const navigate = useNavigate()
 
-  function goAfterAdult(user: User) {
-    if (user.role === 'admin') navigate('/admin')
-    else if (user.role === 'teacher') navigate('/teacher')
-    else navigate('/kids')
+  function goAfterLogin(user: User) {
+    if (user.role === 'admin') navigate('/admin', { replace: true })
+    else if (user.role === 'teacher') navigate('/teacher', { replace: true })
+    else navigate('/kids', { replace: true })
   }
 
-  const hint = useMemo(
-    () =>
-      mode === 'student'
-        ? 'Nhập biệt danh để tiếp tục học và sáng tạo.'
-        : adultRole === 'teacher'
-          ? 'Vào lớp học, bài giảng và công cụ dành cho giáo viên.'
-          : 'Theo dõi tiến bộ và đồng hành cùng việc học của con.',
-    [adultRole, mode],
-  )
-
-  async function onSubmit(e?: React.FormEvent) {
-    if (e) e.preventDefault()
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault()
     setBusy(true)
     try {
-      if (mode === 'student') {
-        // Gọi API trước không có PIN — nếu server yêu cầu PIN thì error message có "PIN"
-        const user = await loginStudent(nickname.trim(), undefined)
-        navigate(user.onboarded ? '/home' : '/onboarding')
-      } else {
-        const user = await loginAdult(email.trim(), password, adultRole)
-        goAfterAdult(user)
-      }
-    } catch (err) {
-      const rawMessage = err instanceof ApiError ? err.message : ''
-      // Nếu server yêu cầu PIN → mở PinPadModal thay vì hiện lỗi
-      if (mode === 'student' && rawMessage.toUpperCase().includes('PIN')) {
-        setShowPinModal(true)
-      } else {
-        showToast(authFeedback(err, 'login'), 'error')
-      }
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function onSubmitPin(enteredPin: string) {
-    setBusy(true)
-    try {
-      // Gọi lại với PIN — dùng tham số thứ 3 opts
-      const user = await loginStudent(nickname.trim(), undefined, {
-        pin: enteredPin.trim(),
-      })
-      navigate(user.onboarded ? '/home' : '/onboarding')
-    } catch (err) {
-      showToast(authFeedback(err, 'login'), 'error')
-      setPin('')
+      goAfterLogin(await loginAdult(login.trim(), password))
+    } catch (error) {
+      showToast(authFeedback(error, 'login'), 'error')
     } finally {
       setBusy(false)
     }
@@ -116,125 +52,50 @@ export function LoginPage() {
       </Link>
 
       <div className="absolute inset-0 flex items-end justify-center overflow-hidden pt-20 sm:pt-16">
-          <div className="h-[82dvh] max-h-[56rem] min-h-[36rem] shrink-0 aspect-[1000/820] sm:h-[86dvh]">
+        <div className="h-[82dvh] max-h-[56rem] min-h-[36rem] shrink-0 aspect-[1000/820] sm:h-[86dvh]">
           <LoginCatFrame
-            variant={mode}
+            variant="adult"
             portalSlot={(
-              <fieldset>
-            <legend className="sr-only">Chọn vai trò đăng nhập</legend>
-            <div className="grid grid-cols-3 gap-2 rounded-[1.25rem] border border-white/80 bg-white/88 p-1.5 shadow-clay backdrop-blur-sm">
-              <button
-                type="button"
-                className={cn(
-                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
-                  mode === 'student'
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
-                    : 'border-transparent text-muted hover:bg-black/5',
-                )}
-                aria-pressed={mode === 'student'}
-                onClick={() => {
-                  setMode('student')
-                  setEmail('')
-                  setPassword('')
-                }}
-              >
-                <img src="/assets/aikid-ui/figma-icons/login-student.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
-                Học sinh
-              </button>
-              <button
-                type="button"
-                className={cn(
-                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
-                  mode === 'adult' && adultRole === 'parent'
-                    ? 'border-coral-400 bg-coral-50 text-coral-700'
-                    : 'border-transparent text-muted hover:bg-black/5',
-                )}
-                aria-pressed={mode === 'adult' && adultRole === 'parent'}
-                onClick={() => {
-                  setMode('adult')
-                  setAdultRole('parent')
-                  setNickname('')
-                }}
-              >
-                <img src="/assets/aikid-ui/figma-icons/login-parent.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
-                Phụ huynh
-              </button>
-              <button
-                type="button"
-                className={cn(
-                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
-                  mode === 'adult' && adultRole === 'teacher'
-                    ? 'border-sky-400 bg-sky-50 text-sky-700'
-                    : 'border-transparent text-muted hover:bg-black/5',
-                )}
-                aria-pressed={mode === 'adult' && adultRole === 'teacher'}
-                onClick={() => {
-                  setMode('adult')
-                  setAdultRole('teacher')
-                  setNickname('')
-                }}
-              >
-                <img src="/assets/aikid-ui/figma-icons/login-teacher.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
-                Giáo viên
-              </button>
-            </div>
-              </fieldset>
+              <div className="rounded-[1.25rem] border border-white/80 bg-white/90 p-3 text-center shadow-clay backdrop-blur-sm">
+                <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-coral-700 sm:text-base">
+                  <img src="/assets/aikid-ui/figma-icons/login-parent.svg" alt="" className="h-7 w-auto" aria-hidden="true" />
+                  Cổng phụ huynh
+                </div>
+                <p className="mt-1 text-xs font-semibold text-muted">Đăng nhập một lần, sau đó chọn hồ sơ con để vào học.</p>
+              </div>
             )}
             mouthSlot={(
               <main>
-                <h1 className="sr-only">
-                  {mode === 'student' ? 'Chào con trở lại!' : `Đăng nhập ${adultRole === 'teacher' ? 'giáo viên' : 'phụ huynh'}`}
-                </h1>
-                <span className="sr-only">{'Đăng nhập AIKid · Phụ huynh & giáo viên'}</span>
-                <p className="sr-only">{hint}</p>
+                <h1 className="sr-only">Đăng nhập cổng phụ huynh AIKid</h1>
                 <form id="login-form" className="flex h-full flex-col justify-center gap-4 sm:gap-6" onSubmit={onSubmit}>
-                  {mode === 'student' ? (
-                    <label className="flex flex-col gap-3">
-                      <span className="sr-only">Biệt danh</span>
-                      <input
-                        id="login-nickname"
-                        name="nickname"
-                        autoComplete="username"
-                        placeholder="Nhập biệt danh"
-                        className="min-h-16 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-lg font-extrabold text-text shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-20 sm:text-xl sm:rounded-3xl"
-                        value={nickname}
-                        maxLength={16}
-                        onChange={(e) => setNickname(e.target.value)}
-                        required
-                      />
-                    </label>
-                  ) : (
-                    <>
-                      <label>
-                        <span className="sr-only">Email hoặc tên đăng nhập</span>
-                        <input
-                          id="login-email"
-                          name="email"
-                          type="text"
-                          autoComplete="username"
-                          placeholder="Nhập email hoặc tên đăng nhập"
-                          className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </label>
-                      <label>
-                        <span className="sr-only">Mật khẩu</span>
-                        <input
-                          id="login-password"
-                          name="password"
-                          type="password"
-                          autoComplete="current-password"
-                          placeholder="Nhập mật khẩu"
-                          className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </label>
-                    </>
-                  )}
+                  <label>
+                    <span className="sr-only">Email hoặc tên đăng nhập</span>
+                    <input
+                      id="login-email"
+                      name="login"
+                      type="text"
+                      autoComplete="username"
+                      placeholder="Email hoặc tên đăng nhập"
+                      className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
+                      value={login}
+                      onChange={(event) => setLogin(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label>
+                    <span className="sr-only">Mật khẩu</span>
+                    <input
+                      id="login-password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      placeholder="Mật khẩu"
+                      className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                    />
+                  </label>
                 </form>
               </main>
             )}
@@ -244,65 +105,26 @@ export function LoginPage() {
                   form="login-form"
                   type="submit"
                   disabled={busy}
-                  className={cn(
-                    'w-[75%] max-w-[16rem] !min-h-16 !rounded-[2rem] !text-xl !font-black shadow-clay transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none',
-                    mode === 'student' ? '!bg-coral-400 !text-white !border-4 !border-white shadow-[0_8px_0_rgba(255,123,147,0.3)]' : '!bg-brand-500 !text-white !border-4 !border-white shadow-[0_8px_0_rgba(109,94,252,0.3)]'
-                  )}
+                  className="w-[75%] max-w-[16rem] !min-h-16 !rounded-[2rem] !border-4 !border-white !bg-brand-500 !text-xl !font-black !text-white shadow-[0_8px_0_rgba(109,94,252,0.3)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none"
                 >
-                  {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
+                  {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
                 </Button>
               </div>
             )}
-            footerSlot={mode === 'adult' ? (
-              <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border-2 border-border bg-white p-3 shadow-clay sm:p-4" aria-label="Tùy chọn đăng nhập khác">
+            footerSlot={(
+              <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border-2 border-border bg-white p-3 text-center shadow-clay sm:p-4" aria-label="Hỗ trợ đăng nhập">
                 <Link to="/forgot-password" className="inline-flex min-h-8 items-center justify-center text-sm font-bold text-brand-600 hover:underline">
                   Quên mật khẩu?
                 </Link>
-                <div className="flex items-center gap-3">
-                  <span className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-bold text-muted">hoặc</span>
-                  <span className="h-px flex-1 bg-border" />
-                </div>
-                <GoogleSignInButton
-                  role={adultRole}
-                  registration={{ parentalConsentAccepted: true }}
-                  onSuccess={(user) => {
-                    goAfterAdult(user)
-                  }}
-                  onError={(msg) => showToast(msg, 'error')}
-                />
-                {adultRole === 'teacher' ? (
-                  <p className="rounded-2xl bg-sky-50 p-2.5 text-center text-xs font-semibold text-sky-800">
-                    Tài khoản giáo viên do trường cấp. Đăng nhập bằng email nhận lời mời.
-                  </p>
-                ) : (
-                  <p className="text-center text-sm text-muted">
-                    Chưa có tài khoản?{' '}
-                    <Link to="/register" className="font-bold text-brand-500 hover:underline">Đăng ký ngay</Link>
-                  </p>
-                )}
+                <p className="text-sm text-muted">
+                  Chưa có tài khoản?{' '}
+                  <Link to="/register" className="font-bold text-brand-500 hover:underline">Đăng ký phụ huynh</Link>
+                </p>
               </aside>
-            ) : null}
+            )}
           />
         </div>
       </div>
-      {showPinModal && (
-        <Suspense fallback={null}>
-          <PinPadModal
-            isOpen={showPinModal}
-            onClose={() => {
-              setShowPinModal(false)
-              setPin('')
-            }}
-            onSubmit={(value) => void onSubmitPin(value)}
-            title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
-            subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
-            busy={busy}
-            pin={pin}
-            setPin={setPin}
-          />
-        </Suspense>
-      )}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )

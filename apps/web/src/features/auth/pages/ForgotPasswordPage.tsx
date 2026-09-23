@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { sendFirebasePasswordReset } from '@/shared/lib/firebase-client'
+import { useAuth } from '@/shared/store/auth'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
 import {
@@ -15,13 +15,14 @@ export function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const forgotPassword = useAuth((state) => state.forgotPassword)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
     setError(null)
     try {
-      await sendFirebasePasswordReset(email.trim())
+      await forgotPassword(email.trim())
       setSent(true)
     } catch (err) {
       if (shouldConfirmPasswordResetEmail(err)) {

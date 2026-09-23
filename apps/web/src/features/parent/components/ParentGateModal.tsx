@@ -2,15 +2,13 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 import { api, ApiError, type User } from '@/shared/lib/api'
-import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 
 /**
  * ParentGateModal — child taps "Ba / Mẹ ơi!" to hand device back to parent.
  *
- * Two auth paths:
- *  1. Password  → POST /api/parent/gate/verify (verifies parent's passwordHash)
- *  2. Google    → GoogleSignInButton renders inline, onSuccess swaps session
+ * Parent password is verified by Core Account before the student session is
+ * replaced. Child PIN is never accepted by this adult boundary.
  *
  * child.pinHash is ONLY for child login — never used here.
  * Session swap happens BEFORE navigation, so Guard sees correct role.
@@ -48,7 +46,7 @@ export function ParentGateModal({
     setTimeout(() => setShake(false), 500)
   }
 
-  /** Called after successful auth (password OR Google) — force reload for clean session bootstrap */
+  /** Called after successful parent authentication — reload for clean session bootstrap. */
   const onAuthSuccess = useCallback(
     (user: User) => {
       setUser(user)
@@ -114,7 +112,7 @@ export function ParentGateModal({
           </div>
           <h2 className="text-2xl font-black text-white">Ba / Mẹ ơi!</h2>
           <p className="mt-1 text-sm text-white/85">
-            Nhập mật khẩu hoặc đăng nhập Google của Ba / Mẹ
+            Nhập mật khẩu đăng nhập của Ba / Mẹ
           </p>
         </div>
 
@@ -186,26 +184,6 @@ export function ParentGateModal({
             </button>
           </div>
 
-          {/* Divider */}
-          <div className="relative mb-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400">hoặc</span>
-            </div>
-          </div>
-
-          {/*
-           * GoogleSignInButton renders inline — when parent signs in with Google,
-           * onSuccess fires directly here and swaps session without any navigation away.
-           * role='parent' ensures the account is treated as parent role.
-           */}
-          <GoogleSignInButton
-            role="parent"
-            onSuccess={(user) => onAuthSuccess(user)}
-            onError={(msg) => setError(msg)}
-          />
         </div>
       </div>
 

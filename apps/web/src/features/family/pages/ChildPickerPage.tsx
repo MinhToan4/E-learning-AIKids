@@ -7,7 +7,6 @@ import { designerAssets } from '@/shared/config/assets'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -37,8 +36,6 @@ export function ChildPickerPage() {
   const [kids, setKids] = useState<ChildCard[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<ChildCard | null>(null)
-  const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
 
@@ -76,38 +73,18 @@ export function ChildPickerPage() {
     void load()
   }, [user, loadingAuth, navigate, load])
 
-  async function confirmEnter(child: ChildCard, pinValue?: string) {
+  async function confirmEnter(child: ChildCard) {
     setBusy(true)
     try {
-      const next = await enterAsChild(
-        child.id,
-        pinValue && pinValue.length === 6 ? pinValue : undefined,
-      )
+      const next = await enterAsChild(child.id)
       navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
     } catch (e) {
       showToast(
-        e instanceof Error ? e.message : 'Chưa vào được. Kiểm tra mã PIN nhé.',
+        e instanceof Error ? e.message : 'Chưa vào được hồ sơ này. Ba / Mẹ thử lại nhé.',
         'error',
       )
-      setPin('')
     } finally {
       setBusy(false)
-    }
-  }
-
-  function onPick(child: ChildCard) {
-    setPin('')
-    // PIN bắt buộc (auth store mới yêu cầu). Luôn mở PinPadModal —
-    // nếu con chưa có PIN, server sẽ trả về lỗi hướng dẫn Ba / Mẹ đặt PIN.
-    setSelected(child)
-  }
-
-  function onPinDigit(d: string) {
-    if (busy || pin.length >= 6) return
-    const next = (pin + d).slice(0, 6)
-    setPin(next)
-    if (next.length === 6 && selected) {
-      void confirmEnter(selected, next)
     }
   }
 
@@ -179,7 +156,7 @@ export function ChildPickerPage() {
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={() => onPick(k)}
+                    onClick={() => void confirmEnter(k)}
                     className={cn(
                       'ui-card flex w-full flex-col items-center gap-2 p-4 transition',
                       'min-h-[9.5rem] active:translate-y-0.5 sm:min-h-[11rem]',
@@ -202,8 +179,7 @@ export function ChildPickerPage() {
                       {k.nickname ?? 'Bạn nhỏ'}
                     </span>
                     <span className="text-xs font-bold text-muted">
-                      Cấp {k.level}
-                      {k.hasPin ? ' · có PIN' : ''}
+                      Cấp {k.level} · Chạm để vào học
                     </span>
                   </button>
                 </li>
@@ -226,35 +202,6 @@ export function ChildPickerPage() {
         </footer>
       </div>
 
-      {/* PIN sheet */}
-      <PinPadModal
-        isOpen={!!selected}
-        onClose={() => {
-          setSelected(null)
-          setPin('')
-        }}
-        onSubmit={(p) => selected && confirmEnter(selected, p)}
-        title={selected ? `Xin chào ${selected.nickname}!` : ''}
-        subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
-        avatarContent={
-          selected ? (
-            avatarImage(selected.avatarId) ? (
-              <img
-                src={avatarImage(selected.avatarId)!}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              getAvatar(selected.avatarId).emoji
-            )
-          ) : null
-        }
-        busy={busy}
-        pin={pin}
-        setPin={setPin}
-        closeLabel="Chọn bạn khác"
-      />
-      
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )

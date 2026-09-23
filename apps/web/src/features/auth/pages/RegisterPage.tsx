@@ -5,7 +5,6 @@ import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
-import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import type { User } from '@/shared/lib/api'
 import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
@@ -199,26 +198,6 @@ export function RegisterPage() {
             <Button type="submit" disabled={busy || !passwordsMatch || !consentAccepted}>
               {busy ? 'Đang tạo…' : 'Đăng ký'}
             </Button>
-
-            <div className="flex w-full flex-col gap-2 pt-1">
-              <div className="flex items-center gap-3">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-xs font-bold text-muted">hoặc</span>
-                <span className="h-px flex-1 bg-border" />
-              </div>
-              <GoogleSignInButton
-                role="parent"
-                disabled={!consentAccepted}
-                registration={{
-                  nickname: nickname.trim() || undefined,
-                  parentalConsentAccepted: consentAccepted,
-                }}
-                onSuccess={(user) => {
-                  goAfter(user)
-                }}
-                onError={(msg) => setError(msg)}
-              />
-            </div>
 
             <p className="text-center text-sm text-muted">
               Đã có tài khoản?{' '}

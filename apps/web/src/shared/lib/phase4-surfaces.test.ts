@@ -172,10 +172,9 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const shell = read('shared/components/layout/AppShell.tsx')
     const parentGate = read('features/parent/components/ParentGateModal.tsx')
     expect(login).not.toContain('designerAssets.brand.mascot')
-    expect(login).toContain('Chào con trở lại!')
-    expect(login).toContain('Đăng nhập AIKid')
-    expect(login).toContain('Phụ huynh & giáo viên')
-    expect(login).not.toMatch(/Cổng người lớn|cổng này|quản trị viên/)
+    expect(login).toContain('Cổng phụ huynh')
+    expect(login).toContain('Đăng nhập cổng phụ huynh AIKid')
+    expect(login).not.toMatch(/Giáo viên|Học sinh|Cổng người lớn|cổng này|quản trị viên/)
     for (const source of [login, shell, parentGate]) {
       expect(source).not.toMatch(/Ba\/Mẹ|Ba\/mẹ|ba\/mẹ/)
     }

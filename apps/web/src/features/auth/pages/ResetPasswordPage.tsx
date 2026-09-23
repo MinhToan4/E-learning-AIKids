@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { confirmFirebasePasswordReset } from '@/shared/lib/firebase-client'
+import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
@@ -10,8 +10,9 @@ import { CircleCheck } from 'lucide-react'
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
-  const actionCode = params.get('oobCode') ?? ''
+  const resetToken = params.get('token') ?? params.get('oobCode') ?? ''
   const navigate = useNavigate()
+  const resetPassword = useAuth((state) => state.resetPassword)
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -36,7 +37,7 @@ export function ResetPasswordPage() {
     setBusy(true)
     setError(null)
     try {
-      await confirmFirebasePasswordReset(actionCode, password)
+      await resetPassword(resetToken, password)
       setSuccess(true)
     } catch (err) {
       setError(authFeedback(err, 'reset-password'))
@@ -45,7 +46,7 @@ export function ResetPasswordPage() {
     }
   }
 
-  if (!actionCode) {
+  if (!resetToken) {
     return (
       <div className="flex min-h-dvh items-center justify-center px-4">
         <div className="ui-card p-6 text-center">

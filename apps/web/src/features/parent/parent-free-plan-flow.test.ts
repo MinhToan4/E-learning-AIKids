@@ -118,11 +118,7 @@ describe('parent free-plan enrollment flow', () => {
       '/api/auth/login/child-profile',
       {
         method: 'POST',
-        body: JSON.stringify({
-          familyCode: 'SM-TEST',
-          childId,
-          pin: '424242',
-        }),
+        body: JSON.stringify({ childId }),
       },
     )
     expect(childLogin.user).toMatchObject({ id: childId, role: 'student' })
