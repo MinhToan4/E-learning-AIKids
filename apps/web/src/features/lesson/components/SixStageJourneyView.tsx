@@ -1352,13 +1352,14 @@ export function SixStageJourneyView({
                 // Desktop (>= md):
                 (currentStage === 4 || currentStage === 5)
                   ? 'md:fixed md:top-16 md:right-4 md:bottom-4 md:z-40 md:w-[min(calc(100vw-2rem),360px)] md:border-2 md:border-brand-300 md:shadow-2xl'
-                  : 'md:static md:w-[320px] lg:w-[340px] md:border-2 md:border-brand-100 md:shadow-clay'
+                  : 'md:static md:w-[320px] lg:w-[340px] md:border-2 md:border-brand-100 md:shadow-clay',
+                isRuleLesson && currentStageDef?.type === 'VIDEO' && 'md:self-start'
               )}
             >
-              {/* Header Sidebar: Chặng X/N + Tên Chặng + Nút Âm Thanh */}
+              {/* Header Sidebar: bài Quy tắc dùng nhãn AIKI gọn, tránh lặp tên chặng */}
               <div className="p-4 bg-gradient-to-r from-brand-50 to-amber-50 border-b border-brand-100 flex items-center justify-between">
                 <span className="px-2.5 py-1 rounded-full bg-brand-500 text-white text-xs font-black uppercase tracking-wider">
-                  Chặng {currentStage + 1}/{stages.length}: {currentStageDef?.title}
+                  {isRuleLesson ? 'AIKI hỗ trợ' : `Chặng ${currentStage + 1}/${stages.length}: ${currentStageDef?.title}`}
                 </span>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -1396,8 +1397,8 @@ export function SixStageJourneyView({
                   </span>
                 </div>
 
-                {/* Lời thoại của AIKI có nút nghe đọc */}
-                <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-2">
+                {/* Bài Quy tắc đã có lời giảng ngay dưới video, không lặp lại trong sidebar. */}
+                {!isRuleLesson && <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-2">
                   <div className="flex items-center justify-between text-xs font-black text-amber-950">
                     <span className="flex items-center gap-1.5">
                       <MessageSquare size={14} className="text-amber-600" />
@@ -1415,7 +1416,7 @@ export function SixStageJourneyView({
                   <p className="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium">
                     {currentStageSpeech}
                   </p>
-                </div>
+                </div>}
 
                 {/* Nếu ở Chặng Thực hành: Hiển thị Bốn món đồ, Tiến trình 4 bước & Mẹo vàng AIKI */}
                 {currentStageDef?.type === 'PRACTICE' ? (
@@ -1843,10 +1844,10 @@ export function SixStageJourneyView({
                       </div>
                     )}
 
-                    {/* CHẶNG 2: Danh Sách Mốc Phân Đoạn (Interactive Chapters) + Quy Tắc Cốt Lõi */}
+                    {/* CHẶNG VIDEO: bài Quy tắc chỉ giữ hành động tiếp theo; timeline nằm cạnh video. */}
                     {currentStageDef?.type === 'VIDEO' && (
                       <div className="flex flex-col gap-3">
-                        <div className="bg-purple-50/70 rounded-2xl p-3.5 border-2 border-purple-200 shadow-2xs flex flex-col gap-2.5 text-left lg:hidden">
+                        {!isRuleLesson && <div className="bg-purple-50/70 rounded-2xl p-3.5 border-2 border-purple-200 shadow-2xs flex flex-col gap-2.5 text-left lg:hidden">
                           <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-purple-950 flex items-center gap-1.5">
                               <Video size={14} className="text-purple-600" />
@@ -1899,9 +1900,9 @@ export function SixStageJourneyView({
                               )
                             })}
                           </div>
-                        </div>
+                        </div>}
 
-                        <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-1.5 text-left shadow-2xs">
+                        {!isRuleLesson && <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200 flex flex-col gap-1.5 text-left shadow-2xs">
                           <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
                             <span>🔑</span>
                             <span>QUY TẮC CỐT LÕI CỦA VIDEO</span>
@@ -1909,14 +1910,14 @@ export function SixStageJourneyView({
                           <p className="text-xs sm:text-sm text-amber-900 font-bold leading-relaxed">
                             Tả càng rõ, tranh càng đúng ý! Nhớ quan sát kỹ cách thầy AIKI ghép các từ khóa thành một câu lệnh hoàn chỉnh nhé.
                           </p>
-                        </div>
+                        </div>}
 
                         <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
                           <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-slate-700">
-                            🎯 Nhiệm vụ chặng này:
+                            {isRuleLesson ? 'Sẵn sàng thử tài?' : '🎯 Nhiệm vụ chặng này:'}
                           </p>
                           <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                            {isRuleLesson ? 'Theo dõi video bài giảng quy tắc và nắm chắc các mốc phân đoạn.' : getStageInstruction(2)}
+                            {isRuleLesson ? 'Xem xong video, con chuyển sang Thử tài phản xạ nhé.' : getStageInstruction(2)}
                           </p>
                           <div className="mt-1">{renderSidebarAction(currentStage)}</div>
                         </div>
@@ -2128,8 +2129,8 @@ export function SixStageJourneyView({
 
               </div>
 
-              {/* Tiến độ sao & danh hiệu (ghim cố định ở đáy sidebar) */}
-              <div
+              {/* Tiến độ đã có trên thanh bài học; chỉ giữ footer ở hành trình 6 chặng. */}
+              {!isRuleLesson && <div
                 data-testid="sidebar-footer-progress"
                 className="shrink-0 px-4 py-2.5 bg-white/95 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 select-none shadow-xs"
               >
@@ -2140,7 +2141,7 @@ export function SixStageJourneyView({
                 <span className="font-extrabold text-brand-600">
                   ⭐ {studentStars} Sao tích lũy
                 </span>
-              </div>
+              </div>}
             </aside>
           </>
         )}

@@ -2188,6 +2188,15 @@ describe('SixStageJourneyView', () => {
     expect(node1).not.toBeNull()
     expect(node5).not.toBeNull()
 
+    // Rule sidebar stays focused: repeated stage, speech, chapter and progress cards live in the main canvas.
+    const ruleSidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(ruleSidebar?.textContent).toContain('AIKI hỗ trợ')
+    expect(ruleSidebar?.textContent).toContain('Sẵn sàng thử tài?')
+    expect(ruleSidebar?.textContent).not.toContain('LỜI THOẠI CỦA AIKI')
+    expect(ruleSidebar?.textContent).not.toContain('Mốc Phân Đoạn Video')
+    expect(ruleSidebar?.textContent).not.toContain('QUY TẮC CỐT LÕI CỦA VIDEO')
+    expect(ruleSidebar?.textContent).not.toContain('Tiến độ: 1/3 chặng')
+
     act(() => root.unmount())
   })
 
