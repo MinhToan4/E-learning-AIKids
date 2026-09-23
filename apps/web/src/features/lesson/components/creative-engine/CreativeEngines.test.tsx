@@ -564,7 +564,7 @@ describe('CreativeEngine Suite', () => {
       )
       expect(html).toContain('Lông vằn vàng cam')
       expect(html).toContain('Béo tròn bụ bẫm')
-      expect(html).toContain('Mắt tròn xoe biếc xanh')
+      expect(html).toContain('Đeo chuông vàng')
       expect(html).not.toContain('Mẻ miệng một góc')
       expect(html).not.toContain('Sứ trắng men bóng')
     })
@@ -635,7 +635,7 @@ describe('CreativeEngine Suite', () => {
       )
       expect(html).toContain('Khung thép xanh bóng')
       expect(html).toContain('Bánh nan hoa tròn')
-      expect(html).toContain('Chuông kính coong nhỏ')
+      expect(html).toContain('Giỏ mây trước xe')
       expect(html).not.toContain('Sứ trắng men bóng')
     })
 
@@ -1821,4 +1821,3 @@ describe('CreativeEngine Suite', () => {
     })
   })
 })
-

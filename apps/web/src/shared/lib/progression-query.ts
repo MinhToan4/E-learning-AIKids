@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useQuery, type QueryClient } from '@tanstack/react-query'
-import { api, type User } from './api'
+import { api, ApiError, type User } from './api'
 import { xpRequiredForLevel } from './creation/xp-levels'
 import { useAuth } from '@/shared/store/auth'
 import { queryClient as appQueryClient } from './query-client'
@@ -50,11 +50,53 @@ function normalizeProgression(userId: string, value: ProgressionResponse): Progr
   }
 }
 
+function requireProgressionResponse(value: unknown, source: string): ProgressionResponse {
+  const record = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+  const totalXp = Number(record.totalXp)
+  const level = Number(record.level)
+  if (!Number.isFinite(totalXp) || totalXp < 0 || !Number.isFinite(level) || level < 1) {
+    throw new ApiError(502, 'Dữ liệu cấp độ từ máy chủ chưa hợp lệ.', {
+      code: 'INVALID_PROGRESSION_PAYLOAD',
+      source,
+    })
+  }
+
+  const optionalNonNegative = (key: string): number | undefined => {
+    const raw = record[key]
+    if (raw === undefined || raw === null || raw === '') return undefined
+    const parsed = Number(raw)
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      throw new ApiError(502, 'Dữ liệu cấp độ từ máy chủ chưa hợp lệ.', {
+        code: 'INVALID_PROGRESSION_PAYLOAD',
+        source,
+        field: key,
+      })
+    }
+    return parsed
+  }
+
+  return {
+    ...record,
+    totalXp,
+    level: Math.floor(level),
+    xpIntoLevel: optionalNonNegative('xpIntoLevel'),
+    xpToNextLevel: optionalNonNegative('xpToNextLevel'),
+    progressPercent: optionalNonNegative('progressPercent'),
+    version: optionalNonNegative('version'),
+    updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : undefined,
+  }
+}
+
 export function readProgressionSnapshot(user: User | null): ProgressionSnapshot | undefined {
   if (!user || typeof window === 'undefined') return undefined
   try {
     const raw = localStorage.getItem(`${CACHE_PREFIX}${user.id}`)
-    if (raw) return normalizeProgression(user.id, JSON.parse(raw) as ProgressionResponse)
+    if (raw) {
+      const cached = requireProgressionResponse(JSON.parse(raw), 'browser-cache')
+      return normalizeProgression(user.id, cached)
+    }
   } catch {}
 
   const totalXp = Math.max(0, user.xp || 0)
@@ -73,8 +115,19 @@ export function persistProgressionSnapshot(snapshot: ProgressionSnapshot): void 
 }
 
 export async function fetchProgressionSnapshot(userId: string): Promise<ProgressionSnapshot> {
-  const response = await api<ProgressionResponse>('/api/gamification/profile')
-  const snapshot = normalizeProgression(userId, response)
+  let response: unknown
+  let source = 'progression-projection'
+  try {
+    response = await api<unknown>('/api/gamification/profile')
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 501)) {
+      source = 'legacy-gamification-profile'
+      response = await api<unknown>('/api/gamification/profile-legacy')
+    } else {
+      throw error
+    }
+  }
+  const snapshot = normalizeProgression(userId, requireProgressionResponse(response, source))
   persistProgressionSnapshot(snapshot)
   const currentUser = useAuth.getState().user
   if (currentUser?.id === userId &&

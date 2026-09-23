@@ -125,7 +125,7 @@ export function getEngineConfigMeta(mode?: string): EngineConfigMeta {
     default:
       return {
         title: '🔑 BỘ CHỦ THỂ CẦN MỞ KHÓA (CHÌA KHÓA 1: CÁI GÌ - WHAT)',
-        desc: 'Học sinh sẽ thực hành vẽ lần lượt từng món đồ này (1..4) trong xưởng sáng tạo AI.',
+        desc: 'Học sinh sẽ thực hành vẽ lần lượt từng món đồ này (1..3) trong xưởng sáng tạo AI.',
         badge: 'Món đồ',
         pipelineLabel: '3 Chìa khóa ghép vào sau chủ thể: [Cái gì] + [Trông thế nào] + [Làm gì] + [Ở đâu]',
       }

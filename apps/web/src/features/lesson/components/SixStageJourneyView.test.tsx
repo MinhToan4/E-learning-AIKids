@@ -2946,7 +2946,7 @@ describe('SixStageJourneyView', () => {
     })
 
     // Confirm submit in studio modal
-    const confirmSubmitBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement | null
+    const confirmSubmitBtn = document.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement | null
     expect(confirmSubmitBtn).not.toBeNull()
     await act(async () => {
       confirmSubmitBtn?.click()

@@ -14,6 +14,7 @@ export function normalizeGamificationGatewayRequest(
     '/api/gamification/social/invites/pending-review': '/api/v1/gamification/me/social/invites/pending-review',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
     '/api/gamification/profile': '/api/v1/gamification/me/progression',
+    '/api/gamification/profile-legacy': '/api/v1/gamification/me',
     '/api/gamification/class-celebration': '/api/v1/gamification/me/celebration',
     '/api/gamification/catalog': '/api/v1/gamification/catalog',
   }
@@ -71,8 +72,13 @@ export function normalizeGamificationGatewayResponse(
     ? body.data
     : body) as Record<string, unknown>
 
-  if (path === '/api/gamification/profile') {
+  if (path === '/api/gamification/profile' || path === '/api/gamification/profile-legacy') {
     const src = payload
+    const optionalNumber = (value: unknown): number | undefined => {
+      if (value === null || value === undefined || value === '') return undefined
+      const parsed = Number(value)
+      return Number.isFinite(parsed) ? parsed : undefined
+    }
     const nextLevelRewards = Array.isArray(src.nextLevelRewards)
       ? (src.nextLevelRewards as Array<Record<string, unknown>>).map((reward) => ({
           id: String(reward.id ?? ''),
@@ -82,11 +88,14 @@ export function normalizeGamificationGatewayResponse(
         }))
       : []
     return {
-      totalXp: Number(src.totalXp ?? 0),
-      level: Number(src.level ?? 1),
-      xpIntoLevel: Number(src.xpIntoLevel ?? 0),
-      xpToNextLevel: Number(src.xpToNextLevel ?? 100),
-      nextLevelXp: Number(src.nextLevelXp ?? 100),
+      // Do not manufacture Level 1 / 0 XP when the Hub returns an incomplete
+      // projection. The progression query validates these required fields and
+      // keeps the last confirmed snapshot visible instead.
+      totalXp: optionalNumber(src.totalXp),
+      level: optionalNumber(src.level),
+      xpIntoLevel: optionalNumber(src.xpIntoLevel),
+      xpToNextLevel: optionalNumber(src.xpToNextLevel),
+      nextLevelXp: optionalNumber(src.nextLevelXp),
       nextLevelRewards,
     }
   }

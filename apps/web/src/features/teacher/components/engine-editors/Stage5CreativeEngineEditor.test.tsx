@@ -425,7 +425,7 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
       />
     )
     expect(htmlMagic).toContain('🔑 BỘ CHỦ THỂ CẦN MỞ KHÓA (CHÌA KHÓA 1: CÁI GÌ - WHAT)')
-    expect(htmlMagic).toContain('4 Món đồ')
+    expect(htmlMagic).toContain('3 Món đồ')
     expect(htmlMagic).toContain('Cái cốc sứ trắng')
     expect(htmlMagic).toContain('3 Chìa khóa ghép vào sau chủ thể')
   })

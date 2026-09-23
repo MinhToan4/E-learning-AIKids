@@ -7,12 +7,11 @@ import {
 } from './LectureDrawer'
 
 describe('Focus Studio AI Studio practice parts & 4-key options configuration', () => {
-  it('provides 4 standard default practice parts with icons and images', () => {
-    expect(DEFAULT_PRACTICE_PARTS).toHaveLength(4)
+  it('provides 3 standard default practice parts with icons and images', () => {
+    expect(DEFAULT_PRACTICE_PARTS).toHaveLength(3)
     expect(DEFAULT_PRACTICE_PARTS[0].title).toBe('Cái cốc sứ trắng')
     expect(DEFAULT_PRACTICE_PARTS[1].title).toBe('Cái xe đạp')
     expect(DEFAULT_PRACTICE_PARTS[2].title).toMatch(/Cuốn sổ tay/)
-    expect(DEFAULT_PRACTICE_PARTS[3].title).toBe('Cái đồng hồ cổ')
 
     DEFAULT_PRACTICE_PARTS.forEach((part, idx) => {
       expect(part.partNumber).toBe(idx + 1)
@@ -27,10 +26,10 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
     expect(DEFAULT_FOUR_KEYS_OPTIONS.action).toBeDefined()
     expect(DEFAULT_FOUR_KEYS_OPTIONS.where).toBeDefined()
 
-    expect(DEFAULT_FOUR_KEYS_OPTIONS.what!.length).toBeGreaterThanOrEqual(4)
-    expect(DEFAULT_FOUR_KEYS_OPTIONS.how!.length).toBeGreaterThanOrEqual(4)
-    expect(DEFAULT_FOUR_KEYS_OPTIONS.action!.length).toBeGreaterThanOrEqual(4)
-    expect(DEFAULT_FOUR_KEYS_OPTIONS.where!.length).toBeGreaterThanOrEqual(4)
+    expect(DEFAULT_FOUR_KEYS_OPTIONS.what!.length).toBe(3)
+    expect(DEFAULT_FOUR_KEYS_OPTIONS.how!.length).toBe(3)
+    expect(DEFAULT_FOUR_KEYS_OPTIONS.action!.length).toBe(3)
+    expect(DEFAULT_FOUR_KEYS_OPTIONS.where!.length).toBe(3)
 
     expect(DEFAULT_FOUR_KEYS_OPTIONS.what).toContain('Cốc sứ trắng')
     expect(DEFAULT_FOUR_KEYS_OPTIONS.how).toContain('men bóng mẻ miệng')
@@ -92,4 +91,3 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
     expect(autoLocked.length).toBe(4)
   })
 })
-
