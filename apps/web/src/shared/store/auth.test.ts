@@ -63,7 +63,7 @@ describe('auth store', () => {
     })
   })
 
-  it('signs adults in directly through the Core Account gateway', async () => {
+  it('signs parents in with Firebase and exchanges the ID token', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -90,18 +90,18 @@ describe('auth store', () => {
       .loginAdult('admin@example.test', 'example-password')
 
     expect(user.role).toBe('admin')
-    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith('admin@example.test', 'example-password')
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
-      '/api/auth/login/adult',
+      '/api/auth/login/firebase',
       {
         method: 'POST',
-        body: JSON.stringify({ login: 'admin@example.test', password: 'example-password' }),
+        body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
       },
     )
   })
 
-  it('passes account aliases unchanged to the Core Account gateway', async () => {
+  it('resolves an account alias before Firebase authentication', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -139,63 +139,34 @@ describe('auth store', () => {
       .loginAdult('storymee-admin', 'admin-password')
 
     expect(user.role).toBe('admin')
-    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith('admin@storymee.com', 'admin-password')
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
-      '/api/auth/login/adult',
+      '/api/auth/login/firebase',
       {
         method: 'POST',
-        body: JSON.stringify({ login: 'storymee-admin', password: 'admin-password' }),
+        body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
       },
     )
   })
 
-  it('does not depend on Firebase availability for adult login', async () => {
-    mocks.api
-      .mockResolvedValueOnce({
-        user: {
-          id: 'legacy-user-1',
-          role: 'parent',
-          email: 'legacy@example.test',
-          nickname: 'Legacy Parent',
-          avatarId: null,
-          level: 1,
-          xp: 0,
-          onboarded: true,
-          goal: null,
-          parentId: null,
-          classId: null,
-        },
-      })
-      .mockResolvedValueOnce({
-        contexts: [],
-        active: null,
-      })
-
-    const user = await useAuth
-      .getState()
-      .loginAdult('legacy@example.test', 'legacy-password')
-
-    expect(user.id).toBe('legacy-user-1')
-    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
-    expect(mocks.api).toHaveBeenNthCalledWith(
-      1,
-      '/api/auth/login/adult',
-      {
-        method: 'POST',
-        body: JSON.stringify({ login: 'legacy@example.test', password: 'legacy-password' }),
-      },
-    )
+  it('does not fall back to password login when Firebase rejects the credential', async () => {
+    mocks.signInWithFirebasePassword.mockRejectedValueOnce({
+      code: 'auth/user-not-found',
+      message: 'User not found in Firebase',
+    })
+    await expect(useAuth.getState().loginAdult('legacy@example.test', 'legacy-password')).rejects.toMatchObject({ code: 'auth/user-not-found' })
+    expect(mocks.api).not.toHaveBeenCalled()
   })
 
-  it('fails closed when the Core Account gateway rejects credentials', async () => {
-    mocks.api.mockRejectedValueOnce(new Error('Core account API rejected credentials'))
+  it('fails closed when Firebase rejects credentials', async () => {
+    mocks.signInWithFirebasePassword.mockRejectedValueOnce({ code: 'auth/invalid-credential' })
 
     await expect(
       useAuth.getState().loginAdult('admin@example.test', 'wrong-password'),
-    ).rejects.toThrow('Core account API rejected credentials')
+    ).rejects.toMatchObject({ code: 'auth/invalid-credential' })
 
-    expect(useAuth.getState().error).toBe('Core account API rejected credentials')
+    expect(useAuth.getState().error).toBe('Thông tin đăng nhập chưa đúng. Bạn kiểm tra lại nhé.')
   })
 
   it('fails closed and clears learner state when the JWT expires', () => {
@@ -272,11 +243,13 @@ describe('auth store', () => {
     expect(mocks.clearAccessToken).toHaveBeenCalled()
     expect(mocks.clearApiCache).toHaveBeenCalled()
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
-    expect(mocks.disconnectFirebaseSession).not.toHaveBeenCalled()
+    expect(mocks.disconnectFirebaseSession).toHaveBeenCalled()
     expect(mocks.api).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
   })
 
-  it('creates the parent credential through the Core Account gateway', async () => {
+  it('creates the parent credential in Firebase and exchanges its token', async () => {
+    const sendVerification = vi.fn().mockResolvedValue(undefined)
+    mocks.registerWithFirebasePassword.mockResolvedValueOnce({ idToken: 'new-firebase-token', sendVerification })
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -291,17 +264,19 @@ describe('auth store', () => {
       'parent@example.test', 'example-password', 'parent', 'An', true,
     )
 
-    expect(mocks.registerWithFirebasePassword).not.toHaveBeenCalled()
-    expect(mocks.api).toHaveBeenNthCalledWith(1, '/api/auth/register/adult', {
+    expect(mocks.registerWithFirebasePassword).toHaveBeenCalledWith('parent@example.test', 'example-password')
+    expect(mocks.api).toHaveBeenNthCalledWith(1, '/api/auth/login/firebase', {
       method: 'POST',
       body: JSON.stringify({
-        email: 'parent@example.test',
-        password: 'example-password',
+        idToken: 'new-firebase-token',
         role: 'parent',
+        registration: true,
         nickname: 'An',
         parentalConsentAccepted: true,
+        termsAccepted: true,
       }),
     })
+    expect(sendVerification).toHaveBeenCalled()
   })
 
   it('selects the platform context for an admin that also has a parent persona', async () => {

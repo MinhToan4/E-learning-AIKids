@@ -7,9 +7,19 @@ import {
   type AccountAccess,
   type User,
 } from '@/shared/lib/api'
+import {
+  changeFirebasePassword,
+  disconnectFirebaseSession,
+  registerWithFirebasePassword,
+  signInWithFirebasePassword,
+} from '@/shared/lib/firebase-client'
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
 import { clearStudentProgressionCache } from '@/shared/lib/query-client'
+
+async function disconnectFirebase(): Promise<void> {
+  await disconnectFirebaseSession().catch(() => undefined)
+}
 
 // Offline grants and progress belong to one learner; clear on every session
 // switch so a shared device does not leak one child's data to another.
@@ -41,6 +51,10 @@ type AuthState = {
   loginAdult: (login: string, password: string, role?: 'parent' | 'teacher') => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
+  completeFirebaseSignIn: (
+    idToken: string,
+    options: { role: 'parent'; registration?: { nickname?: string; parentalConsentAccepted: boolean } },
+  ) => Promise<User>
   registerAdult: (
     email: string,
     password: string,
@@ -120,6 +134,28 @@ async function hydrateAdultAccess(user: User) {
     access,
     activeContext: context,
   }
+}
+
+async function exchangeFirebaseSession(
+  idToken: string,
+  options: { role: 'parent'; registration?: { nickname?: string; parentalConsentAccepted: boolean } },
+) {
+  const { user } = await api<{ user: User }>('/api/auth/login/firebase', {
+    method: 'POST',
+    body: JSON.stringify({
+      idToken,
+      role: 'parent',
+      ...(options.registration
+        ? {
+            registration: true,
+            nickname: options.registration.nickname,
+            parentalConsentAccepted: options.registration.parentalConsentAccepted,
+            termsAccepted: true,
+          }
+        : {}),
+    }),
+  })
+  return hydrateAdultAccess(user)
 }
 
 export function resolveLoginAlias(login: string): string {
@@ -249,20 +285,25 @@ export const useAuth = create<AuthState>((set, get) => ({
   loginAdult: async (login, password) => {
     set({ error: null })
     const trimmedLogin = login.trim()
+    const resolvedEmail = resolveLoginAlias(trimmedLogin)
     try {
-      const { user } = await api<{ user: User }>('/api/auth/login/adult', {
-        method: 'POST',
-        body: JSON.stringify({ login: trimmedLogin, password }),
-      })
+      const idToken = await signInWithFirebasePassword(resolvedEmail, password)
       await clearPreviousLearnerData()
-      const hydrated = await hydrateAdultAccess(user)
+      const hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
       set(hydrated)
       return hydrated.user
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Chưa thể đăng nhập. Bạn thử lại nhé.'
-      set({ error: message })
+      set({ error: formatFirebaseError(error) })
       throw error
     }
+  },
+
+  completeFirebaseSignIn: async (idToken, options) => {
+    set({ error: null })
+    await clearPreviousLearnerData()
+    const hydrated = await exchangeFirebaseSession(idToken, options)
+    set(hydrated)
+    return hydrated.user
   },
 
   setSessionUser: (user) => {
@@ -273,18 +314,13 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
-    const { user } = await api<{ user: User }>('/api/auth/register/adult', {
-      method: 'POST',
-      body: JSON.stringify({
-        email,
-        password,
-        role,
-        nickname,
-        parentalConsentAccepted,
-      }),
+    const firebase = await registerWithFirebasePassword(email, password)
+    const hydrated = await exchangeFirebaseSession(firebase.idToken, {
+      role,
+      registration: { nickname, parentalConsentAccepted },
     })
+    await firebase.sendVerification().catch(() => undefined)
     await clearPreviousLearnerData()
-    const hydrated = await hydrateAdultAccess(user)
     set(hydrated)
     return hydrated.user
   },
@@ -304,14 +340,12 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   changePassword: async (currentPassword, newPassword) => {
-    await api('/api/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    })
+    await changeFirebasePassword(currentPassword, newPassword)
   },
 
   logout: async () => {
     try {
+      await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
       clearStudentProgressionCache(get().user?.id)
