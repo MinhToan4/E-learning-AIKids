@@ -33,7 +33,7 @@ const mockQuizStage: JourneyStageDefinition<QuizStageConfig> = {
           'Viết càng ngắn thì AI càng hiểu nhanh',
         ],
         correctIndex: 0,
-        explanation: 'Đây là câu neo của cả chương.',
+        explanation: 'Đúng rồi! Đây là câu neo của cả chương.',
         visualUrl: '/assets/aiki-islands/island1_lesson1_cat.jpg',
       },
       {
@@ -150,6 +150,9 @@ describe('QuizStageBlock', () => {
     const retryBtn = section?.querySelector('button[title="Thử lại câu này ngay"]') as HTMLButtonElement
     expect(retryBtn).not.toBeNull()
     expect(retryBtn.textContent).toContain('🔄 Thử lại câu này')
+    expect(section?.querySelectorAll('button[title*="Thử lại"]').length).toBe(1)
+    expect(section?.textContent).toContain('Gợi ý:Đây là câu neo của cả chương.')
+    expect(section?.textContent).not.toContain('Đúng rồi! Đây là câu neo của cả chương.')
 
     act(() => {
       retryBtn.click()

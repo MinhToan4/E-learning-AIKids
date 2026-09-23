@@ -6,6 +6,14 @@ import { isValidImageUrl } from '../../lib/stage-view-utils'
 import { playInstantSound } from '../LessonInteractiveSidebar'
 import type { JourneyStageDefinition, QuizStageConfig } from '../../types/stage-schema'
 
+function getWrongAnswerHint(explanation: string) {
+  const neutralHint = explanation.replace(
+    /^(?:đúng rồi|chính xác|chuẩn rồi|chuẩn xác|tuyệt vời|rất giỏi|xuất sắc|rất chính xác)[.!?,:;\s-]+/i,
+    ''
+  ).trim()
+  return neutralHint || explanation
+}
+
 export interface QuizStageBlockProps {
   stage: JourneyStageDefinition<QuizStageConfig>
   activeQuizQuestionIdx?: number
@@ -309,17 +317,10 @@ export function QuizStageBlock({
                     {isQuestionChecked && question.explanation && (
                       <div className="mt-1 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-900 leading-relaxed font-bold flex items-start gap-2">
                         <span className="text-base shrink-0">💡</span>
-                        <span className="flex-1">{question.explanation}</span>
-                        {!isCorrect && !quizSubmitted && (
-                          <button
-                            type="button"
-                            onClick={() => handleRetry(qIdx)}
-                            className="ml-auto px-2.5 py-1 rounded-xl bg-amber-200 hover:bg-amber-300 active:scale-95 text-amber-950 font-black text-xs flex items-center gap-1 shrink-0 cursor-pointer transition-all shadow-2xs"
-                            title="Làm lại câu này"
-                          >
-                            <span>🔄 Thử lại</span>
-                          </button>
-                        )}
+                        <span className="flex-1">
+                          {!isCorrect && <span className="mr-1 font-black">Gợi ý:</span>}
+                          {isCorrect ? question.explanation : getWrongAnswerHint(question.explanation)}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -357,16 +358,9 @@ export function QuizStageBlock({
 
                       {isQuestionChecked && (
                         <div className="flex items-center gap-1.5">
-                          <span
-                            className={cn(
-                              'px-3 py-1 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1',
-                              isCorrect
-                                ? 'bg-mint-100 text-mint-800'
-                                : 'bg-rose-100 text-rose-800'
-                            )}
-                          >
-                            {isCorrect ? '✓ Đúng rồi!' : '✕ Chưa chính xác'}
-                          </span>
+                          {isCorrect && <span className="px-3 py-1 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1 bg-mint-100 text-mint-800">
+                            ✓ Đúng rồi!
+                          </span>}
                           {!isCorrect && !quizSubmitted && (
                             <button
                               type="button"
