@@ -172,7 +172,7 @@ export function QuizStageBlock({
       </div>
 
       {/* Danh sách câu hỏi Single Question Stepper 2 Cột cuộn độc lập */}
-      <div className="w-full flex-1 min-h-0 overflow-y-auto pr-1 pb-3">
+      <div className="flex w-full flex-1 min-h-0 flex-col justify-start overflow-y-auto pr-1 py-3 xl:justify-center">
         {questions.map((question, qIdx) => {
           const selectedOpt = quizAnswers[qIdx]
           const isActive = qIdx === activeQuizQuestionIdx
@@ -190,15 +190,15 @@ export function QuizStageBlock({
             <div
               key={question.id || qIdx}
               className={cn(
-                'w-full transition-all',
+                'w-full transition-all xl:min-h-full',
                 isActive ? 'block' : 'hidden'
               )}
             >
-              <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 xl:grid-cols-12 xl:gap-5">
-                {/* CỘT TRÁI: Ảnh To Rõ Ràng - Dọc mặc định, 5/12 cols trên XL */}
+              <div className="grid w-full grid-cols-1 items-center gap-4 xl:min-h-full xl:grid-cols-2 xl:gap-6">
+                {/* CỘT TRÁI: ảnh mở rộng cân đối với câu hỏi trên màn hình lớn. */}
                 {hasValidQuizImg && (
-                  <div className="flex min-h-0 flex-col justify-center w-full xl:col-span-5">
-                    <div className="group relative flex aspect-[16/10] w-full max-w-xl mx-auto max-h-[260px] sm:max-h-[300px] items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm">
+                  <div className="flex min-h-0 w-full flex-col justify-center">
+                    <div className="group relative flex aspect-[16/10] w-full max-w-3xl mx-auto max-h-[260px] sm:max-h-[320px] xl:max-h-[420px] 2xl:max-h-[480px] items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm">
                       <img
                         loading="lazy"
                         decoding="async"
@@ -238,11 +238,11 @@ export function QuizStageBlock({
                   </div>
                 )}
 
-                {/* CỘT CÂU HỎI & CÁC ĐÁP ÁN: 100% width nếu không có ảnh, 7 COLS NẾU CÓ ẢNH TRÊN XL */}
+                {/* CỘT CÂU HỎI & CÁC ĐÁP ÁN: cân nửa màn hình với ảnh trên desktop. */}
                 <div
                   className={cn(
-                    'flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-5 shadow-2xs w-full',
-                    hasValidQuizImg ? 'xl:col-span-7' : 'xl:col-span-12 max-w-3xl mx-auto'
+                    'flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-5 shadow-2xs w-full xl:min-h-[320px] 2xl:min-h-[360px]',
+                    !hasValidQuizImg && 'xl:col-span-2 max-w-3xl mx-auto'
                   )}
                 >
                   <div>

@@ -2045,16 +2045,18 @@ describe('SixStageJourneyView', () => {
     const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
     expect(quizSection).not.toBeNull()
 
-    // 1. Question 1 has valid visualUrl -> image column (xl:col-span-5) is visible, question box has xl:col-span-7
+    // 1. Question 1 has a valid visual and uses a balanced 2-column desktop layout.
     const imgEl = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_cat.jpg"]')
     expect(imgEl).not.toBeNull()
-    const imgCol = imgEl?.closest('.xl\\:col-span-5')
+    const imgCol = imgEl?.parentElement?.parentElement
     expect(imgCol).not.toBeNull()
+    expect(imgCol?.parentElement?.className).toContain('xl:grid-cols-2')
+    expect(imgEl?.parentElement?.className).toContain('xl:max-h-[420px]')
 
-    // Question box should have xl:col-span-7
+    // Question box shares the other half and grows vertically on large displays.
     const q1Box = imgCol?.nextElementSibling
-    expect(q1Box?.className).toContain('xl:col-span-7')
-    expect(q1Box?.className).not.toContain('xl:col-span-12')
+    expect(q1Box?.className).toContain('xl:min-h-[320px]')
+    expect(q1Box?.className).not.toContain('xl:col-span-2')
 
     // 2. Trigger onError on image -> image should fallback to lesson poster instead of hiding column
     act(() => {
@@ -2065,10 +2067,10 @@ describe('SixStageJourneyView', () => {
     expect(imgAfterError).not.toBeNull()
     expect(imgAfterError?.src).toContain('/assets/aiki-islands/island1_lesson1_cat.jpg')
 
-    const imgColAfter = imgAfterError?.closest('.xl\\:col-span-5')
+    const imgColAfter = imgAfterError?.parentElement?.parentElement
     expect(imgColAfter).not.toBeNull()
     const q1BoxAfter = imgColAfter?.nextElementSibling
-    expect(q1BoxAfter?.className).toContain('xl:col-span-7')
+    expect(q1BoxAfter?.className).toContain('xl:min-h-[320px]')
   })
 
   it('handles mobile drawer sidebar and backdrop close on mobile viewports without toggle buttons', () => {
