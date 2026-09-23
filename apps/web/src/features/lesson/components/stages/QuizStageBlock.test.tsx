@@ -151,8 +151,10 @@ describe('QuizStageBlock', () => {
     expect(retryBtn).not.toBeNull()
     expect(retryBtn.textContent).toContain('🔄 Thử lại câu này')
     expect(section?.querySelectorAll('button[title*="Thử lại"]').length).toBe(1)
-    expect(section?.textContent).toContain('Gợi ý:Đây là câu neo của cả chương.')
+    expect(section?.textContent).toContain('Con hãy đọc lại câu hỏi và quan sát hình minh họa rồi thử lại nhé.')
+    expect(section?.textContent).not.toContain('câu neo')
     expect(section?.textContent).not.toContain('Đúng rồi! Đây là câu neo của cả chương.')
+    expect(section?.textContent).not.toContain('Câu tiếp theo')
 
     act(() => {
       retryBtn.click()

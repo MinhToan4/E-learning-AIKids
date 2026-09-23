@@ -103,6 +103,8 @@ export interface QuizQuestionItem {
   options: string[]
   correctIndex: number
   explanation?: string
+  hint?: string
+  retryFeedback?: string
   visualUrl?: string
 }
 

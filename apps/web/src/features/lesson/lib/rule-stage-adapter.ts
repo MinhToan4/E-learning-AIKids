@@ -33,6 +33,8 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
       options: question.options,
       correctIndex: question.correctIndex,
       explanation: question.successFeedback || question.hint,
+      hint: question.hint,
+      retryFeedback: question.retryFeedback,
       visualUrl: question.visualUrl || (index === 0 ? (rule.slides[1]?.image || rule.slides[0]?.image) : rule.posterImage),
     })),
     passScore: 1,

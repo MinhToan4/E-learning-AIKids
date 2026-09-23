@@ -72,6 +72,8 @@ export default function RuleLessonJourneyRenderer({
           options: q.options,
           correctIndex: q.correctIndex,
           explanation: q.successFeedback || q.hint,
+          hint: q.hint,
+          retryFeedback: q.retryFeedback,
           visualUrl: q.visualUrl || rule.posterImage,
         })),
         passScore: 1,

@@ -1619,7 +1619,14 @@ describe('SixStageJourneyView', () => {
     expect(quizSection?.textContent).toContain('CÂU 1 / 2')
     expect(quizSection?.textContent).toContain('👉 Hãy chọn 1 đáp án')
 
-    // Find Next button
+    // Chưa trả lời đúng thì không cho bỏ qua sang câu tiếp theo.
+    expect(quizSection?.textContent).not.toContain('Câu tiếp theo')
+    const firstCorrectOption = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('AIKI sẽ đoán mò hình dáng và màu sắc')
+    )
+    act(() => firstCorrectOption?.click())
+
+    // Sau khi trả lời đúng mới mở nút sang câu kế tiếp.
     const nextBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
       b.textContent?.includes('Câu tiếp theo')
     )
@@ -1632,7 +1639,6 @@ describe('SixStageJourneyView', () => {
 
     // Now active: Câu 2 / 2
     expect(quizSection?.textContent).toContain('CÂU 2 / 2')
-    expect(quizSection?.textContent).toContain('Câu cuối cùng')
 
     // Find Prev button
     const prevBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
@@ -1793,7 +1799,8 @@ describe('SixStageJourneyView', () => {
 
     // Hiện phản hồi tức thì sai: huy hiệu chưa chính xác và hộp giải thích
     expect(quizSection?.textContent).toContain('✕ Chưa chính xác')
-    expect(quizSection?.textContent).toContain('Miêu tả càng chi tiết thì tranh càng chính xác!')
+    expect(quizSection?.textContent).toContain('Con hãy đọc lại câu hỏi và quan sát hình minh họa rồi thử lại nhé.')
+    expect(quizSection?.textContent).not.toContain('Câu tiếp theo')
   })
 
   it('renders horizontal timeline stepper in Stage 2 Video and seeks player directly when clicking chapter nodes', () => {
