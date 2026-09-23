@@ -32,6 +32,7 @@ import {
 import { CreativeEngineShell, getCreativeEngineMode, type CreativeNotebookConfig } from './creative-engine'
 import { getNonRepeatingFallbackImage } from './creative-engine/data/pregenerated-fallback-registry'
 import { resolveExactComboImage } from '../lib/combo-image-resolver'
+import { formatAikiCartoonPrompt, getStudioAIArtwork } from '../lib/studio-artwork'
 import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { api } from '@/shared/lib/api'
 import {
@@ -55,6 +56,7 @@ export {
   type PracticePartState,
   DEFAULT_IDENTITY_LOCK_PARTS,
 } from '../lib/practice-parts'
+export { formatAikiCartoonPrompt, getStudioAIArtwork } from '../lib/studio-artwork'
 
 
 export function renderObjectClayIcon(name: string, size = 26) {
@@ -1279,176 +1281,6 @@ export function StudioTopicIllustration({
     default:
       return <SocBongIllustration className={className} />
   }
-}
-
-/**
- * Chuẩn hóa và bọc phong cách 3D hoạt hình / Soft Clay AI Kids cho câu lệnh của bé,
- * tuyệt đối triệt tiêu rủi ro sinh ảnh chụp đời thực (realistic photo/camera photo).
- */
-export function formatAikiCartoonPrompt(rawPrompt: string, mode?: string): string {
-  const normMode = (mode || '').toLowerCase()
-  const cleanPrompt = (rawPrompt || '').trim()
-
-  if (normMode === 'style-prism') {
-    const pLower = cleanPrompt.toLowerCase()
-    let specificStyle = ''
-    if (pLower.includes('màu nước') || pLower.includes('watercolor')) {
-      specificStyle = 'whimsical vibrant watercolor children book illustration style with soft organic translucent washes'
-    } else if (pLower.includes('đất nặn') || pLower.includes('clay')) {
-      specificStyle = 'handcrafted 3D soft clay sculpture style with smooth rounded clay diorama texture'
-    } else if (pLower.includes('truyện tranh') || pLower.includes('chibi') || pLower.includes('manga') || pLower.includes('comic')) {
-      specificStyle = 'adorable chibi anime manga comic book style with crisp bold friendly line art'
-    } else if (pLower.includes('đông hồ') || pLower.includes('dân gian')) {
-      specificStyle = 'stylized Vietnamese Dong Ho folk woodblock art style on rustic textured background'
-    }
-
-    if (specificStyle) {
-      return (
-        'Cute 3D cartoon animation style, ' +
-        specificStyle +
-        ', vibrant warm pastel colors, charming playful children\'s illustration. Subject: ' +
-        cleanPrompt +
-        '. Friendly warm studio lighting, 3D animated character art. Strictly avoid realistic photo, no camera photography, no photorealism, no real humans, no real-life photograph.'
-      )
-    }
-  }
-
-  return (
-    'Cute 3D cartoon animation style, soft clay storybook illustration, vibrant warm pastel colors, smooth clay diorama render, charming playful children\'s illustration. Subject: ' +
-    cleanPrompt +
-    '. Friendly warm studio lighting, 3D animated character art. Strictly avoid realistic photo, no camera photography, no photorealism, no real humans, no real-life photograph.'
-  )
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// AI ARTWORK SSOT - ĐẢM BẢO TRANH AI 3D SOFT CLAY THẬT 100% CHO 22 BÀI HỌC
-// ────────────────────────────────────────────────────────────────────────────
-export function getStudioAIArtwork(
-  type?: string,
-  lessonId?: string,
-  characterName?: string
-): string {
-  const lId = (lessonId || '').toLowerCase()
-  const cName = (characterName || '').toLowerCase()
-  const t = (type || '').toLowerCase()
-
-  // 1. Phân giải ưu tiên theo từ khoá đặc thù trong characterName / prompt
-  if (cName.includes('cún') || cName.includes('chó') || cName.includes('dog')) {
-    return '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp'
-  }
-  if (cName.includes('mèo') || cName.includes('cat') || cName.includes('mèo mướp')) {
-    return '/assets/aiki-islands/island1_lesson1_cat.jpg'
-  }
-  if (cName.includes('sóc') || cName.includes('fox') || cName.includes('cáo') || cName.includes('squirrel')) {
-    return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
-  }
-  if (cName.includes('xe') || cName.includes('đạp') || cName.includes('bicycle')) {
-    return '/assets/aiki-islands/island1_lesson2_bicycle.jpg'
-  }
-  if (cName.includes('sổ') || cName.includes('sách') || cName.includes('notebook')) {
-    return '/assets/aiki-islands/island1_lesson2_notebook.jpg'
-  }
-  if (cName.includes('đồng hồ') || cName.includes('clock')) {
-    return '/assets/aiki-islands/island1_lesson2_clock.jpg'
-  }
-  if (cName.includes('cốc') || cName.includes('ly') || cName.includes('teacup') || cName.includes('tách trà')) {
-    return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
-  }
-  if (cName.includes('màu nước') || cName.includes('watercolor')) {
-    return '/assets/aiki-islands/island1_lesson3_opt_a.jpg'
-  }
-  if (cName.includes('quilling') || cName.includes('cuộn giấy')) {
-    return '/assets/aiki-islands/island1_lesson3_opt_b.jpg'
-  }
-  if (cName.includes('đất sét') || cName.includes('clay')) {
-    return '/assets/aiki-islands/island1_lesson3_styles.jpg'
-  }
-  if (cName.includes('kỹ sư') || cName.includes('5 ngón') || cName.includes('bàn tay')) {
-    return '/assets/aiki-islands/island1_lesson4_engineer.jpg'
-  }
-  if (cName.includes('ghế mây')) {
-    return '/assets/aiki-islands/island1_lesson1_cat.jpg'
-  }
-
-  // 2. Phân giải theo illustrationType hoặc lessonId cho 22 bài học từ Đảo 1 đến Đảo 5
-  // Đảo 1: Nhà Thám Hiểm AI
-  if (t === 'cat-fat' || lId.includes('1-1') || lId.includes('1.1')) {
-    return '/assets/aiki-islands/island1_lesson1_cat.jpg'
-  }
-  if (t === 'teacup' || lId.includes('1-2') || lId.includes('1.2')) {
-    return '/assets/aiki-islands/island1_lesson2_teacup.jpg'
-  }
-  if (t === 'four-styles' || lId.includes('1-3') || lId.includes('1.3')) {
-    return '/assets/aiki-islands/island1_lesson3_styles.jpg'
-  }
-  if (t === 'engineer-fix' || lId.includes('1-4') || lId.includes('1.4')) {
-    return '/assets/aiki-islands/island1_lesson4_engineer.jpg'
-  }
-
-  // Đảo 2: Hoạ Sĩ AI
-  if (t === 'storytelling' || lId.includes('2-1') || lId.includes('2.1')) {
-    return '/assets/aiki-islands/island2_lesson1_story.jpg'
-  }
-  if (t === 'magic-forest' || lId.includes('2-2') || lId.includes('2.2')) {
-    return '/assets/aiki-islands/island2_lesson2_star.jpg'
-  }
-  if (t === 'color-emotions' || lId.includes('2-3') || lId.includes('2.3')) {
-    return '/assets/aiki-islands/island2_lesson3_colors.jpg'
-  }
-  if (t === 'gallery-frame' || lId.includes('2-4') || lId.includes('2.4')) {
-    return '/assets/aiki-islands/island2_lesson4_masterpiece.jpg'
-  }
-
-  // Đảo 3: Biệt Đội Nhân Vật
-  if (t === 'profile-dna' || lId.includes('3-1') || lId.includes('3.1')) {
-    return '/assets/aiki-islands/island3_lesson1_profile.jpg'
-  }
-  if (t === 'fire-fox' || lId.includes('3-2') || lId.includes('3.2')) {
-    return '/assets/aiki-islands/island3_lesson2_opt_b.jpg'
-  }
-  if (t === 'six-expressions' || lId.includes('3-3') || lId.includes('3.3')) {
-    return '/assets/aiki-islands/island3_lesson3_expressions.jpg'
-  }
-  if (t === 'tree-hollow-base' || lId.includes('3-4') || lId.includes('3.4')) {
-    return '/assets/aiki-islands/island3_lesson4_base.jpg'
-  }
-
-  // Đảo 4: Vương Quốc Truyện Tranh
-  if (lId.includes('4-1') || lId.includes('4.1')) {
-    return '/assets/aiki-islands/island4_lesson1_3gates.jpg'
-  }
-  if (lId.includes('4-2') || lId.includes('4.2')) {
-    return '/assets/aiki-islands/island4_lesson2_4beats.jpg'
-  }
-  if (lId.includes('4-3') || lId.includes('4.3')) {
-    return '/assets/aiki-islands/island4_lesson3_storyboard1.jpg'
-  }
-  if (lId.includes('4-4') || lId.includes('4.4')) {
-    return '/assets/aiki-islands/island4_lesson4_storyboard2.jpg'
-  }
-  if (lId.includes('4-5') || lId.includes('4.5')) {
-    return '/assets/aiki-islands/island4_lesson5_comicbook.jpg'
-  }
-
-  // Đảo 5: Đấu Trường Trò Chơi
-  if (lId.includes('5-1') || lId.includes('5.1')) {
-    return '/assets/aiki-islands/island5_lesson1_hunting.jpg'
-  }
-  if (lId.includes('5-2') || lId.includes('5.2')) {
-    return '/assets/aiki-islands/island5_lesson2_magic.jpg'
-  }
-  if (lId.includes('5-3') || lId.includes('5.3')) {
-    return '/assets/aiki-islands/island5_lesson3_lockcards.jpg'
-  }
-  if (lId.includes('5-4') || lId.includes('5.4')) {
-    return '/assets/aiki-islands/island5_lesson4_rules.jpg'
-  }
-  if (lId.includes('5-5') || lId.includes('5.5')) {
-    return '/assets/aiki-islands/island5_lesson5_arena.jpg'
-  }
-
-  // Fallback an toàn chuẩn Hallmark UI: Mèo AIKI của AIKids
-  return '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
 }
 
 // MAIN COMPONENT AIKI STUDIO WORKSPACE

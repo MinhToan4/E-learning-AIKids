@@ -7,7 +7,7 @@ const read = (path: string) => readFileSync(resolve(root, path), 'utf8')
 
 describe('adult management surfaces', () => {
   it('keeps parent learning reachable from both route and role navigation', () => {
-    const app = read('app/App.tsx')
+    const app = read('app/routing/family-routes.tsx')
     const shell = read('shared/components/layout/AppShell.tsx')
 
     expect(app).toContain('path="/parent/learning"')
@@ -69,7 +69,7 @@ describe('adult management surfaces', () => {
   })
 
   it('keeps implemented admin configuration surfaces reachable and consolidates learning configuration', () => {
-    const app = read('app/App.tsx')
+    const app = read('app/routing/admin-routes.tsx')
     const shell = read('shared/components/layout/AppShell.tsx')
 
     expect(app).toContain('path="/admin/billing"')

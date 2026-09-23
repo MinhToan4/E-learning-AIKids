@@ -226,13 +226,13 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('App routes include /achievements', () => {
-    const src = read('app/App.tsx')
+    const src = read('app/routing/student-routes.tsx')
     expect(src).toContain('/achievements')
     expect(src).toContain('AchievementsPage')
   })
 
   it('guest profile sharing is parent-controlled and fail-closed', () => {
-    const routes = read('app/App.tsx')
+    const routes = read('app/routing/public-routes.tsx')
     const parentShare = read('features/parent/components/ProfileSharingPanel.tsx')
     const publicShare = read('features/profile/pages/PublicProfileSharePage.tsx')
     expect(routes).toContain('/share/:token')
@@ -246,7 +246,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('publishes store-review legal, support and account deletion routes', () => {
-    const routes = read('app/App.tsx')
+    const routes = read('app/routing/public-routes.tsx')
     const legal = read('features/legal/pages/LegalPage.tsx')
     for (const path of ['/privacy', '/terms', '/account/delete', '/support', '/data-safety']) {
       expect(routes).toContain(path)
