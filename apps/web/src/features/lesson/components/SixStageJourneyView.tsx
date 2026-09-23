@@ -1101,11 +1101,11 @@ export function SixStageJourneyView({
       </header>
 
       {/* ── THÔNG TIN TRẠM BÀI HỌC ── */}
-      <div className="shrink-0 flex min-w-0 flex-wrap items-center justify-between gap-2 px-1 sm:px-1.5 py-0.5">
+      <div className="shrink-0 flex min-w-0 flex-wrap items-center justify-between gap-1.5 px-1 sm:px-1.5">
         <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           <div
             data-testid="current-station-badge"
-            className="flex min-h-11 [@media(max-height:760px)]:min-h-9 min-w-0 flex-1 items-center gap-1.5 rounded-2xl border border-amber-300/80 bg-amber-100/90 px-3 py-1.5 [@media(max-height:760px)]:py-0.5 text-xs font-black text-amber-950 shadow-2xs select-none sm:rounded-full sm:text-sm"
+            className="flex min-h-9 min-w-0 flex-1 items-center gap-1.5 rounded-2xl border border-amber-300/80 bg-amber-100/90 px-3 py-1 text-xs font-black text-amber-950 shadow-2xs select-none sm:rounded-full sm:text-sm"
           >
             <span className="shrink-0">{stationInfo.icon}</span>
             <span className="hidden shrink-0 font-bold text-amber-800 xl:inline">{stationInfo.islandName}</span>

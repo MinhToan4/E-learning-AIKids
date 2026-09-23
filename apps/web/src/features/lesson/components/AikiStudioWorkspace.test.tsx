@@ -937,9 +937,9 @@ describe('AikiStudioWorkspace', () => {
 
     const modal = container.querySelector('[data-testid="studio-submit-modal"]')
     expect(modal).not.toBeNull()
-    expect(modal?.textContent).toContain('Chọn Kiệt Tác Của Bé Để Nhận Cúp Vàng!')
-    expect(modal?.textContent).toContain('Bé hãy chạm vào bức tranh bé tự hào nhất')
-    expect(modal?.textContent).toContain('⭐ KIỆT TÁC CHỌN NỘP')
+    expect(modal?.textContent).toContain('Chọn một tranh để nộp bài')
+    expect(modal?.textContent).toContain('Chạm vào ảnh để xem rõ và chọn')
+    expect(modal?.textContent).toContain('ĐANG CHỌN')
 
     // 3. Bấm xác nhận nộp bài
     const confirmBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
@@ -1468,5 +1468,4 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 })
-
 

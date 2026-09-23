@@ -2568,14 +2568,14 @@ export function AikiStudioWorkspace({
             setIsSubmitModalOpen(true)
           }}
           className={cn(
-            'px-3 py-1 rounded-full text-xs font-black shadow-clay flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0',
+            'min-h-10 px-3 py-1.5 rounded-xl text-xs font-black shadow-clay flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0',
             gallery.length >= 1
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
               : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
           )}
         >
           <Trophy size={13} />
-          <span>🏆 Nộp Bài & Cất Vào Balo{gallery.length >= 1 ? ` (${gallery.length} ảnh)` : ''}</span>
+          <span>Nộp bài{gallery.length >= 1 ? ` · ${gallery.length} ảnh` : ''}</span>
         </button>
       </div>
 
@@ -3344,22 +3344,38 @@ export function AikiStudioWorkspace({
           </div>
 
           {/* NÚT HÀNH ĐỘNG NỘP BÀI (BẢO TOÀN TEXT CHO TEST SUITE) */}
-          <button
-            type="button"
-            onClick={() => {
-              playInstantSound('click')
-              setIsSubmitModalOpen(true)
-            }}
-            className={cn(
-              'w-full py-2.5 px-3.5 rounded-2xl text-xs sm:text-sm font-black shadow-clay flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer mt-auto shrink-0',
-              currentWorkflowStep >= 3 || gallery.length >= 3 || isCreativeNotebook
-                ? 'animate-pulse bg-linear-to-r from-purple-500 via-indigo-500 to-amber-500 text-white shadow-md shadow-indigo-300 ring-2 ring-purple-300'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+          <div className="mt-auto grid shrink-0 grid-cols-[1fr_auto] gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                playInstantSound('click')
+                setIsSubmitModalOpen(true)
+              }}
+              className={cn(
+                'min-h-12 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm font-black shadow-clay flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer',
+                currentWorkflowStep >= 3 || gallery.length >= 3 || isCreativeNotebook
+                  ? 'bg-linear-to-r from-purple-500 via-indigo-500 to-amber-500 text-white shadow-md shadow-indigo-300 ring-2 ring-purple-300'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              )}
+            >
+              <Trophy size={16} />
+              <span>{isCreativeNotebook ? 'Cất vào Ba lô' : 'Nộp bài'}</span>
+            </button>
+            {!isCreativeNotebook && (
+              <button
+                type="button"
+                onClick={() => {
+                  playInstantSound('click')
+                  setIsBackpackModalOpen(true)
+                }}
+                className="min-h-12 rounded-2xl border-2 border-purple-200 bg-white px-3 text-xs font-black text-purple-800 shadow-2xs transition hover:bg-purple-50 active:scale-98"
+                title="Các tranh được tự động lưu vào Ba lô khi nộp"
+              >
+                <span className="hidden sm:inline">Xem Ba lô</span>
+                <span className="sm:hidden">Ba lô</span>
+              </button>
             )}
-          >
-            <Trophy size={16} />
-            <span>{isCreativeNotebook ? '🎒 Cất Vào Ba Lô Của Bé' : '🏆 Nộp Bài & Cất Vào Balo'}</span>
-          </button>
+          </div>
 
           {/* KHỐI DỮ LIỆU BẢO TOÀN CHO TEST SUITE & SCREEN READERS */}
           <div className="sr-only" aria-hidden="true">
@@ -3743,11 +3759,14 @@ export function AikiStudioWorkspace({
           }}
         >
           <div
-            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 text-center border-4 border-amber-300 animate-scale-up"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="studio-submit-title"
+            className="flex max-h-[90dvh] w-full max-w-4xl min-w-0 flex-col overflow-hidden rounded-3xl border-2 border-amber-300 bg-white shadow-2xl animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           >
             {submittedSuccess ? (
-              <div className="space-y-4 py-4">
+              <div className="space-y-4 p-5 text-center sm:p-6">
                 <div className="size-20 mx-auto rounded-full bg-amber-100 flex items-center justify-center text-4xl animate-bounce">
                   🏆
                 </div>
@@ -3765,22 +3784,36 @@ export function AikiStudioWorkspace({
                 </div>
               </div>
             ) : (
-              <>
-                <div className="space-y-1">
-                  <div className="size-12 mx-auto rounded-2xl bg-amber-100 border-2 border-amber-300 flex items-center justify-center text-2xl shadow-clay-xs mb-1">
-                    🎨
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex shrink-0 items-start justify-between gap-3 border-b border-amber-100 px-4 py-3 text-left sm:px-5">
+                  <div className="min-w-0">
+                    <h3 id="studio-submit-title" className="break-words text-base font-black text-indigo-950 sm:text-xl">
+                      Chọn một tranh để nộp bài
+                    </h3>
+                    <p className="mt-0.5 text-xs font-medium leading-snug text-slate-600 sm:text-sm">
+                      Chạm vào ảnh để xem rõ và chọn. Các tranh khác vẫn được cất trong Ba lô.
+                    </p>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-indigo-950">
-                    🎨 Chọn Kiệt Tác Của Bé Để Nhận Cúp Vàng!
-                  </h3>
-                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-md mx-auto leading-relaxed">
-                    Bé hãy chạm vào bức tranh bé tự hào nhất để đem sang Chặng 6 nhận Cúp Vàng nhé! (Toàn bộ các tranh còn lại đều được cất an toàn vào Balo của bé)
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsSubmitModalOpen(false)}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-lg font-black text-slate-600 hover:bg-slate-100"
+                    aria-label="Đóng cửa sổ chọn tranh"
+                  >
+                    ×
+                  </button>
                 </div>
 
                 {/* Lưới Triển Lãm các tranh đã vẽ trong gallery */}
                 {gallery.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto p-1">
+                  <div
+                    className={cn(
+                      'grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto p-4 sm:p-5',
+                      gallery.length === 1 && 'mx-auto w-full max-w-xl',
+                      gallery.length === 2 && 'sm:grid-cols-2',
+                      gallery.length >= 3 && 'sm:grid-cols-2 lg:grid-cols-3',
+                    )}
+                  >
                     {gallery.map((img) => {
                       const isSelected = submittedCandidate?.id === img.id
                       const pIdx = img.partIndex !== undefined ? img.partIndex : Math.floor((img.turn - 1) / 2)
@@ -3789,14 +3822,15 @@ export function AikiStudioWorkspace({
                       const turnNumber = img.partTurn || ((img.turn % 2 === 0 ? 2 : 1) as 1 | 2)
 
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={img.id}
                           onClick={() => {
                             setSubmittedCandidate(img)
                             playInstantSound('click')
                           }}
                           className={cn(
-                            'rounded-2xl border-2 p-1.5 cursor-pointer relative transition-all text-left flex flex-col justify-between',
+                            'group min-w-0 rounded-2xl border-2 p-2 cursor-pointer relative transition-all text-left flex flex-col justify-between',
                             isSelected
                               ? 'border-amber-400 bg-amber-50/90 ring-3 ring-amber-400 scale-[1.02] shadow-clay-sm'
                               : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 shadow-2xs'
@@ -3804,64 +3838,64 @@ export function AikiStudioWorkspace({
                         >
                           {isSelected && (
                             <span className="absolute -top-2 left-2 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-xs uppercase tracking-wide z-10">
-                              ⭐ KIỆT TÁC CHỌN NỘP
+                              ĐANG CHỌN
                             </span>
                           )}
 
-                          <div className="aspect-[4/3] w-full rounded-xl overflow-hidden mb-1.5 bg-slate-100">
+                          <div className="aspect-[4/3] w-full rounded-xl overflow-hidden mb-2 bg-slate-100">
                             <img
                               src={img.url || getStudioAIArtwork(illustrationType, lessonId, img.prompt || itemTitle)}
                               alt={img.prompt}
-                              className="size-full object-contain"
+                              className="size-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
                               onError={(e) => { (e.target as HTMLImageElement).src = getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
                             />
                           </div>
 
                           <div className="space-y-0.5 px-0.5">
-                            <div className="text-[11px] font-black text-slate-800 truncate flex items-center gap-1">
+                            <div className="text-xs font-black text-slate-800 flex min-w-0 items-center gap-1">
                               <span>{partDef?.icon || '🎨'}</span>
                               <span className="truncate">{itemTitle} · Lượt {turnNumber}</span>
                             </div>
-                            <p className="text-[10px] text-slate-500 font-medium break-words line-clamp-2 sm:line-clamp-none">
+                            <p className="mt-1 line-clamp-2 break-words text-[11px] font-medium leading-snug text-slate-500">
                               {img.prompt}
                             </p>
                           </div>
-                        </div>
+                        </button>
                       )
                     })}
                   </div>
                 ) : (
-                  <div className="py-8 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                  <div className="m-4 py-8 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                     <p className="text-xs sm:text-sm font-bold text-slate-500">
                       Bé chưa vẽ bức tranh nào. Hãy vẽ ít nhất 1 bức tranh rồi quay lại nộp nhé!
                     </p>
                   </div>
                 )}
 
-                <div className="flex items-center justify-center gap-3 pt-2">
+                <div className="grid shrink-0 grid-cols-1 gap-2 border-t border-slate-100 bg-white px-4 py-3 sm:grid-cols-[1fr_auto] sm:px-5">
                   <button
                     type="button"
                     data-testid="studio-confirm-submit"
                     onClick={handleConfirmSubmit}
                     disabled={gallery.length === 0 && !submittedCandidate}
                     className={cn(
-                      'px-6 py-2.5 rounded-xl text-white font-black text-sm shadow-clay active:scale-95 cursor-pointer transition-all',
+                      'min-h-12 rounded-2xl px-6 py-2.5 text-white font-black text-sm shadow-clay active:scale-95 cursor-pointer transition-all',
                       gallery.length === 0 && !submittedCandidate
                         ? 'bg-slate-300 cursor-not-allowed'
                         : 'bg-indigo-600 hover:bg-indigo-700'
                     )}
                   >
-                    🏆 Đồng ý nộp kiệt tác này
+                    Nộp ảnh đã chọn
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsSubmitModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer"
+                    className="min-h-12 rounded-2xl border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                   >
-                    Xem lại
+                    Tiếp tục xem tranh
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
