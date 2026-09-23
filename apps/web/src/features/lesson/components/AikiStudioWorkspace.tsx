@@ -2560,23 +2560,9 @@ export function AikiStudioWorkspace({
             {isInstantFallback ? '⚡ Demo Nhanh' : '🌐 AI Gateway'}
           </button>
         </div>
-        <button
-          type="button"
-          data-testid="studio-submit-btn"
-          onClick={() => {
-            playInstantSound('click')
-            setIsSubmitModalOpen(true)
-          }}
-          className={cn(
-            'min-h-10 px-3 py-1.5 rounded-xl text-xs font-black shadow-clay flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0',
-            gallery.length >= 1
-              ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
-          )}
-        >
-          <Trophy size={13} />
-          <span>Nộp bài{gallery.length >= 1 ? ` · ${gallery.length} ảnh` : ''}</span>
-        </button>
+        <span className="shrink-0 rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-600 shadow-2xs">
+          {gallery.length} ảnh
+        </span>
       </div>
 
       {/* Tầng 1: Bộ Chuyển Đổi 2 Lượt Tiến Hóa (Turn Switcher) */}
@@ -2677,7 +2663,7 @@ export function AikiStudioWorkspace({
           {displayedPartImage?.prompt && (
             <div
               data-testid="studio-live-canvas-prompt"
-              className="bg-amber-50/95 border border-amber-200/90 rounded-xl px-3 py-1.5 text-xs text-amber-950 font-bold flex items-center gap-2 mt-2 shadow-2xs w-full"
+              className="sr-only"
             >
               <span className="shrink-0 text-sm">💬</span>
               <div className="flex-1 min-w-0 text-left">
@@ -3115,6 +3101,26 @@ export function AikiStudioWorkspace({
               practiceParts={practicePartDefs}
               practiceSlot={practiceColumn}
               canvasSlot={previewCanvasColumn}
+              submitSlot={
+                <button
+                  type="button"
+                  data-testid="studio-submit-btn"
+                  onClick={() => {
+                    playInstantSound('click')
+                    setIsSubmitModalOpen(true)
+                  }}
+                  disabled={gallery.length === 0}
+                  className={cn(
+                    'flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl px-5 py-2 text-sm font-black shadow-clay transition active:scale-95 sm:min-h-[58px]',
+                    gallery.length > 0
+                      ? 'cursor-pointer bg-indigo-600 text-white hover:bg-indigo-700'
+                      : 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none',
+                  )}
+                >
+                  <Trophy size={16} />
+                  <span>Nộp bài{gallery.length > 0 ? ` · ${gallery.length} ảnh` : ''}</span>
+                </button>
+              }
               currentPrompt={currentPrompt}
               onPromptChange={handlePromptChange}
               onRefImageChange={setActiveRefImageUrl}
@@ -3343,39 +3349,16 @@ export function AikiStudioWorkspace({
             </div>
           </div>
 
-          {/* NÚT HÀNH ĐỘNG NỘP BÀI (BẢO TOÀN TEXT CHO TEST SUITE) */}
-          <div className="mt-auto grid shrink-0 grid-cols-[1fr_auto] gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                playInstantSound('click')
-                setIsSubmitModalOpen(true)
-              }}
-              className={cn(
-                'min-h-12 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm font-black shadow-clay flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer',
-                currentWorkflowStep >= 3 || gallery.length >= 3 || isCreativeNotebook
-                  ? 'bg-linear-to-r from-purple-500 via-indigo-500 to-amber-500 text-white shadow-md shadow-indigo-300 ring-2 ring-purple-300'
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              )}
-            >
-              <Trophy size={16} />
-              <span>{isCreativeNotebook ? 'Cất vào Ba lô' : 'Nộp bài'}</span>
-            </button>
-            {!isCreativeNotebook && (
-              <button
-                type="button"
-                onClick={() => {
-                  playInstantSound('click')
-                  setIsBackpackModalOpen(true)
-                }}
-                className="min-h-12 rounded-2xl border-2 border-purple-200 bg-white px-3 text-xs font-black text-purple-800 shadow-2xs transition hover:bg-purple-50 active:scale-98"
-                title="Các tranh được tự động lưu vào Ba lô khi nộp"
-              >
-                <span className="hidden sm:inline">Xem Ba lô</span>
-                <span className="sm:hidden">Ba lô</span>
-              </button>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              playInstantSound('click')
+              setIsBackpackModalOpen(true)
+            }}
+            className="mt-auto min-h-11 w-full shrink-0 rounded-2xl border-2 border-purple-200 bg-white px-3 text-xs font-black text-purple-800 shadow-2xs transition hover:bg-purple-50 active:scale-98"
+          >
+            Xem Ba lô
+          </button>
 
           {/* KHỐI DỮ LIỆU BẢO TOÀN CHO TEST SUITE & SCREEN READERS */}
           <div className="sr-only" aria-hidden="true">
@@ -3753,7 +3736,7 @@ export function AikiStudioWorkspace({
       {isSubmitModalOpen && (
         <div
           data-testid="studio-submit-modal"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-3 sm:p-5 animate-fade-in"
           onClick={() => {
             if (!submittedSuccess) setIsSubmitModalOpen(false)
           }}
@@ -3830,7 +3813,7 @@ export function AikiStudioWorkspace({
                             playInstantSound('click')
                           }}
                           className={cn(
-                            'group min-w-0 rounded-2xl border-2 p-2 cursor-pointer relative transition-all text-left flex flex-col justify-between',
+                            'group min-w-0 max-h-full overflow-hidden rounded-2xl border-2 p-2 cursor-pointer relative transition-all text-left flex flex-col justify-between',
                             isSelected
                               ? 'border-amber-400 bg-amber-50/90 ring-3 ring-amber-400 scale-[1.02] shadow-clay-sm'
                               : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 shadow-2xs'
@@ -3842,11 +3825,11 @@ export function AikiStudioWorkspace({
                             </span>
                           )}
 
-                          <div className="aspect-[4/3] w-full rounded-xl overflow-hidden mb-2 bg-slate-100">
+                          <div className="aspect-[4/3] max-h-[52dvh] w-full rounded-xl overflow-hidden mb-2 bg-slate-100">
                             <img
                               src={img.url || getStudioAIArtwork(illustrationType, lessonId, img.prompt || itemTitle)}
                               alt={img.prompt}
-                              className="size-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                              className="size-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
                               onError={(e) => { (e.target as HTMLImageElement).src = getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
                             />
                           </div>

@@ -33,6 +33,7 @@ export interface CreativeEngineShellProps {
   selectedSubject?: string
   canvasSlot?: React.ReactNode
   practiceSlot?: React.ReactNode
+  submitSlot?: React.ReactNode
   isTurnLocked?: boolean
   turnLockedMessage?: string
   onRefImageChange?: (url: string) => void
@@ -71,6 +72,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
   className,
   canvasSlot,
   practiceSlot,
+  submitSlot,
   isTurnLocked,
   turnLockedMessage,
   onRefImageChange,
@@ -149,6 +151,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
         aria-hidden="true"
       />
 
+      <div className="grid w-full shrink-0 grid-cols-1 gap-2 sm:w-auto sm:grid-cols-[auto_auto]">
       <button
         type="button"
         data-testid="studio-draw-btn"
@@ -170,6 +173,8 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
             : 'Đã hết lượt vẽ của bài này'}
         </span>
       </button>
+      {submitSlot}
+      </div>
     </div>
   )
 
