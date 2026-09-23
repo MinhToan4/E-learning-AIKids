@@ -48,7 +48,10 @@ export function VideoStageBlock({
       // Observe the stable parent canvas, not this stage. Measuring the stage
       // itself creates a feedback loop: horizontal layout changes its height,
       // which can immediately switch it back to vertical and make it flicker.
-      setUseHorizontalTimeline(width < 768 || width / Math.max(height, 1) <= 1.5)
+      // Prefer the bottom timeline until the canvas is genuinely panoramic.
+      // Around 16:10/3:2, reclaiming the 320px side rail produces a materially
+      // larger teaching video with less unused space.
+      setUseHorizontalTimeline(width < 768 || width / Math.max(height, 1) <= 1.75)
     }
     const observer = new ResizeObserver(([entry]) => {
       if (entry) updateLayout(entry.contentRect.width, entry.contentRect.height)

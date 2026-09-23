@@ -102,7 +102,7 @@
   }
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-frame {
-    width: min(100%, 1100px) !important;
+    width: min(100%, 1500px) !important;
     max-height: none !important;
   }
 
