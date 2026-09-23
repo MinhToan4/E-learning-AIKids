@@ -65,11 +65,11 @@ export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onC
       </div>
 
       {/* Phần 2 - Khung Ảnh Minh Họa (Hero Banner Row) */}
-      <div className="w-full max-w-2xl mx-auto rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] max-h-[340px] sm:max-h-[380px] flex items-center justify-center">
+      <div className="group relative mx-auto w-full max-w-2xl overflow-hidden rounded-2xl bg-transparent">
         <img
           src={goal.imageUrl}
           alt={goal.title}
-          className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
+          className="block h-auto w-full cursor-pointer object-contain"
           onClick={() => onImageClick?.({ url: goal.imageUrl, title: goal.title })}
           onError={(event) => {
             event.currentTarget.src = fourKeys

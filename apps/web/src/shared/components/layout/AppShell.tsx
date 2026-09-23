@@ -894,7 +894,12 @@ export function AppShell() {
         
       </aside>}
 
-      <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
+      <div className={cn(
+        "fixed z-40 flex items-center gap-2",
+        isLessonOrRule
+          ? "right-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:left-6 md:right-auto md:bottom-24"
+          : "right-3 top-3 sm:right-4 md:right-6",
+      )}>
         {showParentButton && (
           <button
             type="button"
@@ -909,7 +914,7 @@ export function AppShell() {
       </div>
 
       {isLessonOrRule ? (
-        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 py-1 sm:py-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col md:overflow-hidden">
+        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
           <RouteOutlet />
         </main>
       ) : isCreative ? (

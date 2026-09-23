@@ -91,8 +91,9 @@ describe('SixStageGoalStage', () => {
     // Hero Row banner
     const heroBanner = container.querySelector('.max-w-2xl')
     expect(heroBanner).not.toBeNull()
-    expect(heroBanner?.className).toContain('aspect-[16/9]')
-    expect(heroBanner?.className).toContain('rounded-3xl')
+    expect(heroBanner?.className).not.toContain('aspect-[16/9]')
+    expect(heroBanner?.className).toContain('rounded-2xl')
+    expect(heroBanner?.querySelector('img')?.className).toContain('h-auto')
 
     // 4-column responsive grid on desktop / 2-column on tablet
     const grid = container.querySelector('.lg\\:grid-cols-4')
@@ -123,4 +124,3 @@ describe('SixStageGoalStage', () => {
     act(() => root.unmount())
   })
 })
-

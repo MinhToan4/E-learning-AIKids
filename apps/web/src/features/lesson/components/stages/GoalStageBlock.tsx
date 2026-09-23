@@ -41,7 +41,7 @@ export function GoalStageBlock({
   return (
     <section
       data-testid="stage-0-goal"
-      className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-5 animate-fade-up"
+      className="min-w-0 rounded-3xl bg-white p-3 sm:p-5 shadow-clay border-2 border-brand-100 flex flex-col gap-4 animate-fade-up"
     >
       {/* Phần 1 - Tiêu đề & Header */}
       <div className="flex flex-col gap-2 shrink-0">
@@ -49,7 +49,7 @@ export function GoalStageBlock({
           <Sparkles size={13} className="text-brand-500" />
           <span>Chặng 1: Mục tiêu bài học</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
+        <h2 className="min-w-0 break-words text-xl sm:text-2xl font-black text-slate-800 leading-tight">
           {config.title}
         </h2>
       </div>
@@ -58,13 +58,13 @@ export function GoalStageBlock({
       <div className="flex flex-col lg:flex-row gap-6 items-center">
         {/* Cột Trái (Ảnh) */}
         <div className="w-full lg:w-1/2 flex flex-col">
-          <div className="w-full aspect-[4/3] max-h-[380px] rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative flex items-center justify-center p-1.5">
+          <div className="group relative w-full overflow-hidden rounded-2xl bg-transparent">
             <img
               fetchPriority="high"
               decoding="async"
               src={displayedSrc}
               alt={config.title}
-              className="w-full h-full object-contain rounded-2xl cursor-pointer group-hover:scale-105 transition-transform duration-300"
+              className="block h-auto w-full cursor-pointer object-contain"
               onClick={handleImageZoom}
               onError={handleImageError}
             />
@@ -97,11 +97,11 @@ export function GoalStageBlock({
           {/* Mục Tiêu Cốt Lõi */}
           <div className="w-full rounded-3xl border-2 border-brand-100 bg-brand-50/70 p-4 sm:p-5 shadow-clay-sm flex items-start gap-3 shrink-0">
             <span className="text-2xl shrink-0 mt-0.5">🎯</span>
-            <div>
+            <div className="min-w-0">
               <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
                 Mục Tiêu Cốt Lõi:
               </span>
-              <div className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
+              <div className="min-w-0 break-words font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
                 {config.goalText}
               </div>
             </div>

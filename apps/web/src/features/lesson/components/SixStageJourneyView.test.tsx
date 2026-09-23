@@ -722,7 +722,7 @@ describe('SixStageJourneyView', () => {
     expect(document.body.querySelector('[data-testid="lightbox-modal"]')).toBeNull()
   })
 
-  it('verifies Stage 0 (Chặng 1) layout has 2 columns: left image container with aspect-[4/3] max-h-[380px] object-contain, right objective and 2x2 formula keys', () => {
+  it('verifies Stage 0 uses a direct responsive image without a forced frame, plus objective and 2x2 formula keys', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -744,13 +744,13 @@ describe('SixStageJourneyView', () => {
     )
     expect(twoColContainer).not.toBeNull()
 
-    // Left Column: Image container with aspect-[4/3] and max-h-[380px] object-contain
+    // Left Column: natural-ratio image, without a forced aspect/height frame.
     const leftCol = twoColContainer?.children[0]
     expect(leftCol?.className).toContain('lg:w-1/2')
-    const imgContainer = leftCol?.querySelector('.aspect-\\[4\\/3\\]')
-    expect(imgContainer?.className).toContain('max-h-[380px]')
     const heroImg = leftCol?.querySelector('img')
     expect(heroImg?.className).toContain('object-contain')
+    expect(heroImg?.className).toContain('h-auto')
+    expect(heroImg?.parentElement?.className).not.toContain('aspect-[4/3]')
 
     // Right Column: Objective card + 4 formula keys in 2x2 grid
     const rightCol = twoColContainer?.children[1]

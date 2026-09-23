@@ -985,14 +985,14 @@ export function SixStageJourneyView({
   return (
     <div className="w-full h-auto min-h-full flex-none flex flex-col gap-2 overflow-visible md:h-full md:min-h-0 md:flex-1 md:overflow-hidden">
       {/* ── TOP HEADER: NẤC TIẾN ĐỘ SƯ PHẠM ĐỘNG + NÚT BẢN ĐỒ ── */}
-      <header className="shrink-0 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 min-h-12 [@media(max-height:760px)]:min-h-10 [@media(max-height:760px)]:py-0.5 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
+      <header className="shrink-0 flex items-center justify-between gap-1.5 bg-white/90 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 min-h-11 w-full min-w-0 rounded-2xl border-2 border-brand-100 shadow-sm">
         {/* Trái: Nút Bản đồ + Nấc kẹo dẻo Soft Clay render linh hoạt */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5">
           {onBackToMap && (
             <button
               type="button"
               onClick={onBackToMap}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-xs font-black text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0"
+              className="inline-flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-xs font-black text-slate-700 hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer shrink-0 sm:min-h-11 sm:min-w-11"
               title="Quay lại bản đồ"
             >
               <ChevronLeft size={14} aria-hidden="true" />
@@ -1034,7 +1034,7 @@ export function SixStageJourneyView({
                     disabled={!isUnlocked}
                     onClick={() => handleStageSelect(idx)}
                     className={cn(
-                      'flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-2 text-[11px] shadow-2xs transition-all duration-200 sm:gap-1.5 sm:px-3 sm:text-xs',
+                      'flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded-full px-2 text-[11px] shadow-2xs transition-all duration-200 sm:min-h-11 sm:min-w-11 sm:gap-1.5 sm:px-3 sm:text-xs',
                       !isUnlocked &&
                         'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200',
                       isUnlocked &&
@@ -1075,7 +1075,7 @@ export function SixStageJourneyView({
         {/* Phải: Live Star Pill */}
         <div
           data-testid="star-badge-header"
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 shadow-2xs text-amber-900 text-xs font-black shrink-0"
+          className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 border border-amber-200 shadow-2xs text-amber-900 text-xs font-black shrink-0"
           title={`Bé đã đạt ${earnedStars}/3 Sao trong bài học này`}
         >
           <div className="flex items-center gap-0.5">

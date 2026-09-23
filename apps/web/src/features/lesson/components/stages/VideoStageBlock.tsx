@@ -144,7 +144,7 @@ export function VideoStageBlock({
       ref={stageRef}
       data-testid="stage-2-video"
       data-timeline-layout={useHorizontalTimeline ? 'horizontal' : 'vertical'}
-      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2.5 shadow-clay animate-fade-up sm:p-3.5"
+      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:p-2.5"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
@@ -152,7 +152,7 @@ export function VideoStageBlock({
       {/* CỘT TRÁI (Main Video Cinema - Phóng to cực đại theo chiều cao khả dụng) */}
       <div className="lesson-video-main flex flex-1 min-w-0 flex-col items-center justify-center h-full min-h-0 py-0.5 overflow-hidden">
         <div
-          className="lesson-video-frame relative aspect-video max-w-full max-h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay sm:shadow-2xl border-2 sm:border-4 border-slate-900 bg-black flex items-center justify-center shrink-0 w-full lg:max-w-none"
+          className="lesson-video-frame relative aspect-video max-w-full max-h-full overflow-hidden bg-transparent flex items-center justify-center shrink-0 w-full lg:max-w-none"
           style={{
             width: 'min(100%, 1100px, calc((100dvh - 190px) * 16 / 9))',
             maxHeight: 'min(68vh, calc(100dvh - 190px))',
@@ -312,7 +312,7 @@ export function VideoStageBlock({
               title="Xem lại từ đầu"
             >
               <RotateCcw size={12} className="text-amber-700 shrink-0" />
-              <span className="truncate">Xem lại video</span>
+              <span className="whitespace-normal text-center leading-tight">Xem lại video</span>
             </button>
 
             <button
@@ -322,7 +322,7 @@ export function VideoStageBlock({
               title="Nghe AIKI giảng bài"
             >
               <Volume2 size={12} className="text-brand-600 shrink-0" />
-              <span className="truncate">Nghe AIKI giảng</span>
+              <span className="whitespace-normal text-center leading-tight">Nghe AIKI giảng</span>
             </button>
           </div>
         </div>
