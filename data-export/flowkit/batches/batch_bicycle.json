@@ -17,7 +17,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini (1 từ thử nghiệm, chưa có chìa khóa)",
-    "promptEn": "In the exact same handmade polymer clay diorama style: A plain simple clay mini vintage bicycle standing blankly and looking confused alone on the wooden floor, minimal texture, warm pastel room, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, standing centered looking friendly and curious, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap.webp",
     "aspectRatio": "4:3",
@@ -41,7 +41,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh.webp",
     "aspectRatio": "4:3",
@@ -65,57 +65,9 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho",
-    "batchName": "bicycle_level2",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau",
-    "batchName": "bicycle_level2",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -137,7 +89,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may.webp",
     "aspectRatio": "4:3",
@@ -161,7 +113,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang lăn bánh bon bon lướt êm trên đường",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang lăn bánh bon bon, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh.webp",
     "aspectRatio": "4:3",
@@ -185,7 +137,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang dựng chân chống nghiêng đứng yên nghỉ ngơi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang dựng chân chống, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang dựng chân chống, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong.webp",
     "aspectRatio": "4:3",
@@ -209,33 +161,9 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, chở giỏ hoa rực rỡ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-don-hoang-hon",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đón ánh hoàng hôn",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang đón những tia nắng vàng ấm của buổi chiều tà",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đón ánh hoàng hôn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -257,7 +185,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang lăn bánh bon bon lướt êm trên đường",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang lăn bánh bon bon, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh.webp",
     "aspectRatio": "4:3",
@@ -281,7 +209,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang dựng chân chống nghiêng đứng yên nghỉ ngơi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang dựng chân chống, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang dựng chân chống, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong.webp",
     "aspectRatio": "4:3",
@@ -305,225 +233,9 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, chở giỏ hoa rực rỡ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-don-hoang-hon",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đón ánh hoàng hôn",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang đón những tia nắng vàng ấm của buổi chiều tà",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đón ánh hoàng hôn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-lan-banh",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang lăn bánh bon bon",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang lăn bánh bon bon lướt êm trên đường",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang lăn bánh bon bon, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-dung-chan-chong",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang dựng chân chống",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang dựng chân chống nghiêng đứng yên nghỉ ngơi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang dựng chân chống, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-cho-gio-hoa",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, chở giỏ hoa rực rỡ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-don-hoang-hon",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đón ánh hoàng hôn",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang đón những tia nắng vàng ấm của buổi chiều tà",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đón ánh hoàng hôn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-lan-banh",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang lăn bánh bon bon",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang lăn bánh bon bon lướt êm trên đường",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang lăn bánh bon bon, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-dung-chan-chong",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang dựng chân chống",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang dựng chân chống nghiêng đứng yên nghỉ ngơi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang dựng chân chống, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-cho-gio-hoa",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, chở giỏ hoa rực rỡ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-don-hoang-hon",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đón ánh hoàng hôn",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang đón những tia nắng vàng ấm của buổi chiều tà",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đón ánh hoàng hôn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -545,7 +257,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang lăn bánh bon bon lướt êm trên đường",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang lăn bánh bon bon, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh.webp",
     "aspectRatio": "4:3",
@@ -569,7 +281,7 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang dựng chân chống nghiêng đứng yên nghỉ ngơi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang dựng chân chống, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang dựng chân chống, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong.webp",
     "aspectRatio": "4:3",
@@ -593,39 +305,15 @@
       "context": ""
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, chở giỏ hoa rực rỡ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon",
-    "batchName": "bicycle_level3",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-don-hoang-hon",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đón ánh hoàng hôn",
-      "context": ""
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang đón những tia nắng vàng ấm của buổi chiều tà",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đón ánh hoàng hôn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -641,7 +329,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang lăn bánh bon bon lướt êm trên đường, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang lăn bánh bon bon, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -649,7 +337,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -665,7 +353,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang lăn bánh bon bon lướt êm trên đường, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang lăn bánh bon bon, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -673,7 +361,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -689,39 +377,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang lăn bánh bon bon lướt êm trên đường, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang lăn bánh bon bon, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang lăn bánh bon bon lướt êm trên đường, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang lăn bánh bon bon, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -737,7 +401,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang dựng chân chống, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -745,7 +409,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -761,7 +425,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang dựng chân chống, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -769,7 +433,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -785,39 +449,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang dựng chân chống, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đang dựng chân chống",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đang dựng chân chống, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -833,7 +473,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, chở giỏ hoa rực rỡ, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -841,7 +481,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -857,7 +497,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, chở giỏ hoa rực rỡ, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -865,7 +505,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -881,135 +521,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, chở giỏ hoa rực rỡ, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, khung thép xanh bóng, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, chở giỏ hoa rực rỡ, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang đón những tia nắng vàng ấm của buổi chiều tà, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đón ánh hoàng hôn, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang đón những tia nắng vàng ấm của buổi chiều tà, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đón ánh hoàng hôn, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang đón những tia nắng vàng ấm của buổi chiều tà, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đón ánh hoàng hôn, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-khung-xanh",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Khung thép xanh bóng",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, khung thép màu xanh dương bóng bẩy, đang đón những tia nắng vàng ấm của buổi chiều tà, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with khung thép xanh bóng, đón ánh hoàng hôn, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-khung-xanh__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1025,7 +545,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang lăn bánh bon bon lướt êm trên đường, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang lăn bánh bon bon, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -1033,7 +553,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1049,7 +569,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang lăn bánh bon bon lướt êm trên đường, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang lăn bánh bon bon, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -1057,7 +577,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1073,39 +593,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang lăn bánh bon bon lướt êm trên đường, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang lăn bánh bon bon, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang lăn bánh bon bon lướt êm trên đường, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang lăn bánh bon bon, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1121,7 +617,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang dựng chân chống, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -1129,7 +625,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1145,7 +641,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang dựng chân chống, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -1153,7 +649,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1169,39 +665,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang dựng chân chống, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đang dựng chân chống",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đang dựng chân chống, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1217,7 +689,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, chở giỏ hoa rực rỡ, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -1225,7 +697,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1241,7 +713,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, chở giỏ hoa rực rỡ, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -1249,7 +721,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -1265,903 +737,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, chở giỏ hoa rực rỡ, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, bánh nan hoa tròn, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, chở giỏ hoa rực rỡ, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang đón những tia nắng vàng ấm của buổi chiều tà, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đón ánh hoàng hôn, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang đón những tia nắng vàng ấm của buổi chiều tà, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đón ánh hoàng hôn, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang đón những tia nắng vàng ấm của buổi chiều tà, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đón ánh hoàng hôn, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-banh-nan-hoa",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Bánh nan hoa tròn",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, hai bánh xe nan hoa tròn xoe quay đều, đang đón những tia nắng vàng ấm của buổi chiều tà, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with bánh nan hoa tròn, đón ánh hoàng hôn, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-banh-nan-hoa__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang lăn bánh bon bon lướt êm trên đường, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang lăn bánh bon bon, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang lăn bánh bon bon lướt êm trên đường, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang lăn bánh bon bon, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang lăn bánh bon bon lướt êm trên đường, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang lăn bánh bon bon, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang lăn bánh bon bon lướt êm trên đường, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang lăn bánh bon bon, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang dựng chân chống",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang dựng chân chống, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang dựng chân chống",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang dựng chân chống, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang dựng chân chống",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang dựng chân chống, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đang dựng chân chống",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đang dựng chân chống, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, chở giỏ hoa rực rỡ, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, chở giỏ hoa rực rỡ, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, chở giỏ hoa rực rỡ, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, chở giỏ hoa rực rỡ, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang đón những tia nắng vàng ấm của buổi chiều tà, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đón ánh hoàng hôn, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang đón những tia nắng vàng ấm của buổi chiều tà, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đón ánh hoàng hôn, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang đón những tia nắng vàng ấm của buổi chiều tà, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đón ánh hoàng hôn, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-chuong-nho",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Chuông kính coong nhỏ",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc chuông nhỏ bằng đồng kêu kính coong vui tai, đang đón những tia nắng vàng ấm của buổi chiều tà, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with chuông kính coong nhỏ, đón ánh hoàng hôn, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-chuong-nho__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang lăn bánh bon bon lướt êm trên đường, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang lăn bánh bon bon, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang lăn bánh bon bon lướt êm trên đường, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang lăn bánh bon bon, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang lăn bánh bon bon lướt êm trên đường, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang lăn bánh bon bon, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang lăn bánh bon bon lướt êm trên đường, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang lăn bánh bon bon, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang dựng chân chống",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang dựng chân chống, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang dựng chân chống",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang dựng chân chống, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang dựng chân chống",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang dựng chân chống, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đang dựng chân chống",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đang dựng chân chống, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, chở giỏ hoa rực rỡ, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, chở giỏ hoa rực rỡ, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, chở giỏ hoa rực rỡ, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, chở giỏ hoa rực rỡ, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang đón những tia nắng vàng ấm của buổi chiều tà, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đón ánh hoàng hôn, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang đón những tia nắng vàng ấm của buổi chiều tà, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đón ánh hoàng hôn, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang đón những tia nắng vàng ấm của buổi chiều tà, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đón ánh hoàng hôn, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-yen-da-nau",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Yên da nâu ấm",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, chiếc yên xe bọc da màu nâu cổ điển êm ái, đang đón những tia nắng vàng ấm của buổi chiều tà, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with yên da nâu ấm, đón ánh hoàng hôn, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-yen-da-nau__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2177,7 +761,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang lăn bánh bon bon lướt êm trên đường, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang lăn bánh bon bon, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -2185,7 +769,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2201,7 +785,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang lăn bánh bon bon lướt êm trên đường, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang lăn bánh bon bon, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -2209,7 +793,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2225,39 +809,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang lăn bánh bon bon lướt êm trên đường, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang lăn bánh bon bon, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang lăn bánh bon bon, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-lan-banh",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đang lăn bánh bon bon",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang lăn bánh bon bon lướt êm trên đường, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang lăn bánh bon bon, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-lan-banh__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2273,7 +833,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang dựng chân chống, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -2281,7 +841,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2297,7 +857,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang dựng chân chống, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -2305,7 +865,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2321,39 +881,15 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang dựng chân chống, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, đang dựng chân chống, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-duong-lang.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-dung-chan-chong",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đang dựng chân chống",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang dựng chân chống nghiêng đứng yên nghỉ ngơi, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đang dựng chân chống, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-dung-chan-chong__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bo-ho",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2369,7 +905,7 @@
       "context": "Bên bờ hồ lộng gió"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, chở giỏ hoa rực rỡ, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, bên bờ hồ lộng gió, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bo-ho.webp",
     "aspectRatio": "4:3",
@@ -2377,7 +913,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bong-cay",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2393,7 +929,7 @@
       "context": "Dưới bóng cây râm mát"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, chở giỏ hoa rực rỡ, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, dưới bóng cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-bong-cay.webp",
     "aspectRatio": "4:3",
@@ -2401,7 +937,7 @@
   },
   {
     "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-duong-lang",
-    "batchName": "bicycle",
+    "batchName": "bicycle_level4",
     "subjectKey": "bicycle",
     "subjectLabel": "Cái Xe Đạp",
     "blockIds": {
@@ -2417,129 +953,9 @@
       "context": "Trên đường làng rải sỏi"
     },
     "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, chở giỏ hoa rực rỡ, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay mini vintage bicycle, giỏ mây trước xe, chở giỏ hoa rực rỡ, in the exact same cozy soft clay garden porch setting, trên đường làng rải sỏi, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-cho-gio-hoa",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Chở giỏ hoa rực rỡ",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang chở giỏ hoa tươi rực rỡ sắc màu phía trước, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, chở giỏ hoa rực rỡ, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-cho-gio-hoa__ctx-bike-truoc-hien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bo-ho",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bo-ho"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Bên bờ hồ lộng gió"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang đón những tia nắng vàng ấm của buổi chiều tà, bên bờ hồ nước xanh biếc lộng gió mát rượi",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đón ánh hoàng hôn, bên bờ hồ lộng gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bo-ho.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bong-cay",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-bong-cay"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Dưới bóng cây râm mát"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang đón những tia nắng vàng ấm của buổi chiều tà, dưới bóng mát của tán cây cổ thụ sum sê",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đón ánh hoàng hôn, dưới bóng cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-bong-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-duong-lang",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-duong-lang"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trên đường làng rải sỏi"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang đón những tia nắng vàng ấm của buổi chiều tà, trên con đường làng quanh co rải sỏi trắng",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đón ánh hoàng hôn, trên đường làng rải sỏi, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-duong-lang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-truoc-hien",
-    "batchName": "bicycle",
-    "subjectKey": "bicycle",
-    "subjectLabel": "Cái Xe Đạp",
-    "blockIds": {
-      "subject": "sub-xe-dap",
-      "colorShape": "cs-bike-gio-may",
-      "action": "act-bike-don-hoang-hon",
-      "context": "ctx-bike-truoc-hien"
-    },
-    "blockLabels": {
-      "subject": "Cái xe đạp",
-      "colorShape": "Giỏ mây trước xe",
-      "action": "Đón ánh hoàng hôn",
-      "context": "Trước hiên nhà nhỏ"
-    },
-    "promptVi": "Chiếc xe đạp mini, giỏ đan bằng mây gắn trước đầu xe mộc mạc, đang đón những tia nắng vàng ấm của buổi chiều tà, trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo",
-    "promptEn": "In the exact same handmade polymer clay diorama style: mini vintage bicycle with giỏ mây trước xe, đón ánh hoàng hôn, trước hiên nhà nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__cs-bike-gio-may__act-bike-don-hoang-hon__ctx-bike-truoc-hien.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   }

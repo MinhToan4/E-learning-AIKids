@@ -116,7 +116,7 @@ const SUBJECT_CONFIGS: Array<{
   {
     key: 'cat',
     label: 'Mèo Mướp',
-    enLabel: 'striped ginger tabby cat',
+    enLabel: 'ginger tabby cat mascot with warm soft orange and cream markings, sweet friendly face with black bead eyes and tiny pink nose',
     subjectBlock: { id: 'sub-meo-muop', label: 'Mèo Mướp', text: 'Chú mèo mướp béo tròn', category: 'subject' },
     colorShapeBlocks: CAT_BASE_COLOR_SHAPE_BLOCKS,
     actionBlocks: CAT_BASE_ACTION_BLOCKS,
@@ -125,22 +125,26 @@ const SUBJECT_CONFIGS: Array<{
 ]
 
 const BLOCK_ENGLISH_MAP: Record<string, string> = {
-  // Cat (Mèo Mướp)
-  'cs-cat-long-van-vang': 'warm golden-orange striped tabby fur',
-  'cs-cat-beo-tron': 'chubby round plump body',
-  'cs-cat-mat-xanh': 'sparkling emerald green eyes',
-  'cs-cat-tai-venh': 'perked up playful triangular ears',
-  'cs-cat-chuong-vang': 'wearing a small shiny golden bell collar',
-  'act-cat-liem-chan': 'calmly sitting and licking its paw clean',
-  'act-cat-vuon-vai': 'stretching front legs forward and yawning sleepily',
-  'act-cat-vay-duoi': 'gently wagging its long curled tail happily',
-  'act-cat-dao-buoc': 'leisurely strolling with soft gentle steps',
-  'act-cat-nghieng-dau': 'tilting head curiously with wide round eyes',
-  'ctx-cat-them-nha': 'basking in morning sun on a stone doorstep',
-  'ctx-cat-tham-co': 'sitting on lush green grass with tiny daisies',
-  'ctx-cat-hien-nha': 'resting under the shade of a rustic wooden porch',
-  'ctx-cat-bau-cua': 'perched neatly on a cozy wooden window sill',
-  'ctx-cat-goc-san': 'in a peaceful courtyard corner with warm red tiles',
+  // Cat (Mèo Mướp) - Đặc điểm (Color / Shape)
+  'cs-cat-long-van-vang': 'with warm golden-orange striped tabby clay markings on its soft coat',
+  'cs-cat-beo-tron': 'with an extra chubby and plump squishy round belly and happy round cheeks',
+  'cs-cat-mat-xanh': 'with big sparkling bright emerald-green clay round eyes looking curious and adorable',
+  'cs-cat-tai-venh': 'with perked-up playful triangular clay ears and soft pink inner clay',
+  'cs-cat-chuong-vang': 'wearing a shiny round golden clay bell collar with a cute red ribbon around its neck',
+
+  // Cat (Mèo Mướp) - Hành động (Action)
+  'act-cat-liem-chan': 'sitting peacefully and calmly lifting one front paw to gently lick it clean',
+  'act-cat-vuon-vai': 'stretching its two front paws forward in a long cozy stretch and yawning cutely with eyes closed',
+  'act-cat-vay-duoi': 'standing happily with its long curled orange and white clay tail cheerfully swishing in the air',
+  'act-cat-dao-buoc': 'cheerfully walking forward with gentle bouncy steps',
+  'act-cat-nghieng-dau': 'tilting its head curiously to the side with wide round eyes, wondering happily',
+
+  // Cat (Mèo Mướp) - Bối cảnh vi mô trên cùng sân khấu hiên nhà / sân vườn (Context)
+  'ctx-cat-them-nha': 'sitting on the warm smooth clay front porch steps in gentle morning sunbeams',
+  'ctx-cat-tham-co': 'on the soft green clay lawn patch beside the porch, surrounded by tiny yellow and white clay daisies',
+  'ctx-cat-hien-nha': 'under the cozy clay wooden veranda post near the house entrance under the gentle shade',
+  'ctx-cat-bau-cua': 'perched near the cozy clay window sill beside the porch path',
+  'ctx-cat-goc-san': 'in the sunny corner of the courtyard surrounded by rounded clay cobblestones and pots',
 }
 
 function getBlockEn(block: CreativeBlock | undefined): string {
@@ -150,10 +154,21 @@ function getBlockEn(block: CreativeBlock | undefined): string {
 
 function generateEnglishPrompt(
   enSubject: string,
-  details: string
+  colorShapeEn: string,
+  actionEn?: string,
+  contextEn?: string
 ): string {
-  // Chuẩn hóa prompt theo phong cách polymer clay diorama trùng khớp với reference image của user
-  return `In the exact same handmade polymer clay diorama style: ${enSubject} with ${details}, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic`
+  const parts = [
+    `An adorable chubby soft clay ${enSubject}`,
+    colorShapeEn,
+    actionEn,
+  ].filter(Boolean).join(', ')
+
+  const sceneContext = contextEn
+    ? `in the exact same cozy soft clay garden porch setting, ${contextEn}, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.`
+    : `in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.`
+
+  return `2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: ${parts}, ${sceneContext}`
 }
 
 export function buildFlowKitJobMatrix(): {
@@ -178,7 +193,7 @@ export function buildFlowKitJobMatrix(): {
       blockIds: { subject: cfg.subjectBlock.id, colorShape: '', action: '', context: '' },
       blockLabels: { subject: cfg.subjectBlock.label, colorShape: '', action: '', context: '' },
       promptVi: `${cfg.subjectBlock.text} (1 từ thử nghiệm, chưa có chìa khóa)`,
-      promptEn: `In the exact same handmade polymer clay diorama style: A plain simple clay ${cfg.enLabel} standing blankly and looking confused alone on the wooden floor, minimal texture, warm pastel room, Montessori aesthetic`,
+      promptEn: `2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay ${cfg.enLabel}, standing centered looking friendly and curious, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.`,
       targetFilename: `${level1Key}.webp`,
       targetAssetPath: `/assets/pregenerated-combos/${cfg.key}/${level1Key}.webp`,
       aspectRatio: '4:3',
@@ -216,7 +231,7 @@ export function buildFlowKitJobMatrix(): {
           blockIds: { subject: cfg.subjectBlock.id, colorShape: cs.id, action: act.id, context: '' },
           blockLabels: { subject: cfg.subjectBlock.label, colorShape: cs.label, action: act.label, context: '' },
           promptVi: `${cfg.subjectBlock.text}, ${cs.text}, ${act.text}`,
-          promptEn: generateEnglishPrompt(cfg.enLabel, `${getBlockEn(cs)}, ${getBlockEn(act)}`),
+          promptEn: generateEnglishPrompt(cfg.enLabel, getBlockEn(cs), getBlockEn(act)),
           targetFilename: `${level3Key}.webp`,
           targetAssetPath: `/assets/pregenerated-combos/${cfg.key}/${level3Key}.webp`,
           aspectRatio: '4:3',
@@ -235,12 +250,14 @@ export function buildFlowKitJobMatrix(): {
           const promptVi = `${cfg.subjectBlock.text}, ${cs.text}, ${act.text}, ${ctx.text}`
           const promptEn = generateEnglishPrompt(
             cfg.enLabel,
-            `${getBlockEn(cs)}, ${getBlockEn(act)}, ${getBlockEn(ctx)}`
+            getBlockEn(cs),
+            getBlockEn(act),
+            getBlockEn(ctx)
           )
 
           const job: FlowKitJobItem = {
             id: comboKey,
-            batchName: cfg.key,
+            batchName: `${cfg.key}_level4`,
             subjectKey: cfg.key,
             subjectLabel: cfg.label,
             blockIds: {

@@ -11,7 +11,6 @@ export const DEFAULT_MAGIC_KEYS_PARTS: SixStagePracticePartDef[] = [
   { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', emoji: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
   { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', emoji: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
   { partNumber: 3, title: 'Cuốn sổ tay bìa da', icon: '📖', emoji: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-  { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', emoji: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
 ]
 
 export const DEFAULT_STYLE_PRISM_PARTS: SixStagePracticePartDef[] = [
@@ -134,10 +133,10 @@ export function getEngineConfigMeta(mode?: string): EngineConfigMeta {
 }
 
 export const DEFAULT_FOUR_KEYS_OPTIONS: SixStageFourKeysOptions = {
-  what: ['Cốc sứ trắng', 'Con cún', 'Cái xe đạp', 'Cuốn sách', 'Cái đồng hồ cổ'],
-  how: ['men bóng mẻ miệng', 'lông vàng hai tai cụp', 'cũ sơn xanh bong từng mảng', 'bìa cứng màu nâu sờn góc', 'vỏ gỗ nâu chạm hoa văn'],
-  action: ['đang bốc khói nghi ngút', 'đang chạy đuổi quả bóng', 'đang dựa nghiêng vào tường', 'đang mở dở ở trang giữa', 'kim đang chỉ đúng mười hai giờ'],
-  where: ['trên bàn gỗ mộc', 'ở góc sân gạch đỏ', 'trước cổng trường', 'trên bàn học cạnh đèn', 'treo trên tường phòng khách'],
+  what: ['Cốc sứ trắng', 'Cái xe đạp', 'Cuốn sổ tay bìa da'],
+  how: ['men bóng mẻ miệng', 'cũ sơn xanh bong từng mảng', 'bìa da nâu sờn góc'],
+  action: ['đang bốc khói nghi ngút', 'đang dựa nghiêng vào tường', 'đang mở dở ở trang giữa'],
+  where: ['trên bàn gỗ mộc', 'ở góc sân gạch đỏ', 'trên bàn học cạnh đèn'],
 }
 
 export const DEFAULT_LOCKED_FEATURES: string[] = [

@@ -430,13 +430,6 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "icon": "📖",
             "emoji": "📖",
             "iconImage": "/assets/aiki-islands/island1_lesson2_notebook.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Cái đồng hồ",
-            "icon": "⏰",
-            "emoji": "⏰",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_clock.jpg"
           }
         ]
       },

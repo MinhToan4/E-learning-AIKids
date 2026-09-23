@@ -178,22 +178,6 @@ export const CERAMIC_CUP_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     icon: '🔘',
     colorScheme: 'rose',
   },
-  {
-    id: 'cs-men-ran-moc',
-    label: 'Men gốm rạn mộc',
-    text: 'men gốm rạn phong cách vintage mộc mạc',
-    category: 'color-shape',
-    icon: '🏺',
-    colorScheme: 'amber',
-  },
-  {
-    id: 'cs-hoa-tiet-lam',
-    label: 'Họa tiết hoa lam',
-    text: 'vẽ họa tiết nhành hoa màu lam tinh tế',
-    category: 'color-shape',
-    icon: '🌸',
-    colorScheme: 'mint',
-  },
 ]
 
 export const ACTION_BLOCKS: CreativeBlock[] = [
@@ -271,22 +255,6 @@ export const CERAMIC_CUP_ACTION_BLOCKS: CreativeBlock[] = [
     category: 'action',
     icon: '☕',
     colorScheme: 'amber',
-  },
-  {
-    id: 'act-dat-ngay-ngan',
-    label: 'Đặt ngay ngắn đón nắng',
-    text: 'đang được đặt ngay ngắn đón ánh nắng sớm',
-    category: 'action',
-    icon: '☀️',
-    colorScheme: 'mint',
-  },
-  {
-    id: 'act-yen-ben-sach',
-    label: 'Nằm yên bên trang sách',
-    text: 'đang nằm yên tĩnh bên trang sách đang đọc',
-    category: 'action',
-    icon: '📖',
-    colorScheme: 'indigo',
   },
 ]
 
@@ -366,22 +334,6 @@ export const CERAMIC_CUP_CONTEXT_BLOCKS: CreativeBlock[] = [
     icon: '🪟',
     colorScheme: 'sky',
   },
-  {
-    id: 'ctx-quan-ca-phe',
-    label: 'Trong góc quán cà phê',
-    text: 'trong góc quán cà phê nhỏ ngập tràn ánh đèn vàng',
-    category: 'context',
-    icon: '☕',
-    colorScheme: 'rose',
-  },
-  {
-    id: 'ctx-khan-trai-ban',
-    label: 'Trên khăn trải bàn kẻ',
-    text: 'trên tấm khăn trải bàn vải linen ấm áp',
-    category: 'context',
-    icon: '🧺',
-    colorScheme: 'mint',
-  },
 ]
 
 export const CERAMIC_CUP_BLOCKS: CreativeBlock[] = [
@@ -406,22 +358,6 @@ export const BICYCLE_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     text: 'hai bánh xe nan hoa tròn xoe quay đều',
     category: 'color-shape',
     icon: '⚙️',
-    colorScheme: 'amber',
-  },
-  {
-    id: 'cs-bike-chuong-nho',
-    label: 'Chuông kính coong nhỏ',
-    text: 'chiếc chuông nhỏ bằng đồng kêu kính coong vui tai',
-    category: 'color-shape',
-    icon: '🔔',
-    colorScheme: 'rose',
-  },
-  {
-    id: 'cs-bike-yen-da-nau',
-    label: 'Yên da nâu ấm',
-    text: 'chiếc yên xe bọc da màu nâu cổ điển êm ái',
-    category: 'color-shape',
-    icon: '🪑',
     colorScheme: 'amber',
   },
   {
@@ -459,14 +395,6 @@ export const BICYCLE_ACTION_BLOCKS: CreativeBlock[] = [
     icon: '🌸',
     colorScheme: 'rose',
   },
-  {
-    id: 'act-bike-don-hoang-hon',
-    label: 'Đón ánh hoàng hôn',
-    text: 'đang đón những tia nắng vàng ấm của buổi chiều tà',
-    category: 'action',
-    icon: '🌅',
-    colorScheme: 'mint',
-  },
 ]
 
 export const BICYCLE_CONTEXT_BLOCKS: CreativeBlock[] = [
@@ -493,14 +421,6 @@ export const BICYCLE_CONTEXT_BLOCKS: CreativeBlock[] = [
     category: 'context',
     icon: '🛤️',
     colorScheme: 'amber',
-  },
-  {
-    id: 'ctx-bike-truoc-hien',
-    label: 'Trước hiên nhà nhỏ',
-    text: 'trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo',
-    category: 'context',
-    icon: '🏡',
-    colorScheme: 'rose',
   },
 ]
 
@@ -536,22 +456,6 @@ export const NOTEBOOK_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     icon: '🔖',
     colorScheme: 'rose',
   },
-  {
-    id: 'cs-note-kep-but-chi',
-    label: 'Kẹp bút chì gỗ',
-    text: 'kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy',
-    category: 'color-shape',
-    icon: '✏️',
-    colorScheme: 'sky',
-  },
-  {
-    id: 'cs-note-gay-so',
-    label: 'Gáy sổ may chỉ',
-    text: 'gáy sổ được may bằng sợi chỉ thô chắc chắn',
-    category: 'color-shape',
-    icon: '🧵',
-    colorScheme: 'purple',
-  },
 ]
 
 export const NOTEBOOK_ACTION_BLOCKS: CreativeBlock[] = [
@@ -579,14 +483,6 @@ export const NOTEBOOK_ACTION_BLOCKS: CreativeBlock[] = [
     icon: '🎨',
     colorScheme: 'rose',
   },
-  {
-    id: 'act-note-nam-yen',
-    label: 'Nằm yên tĩnh đón gió',
-    text: 'nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy',
-    category: 'action',
-    icon: '🍃',
-    colorScheme: 'mint',
-  },
 ]
 
 export const NOTEBOOK_CONTEXT_BLOCKS: CreativeBlock[] = [
@@ -613,14 +509,6 @@ export const NOTEBOOK_CONTEXT_BLOCKS: CreativeBlock[] = [
     category: 'context',
     icon: '🌳',
     colorScheme: 'sky',
-  },
-  {
-    id: 'ctx-note-thu-vien',
-    label: 'Trong thư viện nhỏ',
-    text: 'trong căn phòng thư viện nhỏ yên tĩnh ấm áp',
-    category: 'context',
-    icon: '📚',
-    colorScheme: 'rose',
   },
 ]
 
@@ -656,22 +544,6 @@ export const CLOCK_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     icon: '⏱️',
     colorScheme: 'sky',
   },
-  {
-    id: 'cs-clk-qua-lac',
-    label: 'Quả lắc đồng đu đưa',
-    text: 'quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng',
-    category: 'color-shape',
-    icon: '🔔',
-    colorScheme: 'rose',
-  },
-  {
-    id: 'cs-clk-chan-de',
-    label: 'Chân đế chạm hoa',
-    text: 'chân đế bằng đồng chạm khắc hoa văn tinh xảo',
-    category: 'color-shape',
-    icon: '🌺',
-    colorScheme: 'mint',
-  },
 ]
 
 export const CLOCK_ACTION_BLOCKS: CreativeBlock[] = [
@@ -699,14 +571,6 @@ export const CLOCK_ACTION_BLOCKS: CreativeBlock[] = [
     icon: '✨',
     colorScheme: 'amber',
   },
-  {
-    id: 'act-clk-vung-chai',
-    label: 'Đứng vững chãi yên bình',
-    text: 'đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển',
-    category: 'action',
-    icon: '🏛️',
-    colorScheme: 'mint',
-  },
 ]
 
 export const CLOCK_CONTEXT_BLOCKS: CreativeBlock[] = [
@@ -733,14 +597,6 @@ export const CLOCK_CONTEXT_BLOCKS: CreativeBlock[] = [
     category: 'context',
     icon: '📚',
     colorScheme: 'indigo',
-  },
-  {
-    id: 'ctx-clk-cua-so',
-    label: 'Bên cửa sổ nhìn ra vườn',
-    text: 'bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng',
-    category: 'context',
-    icon: '🪟',
-    colorScheme: 'sky',
   },
 ]
 
@@ -1070,22 +926,6 @@ export const CAT_BASE_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     colorScheme: 'amber',
   },
   {
-    id: 'cs-cat-mat-xanh',
-    label: 'Mắt tròn xoe biếc xanh',
-    text: 'đôi mắt tròn xoe màu xanh ngọc bích trong veo',
-    category: 'color-shape',
-    icon: '👀',
-    colorScheme: 'sky',
-  },
-  {
-    id: 'cs-cat-tai-venh',
-    label: 'Tai vểnh tinh nghịch',
-    text: 'đôi tai tam giác vểnh cao lanh lợi',
-    category: 'color-shape',
-    icon: '👂',
-    colorScheme: 'rose',
-  },
-  {
     id: 'cs-cat-chuong-vang',
     label: 'Đeo chuông vàng',
     text: 'cổ đeo chiếc lục lạc tròn màu vàng lấp lánh leng keng',
@@ -1113,28 +953,12 @@ export const CAT_BASE_ACTION_BLOCKS: CreativeBlock[] = [
     colorScheme: 'amber',
   },
   {
-    id: 'act-cat-vay-duoi',
-    label: 'Vẫy đuôi tinh nghịch',
-    text: 'chiếc đuôi dài khẽ ngoe nguẩy nhịp nhàng vui vẻ',
-    category: 'action',
-    icon: '🐈',
-    colorScheme: 'sky',
-  },
-  {
     id: 'act-cat-dao-buoc',
     label: 'Thong dong dạo bước',
     text: 'đang thong thả bước đi từng bước nhẹ tênh',
     category: 'action',
     icon: '🚶',
     colorScheme: 'indigo',
-  },
-  {
-    id: 'act-cat-nghieng-dau',
-    label: 'Nghiêng đầu ngơ ngác',
-    text: 'đang nghiêng đầu tròn xoe mắt tò mò nhìn bé',
-    category: 'action',
-    icon: '❓',
-    colorScheme: 'purple',
   },
 ]
 
@@ -1162,22 +986,6 @@ export const CAT_BASE_CONTEXT_BLOCKS: CreativeBlock[] = [
     category: 'context',
     icon: '🛖',
     colorScheme: 'rose',
-  },
-  {
-    id: 'ctx-cat-bau-cua',
-    label: 'Bên bậu cửa gỗ nhỏ',
-    text: 'ngồi ngay ngắn bên bậu cửa sổ gỗ đón gió mát',
-    category: 'context',
-    icon: '🪟',
-    colorScheme: 'sky',
-  },
-  {
-    id: 'ctx-cat-goc-san',
-    label: 'Trong góc sân bình yên',
-    text: 'giữa khoảng sân nhỏ lát gạch đỏ bình yên',
-    category: 'context',
-    icon: '🧱',
-    colorScheme: 'indigo',
   },
 ]
 

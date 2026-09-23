@@ -17,7 +17,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da (1 từ thử nghiệm, chưa có chìa khóa)",
-    "promptEn": "In the exact same handmade polymer clay diorama style: A plain simple clay leather notebook journal standing blankly and looking confused alone on the wooden floor, minimal texture, warm pastel room, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, standing centered looking friendly and curious, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay.webp",
     "aspectRatio": "4:3",
@@ -41,7 +41,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da.webp",
     "aspectRatio": "4:3",
@@ -65,7 +65,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay.webp",
     "aspectRatio": "4:3",
@@ -89,57 +89,9 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi",
-    "batchName": "notebook_level2",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so",
-    "batchName": "notebook_level2",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -161,7 +113,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang mở sẵn trang vẽ phác thảo nét chì mộc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, đang mở sẵn trang vẽ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang.webp",
     "aspectRatio": "4:3",
@@ -185,7 +137,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lấp lánh dưới ánh đèn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh.webp",
     "aspectRatio": "4:3",
@@ -209,33 +161,9 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lưu giữ nét vẽ phác, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-nam-yen",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, nằm yên tĩnh đón gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -257,7 +185,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang mở sẵn trang vẽ phác thảo nét chì mộc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, đang mở sẵn trang vẽ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang.webp",
     "aspectRatio": "4:3",
@@ -281,7 +209,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lấp lánh dưới ánh đèn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh.webp",
     "aspectRatio": "4:3",
@@ -305,33 +233,9 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lưu giữ nét vẽ phác, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-nam-yen",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, nằm yên tĩnh đón gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
@@ -353,7 +257,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang mở sẵn trang vẽ phác thảo nét chì mộc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, đang mở sẵn trang vẽ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-mo-trang.webp",
     "aspectRatio": "4:3",
@@ -377,7 +281,7 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lấp lánh dưới ánh đèn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh.webp",
     "aspectRatio": "4:3",
@@ -401,231 +305,15 @@
       "context": ""
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lưu giữ nét vẽ phác, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-nam-yen",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, nằm yên tĩnh đón gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-nam-yen.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-mo-trang",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang mở sẵn trang vẽ phác thảo nét chì mộc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, đang mở sẵn trang vẽ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-lap-lanh",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lấp lánh dưới ánh đèn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-luu-net-ve",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lưu giữ nét vẽ phác, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-nam-yen",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, nằm yên tĩnh đón gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-mo-trang",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang mở sẵn trang vẽ phác thảo nét chì mộc",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, đang mở sẵn trang vẽ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-lap-lanh",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lấp lánh dưới ánh đèn, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-luu-net-ve",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lưu giữ nét vẽ phác, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen",
-    "batchName": "notebook_level3",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-nam-yen",
-      "context": ""
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": ""
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, nằm yên tĩnh đón gió, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -641,7 +329,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang mở sẵn trang vẽ phác thảo nét chì mộc, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, đang mở sẵn trang vẽ, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -649,7 +337,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -665,7 +353,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang mở sẵn trang vẽ phác thảo nét chì mộc, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, đang mở sẵn trang vẽ, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -673,7 +361,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -689,39 +377,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang mở sẵn trang vẽ phác thảo nét chì mộc, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, đang mở sẵn trang vẽ, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang mở sẵn trang vẽ phác thảo nét chì mộc, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, đang mở sẵn trang vẽ, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -737,7 +401,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lấp lánh dưới ánh đèn, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -745,7 +409,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -761,7 +425,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lấp lánh dưới ánh đèn, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -769,7 +433,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -785,39 +449,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lấp lánh dưới ánh đèn, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lấp lánh dưới ánh đèn, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -833,7 +473,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lưu giữ nét vẽ phác, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -841,7 +481,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -857,7 +497,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lưu giữ nét vẽ phác, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -865,7 +505,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -881,135 +521,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lưu giữ nét vẽ phác, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, bìa da nâu cổ điển, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, lưu giữ nét vẽ phác, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, nằm yên tĩnh đón gió, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, nằm yên tĩnh đón gió, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, nằm yên tĩnh đón gió, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-bia-da",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Bìa da nâu cổ điển",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, bìa da màu nâu thô mộc phong cách cổ điển, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with bìa da nâu cổ điển, nằm yên tĩnh đón gió, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-bia-da__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1025,7 +545,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang mở sẵn trang vẽ phác thảo nét chì mộc, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, đang mở sẵn trang vẽ, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1033,7 +553,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1049,7 +569,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang mở sẵn trang vẽ phác thảo nét chì mộc, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, đang mở sẵn trang vẽ, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1057,7 +577,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1073,39 +593,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang mở sẵn trang vẽ phác thảo nét chì mộc, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, đang mở sẵn trang vẽ, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang mở sẵn trang vẽ phác thảo nét chì mộc, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, đang mở sẵn trang vẽ, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1121,7 +617,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lấp lánh dưới ánh đèn, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1129,7 +625,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1145,7 +641,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lấp lánh dưới ánh đèn, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1153,7 +649,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1169,39 +665,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lấp lánh dưới ánh đèn, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lấp lánh dưới ánh đèn, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1217,7 +689,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lưu giữ nét vẽ phác, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1225,7 +697,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1241,7 +713,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lưu giữ nét vẽ phác, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1249,7 +721,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1265,135 +737,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lưu giữ nét vẽ phác, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, trang giấy ngả vàng, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, lưu giữ nét vẽ phác, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, nằm yên tĩnh đón gió, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, nằm yên tĩnh đón gió, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, nằm yên tĩnh đón gió, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-trang-giay",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Trang giấy ngả vàng",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, những trang giấy ngả vàng thơm mùi sách mới, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with trang giấy ngả vàng, nằm yên tĩnh đón gió, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-trang-giay__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1409,7 +761,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang mở sẵn trang vẽ phác thảo nét chì mộc, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, đang mở sẵn trang vẽ, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1417,7 +769,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1433,7 +785,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang mở sẵn trang vẽ phác thảo nét chì mộc, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, đang mở sẵn trang vẽ, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1441,7 +793,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1457,39 +809,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang mở sẵn trang vẽ phác thảo nét chì mộc, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, đang mở sẵn trang vẽ, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, đang mở sẵn trang vẽ, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang mở sẵn trang vẽ phác thảo nét chì mộc, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, đang mở sẵn trang vẽ, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1505,7 +833,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lấp lánh dưới ánh đèn, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1513,7 +841,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1529,7 +857,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lấp lánh dưới ánh đèn, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1537,7 +865,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1553,39 +881,15 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lấp lánh dưới ánh đèn, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lấp lánh dưới ánh đèn, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tan-cay.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   },
   {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lấp lánh dưới ánh đèn, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-ban-hoc",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1601,7 +905,7 @@
       "context": "Trên bàn học ấm cúng"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lưu giữ nét vẽ phác, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, trên bàn học ấm cúng, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
     "aspectRatio": "4:3",
@@ -1609,7 +913,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tach-tra",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1625,7 +929,7 @@
       "context": "Bên tách trà chiều"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lưu giữ nét vẽ phác, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, bên tách trà chiều, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tach-tra.webp",
     "aspectRatio": "4:3",
@@ -1633,7 +937,7 @@
   },
   {
     "id": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tan-cay",
-    "batchName": "notebook",
+    "batchName": "notebook_level4",
     "subjectKey": "notebook",
     "subjectLabel": "Cuốn Sổ Tay",
     "blockIds": {
@@ -1649,897 +953,9 @@
       "context": "Dưới tán cây râm mát"
     },
     "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lưu giữ nét vẽ phác, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
+    "promptEn": "2.5D cute soft clay illustration style, Hallmark craft aesthetic, smooth matte plasticine clay, rounded soft bevels, pastel warm color palette, gentle soft ambient studio lighting, Montessori children storybook art: An adorable chubby soft clay leather notebook journal, dây đánh dấu đỏ, lưu giữ nét vẽ phác, in the exact same cozy soft clay garden porch setting, dưới tán cây râm mát, with smooth rounded clay paving stones, gentle clay grass, and a soft clay wooden veranda post under warm sunny morning light.",
     "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tan-cay.webp",
     "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, lưu giữ nét vẽ phác, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, nằm yên tĩnh đón gió, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, nằm yên tĩnh đón gió, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, nằm yên tĩnh đón gió, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-day-do",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Dây đánh dấu đỏ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, sợi dây lụa đánh dấu trang màu đỏ thắm, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with dây đánh dấu đỏ, nằm yên tĩnh đón gió, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang mở sẵn trang vẽ phác thảo nét chì mộc, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, đang mở sẵn trang vẽ, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang mở sẵn trang vẽ phác thảo nét chì mộc, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, đang mở sẵn trang vẽ, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang mở sẵn trang vẽ phác thảo nét chì mộc, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, đang mở sẵn trang vẽ, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang mở sẵn trang vẽ phác thảo nét chì mộc, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, đang mở sẵn trang vẽ, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lấp lánh dưới ánh đèn, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lấp lánh dưới ánh đèn, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lấp lánh dưới ánh đèn, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lấp lánh dưới ánh đèn, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lưu giữ nét vẽ phác, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lưu giữ nét vẽ phác, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lưu giữ nét vẽ phác, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, lưu giữ nét vẽ phác, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, nằm yên tĩnh đón gió, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, nằm yên tĩnh đón gió, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, nằm yên tĩnh đón gió, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-kep-but-chi",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Kẹp bút chì gỗ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with kẹp bút chì gỗ, nằm yên tĩnh đón gió, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-kep-but-chi__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang mở sẵn trang vẽ phác thảo nét chì mộc, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, đang mở sẵn trang vẽ, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang mở sẵn trang vẽ phác thảo nét chì mộc, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, đang mở sẵn trang vẽ, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang mở sẵn trang vẽ phác thảo nét chì mộc, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, đang mở sẵn trang vẽ, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-mo-trang",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Đang mở sẵn trang vẽ",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang mở sẵn trang vẽ phác thảo nét chì mộc, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, đang mở sẵn trang vẽ, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-mo-trang__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lấp lánh dưới ánh đèn, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lấp lánh dưới ánh đèn, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lấp lánh dưới ánh đèn, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-lap-lanh",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lấp lánh dưới ánh đèn",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lấp lánh dưới ánh đèn, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-lap-lanh__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lưu giữ nét vẽ phác, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lưu giữ nét vẽ phác, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lưu giữ nét vẽ phác, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-luu-net-ve",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Lưu giữ nét vẽ phác",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, đang lưu giữ những nét vẽ phác họa ngộ nghĩnh, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, lưu giữ nét vẽ phác, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-luu-net-ve__ctx-note-thu-vien.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-ban-hoc",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-ban-hoc"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trên bàn học ấm cúng"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trên góc bàn học gỗ ấm cúng ngăn nắp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, nằm yên tĩnh đón gió, trên bàn học ấm cúng, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-ban-hoc.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tach-tra",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tach-tra"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Bên tách trà chiều"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, nằm yên tĩnh đón gió, bên tách trà chiều, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tach-tra.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tan-cay",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-tan-cay"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Dưới tán cây râm mát"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, dưới tán cây xanh ngát ngập tràn bóng râm",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, nằm yên tĩnh đón gió, dưới tán cây râm mát, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-tan-cay.webp",
-    "aspectRatio": "4:3",
-    "status": "pending"
-  },
-  {
-    "id": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-thu-vien",
-    "batchName": "notebook",
-    "subjectKey": "notebook",
-    "subjectLabel": "Cuốn Sổ Tay",
-    "blockIds": {
-      "subject": "sub-so-tay",
-      "colorShape": "cs-note-gay-so",
-      "action": "act-note-nam-yen",
-      "context": "ctx-note-thu-vien"
-    },
-    "blockLabels": {
-      "subject": "Cuốn sổ tay",
-      "colorShape": "Gáy sổ may chỉ",
-      "action": "Nằm yên tĩnh đón gió",
-      "context": "Trong thư viện nhỏ"
-    },
-    "promptVi": "Cuốn sổ tay mở bìa da, gáy sổ được may bằng sợi chỉ thô chắc chắn, nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy, trong căn phòng thư viện nhỏ yên tĩnh ấm áp",
-    "promptEn": "In the exact same handmade polymer clay diorama style: leather notebook journal with gáy sổ may chỉ, nằm yên tĩnh đón gió, trong thư viện nhỏ, beside a miniature wooden chair on the wooden floor in a cozy playroom, smooth clay texture, warm pastel room background, soft clay glaze, Montessori aesthetic",
-    "targetFilename": "combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-thu-vien.webp",
-    "targetAssetPath": "/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-gay-so__act-note-nam-yen__ctx-note-thu-vien.webp",
     "aspectRatio": "4:3",
     "status": "pending"
   }
