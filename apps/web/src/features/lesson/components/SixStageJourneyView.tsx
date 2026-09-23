@@ -1353,7 +1353,7 @@ export function SixStageJourneyView({
                 (currentStage === 4 || currentStage === 5)
                   ? 'md:fixed md:top-16 md:right-4 md:bottom-4 md:z-40 md:w-[min(calc(100vw-2rem),360px)] md:border-2 md:border-brand-300 md:shadow-2xl'
                   : 'md:static md:w-[320px] lg:w-[340px] md:border-2 md:border-brand-100 md:shadow-clay',
-                isRuleLesson && currentStageDef?.type === 'VIDEO' && 'md:self-start'
+                isRuleLesson && (currentStageDef?.type === 'VIDEO' || currentStageDef?.type === 'QUIZ') && 'md:self-start'
               )}
             >
               {/* Header Sidebar: bài Quy tắc dùng nhãn AIKI gọn, tránh lặp tên chặng */}

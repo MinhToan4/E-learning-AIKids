@@ -99,7 +99,7 @@ export function QuizStageBlock({
   return (
     <section
       data-testid="stage-3-quiz"
-      className="flex min-h-0 h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4 gap-2.5"
+      className="flex min-h-0 h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4 gap-2.5 xl:h-auto xl:self-start"
     >
       <h2 className="sr-only">{config.title}</h2>
 
@@ -172,7 +172,7 @@ export function QuizStageBlock({
       </div>
 
       {/* Danh sách câu hỏi Single Question Stepper 2 Cột cuộn độc lập */}
-      <div className="flex w-full flex-1 min-h-0 flex-col justify-start overflow-y-auto pr-1 py-3 xl:justify-center">
+      <div className="flex w-full flex-1 min-h-0 flex-col justify-start overflow-y-auto pr-1 py-3 xl:flex-none xl:overflow-visible">
         {questions.map((question, qIdx) => {
           const selectedOpt = quizAnswers[qIdx]
           const isActive = qIdx === activeQuizQuestionIdx
@@ -190,11 +190,11 @@ export function QuizStageBlock({
             <div
               key={question.id || qIdx}
               className={cn(
-                'w-full transition-all xl:min-h-full',
+                'w-full transition-all',
                 isActive ? 'block' : 'hidden'
               )}
             >
-              <div className="grid w-full grid-cols-1 items-center gap-4 xl:min-h-full xl:grid-cols-2 xl:gap-6">
+              <div className="grid w-full grid-cols-1 items-center gap-4 xl:grid-cols-2 xl:gap-6">
                 {/* CỘT TRÁI: ảnh mở rộng cân đối với câu hỏi trên màn hình lớn. */}
                 {hasValidQuizImg && (
                   <div className="flex min-h-0 w-full flex-col justify-center">
