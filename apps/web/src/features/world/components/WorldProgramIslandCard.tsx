@@ -540,13 +540,22 @@ export function WorldProgramIslandCard({
           </div>
 
           {/* Nút Hành Động Soft Clay */}
-          <div className="pt-2">
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
             <Button
               onClick={handlePrimaryAction}
               className="w-full sm:w-auto shadow-clay active:shadow-press rounded-2xl gap-2 px-8 py-4 text-base font-black inline-flex items-center justify-center cursor-pointer"
             >
               <span>{totalProgress > 0 ? 'Tiếp tục học các đảo' : 'Lên thuyền khám phá các đảo'}</span>
               <ArrowRight size={18} />
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/world/program/aikid_official/creator')}
+              className="w-full sm:w-auto rounded-2xl gap-2 px-6 py-4 font-black"
+            >
+              <Compass size={17} aria-hidden="true" />
+              Xem toàn bộ các đảo
             </Button>
           </div>
 

@@ -16,6 +16,7 @@ import {
   mergeQuestsWithLocalProgress,
   enrichCoursesWithLocalProgress,
   getStationSlug,
+  selectNextLearningTarget,
 } from './WorldPage'
 
 type PathwayCourseInput = Parameters<typeof isPathwayCourseVisible>[0]
@@ -44,6 +45,54 @@ describe('World pathway enrollment visibility', () => {
     expect(isPathwayCourseVisible(course({ status: 'completed' }))).toBe(true)
     expect(isPathwayCourseVisible(course({ status: 'available' }))).toBe(true)
     expect(isPathwayCourseVisible(course({ status: 'locked' }))).toBe(true)
+  })
+})
+
+describe('Next learning target', () => {
+  it('skips a stale completed recommended Module 0 and selects the next island', () => {
+    const completedRule = course({
+      id: 'aiki-rules',
+      title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo',
+      status: 'completed',
+      questCount: 10,
+      completedCount: 10,
+    })
+    const nextIsland = course({
+      id: 'dao-1-nha-tham-hiem-ai',
+      title: 'Module 1 — Nhà thám hiểm AI',
+      status: 'available',
+      questCount: 4,
+      completedCount: 0,
+    })
+
+    expect(selectNextLearningTarget([completedRule, nextIsland], completedRule.id)?.course.id)
+      .toBe(nextIsland.id)
+  })
+
+  it('prefers an in-progress station in the active island', () => {
+    const activeIsland = course({
+      id: 'dao-1-nha-tham-hiem-ai',
+      status: 'active',
+      questCount: 4,
+      completedCount: 1,
+      stations: [
+        {
+          id: 'q1', order: 1, title: 'Trạm 1', status: 'completed', stars: 3,
+          skill: '', reward: '', duration: '', hook: '', accent: 'mint', practiceKind: 'quiz',
+          phase: 'check', xpEarned: 30,
+        },
+        {
+          id: 'q2', order: 2, title: 'Trạm 2', status: 'in_progress', stars: 0,
+          skill: '', reward: '', duration: '', hook: '', accent: 'mint', practiceKind: 'quiz',
+          phase: 'learn', xpEarned: 0,
+        },
+      ],
+    })
+
+    expect(selectNextLearningTarget([activeIsland], null)).toMatchObject({
+      course: { id: activeIsland.id },
+      station: { id: 'q2' },
+    })
   })
 })
 

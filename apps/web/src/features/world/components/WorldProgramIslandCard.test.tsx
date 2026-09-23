@@ -28,6 +28,7 @@ describe('WorldProgramIslandCard', () => {
     expect(html).toContain('10 Quy tắc vàng')
     expect(html).toContain('Chìa khóa lệnh')
     expect(html).toContain('Tiếp tục học các đảo')
+    expect(html).toContain('Xem toàn bộ các đảo')
     expect(html).toContain('shadow-clay')
     expect(html).not.toContain('🐾')
   })

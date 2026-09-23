@@ -85,6 +85,45 @@ export type PathwayCourse = {
   lockMessage?: string
 }
 
+export type NextLearningTarget = {
+  course: PathwayCourse
+  station?: QuestProgress
+}
+
+function isCourseComplete(course: PathwayCourse): boolean {
+  if (course.status === 'completed') return true
+  return Boolean(
+    course.questCount &&
+    course.questCount > 0 &&
+    (course.completedCount ?? 0) >= course.questCount,
+  )
+}
+
+/**
+ * Select the next server-authored learning target without falling back to an
+ * already completed recommended module. Course order is the canonical island
+ * sequence; an in-progress course wins, then a still-actionable recommendation,
+ * then the first available/locked island.
+ */
+export function selectNextLearningTarget(
+  courses: PathwayCourse[],
+  recommendedCourseId?: string | null,
+): NextLearningTarget | null {
+  const unfinished = courses.filter((course) => !isCourseComplete(course))
+  const recommended = unfinished.find((course) => course.id === recommendedCourseId)
+  const course = unfinished.find((item) => item.status === 'active')
+    ?? recommended
+    ?? unfinished.find((item) => item.status === 'available')
+    ?? unfinished.find((item) => item.status === 'locked')
+
+  if (!course) return null
+
+  const station = course.stations?.find((item) => item.status === 'in_progress')
+    ?? course.stations?.find((item) => item.status === 'available')
+
+  return { course, station }
+}
+
 export function findCourseByIdentifier(
   courses: PathwayCourse[],
   identifier?: string,
@@ -1211,9 +1250,14 @@ function RoadmapCourseNode({
     stationCount,
     Math.max(0, course.completedCount ?? Math.floor((stationCount * course.completionPercent) / 100)),
   );
+  const completionPercent = isCompleted
+    ? 100
+    : stationCount > 0
+      ? Math.max(course.completionPercent, Math.round((completedStations / stationCount) * 100))
+      : course.completionPercent;
   const nextStation = course.stations?.find(
     (station) => station.status === 'available' || station.status === 'in_progress',
-  ) ?? (course.stations && course.stations.length > 0 ? course.stations[0] : undefined);
+  );
   const isRuleCourse = isAikiRuleCourse(course, index);
   const previousRegion = index > 0 ? WORLD_REGIONS[(index - 1) % WORLD_REGIONS.length] : null;
 
@@ -1271,7 +1315,7 @@ function RoadmapCourseNode({
       {(isActive || isCompleted) && (
         <div>
           <CuteProgress
-            value={course.completionPercent}
+            value={completionPercent}
             label="Hoàn thành khóa"
             tone={isCompleted ? 'mint' : 'violet'}
           />
@@ -1369,7 +1413,14 @@ function RoadmapCourseNode({
 
       {!isLocked && (
         <div className="flex flex-wrap items-center gap-2">
-          {nextStation ? (
+          {isCompleted ? (
+            <Link
+              to={`/world/${course.slug || course.id}`}
+              className="world-course-primary-action"
+            >
+              Học lại
+            </Link>
+          ) : nextStation ? (
             <Link
               to={`/world/${course.slug || course.id}/lesson/${getStationSlug(nextStation, isRuleCourse)}`}
               className="world-course-primary-action"
@@ -1384,13 +1435,15 @@ function RoadmapCourseNode({
               Bắt đầu học
             </Link>
           )}
-          <Link
-            to={`/world/${course.slug || course.id}`}
-            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white"
-          >
-            {isCompleted ? 'Học lại' : 'Xem toàn bộ trạm'}
-            <ChevronRight size={16} aria-hidden />
-          </Link>
+          {!isCompleted && (
+            <Link
+              to={`/world/${course.slug || course.id}`}
+              className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white"
+            >
+              Xem toàn bộ trạm
+              <ChevronRight size={16} aria-hidden />
+            </Link>
+          )}
         </div>
       )}
     </div>
@@ -1559,13 +1612,12 @@ function PathwayOverview({
       ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
       : [],
   )
-  const sourceRecommended = selectedCourses.find(
-    (course) => course.id === pathway.recommendedCourseId,
-  ) ?? selectedCourses.find((course) => course.status === 'active')
-    ?? selectedCourses.find((course) => course.status === 'available')
-  const nextStation = sourceRecommended?.stations?.find(
-    (station) => station.status === 'in_progress' || station.status === 'available',
+  const nextLearningTarget = selectNextLearningTarget(
+    selectedCourses,
+    pathway.recommendedCourseId,
   )
+  const sourceRecommended = nextLearningTarget?.course
+  const nextStation = nextLearningTarget?.station
   const courseHref = (course: PathwayCourse) => {
     const slug = course.slug || course.id
     if (isAikiRuleCourse(course)) return `/world/${course.slug || 'dao-1'}`
@@ -1584,6 +1636,35 @@ function PathwayOverview({
   const totalProgress = totalStations > 0
     ? Math.round((completedStations / totalStations) * 100)
     : 0
+  const nextTicket = sourceRecommended && (
+    <div className="world-next-ticket">
+      <div>
+        <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-mint-700">
+          <Star size={11} className="fill-mint-500 text-mint-500" aria-hidden />
+          Trạm tiếp theo
+        </p>
+        <p className="mt-1 font-display text-xl">
+          {formatCourseTitle(nextStation?.title ?? sourceRecommended.title)}
+        </p>
+        <p className="mt-1 text-sm font-bold text-muted">
+          {nextStation
+            ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
+            : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
+        </p>
+      </div>
+      {sourceRecommended.status === 'locked' ? (
+        <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
+          🔒 Xem điều kiện mở
+        </Button>
+      ) : (
+        <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${getStationSlug(nextStation, isAikiRuleCourse(sourceRecommended))}` : courseHref(sourceRecommended)}>
+          <Button>
+            {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
+          </Button>
+        </Link>
+      )}
+    </div>
+  )
 
   // ─────────────────────────────────────────────────────────────
   // Trường hợp 1: Chế độ Thư viện Không Gian Học Tập (/world/spaces)
@@ -1715,33 +1796,7 @@ function PathwayOverview({
             </div>
           </div>
 
-          {sourceRecommended && (
-            <div className="world-next-ticket">
-              <div>
-                <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-mint-700">
-                  <Star size={11} className="fill-mint-500 text-mint-500" aria-hidden />
-                  Trạm tiếp theo
-                </p>
-                <p className="mt-1 font-display text-xl">{nextStation?.title ?? sourceRecommended.title}</p>
-                <p className="mt-1 text-sm font-bold text-muted">
-                  {nextStation
-                    ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
-                    : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
-                </p>
-              </div>
-              {sourceRecommended.status === 'locked' ? (
-                <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
-                  🔒 Xem điều kiện mở
-                </Button>
-              ) : (
-                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${getStationSlug(nextStation, isAikiRuleCourse(sourceRecommended))}` : courseHref(sourceRecommended)}>
-                  <Button>
-                    {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
-                  </Button>
-                </Link>
-              )}
-            </div>
-          )}
+          {nextTicket}
         </header>
 
         {/* Danh mục Các Chương Trình Học */}
@@ -1930,33 +1985,7 @@ function PathwayOverview({
           </div>
         </div>
 
-        {selectedCategory && sourceRecommended && (
-          <div className="world-next-ticket">
-            <div>
-              <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-mint-700">
-                <Star size={11} className="fill-mint-500 text-mint-500" aria-hidden />
-                Trạm tiếp theo
-              </p>
-              <p className="mt-1 font-display text-xl">{nextStation?.title ?? sourceRecommended.title}</p>
-              <p className="mt-1 text-sm font-bold text-muted">
-                {nextStation
-                  ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
-                  : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
-              </p>
-            </div>
-            {sourceRecommended.status === 'locked' ? (
-              <Button onClick={() => handleLockedCourseClick(sourceRecommended)}>
-                🔒 Xem điều kiện mở
-              </Button>
-              ) : (
-                <Link to={nextStation ? `/world/${sourceRecommended.slug || sourceRecommended.id}/lesson/${getStationSlug(nextStation, isAikiRuleCourse(sourceRecommended))}` : courseHref(sourceRecommended)}>
-                  <Button>
-                  {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
-                </Button>
-              </Link>
-            )}
-          </div>
-        )}
+        {selectedCategory && nextTicket}
       </header>
 
       {selectedCourses.length === 0 ? (
