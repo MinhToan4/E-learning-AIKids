@@ -3026,6 +3026,39 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
+  it('keeps the AIKI assistant completely hidden by default in regular courses on wide screens', () => {
+    const originalInnerWidth = window.innerWidth
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1600 })
+    const root = createRoot(container)
+
+    try {
+      act(() => {
+        root.render(
+          <SixStageJourneyView
+            journey={mockJourney}
+            lessonId="bai-1-1"
+            lessonTitle="Đừng Để AIKI Đoán Mò"
+            initialStageIndex={0}
+          />
+        )
+      })
+
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(container.querySelector('[data-testid="aiki-compact-rail"]')).toBeNull()
+
+      const assistantToggle = Array.from(container.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('Trợ lý AIKI')
+      ) as HTMLButtonElement
+      expect(assistantToggle).not.toBeNull()
+
+      act(() => assistantToggle.click())
+      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+    } finally {
+      act(() => root.unmount())
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
+    }
+  })
+
   it('keeps AIKI progress available as a compact rail when a Rule sidebar is collapsed', () => {
     const root = createRoot(container)
     act(() => {

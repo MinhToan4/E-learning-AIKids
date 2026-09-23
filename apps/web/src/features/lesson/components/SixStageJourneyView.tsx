@@ -309,9 +309,11 @@ export function SixStageJourneyView({
       if (isRuleLesson) {
         return window.innerWidth < 1440 || window.innerHeight < 800
       }
-      return window.innerWidth < 1280
+      // Khóa học 6 chặng ưu tiên toàn bộ chiều rộng cho nội dung học.
+      // AIKI chỉ xuất hiện khi người học chủ động mở từ nút trên thanh trạm.
+      return true
     }
-    return false
+    return !isRuleLesson
   })
 
   // Keep the learning canvas usable when a Rule lesson loses horizontal or
