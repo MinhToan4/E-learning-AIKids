@@ -135,9 +135,9 @@ export function VideoStageBlock({
   ])
 
   const handleContinue = useCallback(() => {
-    handleTriggerComplete()
+    if (!isVideoCompleted) return
     onContinue?.()
-  }, [handleTriggerComplete, onContinue])
+  }, [isVideoCompleted, onContinue])
 
   return (
     <section
@@ -173,9 +173,7 @@ export function VideoStageBlock({
             data-testid="generic-video-notice"
             className="w-full max-w-4xl mx-auto mt-2 rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3 py-1.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
           >
-            <span>
-              🎬 Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị! Bạn hãy xem video bí kíp của AIKI ở trên hoặc bấm &quot;Tiếp tục&quot; để làm trắc nghiệm &amp; thực hành nhé ✨
-            </span>
+            <span>🎬 Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị. Con hãy xem đủ video trước khi sang phần thử tài nhé ✨</span>
           </div>
         )}
 
@@ -343,10 +341,13 @@ export function VideoStageBlock({
             variant="primary"
             className="flex-1 py-2 px-3 [@media(max-height:760px)]:py-1.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto"
             onClick={handleContinue}
+            disabled={!isVideoCompleted}
+            aria-describedby={!isVideoCompleted ? 'video-progress-requirement' : undefined}
           >
-            <span>{hasSlides ? '⚡ Tiếp tục sang Thử Tài Phản Xạ' : '📝 Làm bài test thử tài →'}</span>
+            <span>{!isVideoCompleted ? 'Xem đủ video để tiếp tục' : hasSlides ? '⚡ Tiếp tục sang Thử Tài Phản Xạ' : '📝 Làm bài test thử tài →'}</span>
             <ArrowRight size={15} />
           </Button>
+          {!isVideoCompleted && <span id="video-progress-requirement" className="sr-only">Cần xem ít nhất 75 phần trăm video trước khi tiếp tục.</span>}
         </div>
       </div>
     </section>

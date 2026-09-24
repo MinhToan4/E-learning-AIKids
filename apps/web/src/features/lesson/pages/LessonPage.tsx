@@ -56,7 +56,7 @@ import {
 } from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
-import { clearWorldPageCache } from '@/features/world/pages/WorldPage'
+import { clearWorldPageCache, findCourseByIdentifier, isUserTestingUnlocked } from '@/features/world/pages/WorldPage'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
@@ -90,8 +90,6 @@ import { LessonCelebrationModal } from '@/features/lesson/components/LessonCeleb
 import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { useAuth } from '@/shared/store/auth'
-import { queryClient } from '@/shared/lib/query-client'
-import { applyConfirmedXpDelta } from '@/shared/lib/progression-query'
 import { LessonNavigationHeader } from '@/features/lesson/components/LessonNavigationHeader'
 import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
@@ -476,6 +474,28 @@ export function LessonPage() {
 
 
     void (async () => {
+      const localRuleLesson = questId.startsWith('rule-') || questId === 'aiki-rules'
+      if (!localRuleLesson && questId.startsWith('bai-')) {
+        try {
+          const pathway = await learningApi.getPathway()
+          const course = routeCourseId
+            ? findCourseByIdentifier(pathway.courses, routeCourseId)
+            : undefined
+          const isUnlocked = isUserTestingUnlocked()
+          if (!isUnlocked && (!course || (!course.enrolled && course.status !== 'completed'))) {
+            setIsPaywallOpen(true)
+            setLoading(false)
+            return
+          }
+        } catch (error) {
+          if (!cancelled) {
+            setError(error instanceof Error ? error.message : 'Chưa xác minh được quyền vào khóa học.')
+            setLoading(false)
+          }
+          return
+        }
+      }
+
       if (questId.startsWith('rule-') || questId === 'aiki-rules') {
         const rId = parseInt(questId.replace(/[^0-9]/g, '') || '1', 10) || 1
         const rData = AIKI_RULES_DATA.find((r) => r.id === rId) || AIKI_RULES_DATA[0]
@@ -559,8 +579,9 @@ export function LessonPage() {
       } catch (e) {
         if (!cancelled) {
           const isPaywall =
-            (e instanceof ApiError && (e.status === 402 || e.code === 'COURSE_PURCHASE_REQUIRED' || e.code === 'LMS_ENTITLEMENT_REQUIRED' || e.code === 'CREDITS_EXHAUSTED')) ||
-            (e instanceof Error && /entitlement|purchase|paid|402/i.test(e.message))
+            !isUserTestingUnlocked() &&
+            ((e instanceof ApiError && (e.status === 402 || e.code === 'COURSE_PURCHASE_REQUIRED' || e.code === 'LMS_ENTITLEMENT_REQUIRED' || e.code === 'CREDITS_EXHAUSTED')) ||
+            (e instanceof Error && /entitlement|purchase|paid|402/i.test(e.message)))
 
           if (isPaywall) {
             setIsPaywallOpen(true)
@@ -831,75 +852,50 @@ export function LessonPage() {
     stopSituationNarrator()
   }, [aikiRuleStage, phase, stopSituationNarrator])
 
-  async function handleAikiFinish(customSummary?: { stars?: number; xp?: number; nextLessonSlug?: string }) {
+  async function handleAikiFinish(customSummary?: { answers?: Array<{ questionId: string; optionIndex: number }> }) {
     if (!quest || busy) return
-    if (isAikiRuleJourney) {
-      completeRule(ruleId)
-    }
     setBusy(true)
-    const earnedRuleStars = (aikiQuizAnswerCorrect ? 1 : 0) + (hasAcknowledgedRule ? 1 : 0) + (hasCommitted ? 1 : 0)
-    const finalStars = customSummary?.stars ?? Math.max(1, earnedRuleStars)
-    const xpMap: Record<number, number> = { 1: 30, 2: 60, 3: 100 }
-    const earnedXp = customSummary?.xp ?? (xpMap[finalStars] || 100)
-    try {
-      const raw = localStorage.getItem('aikids_completed_lessons')
-      const completed = raw ? JSON.parse(raw) : {}
-      completed[quest.id] = { stars: finalStars, xp: earnedXp, completedAt: new Date().toISOString() }
-      if (isAikiRuleJourney && ruleId) {
-        completed[`rule-${ruleId}`] = { stars: finalStars, xp: earnedXp, completedAt: new Date().toISOString() }
-      }
-      localStorage.setItem('aikids_completed_lessons', JSON.stringify(completed))
-    } catch {}
-    clearWorldPageCache()
-    const celebrationMsg = isIslandJourney
-      ? `Xuất sắc! Con đã hoàn thành ${quest.title} và nhận ${finalStars} Sao (+${earnedXp} XP)!`
-      : finalStars === 3
-        ? `Xuất sắc! Con đạt trọn 3 Sao và nhận +${earnedXp} XP! Chào mừng Hiệp Sĩ Sáng Tạo AIKI! 🎉`
-        : finalStars === 2
-          ? `Rất tốt! Con đạt 2 Sao và nhận +${earnedXp} XP! Cùng tiến lên trạm tiếp theo nhé! 🌟`
-          : `Hoan hô! Con đã hoàn thành trạm và nhận +${earnedXp} XP! Cùng cố gắng giành 3 Sao nhé! ⭐`
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
-    const answersPayload = isAikiRuleJourney
+    const answersPayload = customSummary?.answers?.length
+      ? customSummary.answers
+      : isAikiRuleJourney
       ? [
           {
             questionId: (quest.check && quest.check[0]?.id) || `${(quest as any).slug || quest.id}-check-1`,
-            optionIndex: (quest.check && typeof (quest.check[0] as any)?.correctIndex === 'number')
-              ? (quest.check[0] as any).correctIndex
-              : ((quest as any).correctIndex ?? ruleData?.questions?.[0]?.correctIndex ?? 1),
+            optionIndex: aikiQuizAnswer ?? -1,
           },
         ]
       : (quest.check && quest.check.length > 0)
         ? quest.check.map((q) => ({
             questionId: q.id,
-            optionIndex: typeof (q as any).correctIndex === 'number'
-              ? (q as any).correctIndex
-              : ((answers && typeof answers[q.id] === 'number') ? answers[q.id] : 0),
+            optionIndex: (answers && typeof answers[q.id] === 'number') ? answers[q.id] : -1,
           }))
         : []
     try {
       const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
-      setLiveStars(finalStars)
+      const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
+      const celebrationMsg = isIslandJourney
+        ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
+        : confirmedStars === 3
+          ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI! 🎉'
+          : confirmedStars === 2
+            ? 'Rất tốt! Con đạt 2 Sao. Cùng tiến lên trạm tiếp theo nhé! 🌟'
+            : 'Hoan hô! Kết quả của con đã được hệ thống ghi nhận. Cùng cố gắng giành 3 Sao nhé! ⭐'
+      if (isAikiRuleJourney) {
+        completeRule(ruleId, confirmedStars)
+      }
+      setLiveStars(confirmedStars)
       setCheckResult({
         ...checkRes,
-        stars: finalStars,
+        stars: confirmedStars,
         message: celebrationMsg,
         nextQuestId: checkRes.nextQuestId || nextRuleTarget,
       })
       setPhase('done')
-      if (user) {
-        const progression = applyConfirmedXpDelta(queryClient, user, earnedXp)
-        window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
-          detail: { xp: progression.totalXp, level: progression.level },
-        }))
-      }
-    } catch {
-      setLiveStars(finalStars)
-      setCheckResult({
-        stars: finalStars,
-        message: celebrationMsg,
-        nextQuestId: nextRuleTarget,
-      })
-      setPhase('done')
+      clearWorldPageCache()
+      window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')
     } finally {
       setBusy(false)
     }
@@ -1997,6 +1993,7 @@ export function LessonPage() {
                 characterName={studioCharacterName}
                 lockedFeatures={studioLockedFeatures}
                 studentStars={liveStars || 42}
+                initialInstantFallback={true}
                 onBackToLesson={() => setPhase('learn')}
                 onReplayVideo={() => {
                   setPhase('learn')

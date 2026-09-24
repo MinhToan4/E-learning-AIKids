@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { api } from '@/shared/lib/api'
+import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import {
   learningApi,
   type LearningPathway,
@@ -162,7 +163,7 @@ export function ProgressPage() {
 
   // Tính tổng số trạm
   const totalQuestsCalculated = courses.reduce(
-    (acc, c) => acc + (c.questCount || (c.stations ? c.stations.length : 0)),
+    (acc, c) => acc + getCourseStationCount(c),
     0,
   )
 

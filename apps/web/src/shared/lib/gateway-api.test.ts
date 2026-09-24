@@ -437,6 +437,32 @@ describe('StoryMee Gateway adapter', () => {
     expect(result.courses[0].enrollmentId).toBe('enrollment-1')
   })
 
+  it('deduplicates phase rows and uses the concrete station total for a pathway course', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      student: { ageBand: '8-11' },
+      courses: [{
+        id: 'rules',
+        title: 'Mười quy tắc vàng',
+        status: 'active',
+        questCount: 20,
+        stations: [
+          { id: 'learn-1', order: 1, title: 'Quy tắc 1', lessonType: 'learn' },
+          { id: 'practice-1', order: 1, title: 'Quy tắc 1', lessonType: 'practice' },
+          { id: 'learn-2', order: 2, title: 'Quy tắc 2', lessonType: 'learn' },
+          { id: 'practice-2', order: 2, title: 'Quy tắc 2', lessonType: 'practice' },
+        ],
+      }],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      courses: Array<{ questCount: number; stations: Array<{ order: number }> }>
+    }>('/api/learning/pathway')
+
+    expect(result.courses[0].questCount).toBe(2)
+    expect(result.courses[0].stations.map((station) => station.order)).toEqual([1, 2])
+  })
+
   it('routes the daily learning mission into the LMS world', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{
       mission: {
@@ -1259,5 +1285,4 @@ describe('StoryMee Gateway adapter', () => {
     })
   })
 })
-
 

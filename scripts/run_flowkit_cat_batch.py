@@ -145,6 +145,7 @@ def main():
     parser.add_argument("--use-ref", action="store_true", help="Upload và đính kèm ảnh reference vào request")
     parser.add_argument("--limit", type=int, default=0, help="Giới hạn số ảnh cần sinh trong đợt này")
     parser.add_argument("--level", help="Lọc theo level (cat_level1, cat_level2, cat_level3, cat_level4)")
+    parser.add_argument("--overwrite", action="store_true", help="Ghi đè lại ảnh cũ kể cả khi file đã tồn tại")
     parser.add_argument("--delay", type=float, default=3.0, help="Số giây nghỉ giữa mỗi request (mặc định 3s)")
 
     args = parser.parse_args()
@@ -167,7 +168,7 @@ def main():
     already_done = 0
     for job in all_jobs:
         target_path = OUTPUT_DIR / job["targetFilename"]
-        if target_path.exists():
+        if target_path.exists() and not args.overwrite:
             already_done += 1
         else:
             pending_jobs.append(job)

@@ -1467,4 +1467,37 @@ describe('AikiStudioWorkspace', () => {
     })
     container.remove()
   })
+
+  it('displays instant live preview with pregenerated combo when prompt contains keywords before drawing', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-1"
+          characterName="Mèo Mướp"
+          initialPrompt="Chú mèo mướp lông vằn vàng dạo bước trên thảm cỏ"
+        />
+      )
+    })
+
+    const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
+    expect(emptyCanvas).not.toBeNull()
+
+    // Ảnh live preview xuất hiện ngay lập tức
+    const previewImg = emptyCanvas?.querySelector('img[alt="Xem trước tranh"]') as HTMLImageElement
+    expect(previewImg).not.toBeNull()
+    expect(previewImg.src).toContain('combo__sub-meo-muop__cs-cat-long-van-vang__act-cat-dao-buoc__ctx-cat-tham-co.webp')
+
+    // Badge "Xem trước nét vẽ ma thuật" hiển thị
+    expect(emptyCanvas?.textContent).toContain('Xem trước nét vẽ ma thuật')
+    expect(emptyCanvas?.textContent).toContain('Đã khớp ảnh! Bấm “Vẽ đi AIKI!” để lưu tranh')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })

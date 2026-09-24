@@ -646,6 +646,7 @@ export function normalizeLearningGatewayResponse(
       .map((course) => {
         const raw = course as Record<string, unknown>
         const mapped = mapCourse(raw)
+        const stations = mapped.quests
         const enrolled = raw.enrolled === true
         const progressPct = Number(
           raw.completionPercent ?? raw.progressPct ?? 0,
@@ -673,7 +674,11 @@ export function normalizeLearningGatewayResponse(
               ? 'in_progress'
               : 'requirements_met',
           completionPercent: progressPct,
-          questCount: Number(raw.questCount ?? mapped.questCount ?? 0),
+          // Embedded stations are authoritative. Some pathway projections used
+          // to count phase rows and reported x2/x3 the real station total.
+          questCount: stations.length > 0
+            ? stations.length
+            : Number(raw.questCount ?? mapped.questCount ?? 0),
           completedCount: Number(raw.completedCount ?? 0),
           totalStars: Number(raw.totalStars ?? 0),
           enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
@@ -690,6 +695,7 @@ export function normalizeLearningGatewayResponse(
             ? raw.missingPrerequisites.map(String)
             : [],
           coverImage: mapped.coverImage,
+          stations,
         }
       })
     const recommended = courses.find((course) => course.status === 'active') ??
@@ -852,11 +858,19 @@ export function normalizeLearningGatewayResponse(
       policy: source.policy ?? null,
       recommendedCourseId:
         source.recommendedCourseId ?? recommended?.id ?? null,
-      courses: uniqueCourses.map((course) => ({
-        ...course,
-        shortTitle: String(course.shortTitle ?? course.title ?? ''),
-        coverImage: course.coverImage ? String(course.coverImage) : null,
-      })),
+      courses: uniqueCourses.map((course) => {
+        const mapped = mapCourse(course)
+        const stations = mapped.quests
+        return {
+          ...course,
+          shortTitle: String(course.shortTitle ?? course.title ?? ''),
+          coverImage: course.coverImage ? String(course.coverImage) : null,
+          questCount: stations.length > 0
+            ? stations.length
+            : Number(course.questCount ?? mapped.questCount ?? 0),
+          stations,
+        }
+      }),
     }
   }
 

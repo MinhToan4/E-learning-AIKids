@@ -1508,9 +1508,14 @@ export function AikiStudioWorkspace({
   }, [])
   const [activeRefImageUrl, setActiveRefImageUrl] = useState<string | undefined>(undefined)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isInstantFallback, setIsInstantFallback] = useState<boolean>(
-    initialInstantFallback ?? false
-  )
+  const [isInstantFallback, setIsInstantFallback] = useState<boolean>(() => {
+    if (initialInstantFallback !== undefined) return initialInstantFallback
+    const testCombo = resolveExactComboImage({
+      prompt: characterName || lessonTitle || '',
+      engineMode: creativeEngineMode,
+    })
+    return testCombo.startsWith('/assets/pregenerated-combos/')
+  })
   const [lastGeneratedUrl, setLastGeneratedUrl] = useState<string | undefined>(undefined)
   const [selectedInspectImage, setSelectedInspectImage] = useState<StudioImageItem | null>(null)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
@@ -1813,10 +1818,10 @@ export function AikiStudioWorkspace({
   useEffect(() => {
     if (displayedPartImage?.prompt) {
       setCurrentPrompt(displayedPartImage.prompt)
-    } else {
+    } else if (!initialPrompt) {
       setCurrentPrompt(activePartSubject || effectiveCharacterName || '')
     }
-  }, [displayedPartImage, activePartIndex, currentPartTurn, activePartSubject, effectiveCharacterName])
+  }, [displayedPartImage, activePartIndex, currentPartTurn, activePartSubject, effectiveCharacterName, initialPrompt])
 
   // ── ĐIỀU HƯỚNG CUỘN NGANG DẢI PHIM BALO BÀI HỌC ──────────────────────────
   const filmstripRef = useRef<HTMLDivElement>(null)
@@ -1935,7 +1940,9 @@ export function AikiStudioWorkspace({
     const waitingAkiMsg = {
       id: waitingAkiId,
       sender: 'aki' as const,
-      text: '🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨',
+      text: isInstantFallback
+        ? '🐱 AIKI đang hiện thực hóa câu lệnh ma thuật của bạn... Xong ngay đây! ✨'
+        : '🐱 AIKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bạn... Chờ tớ một chút nhé! ✨',
       time: timeStr,
     }
 
@@ -1953,8 +1960,8 @@ export function AikiStudioWorkspace({
     let isFallback = false
 
     if (isInstantFallback) {
-      // Chế độ demo nhanh/fallback tức thì (500ms để mô phỏng nhịp thở AIKI)
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      // Chế độ ảnh tạo sẵn tức thì (350ms để mô phỏng nhịp thở phép thuật AIKI)
+      await new Promise((resolve) => setTimeout(resolve, 350))
       const fallbackUrl = resolveExactComboImage({
         blockIds: activeBlockIds,
         prompt: rawPrompt || activePartSubject || effectiveCharacterName,
@@ -2363,6 +2370,22 @@ export function AikiStudioWorkspace({
     </div>
   )
 
+  const livePreviewUrl = useMemo(() => {
+    if (displayedPartImage) return null
+    if (activeBlockIds.length > 0 || currentPrompt) {
+      const resolved = resolveExactComboImage({
+        blockIds: activeBlockIds,
+        prompt: currentPrompt || activePartSubject || effectiveCharacterName,
+        lastImageUrl: lastGeneratedUrl,
+        engineMode: effectiveMode,
+      })
+      if (resolved && resolved.startsWith('/assets/pregenerated-combos/')) {
+        return resolved
+      }
+    }
+    return null
+  }, [displayedPartImage, activeBlockIds, currentPrompt, activePartSubject, effectiveCharacterName, lastGeneratedUrl, effectiveMode])
+
   const previewCanvasColumn = (
     <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
@@ -2518,10 +2541,15 @@ export function AikiStudioWorkspace({
           </div>
         </div>
       ) : (
-        /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - TUYỆT ĐỐI KHÔNG ĐỂ ẢNH MẪU ĐỂ TRÁNH NHẦM LẪN */
+        /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - KHI CÓ BLOCK SẼ HIỆN LIVE PREVIEW TỨC THÌ */
         <div
           data-testid="studio-canvas-empty"
-          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full max-w-md sm:max-w-lg xl:max-w-none mx-auto min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
+          className={cn(
+            "group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full max-w-md sm:max-w-lg xl:max-w-none mx-auto min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 transition-all sm:p-6 p-4 text-center",
+            livePreviewUrl
+              ? "border-amber-400 bg-amber-50/40 shadow-clay-md ring-4 ring-amber-400/20"
+              : "border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 shadow-clay-sm"
+          )}
         >
           {/* Ảnh mẫu & text ẩn sr-only phục vụ test suite & trợ năng, không render thị giác để tránh bé nhầm lẫn */}
           <div className="sr-only">
@@ -2530,25 +2558,50 @@ export function AikiStudioWorkspace({
               alt={activePartSubject || effectiveCharacterName}
             />
             <span>Món {activePartIndex + 1}: {activePartSubject}</span>
-            <div>Khung Tranh Sáng Tạo Của Học Sinh Đang Chờ! Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm &quot;Vẽ Đi AIKI! ✨&quot; để tranh xuất hiện tại đây nhé!</div>
+            <div>Khung Tranh Của Học Sinh Đang Chờ! Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm &quot;Vẽ Đi AIKI! ✨&quot; để tranh xuất hiện tại đây nhé!</div>
           </div>
 
-          <div className="absolute top-3 left-3 bg-indigo-600/90 backdrop-blur-xs text-white text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-indigo-400 pointer-events-none">
-            <span>🖼️</span>
-            <span className="uppercase tracking-wide">Khung Preview Tranh Vẽ</span>
-          </div>
+          {livePreviewUrl ? (
+            <>
+              <img
+                src={livePreviewUrl}
+                alt="Xem trước tranh"
+                className="absolute inset-0 size-full object-contain rounded-2xl transition-all duration-300 pointer-events-none p-2 animate-fade-in"
+              />
+              <div className="absolute top-3 left-3 bg-amber-500/95 backdrop-blur-xs text-white text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-amber-300 pointer-events-none z-10 animate-fade-in">
+                <span>✨</span>
+                <span className="uppercase tracking-wide">Xem trước nét vẽ ma thuật</span>
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-amber-300/80 flex items-center justify-between text-xs z-10 shadow-clay-xs">
+                <span className="text-amber-900 font-black text-[11px] sm:text-xs flex items-center gap-1">
+                  <span>🎨</span>
+                  <span>Đã khớp ảnh! Bấm &ldquo;Vẽ đi AIKI!&rdquo; để lưu tranh</span>
+                </span>
+                <span className="text-amber-600 font-bold text-[10px] sm:text-[11px] bg-amber-100 px-2 py-0.5 rounded-md">
+                  Ảnh Tạo Sẵn
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="absolute top-3 left-3 bg-indigo-600/90 backdrop-blur-xs text-white text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-indigo-400 pointer-events-none">
+                <span>🖼️</span>
+                <span className="uppercase tracking-wide">Khung Preview Tranh Vẽ</span>
+              </div>
 
-          <div className="flex flex-col items-center justify-center my-auto max-w-sm">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-xl sm:text-2xl shadow-clay-xs mb-1.5 transition-transform group-hover:scale-105">
-              🎨
-            </div>
-            <div className="text-xs sm:text-sm font-black text-slate-800 leading-snug">
-              Khung Tranh Của Học Sinh Đang Chờ!
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed mt-0.5 max-w-xs">
-              Ghép 4 chìa khóa rồi bấm Vẽ Đi AIKI! ✨ để xem tranh nhé
-            </p>
-          </div>
+              <div className="flex flex-col items-center justify-center my-auto max-w-sm">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-xl sm:text-2xl shadow-clay-xs mb-1.5 transition-transform group-hover:scale-105">
+                  🎨
+                </div>
+                <div className="text-xs sm:text-sm font-black text-slate-800 leading-snug">
+                  Khung Tranh Của Học Sinh Đang Chờ!
+                </div>
+                <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed mt-0.5 max-w-xs">
+                  Ghép 4 chìa khóa rồi bấm Vẽ Đi AIKI! ✨ để xem tranh nhé
+                </p>
+              </div>
+            </>
+          )}
         </div>
       )}
 

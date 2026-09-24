@@ -52,17 +52,17 @@ export function useRulesProgress() {
     }
   }, [progress])
 
-  const completeRule = useCallback((ruleId: number) => {
+  const completeRule = useCallback((ruleId: number, confirmedStars = 3) => {
     setProgress((prev) => {
       const currentRule = prev.rules[ruleId]
-      const wasCompleted = currentRule?.status === 'completed'
+      const starsEarned = Math.max(0, Math.min(3, confirmedStars))
 
       const newRules = { ...prev.rules }
       newRules[ruleId] = {
         ruleId,
         status: 'completed',
         completedQuestions: 2,
-        starsEarned: 3,
+        starsEarned,
         completedAt: new Date().toISOString(),
       }
 
@@ -79,13 +79,14 @@ export function useRulesProgress() {
         ? prev.unlockedPosters
         : [...prev.unlockedPosters, ruleId].sort((a, b) => a - b)
 
-      const addedStars = wasCompleted ? 0 : 3
-      const addedXp = wasCompleted ? 0 : 10
+      const addedStars = Math.max(0, starsEarned - (currentRule?.starsEarned || 0))
 
       return {
         rules: newRules,
         totalStars: prev.totalStars + addedStars,
-        totalXp: prev.totalXp + addedXp,
+        // XP is server-owned. This local record is only a compatibility cache
+        // for the free Rules journey and must never mint experience points.
+        totalXp: prev.totalXp,
         unlockedPosters,
       }
     })

@@ -1856,8 +1856,8 @@ describe('SixStageJourneyView', () => {
 
     const notice = container.querySelector('[data-testid="generic-video-notice"]')
     expect(notice).not.toBeNull()
-    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị!')
-    expect(notice?.textContent).toContain('Bạn hãy xem video bí kíp của AIKI ở trên hoặc bấm "Tiếp tục" để làm trắc nghiệm & thực hành nhé ✨')
+    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị.')
+    expect(notice?.textContent).toContain('Con hãy xem đủ video trước khi sang phần thử tài nhé')
 
     // 2. Bài 1.2 (Dedicated video): Không hiển thị thông báo
     act(() => {
@@ -2629,7 +2629,7 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('automatically triggers onFinishLesson and writes to aikids_completed_lessons when reaching REWARD stage without clicking buttons', () => {
+  it('requests server-side completion without minting local rewards when reaching REWARD stage', () => {
     const onFinishSpy = vi.fn()
     const eventSpy = vi.fn()
     window.addEventListener('aikids:lesson-completed', eventSpy)
@@ -2651,17 +2651,19 @@ describe('SixStageJourneyView', () => {
     expect(onFinishSpy).toHaveBeenCalledWith(expect.objectContaining({
       stars: expect.any(Number),
       xp: expect.any(Number),
+      answers: expect.arrayContaining([
+        expect.objectContaining({
+          questionId: expect.any(String),
+          optionIndex: expect.any(Number),
+        }),
+      ]),
     }))
 
-    // Expect localStorage aikids_completed_lessons to contain rule-1
-    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
-    expect(rawCompleted).toBeTruthy()
-    const completedMap = JSON.parse(rawCompleted!)
-    expect(completedMap['rule-1']).toBeTruthy()
-    expect(completedMap['rule-1'].stars).toBeGreaterThanOrEqual(1)
-
-    // Expect custom event aikids:lesson-completed to have been dispatched
-    expect(eventSpy).toHaveBeenCalledTimes(1)
+    // The view only requests completion. LessonPage dispatches the event and
+    // updates its cache after the LMS confirms the submitted learner answers.
+    expect(mockLocalStorage.getItem('aikids_completed_lessons')).toBeNull()
+    expect(mockLocalStorage.getItem('aikids_golden_rules_progress_v1')).toBeNull()
+    expect(eventSpy).not.toHaveBeenCalled()
     window.removeEventListener('aikids:lesson-completed', eventSpy)
 
     act(() => root.unmount())
@@ -2773,17 +2775,10 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
     expect(headerPill?.textContent).toContain('3/3')
 
-    // LocalStorage aikids_completed_lessons has 3 stars
-    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
-    expect(rawCompleted).toBeTruthy()
-    const completedMap = JSON.parse(rawCompleted!)
-    expect(completedMap['rule-1'].stars).toBe(3)
-
-    // LocalStorage aikids_golden_rules_progress_v1 has 3 stars
-    const rawRules = mockLocalStorage.getItem('aikids_golden_rules_progress_v1')
-    expect(rawRules).toBeTruthy()
-    const rulesProg = JSON.parse(rawRules!)
-    expect(rulesProg.rules[1].starsEarned).toBe(3)
+    // Stars shown during the journey are pedagogical UI state only. Persistent
+    // rewards remain server-owned until LessonPage receives LMS confirmation.
+    expect(mockLocalStorage.getItem('aikids_completed_lessons')).toBeNull()
+    expect(mockLocalStorage.getItem('aikids_golden_rules_progress_v1')).toBeNull()
 
     act(() => root.unmount())
   })
@@ -2961,12 +2956,9 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
     expect(headerPill?.textContent).toContain('3/3')
 
-    // LocalStorage aikids_completed_lessons has 3 stars saved
-    const rawCompleted = mockLocalStorage.getItem('aikids_completed_lessons')
-    expect(rawCompleted).toBeTruthy()
-    const completedMap = JSON.parse(rawCompleted!)
-    expect(completedMap['bai-1-1'].stars).toBe(3)
-    expect(completedMap['bai-1-1'].xp).toBe(50)
+    // Client-side stage progress must not persist authoritative rewards.
+    expect(mockLocalStorage.getItem('aikids_completed_lessons')).toBeNull()
+    expect(mockLocalStorage.getItem('aikids_golden_rules_progress_v1')).toBeNull()
 
     vi.useRealTimers()
     act(() => root.unmount())

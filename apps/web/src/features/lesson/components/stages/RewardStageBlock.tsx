@@ -3,6 +3,7 @@ import { Award, BookOpen, CheckCircle2, Trophy, Sparkles, Star } from 'lucide-re
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, RewardStageConfig } from '../../types/stage-schema'
+import type { LessonCompletionSummary } from '../SixStageJourneyView'
 
 export interface RewardStageBlockProps {
   stage: JourneyStageDefinition<RewardStageConfig>
@@ -11,7 +12,7 @@ export interface RewardStageBlockProps {
   effectiveRewardXp?: number
   onNavigateNextLesson?: (nextSlug: string) => void
   onBackToMap?: () => void
-  onFinishLesson?: (summary: { stars: number; xp: number; nextLessonSlug?: string }) => void
+  onFinishLesson?: (summary: LessonCompletionSummary) => void
   onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onOpenCertificate?: () => void
   onOpenCourse?: () => void

@@ -85,6 +85,13 @@ describe('offline learning sync', () => {
       'aikids.learning.offline-events.quest-1',
       '[{"clientEventId":"old"}]',
     )
+    localStorage.setItem('aiki_studio_session_lesson-1', '[{"id":"old-art"}]')
+    localStorage.setItem('aiki_studio_turns_lesson-1', '{"0":2}')
+    localStorage.setItem('aiki_backpack_saved_works', '[{"id":"old-art"}]')
+    localStorage.setItem('aikids_completed_lessons', '{"lesson-1":{"stars":3}}')
+    localStorage.setItem('aikids_golden_rules_progress_v1', '{"totalStars":3}')
+    localStorage.setItem('aikids_lesson_stage_lesson-1', '5')
+    localStorage.setItem('aikids_lesson_completed_stages_lesson-1', '[0,1,2,3,4,5]')
     localStorage.setItem('unrelated.preference', 'keep')
 
     await clearOfflineLearningData()
@@ -96,6 +103,13 @@ describe('offline learning sync', () => {
     expect(
       localStorage.getItem('aikids.learning.offline-events.quest-1'),
     ).toBeNull()
+    expect(localStorage.getItem('aiki_studio_session_lesson-1')).toBeNull()
+    expect(localStorage.getItem('aiki_studio_turns_lesson-1')).toBeNull()
+    expect(localStorage.getItem('aiki_backpack_saved_works')).toBeNull()
+    expect(localStorage.getItem('aikids_completed_lessons')).toBeNull()
+    expect(localStorage.getItem('aikids_golden_rules_progress_v1')).toBeNull()
+    expect(localStorage.getItem('aikids_lesson_stage_lesson-1')).toBeNull()
+    expect(localStorage.getItem('aikids_lesson_completed_stages_lesson-1')).toBeNull()
     expect(localStorage.getItem('unrelated.preference')).toBe('keep')
   })
 })

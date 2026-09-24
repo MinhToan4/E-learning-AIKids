@@ -17,6 +17,8 @@ import {
   enrichCoursesWithLocalProgress,
   getStationSlug,
   selectNextLearningTarget,
+  getCourseStationCount,
+  selectCanonicalAikidCourses,
 } from './WorldPage'
 
 type PathwayCourseInput = Parameters<typeof isPathwayCourseVisible>[0]
@@ -45,6 +47,46 @@ describe('World pathway enrollment visibility', () => {
     expect(isPathwayCourseVisible(course({ status: 'completed' }))).toBe(true)
     expect(isPathwayCourseVisible(course({ status: 'available' }))).toBe(true)
     expect(isPathwayCourseVisible(course({ status: 'locked' }))).toBe(true)
+  })
+})
+
+describe('Course station count', () => {
+  it('prefers the concrete station list over an inflated pathway summary', () => {
+    const stations = Array.from({ length: 10 }, (_, index) => ({
+      id: `rule-${index + 1}`,
+    })) as PathwayCourse['stations']
+
+    expect(getCourseStationCount(course({ questCount: 20, stations }))).toBe(10)
+  })
+
+  it('falls back to the summary when stations are not embedded', () => {
+    expect(getCourseStationCount(course({ questCount: 6 }))).toBe(6)
+  })
+
+  it('collapses the deployed x2/x3 phase totals for the six published AIKID islands', () => {
+    expect(getCourseStationCount(course({ id: 'aiki-rules', questCount: 20 }))).toBe(10)
+    expect(getCourseStationCount(course({ id: 'course-2', slug: 'dao-1-nha-tham-hiem-ai', questCount: 12 }))).toBe(4)
+    expect(getCourseStationCount(course({ id: 'course-5', slug: 'dao-4-vuong-quoc-truyen-tranh-ai', questCount: 15 }))).toBe(5)
+  })
+
+  it('does not rewrite an unrelated or genuinely changed course total', () => {
+    expect(getCourseStationCount(course({ id: 'other-course', questCount: 12 }))).toBe(12)
+    expect(getCourseStationCount(course({ id: 'course-2', slug: 'dao-1-nha-tham-hiem-ai', questCount: 7 }))).toBe(7)
+  })
+})
+
+describe('Official AIKID program projection', () => {
+  it('keeps one correctly titled course per canonical island when catalog slugs are duplicated', () => {
+    const courses = [
+      course({ id: 'legacy-character', slug: 'dao-3-biet-doi-nhan-vat-ai', title: 'L1 · Thiết Kế Nhân Vật' }),
+      course({ id: 'official-character', slug: 'dao-3-biet-doi-nhan-vat-ai', title: 'Biệt đội nhân vật AI' }),
+      course({ id: 'rules', slug: 'muoi-quy-tac-xuong-sang-tao', title: 'Mười quy tắc của Xưởng sáng tạo' }),
+    ]
+
+    expect(selectCanonicalAikidCourses(courses).map((item) => item.id)).toEqual([
+      'rules',
+      'official-character',
+    ])
   })
 })
 
@@ -413,8 +455,8 @@ describe('Clean Slug Resolution and findCourseByIdentifier', () => {
   })
 })
 
-describe('Merging Local Progress into World map quests and courses', () => {
-  it('merges aikids_golden_rules_progress_v1 for rule course: Rule 1 completed unlocks Station 2 with 3 stars', () => {
+describe('Server-owned World map progress', () => {
+  it('does not let browser-local rule progress award stars or unlock Station 2', () => {
     const rawQuests: Array<{
       id: string
       order: number
@@ -435,18 +477,18 @@ describe('Merging Local Progress into World map quests and courses', () => {
     const merged = mergeQuestsWithLocalProgress(rawQuests, true, {}, mockGoldenRules)
     const sequential = applySequentialQuestRules(merged, false)
 
-    expect(sequential[0].status).toBe('completed')
-    expect(sequential[0].stars).toBe(3)
-    expect(sequential[1].status).toBe('available')
+    expect(sequential[0].status).toBe('available')
+    expect(sequential[0].stars).toBe(0)
+    expect(sequential[1].status).toBe('locked')
     expect(sequential[2].status).toBe('locked')
 
     const completedCount = sequential.filter((q) => q.status === 'completed').length
     const totalStars = sequential.reduce((sum, q) => sum + (q.stars || 0), 0)
-    expect(completedCount).toBe(1)
-    expect(totalStars).toBe(3)
+    expect(completedCount).toBe(0)
+    expect(totalStars).toBe(0)
   })
 
-  it('merges aikids_completed_lessons by id or slug and unlocks next station', () => {
+  it('does not let browser-local completion unlock a paid course station', () => {
     const rawQuests: Array<{
       id: string
       slug: string
@@ -466,12 +508,12 @@ describe('Merging Local Progress into World map quests and courses', () => {
     const merged = mergeQuestsWithLocalProgress(rawQuests, false, mockCompleted, {})
     const sequential = applySequentialQuestRules(merged, false)
 
-    expect(sequential[0].status).toBe('completed')
-    expect(sequential[0].stars).toBe(3)
-    expect(sequential[1].status).toBe('available')
+    expect(sequential[0].status).toBe('available')
+    expect(sequential[0].stars).toBe(0)
+    expect(sequential[1].status).toBe('locked')
   })
 
-  it('enrichCoursesWithLocalProgress unlocks Island 2 when all 10 rules completed in local storage', () => {
+  it('does not let local rule completion unlock a paid island', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Module 0 — Mười quy tắc', status: 'available', questCount: 10, completedCount: 0 }),
       course({ id: 'dao-1-tham-hiem', title: 'Module 1 — Nhà thám hiểm AI', status: 'locked' }),
@@ -485,11 +527,10 @@ describe('Merging Local Progress into World map quests and courses', () => {
     const enriched = enrichCoursesWithLocalProgress(courses, {}, mockGoldenRules)
     const result = applyGatekeeperRules(enriched, false)
 
-    expect(result[0].status).toBe('completed')
-    expect(result[0].completedCount).toBe(10)
-    expect(result[0].totalStars).toBe(30)
-    // Island 2 must now be unlocked!
-    expect(result[1].status).toBe('available')
+    expect(result[0].status).toBe('available')
+    expect(result[0].completedCount).toBe(0)
+    expect(result[0].totalStars ?? 0).toBe(0)
+    expect(result[1].status).toBe('locked')
   })
 
   it('generates friendly /rule-X links for all 10 Golden Rules stations even when DB supplies raw UUIDs (Kịch bản 2)', () => {

@@ -48,6 +48,13 @@ const StudentStageBlocksView = React.lazy(() =>
 export { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES }
 export type { ParsedGoalCard }
 
+export type LessonCompletionSummary = {
+  stars: number
+  xp: number
+  nextLessonSlug?: string
+  answers?: Array<{ questionId: string; optionIndex: number }>
+}
+
 export interface SixStageJourneyViewProps {
   journey?: LessonSixStageJourney
   stages?: JourneyStageDefinition[]
@@ -57,7 +64,7 @@ export interface SixStageJourneyViewProps {
   rewardXp?: number
   isCompleted?: boolean
   previousStars?: number
-  onFinishLesson?: (result: { stars: number; xp: number; nextLessonSlug?: string }) => void
+  onFinishLesson?: (result: LessonCompletionSummary) => void
   onBackToMap?: () => void
   onNavigateNextLesson?: (nextLessonSlug: string) => void
   onOpenCourse?: () => void
@@ -665,6 +672,13 @@ export function SixStageJourneyView({
   const quizStageDef = stages.find((s) => s.type === 'QUIZ')
   const rewardStageDef = stages.find((s) => s.type === 'REWARD')
   const effectiveQuizQuestions = (quizStageDef?.config?.questions as any[]) || journey?.stage4_quiz?.questions || []
+  const submittedQuizAnswers = useMemo(
+    () => effectiveQuizQuestions.map((question, index) => ({
+      questionId: String(question.id || `${lessonId}-check-${index + 1}`),
+      optionIndex: typeof quizAnswers[index] === 'number' ? quizAnswers[index] : -1,
+    })),
+    [effectiveQuizQuestions, lessonId, quizAnswers],
+  )
 
   const quizScore = useMemo(() => {
     let correct = 0
@@ -752,86 +766,17 @@ export function SixStageJourneyView({
   useEffect(() => {
     if (currentStageDef?.type === 'REWARD' && !hasAutoFinishedRef.current) {
       hasAutoFinishedRef.current = true
-      try {
-        // Lưu tiến trình bài học hoàn thành vào aikids_completed_lessons
-        const raw = localStorage.getItem('aikids_completed_lessons')
-        const completed = raw ? JSON.parse(raw) : {}
-        completed[lessonId] = {
-          stars: effectiveStars,
-          xp: effectiveRewardXp,
-          completedAt: new Date().toISOString(),
-        }
-        if (isRuleLesson) {
-          const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
-          if (rNum) {
-            completed[`rule-${rNum}`] = {
-              stars: effectiveStars,
-              xp: effectiveRewardXp,
-              completedAt: new Date().toISOString(),
-            }
-          }
-        }
-        localStorage.setItem('aikids_completed_lessons', JSON.stringify(completed))
-
-        if (isRuleLesson) {
-          const rNum = extractRuleNumber({ id: lessonId, title: lessonTitle })
-          const rulesRaw = localStorage.getItem('aikids_golden_rules_progress_v1')
-          let rulesProg: any = rulesRaw ? JSON.parse(rulesRaw) : null
-          if (!rulesProg || !rulesProg.rules || Object.keys(rulesProg.rules).length < 10) {
-            const initialRules: Record<number, any> = {}
-            for (let i = 1; i <= 10; i++) {
-              initialRules[i] = {
-                ruleId: i,
-                status: i === 1 ? 'available' : 'locked',
-                completedQuestions: 0,
-                starsEarned: 0,
-              }
-            }
-            rulesProg = {
-              rules: { ...initialRules, ...(rulesProg?.rules || {}) },
-              totalStars: rulesProg?.totalStars || 0,
-              totalXp: rulesProg?.totalXp || 0,
-              unlockedPosters: rulesProg?.unlockedPosters || [],
-            }
-          }
-          const currentRule = rulesProg.rules[rNum]
-          const wasCompleted = currentRule?.status === 'completed'
-          rulesProg.rules[rNum] = {
-            ruleId: rNum,
-            status: 'completed',
-            completedQuestions: 2,
-            starsEarned: effectiveStars || 3,
-            completedAt: new Date().toISOString(),
-          }
-          const nextId = rNum + 1
-          if (nextId <= 10 && rulesProg.rules[nextId] && rulesProg.rules[nextId].status === 'locked') {
-            rulesProg.rules[nextId].status = 'available'
-          }
-          if (!wasCompleted) {
-            rulesProg.totalStars = (rulesProg.totalStars || 0) + (effectiveStars || 3)
-            rulesProg.totalXp = (rulesProg.totalXp || 0) + (effectiveRewardXp || 10)
-          }
-          if (!rulesProg.unlockedPosters?.includes(rNum)) {
-            rulesProg.unlockedPosters = [...(rulesProg.unlockedPosters || []), rNum].sort((a: number, b: number) => a - b)
-          }
-          localStorage.setItem('aikids_golden_rules_progress_v1', JSON.stringify(rulesProg))
-        }
-      } catch {}
-
+      // Completion and rewards are persisted only after the owning LMS
+      // endpoint verifies the submitted evidence. Browser storage must not
+      // mint stars, XP or unlock the next lesson.
       onFinishLesson?.({
         stars: effectiveStars,
         xp: effectiveRewardXp,
         nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
+        answers: submittedQuizAnswers,
       })
-
-      // Thông báo cho toàn bộ ứng dụng và bản đồ cập nhật ngay lập tức
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('aikids:lesson-completed', {
-          detail: { lessonId, stars: effectiveStars, xp: effectiveRewardXp }
-        }))
-      }
     }
-  }, [currentStageDef, effectiveStars, effectiveRewardXp, lessonId, lessonTitle, isRuleLesson, onFinishLesson])
+  }, [currentStageDef, effectiveStars, effectiveRewardXp, lessonId, lessonTitle, isRuleLesson, onFinishLesson, submittedQuizAnswers])
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
@@ -953,6 +898,7 @@ export function SixStageJourneyView({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
                     nextLessonSlug: stageItem.config.nextLessonSlug,
+                    answers: submittedQuizAnswers,
                   })
                   onNavigateNextLesson(stageItem.config.nextLessonSlug!)
                 }}
@@ -965,7 +911,7 @@ export function SixStageJourneyView({
                 variant="secondary"
                 className="w-full py-2 px-3 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-1 cursor-pointer"
                 onClick={() => {
-                  onFinishLesson?.({ stars: effectiveStars, xp: effectiveRewardXp })
+                  onFinishLesson?.({ stars: effectiveStars, xp: effectiveRewardXp, answers: submittedQuizAnswers })
                   onBackToMap()
                 }}
               >

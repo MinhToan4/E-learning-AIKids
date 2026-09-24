@@ -4,6 +4,7 @@ import { adaptSixStageJourneyToStages } from '@/features/lesson/lib/stage-adapte
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
+import type { LessonCompletionSummary } from '@/features/lesson/components/SixStageJourneyView'
 
 type Props = {
   mode: 'rule' | 'island'
@@ -11,7 +12,7 @@ type Props = {
   ruleId: number
   effectiveCourseId: string
   liveStars: number
-  onFinish: (customSummary?: { stars?: number; xp?: number; nextLessonSlug?: string }) => void
+  onFinish: (customSummary?: LessonCompletionSummary) => void
 }
 
 export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, onFinish }: Props) {

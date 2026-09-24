@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import type { LearningPathwayCourse } from '@/shared/lib/learning-api'
+import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import {
   SoftClayStarIcon,
   SoftClayFlagIcon,
@@ -167,7 +168,7 @@ export function MultiCourseJourneyHub({
             {currentList.map((course) => {
               const isSelected = course.id === selectedCourseId
               const percent = Math.min(100, Math.max(0, Math.round(course.completionPercent)))
-              const totalQuests = course.questCount ?? (course.stations ? course.stations.length : 0)
+              const totalQuests = getCourseStationCount(course)
               const completedQuests = course.completedCount ?? 0
 
               return (

@@ -5,8 +5,8 @@
   No plastic neon AI SaaS chrome.
 */
 @theme {
-  --font-sans: 'Mali', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Chiron GoRound TC', 'Baloo 2', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   --color-brand-500: #0A6EDF;
   --color-brand-600: #085bc0;
@@ -7291,4 +7291,70 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 .preview-viewport-mobile [class*="sm:flex-row"],
 .preview-viewport-mobile [class*="md:flex-row"] {
   flex-direction: column !important;
+}
+
+/* ==========================================================================
+   Student Concept Benchmark Styles: Floating Dark Dock & Stroke-less Soft Clay
+   ========================================================================== */
+
+.student-floating-dock {
+  background-color: #18181b;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.student-floating-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  min-width: 48px;
+  min-height: 48px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #a1a1aa;
+}
+
+.student-floating-tab:hover {
+  color: #f4f4f5;
+}
+
+.student-floating-tab.active,
+.student-floating-tab[data-active='true'] {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.student-floating-tab.active::after,
+.student-floating-tab[data-active='true']::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: currentColor;
+}
+
+.student-floating-tab-rose.active,
+.student-floating-tab-rose[data-active='true'] {
+  background-color: #ffe4e6;
+  color: #e11d48;
+}
+
+.progress-hatched {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(124, 58, 237, 0.15),
+    rgba(124, 58, 237, 0.15) 6px,
+    transparent 6px,
+    transparent 12px
+  );
 }

@@ -23,6 +23,28 @@ export function recordValue(value: unknown): Record<string, unknown> {
     : {}
 }
 
+function uniqueCourseLessons(lessons: Array<Record<string, unknown>>) {
+  const seen = new Set<string>()
+  return lessons.filter((lesson, index) => {
+    const order = Number(lesson.order ?? lesson.position)
+    const slug = String(lesson.slug ?? '').trim()
+    const id = String(lesson.id ?? '').trim()
+    const title = String(lesson.title ?? '').trim().toLocaleLowerCase('vi')
+    // A few LMS projections return one row per lesson phase. In that shape the
+    // row ids differ, while the station order/slug stays the same.
+    const key = slug
+      ? `slug:${slug}`
+      : Number.isFinite(order) && order > 0
+        ? `order:${order}`
+        : id
+          ? `id:${id}`
+          : `title:${title || index}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export function galleryMetadata(value: unknown): Record<string, unknown> {
   if (typeof value !== 'string') return recordValue(value)
   try {
@@ -183,7 +205,9 @@ export function mapCourse(raw: Record<string, unknown>): CourseSummary {
   const directLessons = (['lectures', 'lessons', 'quests', 'stations'] as const)
     .map((key) => raw[key])
     .find(Array.isArray) as Array<Record<string, unknown>> | undefined
-  const lessons = nestedLessons.length > 0 ? nestedLessons : (directLessons ?? [])
+  const lessons = uniqueCourseLessons(
+    nestedLessons.length > 0 ? nestedLessons : (directLessons ?? []),
+  )
   const count = recordValue(raw._count)
   const declaredQuestCount = Math.max(0, ...[
     raw.questCount, raw.stationCount, raw.lessonCount, raw.lectureCount,

@@ -69,6 +69,7 @@ export function PracticeStageBlock({
           onBackToLesson={onBackToLesson}
           onReplayVideo={onReplayVideo}
           onSubmitWork={onSubmitWork}
+          initialInstantFallback={true}
         />
       </React.Suspense>
     </section>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import type { EngineProps, BlockSlot, CreativeBlock } from '../types'
 import {
   SUBJECT_BLOCKS,
@@ -211,6 +211,25 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     },
     [onPromptChange]
   )
+  const hasCommittedInitialSlotsRef = useRef(false)
+  const isHydratingSlotsFromPromptRef = useRef(false)
+
+  // Notify the parent only after the slot state has committed. Calling this
+  // from inside a setSlots updater updates CreativeEngineShell while React is
+  // still rendering MagicKeysEngine and causes unstable render loops.
+  useEffect(() => {
+    if (isHydratingSlotsFromPromptRef.current) {
+      isHydratingSlotsFromPromptRef.current = false
+      return
+    }
+    if (!hasCommittedInitialSlotsRef.current) {
+      hasCommittedInitialSlotsRef.current = true
+      // A restored/generated prompt is more complete than the initial subject
+      // slot. The reverse-sync effect below hydrates the remaining slots first.
+      if (currentPrompt) return
+    }
+    syncPrompt(slots)
+  }, [slots, syncPrompt, currentPrompt])
 
   const currentObjectBlocks = useMemo(() => {
     const s = (effectiveSubject || '').toLowerCase()
@@ -240,8 +259,14 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     return [...COLOR_SHAPE_BLOCKS, ...ACTION_BLOCKS, ...CONTEXT_BLOCKS]
   }, [effectiveSubject, lessonId])
 
+  const prevSubjectRef = useRef(effectiveSubject)
+
   // Khóa ô slot-subject theo món đồ đã chọn (tự động cập nhật khi đổi món đồ ở Sidebar)
   useEffect(() => {
+    if (prevSubjectRef.current === effectiveSubject) {
+      return
+    }
+    prevSubjectRef.current = effectiveSubject
     setSlots((prev) => {
       const next = prev.map((slot) => {
         if (slot.keyId === 'subject') {
@@ -267,7 +292,6 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
         }
         return slot
       })
-      syncPrompt(next)
       return next
     })
   }, [effectiveSubject, buildSubjectBlock, syncPrompt, currentObjectBlocks])
@@ -285,6 +309,7 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
       const currentAssembled = parts.join(' ')
       if (currentAssembled === currentPrompt) return prev
 
+      isHydratingSlotsFromPromptRef.current = true
       const next = prev.map((slot) => {
         if (slot.keyId === 'subject') {
           return {
@@ -361,7 +386,6 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
         }
         return slot
       })
-      syncPrompt(next)
       return next
     })
 
@@ -378,7 +402,6 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
         }
         return slot
       })
-      syncPrompt(next)
       return next
     })
   }
@@ -392,7 +415,6 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
         }
         return slot
       })
-      syncPrompt(next)
       return next
     })
 

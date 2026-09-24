@@ -28,6 +28,7 @@ import { useToast } from '@/shared/hooks/useToast'
 import { ApiError, api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
+import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import { useAuth } from '@/shared/store/auth'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 import { programArtworkHint } from '@/shared/config/assets'
@@ -817,7 +818,7 @@ function CourseSelectionSection({
           {visiblePrograms.map((program) => {
             const enrolledCount = program.regions.filter((region) => region.enrolled).length
             const enrolled = enrolledCount === program.regions.length
-            const stationCount = program.regions.reduce((sum, region) => sum + (region.questCount ?? region.stations?.length ?? 0), 0)
+            const stationCount = program.regions.reduce((sum, region) => sum + getCourseStationCount(region), 0)
             return <article key={program.id} className={cn('overflow-hidden rounded-3xl border-2', enrolledCount > 0 ? 'border-mint-300 bg-mint-50/30' : 'border-border bg-white')}>
               <div className="grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)_210px] sm:items-center">
                 {program.image ? <img src={program.image} alt="" loading="lazy" className="aspect-[3/2] w-full rounded-2xl border border-border object-cover shadow-soft" /> : <div className="flex aspect-[3/2] w-full items-center justify-center rounded-2xl bg-brand-50 text-brand-500"><BookOpen size={34} aria-hidden="true" /></div>}
@@ -841,7 +842,7 @@ function CourseSelectionSection({
                   {program.regions.map((region, index) => <div key={region.id} className="rounded-2xl border border-border bg-white p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div><p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Vùng {index + 1}</p><h4 className="mt-0.5 font-display text-base">{region.title}</h4></div>
-                      <div className="flex shrink-0 flex-wrap justify-end gap-1"><span className="rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{region.questCount ?? region.stations?.length ?? 0} trạm</span>{region.enrolled && <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-extrabold text-success">Đã đăng ký</span>}</div>
+                      <div className="flex shrink-0 flex-wrap justify-end gap-1"><span className="rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{getCourseStationCount(region)} trạm</span>{region.enrolled && <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-extrabold text-success">Đã đăng ký</span>}</div>
                     </div>
                     {region.stations && region.stations.length > 0 && <ol className="mt-2 grid gap-1 text-xs text-muted">{region.stations.slice(0, 3).map((station) => <li key={station.id}><strong className="text-text">Trạm {station.order}:</strong> {station.title}</li>)}</ol>}
                     {(region.stations?.length ?? 0) > 3 && <p className="mt-1 text-xs font-bold text-brand-600">+ {(region.stations?.length ?? 0) - 3} trạm khác</p>}

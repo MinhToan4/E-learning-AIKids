@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Check,
@@ -201,6 +201,7 @@ export function ParentSubscriptionCheckoutModal({
   planAmount,
   planName,
 }: ParentSubscriptionCheckoutModalProps) {
+  const bankAppRedirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [productMode, setProductMode] = useState<CheckoutProductMode>(initialMode)
   const [selectedPackId, setSelectedPackId] = useState<string>(
     initialPackId ?? 'credits_50',
@@ -216,6 +217,13 @@ export function ParentSubscriptionCheckoutModal({
     amountDue: number
   } | null>(null)
   const [overpayBonusCredits, setOverpayBonusCredits] = useState<number | null>(null)
+
+  useEffect(() => () => {
+    if (bankAppRedirectTimerRef.current) {
+      clearTimeout(bankAppRedirectTimerRef.current)
+      bankAppRedirectTimerRef.current = null
+    }
+  }, [])
 
   // Find currently selected credit pack
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
@@ -415,7 +423,11 @@ export function ParentSubscriptionCheckoutModal({
   const handleOpenBankApp = useCallback(
     async (app: (typeof POPULAR_BANK_APPS)[0]) => {
       await copyToClipboard(activePaymentCode, `bank_app_${app.id}`)
-      setTimeout(() => {
+      if (bankAppRedirectTimerRef.current) {
+        clearTimeout(bankAppRedirectTimerRef.current)
+      }
+      bankAppRedirectTimerRef.current = setTimeout(() => {
+        bankAppRedirectTimerRef.current = null
         try {
           if (typeof window !== 'undefined') {
             window.location.href = app.scheme

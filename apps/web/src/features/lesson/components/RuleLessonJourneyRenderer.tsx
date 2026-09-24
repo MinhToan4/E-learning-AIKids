@@ -4,13 +4,14 @@ import type { QuestDetail, LessonSixStageJourney } from '@/shared/lib/api'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { adaptRuleToStages } from '@/features/lesson/lib/rule-stage-adapter'
 import { SixStageJourneyView } from './SixStageJourneyView'
+import type { LessonCompletionSummary } from './SixStageJourneyView'
 
 type Props = {
   quest: QuestDetail
   ruleId: number
   effectiveCourseId: string
   liveStars: number
-  onFinish: (customSummary?: { stars?: number; xp?: number; nextLessonSlug?: string }) => void
+  onFinish: (customSummary?: LessonCompletionSummary) => void
 }
 
 export default function RuleLessonJourneyRenderer({

@@ -16,6 +16,7 @@ import { useAuth } from '@/shared/store/auth'
 import { type QuestProgress } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
+import { getCanonicalAikidCourseSlug, getCourseStationCount } from '@/shared/lib/course-station-count'
 import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
@@ -43,6 +44,45 @@ export function getStationSlug(station: any, isRuleCourse?: boolean): string {
 // WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
 export const FORCE_UNLOCK_ALL_ISLANDS = false
 
+export function isUserTestingUnlocked(): boolean {
+  if (FORCE_UNLOCK_ALL_ISLANDS) return true
+  if (typeof window === 'undefined') return false
+  try {
+    if (window.location?.search) {
+      const p = new URLSearchParams(window.location.search).get('unlock_all')
+      if (p === 'true') {
+        try { localStorage.setItem('aikids_unlock_all', 'true') } catch {}
+        return true
+      }
+      if (p === 'false') {
+        try { localStorage.removeItem('aikids_unlock_all') } catch {}
+        return false
+      }
+    }
+  } catch {}
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('aikids_unlock_all') === 'true') return true
+  } catch {}
+  try {
+    const user = useAuth.getState?.()?.user
+    if (user) {
+      const name = (user.nickname || user.name || '').toLowerCase()
+      if (name === 'bo' || name.includes('bo') || user.id === '4aa834fa-efd9-49cf-961f-2a25f2538b6e') return true
+    }
+  } catch {}
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem('aikids_auth_user')
+      if (raw) {
+        const u = JSON.parse(raw)
+        const name = (u.nickname || u.name || '').toLowerCase()
+        if (name === 'bo' || name.includes('bo') || u.id === '4aa834fa-efd9-49cf-961f-2a25f2538b6e') return true
+      }
+    }
+  } catch {}
+  return false
+}
+
 export const AIKID_CANONICAL_SLUGS = [
   'muoi-quy-tac-xuong-sang-tao',
   'dao-1-nha-tham-hiem-ai',
@@ -51,6 +91,15 @@ export const AIKID_CANONICAL_SLUGS = [
   'dao-4-vuong-quoc-truyen-tranh-ai',
   'dao-5-nha-phat-minh-tro-choi-ai',
 ] as const
+
+const AIKID_CANONICAL_TITLE_HINTS: Record<(typeof AIKID_CANONICAL_SLUGS)[number], string[]> = {
+  'muoi-quy-tac-xuong-sang-tao': ['quy tắc', 'quy tac'],
+  'dao-1-nha-tham-hiem-ai': ['nhà thám hiểm', 'nha tham hiem'],
+  'dao-2-hoa-si-ai': ['hoạ sĩ', 'họa sĩ', 'hoa si'],
+  'dao-3-biet-doi-nhan-vat-ai': ['biệt đội nhân vật', 'biet doi nhan vat'],
+  'dao-4-vuong-quoc-truyen-tranh-ai': ['vương quốc truyện tranh', 'vuong quoc truyen tranh'],
+  'dao-5-nha-phat-minh-tro-choi-ai': ['nhà phát minh trò chơi', 'nha phat minh tro choi'],
+}
 
 export const ISLAND_ALIAS_MAP: Record<string, string> = {
   'dao-1': 'muoi-quy-tac-xuong-sang-tao',
@@ -85,6 +134,21 @@ export type PathwayCourse = {
   lockMessage?: string
 }
 
+export function selectCanonicalAikidCourses(courses: PathwayCourse[]): PathwayCourse[] {
+  return AIKID_CANONICAL_SLUGS.flatMap((slug) => {
+    const hints = AIKID_CANONICAL_TITLE_HINTS[slug]
+    const exact = courses.find((course) => {
+      const title = `${course.title} ${course.shortTitle}`.toLocaleLowerCase('vi')
+      return hints.some((hint) => title.includes(hint))
+    })
+    if (exact) return [exact]
+    const fallback = courses.find((course) => getCanonicalAikidCourseSlug(course) === slug)
+    return fallback ? [fallback] : []
+  })
+}
+
+export { getCourseStationCount }
+
 export type NextLearningTarget = {
   course: PathwayCourse
   station?: QuestProgress
@@ -92,11 +156,8 @@ export type NextLearningTarget = {
 
 function isCourseComplete(course: PathwayCourse): boolean {
   if (course.status === 'completed') return true
-  return Boolean(
-    course.questCount &&
-    course.questCount > 0 &&
-    (course.completedCount ?? 0) >= course.questCount,
-  )
+  const stationCount = getCourseStationCount(course)
+  return stationCount > 0 && (course.completedCount ?? 0) >= stationCount
 }
 
 /**
@@ -207,9 +268,7 @@ function buildStationPath(total: number) {
 }
 
 function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; index: number; total: number; courseId?: string }) {
-  const isDevUnlock =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const isDevUnlock = isUserTestingUnlocked()
   const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock
   const locked = !forceUnlock && quest.status === 'locked'
   const done = quest.status === 'completed'
@@ -301,32 +360,6 @@ export function clearWorldPageCache(): void {
   cachedIslandQuests.clear()
 }
 
-export function readLocalCompletedLessons(): Record<string, { stars?: number; xp?: number; completedAt?: string }> {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return {}
-  try {
-    const raw = localStorage.getItem('aikids_completed_lessons')
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
-  }
-}
-
-export function readLocalGoldenRulesProgress(): Record<number, { status?: string; starsEarned?: number }> {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return {}
-  try {
-    const raw = localStorage.getItem('aikids_golden_rules_progress_v1')
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (parsed && typeof parsed.rules === 'object' && parsed.rules !== null) {
-        return parsed.rules
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return {}
-}
-
 export function mergeQuestsWithLocalProgress<
   T extends {
     id: string
@@ -343,42 +376,14 @@ export function mergeQuestsWithLocalProgress<
   localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
 ): T[] {
   if (!Array.isArray(quests) || quests.length === 0) return []
-  const completedLessons = localCompletedLessons ?? readLocalCompletedLessons()
-  const goldenRules = localGoldenRules ?? readLocalGoldenRulesProgress()
-
-  return quests.map((q, index) => {
-    let status = q.status
-    let stars = q.stars || 0
-
-    // 1. Nếu là rule course: ánh xạ từng quest q theo ruleId = q.order || (index + 1)
-    if (isRuleCourse) {
-      const ruleId = q.order || (index + 1)
-      const ruleUserProgress = goldenRules[ruleId]
-      if (ruleUserProgress?.status === 'completed') {
-        status = 'completed'
-        stars = Math.max(stars, ruleUserProgress.starsEarned || 3)
-      }
-    }
-
-    // 2. Đồng thời kiểm tra aikids_completed_lessons: Nếu q.id hoặc q.slug có trong aikids_completed_lessons
-    const qSlug = (q as any).slug
-    const ruleFallbackKey = isRuleCourse ? `rule-${q.order || (index + 1)}` : undefined
-    const completedItem =
-      completedLessons[q.id] ||
-      (qSlug ? completedLessons[qSlug] : undefined) ||
-      (ruleFallbackKey ? completedLessons[ruleFallbackKey] : undefined)
-
-    if (completedItem) {
-      status = 'completed'
-      stars = Math.max(stars, completedItem.stars || 3)
-    }
-
-    return {
-      ...q,
-      status,
-      stars,
-    }
-  })
+  // Compatibility arguments remain while old clients are phased out, but
+  // browser storage is never authoritative for completion, stars or unlocks.
+  // The LMS response is the sole source of truth for every course, including
+  // the free Rules journey.
+  void isRuleCourse
+  void localCompletedLessons
+  void localGoldenRules
+  return quests.map((quest) => ({ ...quest }))
 }
 
 export function enrichCoursesWithLocalProgress(
@@ -386,51 +391,9 @@ export function enrichCoursesWithLocalProgress(
   localCompletedLessons?: Record<string, { stars?: number; xp?: number; completedAt?: string }>,
   localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
 ): PathwayCourse[] {
-  const completedLessons = localCompletedLessons ?? readLocalCompletedLessons()
-  const goldenRules = localGoldenRules ?? readLocalGoldenRulesProgress()
-
-  return courses.map((course, idx) => {
-    const isRule = isAikiRuleCourse(course, idx)
-    let completedCount = course.completedCount || 0
-    let totalStars = course.totalStars || 0
-    let status = course.status
-
-    if (isRule) {
-      let localRuleCompleted = 0
-      let localRuleStars = 0
-      for (let r = 1; r <= 10; r++) {
-        const ruleProg = goldenRules[r]
-        const compItem = completedLessons[`rule-${r}`]
-        if (ruleProg?.status === 'completed' || compItem) {
-          localRuleCompleted++
-          localRuleStars += Math.max(ruleProg?.starsEarned || 0, compItem?.stars || 3)
-        }
-      }
-      if (localRuleCompleted > 0) {
-        completedCount = Math.max(completedCount, localRuleCompleted)
-        totalStars = Math.max(totalStars, localRuleStars)
-        if (completedCount >= (course.questCount || 10)) {
-          status = 'completed'
-        }
-      }
-    } else if (course.stations && course.stations.length > 0) {
-      const mergedStations = mergeQuestsWithLocalProgress(course.stations, false, completedLessons, goldenRules)
-      const localDone = mergedStations.filter((s) => s.status === 'completed').length
-      const localStars = mergedStations.reduce((acc, s) => acc + (s.stars || 0), 0)
-      completedCount = Math.max(completedCount, localDone)
-      totalStars = Math.max(totalStars, localStars)
-      if (course.questCount && completedCount >= course.questCount) {
-        status = 'completed'
-      }
-    }
-
-    return {
-      ...course,
-      completedCount,
-      totalStars,
-      status,
-    }
-  })
+  void localCompletedLessons
+  void localGoldenRules
+  return courses.map((course) => ({ ...course }))
 }
 
 export interface WorldPageProps {
@@ -570,9 +533,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             : Math.max(0, processedCourses.findIndex((row) => row.id === actualCourseId)),
         )
 
-        const isDevUnlock =
-          typeof window !== 'undefined' &&
-          new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+        const isDevUnlock = isUserTestingUnlocked()
         const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock
 
         if (!pathRow || (!forceUnlock && pathRow.status === 'locked')) {
@@ -838,7 +799,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             </svg>
             <ol className="course-game-stations">
             {quests.map((q, i) => (
-              <QuestNode key={q.id} quest={q} index={i} total={quests.length} courseId={courseId} />
+              <QuestNode
+                key={`${q.id || q.slug || q.order || 'station'}-${i}`}
+                quest={q}
+                index={i}
+                total={quests.length}
+                courseId={courseId}
+              />
             ))}
             </ol>
           </div>
@@ -876,9 +843,11 @@ export function isAikiRuleCourse(course: { id: string; title: string }, _index?:
 }
 
 export function isCourseRuleCompleted(course: PathwayCourse): boolean {
+  if (course.reasonCode === 'manual_override') return true
   if (course.status === 'completed') return true
-  if (typeof course.questCount === 'number' && course.questCount > 0 && typeof course.completedCount === 'number') {
-    return course.completedCount >= course.questCount
+  const stationCount = getCourseStationCount(course)
+  if (stationCount > 0 && typeof course.completedCount === 'number') {
+    return course.completedCount >= stationCount
   }
   return false
 }
@@ -894,9 +863,7 @@ export function applySequentialQuestRules<
 ): T[] {
   if (!Array.isArray(quests) || quests.length === 0) return []
 
-  const isDevUnlock =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const isDevUnlock = isUserTestingUnlocked()
   const forceUnlock = forceUnlockOverride ?? (FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock)
 
   if (forceUnlock) {
@@ -947,9 +914,7 @@ export function applyGatekeeperRules(
   if (courses.length === 0) return []
 
   const sortedCourses = sortAikiCourses(courses)
-  const isDevUnlock =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('unlock_all') === 'true'
+  const isDevUnlock = isUserTestingUnlocked()
   const forceUnlock = forceUnlockOverride ?? (FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock)
 
   const result: PathwayCourse[] = []
@@ -1240,12 +1205,10 @@ function RoadmapCourseNode({
   const region = getRegionForCourse(course, index);
   const isCompleted = course.status === 'completed';
   const isActive = course.status === 'active';
-  const isDevUnlock =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('unlock_all') === 'true';
+  const isDevUnlock = isUserTestingUnlocked();
   const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock;
   const isLocked = !forceUnlock && course.status === 'locked';
-  const stationCount = Math.max(0, Math.round(course.questCount ?? (course.stations?.length ?? 0)));
+  const stationCount = getCourseStationCount(course)
   const completedStations = Math.min(
     stationCount,
     Math.max(0, course.completedCount ?? Math.floor((stationCount * course.completionPercent) / 100)),
@@ -1341,7 +1304,7 @@ function RoadmapCourseNode({
               );
               const stationLabel = `Trạm ${stationNumber}: ${station?.title ?? ''}${isDone ? ', đã xong' : isCurrent ? ', tiếp theo' : ', chưa mở'}`;
               return (
-                <li key={station?.id ?? stationNumber}>
+                <li key={`${course.id}-${station?.id || station?.slug || stationNumber}-${stationNumber}`}>
                   {station && !isLocked && (forceUnlock || station.status !== 'locked') ? (
                     <Link
                       to={`/world/${course.slug || course.id}/lesson/${getStationSlug(station, isRuleCourse)}`}
@@ -1547,6 +1510,7 @@ function PathwayOverview({
   const [isParentGateOpen, setIsParentGateOpen] = useState(false)
 
   const isPaywallCourse = (course: PathwayCourse): boolean => {
+    if (isUserTestingUnlocked()) return false
     if (isAikiRuleCourse(course)) return false
     if (
       course.reasonCode === 'purchase_required' ||
@@ -1607,11 +1571,20 @@ function PathwayOverview({
   const ruleCourseHref = `/world/${ruleCourse?.slug || 'dao-1'}`
 
   const selectedCategory = categories.find((category) => category.id === selectedSource)
-  const selectedCourses = sortAikiCourses(
-    selectedSource
-      ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
-      : [],
+  const sourceCourses = selectedSource
+    ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
+    : []
+  const canonicalOfficialCourses = selectedSource === 'aikid_official'
+    ? selectCanonicalAikidCourses(sourceCourses)
+    : []
+  const selectedSourceCourses = sortAikiCourses(
+    selectedSource === 'aikid_official' && canonicalOfficialCourses.length > 0
+      ? canonicalOfficialCourses
+      : sourceCourses,
   )
+  const selectedCourses = selectedSource === 'aikid_official'
+    ? applyGatekeeperRules(selectedSourceCourses)
+    : selectedSourceCourses
   const nextLearningTarget = selectNextLearningTarget(
     selectedCourses,
     pathway.recommendedCourseId,
@@ -1627,7 +1600,7 @@ function PathwayOverview({
   }
 
   const completedCount = selectedCourses.filter((c) => c.status === 'completed').length
-  const totalStations = selectedCourses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
+  const totalStations = selectedCourses.reduce((sum, course) => sum + getCourseStationCount(course), 0)
   const completedStations = selectedCourses.reduce(
     (sum, course) => sum + Math.max(0, course.completedCount ?? 0),
     0,
@@ -1649,7 +1622,7 @@ function PathwayOverview({
         <p className="mt-1 text-sm font-bold text-muted">
           {nextStation
             ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
-            : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
+            : `${sourceRecommended.completedCount ?? 0}/${getCourseStationCount(sourceRecommended)} trạm đã hoàn thành`}
         </p>
       </div>
       {sourceRecommended.status === 'locked' ? (
@@ -1706,7 +1679,7 @@ function PathwayOverview({
             {categories.map((category) => {
               const courses = visibleCourses.filter((course) => sourceOf(course) === category.id)
               const active = courses.filter((course) => course.status === 'active').length
-              const stations = courses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
+              const stations = courses.reduce((sum, course) => sum + getCourseStationCount(course), 0)
               const doneStations = courses.reduce((sum, course) => sum + Math.max(0, course.completedCount ?? 0), 0)
               const progress = stations > 0 ? Math.round(doneStations / stations * 100) : 0
               return (

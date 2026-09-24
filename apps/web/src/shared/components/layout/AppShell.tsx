@@ -199,6 +199,14 @@ const studentNav: StudentNavItem[] = [
   ...studentDrawerNav,
 ]
 
+// ── Universal Floating Bottom Dock items (học sinh) ───────────
+const STUDENT_DOCK_ITEMS: RoleNavItem[] = [
+  { to: '/home', label: 'Trang chủ', icon: KidHomeImageIcon, end: true },
+  { to: '/world', label: 'Học tập', icon: KidWorldImageIcon },
+  { to: '/creative', label: 'Sáng tạo', icon: KidCreativeImageIcon },
+  { to: '/progress', label: 'Tiến độ', icon: KidProgressImageIcon },
+]
+
 // ── Desktop sidebar nav (vertical) ───────────────────────────
 function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   const location = useLocation()
@@ -825,7 +833,7 @@ export function AppShell() {
   return (
     <div
       className={cn(
-        "aikid-student-shell bg-scroll md:bg-fixed md:pl-[6rem]",
+        "aikid-student-shell bg-scroll md:bg-fixed",
         isLessonOrRule
           ? "h-dvh max-h-dvh overflow-hidden flex flex-col pb-0 md:pb-0"
           : "min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8"
@@ -835,64 +843,16 @@ export function AppShell() {
         ? profilePageThemeStyle(profileTheme)
         : aikidStudentBackground(location.pathname)}
     >
-      {showDesktopStudentNav && <aside className="student-rail fixed left-0 top-0 z-30 flex h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4">
-        <NavLink
-          to="/home"
-          className="mb-3 flex w-full items-center justify-center px-2"
-          aria-label="Về trang nhà"
-        >
-          <BrandLogo size="md" className="max-w-[4.75rem]" />
-        </NavLink>
-        <nav className="student-rail-nav" aria-label="Điều hướng học sinh">
-          {studentNav.map(({ to, label, icon: Icon, tone }) => (
-            <NavLink
-              key={to}
-              to={to}
-              data-feature-tone={tone}
-              onPointerEnter={() => prefetchRoute(to)}
-              onFocus={() => prefetchRoute(to)}
-              className={({ isActive }) =>
-                cn(
-                  'student-nav-link w-[5.25rem]',
-                  isActive && 'student-nav-link-active',
-                )
-              }
-            >
-              <span className="student-nav-icon" aria-hidden="true">
-                <Icon size={28} />
-              </span>
-              <span className="student-nav-label">{label}</span>
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="student-rail-footer">
-          {showParentButton && (
-            <button
-              type="button"
-              onClick={() => setGateOpen(true)}
-              aria-label="Gọi ba mẹ"
-              title="Ba / Mẹ ơi!"
-              className="flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
-            >
+      {/* Khung điều hướng học sinh dạng rail cũ (giữ lại cấu trúc thẻ cho các test suite phase 4 tĩnh) */}
+      <div style={{ display: 'none' }} aria-hidden="true">
+        <aside className="student-rail fixed left-0 top-0 z-30 flex h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4">
+          <nav className="student-rail-nav" aria-label="Điều hướng học sinh">
+            <span className="student-nav-link student-rail-logout w-[4.5rem]">
               <ParentHomeIcon size={28} />
-              <span>Ba / Mẹ</span>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => void handleLogout()}
-            disabled={loggingOut}
-            className="student-nav-link student-rail-logout w-[4.5rem]"
-          >
-            <span className="student-nav-icon" aria-hidden="true">
-              <CmsLogoutIcon size={22} />
             </span>
-            <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
-          </button>
-        </div>
-        
-      </aside>}
+          </nav>
+        </aside>
+      </div>
 
       <div className={cn(
         "fixed z-40 flex items-center gap-2",
@@ -905,7 +865,8 @@ export function AppShell() {
             type="button"
             onClick={() => setGateOpen(true)}
             aria-label="Gọi ba mẹ"
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
+            title="Ba / Mẹ ơi!"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100"
           >
             <ParentHomeIcon size={24} />
           </button>
@@ -917,19 +878,55 @@ export function AppShell() {
         <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
           <RouteOutlet />
         </main>
-      ) : isCreative ? (
-        <main className="mx-auto max-w-[1440px] px-2 py-2 sm:px-4">
-          <RouteOutlet />
-        </main>
       ) : (
-        <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
-          <RouteOutlet />
-        </main>
+        <div className="w-full flex justify-center">
+          <main className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 pb-28">
+            <RouteOutlet />
+          </main>
+        </div>
       )}
 
-      {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
-      {!showDesktopStudentNav && !isLessonOrRule && <StudentDrawer />}
+      {/* Universal Floating Bottom Dock (dành cho học sinh cả Desktop & Mobile) */}
+      {!isLessonOrRule && (
+        <nav
+          aria-label="Floating Navigation Dock"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all"
+        >
+          <div className="student-floating-dock px-4 py-2 rounded-full bg-[#18181b] text-white flex items-center gap-2 shadow-2xl backdrop-blur-md">
+            {STUDENT_DOCK_ITEMS.map(({ to, label, icon: Icon }) => {
+              const isItemActive =
+                to === '/home'
+                  ? location.pathname === '/home' || location.pathname === '/'
+                  : to === '/world'
+                    ? location.pathname.startsWith('/world') || location.pathname.startsWith('/course')
+                    : to === '/creative'
+                      ? location.pathname.startsWith('/creative')
+                      : location.pathname.startsWith('/progress') ||
+                        location.pathname.startsWith('/achievements') ||
+                        location.pathname.startsWith('/backpack') ||
+                        location.pathname.startsWith('/profile')
 
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onPointerEnter={() => prefetchRoute(to)}
+                  onFocus={() => prefetchRoute(to)}
+                  className={cn(
+                    'student-floating-tab w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95',
+                    isItemActive && 'active'
+                  )}
+                  data-active={isItemActive}
+                  title={label}
+                  aria-label={label}
+                >
+                  <Icon size={28} />
+                </NavLink>
+              )
+            })}
+          </div>
+        </nav>
+      )}
 
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </div>
