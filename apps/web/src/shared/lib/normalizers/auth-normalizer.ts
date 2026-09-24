@@ -79,13 +79,10 @@ export function normalizeAuthGatewayRequest(
   }
 
   if (path === '/api/auth/login/child-profile') {
+    const childId = String(body.childId ?? '').trim()
     return {
-      path: '/api/v1/account/family/child-login',
-      options: withJson(options, {
-        familyCode: body.familyCode,
-        childId: body.childId,
-        pin: body.pin,
-      }),
+      path: `/api/v1/account/family/children/${encodeURIComponent(childId)}/session`,
+      options,
     }
   }
 

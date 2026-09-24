@@ -62,7 +62,7 @@ describe('parent free-plan enrollment flow', () => {
         return json({ enrolled: true, enrollment: { courseId, status: 'active' } })
       }
 
-      if (url.endsWith('/api/v1/account/family/child-login')) {
+      if (url.endsWith(`/api/v1/account/family/children/${childId}/session`)) {
         expect(headers.get('Authorization')).toBe('Bearer parent-session')
         return json({
           status: 'success',
