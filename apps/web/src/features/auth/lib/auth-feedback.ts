@@ -19,6 +19,12 @@ export function authFeedback(error: unknown, action: AuthAction): string {
   if (firebaseCode === 'auth/too-many-requests') {
     return 'Bạn đã thử nhiều lần. Vui lòng chờ một chút rồi thử lại.'
   }
+  if (firebaseCode === 'auth/popup-blocked') {
+    return 'Trình duyệt đang chặn cửa sổ Google. Hãy cho phép pop-up rồi thử lại nhé.'
+  }
+  if (firebaseCode === 'auth/account-exists-with-different-credential') {
+    return 'Email này đang dùng một phương thức đăng nhập khác. Hãy chọn đúng cách đã đăng ký.'
+  }
   if (action === 'login' && [
     'auth/invalid-credential',
     'auth/invalid-login-credentials',

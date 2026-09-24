@@ -19,6 +19,13 @@ describe('auth feedback', () => {
       .toContain('không còn hiệu lực')
   })
 
+  it('explains Google popup and provider conflicts', () => {
+    expect(authFeedback({ code: 'auth/popup-blocked' }, 'login'))
+      .toBe('Trình duyệt đang chặn cửa sổ Google. Hãy cho phép pop-up rồi thử lại nhé.')
+    expect(authFeedback({ code: 'auth/account-exists-with-different-credential' }, 'login'))
+      .toBe('Email này đang dùng một phương thức đăng nhập khác. Hãy chọn đúng cách đã đăng ký.')
+  })
+
   it('keeps password reset responses private for unknown emails', () => {
     expect(shouldConfirmPasswordResetEmail(new ApiError(404, 'Not found'))).toBe(true)
     expect(shouldConfirmPasswordResetEmail(new ApiError(422, 'Unknown email'))).toBe(true)

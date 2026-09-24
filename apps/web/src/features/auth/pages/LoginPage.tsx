@@ -8,6 +8,7 @@ import { useToast } from '@/shared/hooks/useToast'
 import type { User } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { LoginCatFrame } from '@/features/auth/components/LoginCatFrame'
+import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
 export function LoginPage() {
@@ -113,6 +114,16 @@ export function LoginPage() {
             )}
             footerSlot={(
               <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border-2 border-border bg-white p-3 text-center shadow-clay sm:p-4" aria-label="Hỗ trợ đăng nhập">
+                <GoogleSignInButton
+                  disabled={busy}
+                  onSuccess={goAfterLogin}
+                  onError={(message) => showToast(message, 'error')}
+                />
+                <div className="flex items-center gap-3" aria-hidden="true">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-bold text-muted">hoặc dùng mật khẩu</span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
                 <Link to="/forgot-password" className="inline-flex min-h-8 items-center justify-center text-sm font-bold text-brand-600 hover:underline">
                   Quên mật khẩu?
                 </Link>
