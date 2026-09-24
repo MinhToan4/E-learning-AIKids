@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { confirmFirebasePasswordReset } from '@/shared/lib/firebase-client'
+import {
+  confirmFirebasePasswordReset,
+  verifyFirebasePasswordResetCode,
+} from '@/shared/lib/firebase-client'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
@@ -18,8 +21,28 @@ export function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [checkingCode, setCheckingCode] = useState(Boolean(actionCode))
+  const [codeValid, setCodeValid] = useState(false)
 
   const passwordsMatch = confirmPassword === '' || password === confirmPassword
+
+  useEffect(() => {
+    if (!actionCode) return undefined
+    let active = true
+    void verifyFirebasePasswordResetCode(actionCode)
+      .then(() => {
+        if (active) setCodeValid(true)
+      })
+      .catch(() => {
+        if (active) setCodeValid(false)
+      })
+      .finally(() => {
+        if (active) setCheckingCode(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [actionCode])
 
   useEffect(() => {
     if (!success) return undefined
@@ -45,14 +68,27 @@ export function ResetPasswordPage() {
     }
   }
 
-  if (!actionCode) {
+  if (!actionCode || (!checkingCode && !codeValid)) {
     return (
       <div className="flex min-h-dvh items-center justify-center px-4">
         <div className="ui-card p-6 text-center">
-          <p className="text-lg font-bold text-danger">Liên kết không hợp lệ.</p>
+          <p className="text-lg font-bold text-danger">
+            {actionCode ? 'Liên kết đã hết hạn hoặc đã được sử dụng.' : 'Liên kết không hợp lệ.'}
+          </p>
+          <p className="mt-2 text-sm text-muted">Mỗi email chỉ dùng được một lần. Hãy yêu cầu một email mới.</p>
           <Link to="/forgot-password" className="mt-4 block text-brand-500 font-bold hover:underline">
             Gửi lại hướng dẫn
           </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (checkingCode) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center px-4">
+        <div className="ui-card p-6 text-center" role="status">
+          <p className="text-lg font-bold text-text">Đang kiểm tra liên kết…</p>
         </div>
       </div>
     )

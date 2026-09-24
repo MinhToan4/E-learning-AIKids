@@ -111,7 +111,20 @@ export async function registerWithFirebasePassword(
 export async function sendFirebasePasswordReset(email: string): Promise<void> {
   const auth = await firebaseAuth()
   const { sendPasswordResetEmail } = await import('firebase/auth')
-  await sendPasswordResetEmail(auth, email)
+  auth.languageCode = 'vi'
+  await sendPasswordResetEmail(auth, email, {
+    // Firebase's email template action URL must point at /reset-password.
+    // This continue URL gives both the default and custom handlers a safe
+    // first-party destination instead of leaving the user on firebaseapp.com.
+    url: `${window.location.origin}/login`,
+    handleCodeInApp: false,
+  })
+}
+
+export async function verifyFirebasePasswordResetCode(actionCode: string): Promise<string> {
+  const auth = await firebaseAuth()
+  const { verifyPasswordResetCode } = await import('firebase/auth')
+  return verifyPasswordResetCode(auth, actionCode)
 }
 
 export async function confirmFirebasePasswordReset(
