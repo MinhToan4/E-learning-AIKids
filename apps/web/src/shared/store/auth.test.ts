@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError } from '@/shared/lib/api'
 
 const mocks = vi.hoisted(() => ({
   api: vi.fn(),
@@ -14,6 +15,13 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/shared/lib/api', () => ({
   api: mocks.api,
+  ApiError: class ApiError extends Error {
+    status: number
+    constructor(status: number, message: string) {
+      super(message)
+      this.status = status
+    }
+  },
   clearAccessToken: mocks.clearAccessToken,
   getAccessToken: mocks.getAccessToken,
   clearApiCache: mocks.clearApiCache,
@@ -157,6 +165,27 @@ describe('auth store', () => {
     })
     await expect(useAuth.getState().loginAdult('legacy@example.test', 'legacy-password')).rejects.toMatchObject({ code: 'auth/user-not-found' })
     expect(mocks.api).not.toHaveBeenCalled()
+  })
+
+  it('uses the parent gateway only after Firebase succeeds but token exchange returns 401', async () => {
+    mocks.api
+      .mockRejectedValueOnce(new ApiError(401, 'Firebase token verifier unavailable'))
+      .mockResolvedValueOnce({
+        user: {
+          id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
+          avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
+          parentId: null, classId: null,
+        },
+      })
+      .mockResolvedValueOnce({ contexts: [], active: null })
+
+    const user = await useAuth.getState().loginAdult('parent@example.test', 'valid-password')
+
+    expect(user.role).toBe('parent')
+    expect(mocks.api).toHaveBeenNthCalledWith(2, '/api/auth/login/adult', {
+      method: 'POST',
+      body: JSON.stringify({ login: 'parent@example.test', password: 'valid-password' }),
+    })
   })
 
   it('fails closed when Firebase rejects credentials', async () => {

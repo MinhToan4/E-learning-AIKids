@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   api,
+  ApiError,
   clearAccessToken,
   getAccessToken,
   type AccessContext,
@@ -289,7 +290,21 @@ export const useAuth = create<AuthState>((set, get) => ({
     try {
       const idToken = await signInWithFirebasePassword(resolvedEmail, password)
       await clearPreviousLearnerData()
-      const hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
+      let hydrated
+      try {
+        hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
+      } catch (error) {
+        // Compatibility bridge while the Account service is rolling out
+        // Firebase token verification. Firebase has already verified the
+        // credential at this point; never use the legacy route when Firebase
+        // itself rejects the email/password pair.
+        if (!(error instanceof ApiError) || error.status !== 401) throw error
+        const { user } = await api<{ user: User }>('/api/auth/login/adult', {
+          method: 'POST',
+          body: JSON.stringify({ login: trimmedLogin, password }),
+        })
+        hydrated = await hydrateAdultAccess(user)
+      }
       set(hydrated)
       return hydrated.user
     } catch (error) {
