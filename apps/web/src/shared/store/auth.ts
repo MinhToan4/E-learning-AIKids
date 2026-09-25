@@ -126,10 +126,15 @@ async function hydrateAdultAccess(user: User) {
   const access = await api<AccountAccess>('/api/auth/access')
   const context = preferredContext(access, user.role)
   if (!context) return { user, access, activeContext: null }
-  await api('/api/auth/context', {
-    method: 'POST',
-    body: JSON.stringify({ contextId: context.id }),
-  })
+  // Returning users already have their selected context persisted server-side.
+  // Re-selecting it repeats the whole access query set, writes the same row and
+  // issues a second JWT, adding a full request waterfall to every login.
+  if (access.active?.contextId !== context.id) {
+    await api('/api/auth/context', {
+      method: 'POST',
+      body: JSON.stringify({ contextId: context.id }),
+    })
+  }
   return {
     user: { ...user, role: roleForContext(context) },
     access,

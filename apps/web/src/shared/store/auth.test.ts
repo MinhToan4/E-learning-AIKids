@@ -158,6 +158,37 @@ describe('auth store', () => {
     )
   })
 
+  it('does not reselect an already-active parent context after Firebase login', async () => {
+    mocks.api
+      .mockResolvedValueOnce({
+        user: {
+          id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
+          avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
+          parentId: null, classId: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        personas: ['parent'],
+        platformRoles: [],
+        active: { mode: 'family', contextId: 'family:parent-1' },
+        contexts: [{
+          id: 'family:parent-1', type: 'family', label: 'Gia đình của tôi',
+          defaultRoute: '/parent', actor: 'parent', roles: ['parent'],
+          permissions: ['family.children.manage'],
+        }],
+      })
+
+    const user = await useAuth.getState().loginAdult('parent@example.test', 'valid-password')
+
+    expect(user.role).toBe('parent')
+    expect(useAuth.getState().activeContext?.id).toBe('family:parent-1')
+    expect(mocks.api).toHaveBeenCalledTimes(2)
+    expect(mocks.api).not.toHaveBeenCalledWith(
+      '/api/auth/context',
+      expect.anything(),
+    )
+  })
+
   it('does not fall back to password login when Firebase rejects the credential', async () => {
     mocks.signInWithFirebasePassword.mockRejectedValueOnce({
       code: 'auth/user-not-found',
