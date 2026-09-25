@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { api, ApiError, type User } from '@/shared/lib/api'
+import type { User } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { firebaseApp } from '@/shared/lib/firebase-client'
 import { useAuth } from '@/shared/store/auth'
@@ -25,7 +25,6 @@ export function GoogleSignInButton({ disabled = false, className, onSuccess, onE
   const preparationError = useRef<unknown>(null)
   const callbacks = useRef({ onSuccess, onError })
   const completeFirebaseSignIn = useAuth((state) => state.completeFirebaseSignIn)
-  const setSessionUser = useAuth((state) => state.setSessionUser)
   callbacks.current = { onSuccess, onError }
 
   useEffect(() => {
@@ -62,23 +61,10 @@ export function GoogleSignInButton({ disabled = false, className, onSuccess, onE
       provider.setCustomParameters({ prompt: 'select_account' })
       const credential = await prepared.signInWithPopup(prepared.auth, provider)
       const idToken = await credential.user.getIdToken()
-      let user: User
-      try {
-        user = await completeFirebaseSignIn(idToken, { role: 'parent' })
-      } catch (error) {
-        // Keep Firebase as the primary identity provider. During the backend
-        // verifier rollout, only a 401 from the StoryMee token-exchange route
-        // may fall back to the existing, verified Google GIS contract.
-        if (!(error instanceof ApiError) || error.status !== 401) throw error
-        const googleCredential = prepared.GoogleAuthProvider.credentialFromResult(credential)
-        if (!googleCredential?.idToken) throw error
-        const fallback = await api<{ user: User }>('/api/auth/login/google', {
-          method: 'POST',
-          body: JSON.stringify({ credential: googleCredential.idToken, role: 'parent' }),
-        })
-        user = fallback.user
-        setSessionUser(user)
-      }
+      // Firebase is the single adult identity provider. Do not retry through
+      // the retired Google GIS endpoint: it uses a different client ID and a
+      // failed fallback turns a valid Firebase login into a misleading 401.
+      const user = await completeFirebaseSignIn(idToken, { role: 'parent' })
       callbacks.current.onSuccess(user)
     } catch (error) {
       const code = error && typeof error === 'object' && 'code' in error
