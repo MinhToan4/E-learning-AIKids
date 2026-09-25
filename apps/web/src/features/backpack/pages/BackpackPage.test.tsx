@@ -7,6 +7,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { BackpackPage } from './BackpackPage'
 import * as apiModule from '@/shared/lib/api'
+import { syncRewardEquipment } from '@/features/rewards/reward-equipment'
 
 let mockStorage: Record<string, string> = {}
 const mockLocalStorage = {
@@ -159,10 +160,7 @@ describe('BackpackPage', () => {
   })
 
   it('renders the equipped title label instead of its internal reward id', async () => {
-    localStorage.setItem(
-      'aikids.reward-equipment.guest',
-      JSON.stringify({ title: 'title-curious-seeker' }),
-    )
+    syncRewardEquipment('guest', { title: 'title-curious-seeker' })
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)

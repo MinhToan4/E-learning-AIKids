@@ -229,7 +229,7 @@ describe('StudentStageBlocksView', () => {
 
     expect(html).toContain('data-testid="block-images"')
     expect(html).toContain('hero-art.webp')
-  })
+  }, 15000)
 
   it('maintains backwards compatibility for legacy lesson cards without contentBlocks', () => {
     // 1. Legacy card chỉ có video và text

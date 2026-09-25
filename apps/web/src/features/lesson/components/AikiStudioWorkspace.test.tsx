@@ -409,7 +409,7 @@ describe('AikiStudioWorkspace', () => {
     expect(modal?.textContent).toContain('Tranh & Ảnh')
     expect(modal?.textContent).toContain('Truyện Tranh')
     expect(modal?.textContent).toContain('Huy Hiệu')
-    expect(modal?.textContent).toContain('Khám Phá Toàn Bộ Balo Tại /backpack →')
+    expect(modal?.textContent).toContain('Khám Phá Toàn Bộ Balo Tại /backpack')
 
     // Dọn dẹp
     act(() => {
@@ -601,6 +601,7 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Con cún"
+          turnsPerItem={2}
           maxAttempts={8}
         />
       )
@@ -728,6 +729,7 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
+          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={[]}
         />
@@ -779,6 +781,7 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
+          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={oneImageMock}
         />
@@ -826,6 +829,7 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
+          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={mockImages}
         />
@@ -1067,6 +1071,7 @@ describe('AikiStudioWorkspace', () => {
         <AikiStudioWorkspace
           lessonId="bai-1-2"
           characterName="Cốc Sứ Trắng"
+          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={mockImages}
         />
@@ -1158,6 +1163,7 @@ describe('AikiStudioWorkspace', () => {
       root.render(
         <AikiStudioWorkspace
           lessonId="bai-test-session"
+          turnsPerItem={2}
           maxAttempts={8}
         />
       )

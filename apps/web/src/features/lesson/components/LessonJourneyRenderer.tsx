@@ -12,10 +12,11 @@ type Props = {
   ruleId: number
   effectiveCourseId: string
   liveStars: number
-  onFinish: (customSummary?: LessonCompletionSummary) => void
+  onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
+  onStageChange?: (stageIndex: number, stageCount: number) => void
 }
 
-export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, onFinish }: Props) {
+export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, onFinish, onStageChange }: Props) {
   const navigate = useNavigate()
   const journey = resolveIslandSixStageJourney(quest)
   const matchedCurriculum = findIslandCurriculum(quest)
@@ -26,7 +27,7 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
   })
 
   return (
-    <div className="h-auto min-h-full flex-none bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-visible md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
+    <div className="h-auto min-h-full flex-none bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-visible md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden w-full max-w-[1024px] mx-auto">
       <SixStageJourneyView
         key={quest.id}
         stages={stages}
@@ -38,15 +39,12 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         matchedCurriculum={matchedCurriculum}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => {
-          try {
-            localStorage.removeItem(`aikids_lesson_stage_${nextSlug}`)
-            localStorage.removeItem(`aikids_lesson_completed_stages_${nextSlug}`)
-          } catch {}
           const nextCurriculum = findIslandCurriculum({ id: nextSlug, slug: nextSlug })
           const targetCourseId = nextCurriculum?.islandNumber ? `dao-${nextCurriculum.islandNumber}` : effectiveCourseId
           navigate(`/world/${targetCourseId}/lesson/${nextSlug}`)
         }}
         onFinishLesson={onFinish}
+        onStageChange={(stageIndex) => onStageChange?.(stageIndex, stages.length)}
       />
     </div>
   )

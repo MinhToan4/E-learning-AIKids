@@ -436,16 +436,16 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
     <div data-testid="magic-keys-engine" className="flex w-full min-h-0 flex-col gap-2.5">
       {/* Tầng 1: Bố cục 3 Cột (Món đồ - 4 Chìa khóa - Tranh AI Canvas) */}
       {practiceSlot || canvasSlot ? (
-        <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(200px,250px)_minmax(0,1fr)] xl:grid-cols-[minmax(200px,230px)_minmax(400px,1fr)_minmax(340px,520px)]">
+        <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(180px,210px)_minmax(0,1fr)] lg:grid-cols-[minmax(180px,200px)_minmax(330px,1fr)_minmax(320px,1fr)]">
           {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ HỌC SINH VẼ */}
           {practiceSlot && (
-            <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1 xl:col-start-1 xl:row-start-1">
+            <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1 lg:col-start-1 lg:row-start-1 xl:col-start-1 xl:row-start-1">
               {practiceSlot}
             </div>
           )}
 
           {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AIKI */}
-          <div className="min-w-0 self-start md:col-start-2 md:row-start-1 xl:col-start-2 xl:row-start-1">
+          <div className="w-full min-w-0 self-start md:col-start-2 md:row-start-1 lg:col-start-2 lg:row-start-1 xl:col-start-2 xl:row-start-1">
             <BlockSlotTray
               title="4 Chìa Khóa Vàng AIKI"
               subtitle="Chạm ô để đổi từ gợi ý"
@@ -459,23 +459,17 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
             />
           </div>
 
-          {/* THANH CÂU LỆNH & NÚT VẼ:
-              - Khi < xl: Nằm ở Hàng 2 (md:col-span-2 md:row-start-2), NGAY DƯỚI 4 CHÌA KHÓA VÀ TRÊN TRANH SÁNG TẠO!
-              - Khi >= xl: Nằm ở Hàng 2 (xl:col-span-3 xl:row-start-2), trải dài dưới cả 3 cột!
-          */}
-          {promptSlot && (
-            <div className="w-full min-w-0 md:col-span-2 md:row-start-2 xl:col-span-3 xl:row-start-2">
-              {promptSlot}
+          {/* CỘT 3: KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
+          {canvasSlot && (
+            <div className="w-full min-w-0 self-start md:col-span-2 md:row-start-3 xl:col-span-1 xl:col-start-3 xl:row-start-1 lg:col-span-1 lg:col-start-3 lg:row-start-1">
+              {canvasSlot}
             </div>
           )}
 
-          {/* CỘT 3: KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH)
-              - Khi < xl: Nằm ở Hàng 3 (md:col-span-2 md:row-start-3), TRÀN VIỀN 100% (ngang bằng tổng chiều dài Món đồ + 4 Chìa khóa, loại bỏ hoàn toàn md:max-w-2xl và md:justify-self-center)!
-              - Khi >= xl: Nằm ở Cột 3, Hàng 1 (xl:col-span-1 xl:col-start-3 xl:row-start-1)!
-          */}
-          {canvasSlot && (
-            <div className="w-full min-w-0 self-start md:col-span-2 md:row-start-3 xl:col-span-1 xl:col-start-3 xl:row-start-1">
-              {canvasSlot}
+          {/* THANH CÂU LỆNH & NÚT VẼ: */}
+          {promptSlot && (
+            <div className="w-full min-w-0 md:col-span-2 md:row-start-2 xl:col-span-3 xl:row-start-2 lg:col-span-3 lg:row-start-2">
+              {promptSlot}
             </div>
           )}
         </div>
@@ -581,7 +575,7 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
               onClick={() => setIsPaletteModalOpen(false)}
               className="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-clay active:scale-95 transition-all cursor-pointer"
             >
-              <span>✨ Xong rồi, xem tranh! →</span>
+              <span>Xong rồi, xem tranh!</span>
             </button>
           </div>
         </div>

@@ -58,19 +58,11 @@ type LessonCheckInput = {
   answers: Array<{ questionId: string; optionIndex: number }>
 }
 
-const LESSON_DETAIL_TTL_MS = 60_000
 const LESSON_START_DEDUPE_MS = 5_000
-const lessonDetailCache = new Map<string, { expiresAt: number; request: Promise<{ quest: QuestDetail }> }>()
 const lessonStartRequests = new Map<string, { expiresAt: number; request: Promise<{ progress: LessonProgress }> }>()
 
 function cachedLessonDetail(lessonId: string) {
-  const now = Date.now()
-  const cached = lessonDetailCache.get(lessonId)
-  if (cached && cached.expiresAt > now) return cached.request
-  const request = api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
-  lessonDetailCache.set(lessonId, { expiresAt: now + LESSON_DETAIL_TTL_MS, request })
-  void request.catch(() => lessonDetailCache.delete(lessonId))
-  return request
+  return api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
 }
 
 function dedupedLessonStart(lessonId: string) {

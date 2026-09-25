@@ -56,7 +56,7 @@ describe('profile overview adapter', () => {
     expect(request).toHaveBeenCalledWith('/api/profile/settings')
   })
 
-  it('falls back to localStorage values when gamification request fails', async () => {
+  it('fails closed instead of trusting localStorage when gamification request fails', async () => {
     localStorage.setItem('aiki_last_known_level', '7')
     localStorage.setItem('aiki_last_known_xp', '850')
 
@@ -71,15 +71,15 @@ describe('profile overview adapter', () => {
     })
 
     const overview = await loadProfileOverview(request)
-    expect(overview.level).toBe(7)
-    expect(overview.totalXp).toBe(850)
+    expect(overview.level).toBe(1)
+    expect(overview.totalXp).toBe(0)
     expect(overview.streak).toBe(2)
 
     localStorage.removeItem('aiki_last_known_level')
     localStorage.removeItem('aiki_last_known_xp')
   })
 
-  it('persists level and totalXp into localStorage on successful gamification fetch', async () => {
+  it('does not persist authoritative level and XP in localStorage', async () => {
     localStorage.removeItem('aiki_last_known_level')
     localStorage.removeItem('aiki_last_known_xp')
 
@@ -91,8 +91,8 @@ describe('profile overview adapter', () => {
     })
 
     await loadProfileOverview(request)
-    expect(localStorage.getItem('aiki_last_known_level')).toBe('5')
-    expect(localStorage.getItem('aiki_last_known_xp')).toBe('350')
+    expect(localStorage.getItem('aiki_last_known_level')).toBeNull()
+    expect(localStorage.getItem('aiki_last_known_xp')).toBeNull()
 
     localStorage.removeItem('aiki_last_known_level')
     localStorage.removeItem('aiki_last_known_xp')

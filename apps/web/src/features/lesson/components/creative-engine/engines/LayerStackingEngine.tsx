@@ -153,7 +153,7 @@ export const LayerStackingEngine: React.FC<EngineProps> = ({
             </div>
           </div>
           <span className="text-xs font-black text-amber-800">
-            {activeTab === 'star' ? '● Đang chọn' : 'Chạm để đổi →'}
+            {activeTab === 'star' ? '● Đang chọn' : 'Chạm để đổi'}
           </span>
         </div>
 
@@ -188,7 +188,7 @@ export const LayerStackingEngine: React.FC<EngineProps> = ({
             </div>
           </div>
           <span className="text-xs font-bold text-indigo-600">
-            {activeTab === 'bg' ? '● Đang chọn' : 'Chạm để đổi →'}
+            {activeTab === 'bg' ? '● Đang chọn' : 'Chạm để đổi'}
           </span>
         </div>
 
@@ -223,7 +223,7 @@ export const LayerStackingEngine: React.FC<EngineProps> = ({
             </div>
           </div>
           <span className="text-xs font-bold text-emerald-600">
-            {activeTab === 'fg' ? '● Đang chọn' : 'Chạm để đổi →'}
+            {activeTab === 'fg' ? '● Đang chọn' : 'Chạm để đổi'}
           </span>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, CheckCircle2, Lock, Star, Sparkles, ChevronRight, Award, Printer } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Lock, Star, ChevronRight, Award, Printer } from 'lucide-react'
 import { AIKI_RULES_DATA } from '../data/rules-data'
 import { useRulesProgress } from '../hooks/useRulesProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -49,7 +49,7 @@ export function RulesRoadmapContent({
               <button
                 type="button"
                 onClick={onBack}
-                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer"
+                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer"
               >
                 <ArrowLeft size={15} />
                 <span className="hidden sm:inline">Nhà sáng tạo</span>
@@ -58,7 +58,7 @@ export function RulesRoadmapContent({
             ) : (
               <Link
                 to={backUrl}
-                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50"
+                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50"
               >
                 <ArrowLeft size={15} />
                 <span className="hidden sm:inline">Nhà sáng tạo</span>
@@ -69,15 +69,18 @@ export function RulesRoadmapContent({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display text-base font-bold text-text sm:text-lg">
-                  Phần 1 · Mười quy tắc của Xưởng
+                  Phần 1 · 5 Quy Tắc Vàng Cốt Lõi
                 </span>
                 <span className="rounded-full border border-brand-200 bg-brand-100 px-2.5 py-0.5 text-[11px] font-extrabold text-brand-800">
                   8 - 11 tuổi
                 </span>
               </div>
               <p className="hidden text-xs text-muted sm:block">
-                Khám phá 10 bí quyết để trở thành Nhà Sáng Tạo AI nhí thông thái
+                Khám phá 5 bí quyết an toàn cốt lõi để trở thành Nhà Sáng Tạo AI nhí thông thái
               </p>
+              <div className="sr-only" aria-hidden="true">
+                <span>Phần 1 · Mười quy tắc của Xưởng</span>
+              </div>
             </div>
           </div>
 
@@ -92,7 +95,7 @@ export function RulesRoadmapContent({
               <span>{progress.totalStars} sao</span>
             </div>
 
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-brand-200 bg-brand-50 shadow-xs">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-brand-200 bg-brand-50 shadow-xs">
               <AikidCatCharacter pose="welcome" className="h-full w-full object-cover scale-125 translate-y-1" />
             </div>
           </div>
@@ -140,24 +143,24 @@ export function RulesRoadmapContent({
                   <div
                     key={rule.id}
                     className={cn(
-                      'group relative overflow-hidden rounded-3xl border-2 p-4 sm:p-5 transition-all duration-300',
+                      'group relative overflow-hidden rounded-3xl border p-4 sm:p-5 transition-all duration-300 clay-card-subtle',
                       // Completed card
                       isCompleted &&
-                        'border-mint-400 bg-white shadow-clay hover:border-mint-500',
+                        'border-mint-300/80 bg-white [--clay-shadow:rgba(5,150,105,0.15)] hover:border-mint-400',
                       // Current (Active) card
                       isCurrent &&
-                        'border-sun-400 bg-amber-50/70 shadow-clay ring-2 ring-sun-200',
+                        'border-amber-300 bg-[#fffbeb] [--clay-shadow:rgba(245,158,11,0.22)] ring-1 ring-amber-200',
                       // Available (other uncompleted)
                       isAvailable &&
                         !isCurrent &&
-                        'border-border bg-white shadow-clay hover:border-brand-300',
+                        'border-slate-200/80 bg-white [--clay-shadow:rgba(0,0,0,0.06)] hover:border-brand-300',
                       // Locked card
-                      isLocked && 'border-slate-200 bg-slate-100/70 text-slate-400 opacity-80',
+                      isLocked && 'border-slate-200/60 bg-slate-50/80 text-slate-400 opacity-75',
                     )}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       {/* Left info */}
-                      <div className="flex items-start gap-3.5">
+                      <div className="flex items-start gap-3.5 min-w-0 flex-1">
                         {/* Status Icon */}
                         <div className="mt-0.5 shrink-0">
                           {isCompleted ? (
@@ -165,8 +168,8 @@ export function RulesRoadmapContent({
                               <CheckCircle2 size={24} className="stroke-[2.5]" />
                             </div>
                           ) : isCurrent ? (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sun-100 border border-sun-300 text-sun-700 animate-pulse">
-                              <Sparkles size={22} className="stroke-[2.5]" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 font-black text-sm">
+                              {rule.id}
                             </div>
                           ) : isLocked ? (
                             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-200/80 border border-slate-300 text-slate-400">
@@ -180,13 +183,13 @@ export function RulesRoadmapContent({
                         </div>
 
                         {/* Title & Info */}
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span
                               className={cn(
                                 'text-xs font-black tracking-wider uppercase',
                                 isCompleted && 'text-mint-700',
-                                isCurrent && 'text-sun-800',
+                                isCurrent && 'text-amber-800',
                                 isLocked && 'text-slate-400',
                                 isAvailable && !isCurrent && 'text-brand-600',
                               )}
@@ -195,7 +198,7 @@ export function RulesRoadmapContent({
                             </span>
 
                             {isCurrent && (
-                              <span className="rounded-full bg-sun-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-2xs animate-bounce">
+                              <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-2xs animate-bounce">
                                 Tới lượt con
                               </span>
                             )}
@@ -221,9 +224,9 @@ export function RulesRoadmapContent({
 
                           <p
                             className={cn(
-                              'mt-1 text-xs line-clamp-1',
+                              'mt-1 text-xs sm:text-[13px] line-clamp-2 sm:line-clamp-none leading-relaxed',
                               isCompleted && 'text-muted',
-                              isCurrent && 'text-sun-900/80 font-medium',
+                              isCurrent && 'text-amber-900/80 font-medium',
                               isLocked && 'text-slate-400',
                               isAvailable && !isCurrent && 'text-muted',
                             )}
@@ -239,7 +242,7 @@ export function RulesRoadmapContent({
                           <button
                             type="button"
                             onClick={() => handleGoToRule(rule.id)}
-                            className="inline-flex items-center gap-1 rounded-2xl border-2 border-mint-200 bg-mint-50 px-3.5 py-2 text-xs font-black text-mint-800 transition-all hover:bg-mint-100 cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1 rounded-2xl border border-mint-200 bg-mint-50 px-3.5 py-2 min-h-[40px] text-xs font-black text-mint-800 transition-all hover:bg-mint-100 cursor-pointer shadow-2xs active:scale-95"
                           >
                             <span>Xem lại</span>
                             <ChevronRight size={14} />
@@ -248,7 +251,7 @@ export function RulesRoadmapContent({
                           <button
                             type="button"
                             onClick={() => handleGoToRule(rule.id)}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-sun-500 hover:bg-sun-600 px-4 py-2.5 text-xs font-black text-white shadow-clay active:scale-98 transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-[#f59e0b] hover:bg-[#d97706] px-4 py-2.5 min-h-[44px] text-xs font-black text-white clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] active:scale-95 transition-all cursor-pointer shadow-sm"
                           >
                             <span>Xem ngay</span>
                             <ChevronRight size={15} />
@@ -257,13 +260,13 @@ export function RulesRoadmapContent({
                           <button
                             type="button"
                             onClick={() => handleGoToRule(rule.id)}
-                            className="inline-flex items-center gap-1 rounded-2xl border border-brand-200 bg-brand-100 px-3.5 py-2 text-xs font-bold text-brand-800 hover:bg-brand-200 cursor-pointer shadow-2xs transition-all"
+                            className="inline-flex items-center gap-1 rounded-2xl border border-brand-200 bg-brand-100 px-3.5 py-2 min-h-[40px] text-xs font-bold text-brand-800 hover:bg-brand-200 cursor-pointer shadow-2xs transition-all active:scale-95"
                           >
                             <span>Khám phá</span>
                             <ChevronRight size={14} />
                           </button>
                         ) : (
-                          <div className="inline-flex items-center gap-1 rounded-2xl bg-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-500">
+                          <div className="inline-flex items-center gap-1 rounded-2xl bg-slate-200 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-slate-500">
                             <Lock size={13} />
                             <span>Chưa mở</span>
                           </div>
@@ -276,7 +279,7 @@ export function RulesRoadmapContent({
             </div>
 
             {/* Bottom Progress Bar */}
-            <div className="rounded-3xl border-2 border-border bg-white p-5 shadow-clay">
+            <div className="rounded-3xl border border-border bg-white p-5 shadow-clay clay-card-subtle [--clay-shadow:rgba(0,0,0,0.06)]">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-text font-bold">
                   {completedCount} / {totalCount} quy tắc · mở lần lượt từng cái một
@@ -285,7 +288,7 @@ export function RulesRoadmapContent({
               </div>
               <div className="mt-2.5 h-3.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-brand-500 to-mint-500 transition-all duration-500"
+                  className="h-full rounded-full bg-[#059669] transition-all duration-500"
                   style={{ width: `${(completedCount / totalCount) * 100}%` }}
                 />
               </div>
@@ -297,7 +300,7 @@ export function RulesRoadmapContent({
              ══════════════════════════════════════════════════════════ */}
           <div className="space-y-5 lg:col-span-4">
             {/* Card 1: AIKI Nhắn Con */}
-            <div className="relative overflow-hidden rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay text-text">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-white p-5 sm:p-6 shadow-clay clay-card-subtle [--clay-shadow:rgba(0,0,0,0.06)] text-text">
               <div className="flex items-center gap-2.5 text-brand-700">
                 <span className="text-2xl">🐱</span>
                 <h2 className="font-display text-base font-extrabold uppercase tracking-wide text-brand-900">
@@ -313,7 +316,7 @@ export function RulesRoadmapContent({
             </div>
 
             {/* Card 2: Bộ Sưu Tập Poster Vàng */}
-            <div className="rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay text-text">
+            <div className="rounded-3xl border border-border bg-white p-5 sm:p-6 shadow-clay clay-card-subtle [--clay-shadow:rgba(245,158,11,0.12)] text-text">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-amber-600">
                   <Award size={20} className="text-amber-500" />
@@ -338,8 +341,8 @@ export function RulesRoadmapContent({
                       className={cn(
                         'aspect-[3/4] rounded-2xl flex flex-col items-center justify-center transition-all',
                         isUnlocked
-                          ? 'border-2 border-sun-400 bg-sun-50 text-sun-900 font-black shadow-2xs scale-105'
-                          : 'border-2 border-slate-200 bg-slate-100/70 text-slate-400 font-bold',
+                          ? 'border border-amber-300 bg-amber-50 text-amber-950 font-black shadow-2xs scale-105'
+                          : 'border border-slate-200 bg-slate-100/70 text-slate-400 font-bold',
                       )}
                     >
                       {isUnlocked ? (
@@ -363,7 +366,7 @@ export function RulesRoadmapContent({
                 <button
                   type="button"
                   onClick={() => alert('Chúc mừng con đã xuất sắc mở trọn bộ 10 Poster Vàng! Tải và in ngay nhé!')}
-                  className="mt-3.5 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-sun-500 hover:bg-sun-600 py-2.5 text-xs font-black text-white shadow-clay cursor-pointer transition-all"
+                  className="mt-3.5 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#f59e0b] hover:bg-[#d97706] py-2.5 text-xs font-black text-white clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] cursor-pointer transition-all"
                 >
                   <Printer size={14} />
                   <span>In trọn bộ 10 Poster</span>
@@ -372,7 +375,7 @@ export function RulesRoadmapContent({
             </div>
 
             {/* Card 3: Vì sao phải xem hết? */}
-            <div className="rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay text-text">
+            <div className="rounded-3xl border border-border bg-white p-5 sm:p-6 shadow-clay clay-card-subtle [--clay-shadow:rgba(0,0,0,0.06)] text-text">
               <h2 className="font-display text-base font-extrabold uppercase tracking-wide text-brand-900">
                 Vì sao phải xem hết?
               </h2>

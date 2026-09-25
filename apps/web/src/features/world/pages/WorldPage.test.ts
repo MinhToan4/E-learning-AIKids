@@ -182,6 +182,32 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI & Khóa Tuần Tự)', 
     expect(result[2].lockMessage).toBeUndefined()
   })
 
+  it('preserves a server-authored manual/parallel learner override for all stations', () => {
+    const courses: PathwayCourse[] = [
+      course({
+        id: 'aiki-rules',
+        title: 'Quy tắc vàng AIKI',
+        status: 'active',
+        reasonCode: 'manual_override',
+        programUnlockMode: 'parallel',
+        stations: [
+          { id: 'rule-1', order: 1, status: 'available', stars: 0 },
+          { id: 'rule-2', order: 2, status: 'locked', stars: 0 },
+          { id: 'rule-3', order: 3, status: 'locked', stars: 0 },
+        ] as PathwayCourse['stations'],
+      }),
+    ]
+
+    const result = applyGatekeeperRules(courses, false)
+
+    expect(result[0].status).toBe('active')
+    expect(result[0].stations?.map((station) => station.status)).toEqual([
+      'available',
+      'available',
+      'available',
+    ])
+  })
+
   it('keeps gatekeeper island open and locks subsequent islands when previous is incomplete', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'locked', questCount: 5, completedCount: 2 }),

@@ -4,10 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from './api'
 import { clearAccessToken } from './api'
 import {
-  applyConfirmedXpDelta,
   fetchProgressionSnapshot,
   progressionQueryKey,
-  readProgressionSnapshot,
   setProgressionSnapshot,
 } from './progression-query'
 
@@ -49,20 +47,28 @@ describe('shared progression snapshot', () => {
     })
   })
 
-  it('persists snapshots per learner on shared devices', () => {
+  it('keeps snapshots in query memory without persisting learner data in the browser', () => {
     const client = new QueryClient()
     setProgressionSnapshot(client, 'child-a', { totalXp: 250, level: 3 })
     setProgressionSnapshot(client, 'child-b', { totalXp: 40, level: 1 })
 
-    expect(readProgressionSnapshot(learner('child-a'))?.totalXp).toBe(250)
-    expect(readProgressionSnapshot(learner('child-b'))?.totalXp).toBe(40)
+    expect(client.getQueryData<ReturnType<typeof setProgressionSnapshot>>(
+      progressionQueryKey('child-a'),
+    )?.totalXp).toBe(250)
+    expect(client.getQueryData<ReturnType<typeof setProgressionSnapshot>>(
+      progressionQueryKey('child-b'),
+    )?.totalXp).toBe(40)
+    expect(localStorage.length).toBe(0)
   })
 
-  it('updates the shared query immediately after a confirmed XP award', () => {
+  it('updates query memory only from an absolute server-confirmed snapshot', () => {
     const client = new QueryClient()
-    setProgressionSnapshot(client, 'child-a', { totalXp: 90, level: 1 })
-
-    const next = applyConfirmedXpDelta(client, learner('child-a', 90, 1), 30)
+    const next = setProgressionSnapshot(client, 'child-a', {
+      totalXp: 120,
+      level: 2,
+      version: 8,
+      updatedAt: '2026-09-24T00:00:00.000Z',
+    })
 
     expect(next).toMatchObject({ totalXp: 120, level: 2, xpIntoLevel: 20 })
     expect(client.getQueryData(progressionQueryKey('child-a'))).toEqual(next)

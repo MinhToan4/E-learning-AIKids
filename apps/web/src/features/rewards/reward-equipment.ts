@@ -25,14 +25,10 @@ export function rewardEquipmentFromRows(
   return equipment
 }
 
-const key = (userId: string) => `aikids.reward-equipment.${userId}`
+const equipmentByUser = new Map<string, RewardEquipment>()
 
 export function readRewardEquipment(userId: string): RewardEquipment {
-  try {
-    return JSON.parse(localStorage.getItem(key(userId)) ?? '{}') as RewardEquipment
-  } catch {
-    return {}
-  }
+  return { ...(equipmentByUser.get(userId) ?? {}) }
 }
 
 export function equipReward(
@@ -41,7 +37,7 @@ export function equipReward(
   rewardId: string,
 ): RewardEquipment {
   const next = { ...readRewardEquipment(userId), [kind]: rewardId }
-  localStorage.setItem(key(userId), JSON.stringify(next))
+  equipmentByUser.set(userId, next)
   applyRewardEquipment(next)
   window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: next }))
   return next
@@ -50,7 +46,7 @@ export function equipReward(
 export function unequipReward(userId: string, kind: RewardKind): RewardEquipment {
   const next = { ...readRewardEquipment(userId) }
   delete next[kind]
-  localStorage.setItem(key(userId), JSON.stringify(next))
+  equipmentByUser.set(userId, next)
   applyRewardEquipment(next)
   window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: next }))
   return next
@@ -60,10 +56,11 @@ export function syncRewardEquipment(
   userId: string,
   equipment: RewardEquipment,
 ): RewardEquipment {
-  localStorage.setItem(key(userId), JSON.stringify(equipment))
-  applyRewardEquipment(equipment)
-  window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: equipment }))
-  return equipment
+  const next = { ...equipment }
+  equipmentByUser.set(userId, next)
+  applyRewardEquipment(next)
+  window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: next }))
+  return next
 }
 
 export function applyRewardEquipment(equipment: RewardEquipment): void {

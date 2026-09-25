@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { Sparkles, Compass } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
+import { designerAssets } from '@/shared/config/assets'
 
 export interface MeeLandscapeHeaderProps {
   islandNumber?: string
   islandTitle?: string
   islandDesc?: string
+  islandScene?: string
   currentStationName?: string
   starsEarned?: number
   totalStars?: number
@@ -17,6 +19,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
   islandNumber = 'ĐẢO 2',
   islandTitle = 'Đảo Khám Phá',
   islandDesc = '4 Chìa khóa lệnh',
+  islandScene,
   currentStationName = 'Trạm 3: Phong Cách Nghệ Thuật',
   starsEarned = 6,
   totalStars = 12,
@@ -34,7 +37,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
   return (
     <section
       aria-label="Khung cảnh Xưởng sáng tạo Mèo Mee"
-      className={`relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#bfe4ff] via-[#d7f1e7] to-[#e8f7ea] min-h-[240px] sm:min-h-[260px] p-4 sm:p-5 shadow-sm flex flex-col justify-between select-none ${className}`}
+      className={`relative overflow-hidden rounded-[36px] bg-[#f0f9ff] min-h-[240px] sm:min-h-[260px] p-4 sm:p-5 shadow-xs border border-sky-100 flex flex-col justify-between select-none ${className}`}
     >
       {/* Background Soft Clay Elements: Sun, Clouds, Rolling Hills */}
       <div className="absolute inset-0 pointer-events-none">
@@ -84,7 +87,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
             Bản Đồ Lộ Trình Khám Phá
           </h1>
 
-          <p className="text-[11px] sm:text-xs font-semibold text-zinc-600 truncate">
+          <p className="text-[11px] sm:text-xs font-semibold text-zinc-600 truncate line-clamp-1">
             {islandNumber}: {islandTitle} • {islandDesc}
           </p>
 
@@ -106,7 +109,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
         </div>
       </div>
 
-      {/* BOTTOM ROW: Cánh Trái (Nhà Vòm Anten) + Cánh Phải (Biển Chỉ Đường & Mèo Mee Vẫy Tay) */}
+      {/* BOTTOM ROW: Cánh Trái (Nhà Vòm Anten) + Trung Tâm (Hòn Đảo Xóa Nền) + Cánh Phải (Biển Chỉ Đường & Mèo Mee Vẫy Tay) */}
       <div className="relative z-20 flex items-end justify-between gap-2 pt-3">
         {/* Cánh Trái: Ngôi nhà vòm anten Soft Clay màu be hồng phấn */}
         <div className="flex flex-col items-center shrink-0">
@@ -117,7 +120,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
             <div className="w-4 h-1.5 border-t-2 border-zinc-700 rounded-t-full -mt-0.5" />
           </div>
 
-          <div className="relative w-16 h-12 sm:w-20 sm:h-14 rounded-t-[32px] rounded-b-xl bg-gradient-to-b from-[#fff7ed] to-[#fed7aa] shadow-xs flex flex-col items-center justify-end p-1">
+          <div className="relative w-16 h-12 sm:w-20 sm:h-14 rounded-t-[32px] rounded-b-xl bg-[#fed7aa] shadow-xs flex flex-col items-center justify-end p-1">
             <div className="absolute -top-1 w-10 h-2.5 rounded-full bg-rose-400/90" />
             <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300 shadow-inner flex items-center justify-center mb-0.5">
               <div className="w-2 h-2 rounded-full bg-amber-400/80 animate-pulse" />
@@ -128,6 +131,17 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
             Nhà Vòm Anten
           </span>
         </div>
+
+        {/* Trung Tâm: Cảnh quan Hòn Đảo nổi bật xóa nền */}
+        {islandScene && (
+          <div className="flex flex-col items-center shrink-0 w-24 h-16 sm:w-36 sm:h-22 mb-0.5">
+            <img
+              src={islandScene}
+              alt={islandTitle}
+              className="w-full h-full object-contain filter drop-shadow-md transition-transform hover:scale-105 duration-300"
+            />
+          </div>
+        )}
 
         {/* Cánh Phải: Biển chỉ đường robot 3 hướng + Chú Mèo Mee vẫy tay chào */}
         <div className="flex items-end gap-2 shrink-0">
@@ -167,7 +181,7 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
               title="Mèo Mee vẫy tay chào bé!"
             >
               <img
-                src="/assets/aikid-ui/mascot-original/course-wave.webp"
+                src={designerAssets.catPoses.welcome}
                 alt="Mèo Mee vẫy tay"
                 className="w-full h-full object-contain drop-shadow-md"
               />

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   equipReward,
   profileCardBackgroundStyle,
@@ -64,11 +64,6 @@ describe('profile card contrast', () => {
 
 describe('reward equipment', () => {
   it('removes one equipped slot without changing the others', () => {
-    const storage = new Map<string, string>()
-    vi.stubGlobal('localStorage', {
-      getItem: (storageKey: string) => storage.get(storageKey) ?? null,
-      setItem: (storageKey: string, value: string) => storage.set(storageKey, value),
-    })
     equipReward('child-1', 'frame', 'frame-level-15')
     equipReward('child-1', 'effect', 'effect-level-24')
 
@@ -77,5 +72,4 @@ describe('reward equipment', () => {
     expect(readRewardEquipment('child-1')).toEqual({ frame: 'frame-level-15' })
   })
 
-  afterEach(() => vi.unstubAllGlobals())
 })

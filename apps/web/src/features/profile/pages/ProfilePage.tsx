@@ -52,24 +52,6 @@ function friendlyProjectTitle(title: string): string {
   return clean || 'Tác phẩm của con'
 }
 
-type ProfileCacheSnapshot = {
-  streak?: number
-  achievements?: AchievementRow[]
-  projects?: ShowcaseProject[]
-  totalXp?: number
-  level?: number
-}
-
-function readProfileOverviewCache(userId?: string): ProfileCacheSnapshot | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = localStorage.getItem(`aiki_profile_overview_cache.${userId ?? 'guest'}`)
-    return raw ? (JSON.parse(raw) as ProfileCacheSnapshot) : null
-  } catch {
-    return null
-  }
-}
-
 function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
   const [failed, setFailed] = useState(false)
   if (!project.thumbnail || failed) {
@@ -90,21 +72,12 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
   const { data: progression } = useProgression(user)
-  const [profileCache] = useState(() => readProfileOverviewCache(user?.id))
   const [loading, setLoading] = useState(() => !user)
   const [section, setSection] = useState<'overview' | 'customize'>('overview')
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
-  const [streak, setStreak] = useState<number>(() =>
-    typeof profileCache?.streak === 'number' ? profileCache.streak : 0,
-  )
-  const [achievements, setAchievements] = useState<AchievementRow[]>(() =>
-    Array.isArray(profileCache?.achievements)
-      ? profileCache.achievements.filter((row) => row.unlocked)
-      : [],
-  )
-  const [projects, setProjects] = useState<ShowcaseProject[]>(() =>
-    Array.isArray(profileCache?.projects) ? profileCache.projects : [],
-  )
+  const [streak, setStreak] = useState(0)
+  const [achievements, setAchievements] = useState<AchievementRow[]>([])
+  const [projects, setProjects] = useState<ShowcaseProject[]>([])
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
     themeKey: null as string | null,
@@ -141,17 +114,6 @@ export function ProfilePage() {
             label: asset.name,
             source: asset.type.includes('generated') ? 'generated' : 'library',
           })))
-        try {
-          localStorage.setItem(
-            `aiki_profile_overview_cache.${user?.id ?? 'guest'}`,
-            JSON.stringify({
-              streak: overview.streak,
-              achievements: overview.achievements,
-              projects: overview.projects,
-            }),
-          )
-        } catch {}
-
         const profileSettings = overview.profileSettings
         if (profileSettings) {
           setProfileSlug(profileSettings.slug)

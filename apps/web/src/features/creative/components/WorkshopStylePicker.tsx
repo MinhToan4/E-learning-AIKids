@@ -90,7 +90,7 @@ export function WorkshopStylePicker({ selectedStyle, onSelect, onContinue, onBac
           onClick={() => onContinue('canvas')}
           className="ui-btn ui-btn-primary px-6 py-3 text-base font-extrabold shadow-clay"
         >
-          Tiếp tục → Vẽ tranh
+          Tiếp tục Vẽ tranh
         </button>
       </div>
     </div>

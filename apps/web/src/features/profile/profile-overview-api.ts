@@ -57,18 +57,6 @@ export function withTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T
   })
 }
 
-function readStoredNumber(key: string): number | undefined {
-  if (typeof window === 'undefined') return undefined
-  try {
-    const raw = localStorage.getItem(key)
-    if (!raw) return undefined
-    const parsed = Number(raw)
-    return Number.isFinite(parsed) ? parsed : undefined
-  } catch {
-    return undefined
-  }
-}
-
 async function loadLegacyProfileOverview(
   request: ProfileRequest,
   timeoutMs = 3500,
@@ -88,26 +76,12 @@ async function loadLegacyProfileOverview(
       includeProgression
         ? safeReq<{ totalXp: number; level: number }>('/api/gamification/profile')
         : Promise.resolve({
-            totalXp: readStoredNumber('aiki_last_known_xp') ?? 0,
-            level: readStoredNumber('aiki_last_known_level') ?? 1,
+            totalXp: 0,
+            level: 1,
           }),
       safeReq<PublicProfileSettings>('/api/profile/settings'),
       safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
     ])
-
-  if (gamification.status === 'fulfilled' && gamification.value) {
-    try {
-      if (typeof gamification.value.level === 'number') {
-        localStorage.setItem('aiki_last_known_level', String(gamification.value.level))
-      }
-      if (typeof gamification.value.totalXp === 'number') {
-        localStorage.setItem('aiki_last_known_xp', String(gamification.value.totalXp))
-      }
-    } catch {}
-  }
-
-  const fallbackLevel = readStoredNumber('aiki_last_known_level') ?? 1
-  const fallbackXp = readStoredNumber('aiki_last_known_xp') ?? 0
 
   return {
     streak: streak.status === 'fulfilled' ? streak.value.current : 0,
@@ -122,10 +96,10 @@ async function loadLegacyProfileOverview(
       : [],
     totalXp: gamification.status === 'fulfilled'
       ? gamification.value.totalXp
-      : fallbackXp,
+      : 0,
     level: gamification.status === 'fulfilled'
       ? gamification.value.level
-      : fallbackLevel,
+      : 1,
     profileSettings: settings.status === 'fulfilled' ? settings.value : null,
     equipment: rewards.status === 'fulfilled'
       ? rewards.value.equipment ?? []

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, X, Star, ArrowRight } from 'lucide-react'
+import { Check, X, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { isValidImageUrl } from '../../lib/stage-view-utils'
@@ -34,7 +34,7 @@ export function QuizStageBlock({
   checkedQuestions = {},
   quizSubmitted = false,
   quizScore = 0,
-  quizStars = 1,
+  quizStars = 0,
   failedQuizImages = {},
   onSelectQuizAnswer,
   onCheckAnswer,
@@ -99,7 +99,7 @@ export function QuizStageBlock({
   return (
     <section
       data-testid="stage-3-quiz"
-      className="flex min-h-0 h-full flex-col justify-between overflow-hidden rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4 gap-2.5 xl:h-auto xl:self-start"
+      className="flex min-h-0 h-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-3 shadow-xs animate-fade-up sm:p-4 gap-2.5 xl:h-auto xl:self-start"
     >
       <h2 className="sr-only">{config.title}</h2>
 
@@ -326,7 +326,7 @@ export function QuizStageBlock({
                       onClick={() => onSetActiveQuizQuestion?.((prev) => Math.max(0, (typeof prev === 'number' ? prev : activeQuizQuestionIdx) - 1))}
                       className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
                     >
-                      <span>←</span> <span>Câu trước</span>
+                      <span>Câu trước</span>
                     </button>
 
                     <div className="flex items-center gap-2">
@@ -345,7 +345,7 @@ export function QuizStageBlock({
                           }}
                           className="sr-only"
                         >
-                          <span>Kiểm tra đáp án ✨</span>
+                          <span>Kiểm tra đáp án</span>
                         </button>
                       )}
 
@@ -377,7 +377,7 @@ export function QuizStageBlock({
                           }
                           className="px-3.5 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs sm:text-sm font-black shadow-xs cursor-pointer flex items-center gap-1"
                         >
-                          <span>Câu tiếp theo</span> <span>→</span>
+                          <span>Câu tiếp theo</span>
                         </button>
                       ) : isCorrect ? (
                         <span className="text-xs sm:text-sm font-bold text-amber-900">
@@ -413,14 +413,13 @@ export function QuizStageBlock({
             Nộp bài kiểm tra
           </Button>
         ) : (
-          <Button
-            variant="primary"
-            className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-2 cursor-pointer"
+          <button
+            type="button"
+            className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center cursor-pointer shadow-md transition-all active:scale-95"
             onClick={onContinue}
           >
             <span>{continueLabel}</span>
-            <ArrowRight size={20} />
-          </Button>
+          </button>
         )}
       </div>
     </section>

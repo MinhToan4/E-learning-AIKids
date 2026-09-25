@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router'
-import { CheckCircle2, Star, Trophy, Zap, ChevronRight, ArrowLeft, Sparkles } from 'lucide-react'
+import { CheckCircle2, Star, Trophy, Zap, ChevronRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -17,9 +17,15 @@ import { type QuestProgress } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { getCanonicalAikidCourseSlug, getCourseStationCount } from '@/shared/lib/course-station-count'
-import { designerAssets } from '@/shared/config/assets'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
+import { designerAssets } from '@/shared/config/assets'
+
+const IslandStationsExplorerView = React.lazy(() =>
+  import('../components/IslandStationsExplorerView').then((m) => ({
+    default: m.IslandStationsExplorerView,
+  }))
+)
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { isAikiRuleJourney, extractRuleNumber } from '@/features/lesson/lib/rule-journey-identifiers'
@@ -41,45 +47,12 @@ export function getStationSlug(station: any, isRuleCourse?: boolean): string {
   return !isUuid(station.id) ? station.id : (station.slug || station.id)
 }
 
-// WHY: Khóa tuần tự đảo & trạm học. Dev/tester có thể thêm ?unlock_all=true trên URL để mở toàn bộ đảo.
+// Client-side unlock switches are intentionally disabled. Test accounts such
+// as Bo must receive enrollment/entitlement from the backend just like every
+// other learner so the browser cannot bypass payment or sequential gates.
 export const FORCE_UNLOCK_ALL_ISLANDS = false
 
 export function isUserTestingUnlocked(): boolean {
-  if (FORCE_UNLOCK_ALL_ISLANDS) return true
-  if (typeof window === 'undefined') return false
-  try {
-    if (window.location?.search) {
-      const p = new URLSearchParams(window.location.search).get('unlock_all')
-      if (p === 'true') {
-        try { localStorage.setItem('aikids_unlock_all', 'true') } catch {}
-        return true
-      }
-      if (p === 'false') {
-        try { localStorage.removeItem('aikids_unlock_all') } catch {}
-        return false
-      }
-    }
-  } catch {}
-  try {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('aikids_unlock_all') === 'true') return true
-  } catch {}
-  try {
-    const user = useAuth.getState?.()?.user
-    if (user) {
-      const name = (user.nickname || user.name || '').toLowerCase()
-      if (name === 'bo' || name.includes('bo') || user.id === '4aa834fa-efd9-49cf-961f-2a25f2538b6e') return true
-    }
-  } catch {}
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const raw = localStorage.getItem('aikids_auth_user')
-      if (raw) {
-        const u = JSON.parse(raw)
-        const name = (u.nickname || u.name || '').toLowerCase()
-        if (name === 'bo' || name.includes('bo') || u.id === '4aa834fa-efd9-49cf-961f-2a25f2538b6e') return true
-      }
-    }
-  } catch {}
   return false
 }
 
@@ -288,9 +261,9 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
         {locked ? (
           <KidLockImageIcon size={46} />
         ) : done ? (
-          <CheckCircle2 size={32} className="text-text" aria-hidden />
+          <CheckCircle2 size={32} className="text-white" aria-hidden />
         ) : (
-          <span className="font-display text-2xl text-text" aria-hidden="true">
+          <span className="font-display text-2xl text-white" aria-hidden="true">
             {quest.order}
           </span>
         )}
@@ -338,26 +311,9 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
   )
 }
 
-interface CourseProgressCacheEntry {
-  expiresAt: number
-  progress: {
-    questCount: number
-    completedCount: number
-    totalStars: number
-    stations: QuestProgress[]
-  }
-}
-
-const courseProgressCache = new Map<string, CourseProgressCacheEntry>()
-const COURSE_PROGRESS_CACHE_TTL = 120_000 // 2 phút
-
-let cachedPathway: Pathway | null = null
-const cachedIslandQuests = new Map<string, { quests: QuestProgress[]; meta: { totalStars: number; completedCount: number } }>()
-
 export function clearWorldPageCache(): void {
-  courseProgressCache.clear()
-  cachedPathway = null
-  cachedIslandQuests.clear()
+  // Compatibility hook: World data is server-owned and is not retained in a
+  // browser/module cache between route mounts.
 }
 
 export function mergeQuestsWithLocalProgress<
@@ -404,13 +360,12 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const { courseId, programId, trackId } = useParams<{ courseId?: string; programId?: string; trackId?: string }>()
   const navigate = useNavigate()
   const [refreshTick, setRefreshTick] = useState(0)
-  const cachedIsland = courseId ? cachedIslandQuests.get(courseId) : undefined
-  const [quests, setQuests] = useState<QuestProgress[]>(() => cachedIsland?.quests || [])
-  const [meta, setMeta] = useState(() => cachedIsland?.meta || { totalStars: 0, completedCount: 0 })
+  const [quests, setQuests] = useState<QuestProgress[]>([])
+  const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
   const [error, setError] = useState<string | null>(null)
-  const [pathway, setPathway] = useState<Pathway | null>(() => cachedPathway)
-  const [loading, setLoading] = useState(() => (courseId ? !cachedIslandQuests.has(courseId) : !cachedPathway))
+  const [pathway, setPathway] = useState<Pathway | null>(null)
+  const [loading, setLoading] = useState(true)
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
 
@@ -429,21 +384,10 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
 
   useEffect(() => {
     void (async () => {
-      // Avoid resetting loading state or wiping out data if we already have pathway loaded
-      if (!courseId) {
-        if (!cachedPathway && !pathway) {
-          setLoading(true)
-        }
-      } else {
-        const cached = cachedIslandQuests.get(courseId)
-        if (cached) {
-          setQuests(cached.quests)
-          setMeta(cached.meta)
-        } else {
-          setLoading(true)
-          setQuests([])
-          setMeta({ totalStars: 0, completedCount: 0 })
-        }
+      setLoading(true)
+      if (courseId) {
+        setQuests([])
+        setMeta({ totalStars: 0, completedCount: 0 })
       }
       setError(null)
       setEnrollmentRequired(false)
@@ -463,7 +407,6 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           if (hasAllStations) {
             const finalCourses = applyGatekeeperRules(enrichedCourses)
             const finalPathway = { ...journey, courses: finalCourses }
-            cachedPathway = finalPathway
             setPathway(finalPathway)
             setLoading(false)
             return
@@ -477,52 +420,37 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             ...journey,
             courses: applyGatekeeperRules(enrichedCourses),
           }
-          cachedPathway = provisionalPathway
           setPathway(provisionalPathway)
           setLoading(false)
           return
         }
 
         // Khi có courseId trong URL (slug như 'dao-1', 'dao-2', 'muoi-quy-tac-xuong-sang-tao', hoặc UUID)
-        const journey = cachedPathway ?? await learningApi.getPathway()
+        const journey = await learningApi.getPathway()
         const rawCourses = journey.courses as PathwayCourse[]
         const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
         const processedCourses = applyGatekeeperRules(enrichedCourses)
         const finalPathway = { ...journey, courses: processedCourses }
-        cachedPathway = finalPathway
 
         const pathRow =
           findCourseByIdentifier(processedCourses, courseId) ||
           processedCourses.find((row) => row.id === courseId)
         const actualCourseId = pathRow?.id || courseId
 
-        const now = Date.now()
-        const cachedProgress = courseProgressCache.get(actualCourseId)
-        const cachedProgressValid = cachedProgress && now < cachedProgress.expiresAt
-
         // The pathway already owns the course title and access state. Calling
         // /api/courses/:id again here duplicated data before the station list
         // could render, so the island only requests its progress projection.
-        const progressData = cachedProgressValid
+        // The pathway projection already embeds the learner's stations and
+        // aggregate progress. Reuse that authoritative server payload and only
+        // call the legacy progress endpoint for older deployments that omit it.
+        const progressData = pathRow?.stations?.length
           ? {
-              quests: cachedProgress.progress.stations,
-              completedCount: cachedProgress.progress.completedCount,
-              totalStars: cachedProgress.progress.totalStars,
+              quests: pathRow.stations,
+              completedCount: pathRow.completedCount ?? 0,
+              totalStars: pathRow.totalStars ?? 0,
             }
           : await learningApi
               .getCourseProgress(actualCourseId)
-              .then((prog) => {
-                courseProgressCache.set(actualCourseId, {
-                  expiresAt: Date.now() + COURSE_PROGRESS_CACHE_TTL,
-                  progress: {
-                    questCount: prog.quests.length,
-                    completedCount: prog.completedCount,
-                    totalStars: prog.totalStars,
-                    stations: prog.quests,
-                  },
-                })
-                return prog
-              })
               .catch(() => null)
 
         const courseTitle = formatCourseTitle(pathRow?.title || pathRow?.shortTitle || 'Hành trình sáng tạo')
@@ -534,7 +462,11 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         )
 
         const isDevUnlock = isUserTestingUnlocked()
-        const forceUnlock = FORCE_UNLOCK_ALL_ISLANDS || isDevUnlock
+        const forceUnlock =
+          FORCE_UNLOCK_ALL_ISLANDS ||
+          isDevUnlock ||
+          pathRow?.programUnlockMode === 'parallel' ||
+          pathRow?.reasonCode === 'manual_override'
 
         if (!pathRow || (!forceUnlock && pathRow.status === 'locked')) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
@@ -548,6 +480,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           : pathRow?.stations?.length
             ? pathRow.stations
             : []
+
+        // Never turn count-only/backend placeholder rows into navigable
+        // stations. They have no lesson identity and previously produced links
+        // such as `/lesson/`, which then fell through the auth/route guards.
+        rawQuests = rawQuests.filter((station) =>
+          typeof station.id === 'string' && station.id.trim().length > 0,
+        )
 
         if (rawQuests.length === 0 && isRuleCourse) {
           rawQuests = AIKI_RULES_DATA.map((r, idx) => ({
@@ -579,17 +518,11 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           }
           setQuests(sequentialQuests)
           setMeta(nextMeta)
-          cachedIslandQuests.set(courseId, { quests: sequentialQuests, meta: nextMeta })
-          if (actualCourseId !== courseId) {
-            cachedIslandQuests.set(actualCourseId, { quests: sequentialQuests, meta: nextMeta })
-          }
         } else if (!forceUnlock && pathRow.status === 'available') {
           setEnrollmentRequired(true)
         }
       } catch (e) {
-        if (!courseId || !cachedIslandQuests.has(courseId)) {
-          setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
-        }
+        setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {
         setLoading(false)
       }
@@ -649,7 +582,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             {error || 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'}
           </p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button onClick={() => navigate('/world/program/aikid_official/creator')} className="w-full sm:w-auto">
+            <Button onClick={() => navigate('/world/program/aikid_official')} className="w-full sm:w-auto">
               🗺️ Danh sách các Đảo
             </Button>
             <Link to={ruleCourseHref} className="w-full sm:w-auto">
@@ -663,87 +596,23 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="w-full max-w-[1024px] mx-auto space-y-4 p-4">
+        <div className="ui-skeleton h-44 rounded-[2.5rem]" />
+        <div className="ui-skeleton h-32 rounded-3xl" />
+        <div className="space-y-3">
+          <div className="ui-skeleton h-20 rounded-2xl" />
+          <div className="ui-skeleton h-20 rounded-2xl" />
+          <div className="ui-skeleton h-20 rounded-2xl" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6 page-enter">
-      <header className="course-map-hero">
-        <div className="course-map-heading">
-          <p className="mb-1 flex flex-wrap items-center justify-center gap-2 text-xs font-extrabold text-brand-700">
-            <Link to="/world/program/aikid_official/creator" className="inline-flex min-h-11 items-center gap-1 hover:text-brand-900">
-              <NavWorldIcon size={21} aria-hidden="true" /> Khóa sáng tạo nội dung
-            </Link>
-            <span aria-hidden="true">›</span>
-            <span>{currentRegion.name}</span>
-            <span aria-hidden="true">›</span>
-            <span>Bản đồ trạm</span>
-          </p>
-          <h1 className="font-display text-3xl leading-tight sm:text-4xl">{courseTitle}</h1>
-          <p className="mt-1 text-base font-bold text-muted">
-            Đi cùng Mee và mở từng trạm trong {currentRegion.name}.
-          </p>
-        </div>
-
-        <div className="course-map-scene" aria-label={currentRegion.sceneLabel}>
-          <img src={currentRegion.scene} alt="" decoding="async" fetchPriority="high" className="course-map-scene-art" />
-          <AikidCatCharacter pose={currentRegion.pose} className="course-map-scene-cat" />
-        </div>
-
-        <div className="course-map-ribbon" style={{ backgroundColor: currentRegion.ribbon }}>
-          <div className="course-map-ribbon-main">
-            <div>
-              <p className="text-sm font-extrabold text-white/85">Hành trình trong khóa</p>
-              <p className="font-display text-2xl text-white">
-                {meta.completedCount}/{quests.length} trạm đã chinh phục
-              </p>
-            </div>
-            {next && (() => {
-              const nextStationSlug = getStationSlug(next, isCurrentCourseRule)
-              const nextLessonUrl = `/world/${courseId}/lesson/${nextStationSlug}`
-              return (
-                <aside className="course-map-next-ticket flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-extrabold text-mint-700">TRẠM TIẾP THEO</p>
-                    <h2 className="font-display text-xl text-text">{next.title}</h2>
-                    <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
-                  </div>
-                  <Link
-                    to={nextLessonUrl}
-                    className="course-map-primary-action animate-pop"
-                    onPointerEnter={() => prefetchRoute(nextLessonUrl)}
-                    onPointerDown={() => prefetchRouteImmediately(nextLessonUrl)}
-                    onFocus={() => prefetchRoute(nextLessonUrl)}
-                  >
-                    {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
-                  </Link>
-                </aside>
-              )
-            })()}
-          </div>
-
-          {quests.length > 0 && (
-            <CuteProgress
-              value={progressPct}
-              label="Tiến độ khóa học"
-              tone="mint"
-              className="course-map-progress"
-            />
-          )}
-
-          <div className="course-map-stats">
-            <span><Trophy size={17} aria-hidden /> {meta.totalStars}/{quests.length * 3} sao</span>
-            <span><CheckCircle2 size={17} aria-hidden /> {meta.completedCount} trạm xong</span>
-            <Link
-              to={`/course/${courseId}`}
-              onPointerEnter={() => prefetchRoute(`/course/${courseId}`)}
-              onPointerDown={() => prefetchRouteImmediately(`/course/${courseId}`)}
-              onFocus={() => prefetchRoute(`/course/${courseId}`)}
-            >
-              <CourseBookIcon size={19} aria-hidden="true" /> Giới thiệu khóa
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {enrollmentRequired && !loading && (
+      {enrollmentRequired && !loading ? (
         <section className="ui-card mx-auto w-full max-w-xl p-6 text-center">
           <CourseBookIcon size={42} className="mx-auto text-brand-500" aria-hidden="true" />
           <h2 className="mt-3 font-display text-2xl">Hành trình chưa bắt đầu</h2>
@@ -760,68 +629,21 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             <Button>Bắt đầu hành trình</Button>
           </Link>
         </section>
+      ) : (
+        <Suspense fallback={<div className="ui-skeleton h-96 rounded-3xl" />}>
+          <IslandStationsExplorerView
+            courseId={courseId}
+            courseTitle={courseTitle}
+            quests={quests}
+            meta={meta}
+            currentRegion={currentRegion}
+            isCurrentCourseRule={isCurrentCourseRule}
+            getStationSlugFn={getStationSlug}
+            onBackToMap={() => navigate('/world/program/aikid_official')}
+            onSelectIsland={(islandSlug) => navigate(`/world/${islandSlug}`)}
+          />
+        </Suspense>
       )}
-
-      {/* Quest Node Map */}
-      {loading ? (
-        <div className="flex flex-col items-center gap-5 py-8">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex items-center gap-3 w-full max-w-sm" style={{ justifyContent: i % 2 === 0 ? 'flex-end' : 'flex-start' }}>
-              <div className="ui-skeleton rounded-full" style={{ width: 80, height: 80, flexShrink: 0 }} />
-              <div className="ui-skeleton rounded-2xl" style={{ width: 160, height: 72 }} />
-            </div>
-          ))}
-        </div>
-      ) : !enrollmentRequired && !error ? (
-        <section
-          className="course-station-map"
-          style={{
-            backgroundColor: currentRegion.ribbon,
-            backgroundImage: `linear-gradient(rgba(255,255,255,.2), rgba(255,255,255,.08)), url(${currentRegion.background})`,
-          }}
-          aria-label="Lộ trình bài học"
-        >
-          <div
-            className="course-station-canvas"
-            style={{
-              minHeight: `${Math.max(40, quests.length * 7.6)}rem`,
-            }}
-          >
-            <svg
-              className="course-game-path"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path className="course-game-path-shadow" d={buildStationPath(quests.length)} />
-              <path className="course-game-path-road" d={buildStationPath(quests.length)} />
-              <path className="course-game-path-dashes" d={buildStationPath(quests.length)} />
-            </svg>
-            <ol className="course-game-stations">
-            {quests.map((q, i) => (
-              <QuestNode
-                key={`${q.id || q.slug || q.order || 'station'}-${i}`}
-                quest={q}
-                index={i}
-                total={quests.length}
-                courseId={courseId}
-              />
-            ))}
-            </ol>
-          </div>
-
-          {/* Completion trophy at bottom */}
-          {quests.length > 0 && meta.completedCount === quests.length && (
-            <div className="relative z-10 flex flex-col items-center mt-8 animate-pop">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
-                <Trophy size={48} className="text-white" aria-hidden="true" />
-              </div>
-              <p className="mt-3 font-display text-xl text-text">Xuất sắc!</p>
-              <p className="text-sm text-muted">Con đã hoàn thành toàn bộ hành trình!</p>
-            </div>
-          )}
-        </section>
-      ) : null}
     </div>
   )
 }
@@ -922,7 +744,16 @@ export function applyGatekeeperRules(
     const course = sortedCourses[idx]
     const defaultSlug = idx < AIKID_CANONICAL_SLUGS.length ? AIKID_CANONICAL_SLUGS[idx] : undefined
     const slug = course.slug || defaultSlug
-    const stations = course.stations ? applySequentialQuestRules(course.stations, forceUnlock) : undefined
+    // Preserve server-authored learner/course overrides. Previously the
+    // frontend reapplied sequential locking even when the LMS returned a
+    // parallel/manual override (for example Bo's test profile).
+    const courseForceUnlock =
+      forceUnlock ||
+      course.programUnlockMode === 'parallel' ||
+      course.reasonCode === 'manual_override'
+    const stations = course.stations
+      ? applySequentialQuestRules(course.stations, courseForceUnlock)
+      : undefined
 
     if (idx === 0) {
       // Đảo 1 (dao-1): Luôn mở (available / in_progress / active / completed)
@@ -937,7 +768,7 @@ export function applyGatekeeperRules(
       continue
     }
 
-    if (forceUnlock) {
+    if (courseForceUnlock) {
       const status = course.status === 'locked' ? 'available' : course.status
       result.push({
         ...course,
@@ -1649,23 +1480,32 @@ function PathwayOverview({
           <AikidCatCharacter pose="walking" className="world-guide-mascot" />
           <div className="world-guide-copy">
             <div className="min-w-0">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-700 shadow-xs border border-slate-200/80 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+              >
+                <ArrowLeft size={14} />
+                <span>Trang chủ</span>
+              </Link>
               <button
                 type="button"
                 onClick={() => navigate('/world/program/aikid_official')}
-                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-brand-700 shadow-xs border border-brand-200/80 text-xs font-extrabold hover:bg-brand-50 transition-colors cursor-pointer"
               >
-                <ArrowLeft size={16} />
+                <ArrowLeft size={14} />
                 <span>Về AIKid của em</span>
               </button>
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-                Thư viện hành trình
-              </p>
-              <h1 className="font-display text-3xl sm:text-4xl leading-tight">
-                Không gian học tập
-              </h1>
-              <p className="mt-1 text-base text-muted">
-                Chọn không gian con muốn tiếp tục học hôm nay.
-              </p>
+            </div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              Thư viện hành trình
+            </p>
+            <h1 className="font-display text-3xl sm:text-4xl leading-tight">
+              Không gian học tập
+            </h1>
+            <p className="mt-1 text-base text-muted line-clamp-1">
+              Chọn không gian con muốn tiếp tục học hôm nay.
+            </p>
             </div>
           </div>
         </header>
@@ -1687,7 +1527,7 @@ function PathwayOverview({
                   key={category.id}
                   type="button"
                   className={cn(
-                    'learning-world-card ui-card border-2 text-left transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-focus cursor-pointer',
+                    'learning-world-card ui-card border text-left transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-focus cursor-pointer clay-card-subtle',
                     category.tone,
                   )}
                   onClick={() => navigate('/world/program/' + category.id)}
@@ -1696,7 +1536,7 @@ function PathwayOverview({
                   <span className="learning-world-copy">
                     <span className="block text-xs font-extrabold uppercase tracking-wide opacity-80">{category.eyebrow}</span>
                     <span className="mt-1 block font-display text-2xl text-text">{category.title}</span>
-                    <span className="mt-1 block text-sm font-bold leading-relaxed text-muted">{category.description}</span>
+                    <span className="mt-1 block text-sm font-bold leading-relaxed text-muted line-clamp-1">{category.description}</span>
                     <span className="mt-3 flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-white/85 px-3 py-2 text-sm font-extrabold text-text shadow-soft">
                       {courses.length > 0
                         ? <>
@@ -1735,13 +1575,12 @@ function PathwayOverview({
           <div className="world-guide-copy">
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-brand-500">
-                <Sparkles size={14} aria-hidden="true" />
                 <span>Không gian học chính thức</span>
               </p>
               <h1 className="font-display text-3xl sm:text-4xl leading-tight">
                 AIKid của em
               </h1>
-              <p className="mt-1 text-base text-muted">
+              <p className="mt-1 text-base text-muted line-clamp-1">
                 Khám phá các chương trình rèn luyện tư duy và sáng tạo cùng AI được biên soạn chuẩn hóa cho học sinh.
               </p>
 
@@ -1808,7 +1647,6 @@ function PathwayOverview({
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-muted hover:text-brand-700 transition-colors cursor-pointer py-2 px-4 rounded-xl hover:bg-white/60"
             >
               <span>Xem các không gian khác (Trường học, Khóa học tự do)</span>
-              <span>→</span>
             </button>
           </div> */}
         </section>
@@ -1902,25 +1740,34 @@ function PathwayOverview({
         <div className="world-guide-copy">
           <div className="min-w-0">
             {/* Nút quay lại */}
-            {isCreatorTrack ? (
-              <button
-                type="button"
-                onClick={() => navigate('/world/program/aikid_official')}
-                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-700 shadow-xs border border-slate-200/80 text-xs font-extrabold hover:bg-slate-50 transition-colors"
               >
-                <ArrowLeft size={16} />
-                <span>Danh sách chương trình</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => navigate('/world/spaces')}
-                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
-              >
-                <ArrowLeft size={16} />
-                <span>Xem tất cả không gian học</span>
-              </button>
-            )}
+                <ArrowLeft size={14} />
+                <span>Trang chủ</span>
+              </Link>
+              {isCreatorTrack ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/world/program/aikid_official')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-brand-700 shadow-xs border border-brand-200/80 text-xs font-extrabold hover:bg-brand-50 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Danh sách chương trình</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => navigate('/world/spaces')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-brand-700 shadow-xs border border-brand-200/80 text-xs font-extrabold hover:bg-brand-50 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Xem tất cả không gian học</span>
+                </button>
+              )}
+            </div>
 
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
               {isCreatorTrack ? 'AIKid của em › Khóa sáng tạo nội dung cùng AIKID' : (selectedCategory?.eyebrow || 'Lộ trình học')}
@@ -1928,7 +1775,7 @@ function PathwayOverview({
             <h1 className="font-display text-3xl sm:text-4xl leading-tight">
               {isCreatorTrack ? 'Khóa sáng tạo nội dung cùng AIKID' : (selectedCategory?.title || 'Hành trình của con')}
             </h1>
-            <p className="mt-1 text-base text-muted">
+            <p className="mt-1 text-base text-muted line-clamp-1">
               {isCreatorTrack
                 ? 'Nắm vững 10 quy tắc vàng an toàn, cùng AIKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.'
                 : (selectedCategory?.description || 'Khám phá các trạm học.')}
@@ -1998,7 +1845,7 @@ function PathwayOverview({
             {/* ── Finish line at bottom ── */}
             {completedCount === selectedCourses.length && selectedCourses.length > 0 && (
               <div className="relative z-10 flex flex-col items-center mt-8 animate-pop">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/60 bg-[#f59e0b] shadow-clay clay-card-subtle [--clay-shadow:rgba(245,158,11,0.35)]">
                   <Trophy size={40} className="text-white" aria-hidden="true" />
                 </div>
                 <p className="mt-3 font-display text-xl text-text">🎉 Xuất sắc!</p>

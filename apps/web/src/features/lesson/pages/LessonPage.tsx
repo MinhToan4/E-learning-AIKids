@@ -21,7 +21,6 @@ import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-r
 import { getAikiStudioConfig } from '@/features/lesson/data/aiki-studio-configs'
 import type { AikiRule } from '@/features/rules/types'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
-import { useRulesProgress } from '@/features/rules/hooks/useRulesProgress'
 import {
   AIKI_RULE_STAGE_METAS,
   parseVersusOption,
@@ -84,7 +83,6 @@ import {
   queueOfflineProgress,
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
-import { LessonInteractiveSidebar } from '@/features/lesson/components/LessonInteractiveSidebar'
 import type { Phase, PoseType } from '@/features/lesson/components/LessonInteractiveSidebar'
 import { LessonCelebrationModal } from '@/features/lesson/components/LessonCelebrationModal'
 import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
@@ -298,7 +296,6 @@ export function LessonPage() {
   const questId = effectiveQuestId
   const navigate = useNavigate()
   const location = useLocation()
-  const { completeRule } = useRulesProgress()
   const [quest, setQuest] = useState<QuestDetail | null>(null)
   const [phase, setPhase] = useState<Phase>('learn')
   const [gameHint, setGameHint] = useState<GameHint | null>(null)
@@ -475,6 +472,10 @@ export function LessonPage() {
 
     void (async () => {
       const localRuleLesson = questId.startsWith('rule-') || questId === 'aiki-rules'
+      const islandCurriculumPromise = questId.startsWith('bai-')
+        ? import('@/features/lesson/data/island-curriculum-registry')
+            .then((module) => module.findIslandCurriculum({ id: questId, slug: questId }))
+        : Promise.resolve(undefined)
       if (!localRuleLesson && questId.startsWith('bai-')) {
         try {
           const pathway = await learningApi.getPathway()
@@ -499,8 +500,53 @@ export function LessonPage() {
       if (questId.startsWith('rule-') || questId === 'aiki-rules') {
         const rId = parseInt(questId.replace(/[^0-9]/g, '') || '1', 10) || 1
         const rData = AIKI_RULES_DATA.find((r) => r.id === rId) || AIKI_RULES_DATA[0]
+        let authoritativeLessonId = questId
+
+        // Rule pages use locally-authored presentation content, but progress
+        // must be opened and committed against the real LMS lesson identity.
+        // Sending the route alias ("rule-1") directly previously allowed the
+        // reward screen to render while no authoritative progress was saved.
+        try {
+          const pathway = await learningApi.getPathway()
+          if (cancelled) return
+          const course = findCourseByIdentifier(pathway.courses, routeCourseId || 'dao-1')
+          const station = course?.stations?.find((row) =>
+            row.slug === questId ||
+            row.id === questId ||
+            row.order === rId ||
+            extractRuleNumber(row) === rId,
+          )
+          authoritativeLessonId = station?.id?.trim() || questId
+
+          const opened = await learningApi.openLesson(authoritativeLessonId)
+          if (cancelled) return
+          setLiveStars(opened.progress.stars)
+          if (opened.progress.status === 'completed') {
+            setPhase('done')
+            setCheckResult({
+              stars: opened.progress.stars,
+              message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
+              nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
+            })
+          } else if (
+            opened.progress.phase === 'game' ||
+            opened.progress.phase === 'practice' ||
+            opened.progress.phase === 'check'
+          ) {
+            setPhase(opened.progress.phase)
+          }
+        } catch (progressError) {
+          if (!cancelled) {
+            setError(
+              progressError instanceof Error
+                ? `Chưa kết nối được tiến trình LMS: ${progressError.message}`
+                : 'Chưa kết nối được tiến trình LMS. Bài học sẽ không được báo hoàn thành cho tới khi lưu thành công.',
+            )
+          }
+        }
+
         setQuest({
-          id: questId,
+          id: authoritativeLessonId,
           courseId: 'aiki-rules',
           order: rId,
           title: `Quy tắc ${rId}: ${rData.shortTitle}`,
@@ -522,9 +568,7 @@ export function LessonPage() {
         return
       }
 
-      const islandCurriculum = questId.startsWith('bai-')
-        ? (await import('@/features/lesson/data/island-curriculum-registry')).findIslandCurriculum({ id: questId, slug: questId })
-        : undefined
+      const islandCurriculum = await islandCurriculumPromise
       if (islandCurriculum) {
         setQuest({
           id: islandCurriculum.id || questId,
@@ -853,7 +897,8 @@ export function LessonPage() {
   }, [aikiRuleStage, phase, stopSituationNarrator])
 
   async function handleAikiFinish(customSummary?: { answers?: Array<{ questionId: string; optionIndex: number }> }) {
-    if (!quest || busy) return
+    if (checkResult) return true
+    if (!quest || busy) return false
     setBusy(true)
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const answersPayload = customSummary?.answers?.length
@@ -877,13 +922,10 @@ export function LessonPage() {
       const celebrationMsg = isIslandJourney
         ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
         : confirmedStars === 3
-          ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI! 🎉'
+          ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
           : confirmedStars === 2
-            ? 'Rất tốt! Con đạt 2 Sao. Cùng tiến lên trạm tiếp theo nhé! 🌟'
-            : 'Hoan hô! Kết quả của con đã được hệ thống ghi nhận. Cùng cố gắng giành 3 Sao nhé! ⭐'
-      if (isAikiRuleJourney) {
-        completeRule(ruleId, confirmedStars)
-      }
+            ? 'Rất tốt! Con đạt 2 Sao. Cùng tiến lên trạm tiếp theo nhé!'
+            : 'Hoan hô! Kết quả của con đã được hệ thống ghi nhận. Cùng cố gắng giành 3 Sao nhé!'
       setLiveStars(confirmedStars)
       setCheckResult({
         ...checkRes,
@@ -894,12 +936,35 @@ export function LessonPage() {
       setPhase('done')
       clearWorldPageCache()
       window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+      return true
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')
+      return false
     } finally {
       setBusy(false)
     }
   }
+
+  const persistJourneyStage = useCallback((stageIndex: number, stageCount: number) => {
+    const progressId = quest?.id || questId
+    if (!navigator.onLine || !progressId || stageCount <= 0) return
+    const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
+    void api(`/api/learning/quests/${progressId}/resume`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        percent,
+        positionSeconds: 0,
+        sectionId: `stage-${stageIndex + 1}`,
+        occurredAt: new Date().toISOString(),
+      }),
+    }).catch(() => {
+      queueOfflineProgress(progressId, {
+        percent,
+        positionSeconds: 0,
+        sectionId: `stage-${stageIndex + 1}`,
+      })
+    })
+  }, [quest?.id, questId])
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
     (station) => station.kind === 'game',
@@ -1272,8 +1337,8 @@ export function LessonPage() {
         : (ruleData?.questions?.[0]?.correctIndex ?? 1)
       const isCorrect = optionIndex === correctIdx
       const explanation = isCorrect
-        ? (firstCheck?.explain || firstCheck?.explanation || (isAikiRuleJourney ? 'Tuyệt vời! Con chọn hoàn toàn chính xác! Bức tranh của Sonet có chi tiết Bố cầm vợt muỗi — câu chuyện thật độc nhất của riêng bạn ấy! 🎉' : 'Tuyệt vời! Con đã chọn phương án chính xác! 🎉'))
-        : (isAikiRuleJourney ? 'Bức này quen thuộc quá, ai cũng có thể vẽ được giống hệt nhau. Bé hãy thử lại bức của Sonet xem sao nhé! 💡' : 'Chưa đúng rồi! Con hãy quan sát lại 2 bức tranh bên trái và xem gợi ý của Coach Mee nhé! 💡')
+        ? (firstCheck?.explain || firstCheck?.explanation || (isAikiRuleJourney ? 'Tuyệt vời! Con chọn hoàn toàn chính xác! Bức tranh của Sonet có chi tiết Bố cầm vợt muỗi — câu chuyện thật độc nhất của riêng bạn ấy!' : 'Tuyệt vời! Con đã chọn phương án chính xác!'))
+        : (isAikiRuleJourney ? 'Bức này quen thuộc quá, ai cũng có thể vẽ được giống hệt nhau. Bé hãy thử lại bức của Sonet xem sao nhé!' : 'Chưa đúng rồi! Con hãy quan sát lại 2 bức tranh bên trái và xem gợi ý của Coach Mee nhé!')
 
       setAnswerFeedback((current) => ({
         ...current,
@@ -1472,9 +1537,9 @@ export function LessonPage() {
         explanation: q.successFeedback,
         meeHint: q.hint,
         hints: [
-          '🔍 Tầng 1: Quan sát kỹ số lượng chi tiết hoặc hành động trong hai bức tranh bên trái.',
-          '💡 Tầng 2: Loại bỏ phương án vẽ chung chung hoặc vi phạm quy tắc đạo đức.',
-          q.hint || '🌟 Tầng 3: Tả càng rõ, AI vẽ càng đúng!',
+          'Tầng 1: Quan sát kỹ số lượng chi tiết hoặc hành động trong hai bức tranh bên trái.',
+          'Tầng 2: Loại bỏ phương án vẽ chung chung hoặc vi phạm quy tắc đạo đức.',
+          q.hint || 'Tầng 3: Tả càng rõ, AI vẽ càng đúng!',
         ],
       }
     }
@@ -1494,9 +1559,9 @@ export function LessonPage() {
         explanation: q.explanation || quest.hook,
         meeHint: quest.hook,
         hints: [
-          '🔍 Tầng 1: Hãy nhìn kỹ chủ thể chính và bối cảnh của câu hỏi.',
-          '💡 Tầng 2: Đọc kỹ từng từ khóa để tìm ra phương án đầy đủ nhất.',
-          `🌟 Tầng 3: ${quest.hook || 'Tả càng rõ, AIKI vẽ càng đúng!'}`,
+          'Tầng 1: Hãy nhìn kỹ chủ thể chính và bối cảnh của câu hỏi.',
+          'Tầng 2: Đọc kỹ từng từ khóa để tìm ra phương án đầy đủ nhất.',
+          `Tầng 3: ${quest.hook || 'Tả càng rõ, AIKI vẽ càng đúng!'}`,
         ],
       }
     }
@@ -1573,7 +1638,7 @@ export function LessonPage() {
   if (isAikiRuleJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={(customSummary) => void handleAikiFinish(customSummary)} />
+        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }
@@ -1582,7 +1647,7 @@ export function LessonPage() {
   if (isIslandJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={(customSummary) => void handleAikiFinish(customSummary)} />
+        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }
@@ -1604,16 +1669,8 @@ export function LessonPage() {
           : "min-h-[calc(100dvh-4rem)] bg-slate-50/60 p-2 sm:p-3 lg:p-4"
       )}
     >
-      <div className={cn(
-        "w-full flex-1 flex flex-col min-h-0 items-stretch",
-        isAikiRuleJourney
-          ? "flex-col xl:flex-row gap-2.5 xl:gap-3 xl:overflow-hidden"
-          : "lg:flex-row gap-4 xl:gap-6"
-      )}>
-        <div className={cn(
-          "flex-1 min-w-0 flex flex-col",
-          isAikiRuleJourney ? "w-full xl:w-[68%] gap-1.5 sm:gap-2 xl:overflow-hidden" : "gap-3 overflow-hidden"
-        )}>
+      <div className="w-full flex-1 flex flex-col min-h-0 items-stretch gap-3 overflow-hidden">
+        <div className="flex-1 min-w-0 w-full flex flex-col gap-3 overflow-hidden">
           {/* ── Flatten Header Không Dùng Box Lồng Nhau ─────────────────────── */}
           <LessonNavigationHeader
             phase={phase}
@@ -1672,11 +1729,11 @@ export function LessonPage() {
       <main className={cn(
         "min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pr-1",
         !isAikiRuleJourney && "lesson-stage-main pb-10",
-        isSidebarCollapsed && "w-full max-w-[1400px] mx-auto",
+        isSidebarCollapsed && "w-full max-w-[1024px] mx-auto",
         isAikiRuleJourney && "flex flex-col"
       )}>
         {phase === 'learn' && (
-        <div className={cn("flex flex-col animate-fade-up", isSidebarCollapsed ? "w-full max-w-[1400px] mx-auto" : "w-full", isAikiRuleJourney ? "gap-2 sm:gap-2.5 flex-1 min-h-0" : "gap-6")}>
+        <div className={cn("flex flex-col animate-fade-up", isSidebarCollapsed ? "w-full max-w-[1024px] mx-auto" : "w-full", isAikiRuleJourney ? "gap-2 sm:gap-2.5 flex-1 min-h-0" : "gap-6")}>
           {/* HÀNG 2: Thanh Tiến Độ 5 Chặng Nằm Riêng 1 Hàng Ngay Trên Video */}
           {isAikiRuleJourney && (
             <nav
@@ -1684,11 +1741,11 @@ export function LessonPage() {
               className="grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full bg-white/90 border-2 border-brand-200/80 rounded-2xl p-2 sm:p-2.5 shadow-clay shrink-0 select-none"
             >
               {[
-                { label: '1. Tình huống', icon: '🎬', title: 'Tình huống' },
-                { label: '2. Câu đố', icon: '❓', title: 'Câu đố' },
-                { label: '3. Quy tắc', icon: '📜', title: 'Quy tắc' },
-                { label: '4. Giải thích', icon: '💡', title: 'Giải thích' },
-                { label: '5. Chốt', icon: '🏆', title: 'Chốt' },
+                { label: '1. Tình huống', title: 'Tình huống' },
+                { label: '2. Câu đố', title: 'Câu đố' },
+                { label: '3. Quy tắc', title: 'Quy tắc' },
+                { label: '4. Giải thích', title: 'Giải thích' },
+                { label: '5. Chốt', title: 'Chốt' },
               ].map((step, stageIdx) => {
                 const isActive = stageIdx === aikiRuleStage
                 const isDone = stageIdx < aikiRuleStage
@@ -1711,7 +1768,7 @@ export function LessonPage() {
                     title={`Chặng ${stageIdx + 1}: ${step.title}`}
                   >
                     <span className="text-sm sm:text-base shrink-0">
-                      {isDone ? '✓' : step.icon}
+                      {isDone ? '✓' : stageIdx + 1}
                     </span>
                     <span className="truncate">
                       {step.label}
@@ -1917,7 +1974,6 @@ export function LessonPage() {
                 className="w-full text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white active:border-b-0 active:translate-y-1 flex items-center justify-center gap-2 cursor-pointer"
                 onClick={() => setPhase('practice')}
               >
-                <span>🖌️</span>
                 <span>Vào Xưởng Sáng Tạo Thực Hành (Studio Mode)</span>
               </Button>
             </div>
@@ -2562,7 +2618,6 @@ export function LessonPage() {
         <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-            <span className="text-2xl" aria-hidden>⭐</span>
             <div>
               <p className="font-extrabold text-lg">Kiểm tra nhanh</p>
               <p className="text-xs text-muted">Chọn từng đáp án để biết ngay đúng hay chưa.</p>
@@ -2667,7 +2722,7 @@ export function LessonPage() {
                   <p className="font-extrabold">
                     {answerFeedback[q.id].correct
                       ? '✅ Chính xác!'
-                      : '💡 Chưa đúng — con chọn lại ngay nhé.'}
+                      : 'Chưa đúng — con chọn lại ngay nhé.'}
                   </p>
                   <p className="mt-1">{answerFeedback[q.id].explanation}</p>
                 </div>
@@ -2717,147 +2772,6 @@ export function LessonPage() {
       </main>
       </div>
 
-      {/* ── BẢNG TƯƠNG TÁC CHO KHÓA HỌC THÔNG THƯỜNG ──────────────────── */}
-      {!(phase === 'practice' && is5StageJourney) && !isAikiRuleJourney && (
-        <LessonInteractiveSidebar
-          hideMascot={false}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={toggleSidebarCollapse}
-          isVideoPlaying={isVideoPlaying}
-          onSpeakingChange={setIsSidebarSpeaking}
-          className={cn(!isSidebarCollapsed && "w-full lg:w-[440px] xl:w-[480px] shrink-0")}
-          guideCopy={dynamicGuideCopy}
-          phase={phase}
-          maxUnlockedPhase={maxUnlockedPhase}
-          goals={quest.goals}
-          product={practiceStation?.product}
-          successCriteria={practiceCriteria}
-          narrationText={phase === 'learn' ? (manualMeeCue?.text || visibleLearnCards[0]?.mee?.readText || (is5StageJourney ? dynamicGuideCopy.body : visibleLearnCards[0]?.body) || dynamicGuideCopy.body) : dynamicGuideCopy.body}
-          autoRead={phase === 'learn' && manualMeeCue !== null}
-          gesture={manualMeeCue?.gesture}
-          narrationKey={manualMeeCue?.key}
-          stages={is5StageJourney ? hydratedLearnCards.map((c, i) => ({
-            id: c.id,
-            label: AIKI_RULE_STAGE_METAS[i]?.label || c.title,
-            kind: c.kind,
-          })) : undefined}
-          currentStageIndex={is5StageJourney ? aikiRuleStage : undefined}
-          onSelectStage={is5StageJourney ? (idx) => setAikiRuleStage(idx) : undefined}
-          riddle={currentInteractiveRiddle}
-          selectedAnswer={currentInteractiveRiddle ? answers[currentInteractiveRiddle.id] : undefined}
-          onSelectAnswer={(optIdx) => {
-            if (currentInteractiveRiddle) {
-              void chooseCheckAnswer(currentInteractiveRiddle.id, optIdx)
-            }
-          }}
-          answerFeedback={currentInteractiveRiddle ? answerFeedback[currentInteractiveRiddle.id] : undefined}
-          isChecking={checkingQuestionId !== null}
-          onNextStage={is5StageJourney ? (nextIdx) => setAikiRuleStage(nextIdx) : undefined}
-          onRewardStar={() => {
-            setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.min(3, prev + 1))
-          }}
-          liveStars={liveStars}
-          onSeekVideo={(sec) => setVideoSeekTarget({ sec, token: Date.now() })}
-          seekExplainSec={38}
-          hasAcknowledgedRule={hasAcknowledgedRule}
-          onAcknowledgeRule={() => {
-            setHasAcknowledgedRule(true)
-            setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.max(prev, aikiQuizAnswerCorrect ? 2 : 1))
-          }}
-          onOpenPosterModal={() => setIsPosterModalOpen(true)}
-          hasCommitted={hasCommitted}
-          onToggleCommit={() => {
-            setHasCommitted((prev) => !prev)
-            if (!hasCommitted) {
-              setStarBurst({ id: Date.now(), count: 1 })
-              setLiveStars(3)
-            }
-          }}
-          onAikiFinish={() => void handleAikiFinish()}
-          busy={busy}
-        />
-      )}
-
-      {/* ── BẢNG TƯƠNG TÁC QUY TẮC AIKI (DESKTOP: CỘT PHẢI, MÀN HÌNH NHỎ: DƯỚI VIDEO) ── */}
-      {isAikiRuleJourney && (
-        <LessonInteractiveSidebar
-          hideMascot={false}
-          isCollapsed={isSmallScreen ? false : isSidebarCollapsed}
-          onToggleCollapse={toggleSidebarCollapse}
-          isVideoPlaying={isVideoPlaying}
-          onSpeakingChange={setIsSidebarSpeaking}
-          className={cn(
-            !isSidebarCollapsed
-              ? "w-full xl:w-[32%] xl:min-w-[340px] xl:max-w-[440px] shrink-0"
-              : "shrink-0"
-          )}
-          guideCopy={dynamicGuideCopy}
-          phase={phase}
-          maxUnlockedPhase={maxUnlockedPhase}
-          goals={quest.goals}
-          product={practiceStation?.product}
-          successCriteria={practiceCriteria}
-          narrationText={phase === 'learn' ? (manualMeeCue?.text || visibleLearnCards[0]?.mee?.readText || dynamicGuideCopy.body) : dynamicGuideCopy.body}
-          autoRead={phase === 'learn' && manualMeeCue !== null}
-          gesture={manualMeeCue?.gesture}
-          narrationKey={manualMeeCue?.key}
-          stages={hydratedLearnCards.map((c, i) => ({
-            id: c.id,
-            label: AIKI_RULE_STAGE_METAS[i]?.label || c.title,
-            kind: c.kind,
-          }))}
-          currentStageIndex={aikiRuleStage}
-          onSelectStage={handleSlideChange}
-          riddle={currentInteractiveRiddle}
-          selectedAnswer={aikiQuizAnswer}
-          onSelectAnswer={handleSelectOption}
-          answerFeedback={currentInteractiveRiddle ? answerFeedback[currentInteractiveRiddle.id] : undefined}
-          isChecking={checkingQuestionId !== null}
-          onNextStage={handleSlideChange}
-          onRewardStar={() => {
-            setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.min(3, prev + 1))
-          }}
-          liveStars={liveStars}
-          aikiQuestions={ruleData ? ruleData.questions : undefined}
-          onSeekVideo={(sec) => setVideoSeekTarget({ sec, token: Date.now() })}
-          seekExplainSec={38}
-          onAikiFinishAllQuestions={() => {
-            setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.max(prev, 1))
-            setAikiRuleStage(2)
-          }}
-          hasAcknowledgedRule={hasAcknowledgedRule}
-          onAcknowledgeRule={() => {
-            setHasAcknowledgedRule(true)
-            setStarBurst({ id: Date.now(), count: 1 })
-            setLiveStars((prev) => Math.max(prev, aikiQuizAnswerCorrect ? 2 : 1))
-            setManualMeeCue({
-              key: Date.now(),
-              text: 'Xuất sắc! Con đã nắm trọn Quy tắc Vàng này rồi!',
-              gesture: 'celebrate',
-            })
-          }}
-          onOpenPosterModal={() => setIsPosterModalOpen(true)}
-          hasCommitted={hasCommitted}
-          onToggleCommit={() => {
-            setHasCommitted((prev) => !prev)
-            if (!hasCommitted) {
-              setStarBurst({ id: Date.now(), count: 1 })
-              setLiveStars(3)
-              setManualMeeCue({
-                key: Date.now(),
-                text: 'Tuyệt vời! Chào mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!',
-                gesture: 'celebrate',
-              })
-            }
-          }}
-          onAikiFinish={() => void handleAikiFinish()}
-          busy={busy}
-        />
-      )}
       </div>
 
       {/* Modals cho AIKI Rule: Phóng to tranh & Tấm Poster Quy Tắc Vàng */}

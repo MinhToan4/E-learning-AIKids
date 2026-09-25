@@ -84,7 +84,7 @@ export const ConceptWelcomeScreen: React.FC<ConceptWelcomeScreenProps> = ({
               onClick={onBack}
               className="px-3 py-0.5 rounded-full text-zinc-500 hover:text-zinc-800 text-[11px] font-bold hover:bg-zinc-100/60 transition-colors cursor-pointer"
             >
-              ← Quay lại trang chủ
+              Quay lại trang chủ
             </button>
           )}
         </div>

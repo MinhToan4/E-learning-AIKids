@@ -3,7 +3,6 @@ import {
   Play,
   RotateCcw,
   Volume2,
-  ArrowRight,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
@@ -144,7 +143,7 @@ export function VideoStageBlock({
       ref={stageRef}
       data-testid="stage-2-video"
       data-timeline-layout={useHorizontalTimeline ? 'horizontal' : 'vertical'}
-      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:p-2.5"
+      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border border-slate-200/80 bg-white p-2.5 shadow-xs animate-fade-up sm:p-3"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
@@ -197,7 +196,6 @@ export function VideoStageBlock({
         <div className="shrink-0 flex items-center justify-between gap-1 pb-1 border-b border-amber-200/80 text-xs">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="font-black uppercase tracking-wider text-amber-950 flex items-center gap-1 truncate">
-              <span>⏱️</span>
               <span className="truncate">Lộ trình</span>
             </span>
             <span className="text-[10px] sm:text-[11px] font-black px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 shrink-0">
@@ -337,16 +335,15 @@ export function VideoStageBlock({
             </Button>
           ) : <div />}
 
-          <Button
-            variant="primary"
-            className="flex-1 py-2 px-3 [@media(max-height:760px)]:py-1.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto"
+          <button
+            type="button"
+            className="flex-1 min-h-[44px] py-2 px-3 text-xs sm:text-sm font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-md transition-all active:scale-95 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed"
             onClick={handleContinue}
             disabled={!isVideoCompleted}
             aria-describedby={!isVideoCompleted ? 'video-progress-requirement' : undefined}
           >
-            <span>{!isVideoCompleted ? 'Xem đủ video để tiếp tục' : hasSlides ? '⚡ Tiếp tục sang Thử Tài Phản Xạ' : '📝 Làm bài test thử tài →'}</span>
-            <ArrowRight size={15} />
-          </Button>
+            <span>{!isVideoCompleted ? 'Xem đủ video để tiếp tục' : hasSlides ? 'Tiếp tục sang Thử Tài Phản Xạ' : 'Làm bài test thử tài'}</span>
+          </button>
           {!isVideoCompleted && <span id="video-progress-requirement" className="sr-only">Cần xem ít nhất 75 phần trăm video trước khi tiếp tục.</span>}
         </div>
       </div>

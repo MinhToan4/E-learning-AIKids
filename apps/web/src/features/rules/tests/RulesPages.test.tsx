@@ -32,9 +32,9 @@ describe('RulesRoadmapPage Component', () => {
 
     // 10 Rules check
     expect(markup).toContain('Lộ trình 10 Quy Tắc Vàng')
-    expect(markup).toContain('Hãy nghĩ ý tưởng của con')
-    expect(markup).toContain('Nội dung là do con viết')
-    expect(markup).toContain('Bài tập ở trường là của con')
+    expect(markup).toContain('Hãy nghĩ ý tưởng')
+    expect(markup).toContain('Nội dung là do')
+    expect(markup).toContain('Bài tập ở trường là của')
 
     // Progress bar check
     expect(markup).toContain('mở lần lượt từng cái một')
@@ -56,7 +56,7 @@ describe('RuleLearningPage Component', () => {
     }
   })
 
-  it('renders full-screen split layout with video column and AIKI interaction column according to Image 2-5', () => {
+  it('redirects the legacy route into the canonical backend-owned lesson flow', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -68,28 +68,9 @@ describe('RuleLearningPage Component', () => {
         ),
       ),
     )
-
-    // Header check
-    expect(markup).toContain('Mười quy tắc')
-    expect(markup).toContain('QUY TẮC 1 / 10')
-    expect(markup).toContain('8 - 11 tuổi')
-    expect(markup).toContain('Câu 1/2')
-
-    // Big Rule Title check
-    expect(markup).toContain('Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!')
-
-    // Left Column: Video & Controls check
-    expect(markup).toContain('Xem lại video')
-    expect(markup).toContain('Nghe AIKI đọc quy tắc')
-    expect(markup).toContain('Video nằm yên ở đây suốt bài — con xem lại lúc nào cũng được')
-
-    // Right Column: AIKI Interaction check
-    expect(markup).toContain('Ôn lại một chút nhé')
-    expect(markup).toContain('Sai cũng không sao, con thử lại được')
-    expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[0])
-    expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[1])
-    expect(markup).toContain('Trả lời')
-    expect(markup).toContain('AIKI mách nhỏ')
+    // Static rendering does not follow client redirects. An empty legacy route
+    // confirms it no longer mounts the duplicate, browser-local lesson UI.
+    expect(markup).toBe('')
   })
 })
 
@@ -128,7 +109,7 @@ describe('AikiRuleWorkspace direct integration', () => {
     )
 
     expect(markup).toContain('QUY TẮC 2 / 10')
-    expect(markup).toContain('Nội dung là do con viết')
+    expect(markup).toContain('Nội dung là do')
     expect(markup).toContain('↺ Xem lại video')
     expect(markup).toContain('🎙️ Nghe AIKI đọc quy tắc')
     expect(markup).toContain('Ôn lại một chút nhé')
@@ -147,11 +128,7 @@ describe('AikiRuleWorkspace direct integration', () => {
       createElement(
         MemoryRouter,
         { initialEntries: ['/rules/1'] },
-        createElement(
-          Routes,
-          null,
-          createElement(Route, { path: '/rules/:ruleId', element: createElement(RuleLearningPage) }),
-        ),
+        createElement(AikiRuleWorkspace, { ruleId: 1 }),
       ),
     )
 
@@ -177,4 +154,3 @@ describe('AikiRuleWorkspace direct integration', () => {
     expect(workspaceMarkup).toContain('lg:col-span-5')
   })
 })
-

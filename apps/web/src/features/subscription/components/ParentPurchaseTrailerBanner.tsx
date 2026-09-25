@@ -5,15 +5,12 @@ import {
   Crown,
   Sparkles,
   ShieldCheck,
-  Eye,
   Film,
   X,
   ChevronDown,
   ChevronUp,
   ArrowUpRight,
 } from 'lucide-react'
-
-export const STORAGE_KEY = 'aikid_has_purchased_package'
 
 export interface ParentTrailerModalProps {
   isOpen: boolean
@@ -210,64 +207,28 @@ export const ParentTrailerModal: React.FC<ParentTrailerModalProps> = ({
 
 export interface ParentPurchaseTrailerBannerProps {
   className?: string
+  isPurchased?: boolean
   onUnlock?: () => void
 }
 
 export const ParentPurchaseTrailerBanner: React.FC<ParentPurchaseTrailerBannerProps> = ({
   className = '',
+  isPurchased = false,
   onUnlock,
 }) => {
-  const [isPurchased, setIsPurchased] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === 'true'
-    } catch {
-      return false
-    }
-  })
   const [showDetailModal, setShowDetailModal] = useState<boolean>(false)
 
-  const handlePurchaseToggle = () => {
-    const nextState = !isPurchased
-    setIsPurchased(nextState)
-    try {
-      localStorage.setItem(STORAGE_KEY, String(nextState))
-    } catch {
-      // ignore
-    }
-    if (nextState) {
-      onUnlock?.()
-    }
-  }
-
   const handlePurchaseFromModal = () => {
-    setIsPurchased(true)
-    try {
-      localStorage.setItem(STORAGE_KEY, 'true')
-    } catch {
-      // ignore
-    }
     setShowDetailModal(false)
     onUnlock?.()
   }
 
   return (
     <div className={`w-full flex flex-col gap-2.5 min-w-0 ${className}`}>
-      {/* Dev/Reviewer Quick State Switcher */}
       <div className="flex items-center justify-between px-1 text-xs">
         <span className="text-[11px] font-bold text-zinc-400">
           Dành Cho Phụ Huynh &amp; Bé
         </span>
-        <button
-          type="button"
-          onClick={handlePurchaseToggle}
-          aria-label="Chuyển trạng thái gói mua thử nghiệm"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-200/80 hover:bg-zinc-300 text-zinc-700 text-[10px] font-bold transition-all cursor-pointer"
-        >
-          <Eye className="w-3 h-3 text-purple-600" />
-          <span>
-            Test: {isPurchased ? 'Đã mua (VIP)' : 'Chưa mua (Hiện gói)'}
-          </span>
-        </button>
       </div>
 
       {isPurchased ? (
@@ -292,13 +253,6 @@ export const ParentPurchaseTrailerBanner: React.FC<ParentPurchaseTrailerBannerPr
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handlePurchaseToggle}
-            className="text-[10px] font-bold text-zinc-400 hover:text-zinc-600 underline shrink-0 cursor-pointer"
-          >
-            Đổi trạng thái
-          </button>
         </div>
       ) : (
         /* Trạng Thái Chưa Mua: Layout Stroke-less */

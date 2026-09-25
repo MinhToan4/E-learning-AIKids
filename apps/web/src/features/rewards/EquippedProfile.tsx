@@ -68,14 +68,9 @@ export function EquippedProfile({
   const editorOutline = (slot: keyof ProfileCardLayout['slots']) => editorSelectedSlot === slot ? ' outline outline-4 outline-sky-400 outline-offset-2' : ''
   useEffect(() => {
     const sync = () => setCachedEquipment(readRewardEquipment(user.id))
-    const syncStorage = (event: StorageEvent) => {
-      if (event.key === `aikids.reward-equipment.${user.id}`) sync()
-    }
     window.addEventListener('aikids:reward-equipped', sync)
-    window.addEventListener('storage', syncStorage)
     return () => {
       window.removeEventListener('aikids:reward-equipped', sync)
-      window.removeEventListener('storage', syncStorage)
     }
   }, [user.id])
   useEffect(() => {

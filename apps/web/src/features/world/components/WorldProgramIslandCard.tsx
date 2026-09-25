@@ -9,13 +9,8 @@ import {
   Gamepad2,
   Lock,
   CheckCircle2,
-  ArrowRight,
-  Sparkles,
-  Star,
-  Cloud,
   ChevronLeft,
   ChevronRight,
-  Compass,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
@@ -59,8 +54,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Xưởng AI & Khiên',
     scene: designerAssets.worldScenes.aiValley,
     icon: Shield,
-    accentColor: 'from-violet-500 to-purple-600',
-    shadowColor: 'shadow-violet-500/30',
+    accentColor: '#7c3aed',
+    shadowColor: 'shadow-violet-500/20',
     targetSlug: 'dao-1',
     canonicalSlug: 'muoi-quy-tac-xuong-sang-tao',
   },
@@ -72,8 +67,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Hải đăng & Chìa khóa',
     scene: designerAssets.worldScenes.promptKeys,
     icon: Key,
-    accentColor: 'from-emerald-500 to-teal-600',
-    shadowColor: 'shadow-emerald-500/30',
+    accentColor: '#059669',
+    shadowColor: 'shadow-emerald-500/20',
     targetSlug: 'dao-2',
     canonicalSlug: 'dao-1-nha-tham-hiem-ai',
   },
@@ -85,8 +80,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Núi màu & Giá vẽ',
     scene: designerAssets.worldScenes.creativeMountain,
     icon: Palette,
-    accentColor: 'from-amber-500 to-orange-600',
-    shadowColor: 'shadow-amber-500/30',
+    accentColor: '#ea580c',
+    shadowColor: 'shadow-amber-500/20',
     targetSlug: 'dao-3',
     canonicalSlug: 'dao-2-hoa-si-ai',
   },
@@ -98,8 +93,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Gương thần 6 biểu cảm',
     scene: designerAssets.worldScenes.characterLab,
     icon: UserCheck,
-    accentColor: 'from-sky-500 to-blue-600',
-    shadowColor: 'shadow-sky-500/30',
+    accentColor: '#0284c7',
+    shadowColor: 'shadow-sky-500/20',
     targetSlug: 'dao-4',
     canonicalSlug: 'dao-3-biet-doi-nhan-vat-ai',
   },
@@ -111,8 +106,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Lâu đài truyện tranh',
     scene: designerAssets.worldScenes.storyIsland,
     icon: BookOpen,
-    accentColor: 'from-pink-500 to-rose-600',
-    shadowColor: 'shadow-pink-500/30',
+    accentColor: '#db2777',
+    shadowColor: 'shadow-pink-500/20',
     targetSlug: 'dao-5',
     canonicalSlug: 'dao-4-vuong-quoc-truyen-tranh-ai',
   },
@@ -124,8 +119,8 @@ export const AIKID_ISLANDS_META: IslandMeta[] = [
     landmark: 'Bàn cờ sao & Cúp vàng',
     scene: designerAssets.worldScenes.gameArena,
     icon: Gamepad2,
-    accentColor: 'from-indigo-500 to-purple-600',
-    shadowColor: 'shadow-indigo-500/30',
+    accentColor: '#4f46e5',
+    shadowColor: 'shadow-indigo-500/20',
     targetSlug: 'dao-6',
     canonicalSlug: 'dao-5-nha-phat-minh-tro-choi-ai',
   },
@@ -218,30 +213,23 @@ export function WorldProgramIslandCard({
 
   if (type === 'asmo') {
     return (
-      <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border-2 border-amber-200/90 bg-gradient-to-br from-[#fffbeb] via-[#fff7ed] to-[#f5f3ff] p-5 sm:p-7 lg:p-8 shadow-clay transition-all hover:shadow-2xl">
+      <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-amber-200/80 bg-[#fffbeb] p-5 sm:p-7 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(217,119,6,0.18)] transition-all hover:shadow-xl">
         {/* Background Image Landscape - Mờ chìm tinh tế */}
-        <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[45%] pointer-events-none opacity-20 lg:opacity-50 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fff7ed] via-transparent to-transparent z-10" />
+        <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[45%] pointer-events-none opacity-20 lg:opacity-40 overflow-hidden">
           <img
             src={designerAssets.worldScenes.storyIsland}
             alt="Đảo bí ẩn ASMO"
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 w-full h-full object-cover object-left [mask-image:linear-gradient(to_right,transparent,black_20%)]"
+            className="absolute inset-0 w-full h-full object-cover object-left"
           />
-          <div className="absolute top-8 left-8 text-sky-400/80 animate-float">
-            <Cloud size={32} />
-          </div>
-          <div className="absolute top-12 right-12 text-amber-400 animate-pulse">
-            <Sparkles size={24} />
-          </div>
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full h-full">
           <div className="flex-1 space-y-4 min-w-0 w-full max-w-xl relative z-20">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1 text-xs font-black uppercase text-amber-700 shadow-2xs border border-amber-200">
-                <Sparkles size={14} aria-hidden="true" /> 5 VÙNG ĐẤT ASMO
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1 text-xs font-black uppercase text-amber-700 shadow-2xs border border-amber-200">
+                5 VÙNG ĐẤT ASMO
               </span>
               <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold text-sky-800 shadow-2xs border border-sky-200">
                 Đang đón gió mở cổng
@@ -252,7 +240,7 @@ export function WorldProgramIslandCard({
               <h3 className="font-display text-2xl sm:text-3xl text-slate-800 mb-2">
                 Toán tư duy & Khoa học AI (ASMO Lab)
               </h3>
-              <p className="text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+              <p className="text-sm sm:text-base font-medium text-slate-600 line-clamp-1 leading-relaxed">
                 Rèn luyện tư duy logic Olympic, giải các bài toán mô phỏng 3D tương tác và khám phá 5 vùng đất kỳ thú cùng AI.
               </p>
             </div>
@@ -261,7 +249,7 @@ export function WorldProgramIslandCard({
               <Button
                 variant="secondary"
                 disabled
-                className="gap-2 opacity-80 cursor-not-allowed shadow-clay rounded-2xl pointer-events-none bg-white/80 backdrop-blur-sm border-amber-100"
+                className="gap-2 opacity-80 cursor-not-allowed shadow-clay rounded-2xl pointer-events-none bg-white/90 border border-amber-200"
               >
                 <Lock size={16} /> Sắp mở cổng thám hiểm...
               </Button>
@@ -277,7 +265,7 @@ export function WorldProgramIslandCard({
 
           {/* Desktop Graphic Stage - Tách riêng trong cột flex phải, không đè text */}
           <div className="hidden md:flex flex-col items-center justify-center w-[180px] lg:w-[220px] xl:w-[260px] shrink-0 relative z-20 gap-2.5 animate-float drop-shadow-xl">
-            <div className="size-16 rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center shadow-clay border-2 border-white">
+            <div className="size-16 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center shadow-clay border border-white/80">
               <Lock className="text-amber-500 size-7" />
             </div>
             <span className="rounded-full bg-amber-900/40 backdrop-blur-sm px-3 py-1 text-[10px] font-extrabold text-amber-50 shadow-xs">
@@ -291,14 +279,13 @@ export function WorldProgramIslandCard({
 
   // AIKID Official Creator Program Card
   return (
-    <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border-2 border-brand-200/90 bg-gradient-to-br from-[#eff8ff] via-[#f2fdf5] to-[#fbf7ff] p-5 sm:p-7 lg:p-8 shadow-clay transition-all hover:shadow-2xl">
+    <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-brand-200/80 bg-[#f8faff] p-5 sm:p-7 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(91,95,199,0.18)] transition-all hover:shadow-xl">
       {/* Background open landscape with soft blend */}
-      <div className="absolute top-0 right-0 bottom-0 w-full md:w-[45%] lg:w-[50%] pointer-events-none overflow-hidden rounded-r-[2.5rem] sm:rounded-r-[3rem] opacity-35 lg:opacity-60">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#eff8ff] via-[#f2fdf5]/50 to-transparent z-10" />
+      <div className="absolute top-0 right-0 bottom-0 w-full md:w-[45%] lg:w-[50%] pointer-events-none overflow-hidden rounded-r-[2.5rem] sm:rounded-r-[3rem] opacity-25 lg:opacity-40">
         <img
           src={designerAssets.worldScenes.aiValley}
           alt="AI Valley"
-          className="absolute inset-0 w-full h-full object-cover object-center [mask-image:linear-gradient(to_right,transparent,black_30%)]"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
       </div>
 
@@ -307,7 +294,7 @@ export function WorldProgramIslandCard({
         <div className="flex-1 space-y-5 sm:space-y-6 min-w-0 w-full md:max-w-[60%] lg:max-w-[62%] xl:max-w-[66%] relative z-30">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3.5 py-1 text-xs font-black uppercase text-mint-800 shadow-2xs border border-mint-200">
-              <Sparkles size={14} aria-hidden="true" /> CHƯƠNG TRÌNH CHÍNH THỨC
+              CHƯƠNG TRÌNH CHÍNH THỨC
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-brand-700 shadow-2xs border border-brand-200">
               {totalCourses} Đảo học tập
@@ -318,7 +305,7 @@ export function WorldProgramIslandCard({
             <h3 className="font-display text-2xl sm:text-3xl text-slate-900 mb-2">
               Khóa sáng tạo nội dung cùng AIKID
             </h3>
-            <p className="text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+            <p className="text-sm sm:text-base font-medium text-slate-600 line-clamp-1 leading-relaxed">
               Nắm vững 10 quy tắc vàng an toàn, cùng AIKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.
             </p>
           </div>
@@ -326,9 +313,8 @@ export function WorldProgramIslandCard({
           {/* DẢI HẢI TRÌNH CÁC HÒN ĐẢO NỔI MINI */}
           <div className="relative mt-2">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <p className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Compass size={16} aria-hidden="true" />
-                <span>Hải trình {islands.length} hòn đảo sáng tạo</span>
+              <p className="text-xs font-black uppercase tracking-wider text-slate-700">
+                Hải trình {islands.length} hòn đảo sáng tạo
               </p>
 
               <div className="flex items-center gap-2 sm:gap-3">
@@ -424,14 +410,14 @@ export function WorldProgramIslandCard({
                       {/* Mặt đảo nổi */}
                       <div
                         className={cn(
-                          'relative size-16 sm:size-17 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300',
+                          'relative size-16 sm:size-17 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 clay-card-subtle',
                           isCurrent
-                            ? 'border-2 border-amber-400 ring-2 ring-amber-300/70 shadow-lg shadow-amber-400/20 scale-105 group-hover:shadow-xl'
+                            ? 'border border-amber-400 ring-2 ring-amber-300/70 [--clay-shadow:rgba(245,158,11,0.3)] scale-105 group-hover:shadow-xl'
                             : isCompleted
-                            ? 'border-2 border-mint-400 ring-1 ring-mint-300/60 shadow-sm group-hover:shadow-xl'
+                            ? 'border border-mint-400 ring-1 ring-mint-300/60 [--clay-shadow:rgba(5,150,105,0.2)] group-hover:shadow-xl'
                             : isLocked
-                            ? 'border-2 border-slate-300/60 bg-slate-200/80 shadow-none'
-                            : 'border-2 border-slate-300/80 bg-slate-200/60 shadow-2xs group-hover:shadow-xl',
+                            ? 'border border-slate-300/60 bg-slate-200/80 shadow-none'
+                            : 'border border-slate-300/80 bg-slate-200/60 [--clay-shadow:rgba(0,0,0,0.08)] group-hover:shadow-xl',
                         )}
                       >
                         {/* Ảnh phong cảnh độc bản chuẩn của hòn đảo */}
@@ -450,9 +436,6 @@ export function WorldProgramIslandCard({
                               : '',
                           )}
                         />
-
-                        {/* Lớp màng men chuyển sắc siêu nhẹ */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 pointer-events-none" />
 
                         {/* Tích xanh khi hoàn thành */}
                         {isCompleted && (
@@ -524,7 +507,7 @@ export function WorldProgramIslandCard({
                   {completedStations}/{totalStations} trạm
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Star size={14} aria-hidden="true" />
+                  <span className="text-amber-500 font-black">★</span>
                   {totalStars} sao
                 </span>
               </div>
@@ -546,24 +529,21 @@ export function WorldProgramIslandCard({
               className="w-full sm:w-auto shadow-clay active:shadow-press rounded-2xl gap-2 px-8 py-4 text-base font-black inline-flex items-center justify-center cursor-pointer"
             >
               <span>{totalProgress > 0 ? 'Tiếp tục học các đảo' : 'Lên thuyền khám phá các đảo'}</span>
-              <ArrowRight size={18} />
             </Button>
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate('/world/program/aikid_official/creator')}
+              onClick={() => navigate('/world/program/aikid_official')}
               className="w-full sm:w-auto rounded-2xl gap-2 px-6 py-4 font-black"
             >
-              <Compass size={17} aria-hidden="true" />
               Xem toàn bộ các đảo
             </Button>
           </div>
 
           {/* Mèo Aiki Trong Luồng Tự Nhiên Cho Mobile Phone (< md) - 100% Không Bao Giờ Đè Lên Nút */}
           <div className="flex md:hidden flex-col items-center pt-6 pb-2 w-full relative z-20">
-            <div className="py-2 px-4 rounded-2xl border-2 border-brand-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center gap-1.5">
+            <div className="py-2 px-4 rounded-2xl border border-brand-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center">
               <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
-              <Sparkles size={14} aria-hidden="true" />
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
               <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
             </div>
@@ -576,12 +556,10 @@ export function WorldProgramIslandCard({
         {/* Cột Mèo Aiki Riêng Biệt Cho Tablet & Desktop (>= md) - Không Bao Giờ Đè Lên Cột Trái */}
         <div className="hidden md:flex flex-col items-center justify-end w-[200px] lg:w-[240px] xl:w-[280px] shrink-0 relative z-20 self-stretch pb-2">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 border border-brand-200/80 shadow-2xs text-[11px] font-extrabold text-brand-700 backdrop-blur-xs mb-2">
-            <Compass size={13} aria-hidden="true" />
             <span>Trợ lý đồng hành Aiki</span>
           </div>
-          <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border-2 border-brand-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center gap-1.5 mb-3 relative">
+          <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border border-brand-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center mb-3 relative">
             <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
-            <Sparkles size={14} aria-hidden="true" />
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
             <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
           </div>

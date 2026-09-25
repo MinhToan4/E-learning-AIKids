@@ -11,7 +11,8 @@ type Props = {
   ruleId: number
   effectiveCourseId: string
   liveStars: number
-  onFinish: (customSummary?: LessonCompletionSummary) => void
+  onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
+  onStageChange?: (stageIndex: number, stageCount: number) => void
 }
 
 export default function RuleLessonJourneyRenderer({
@@ -20,6 +21,7 @@ export default function RuleLessonJourneyRenderer({
   effectiveCourseId,
   liveStars,
   onFinish,
+  onStageChange,
 }: Props) {
   const navigate = useNavigate()
   const rule = AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
@@ -114,7 +116,7 @@ export default function RuleLessonJourneyRenderer({
   }, [rule])
 
   return (
-    <div className="h-auto min-h-full flex-none bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-visible md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
+    <div className="h-auto min-h-full flex-none bg-slate-50/60 p-2 sm:p-2.5 lg:p-3 page-enter flex flex-col overflow-visible md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden w-full max-w-[1024px] mx-auto">
       <SixStageJourneyView
         journey={syntheticJourney}
         stages={stages}
@@ -126,6 +128,7 @@ export default function RuleLessonJourneyRenderer({
         onNavigateNextLesson={(nextSlug) => navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)}
         onOpenCourse={() => navigate('/world/program/aikid_official')}
         onFinishLesson={onFinish}
+        onStageChange={(stageIndex) => onStageChange?.(stageIndex, stages.length)}
       />
     </div>
   )

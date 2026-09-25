@@ -1,26 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import type { LearningPathway, LearningPathwayCourse } from '@/shared/lib/learning-api'
+import { learningApi } from '@/shared/lib/learning-api'
 import type { RulesOverallProgress, RuleUserProgress } from '../types'
 import { AIKI_RULES_DATA } from '../data/rules-data'
 
-const STORAGE_KEY = 'aikids_golden_rules_progress_v1'
-
-function getInitialProgress(): RulesOverallProgress {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    return createDefaultProgress()
-  }
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw) as RulesOverallProgress
-      if (parsed && parsed.rules && Object.keys(parsed.rules).length >= 10) {
-        return parsed
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to load rules progress from localStorage', e)
-  }
-  return createDefaultProgress()
-}
+const LEGACY_STORAGE_KEY = 'aikids_golden_rules_progress_v1'
 
 function createDefaultProgress(): RulesOverallProgress {
   const rules: Record<number, RuleUserProgress> = {}
@@ -40,22 +24,81 @@ function createDefaultProgress(): RulesOverallProgress {
   }
 }
 
+function isRulesCourse(course: LearningPathwayCourse): boolean {
+  const identity = `${course.id} ${course.shortTitle || ''} ${course.title || ''}`.toLowerCase()
+  return course.id === 'aiki-rules' || course.id.startsWith('rule-') ||
+    identity.includes('mười quy tắc') || identity.includes('muoi quy tac') ||
+    identity.includes('10 quy tắc') || identity.includes('10 quy tac') ||
+    identity.includes('module 0')
+}
+
+function stationRuleId(station: NonNullable<LearningPathwayCourse['stations']>[number]): number | null {
+  const slugMatch = station.slug?.match(/rule[-_ ]?(10|[1-9])(?:\D|$)/i)
+  if (slugMatch) return Number(slugMatch[1])
+  return station.order >= 1 && station.order <= 10 ? station.order : null
+}
+
+/** Convert the Hub pathway projection into the Rules UI model without browser persistence. */
+export function rulesProgressFromPathway(pathway: LearningPathway): RulesOverallProgress {
+  const result = createDefaultProgress()
+  const course = pathway.courses.find(isRulesCourse)
+  if (!course?.stations?.length) return result
+
+  for (const station of course.stations) {
+    const ruleId = stationRuleId(station)
+    if (!ruleId || !result.rules[ruleId]) continue
+    const completed = station.status === 'completed'
+    result.rules[ruleId] = {
+      ruleId,
+      status: completed ? 'completed' : station.status === 'locked' ? 'locked' : 'available',
+      completedQuestions: completed ? 2 : 0,
+      starsEarned: Math.max(0, Math.min(3, station.stars || 0)),
+    }
+  }
+
+  for (let ruleId = 1; ruleId < AIKI_RULES_DATA.length; ruleId += 1) {
+    if (result.rules[ruleId]?.status === 'completed' && result.rules[ruleId + 1]?.status === 'locked') {
+      result.rules[ruleId + 1] = { ...result.rules[ruleId + 1], status: 'available' }
+    }
+  }
+
+  result.totalStars = course.totalStars ?? Object.values(result.rules).reduce(
+    (sum, rule) => sum + rule.starsEarned,
+    0,
+  )
+  result.totalXp = course.stations.reduce((sum, station) => sum + (station.xpEarned || 0), 0)
+  result.unlockedPosters = Object.values(result.rules)
+    .filter((rule) => rule.status === 'completed')
+    .map((rule) => rule.ruleId)
+  return result
+}
+
 export function useRulesProgress() {
-  const [progress, setProgress] = useState<RulesOverallProgress>(getInitialProgress)
+  const [progress, setProgress] = useState<RulesOverallProgress>(createDefaultProgress)
 
   useEffect(() => {
-    if (typeof localStorage === 'undefined') return
+    let cancelled = false
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
-    } catch (e) {
-      console.warn('Failed to save rules progress to localStorage', e)
+      localStorage.removeItem(LEGACY_STORAGE_KEY)
+    } catch {
+      // Storage can be unavailable in privacy mode; server progress still works.
     }
-  }, [progress])
+    void learningApi.getPathway()
+      .then((pathway) => {
+        if (!cancelled) setProgress(rulesProgressFromPathway(pathway))
+      })
+      .catch(() => {
+        // Fail closed with only rule 1 available. Never resurrect stale device data.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const completeRule = useCallback((ruleId: number, confirmedStars = 3) => {
     setProgress((prev) => {
-      const currentRule = prev.rules[ruleId]
       const starsEarned = Math.max(0, Math.min(3, confirmedStars))
+      const currentRule = prev.rules[ruleId]
 
       const newRules = { ...prev.rules }
       newRules[ruleId] = {
@@ -84,8 +127,6 @@ export function useRulesProgress() {
       return {
         rules: newRules,
         totalStars: prev.totalStars + addedStars,
-        // XP is server-owned. This local record is only a compatibility cache
-        // for the free Rules journey and must never mint experience points.
         totalXp: prev.totalXp,
         unlockedPosters,
       }
@@ -93,13 +134,7 @@ export function useRulesProgress() {
   }, [])
 
   const resetProgress = useCallback(() => {
-    const defaultData = createDefaultProgress()
-    setProgress(defaultData)
-    try {
-      localStorage.removeItem(STORAGE_KEY)
-    } catch {
-      // ignore
-    }
+    setProgress(createDefaultProgress())
   }, [])
 
   const completedCount = Object.values(progress.rules).filter((r) => r.status === 'completed').length
@@ -107,7 +142,7 @@ export function useRulesProgress() {
   return {
     progress,
     completedCount,
-    totalCount: 10,
+    totalCount: AIKI_RULES_DATA.length,
     completeRule,
     resetProgress,
   }

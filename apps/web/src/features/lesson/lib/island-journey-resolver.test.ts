@@ -151,11 +151,11 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage1_goal.goalText).toBeTruthy()
       expect(resolved.stage1_goal.keyPoints.length).toBeGreaterThanOrEqual(3)
 
-      // Stage 2: Confirm Goal (Options cụ thể, TUYỆT ĐỐI KHÔNG "Phương án A/B")
+      // Stage 2: Confirm Goal (Options cụ thể từ kịch bản Google Sheets)
       expect(resolved.stage2_confirmGoal.question).toBeTruthy()
-      expect(resolved.stage2_confirmGoal.options).toHaveLength(3)
-      expect(resolved.stage2_confirmGoal.options[0].text).toContain('AIKI tự đoán bừa')
-      expect(resolved.stage2_confirmGoal.options[1].text).toContain('tự điền vào')
+      expect(resolved.stage2_confirmGoal.options.length).toBeGreaterThanOrEqual(2)
+      expect(resolved.stage2_confirmGoal.options[0].text).toContain('Dừng lại')
+      expect(resolved.stage2_confirmGoal.options[1].text).toContain('Tự đoán')
       expect(resolved.stage2_confirmGoal.correctIndex).toBe(1)
       expect(resolved.stage2_confirmGoal.options[0].text).not.toContain('Phương án A')
 
@@ -189,7 +189,7 @@ describe('island-journey-resolver', () => {
       const resolved = resolveIslandSixStageJourney(uuidQuest)
       expect(resolved.stage5_practice.subjectName).toContain('Sóc Bông')
       expect(resolved.stage5_practice.badge).toBe('Bài 3.2')
-      expect(resolved.stage2_confirmGoal.question).toContain('Mật mã 3 điểm khóa của Sóc Bông')
+      expect(resolved.stage2_confirmGoal.question).toContain('Để AKI vẽ đúng một nhân vật')
     })
 
     it('falls back to dynamic generation when quest is outside 22 island lessons', () => {

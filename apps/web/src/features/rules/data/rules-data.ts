@@ -4,7 +4,7 @@ export const AIKI_RULES_DATA: AikiRule[] = [
   {
     id: 1,
     code: 'QT1',
-    title: 'Hãy nghĩ ý tưởng của con, rồi mới chia sẻ với AIKI nhé!',
+    title: 'Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!',
     shortTitle: 'Nghĩ ý tưởng trước khi hỏi AI',
     goal: 'Bí quyết của con: Hãy luôn nghĩ ý tưởng của riêng con trước rồi mới chia sẻ với bạn mèo AIKI nhé!',
     skill: 'Khi con muốn sáng tạo, dừng lại 30 giây để hình dung và vẽ ra ý của mình trước khi mở AI.',
@@ -57,38 +57,34 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Vì Sonet vẽ nhanh hơn Zico",
           "Vì đó là ý riêng của Sonet",
-          "Vì bức của Sonet nhiều màu hơn",
+          "Vì bức của Sonet nhiều màu hơn"
         ],
         correctIndex: 1,
-        hint: "Đúng yêu cầu không phải là đẹp hơn, mà là bức tranh mang ý tưởng độc nhất của riêng con!",
+        hint: "Ghi nhớ Quy tắc 1: Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!",
         successFeedback: "Chuẩn rồi! Đúng yêu cầu không phải là đẹp hơn, mà là KHÔNG GIỐNG AI.",
         retryFeedback: "Chưa đúng nhé. Bức của Zico đẹp nhưng rất quen — ai gõ AI cũng ra được. Bức của Sonet mới là của riêng bạn ấy.",
-        visualUrl: "/assets/aiki-rules/rule1_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule1_opt_zico.webp",
-          "/assets/aiki-rules/rule1_opt_sonet.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule1_q1_clay.webp"
       },
       {
         id: "q1-2",
-        prompt: "Vì sao cứ gõ cho AKI câu “siêu anh hùng ngầu” thì hay ra những nhân vật giống hệt nhau?",
+        prompt: "Vì sao cứ gõ cho AI câu “siêu anh hùng ngầu” thì hay ra những nhân vật giống hệt nhau?",
         options: [
-          "Vì AKI vẽ xấu",
-          "Vì AKI lấy ngay cái quen thuộc nhất trong kho hình có sẵn",
-          "Vì máy chạy chậm",
+          "Vì AI vẽ xấu",
+          "Vì AI lấy ngay cái quen thuộc nhất trong kho hình có sẵn",
+          "Vì máy chạy chậm"
         ],
         correctIndex: 1,
-        hint: "Câu tả chung chung thì AKI chỉ lấy được thứ quen thuộc nhất trong kho hình thôi!",
-        successFeedback: "Đúng! Câu tả chung chung thì AKI chỉ lấy được cái ai cũng nghĩ tới.",
-        retryFeedback: "Chưa đúng. AKI có cả kho hình trong đầu, gõ chung chung là nó lấy cái quen thuộc nhất — nên ai cũng ra giống nhau.",
-        visualUrl: "/assets/aiki-rules/rule1_q2_clay.webp",
-      },
+        hint: "Ghi nhớ Quy tắc 1: Hãy nghĩ ý tưởng của cậu, rồi mới chia sẻ với AKI nhé!",
+        successFeedback: "Đúng! Câu tả chung chung thì AI chỉ lấy được cái ai cũng nghĩ tới.",
+        retryFeedback: "Chưa đúng. AI có cả kho hình trong đầu, gõ chung chung là nó lấy cái quen thuộc nhất — nên ai cũng ra giống nhau.",
+        visualUrl: "/assets/aiki-rules/rule1_q2_clay.webp"
+      }
     ],
   },
   {
     id: 2,
     code: 'QT2',
-    title: 'Nội dung là do con viết, hãy đảm bảo viết xong mới gửi cho AIKI!',
+    title: 'Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AKI!',
     shortTitle: 'Nội dung do con tự viết trước',
     goal: 'Bí quyết của con: Lời văn, lời chúc và những chi tiết chân thật là phần việc của con, AIKI sẽ giúp con trang trí thật đẹp!',
     skill: 'Khi con làm thiệp hay viết thư, hãy viết trọn vẹn lời văn của con trước, rồi AIKI sẽ trang trí lung linh!',
@@ -140,18 +136,14 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "Tờ giấy TÌM CHÓ LẠC viết đúng chính tả, dán khắp phố, vậy mà không ai nhận ra Bông. Vì sao?",
         options: [
           "Vì chữ trên tờ giấy nhỏ quá",
-          "Vì thiếu chi tiết riêng của Bông: chuông vàng ở cổ, chân sau đi khập khiễng",
-          "Vì tờ giấy dán sai chỗ",
+          "Vì thiếu chi tiết riêng của Bông",
+          "Vì tờ giấy dán sai chỗ"
         ],
         correctIndex: 1,
-        hint: "Đúng chính tả chưa đủ, phải có chi tiết đặc biệt mà chỉ chú cún của con mới có!",
+        hint: "Ghi nhớ Quy tắc 2: Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AKI!",
         successFeedback: "Chính xác! Đúng chính tả chưa đủ — phải có chi tiết chỉ riêng Bông mới có.",
         retryFeedback: "Chưa đúng nhé. Người đi qua đọc xong, nhìn xuống con chó nâu ngay cạnh chân rồi vẫn bỏ đi — vì tờ giấy không tả gì riêng của Bông.",
-        visualUrl: "/assets/aiki-rules/rule2_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule2_opt_a.webp",
-          "/assets/aiki-rules/rule2_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule2_superhero_dad.webp"
       },
       {
         id: "q2-2",
@@ -159,20 +151,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Trẻ viết chi tiết riêng của Bông — AKI giúp trang trí cho tờ giấy đẹp",
           "AKI viết hết tất cả từ chi tiết Bông cho đến vẽ giấy, trẻ chỉ việc đem đi dán",
-          "Trẻ chỉ chọn màu cho đẹp thôi, còn chữ và ý tưởng cứ để AKI lo",
+          "Trẻ chỉ chọn màu cho đẹp thôi, còn chữ và ý tưởng cứ để AKI lo"
         ],
         correctIndex: 0,
-        hint: "Nội dung và chi tiết thật là của con, AKI chỉ hỗ trợ trang trí trình bày thôi!",
+        hint: "Ghi nhớ Quy tắc 2: Nội dung là do cậu viết, hãy đảm bảo viết xong mới gửi cho AKI!",
         successFeedback: "Đúng rồi! Nội dung là của các cậu, AKI chỉ giúp phần trang trí.",
         retryFeedback: "Chưa đúng. AKI viết được câu đúng ngữ pháp, nhưng nó không biết Bông đi khập khiễng — chỉ các cậu mới biết.",
-        visualUrl: "/assets/aiki-rules/rule2_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule2_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 3,
     code: 'QT3',
-    title: 'Sản phẩm mà con tạo ra phải có giá trị cho ai đó nhé!',
+    title: 'Sản phẩm mà cậu tạo ra phải có giá trị cho ai đó nhé!',
     shortTitle: 'Sản phẩm phải có giá trị sử dụng',
     goal: 'Bí quyết của con: Tác phẩm con làm ra phải có người dùng và mang lại niềm vui, sự giúp ích thiết thực cho mọi người!',
     skill: 'Khi con bắt tay vào vẽ hay thiết kế, luôn tự hỏi: Con làm cho ai và giúp ích gì cho người ấy nhé!',
@@ -225,17 +217,13 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Vì tấm thẻ được in to hơn",
           "Vì bà cần dùng nó mỗi ngày",
-          "Vì tấm thẻ nhiều màu hơn",
+          "Vì tấm thẻ nhiều màu hơn"
         ],
         correctIndex: 1,
-        hint: "Thứ có người cần dùng thiết thực mỗi ngày mới là món quà quý giá nhất!",
+        hint: "Ghi nhớ Quy tắc 3: Sản phẩm mà cậu tạo ra phải có giá trị cho ai đó nhé!",
         successFeedback: "Đúng! Thứ có người cần — dù chỉ một người — mới được giữ lại.",
         retryFeedback: "Chưa đúng nhé. Không phải to hơn hay đẹp hơn, mà là có người thật sự dùng tới nó.",
-        visualUrl: "/assets/aiki-rules/rule3_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule3_opt_a.webp",
-          "/assets/aiki-rules/rule3_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule3_superhero_dad.webp"
       },
       {
         id: "q3-2",
@@ -243,20 +231,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Bấm tạo thật nhiều hình rồi chọn tấm đẹp nhất",
           "Hỏi bà một câu: bà ơi, bà hay quên cái gì nhất ạ?",
-          "Hỏi AKI xem nên làm gì",
+          "Hỏi AKI xem nên làm gì"
         ],
         correctIndex: 1,
-        hint: "Hãy tìm hiểu xem người nhận cần gì trước khi bắt tay vào sáng tạo!",
+        hint: "Ghi nhớ Quy tắc 3: Sản phẩm mà cậu tạo ra phải có giá trị cho ai đó nhé!",
         successFeedback: "Chuẩn! Hỏi trước — làm cho ai, để làm gì — rồi mới bắt tay vào làm.",
         retryFeedback: "Chưa đúng. Mimi hỏi bà trước, biết bà hay quên số điện thoại, nên mới làm tấm thẻ ghi số chữ thật to.",
-        visualUrl: "/assets/aiki-rules/rule3_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule3_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 4,
     code: 'QT4',
-    title: 'Con phải luôn chia sẻ được vì sao con chọn ý tưởng này!',
+    title: 'Cậu phải luôn chia sẻ được vì sao cậu chọn ý tưởng này!',
     shortTitle: 'Luôn chia sẻ được lý do chọn ý tưởng',
     goal: 'Bí quyết của con: Luôn tự tin chia sẻ lý do và câu chuyện đằng sau từng chi tiết con lựa chọn!',
     skill: 'Khi con giới thiệu tác phẩm, mở đầu bằng câu nói kỳ diệu: "Con chọn cái này vì..."',
@@ -308,17 +296,13 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "Hai bức tranh đẹp như nhau, cô giáo hỏi “vì sao con chọn thế này?”. Ai mới là người trả lời được câu đó?",
         options: [
           "AKI",
-          "Chính các bạn nhỏ",
+          "Chính các bạn nhỏ"
         ],
         correctIndex: 1,
-        hint: "Chỉ có con mới biết lý do và câu chuyện thật phía sau sự lựa chọn của mình!",
+        hint: "Ghi nhớ Quy tắc 4: Cậu phải luôn chia sẻ được vì sao cậu chọn ý tưởng này!",
         successFeedback: "Đúng rồi! Chỉ con mới biết vì sao con chọn.",
         retryFeedback: "Chưa đúng nhé. AKI làm ra được màu vàng, nhưng nó không biết bà của con mặc áo màu gì.",
-        visualUrl: "/assets/aiki-rules/rule4_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule4_opt_a.webp",
-          "/assets/aiki-rules/rule4_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule4_superhero_dad.webp"
       },
       {
         id: "q4-2",
@@ -326,20 +310,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Tớ chọn màu vàng, vì màu vàng đẹp nhất",
           "Tớ chọn màu vàng, vì cái áo bà tớ hay mặc màu vàng",
-          "Tớ chọn màu vàng, vì AKI gợi ý thế",
+          "Tớ chọn màu vàng, vì AKI gợi ý thế"
         ],
         correctIndex: 1,
-        hint: "Câu trả lời gắn liền với một kỷ niệm có thật đầy yêu thương trong gia đình!",
+        hint: "Ghi nhớ Quy tắc 4: Cậu phải luôn chia sẻ được vì sao cậu chọn ý tưởng này!",
         successFeedback: "Chính xác! Chỉ cần một câu “tớ chọn cái này vì...” là bức tranh thành của riêng con.",
         retryFeedback: "Chưa đúng. Câu của Sonet gắn với một điều thật trong nhà bạn ấy — cái áo vàng của bà.",
-        visualUrl: "/assets/aiki-rules/rule4_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule4_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 5,
     code: 'QT5',
-    title: 'Không để AIKI làm 1 mình, hãy chia việc ra nhé!',
+    title: 'Không để AKI làm 1 mình, hãy chia việc ra nhé!',
     shortTitle: 'Chia việc rõ ràng: Con một cột, AI một cột',
     goal: 'Bí quyết của con: Cùng AIKI chia việc thành hai cột thật rõ ràng, không để bạn ấy làm một mình!',
     skill: 'Khi con cùng làm dự án, chia đôi nhiệm vụ: Con làm phần sáng tạo và ý tưởng, AIKI làm phần hỗ trợ!',
@@ -392,17 +376,13 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Vì cái bút bị hỏng",
           "Vì Zico để AKI làm hết, chẳng còn phần việc nào là của bạn ấy",
-          "Vì tấm bảng tên bị ướt",
+          "Vì tấm bảng tên bị ướt"
         ],
         correctIndex: 1,
-        hint: "Nếu để AI làm từ đầu đến cuối thì sản phẩm đâu còn là của con nữa!",
+        hint: "Ghi nhớ Quy tắc 5: Không để AKI làm 1 mình, hãy chia việc ra nhé!",
         successFeedback: "Đúng! Làm phần nào thì mới ghi tên được phần đó.",
         retryFeedback: "Chưa đúng nhé. Bút vẫn tốt — chỉ là cả bức tranh không có phần việc nào của Zico cả.",
-        visualUrl: "/assets/aiki-rules/rule5_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule5_opt_a.webp",
-          "/assets/aiki-rules/rule5_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule5_superhero_dad.webp"
       },
       {
         id: "q5-2",
@@ -410,20 +390,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Vẽ nền và tô màu",
           "Nghĩ ý tưởng, chọn màu, viết chữ trong tranh",
-          "Không phần nào cả, AKI vẫn làm hết",
+          "Không phần nào cả, AKI vẫn làm hết"
         ],
         correctIndex: 1,
-        hint: "Con làm thuyền trưởng nghĩ ý tưởng và chỉ huy, AI làm trợ thủ thực hiện!",
+        hint: "Ghi nhớ Quy tắc 5: Không để AKI làm 1 mình, hãy chia việc ra nhé!",
         successFeedback: "Chuẩn rồi! Cậu một cột, AKI một cột — rồi ghi cả hai tên.",
         retryFeedback: "Chưa đúng. Vẽ nền với tô màu là phần của AKI; ý tưởng, chọn màu và viết chữ mới là phần của Zico.",
-        visualUrl: "/assets/aiki-rules/rule5_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule5_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 6,
     code: 'QT6',
-    title: 'Để bảo vệ con và mọi người, hình ảnh cá nhân là điều hạn chế nhé!',
+    title: 'Để bảo vệ cậu và mọi người, hình ảnh cá nhân là điều hạn chế nhé!',
     shortTitle: 'Bảo vệ an toàn hình ảnh & danh tính',
     goal: 'Bí quyết của con: Bảo vệ an toàn hình ảnh cá nhân, kiểm tra kỹ trước khi đưa bất kỳ bức ảnh nào lên AI!',
     skill: 'Khi con chọn ảnh, nhớ kiểm tra 3 điều: Người khác, Thông tin riêng và Địa điểm trường nhà!',
@@ -476,32 +456,28 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Một chỗ",
           "Ba chỗ",
-          "Không có chỗ nào",
+          "Không có chỗ nào"
         ],
         correctIndex: 1,
-        hint: "Hãy quan sát kỹ: bảng tên áo, tên trường trên cổng và người lạ đứng phía sau!",
+        hint: "Ghi nhớ Quy tắc 6: Để bảo vệ cậu và mọi người, hình ảnh cá nhân là điều hạn chế nhé!",
         successFeedback: "Đúng! Ba chỗ: bảng tên trên áo, tên trường trên cổng, và người lạ đứng phía sau.",
         retryFeedback: "Chưa đúng nhé. Có tới ba chỗ lận: bảng tên áo, tên trường trên cổng, và người lạ phía sau.",
-        visualUrl: "/assets/aiki-rules/rule6_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule6_opt_a.webp",
-          "/assets/aiki-rules/rule6_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule6_superhero_dad.webp"
       },
       {
         id: "q6-2",
         prompt: "Trước khi đưa một tấm ảnh cho AI, con phải kiểm ba thứ nào?",
         options: [
-          "Màu sắc — ánh sáng — độ nét",
-          "NGƯỜI — THÔNG TIN — ĐỊA ĐIỂM",
-          "Ngày — giờ — thời tiết",
+          "Màu sắc - ánh sáng - độ nét",
+          "Người - thông tin - địa điểm",
+          "Ngày - giờ - thời tiết"
         ],
         correctIndex: 1,
-        hint: "Nhớ câu thần chú: NGƯỜI, THÔNG TIN và ĐỊA ĐIỂM cần được bảo vệ!",
+        hint: "Ghi nhớ Quy tắc 6: Để bảo vệ cậu và mọi người, hình ảnh cá nhân là điều hạn chế nhé!",
         successFeedback: "Chính xác! Có thì che đi hoặc chọn tấm khác, rồi hỏi bố mẹ một câu cho chắc.",
         retryFeedback: "Chưa đúng. Ba thứ phải kiểm là NGƯỜI (có ai khác không), THÔNG TIN (tên, bảng tên, giấy tờ) và ĐỊA ĐIỂM (trường, nhà, chỗ hay đến).",
-        visualUrl: "/assets/aiki-rules/rule6_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule6_superhero_dad.webp"
+      }
     ],
   },
   {
@@ -559,17 +535,13 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "AKI nói cá voi xanh dài ba trăm mét, giọng chắc như đinh đóng cột — mà lại sai. Làm sao biết lúc nào AKI đang nói sai?",
         options: [
           "Nghe giọng AKI là biết ngay",
-          "Mở sách, hỏi thầy cô và bố mẹ",
+          "Mở sách, hỏi thầy cô và bố mẹ"
         ],
         correctIndex: 1,
-        hint: "AI nói rất tự tin kể cả khi bịa chuyện, hãy luôn kiểm tra lại với sách vở hoặc người lớn!",
+        hint: "Ghi nhớ Quy tắc 7: Hãy tôn trọng sự thật & đưa những thông tin chính xác!",
         successFeedback: "Đúng! Nghe AKI xong thì phải kiểm lại, chắc chắn đúng rồi mới kể cho người khác.",
         retryFeedback: "Chưa đúng nhé. AKI sai cũng nói to như đúng — nghe giọng thì không biết được đâu, phải kiểm lại.",
-        visualUrl: "/assets/aiki-rules/rule7_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule7_opt_a.webp",
-          "/assets/aiki-rules/rule7_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule7_superhero_dad.webp"
       },
       {
         id: "q7-2",
@@ -577,20 +549,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Màu sắc — hình dáng — kích thước",
           "Số liệu — ngày tháng — tên người",
-          "Chữ viết — dấu câu — chính tả",
+          "Chữ viết — dấu câu — chính tả"
         ],
         correctIndex: 1,
-        hint: "Những con số chính xác, các mốc thời gian và danh xưng là nơi AI dễ nhầm nhất!",
+        hint: "Ghi nhớ Quy tắc 7: Hãy tôn trọng sự thật & đưa những thông tin chính xác!",
         successFeedback: "Chuẩn rồi! Ba thứ này gặp là phải mở sách hoặc hỏi người lớn.",
         retryFeedback: "Chưa đúng. Ba chỗ AKI hay sai nhất là số liệu, ngày tháng và tên người.",
-        visualUrl: "/assets/aiki-rules/rule7_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule7_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 8,
     code: 'QT8',
-    title: 'Nếu AIKI làm chưa tốt, con hãy thử sửa mô tả, đừng chỉ bấm nhé!',
+    title: 'Nếu AKI làm chưa tốt, cậu hãy thử sửa mô tả, đừng chỉ bấm nhé!',
     shortTitle: 'Sửa câu mô tả, đừng bấm lại trong vô vọng',
     goal: 'Bí quyết của con: Khi kết quả chưa như ý, hãy sửa lại câu mô tả thật chi tiết chứ đừng chỉ bấm nút tạo lại!',
     skill: 'Khi tranh chưa đúng ý, thực hiện 3 bước: Gọi tên chỗ chưa đúng, tìm chi tiết thiếu và viết thêm miêu tả!',
@@ -642,37 +614,33 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "Mimi bấm bảy lần rồi mà AKI vẫn ra sai con mèo. Bấm tiếp lần thứ tám thì có ra đúng không?",
         options: [
           "Có chứ, bấm mãi rồi cũng ra",
-          "Không đâu — bấm lại nghĩa là hỏi AKI y hệt câu cũ",
+          "Không đâu — bấm lại nghĩa là hỏi AKI y hệt câu cũ"
         ],
         correctIndex: 1,
-        hint: "Cùng một câu mô tả cũ thì AI sẽ cho ra kết quả tương tự, cần sửa lại câu lệnh!",
+        hint: "Ghi nhớ Quy tắc 8: Nếu AKI làm chưa tốt, cậu hãy thử sửa mô tả, đừng chỉ bấm nhé!",
         successFeedback: "Đúng! Câu hỏi không đổi thì câu trả lời cũng thế thôi.",
         retryFeedback: "Chưa đúng nhé. Bấm lại là hỏi lại đúng câu cũ, nên AKI vẫn trả lời y như vậy.",
-        visualUrl: "/assets/aiki-rules/rule8_q1_clay.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule8_opt_a.webp",
-          "/assets/aiki-rules/rule8_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule8_superhero_dad.webp"
       },
       {
         id: "q8-2",
         prompt: "Khi AKI làm chưa đúng, ba bước sửa là gì?",
         options: [
           "Bấm lại — đợi một lúc — bấm tiếp",
-          "Gọi tên chỗ sai — tìm chỗ thiếu trong câu tả — viết thêm rồi mới tạo",
+          "Gọi tên chỗ sai — tìm chỗ thiếu trong câu tả — viết thêm rồi mới tạo"
         ],
         correctIndex: 1,
-        hint: "Bí quyết sửa câu lệnh: Nhận biết chỗ chưa đúng, bổ sung chi tiết rõ ràng rồi mới tạo lại!",
+        hint: "Ghi nhớ Quy tắc 8: Nếu AKI làm chưa tốt, cậu hãy thử sửa mô tả, đừng chỉ bấm nhé!",
         successFeedback: "Chính xác! “Dễ thương” có cả triệu kiểu, còn “tai trái bị rách” thì chỉ có đúng một.",
         retryFeedback: "Chưa đúng. Ba bước là: gọi tên chỗ sai, tìm chỗ thiếu trong câu tả, viết thêm rồi mới bấm tạo.",
-        visualUrl: "/assets/aiki-rules/rule8_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule8_superhero_dad.webp"
+      }
     ],
   },
   {
     id: 9,
     code: 'QT9',
-    title: 'Hãy luôn kiểm tra và đọc kỹ lại những gì AIKI viết ra!',
+    title: 'Hãy luôn kiểm tra và đọc kỹ lại những gì AKI viết ra!',
     shortTitle: 'Đọc to thành tiếng trước khi in ấn',
     goal: 'Bí quyết của con: Luôn đọc to thành tiếng những gì AIKI viết ra trước khi đem in hoặc nộp bài!',
     skill: 'Khi chuẩn bị hoàn thành sản phẩm, con hãy đọc to từng chữ để đôi tai giúp con bắt lỗi chính tả nhé!',
@@ -724,17 +692,13 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "Tấm băng rôn in nhầm chữ VIỆT NEM. Ai mới là người phải đọc lại những gì AKI viết ra?",
         options: [
           "AKI",
-          "Chính các bạn nhỏ",
+          "Chính các bạn nhỏ"
         ],
         correctIndex: 1,
-        hint: "Người làm chủ tác phẩm chính là người kiểm duyệt cuối cùng trước khi in ấn!",
+        hint: "Ghi nhớ Quy tắc 9: Hãy luôn kiểm tra và đọc kỹ lại những gì AKI viết ra!",
         successFeedback: "Đúng rồi! AKI viết nhanh nên cũng gõ nhầm — người dùng phải đọc lại.",
         retryFeedback: "Chưa đúng nhé. AKI đâu biết tên trường, tên cô của con viết thế nào — con mới là người đọc lại.",
-        visualUrl: "/assets/aiki-rules/rule9_read_aloud.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule9_opt_a.webp",
-          "/assets/aiki-rules/rule9_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule9_read_aloud.webp"
       },
       {
         id: "q9-2",
@@ -742,20 +706,20 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         options: [
           "Vì đọc to thì nhanh hơn",
           "Vì đọc thầm thì mắt tự đoán và bỏ qua chỗ sai, còn đọc to thì tai bắt được ngay",
-          "Vì đọc to thì AKI nghe thấy",
+          "Vì đọc to thì AKI nghe thấy"
         ],
         correctIndex: 1,
-        hint: "Khi đọc to thành tiếng, đôi tai sẽ giúp con phát hiện ngay những chỗ phát âm kỳ lạ!",
+        hint: "Ghi nhớ Quy tắc 9: Hãy luôn kiểm tra và đọc kỹ lại những gì AKI viết ra!",
         successFeedback: "Chuẩn! Đọc TO một lượt trước khi in hoặc gửi đi.",
         retryFeedback: "Chưa đúng. Mắt đọc thầm hay tự đoán rồi lướt qua chỗ sai; đọc to lên thì cái tai sẽ bắt được.",
-        visualUrl: "/assets/aiki-rules/rule9_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule9_q2_clay.webp"
+      }
     ],
   },
   {
     id: 10,
     code: 'QT10',
-    title: 'Bài tập ở trường là của con, đừng bắt AIKI phải làm nhé!',
+    title: 'Bài tập ở trường là của cậu, đừng bắt AKI phải làm nhé!',
     shortTitle: 'Nhờ giảng thì được, nhờ làm hộ thì không',
     goal: 'Bí quyết của con: Nhờ bạn mèo AIKI giảng bài cho con hiểu thì rất tuyệt, nhưng tuyệt đối không nhờ làm bài tập hộ con nhé!',
     skill: 'Khi gặp bài khó, con hãy hỏi "AIKI giảng cho con cách làm nhé" để bộ não của con ngày càng thông minh!',
@@ -807,31 +771,27 @@ export const AIKI_RULES_DATA: AikiRule[] = [
         prompt: "Zico nhờ AKI làm hộ bài về nhà, được mười điểm. Hôm sau đi kiểm tra, Zico có làm được không?",
         options: [
           "Làm được chứ",
-          "Không làm được — vì hôm ấy AKI đâu có ngồi cạnh",
+          "Không làm được — vì hôm ấy AKI đâu có ngồi cạnh"
         ],
         correctIndex: 1,
-        hint: "Nếu để người khác làm hộ bài tập thì kiến thức không vào đầu của mình được!",
+        hint: "Ghi nhớ Quy tắc 10: Bài tập ở trường là của cậu, đừng bắt AKI phải làm nhé!",
         successFeedback: "Đúng! Làm hộ thì tờ giấy được điểm, còn cái đầu vẫn chưa hiểu.",
         retryFeedback: "Chưa đúng nhé. Bài tập giống tập thể dục — có người tập hộ thì mình đâu có cao lên được.",
-        visualUrl: "/assets/aiki-rules/rule10_opt_a.webp",
-        optionImages: [
-          "/assets/aiki-rules/rule10_opt_a.webp",
-          "/assets/aiki-rules/rule10_opt_b.webp",
-        ],
+        visualUrl: "/assets/aiki-rules/rule10_opt_a.webp"
       },
       {
         id: "q10-2",
         prompt: "Nhờ AKI kiểu nào thì được?",
         options: [
           "AKI làm hộ tớ bài này",
-          "AKI giảng cho tớ hiểu vì sao 7 cộng 5 bằng 12",
+          "AKI giảng cho tớ hiểu vì sao 7 cộng 5 bằng 12"
         ],
         correctIndex: 1,
-        hint: "Hãy nhờ AI giảng giải phương pháp để tự con làm chủ kiến thức nhé!",
+        hint: "Ghi nhớ Quy tắc 10: Bài tập ở trường là của cậu, đừng bắt AKI phải làm nhé!",
         successFeedback: "Chính xác! Nhờ GIẢNG thì được, nhờ LÀM HỘ thì không.",
         retryFeedback: "Chưa đúng. Nhờ làm hộ thì con vẫn không hiểu; nhờ giảng thì con tự làm được.",
-        visualUrl: "/assets/aiki-rules/rule10_q2_clay.webp",
-      },
+        visualUrl: "/assets/aiki-rules/rule10_q2_clay.webp"
+      }
     ],
   },
 ]

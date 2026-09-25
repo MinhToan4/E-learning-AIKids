@@ -25,6 +25,13 @@ export const designerAssets = {
     celebrate: '/assets/aikid-ui/mascot-original/world-celebrate.webp',
     support: '/assets/aikid-ui/mascot-original/course-wave.webp',
   },
+  icons3d: {
+    book: '/assets/icons/3d/book.jpg',
+    trophy: '/assets/icons/3d/trophy.jpg',
+    palette: '/assets/icons/3d/palette.jpg',
+    robot: '/assets/icons/3d/robot.jpg',
+    clapper: '/assets/icons/3d/clapper.jpg',
+  },
   companions: {
     cloud: '/assets/designer/companions/paco-cloud-companion.png',
     leaf: '/assets/designer/companions/paco-leaf-companion.png',

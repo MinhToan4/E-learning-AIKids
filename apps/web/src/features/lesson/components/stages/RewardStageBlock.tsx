@@ -1,5 +1,5 @@
 import React from 'react'
-import { Award, BookOpen, CheckCircle2, Trophy, Sparkles, Star } from 'lucide-react'
+import { Award, BookOpen, CheckCircle2, Sparkles, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, RewardStageConfig } from '../../types/stage-schema'
@@ -12,7 +12,7 @@ export interface RewardStageBlockProps {
   effectiveRewardXp?: number
   onNavigateNextLesson?: (nextSlug: string) => void
   onBackToMap?: () => void
-  onFinishLesson?: (summary: LessonCompletionSummary) => void
+  onFinishLesson?: (summary: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onImageClick?: (image: { url: string; title: string; fallbackUrl?: string }) => void
   onOpenCertificate?: () => void
   onOpenCourse?: () => void
@@ -42,6 +42,20 @@ export function RewardStageBlock({
 
   const [displayedSrc, setDisplayedSrc] = React.useState<string>(targetArtworkUrl)
 
+  const finishThenNavigate = (
+    summary: LessonCompletionSummary,
+    navigate: () => void,
+  ) => {
+    const result = onFinishLesson?.(summary)
+    if (result instanceof Promise) {
+      void result.then((saved) => {
+        if (saved !== false) navigate()
+      })
+      return
+    }
+    if (result !== false) navigate()
+  }
+
   React.useEffect(() => {
     setDisplayedSrc(targetArtworkUrl)
   }, [targetArtworkUrl])
@@ -65,7 +79,7 @@ export function RewardStageBlock({
   return (
     <section
       data-testid="stage-5-completion"
-      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border-2 border-brand-100 bg-white p-3.5 sm:p-5 lg:p-6 pb-28 sm:pb-8 shadow-clay animate-fade-up overflow-y-auto"
+      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 lg:p-6 pb-28 sm:pb-8 shadow-xs animate-fade-up overflow-y-auto"
     >
       <div className="grid w-full max-w-full grid-cols-1 items-center gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
         {/* CỘT TRÁI (md:col-span-1 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
@@ -83,7 +97,7 @@ export function RewardStageBlock({
 
           {/* Khung ảnh to, sắc nét chuẩn tỷ lệ 4:3 */}
           <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
-            <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
+            <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-2 border-amber-300 bg-amber-100/40 shadow-xs sm:rounded-3xl">
               <img
                 loading="lazy"
                 decoding="async"
@@ -99,7 +113,7 @@ export function RewardStageBlock({
                 className="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
                 title="Xem ảnh phóng to"
               >
-                <span>🔍 Phóng to</span>
+                <span>Phóng to</span>
               </button>
             </div>
           </div>
@@ -113,8 +127,7 @@ export function RewardStageBlock({
 
         {/* CỘT PHẢI (md:col-span-1 lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Các nút điều hướng */}
         <div className="flex flex-col justify-center gap-2.5 sm:gap-3.5 text-center md:col-span-1 lg:col-span-6 lg:h-full lg:text-left min-w-0 max-w-full">
-          <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start shrink-0 max-w-full">
-            <Trophy size={13} className="text-amber-600 shrink-0" />
+          <div className="inline-flex items-center self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start shrink-0 max-w-full">
             <span>Chặng 6: Hoàn thành bài học</span>
           </div>
 
@@ -166,64 +179,54 @@ export function RewardStageBlock({
           {/* Cụm Nút điều hướng kết thúc */}
           <div className="flex flex-col gap-2 sm:gap-2.5 w-full pt-1">
             {config?.nextLessonSlug && onNavigateNextLesson ? (
-              <Button
-                variant="primary"
-                className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
+              <button
+                type="button"
+                className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
                 onClick={() => {
-                  try {
-                    if (config?.nextLessonSlug) {
-                      localStorage.removeItem(`aikids_lesson_stage_${config.nextLessonSlug}`)
-                      localStorage.removeItem(`aikids_lesson_completed_stages_${config.nextLessonSlug}`)
-                    }
-                  } catch {}
-                  onFinishLesson?.({
+                  finishThenNavigate({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
                     nextLessonSlug: config?.nextLessonSlug,
-                  })
-                  if (config?.nextLessonSlug) {
-                    onNavigateNextLesson(config.nextLessonSlug)
-                  }
+                  }, () => onNavigateNextLesson(config.nextLessonSlug!))
                 }}
               >
-                <span>👉 Khám Phá Bài Tiếp Theo 🚀</span>
-              </Button>
+                <span>Khám phá bài tiếp theo</span>
+              </button>
             ) : null}
 
             {onOpenCertificate && (isFinalStation ?? !config?.nextLessonSlug) && (
-              <Button
-                variant="primary"
-                className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-amber-600 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white flex items-center justify-center gap-2 cursor-pointer"
+              <button
+                type="button"
+                className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
                 onClick={onOpenCertificate}
               >
-                <span>📜 Nhận Chứng Chỉ Hoàn Thành Khóa Học 🎓</span>
-              </Button>
+                <span>Nhận chứng chỉ hoàn thành khóa học</span>
+              </button>
             )}
 
             {onOpenCourse && (isFinalStation ?? !config?.nextLessonSlug) && (
-              <Button
-                variant="primary"
-                className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
+              <button
+                type="button"
+                className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
                 onClick={onOpenCourse}
               >
                 <BookOpen size={18} aria-hidden="true" />
                 <span>Sang khu khóa học</span>
-              </Button>
+              </button>
             )}
 
             {onBackToMap && (
               <Button
                 variant="secondary"
-                className="w-full py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full min-h-[44px] py-2.5 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5"
                 onClick={() => {
-                  onFinishLesson?.({
+                  finishThenNavigate({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
-                  })
-                  onBackToMap()
+                  }, onBackToMap)
                 }}
               >
-                <span>🗺️ Quay Về Bản Đồ Đảo</span>
+                <span>Quay về bản đồ đảo</span>
               </Button>
             )}
           </div>

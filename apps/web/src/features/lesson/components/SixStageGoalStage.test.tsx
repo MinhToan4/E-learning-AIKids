@@ -102,7 +102,7 @@ describe('SixStageGoalStage', () => {
 
     // Next button
     const btn = container.querySelector('button')
-    expect(btn?.textContent).toContain('👉 Đã hiểu mục tiêu! Đi tiếp nào ✨')
+    expect(btn?.textContent).toContain('Đã hiểu mục tiêu! Đi tiếp nào')
     act(() => {
       btn?.click()
     })

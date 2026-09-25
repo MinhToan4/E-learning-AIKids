@@ -21,8 +21,6 @@ type ProgressionResponse = Partial<Omit<ProgressionSnapshot, 'playerId'>> & {
   level: number
 }
 
-const CACHE_PREFIX = 'aiki.progression.v1.'
-
 export function progressionQueryKey(userId: string) {
   return ['progression', userId] as const
 }
@@ -89,31 +87,6 @@ function requireProgressionResponse(value: unknown, source: string): Progression
   }
 }
 
-export function readProgressionSnapshot(user: User | null): ProgressionSnapshot | undefined {
-  if (!user || typeof window === 'undefined') return undefined
-  try {
-    const raw = localStorage.getItem(`${CACHE_PREFIX}${user.id}`)
-    if (raw) {
-      const cached = requireProgressionResponse(JSON.parse(raw), 'browser-cache')
-      return normalizeProgression(user.id, cached)
-    }
-  } catch {}
-
-  const totalXp = Math.max(0, user.xp || 0)
-  const level = Math.max(1, user.level || 1)
-  return normalizeProgression(user.id, { totalXp, level, version: 0 })
-}
-
-export function persistProgressionSnapshot(snapshot: ProgressionSnapshot): void {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.setItem(`${CACHE_PREFIX}${snapshot.playerId}`, JSON.stringify(snapshot))
-    // Compatibility while legacy surfaces are migrated.
-    localStorage.setItem('aiki_last_known_xp', String(snapshot.totalXp))
-    localStorage.setItem('aiki_last_known_level', String(snapshot.level))
-  } catch {}
-}
-
 export async function fetchProgressionSnapshot(userId: string): Promise<ProgressionSnapshot> {
   let response: unknown
   let source = 'progression-projection'
@@ -128,7 +101,6 @@ export async function fetchProgressionSnapshot(userId: string): Promise<Progress
     }
   }
   const snapshot = normalizeProgression(userId, requireProgressionResponse(response, source))
-  persistProgressionSnapshot(snapshot)
   const currentUser = useAuth.getState().user
   if (currentUser?.id === userId &&
       (currentUser.xp !== snapshot.totalXp || currentUser.level !== snapshot.level)) {
@@ -141,7 +113,7 @@ export function prefetchProgression(userId: string): Promise<ProgressionSnapshot
   return appQueryClient.fetchQuery({
     queryKey: progressionQueryKey(userId),
     queryFn: () => fetchProgressionSnapshot(userId),
-    staleTime: 60_000,
+    staleTime: 0,
   })
 }
 
@@ -152,26 +124,7 @@ export function setProgressionSnapshot(
 ): ProgressionSnapshot {
   const snapshot = normalizeProgression(userId, value)
   client.setQueryData(progressionQueryKey(userId), snapshot)
-  persistProgressionSnapshot(snapshot)
   return snapshot
-}
-
-export function applyConfirmedXpDelta(
-  client: QueryClient,
-  user: User,
-  earnedXp: number,
-): ProgressionSnapshot {
-  const current = client.getQueryData<ProgressionSnapshot>(progressionQueryKey(user.id))
-    ?? readProgressionSnapshot(user)
-    ?? normalizeProgression(user.id, { totalXp: user.xp, level: user.level })
-  const totalXp = current.totalXp + Math.max(0, earnedXp)
-  const level = Math.max(current.level, Math.floor(totalXp / 100) + 1)
-  return setProgressionSnapshot(client, user.id, {
-    totalXp,
-    level,
-    version: current.version + 1,
-    updatedAt: new Date().toISOString(),
-  })
 }
 
 export function useProgression(user: User | null) {
@@ -181,8 +134,8 @@ export function useProgression(user: User | null) {
     queryKey: progressionQueryKey(userId ?? 'anonymous'),
     queryFn: () => fetchProgressionSnapshot(userId!),
     enabled: Boolean(userId),
-    initialData: () => readProgressionSnapshot(user),
-    initialDataUpdatedAt: 0,
+    staleTime: 0,
+    refetchOnMount: 'always',
   }, client)
 
   useEffect(() => {

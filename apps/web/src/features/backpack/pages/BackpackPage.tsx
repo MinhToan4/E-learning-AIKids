@@ -389,83 +389,25 @@ export function BackpackPage() {
   const { data: progression } = useProgression(user)
   const progressionLevelRef = useRef(progression?.level ?? user?.level ?? 1)
   progressionLevelRef.current = progression?.level ?? user?.level ?? 1
-  const snapshotKey = `aiki_backpack_cache_snapshot.${user?.id ?? 'guest'}`
   const [equipment, setEquipment] = useState<RewardEquipment>(() => readRewardEquipment(user?.id ?? 'guest'))
 
   useEffect(() => {
     const handleEquipmentChange = () => setEquipment(readRewardEquipment(user?.id ?? 'guest'))
     window.addEventListener('aikids:reward-equipped', handleEquipmentChange)
-    window.addEventListener('storage', handleEquipmentChange)
     return () => {
       window.removeEventListener('aikids:reward-equipped', handleEquipmentChange)
-      window.removeEventListener('storage', handleEquipmentChange)
     }
   }, [user?.id])
 
-  const [assets, setAssets] = useState<Asset[]>(() => {
-    try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
-      if (snap) {
-        const parsed = JSON.parse(snap)
-        return parsed.assets || []
-      }
-    } catch {}
-    return []
-  })
+  const [assets, setAssets] = useState<Asset[]>([])
 
-  const [projects, setProjects] = useState<Project[]>(() => {
-    try {
-      let merged: Project[] = []
-      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
-      if (snap) merged = JSON.parse(snap).projects || []
+  const [projects, setProjects] = useState<Project[]>(() =>
+    readLocalBackpackWorks().filter((project) => !isRawInternalFile(project.title)),
+  )
 
-      const localWorks = readLocalBackpackWorks()
-      merged = [...localWorks, ...merged.filter((rp) => !localWorks.some((lp) => lp.id === rp.id))]
-      return merged.filter((p) => !isRawInternalFile(p.title))
-    } catch {}
-    return []
-  })
+  const [rewards, setRewards] = useState<GamificationReward[]>([])
 
-  const [rewards, setRewards] = useState<GamificationReward[]>(() => {
-    try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
-      if (snap) {
-        const parsed = JSON.parse(snap)
-        if (parsed.rewards && parsed.rewards.length > 0) return parsed.rewards
-      }
-    } catch {}
-
-    const savedLevel = typeof window !== 'undefined' ? Number(localStorage.getItem('aiki_last_known_level')) : undefined
-    const initialLevel = Math.max(user?.level ?? 1, savedLevel || 1)
-    const baseCatalog: GamificationReward[] = (REWARD_CATALOG || []).map((item) => ({
-      code: item.id,
-      name: item.name,
-      description: item.description,
-      kind: item.kind,
-      displayConfig: { icon: item.icon },
-      unlock: item.unlock,
-      assets: {
-        assetId: item.id,
-        primary: { assetId: item.id, variant: 'primary' as const },
-        thumbnail: { assetId: item.id, variant: 'thumbnail' as const, format: 'webp' as const },
-      },
-    }))
-
-    return baseCatalog.filter((item) => {
-      if (item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number') {
-        return item.unlock.value <= initialLevel
-      }
-      return false
-    })
-  })
-
-  const [achievements, setAchievements] = useState<AchievementRow[]>(() => {
-    try {
-      const snap = typeof window !== 'undefined' ? localStorage.getItem(snapshotKey) : null
-      return snap ? JSON.parse(snap).achievements || [] : []
-    } catch {}
-    return []
-  })
+  const [achievements, setAchievements] = useState<AchievementRow[]>([])
 
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -480,16 +422,6 @@ export function BackpackPage() {
 
   const [selectedItem, setSelectedItem] = useState<Project | Asset | GamificationReward | null>(null)
   const loadedSections = useRef(new Set<BackpackSection>())
-
-  const writeSnapshot = useCallback((patch: Record<string, unknown>) => {
-    try {
-      const current = localStorage.getItem(snapshotKey)
-      localStorage.setItem(snapshotKey, JSON.stringify({
-        ...(current ? JSON.parse(current) : {}),
-        ...patch,
-      }))
-    } catch {}
-  }, [snapshotKey])
 
   const loadCreations = useCallback(async () => {
     if (loadedSections.current.has('creations')) return
@@ -509,7 +441,6 @@ export function BackpackPage() {
       ].filter((project) => !isRawInternalFile(project.title))
       setAssets(remoteAssets)
       setProjects(mergedProjects)
-      writeSnapshot({ assets: remoteAssets, projects: mergedProjects })
       loadedSections.current.add('creations')
     } catch {
       if (projects.length === 0) setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
@@ -517,7 +448,7 @@ export function BackpackPage() {
       setLoading(false)
       setSyncing(false)
     }
-  }, [assets.length, projects.length, writeSnapshot])
+  }, [assets.length, projects.length])
 
   const loadAchievements = useCallback(async () => {
     if (loadedSections.current.has('achievements')) return
@@ -526,14 +457,13 @@ export function BackpackPage() {
       const result = await fetchWithTimeout(api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'))
       const unlocked = result.achievements?.filter((achievement) => achievement.unlocked) ?? []
       setAchievements(unlocked)
-      writeSnapshot({ achievements: unlocked })
       loadedSections.current.add('achievements')
     } catch {
       if (achievements.length === 0) setError('Huy hiệu chưa tải được. Con thử lại nhé.')
     } finally {
       setSyncing(false)
     }
-  }, [achievements.length, writeSnapshot])
+  }, [achievements.length])
 
   const loadTreasures = useCallback(async () => {
     if (loadedSections.current.has('treasures')) return
@@ -543,8 +473,7 @@ export function BackpackPage() {
         fetchWithTimeout(api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook')),
         fetchWithTimeout(api<{ items: GamificationReward[] }>('/api/gamification/catalog?type=reward')),
       ])
-      const savedLevel = Number(localStorage.getItem('aiki_last_known_level'))
-      const level = Math.max(progressionLevelRef.current, savedLevel || 1)
+      const level = progressionLevelRef.current
       const owned = new Set((inventory.inventory ?? []).map((item) => item.rewardId))
       const localCatalog: GamificationReward[] = REWARD_CATALOG.map((item) => ({
         code: item.id,
@@ -565,14 +494,13 @@ export function BackpackPage() {
         item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number' && item.unlock.value <= level
       ))
       setRewards(nextRewards)
-      writeSnapshot({ rewards: nextRewards })
       loadedSections.current.add('treasures')
     } catch {
       if (rewards.length === 0) setError('Bảo bối chưa tải được. Con thử lại nhé.')
     } finally {
       setSyncing(false)
     }
-  }, [rewards.length, writeSnapshot])
+  }, [rewards.length])
 
   useEffect(() => { void loadCreations() }, [loadCreations])
 

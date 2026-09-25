@@ -104,7 +104,6 @@ describe('resolveExactComboImage (Trạm 1: Mèo Mướp)', () => {
     expect(typeof img).toBe('string')
   })
 })
-
 describe('resolveExactComboImage (Bài 1.2: Cốc Sứ Trắng)', () => {
   it('Level 1: Trả về ảnh 1 từ ngơ ngác khi chọn Cốc Sứ Trắng', () => {
     const img = resolveExactComboImage({
@@ -291,6 +290,76 @@ describe('resolveExactComboImage (Bài 1.2: Cuốn Sổ Tay Bìa Da)', () => {
     })
     expect(img).toBe(
       '/assets/pregenerated-combos/notebook/combo__sub-so-tay__cs-note-day-do__act-note-lap-lanh__ctx-note-tach-tra.webp'
+    )
+  })
+})
+
+describe('resolveExactComboImage (Bài 1.2: Chiếc Đồng Hồ Cổ Điển)', () => {
+  it('Level 1: Trả về ảnh 1 từ ngơ ngác khi chọn Chiếc Đồng Hồ', () => {
+    const img = resolveExactComboImage({
+      blockIds: ['sub-dong-ho'],
+      prompt: 'Chiếc đồng hồ để bàn',
+    })
+    expect(img).toBe('/assets/pregenerated-combos/clock/combo__sub-dong-ho.webp')
+  })
+
+  it('Level 2: Trả về ảnh 2 khóa khi chọn Đồng Hồ + Vỏ gỗ mun cổ kính', () => {
+    const img = resolveExactComboImage({
+      blockIds: ['sub-dong-ho', 'cs-clk-vo-go'],
+      prompt: 'Chiếc đồng hồ vỏ gỗ mun cổ kính',
+    })
+    expect(img).toBe(
+      '/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go.webp'
+    )
+  })
+
+  it('Level 2: Trả về ảnh 2 khóa khi chọn Đồng Hồ + Kim uốn lượn', () => {
+    const img = resolveExactComboImage({
+      blockIds: ['sub-dong-ho', 'cs-clk-kim-dong-ho'],
+      prompt: 'Chiếc đồng hồ kim uốn lượn quý tộc',
+    })
+    expect(img).toBe(
+      '/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho.webp'
+    )
+  })
+
+  it('Level 3: Trả về ảnh 3 khóa khi chọn Đồng Hồ + Vỏ gỗ mun + Điểm chuông ngân', () => {
+    const img = resolveExactComboImage({
+      blockIds: ['sub-dong-ho', 'cs-clk-vo-go', 'act-clk-diem-chuong'],
+      prompt: 'Chiếc đồng hồ vỏ gỗ mun đang điểm chuông ngân',
+    })
+    expect(img).toBe(
+      '/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong.webp'
+    )
+  })
+
+  it('Level 4: Trả về ảnh 4 khóa chuẩn xác khi chọn đủ 4 chìa khóa (Đồng hồ + Vỏ gỗ + Điểm chuông + Lò sưởi)', () => {
+    const img = resolveExactComboImage({
+      blockIds: [
+        'sub-dong-ho',
+        'cs-clk-vo-go',
+        'act-clk-diem-chuong',
+        'ctx-clk-lo-suoi',
+      ],
+      prompt: 'Chiếc đồng hồ vỏ gỗ mun điểm chuông ngân trên lò sưởi ấm áp',
+    })
+    expect(img).toBe(
+      '/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-vo-go__act-clk-diem-chuong__ctx-clk-lo-suoi.webp'
+    )
+  })
+
+  it('Level 4: Trả về ảnh 4 khóa cho Kim đồng hồ + Tích tắc đếm giây + Kệ sách', () => {
+    const img = resolveExactComboImage({
+      blockIds: [
+        'sub-dong-ho',
+        'cs-clk-kim-dong-ho',
+        'act-clk-tich-tac',
+        'ctx-clk-ke-sach',
+      ],
+      prompt: 'Chiếc đồng hồ kim tích tắc đếm từng giây trên kệ sách',
+    })
+    expect(img).toBe(
+      '/assets/pregenerated-combos/clock/combo__sub-dong-ho__cs-clk-kim-dong-ho__act-clk-tich-tac__ctx-clk-ke-sach.webp'
     )
   })
 })

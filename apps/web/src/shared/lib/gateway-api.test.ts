@@ -179,6 +179,32 @@ describe('StoryMee Gateway adapter', () => {
     expect(unauthorized).toHaveBeenCalledOnce()
   })
 
+  it('does not let a late parent 401 clear a newly issued child session', async () => {
+    setAccessToken('parent-storymee-jwt')
+    const unauthorized = vi.fn()
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+
+    let resolveParentRequest!: (value: Response) => void
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(
+      () => new Promise<Response>((resolve) => {
+        resolveParentRequest = resolve
+      }),
+    ))
+
+    const staleParentRequest = api('/api/parent/children')
+    await vi.waitFor(() => expect(resolveParentRequest).toBeTypeOf('function'))
+
+    // Selecting a child replaces the parent token before older page requests
+    // have necessarily settled.
+    setAccessToken('child-storymee-jwt')
+    resolveParentRequest(response({ error: 'Consumer JWT required' }, 401))
+
+    await expect(staleParentRequest).rejects.toMatchObject({ status: 401 })
+    expect(getAccessToken()).toBe('child-storymee-jwt')
+    expect(unauthorized).not.toHaveBeenCalled()
+    window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+  })
+
   it('downloads binary files with bearer auth and without browser credentials', async () => {
     setAccessToken('storymee-jwt')
     const fetchMock = vi.fn().mockResolvedValue(
@@ -1285,4 +1311,3 @@ describe('StoryMee Gateway adapter', () => {
     })
   })
 })
-

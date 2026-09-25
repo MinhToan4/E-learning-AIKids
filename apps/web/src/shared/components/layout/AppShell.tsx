@@ -201,10 +201,10 @@ const studentNav: StudentNavItem[] = [
 
 // ── Universal Floating Bottom Dock items (học sinh) ───────────
 const STUDENT_DOCK_ITEMS: RoleNavItem[] = [
-  { to: '/home', label: 'Trang chủ', icon: KidHomeImageIcon, end: true },
-  { to: '/world', label: 'Học tập', icon: KidWorldImageIcon },
-  { to: '/creative', label: 'Sáng tạo', icon: KidCreativeImageIcon },
-  { to: '/progress', label: 'Tiến độ', icon: KidProgressImageIcon },
+  { to: '/home', label: 'Phiêu lưu', icon: KidHomeImageIcon, end: true },
+  { to: '/world', label: 'Thư viện', icon: KidWorldImageIcon },
+  { to: '/creative', label: 'Yêu thích', icon: KidCreativeImageIcon },
+  { to: '/profile', label: 'Cá nhân', icon: KidProfileImageIcon },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -875,9 +875,11 @@ export function AppShell() {
       </div>
 
       {isLessonOrRule ? (
-        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
-          <RouteOutlet />
-        </main>
+        <div className="w-full flex-1 min-h-0 flex justify-center overflow-hidden">
+          <main className="flex-1 min-h-0 w-full max-w-[1024px] mx-auto px-2 sm:px-4 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
+            <RouteOutlet />
+          </main>
+        </div>
       ) : (
         <div className="w-full flex justify-center">
           <main className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 pb-28">
@@ -890,9 +892,9 @@ export function AppShell() {
       {!isLessonOrRule && (
         <nav
           aria-label="Floating Navigation Dock"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all w-full max-w-sm sm:max-w-md px-4 pointer-events-none"
         >
-          <div className="student-floating-dock px-4 py-2 rounded-full bg-[#18181b] text-white flex items-center gap-2 shadow-2xl backdrop-blur-md">
+          <div className="student-floating-dock bg-white/95 backdrop-blur-md rounded-full px-6 py-2.5 flex items-center justify-between sm:justify-around shadow-2xl border border-slate-200/80 max-w-sm sm:max-w-md mx-auto pointer-events-auto">
             {STUDENT_DOCK_ITEMS.map(({ to, label, icon: Icon }) => {
               const isItemActive =
                 to === '/home'
@@ -913,14 +915,29 @@ export function AppShell() {
                   onPointerEnter={() => prefetchRoute(to)}
                   onFocus={() => prefetchRoute(to)}
                   className={cn(
-                    'student-floating-tab w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95',
-                    isItemActive && 'active'
+                    'student-floating-tab flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-2xl cursor-pointer transition-all active:scale-95 text-slate-400 font-bold',
+                    isItemActive ? 'active text-[#7c3aed] font-black' : 'hover:text-slate-600'
                   )}
                   data-active={isItemActive}
                   title={label}
                   aria-label={label}
                 >
-                  <Icon size={28} />
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+                      isItemActive ? 'bg-[#f3e8ff]' : 'bg-transparent'
+                    )}
+                  >
+                    <Icon size={22} className={isItemActive ? 'text-[#7c3aed]' : 'text-slate-400'} />
+                  </div>
+                  <span
+                    className={cn(
+                      'text-[10px] tracking-tight',
+                      isItemActive ? 'text-[#7c3aed] font-black' : 'text-slate-400 font-bold'
+                    )}
+                  >
+                    {label}
+                  </span>
                 </NavLink>
               )
             })}

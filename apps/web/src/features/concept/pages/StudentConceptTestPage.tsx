@@ -34,13 +34,13 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode)
   const [showInfoBanner, setShowInfoBanner] = useState<boolean>(true)
   const [showReviewerBar, setShowReviewerBar] = useState<boolean>(true)
-  const [selectedIslandId, setSelectedIslandId] = useState<string>('dao-2')
+  const [selectedIslandId, setSelectedIslandId] = useState<string>('dao-1')
 
-  const currentIsland = ISLANDS_DATA.find((i) => i.id === selectedIslandId) || ISLANDS_DATA[1]
+  const currentIsland = ISLANDS_DATA.find((i) => i.id === selectedIslandId) || ISLANDS_DATA[0]
   const currentIslandTitle =
     selectedIslandId === 'dao-1'
-      ? 'Đảo 1: 10 Quy Tắc Vàng'
-      : `${currentIsland.number}: ${currentIsland.title}`
+      ? 'ĐẢO 1: ĐẢO TIÊN QUYẾT'
+      : 'ĐẢO 2: ĐẢO KHÁM PHÁ'
   const currentStationTitle =
     selectedIslandId === 'dao-1'
       ? 'Trạm 1: Nghĩ Ý Tưởng Trước Khi Hỏi AI'
@@ -273,11 +273,11 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                     }}
                     onOpenActivity={() => setActiveTab('progress')}
                     onContinueLesson={() => {
-                      setSelectedIslandId('dao-2')
+                      setSelectedIslandId('dao-1')
                       setActiveTab('lesson')
                     }}
                     onStartMission={() => {
-                      setSelectedIslandId('dao-2')
+                      setSelectedIslandId('dao-1')
                       setActiveTab('lesson')
                     }}
                   />
@@ -287,7 +287,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                     isMobileFrame={true}
                     onCardClick={(cardId) => {
                       if (cardId === 'islands' || cardId === 'next_station') {
-                        setSelectedIslandId('dao-2')
+                        setSelectedIslandId('dao-1')
                         setActiveTab('island_station')
                       } else {
                         setActiveTab('home')
@@ -311,6 +311,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                     isMobileFrame={true}
                     islandTitle={currentIslandTitle}
                     stationTitle={currentStationTitle}
+                    initialTrack={selectedIslandId === 'dao-2' ? 'course_studio' : 'rules'}
                     onBackToRoadmap={() => setActiveTab('island_station')}
                     onCompleteStation={() => {
                       setActiveTab('island_station')
@@ -349,11 +350,11 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                   }}
                   onOpenActivity={() => setActiveTab('progress')}
                   onContinueLesson={() => {
-                    setSelectedIslandId('dao-2')
+                    setSelectedIslandId('dao-1')
                     setActiveTab('lesson')
                   }}
                   onStartMission={() => {
-                    setSelectedIslandId('dao-2')
+                    setSelectedIslandId('dao-1')
                     setActiveTab('lesson')
                   }}
                 />
@@ -363,7 +364,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                   isMobileFrame={false}
                   onCardClick={(cardId) => {
                     if (cardId === 'islands' || cardId === 'next_station') {
-                      setSelectedIslandId('dao-2')
+                      setSelectedIslandId('dao-1')
                       setActiveTab('island_station')
                     } else {
                       setActiveTab('home')
@@ -387,6 +388,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                   isMobileFrame={false}
                   islandTitle={currentIslandTitle}
                   stationTitle={currentStationTitle}
+                  initialTrack={selectedIslandId === 'dao-2' ? 'course_studio' : 'rules'}
                   onBackToRoadmap={() => setActiveTab('island_station')}
                   onCompleteStation={() => {
                     setActiveTab('island_station')
@@ -403,7 +405,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
         aria-label="Floating Navigation Dock"
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all animate-bounce-subtle"
       >
-        <div className="student-floating-dock px-4 py-2.5 rounded-full bg-zinc-900/95 backdrop-blur-md shadow-[0_16px_36px_rgba(0,0,0,0.35)] border border-white/20 flex items-center gap-2.5">
+        <div className="student-floating-dock bg-white/95 backdrop-blur-md rounded-full px-5 py-2 flex items-center justify-between sm:justify-around shadow-2xl border border-slate-200/80 max-w-sm sm:max-w-md mx-auto">
           {/* Welcome Screen Tab */}
           <button
             type="button"
@@ -413,7 +415,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
             className="student-floating-tab w-13 h-13 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-90"
             title="Màn 1: Chào Mừng"
           >
-            <Sparkles className="w-6 h-6 text-purple-300" />
+            <Sparkles className="w-6 h-6 text-purple-600" />
           </button>
 
           {/* Home Screen Tab */}
@@ -465,13 +467,13 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
           </button>
 
           {/* Separator */}
-          <div className="w-px h-6 bg-zinc-700/60 mx-1" />
+          <div className="w-px h-6 bg-slate-200 mx-1" />
 
           {/* Nút chuyển chế độ xem 390px / Toàn màn hình */}
           <button
             type="button"
             onClick={() => setViewMode(viewMode === 'mobile' ? 'full' : 'mobile')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800/90 hover:bg-zinc-700 text-[11px] font-black text-zinc-200 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[11px] font-black text-slate-700 transition-all cursor-pointer border border-slate-200/80"
             title={viewMode === 'mobile' ? 'Chuyển sang Toàn màn hình' : 'Xem khung Mobile 390px'}
           >
             <Smartphone className="w-3.5 h-3.5 text-[#FD7D2E]" />

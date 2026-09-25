@@ -274,7 +274,7 @@ export function AikiRuleWorkspace({
                 )}
 
                 {/* Subtitle / Dialogue Bar */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-4 sm:p-5 text-center">
+                <div className="absolute inset-x-0 bottom-0 bg-black/80 backdrop-blur-xs p-4 sm:p-5 text-center">
                   <span className="inline-block rounded-full bg-brand-500/30 border border-brand-400/40 px-2.5 py-0.5 text-[11px] font-black text-white mb-1">
                     {currentSlide.stage} · {currentSlide.speaker}
                   </span>
@@ -318,7 +318,7 @@ export function AikiRuleWorkspace({
                     }}
                   >
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-brand-500 to-mint-500"
+                      className="h-full rounded-full bg-[#059669]"
                       style={{ width: `${(elapsedSec / rule.durationSec) * 100}%` }}
                     />
                   </div>
@@ -336,7 +336,7 @@ export function AikiRuleWorkspace({
                 <button
                   type="button"
                   onClick={handleReplayVideo}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border-2 border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-brand-300 shadow-2xs transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-brand-300 shadow-2xs transition-all cursor-pointer"
                 >
                   <RotateCcw size={14} />
                   <span>↺ Xem lại video</span>
@@ -346,7 +346,7 @@ export function AikiRuleWorkspace({
                   type="button"
                   onClick={handleReadRule}
                   disabled={isSpeaking}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border-2 border-brand-300 bg-brand-100 px-3.5 py-2 text-xs font-black text-brand-800 hover:bg-brand-200 shadow-2xs transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-brand-300 bg-brand-100 px-3.5 py-2 text-xs font-black text-brand-800 hover:bg-brand-200 shadow-2xs transition-all cursor-pointer"
                 >
                   <Mic size={14} />
                   <span>🎙️ Nghe AIKI đọc quy tắc</span>
@@ -363,7 +363,7 @@ export function AikiRuleWorkspace({
               CỘT PHẢI (~38%): TƯƠNG TÁC CÙNG AIKI
              ══════════════════════════════════════════════════════════ */}
           <div className="lg:col-span-5 xl:col-span-5">
-            <div className="rounded-3xl border-2 border-border bg-white p-5 sm:p-6 shadow-clay relative text-text">
+            <div className="rounded-3xl border border-border bg-white p-5 sm:p-6 shadow-clay clay-card-subtle [--clay-shadow:rgba(0,0,0,0.06)] relative text-text">
               {/* ──────────────────────────────────────────────────────────
                   TRẠNG THÁI 4: HOÀN THÀNH 2 CÂU (Ăn mừng, thưởng Poster)
                  ────────────────────────────────────────────────────────── */}
@@ -371,7 +371,7 @@ export function AikiRuleWorkspace({
                 <div className="space-y-6 py-2 text-center animate-pop">
                   {/* Pháo hoa chúc mừng */}
                   <div>
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-sun-400 to-coral-400 text-3xl shadow-clay animate-bounce">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f59e0b] text-3xl clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] animate-bounce">
                       🎉
                     </div>
                     <h2 className="mt-3 font-display text-2xl font-black text-text">

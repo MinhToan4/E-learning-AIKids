@@ -189,6 +189,54 @@ describe('LessonPage prefetch', () => {
     expect(container.querySelector('[data-testid="legacy-sidebar"]')).toBeNull()
   })
 
+  it('opens a friendly rule route with the authoritative LMS lesson id', async () => {
+    const authoritativeId = '0da9d441-43a0-4d00-84d7-e8f8958e2aad'
+    vi.spyOn(learningApi, 'getPathway').mockResolvedValue({
+      student: { nickname: 'Bo', ageBand: '8-10' },
+      policy: null,
+      recommendedCourseId: 'dao-1',
+      courses: [{
+        id: 'dao-1',
+        title: 'Mười quy tắc của Xưởng sáng tạo',
+        shortTitle: 'Đảo 1',
+        status: 'active',
+        reasonCode: 'manual_override',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: null,
+        enrolled: true,
+        enrollmentId: 'enrollment-bo',
+        stations: [{
+          id: authoritativeId,
+          slug: 'rule-1',
+          order: 1,
+          title: 'QT1 — Nghĩ ý tưởng trước khi hỏi AI',
+          skill: '', reward: '', duration: '52 giây', hook: '', accent: '#f59e0b', practiceKind: 'chips',
+          status: 'available', phase: 'learn', stars: 0, xpEarned: 0,
+        }],
+      }],
+    })
+    const openLessonSpy = vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
+      progress: { status: 'in_progress', phase: 'learn', stars: 0 },
+      quest: { id: authoritativeId } as import('@/shared/lib/api').QuestDetail,
+    })
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/dao-1/lesson/rule-1']}>
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    await vi.waitFor(() => expect(openLessonSpy).toHaveBeenCalledWith(authoritativeId))
+    expect(openLessonSpy).not.toHaveBeenCalledWith('rule-1')
+  })
+
   it('automatically normalizes raw UUID in URL to friendly /rule-2 slug (Kịch bản 3)', async () => {
     vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
       progress: {

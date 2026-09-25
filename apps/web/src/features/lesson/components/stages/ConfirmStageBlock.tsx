@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { HelpCircle, ArrowRight } from 'lucide-react'
+import { HelpCircle } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { playInstantSound } from '../LessonInteractiveSidebar'
@@ -68,7 +68,7 @@ export function ConfirmStageBlock({
   return (
     <section
       data-testid="stage-1-confirm"
-      className="rounded-3xl bg-white p-4 sm:p-6 shadow-clay border-2 border-brand-100 flex flex-col gap-4 animate-fade-up"
+      className="rounded-3xl bg-white p-4 sm:p-6 shadow-xs border border-slate-200/80 flex flex-col gap-4 animate-fade-up"
     >
       <div className="flex flex-col gap-2 shrink-0">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold w-fit border border-amber-200/60">
@@ -506,14 +506,13 @@ export function ConfirmStageBlock({
                 <strong>Đúng rồi các cậu ơi!</strong> {config.explanation}
               </p>
             </div>
-            <Button
-              variant="primary"
-              className="w-full sm:w-auto px-5 sm:px-7 py-2.5 sm:py-3 min-h-[42px] sm:min-h-[46px] text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+            <button
+              type="button"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 min-h-[48px] text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-md transition-all active:scale-95"
               onClick={onContinue}
             >
-              <span>🎬 Xem video bài học thôi nào →</span>
-              <ArrowRight size={18} />
-            </Button>
+              <span>🎬 Xem video bài học thôi nào</span>
+            </button>
           </div>
         ) : (
           <div className="flex-1 w-full order-1 sm:order-2 flex items-center gap-3">
@@ -535,7 +534,7 @@ export function ConfirmStageBlock({
               )
             ) : (
               <span className="text-xs text-slate-500 italic">
-                💡 Xem gợi ý ở bảng bên phải nếu cần hỗ trợ nhé!
+                💡 Bé hãy quan sát kỹ 3 bức tranh để chọn phương án đúng nhé!
               </span>
             )}
           </div>

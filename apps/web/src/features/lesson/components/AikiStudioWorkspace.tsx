@@ -2511,7 +2511,7 @@ export function AikiStudioWorkspace({
                 className="pointer-events-auto bg-black/60 hover:bg-black/80 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer"
                 title="Xem to, soi kỹ bức tranh này"
               >
-                <span>🔍 Xem to →</span>
+                <span>🔍 Xem to</span>
               </button>
             </div>
           </div>
@@ -3074,7 +3074,7 @@ export function AikiStudioWorkspace({
                   }}
                   className="text-[11px] font-black text-amber-800 hover:text-amber-950 transition-colors cursor-pointer"
                 >
-                  Xem tất cả ({gallery.length}) →
+                  Xem tất cả ({gallery.length})
                 </button>
               </div>
             </div>
@@ -3152,7 +3152,7 @@ export function AikiStudioWorkspace({
                 <KidBackpackImageIcon size={16} className="text-purple-600 shrink-0" />
                 <span>BALO SÁNG TẠO</span>
               </div>
-              <span className="text-[11px] text-purple-700">Mở Balo →</span>
+              <span className="text-[11px] text-purple-700">Mở Balo</span>
             </button>
           </div>
 
@@ -3605,7 +3605,7 @@ export function AikiStudioWorkspace({
                 className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-clay cursor-pointer transition-all active:scale-95 text-center"
               >
                 <KidBackpackImageIcon size={18} />
-                <span>Khám Phá Toàn Bộ Balo Tại /backpack →</span>
+                <span>Khám Phá Toàn Bộ Balo Tại /backpack</span>
               </a>
 
               <button

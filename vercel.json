@@ -6,6 +6,15 @@
   "outputDirectory": "apps/web/dist",
   "headers": [
     {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*-[a-zA-Z0-9_-]{8,}\\.(?:js|css|woff2?|wasm))",
       "headers": [
         {

@@ -15,11 +15,4 @@ export const queryClient = new QueryClient({
 export function clearStudentProgressionCache(userId?: string): void {
   if (!userId) return
   queryClient.removeQueries({ queryKey: ['progression', userId] })
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.removeItem(`aiki.progression.v1.${userId}`)
-      localStorage.removeItem('aiki_last_known_xp')
-      localStorage.removeItem('aiki_last_known_level')
-    } catch {}
-  }
 }

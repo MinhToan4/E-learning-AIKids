@@ -28,16 +28,18 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     expect(html).toContain('Quay lại trang chủ')
   })
 
-  it('renders ConceptHomeScreen with Jacob XP Widget, Daily Mission, Continue Learning Spotlight, and 6 Islands', () => {
+  it('renders ConceptHomeScreen with Organic Sky Canopy Header, Floating Daily Quest, and 6 Islands Hub', () => {
     const html = renderToStaticMarkup(
       createElement(ConceptHomeScreen, {})
     )
 
-    // 1. Header with Jacob info & XP widget
-    expect(html).toContain('Hey, Jacob!')
-    expect(html).toContain('Cấp 4 • Nhà Khám Phá')
-    expect(html).toContain('1,250 / 1,500 XP')
-    expect(html).toContain('Còn 250 XP để lên Cấp 5')
+    // 1. Organic Sky Canopy Header (không khối bo viền cứng)
+    expect(html).toContain('Chào Jacob!')
+    expect(html).toContain('Cấp 4 • Nhà Thám Hiểm Nhí')
+    expect(html).toContain('1,250 XP')
+    expect(html).toContain('+250 XP lên cấp')
+    expect(html).toContain('3 ngày')
+    expect(html).toContain('18 sao')
 
     // 2. Streamlined Official Course Hub (Chương trình chính thức, 16:9 Trailer Video & Phân khu Phụ huynh)
     expect(html).toContain('CHƯƠNG TRÌNH CHÍNH THỨC • 6 ĐẢO')
@@ -51,37 +53,22 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     expect(html).toContain('HẢI TRÌNH 6 ĐẢO')
     expect(html).toContain('0/6 đảo')
 
-    // 3. Continue Learning Spotlight card
-    expect(html).toContain('BÀI HỌC TIẾP THEO')
-    expect(html).toContain('Đảo 2: 4 Chìa khóa lệnh')
-    expect(html).toContain('Trạm 3: Chìa khóa Phong cách nghệ thuật')
-    expect(html).toContain('2/4 trạm (50%)')
-    expect(html).toContain('Học tiếp bài dở')
-
-    // 4. Daily Mission card (vàng bơ)
-    expect(html).toContain('Nhiệm Vụ Hôm Nay')
-    expect(html).toContain('Nhiệm vụ hôm nay: Hoàn thành 1 trạm tại Đảo 2')
+    // 3. Floating Daily Quest Ribbon
+    expect(html).toContain('Nhiệm vụ hôm nay:')
+    expect(html).toContain('Hoàn thành 1 trạm thử thách để rèn luyện tư duy AI')
     expect(html).toContain('+30 XP')
-    expect(html).toContain('1 Huy Hiệu Chăm Chỉ')
-    expect(html).toContain('1/2 bài')
-    expect(html).toContain('Làm nhiệm vụ')
+    expect(html).toContain('Làm ngay')
 
-    // 5. 6 Islands roadmap
+    // 4. 6 Islands roadmap
     expect(html).toContain('10 Quy tắc vàng')
     expect(html).toContain('4 Chìa khóa lệnh')
     expect(html).toContain('Sắc màu cọ vẽ')
     expect(html).toContain('Hồ sơ 3 điểm')
     expect(html).toContain('Storyboard 8 ô')
     expect(html).toContain('Đấu trường thẻ')
-    expect(html).toContain('ĐÃ XONG')
     expect(html).toContain('ĐANG HỌC')
-    expect(html).toContain('KHÓA')
 
-    // 6. Your Activity
-    expect(html).toContain('12 bài học')
-    expect(html).toContain('43 giờ rèn luyện')
-
-    // 7. Integrated Parent Unlock Zone within the Unified Course Hub
+    // 5. Integrated Parent Unlock Zone within the Unified Course Hub
     expect(html).toContain('DÀNH CHO PHỤ HUYNH')
     expect(html).toContain('Gói Thám Hiểm Toàn Diện 6 Đảo')
     expect(html).toContain('479.000đ')
@@ -167,29 +154,24 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     expect(html).toContain('Trạm 4: Chìa khóa Cảm xúc + Đấu trường mở khóa')
   })
 
-  it('renders ConceptIslandStationScreen with 10 Real Stations for Đảo 1 (10 Quy tắc vàng)', () => {
+  it('renders ConceptIslandStationScreen with 5 Core Golden Rules Stations for Đảo 1', () => {
     const html = renderToStaticMarkup(
       createElement(ConceptIslandStationScreen, {
         initialIslandId: 'dao-1',
       })
     )
 
-    // 10 real golden rules stations
+    // 5 core golden rules stations
     expect(html).toContain('Sổ Tay Lộ Trình: Đảo Tiên Quyết')
-    expect(html).toContain('Q1: Bảo vệ thông tin bí mật')
-    expect(html).toContain('Q2: Bản quyền và tác giả')
-    expect(html).toContain('Q3: Lời nói tử tế')
-    expect(html).toContain('Q4: Nhờ người lớn hỗ trợ')
-    expect(html).toContain('Q5: Không chia sẻ mật khẩu')
-    expect(html).toContain('Q6: Nhận diện nội dung xấu')
-    expect(html).toContain('Q7: Giới hạn giờ chơi')
-    expect(html).toContain('Q8: Sáng tạo nhân văn')
-    expect(html).toContain('Q9: Cùng bạn học tập')
-    expect(html).toContain('Q10: Hiệp sĩ xưởng AI')
+    expect(html).toContain('Trạm 1: Nghĩ ý tưởng trước khi hỏi AI')
+    expect(html).toContain('Trạm 2: Giữ bí mật gia đình')
+    expect(html).toContain('Trạm 3: Kiểm tra sự thật cùng bố mẹ')
+    expect(html).toContain('Trạm 4: Sáng tạo không sao chép')
+    expect(html).toContain('Trạm 5: Hỏi người lớn khi gặp điều lạ')
     expect(html).toContain('ĐẤU TRƯỜNG')
   })
 
-  it('renders ConceptLessonScreen (Màn 5) with Station 1 Island 1, Track Switcher, and Clickable Step Navigation', () => {
+  it('renders ConceptLessonScreen (Màn 5) with Station 1 Island 1, Track Switcher, and 3-Step Navigation for Rules', () => {
     const html = renderToStaticMarkup(
       createElement(ConceptLessonScreen, {})
     )
@@ -197,7 +179,7 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     // Default props & Header
     expect(html).toContain('Đảo 1: 10 Quy Tắc Vàng')
     expect(html).toContain('Trạm 1: Nghĩ Ý Tưởng Trước Khi Hỏi AI')
-    expect(html).toContain('Bước 1 / 4')
+    expect(html).toContain('Bước 1 / 3')
     expect(html).toContain('progress-hatched')
     expect(html).toContain('+50 XP')
     expect(html).toContain('Quay lại Bản đồ')
@@ -206,27 +188,28 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     expect(html).toContain('Phân hệ 1: 10 Quy Tắc Vàng (QT1)')
     expect(html).toContain('Phân hệ 2: Khóa Học &amp; Studio (Ảnh 4)')
 
-    // 4 Clickable Step Pills
-    expect(html).toContain('1. Phân xử')
-    expect(html).toContain('2. Kho AI')
-    expect(html).toContain('3. Thực hành ✨')
-    expect(html).toContain('4. Ghi nhớ')
+    // 3 Clickable Step Pills for Rules
+    expect(html).toContain('1. Tình huống &amp; Bí kíp')
+    expect(html).toContain('2. Câu đố phản xạ')
+    expect(html).toContain('3. Thực hành &amp; Nhận cúp ✨')
 
     // Mèo Mee Dialogue
-    expect(html).toContain('Thử Thách Phân Xử')
+    expect(html).toContain('Tình Huống &amp; Bí Kíp')
     expect(html).toContain('Vẽ siêu anh hùng CỦA RIÊNG con')
     expect(html).toContain('Nghe Mee đọc')
 
-    // Step 1: Zico vs Sonet pictures
+    // Step 1: Situation intro, Comparison & Golden Rule 1
     expect(html).toContain('Tranh Zico')
     expect(html).toContain('rule1_opt_zico.webp')
-    expect(html).toContain('Siêu anh hùng áo choàng đỏ')
     expect(html).toContain('Tranh Sonet')
     expect(html).toContain('rule1_opt_sonet.webp')
-    expect(html).toContain('Bố sợ gián cầm vợt muỗi')
+    expect(html).toContain('Kho Mẫu AI')
+    expect(html).toContain('Trí Não Của Bé')
+    expect(html).toContain('QUY TẮC VÀNG 1')
+    expect(html).toContain('Sang Bước 2: Câu đố phản xạ')
   })
 
-  it('renders ConceptLessonScreen Hands-on Practice Sandbox (Bước 3: Xưởng Thực Hành) with Manipulative Chips, Prompt Capsule, and Uniqueness Meter', () => {
+  it('renders ConceptLessonScreen Hands-on Practice Sandbox (Bước 3: Xưởng Thực Hành & Nhận Cúp) with Manipulative Chips, Prompt Capsule, and Uniqueness Meter', () => {
     const html = renderToStaticMarkup(
       createElement(ConceptLessonScreen, {
         initialStep: 3,
@@ -234,7 +217,8 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     )
 
     // Step 3 Header
-    expect(html).toContain('Xưởng Thực Hành Sáng Tạo')
+    expect(html).toContain('Bước 3 / 3')
+    expect(html).toContain('Xưởng Sáng Tạo Prompt Capsule &amp; Nhận Cúp')
     expect(html).toContain('Thực hành Quy tắc 1: Nghĩ ý tưởng độc nhất của riêng con!')
 
     // 3 Manipulative Blocks
@@ -266,7 +250,22 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     // Uniqueness Meter
     expect(html).toContain('Độ Độc Đáo:')
     expect(html).toContain('100% Độc Nhất Vô Nhị ⭐⭐⭐')
-    expect(html).toContain('Nộp bài &amp; Nhận thưởng')
+    expect(html).toContain('Hoàn thành trạm &amp; Lưu Balo')
+  })
+
+  it('renders ConceptLessonScreen Celebration & Rewards in Step 3 with 3D Gold Trophy and 3 Badges', () => {
+    const html = renderToStaticMarkup(
+      createElement(ConceptLessonScreen, {
+        initialStep: 3,
+      })
+    )
+
+    expect(html).toContain('Xuất Sắc! Con Đã Nắm Vững Quy Tắc 1')
+    expect(html).toContain('trophy-clay-gold.png')
+    expect(html).toContain('+3 Sao Vàng')
+    expect(html).toContain('+50 XP')
+    expect(html).toContain('Hiệp Sĩ AIKI')
+    expect(html).toContain('Hoàn thành trạm &amp; Lưu Balo')
   })
 
   it('renders ConceptLessonScreen Track 2 (Course Studio matching Photo 4) with 6-stage journey, 3 columns, 4 Golden Keys, and Cat combos', () => {
@@ -277,8 +276,13 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     )
 
     // 6-stage journey
-    expect(html).toContain('Hành trình 6 giai đoạn')
+    expect(html).toContain('Bước 5 / 6')
+    expect(html).toContain('1. Mục tiêu')
+    expect(html).toContain('2. Khởi động')
+    expect(html).toContain('3. Video')
+    expect(html).toContain('4. Thử thách')
     expect(html).toContain('5. Studio ✨')
+    expect(html).toContain('6. Nhận cúp 🏆')
 
     // 3 Columns
     // Col 1: Món đồ bé vẽ
@@ -291,17 +295,34 @@ describe('Concept Screens & StudentConceptTestPage (Full System Real Data Benchm
     expect(html).toContain('2. Trông thế nào?')
     expect(html).toContain('3. Đang làm gì?')
     expect(html).toContain('4. Ở đâu?')
-    expect(html).toContain('Béo tròn bụ bẫm')
-    expect(html).toContain('Thong dong dạo bước')
-    expect(html).toContain('Bên thềm nhà đón nắng')
+    expect(html).toContain('mèo mướp vàng béo tròn')
+    expect(html).toContain('đang nằm ngủ cuộn tròn')
+    expect(html).toContain('trên chiếc ghế mây cạnh cửa sổ')
 
-    // Col 3: Tranh sáng tạo Lượt 1 & Lượt 2
+    // Col 3: Tranh sáng tạo 1 LƯỢT DUY NHẤT
     expect(html).toContain('TRANH SÁNG TẠO')
-    expect(html).toContain('Lượt 1: Sơ khai')
-    expect(html).toContain('Lượt 2: Hoàn thiện')
+    expect(html).toContain('1 LƯỢT DUY NHẤT')
+    expect(html).toContain('Đầy đủ 4 khóa')
     expect(html).toContain('combo__sub-meo-muop__cs-cat-beo-tron')
     expect(html).toContain('Đã lưu vào Balo')
     expect(html).toContain('Nộp bài • 1 ảnh')
+  })
+
+  it('renders ConceptLessonScreen Track 2 Step 6 Graduation with 3D Gold Trophy and Master of 4 Keys badge', () => {
+    const html = renderToStaticMarkup(
+      createElement(ConceptLessonScreen, {
+        initialTrack: 'course_studio',
+        initialStep: 6,
+      })
+    )
+
+    expect(html).toContain('Bước 6 / 6')
+    expect(html).toContain('Tốt Nghiệp Khóa Học Studio')
+    expect(html).toContain('trophy-clay-gold.png')
+    expect(html).toContain('+3 Sao Vàng Soft Clay')
+    expect(html).toContain('+100 XP')
+    expect(html).toContain('Bậc Thầy 4 Chìa Khóa')
+    expect(html).toContain('Đã lưu vào Balo nghệ thuật')
   })
 
   it('renders StudentConceptTestPage with 5 Switch Tabs and Floating Dark Pill Dock in Mobile Mode', () => {

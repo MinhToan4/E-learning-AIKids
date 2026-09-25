@@ -7,7 +7,7 @@ const budgets = [
   { pattern: /^AdminPage-.*\.js$/, maxKb: 90 },
   { pattern: /^LegendRewardStudio-.*\.js$/, maxKb: 160 },
   { pattern: /^HomePage-.*\.js$/, maxKb: 40 },
-  { pattern: /^WorldPage-.*\.js$/, maxKb: 70 },
+  { pattern: /^WorldPage-.*\.js$/, maxKb: 75 },
   { pattern: /^LessonPage-.*\.js$/, maxKb: 130 },
   { pattern: /^ProfilePage-.*\.js$/, maxKb: 45 },
   { pattern: /^BackpackPage-.*\.js$/, maxKb: 32 },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, RotateCcw, Space } from 'lucide-react'
+import { RotateCcw, Space } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import {
   gameSpeedMultiplier,
@@ -283,7 +283,7 @@ export function DataRunnerGame({
 
         {levelComplete && !allComplete && (
           <Button onClick={nextLevel}>
-            Sang chặng tiếp theo <ArrowRight size={19} aria-hidden="true" />
+            Sang chặng tiếp theo
           </Button>
         )}
         {allComplete && (

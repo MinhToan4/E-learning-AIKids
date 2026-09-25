@@ -111,6 +111,14 @@ export function clearAccessToken(): void {
   clearSharedTokenCookie()
 }
 
+/**
+ * A request started under the parent session may finish after the device has
+ * switched to a child session. Its late 401 must never clear the newer token.
+ */
+function isCurrentSessionToken(requestToken: string | null): requestToken is string {
+  return Boolean(requestToken) && getAccessToken() === requestToken
+}
+
 export async function fetchRemoteBlob(url: string): Promise<Blob> {
   const response = await fetch(url)
   if (!response.ok) throw new Error(`Không tải được tệp (HTTP ${response.status}).`)
@@ -146,7 +154,7 @@ export async function downloadAuthorizedBlob(
   }
 
   if (!response.ok) {
-    if (response.status === 401 && token) {
+    if (response.status === 401 && isCurrentSessionToken(token)) {
       clearAccessToken()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
@@ -223,68 +231,27 @@ export class ApiError extends Error {
 }
 
 const inFlightGetRequests = new Map<string, Promise<unknown>>()
-const getResponseCache = new Map<string, { expiresAt: number; staleUntil: number; value: unknown }>()
-let cacheGeneration = 0
 
-const DEFAULT_STALE_WINDOW = 300_000 // 5 phút cache stale-while-revalidate
-
-function responseCacheTtl(path: string): number {
-  if (path === '/api/auth/firebase/config') return 300_000 // 5 phút cache cấu hình Firebase
-  if (path.startsWith('/api/admin/users')) return 30_000 // 30s cache SWR
-  if (path.startsWith('/api/admin/roles')) return 60_000 // 60s cache SWR
-  if (path.startsWith('/api/admin/login-logs')) return 15_000 // 15s cache SWR
-  if (path.startsWith('/api/teacher/lectures') || path.startsWith('/api/admin/courses') || path.startsWith('/api/courses')) return 60_000
-  if (path.startsWith('/api/learning/pathway')) return 60_000
-  if (path.startsWith('/api/quests/')) return 60_000 // 60s SWR cache cho cấu trúc trạm học tĩnh
-  if (path.startsWith('/api/learning/age-policy')) return 300_000 // 5 phút policy tuổi tĩnh
-  if (path.startsWith('/api/progress/')) return 15_000
-  if (path.startsWith('/api/parent/plans') || path.startsWith('/api/parent/subscription')) return 60_000
-  if (path.startsWith('/api/notifications')) return 15_000 // debounce 15s tránh spam request khi đổi tab
-  if (path.startsWith('/api/admin/legend-studio')) return 30_000
-  if (path.startsWith('/api/gamification/catalog')) return 60_000
-  if (path.startsWith('/api/gamification/social')) return 30_000
-  if (path === '/api/gamification/achievements' || path === '/api/gamification/daily-mission' || path === '/api/v1/gamification/me/missions') return 15_000
-  if (path === '/api/enrollments') return 30_000
-  if (path.startsWith('/api/gamification/profile') || path.startsWith('/api/gamification/storybook') || path.startsWith('/api/gamification/streak')) return 30_000
-  if (path.startsWith('/api/gamification/class-celebration')) return 30_000
-  if (path.startsWith('/api/backpack')) return 30_000
-  if (path.startsWith('/api/projects')) return 30_000
-  if (path.startsWith('/api/profile/settings')) return 30_000
-  if (path.startsWith('/api/parent/children/')) return 15_000
-  if (path.startsWith('/api/parent/children') || path.startsWith('/api/teacher/class')) return 10_000
-  if (path.startsWith('/api/schedule') || path.startsWith('/api/reports') || path.startsWith('/api/competency-map') || path.startsWith('/api/credentials')) return 10_000
-  if (path === '/api/admin/system' || path === '/api/admin/analytics') return 10_000
-  return 0
-}
-
-export const getCacheTtlMs = responseCacheTtl
+/**
+ * Browser responses are deliberately not cached here. Authoritative learning,
+ * entitlement and gamification data must come from the server on every new
+ * read. We only coalesce identical GETs that are concurrently in flight; this
+ * removes request waterfalls without reusing an older response.
+ */
+export const getCacheTtlMs = (_path: string): number => 0
 
 export function clearApiCache(): void {
-  cacheGeneration += 1
-  getResponseCache.clear()
   inFlightGetRequests.clear()
 }
 
 const clearResponseCache = clearApiCache
 
-function cachePath(key: string): string {
-  const marker = key.indexOf(':/api/')
-  return marker >= 0 ? key.slice(marker + 1) : key
-}
-
 function invalidateCachePrefixes(prefixes: string[]): void {
-  cacheGeneration += 1
-  for (const key of getResponseCache.keys()) {
-    const path = cachePath(key)
-    if (prefixes.some((prefix) => path.startsWith(prefix))) {
-      getResponseCache.delete(key)
-    }
-  }
-  // A mutation can make an already-running GET stale. Removing the in-flight
-  // handle allows the next caller to issue a fresh read; cacheGeneration keeps
-  // the older response from being written into the response cache afterward.
+  // A mutation can make an already-running GET stale. Removing its in-flight
+  // handle lets the next caller issue a fresh authoritative read.
   for (const key of inFlightGetRequests.keys()) {
-    const path = cachePath(key)
+    const marker = key.indexOf(':/api/')
+    const path = marker >= 0 ? key.slice(marker + 1) : key
     if (prefixes.some((prefix) => path.startsWith(prefix))) {
       inFlightGetRequests.delete(key)
     }
@@ -378,62 +345,17 @@ export function api<T = unknown>(
   }
 
   const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
-  const cached = getResponseCache.get(key)
-  const now = Date.now()
-  const ttl = responseCacheTtl(legacyPath)
-
-  const triggerBackgroundFetch = (): Promise<T> => {
-    let pending = inFlightGetRequests.get(key) as Promise<T> | undefined
-    if (!pending) {
-      const requestGeneration = cacheGeneration
-      const fetchOpts: RequestInit = { ...options }
-      delete fetchOpts.signal
-      const request = executeApi<T>(legacyPath, fetchOpts)
-      inFlightGetRequests.set(key, request)
-      void request.finally(() => {
-        if (inFlightGetRequests.get(key) === request) {
-          inFlightGetRequests.delete(key)
-        }
-      }).catch(() => undefined)
-      if (ttl > 0) {
-        void request.then((value) => {
-          if (requestGeneration !== cacheGeneration) return
-          getResponseCache.set(key, {
-            expiresAt: Date.now() + ttl,
-            staleUntil: Date.now() + ttl + DEFAULT_STALE_WINDOW,
-            value,
-          })
-        }).catch(() => undefined)
-      }
-      pending = request
-    }
-    return pending
+  let pending = inFlightGetRequests.get(key) as Promise<T> | undefined
+  if (!pending) {
+    const fetchOpts: RequestInit = { ...options }
+    delete fetchOpts.signal
+    const request = executeApi<T>(legacyPath, fetchOpts)
+    inFlightGetRequests.set(key, request)
+    void request.finally(() => {
+      if (inFlightGetRequests.get(key) === request) inFlightGetRequests.delete(key)
+    }).catch(() => undefined)
+    pending = request
   }
-
-  // 1. Fresh cache: return immediately (0ms)
-  if (cached && now < cached.expiresAt) {
-    if (options.signal?.aborted) {
-      return Promise.reject(options.signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
-    }
-    return Promise.resolve(cached.value as T)
-  }
-
-  // 2. Stale cache within stale window: return cached value immediately, revalidate in background
-  if (cached && now < cached.staleUntil) {
-    if (options.signal?.aborted) {
-      return Promise.reject(options.signal.reason ?? new DOMException('The operation was aborted.', 'AbortError'))
-    }
-    triggerBackgroundFetch()
-    return Promise.resolve(cached.value as T)
-  }
-
-  // 3. Cache completely expired: remove from cache
-  if (cached) {
-    getResponseCache.delete(key)
-  }
-
-  // 4. No cache or completely expired: execute or reuse in-flight request, attached with signal
-  const pending = triggerBackgroundFetch()
   return attachSignal(pending, options.signal)
 }
 
@@ -532,7 +454,7 @@ async function executeApi<T>(
     // A JWT can expire while a route is already mounted. Fail closed and let
     // the auth store return the shared device to login instead of leaving a
     // child-facing screen populated with a gateway implementation error.
-    if (res.status === 401 && token) {
+    if (res.status === 401 && isCurrentSessionToken(token)) {
       clearAccessToken()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))

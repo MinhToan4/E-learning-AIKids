@@ -187,15 +187,9 @@ describe('SixStageJourneyView', () => {
     expect(mainCanvas?.textContent).toContain('Mục tiêu: Đừng Để AIKI Đoán Mò')
     expect(mainCanvas?.textContent).toContain('Con hiểu được AI tạo ảnh không tự nghĩ được')
 
-    // Right Column: Companion Sidebar with AIKI Tip & Key points
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-    expect(sidebar?.textContent).toContain('Chặng 1/6: Mục tiêu')
-    expect(sidebar?.textContent).toContain('AIKI Đồng Hành')
-    expect(sidebar?.textContent).toContain('LỜI THOẠI CỦA AIKI')
-    expect(sidebar?.textContent).toContain('Mẹo Vàng Của AIKI')
-    expect(sidebar?.textContent).toContain('Nhiệm vụ chặng này')
-    expect(sidebar?.textContent).toContain('42 Sao tích lũy')
+    // Main learning canvas is full width, sidebar omitted
+    expect(mainCanvas?.className).toContain('w-full')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('renders teacher drag-and-drop blocks appended to the matching course stage', async () => {
@@ -269,9 +263,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Tại sao AIKI lại vẽ ra chú mèo mướp màu vàng')
     expect(container.textContent).toContain('Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo')
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.textContent).toContain('Chặng 2/6: Xác nhận')
-    expect(sidebar?.textContent).toContain('AIKI Cố Vấn')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('handles Stage 1 quiz answer and unlocks video stage', () => {
@@ -301,7 +293,7 @@ describe('SixStageJourneyView', () => {
     })
 
     expect(container.textContent).toContain('Chính xác! Tuyệt vời quá bạn ơi!')
-    expect(container.textContent).toContain('🎬 Xem video bài học thôi nào →')
+    expect(container.textContent).toContain('🎬 Xem video bài học thôi nào')
 
     // Click to advance to video stage
     const toVideoBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -316,9 +308,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Video Bài Giảng: Bí Kíp Câu Lệnh Thần Kỳ')
     expect(container.textContent).toContain('Tình huống khởi động')
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.textContent).toContain('Chặng 3/6: Video')
-    expect(sidebar?.textContent).toContain('Thầy Giáo AIKI')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('renders Stage 3 (Quiz) and computes score on submit, updating Sidebar action', () => {
@@ -363,9 +353,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('2/2 điểm')
     expect(container.textContent).toContain('👉 Vào Xưởng Sáng Tạo AI 🎨')
 
-    // Sidebar now offers action to enter workshop
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.textContent).toContain('Vào xưởng thực hành')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('renders Stage 5 (Completion) with badge and rewards, calling navigation callbacks', () => {
@@ -391,14 +379,12 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Chúc mừng Nhà Sáng Tạo Tí Hon!')
     expect(container.textContent).toContain('+50 XP')
     expect(container.textContent).toContain('Huy hiệu Mèo Mướp Béo')
-    expect(container.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
+    expect(container.textContent).toContain('Khám phá bài tiếp theo')
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.textContent).toContain('Chặng 6/6: Hoàn thành')
-    expect(sidebar?.textContent).toContain('Thần Đèn AIKI')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
     const nextLessonBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Khám Phá Bài Tiếp Theo')
+      b.textContent?.includes('Khám phá bài tiếp theo')
     )
     act(() => {
       nextLessonBtn?.click()
@@ -410,6 +396,33 @@ describe('SixStageJourneyView', () => {
       nextLessonSlug: 'bai-1-2-bon-chiec-chia-khoa',
     })
     expect(onNavigateNextLesson).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
+  })
+
+  it('does not leave the reward screen when the server rejects completion persistence', () => {
+    const onFinishLesson = vi.fn(() => false)
+    const onNavigateNextLesson = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialStageIndex={5}
+          onFinishLesson={onFinishLesson}
+          onNavigateNextLesson={onNavigateNextLesson}
+        />,
+      )
+    })
+
+    const nextLessonBtn = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Khám phá bài tiếp theo'),
+    )
+    act(() => nextLessonBtn?.click())
+
+    expect(onFinishLesson).toHaveBeenCalled()
+    expect(onNavigateNextLesson).not.toHaveBeenCalled()
   })
 
   it('renders Stage 5 completion in a side-by-side 2-column layout fitting one screen with floating drawer sidebar', () => {
@@ -462,24 +475,10 @@ describe('SixStageJourneyView', () => {
     expect(stage5Section?.textContent).toContain('+50 XP')
     expect(stage5Section?.textContent).toContain('Chúc mừng Nhà Sáng Tạo Tí Hon!')
     expect(stage5Section?.textContent).toContain('Bé đã hoàn thành xuất sắc bài học')
-    expect(stage5Section?.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
+    expect(stage5Section?.textContent).toContain('Khám phá bài tiếp theo')
 
-    // 5. Floating drawer sidebar with backdrop at Stage 5
-    const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]')
-    expect(backdrop).not.toBeNull()
-
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-    expect(sidebar?.className).toContain('fixed')
-    expect(sidebar?.textContent).toContain('✕ Đóng')
-
-    // Clicking close button closes the floating drawer
-    const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
-      b.textContent?.includes('✕ Đóng')
-    )
-    act(() => {
-      closeBtn?.click()
-    })
+    // 5. Sidebar is completely removed in favor of full width layout
+    expect(container.querySelector('[data-testid="sidebar-overlay-backdrop"]')).toBeNull()
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
@@ -794,20 +793,14 @@ describe('SixStageJourneyView', () => {
     expect(iframe).not.toBeNull()
     expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/NMdHhsLY5jc')
 
-    // Timestamps remain available in the companion sidebar on compact screens,
-    // but are hidden on desktop where the main timeline already shows them.
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-    expect(sidebar?.textContent).toContain('Mốc Phân Đoạn Video')
-    expect(sidebar?.textContent).toContain('Tình huống khởi động')
-    expect(sidebar?.textContent).toContain('Bí kíp 4 chìa khóa')
+    // Sidebar is omitted; timestamps are built into video timeline stepper in main canvas
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
     // Clicking a timestamp seeks video player in Mainbar
-    const chapterBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
+    const chapterBtn = Array.from(stage2Section?.querySelectorAll('button') || []).find((b) =>
       b.textContent?.includes('Bí kíp 4 chìa khóa')
     )
     expect(chapterBtn).toBeDefined()
-    expect(chapterBtn?.closest('[class*="bg-purple-50/70"]')?.className).toContain('lg:hidden')
     act(() => {
       chapterBtn?.click()
     })
@@ -855,14 +848,10 @@ describe('SixStageJourneyView', () => {
     expect(quizImg).not.toBeNull()
     expect(quizImg?.className).toContain('object-cover')
 
-    // 2-column layout container uses md:flex-row
-    const twoColContainer = container.querySelector('.flex.flex-col.md\\:flex-row')
-    expect(twoColContainer).not.toBeNull()
-
-    // Sidebar uses md:w-[320px] lg:w-[340px]
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar?.className).toContain('md:w-[320px]')
-    expect(sidebar?.className).toContain('lg:w-[340px]')
+    // Main canvas is full width, sidebar is omitted
+    const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
+    expect(mainCanvas?.className).toContain('w-full')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AIKI golden motto', async () => {
@@ -893,44 +882,15 @@ describe('SixStageJourneyView', () => {
     const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
     expect(mainCanvas?.className).toContain('w-full')
 
-    // Interactive sidebar is visible at Stage 4 as a floating slide-over drawer with backdrop
-    const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]')
-    expect(backdrop).not.toBeNull()
-
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-    expect(sidebar?.className).toContain('fixed')
-    expect(sidebar?.textContent).toContain('✕ Đóng')
-
-    // Sidebar displays 4 practice steps clearly
-    expect(sidebar?.textContent).toContain('Tiến Trình 4 Bước Thực Hành')
-    expect(sidebar?.textContent).toContain('Bước 1: Thử câu lệnh ban đầu (1-2 từ)')
-    expect(sidebar?.textContent).toContain('Bước 2: Thêm hình dáng & màu sắc')
-    expect(sidebar?.textContent).toContain('Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng')
-    expect(sidebar?.textContent).toContain('Bước 4: Soi kỹ tranh & nộp vào Balo')
-
-    // Sidebar displays AIKI golden motto & locked features
-    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AIKI')
-    expect(sidebar?.textContent).toContain('Tả càng rõ, tranh càng đúng ý!')
-    expect(sidebar?.textContent).toContain('Mật mã đặc điểm vàng')
-    expect(sidebar?.textContent).toContain('mèo mướp vàng béo tròn')
-    expect(sidebar?.textContent).toContain('↺ Xem lại video bài giảng')
-
-    // Clicking close button closes the floating drawer
-    const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
-      b.textContent?.includes('✕ Đóng')
-    )
-    expect(closeBtn).toBeDefined()
-    act(() => {
-      closeBtn?.click()
-    })
+    // Sidebar is omitted; workspace takes full canvas
+    expect(container.querySelector('[data-testid="sidebar-overlay-backdrop"]')).toBeNull()
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-  })
+  }, 15000)
 
-  it('verifies specialized sidebar widgets across Stages 0, 1, 3, and 5 according to pedagogical design', () => {
+  it('verifies full-width canvas and omitted sidebar across Stages 0, 1, 3, and 5 according to pedagogical design', () => {
     const root = createRoot(container)
 
-    // Stage 0: 4-slot formula & AIKI advice
+    // Stage 0: 4-slot formula in Main Learning Canvas
     act(() => {
       root.render(
         <SixStageJourneyView
@@ -944,10 +904,7 @@ describe('SixStageJourneyView', () => {
       )
     })
     const sidebar0 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar0?.textContent).toContain('Mẹo Vàng Của AIKI')
-    expect(sidebar0?.textContent).toContain('Bí Kíp Vàng')
-    expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AIKI')
-    expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AIKI')
+    expect(sidebar0).toBeNull()
 
     // Bốn Chiếc Chìa Khóa Mở Khóa Câu Lệnh được hiển thị ở Main Learning Canvas
     const main0 = container.querySelector('[data-testid="stage-0-goal"]')
@@ -957,7 +914,7 @@ describe('SixStageJourneyView', () => {
     expect(main0?.textContent).toContain('ĐANG LÀM GÌ')
     expect(main0?.textContent).toContain('Ở ĐÂU')
 
-    // Stage 1: Cheat-sheet
+    // Stage 1: Main Canvas
     act(() => {
       root.render(
         <SixStageJourneyView
@@ -971,12 +928,9 @@ describe('SixStageJourneyView', () => {
       )
     })
     const sidebar1 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar1?.textContent).toContain('Bảng Gợi Ý Mật Mã')
-    expect(sidebar1?.textContent).toContain('Cheat-sheet')
-    expect(sidebar1?.textContent).toContain('LỜI THOẠI CỦA AIKI')
-    expect(sidebar1?.textContent).not.toContain('CỐ VẤN AIKI DẶN DÒ')
+    expect(sidebar1).toBeNull()
 
-    // Stage 3: Live Scoreboard and AIKI Advisor
+    // Stage 3: Live Scoreboard in Main Canvas
     act(() => {
       root.render(
         <SixStageJourneyView
@@ -990,8 +944,7 @@ describe('SixStageJourneyView', () => {
       )
     })
     const sidebar3 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar3?.textContent).toContain('Bảng Điểm Trực Tiếp')
-    expect(sidebar3?.textContent).toContain('GÓC CỐ VẤN AIKI')
+    expect(sidebar3).toBeNull()
 
     // Select answers and submit quiz in Stage 3
     const ans1 = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -1010,10 +963,9 @@ describe('SixStageJourneyView', () => {
     act(() => {
       submitBtn?.click()
     })
-    expect(sidebar3?.textContent).toContain('✓ Đã đúng 2/2 câu để mở Xưởng!')
-    expect(sidebar3?.textContent).toContain('ĐÃ ĐẠT CHUẨN')
+    expect(container.textContent).toContain('2/2 điểm')
 
-    // Stage 5: Rewards, Home Mission & Next Lesson Teaser
+    // Stage 5: Rewards in Main Canvas
     act(() => {
       root.render(
         <SixStageJourneyView
@@ -1027,16 +979,11 @@ describe('SixStageJourneyView', () => {
       )
     })
     const sidebar5 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar5?.textContent).toContain('Tổng Kết Phần Thưởng')
-    expect(sidebar5?.textContent).toContain('+3 Sao')
-    expect(sidebar5?.textContent).toContain('+5 Xu')
-    expect(sidebar5?.textContent).toContain('+50 XP')
-    expect(sidebar5?.textContent).toContain('Việc Ngoài Màn Hình (Home Mission)')
-    expect(sidebar5?.textContent).toContain('Bé hãy đem tranh khoe với bố mẹ ngay bây giờ, đố bố mẹ đoán xem bé đã vẽ gì nhé!')
-    expect(sidebar5?.textContent).toContain('TEASER BÀI HỌC TIẾP THEO')
+    expect(sidebar5).toBeNull()
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
   })
 
-  it('renders 4 practice items/parts widget in Stage 4 sidebar and switches workspace parts on click', () => {
+  it('renders Stage 4 practice with omitted companion sidebar', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -1050,44 +997,11 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-
-    // 1. Kiểm tra Khối Bốn món đồ của các cậu
-    expect(sidebar?.textContent).toContain('Bốn món đồ của các cậu')
-    expect(sidebar?.textContent).toContain('Bài này có 4 phần. Mỗi phần 2 lượt tạo.')
-    expect(sidebar?.textContent).toContain('Chỉ 4 lượt chọn')
-
-    // 2. 4 Cards món đồ
-    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
-    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
-    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
-    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
-
-    expect(part1Btn).not.toBeNull()
-    expect(part2Btn).not.toBeNull()
-    expect(part3Btn).not.toBeNull()
-    expect(part4Btn).not.toBeNull()
-
-    // Mặc định part 1 đang làm
-    expect(part1Btn.textContent).toContain('PHẦN 1 - ĐANG LÀM')
-    expect(part1Btn.textContent).toContain('Con cún')
-    expect(part2Btn.textContent).toContain('PHẦN 2 - CHỜ')
-    expect(part2Btn.textContent).toContain('Cái xe đạp')
-
-    // 3. Click chọn Phần 2 -> chuyển sang ĐANG LÀM
-    act(() => {
-      part2Btn.click()
-    })
-
-    expect(part2Btn.textContent).toContain('PHẦN 2 - ĐANG LÀM')
-
-    // 4. Mẹo vàng AIKI và nút Tua lại video
-    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AIKI')
-    expect(sidebar?.textContent).toContain('↺ Tua lại video')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+    expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
   })
 
-  it('loads correct 6 standard expressions for Station 3.3 (bai-3-3)', () => {
+  it('loads Station 3.3 (bai-3-3) in Stage 4 practice without sidebar', () => {
     const root = createRoot(container)
     const journey3_3: LessonSixStageJourney = {
       ...mockJourney,
@@ -1111,27 +1025,11 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-
-    // 6 expression cards in sidebar for Station 3.3
-    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
-    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
-    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
-    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
-
-    expect(part1Btn).not.toBeNull()
-    expect(part2Btn).not.toBeNull()
-    expect(part3Btn).not.toBeNull()
-    expect(part4Btn).not.toBeNull()
-
-    expect(part1Btn.textContent).toContain('Biểu cảm Vui 😊')
-    expect(part2Btn.textContent).toContain('Biểu cảm Buồn 😢')
-    expect(part3Btn.textContent).toContain('Biểu cảm Sợ 😨')
-    expect(part4Btn.textContent).toContain('Biểu cảm Giận 😠')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+    expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
   })
 
-  it('loads correct 4 TCG champions and card-forge engine for Station 3.1 (bai-3-1)', async () => {
+  it('loads Station 3.1 (bai-3-1) in Stage 4 practice without sidebar', async () => {
     const root = createRoot(container)
     const journey3_1: LessonSixStageJourney = {
       ...mockJourney,
@@ -1165,26 +1063,8 @@ describe('SixStageJourneyView', () => {
       await import('./AikiStudioWorkspace')
     })
 
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-
-    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
-    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
-    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
-    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
-
-    expect(part1Btn).not.toBeNull()
-    expect(part2Btn).not.toBeNull()
-    expect(part3Btn).not.toBeNull()
-    expect(part4Btn).not.toBeNull()
-
-    expect(part1Btn.textContent).toContain('Hiệp Sĩ Cáo Lửa')
-    expect(part2Btn.textContent).toContain('Rồng Băng Bão Tuyết')
-    expect(part3Btn.textContent).toContain('Sư Tử Lửa Cuồng Nộ')
-    expect(part4Btn.textContent).toContain('Đại Bàng Lôi Thần')
-
-    // CardForgeEngine is rendered
-    expect(container.querySelector('[data-testid="card-forge-engine"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+    expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
   })
 
   it('renders Lesson 1.2 Stage 0 with 4-keys banner and 4-colored formula grid', () => {
@@ -1328,7 +1208,7 @@ describe('SixStageJourneyView', () => {
     expect(optBBtn.textContent).toContain('🔓')
     expect(optBBtn.textContent).toContain('Đúng bộ này rồi! 🎉')
     expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
-    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào →')
+    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào')
   })
 
   it('renders clean single current station title badge without clutter station switcher buttons', () => {
@@ -1348,7 +1228,7 @@ describe('SixStageJourneyView', () => {
     const badge = container.querySelector('[data-testid="current-station-badge"]')
     expect(badge).not.toBeNull()
     expect(badge?.textContent).toContain('Trạm 1: Mèo AIKI')
-    expect(badge?.textContent).toContain('🐱')
+    expect(badge?.textContent).not.toMatch(/[🐱🎨⭐]/u)
 
     // 6 chặng tiến độ hiển thị đầy đủ, thoáng đãng
     const nav = container.querySelector('nav[aria-label="Tiến độ bài học 6 chặng"]')
@@ -1370,7 +1250,7 @@ describe('SixStageJourneyView', () => {
     const badge2 = container.querySelector('[data-testid="current-station-badge"]')
     expect(badge2).not.toBeNull()
     expect(badge2?.textContent).toContain('Trạm 2: 4 Chìa Khoá')
-    expect(badge2?.textContent).toContain('🔑')
+    expect(badge2?.textContent).not.toMatch(/[🔑🎨⭐]/u)
   })
 
   it('renders 4-formula cards in Stage 0 for Lesson 1.1 to eliminate blank space', () => {
@@ -1595,7 +1475,7 @@ describe('SixStageJourneyView', () => {
     )
     expect(optionButtons[1]?.textContent).toContain('Đúng bộ này rồi! 🎉')
     expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
-    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào →')
+    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào')
   })
 
   it('navigates Stage 4 quiz using single question stepper with side-by-side layout and progress indicators', () => {
@@ -1942,7 +1822,7 @@ describe('SixStageJourneyView', () => {
 
     // Click "👉 Khám Phá Bài Tiếp Theo 🚀"
     const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Khám Phá Bài Tiếp Theo')
+      b.textContent?.includes('Khám phá bài tiếp theo')
     )
     expect(nextBtn).toBeDefined()
     act(() => {
@@ -1958,7 +1838,7 @@ describe('SixStageJourneyView', () => {
 
     // Click "🗺️ Quay Về Bản Đồ Đảo"
     const backBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Quay Về Bản Đồ Đảo')
+      b.textContent?.includes('Quay về bản đồ đảo')
     )
     expect(backBtn).toBeDefined()
     act(() => {
@@ -1996,7 +1876,7 @@ describe('SixStageJourneyView', () => {
     expect(trophyBadge?.textContent).toContain('+100 XP')
 
     const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Khám Phá Bài Tiếp Theo')
+      b.textContent?.includes('Khám phá bài tiếp theo')
     )
     act(() => {
       nextBtn?.click()
@@ -2080,7 +1960,7 @@ describe('SixStageJourneyView', () => {
     expect(q1BoxAfter?.className).toContain('xl:min-h-[320px]')
   })
 
-  it('handles mobile drawer sidebar and backdrop close on mobile viewports without toggle buttons', () => {
+  it('ensures sidebar and backdrop are omitted on mobile viewports without toggle buttons', () => {
     const originalInnerWidth = window.innerWidth
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
 
@@ -2101,20 +1981,9 @@ describe('SixStageJourneyView', () => {
       expect(container.querySelector('[data-testid="toggle-sidebar-mobile-btn"]')).toBeNull()
       expect(container.querySelector('[data-testid="toggle-sidebar-btn"]')).toBeNull()
 
-      // 2. Sidebar drawer is open as mobile fixed drawer
-      const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-      expect(sidebar).not.toBeNull()
-      expect(sidebar?.className).toContain('fixed')
-
-      // 3. Backdrop is rendered and clicking it closes the drawer
-      const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]') as HTMLElement
-      expect(backdrop).not.toBeNull()
-
-      act(() => {
-        backdrop.click()
-      })
-
+      // 2. Sidebar drawer and backdrop are not rendered
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(container.querySelector('[data-testid="sidebar-overlay-backdrop"]')).toBeNull()
       act(() => root.unmount())
     } finally {
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
@@ -2150,7 +2019,7 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('renders AikidCatCharacter mascot in sidebar with dynamic pose and lip-sync', () => {
+  it('verifies sidebar mascot is omitted for full-width learning focus', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -2164,9 +2033,8 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    const mascot = container.querySelector('[data-testid="aikid-cat-character"]')
-    expect(mascot).not.toBeNull()
-    expect(mascot?.getAttribute('data-pose')).toBe('welcome')
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+    expect(container.querySelector('[data-testid="aikid-cat-character"]')).toBeNull()
     act(() => root.unmount())
   })
 
@@ -2197,14 +2065,8 @@ describe('SixStageJourneyView', () => {
     expect(node1).not.toBeNull()
     expect(node5).not.toBeNull()
 
-    // Rule sidebar stays focused: repeated stage, speech, chapter and progress cards live in the main canvas.
-    const ruleSidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(ruleSidebar?.textContent).toContain('AIKI hỗ trợ')
-    expect(ruleSidebar?.textContent).toContain('Sẵn sàng thử tài?')
-    expect(ruleSidebar?.textContent).not.toContain('LỜI THOẠI CỦA AIKI')
-    expect(ruleSidebar?.textContent).not.toContain('Mốc Phân Đoạn Video')
-    expect(ruleSidebar?.textContent).not.toContain('QUY TẮC CỐT LÕI CỦA VIDEO')
-    expect(ruleSidebar?.textContent).not.toContain('Tiến độ: 1/3 chặng')
+    // Rule sidebar is omitted in favor of full-width immersion
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
     act(() => root.unmount())
   })
@@ -2239,10 +2101,9 @@ describe('SixStageJourneyView', () => {
     act(() => root.unmount())
   })
 
-  it('verifies Smart Collapsible Sidebar: auto-collapses under 1280px, toggles with Aiki Assistant button, and closes via close button', () => {
+  it('verifies sidebar is omitted across screen widths without toggle buttons', () => {
     const originalInnerWidth = window.innerWidth
     try {
-      // 1. Under 1280px (e.g. 1024px laptop with left menu): sidebar defaults to collapsed
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 })
       const root = createRoot(container)
       act(() => {
@@ -2255,36 +2116,10 @@ describe('SixStageJourneyView', () => {
         )
       })
 
-      // Sidebar should be collapsed by default to maximize learning canvas
+      // Sidebar and toggles are permanently omitted
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-
-      // Toggle button exists next to station badge
-      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-        b.textContent?.includes('Trợ lý AIKI')
-      )
-      expect(toggleBtn).toBeDefined()
-      expect(toggleBtn?.textContent).toContain('▼') // indicates collapsed
-
-      // 2. Click toggle button -> sidebar expands
-      act(() => {
-        toggleBtn?.click()
-      })
-
-      const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-      expect(sidebar).not.toBeNull()
-      expect(toggleBtn?.textContent).toContain('▲') // indicates open
-
-      // 3. Click "✕ Đóng" button inside sidebar -> collapses
-      const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
-        b.textContent?.includes('✕ Đóng')
-      )
-      expect(closeBtn).toBeDefined()
-
-      act(() => {
-        closeBtn?.click()
-      })
-
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(container.querySelector('[data-testid="toggle-sidebar-btn"]')).toBeNull()
+      expect(container.querySelector('[data-testid="main-learning-canvas"]')?.className).toContain('w-full')
 
       act(() => root.unmount())
     } finally {
@@ -2292,10 +2127,9 @@ describe('SixStageJourneyView', () => {
     }
   })
 
-  it('auto-collapses sidebar on mobile (< 1024px) during stage transitions and window resize', () => {
+  it('maintains zero-sidebar full width canvas on mobile (< 1024px) during stage transitions and window resize', () => {
     const originalInnerWidth = window.innerWidth
     try {
-      // 1. Mobile viewport (390px): defaults to collapsed
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
       const root = createRoot(container)
       act(() => {
@@ -2309,18 +2143,9 @@ describe('SixStageJourneyView', () => {
       })
 
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(container.querySelector('[data-testid="main-learning-canvas"]')?.className).toContain('w-full')
 
-      // 2. User manually opens drawer
-      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-        b.textContent?.includes('Trợ lý AIKI')
-      )
-      expect(toggleBtn).toBeDefined()
-      act(() => {
-        toggleBtn?.click()
-      })
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-
-      // 3. Advancing stage automatically closes drawer on mobile
+      // Advancing stage keeps sidebar null
       const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
         b.textContent?.includes('Đã hiểu mục tiêu')
       )
@@ -2330,14 +2155,7 @@ describe('SixStageJourneyView', () => {
       })
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
-      // 4. Test resize event: expand window to desktop, open sidebar, resize to mobile -> auto-collapses
-      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1440 })
-      act(() => {
-        toggleBtn?.click()
-      })
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-
-      // Shrink to mobile (< 1024px)
+      // Resize event keeps sidebar null
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 768 })
       act(() => {
         window.dispatchEvent(new Event('resize'))
@@ -2350,7 +2168,7 @@ describe('SixStageJourneyView', () => {
     }
   })
 
-  it('auto-collapses sidebar on mobile (< 1024px) when answering quiz or switching questions', () => {
+  it('maintains zero-sidebar full width canvas on mobile (< 1024px) when answering quiz or switching questions', () => {
     const originalInnerWidth = window.innerWidth
     try {
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 })
@@ -2366,19 +2184,11 @@ describe('SixStageJourneyView', () => {
         )
       })
 
-      // Starts collapsed
+      // Starts with no sidebar
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+      expect(container.querySelector('[data-testid="stage-3-quiz"]')).not.toBeNull()
 
-      // Open drawer manually
-      const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-        b.textContent?.includes('Trợ lý AIKI')
-      )
-      act(() => {
-        toggleBtn?.click()
-      })
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-
-      // Selecting an answer option collapses drawer immediately on mobile
+      // Selecting an answer option keeps sidebar null
       const firstOption = Array.from(container.querySelectorAll('button')).find((b) =>
         b.textContent?.includes('AIKI sẽ đoán mò')
       )
@@ -2388,13 +2198,7 @@ describe('SixStageJourneyView', () => {
       })
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
-      // Re-open drawer
-      act(() => {
-        toggleBtn?.click()
-      })
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-
-      // Clicking "Câu tiếp theo" closes drawer immediately on mobile
+      // Clicking "Câu tiếp theo" keeps sidebar null
       const nextQBtn = Array.from(container.querySelectorAll('button')).find((b) =>
         b.textContent?.includes('Câu tiếp theo')
       )
@@ -2410,7 +2214,7 @@ describe('SixStageJourneyView', () => {
     }
   })
 
-  it('restores current stage from localStorage when returning to lesson', () => {
+  it('ignores and removes device-local stage data when returning to a lesson', () => {
     const testLessonId = 'bai-1-1'
     mockLocalStorage.setItem(`aikids_lesson_stage_${testLessonId}`, '2') // Chặng 2: Video
     mockLocalStorage.setItem(`aikids_lesson_completed_stages_${testLessonId}`, JSON.stringify([0, 1]))
@@ -2427,9 +2231,9 @@ describe('SixStageJourneyView', () => {
         )
       })
 
-      // Đã khôi phục ngay tại Chặng 3 (Index 2: Video bài giảng)
-      expect(container.textContent).toContain('Chặng 3/6')
-      expect(container.textContent).toContain('Video')
+      expect(container.textContent).toContain('Chặng 1/6')
+      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).toBeNull()
+      expect(mockLocalStorage.getItem(`aikids_lesson_completed_stages_${testLessonId}`)).toBeNull()
       act(() => root.unmount())
     } finally {
       mockLocalStorage.removeItem(`aikids_lesson_stage_${testLessonId}`)
@@ -2496,10 +2300,10 @@ describe('SixStageJourneyView', () => {
     })
 
     // Ở Chặng 3 (Reward) của Quy tắc 1, KHÔNG được xuất hiện nút nhận chứng chỉ
-    expect(container.textContent).not.toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    expect(container.textContent).not.toContain('Nhận chứng chỉ hoàn thành khóa học')
     // Phải hiển thị nút chuyển sang bài tiếp theo
-    expect(container.textContent).toContain('Khám Phá Bài Tiếp Theo')
-    expect(container.textContent).toContain('Quay Về Bản Đồ Đảo')
+    expect(container.textContent).toContain('Khám phá bài tiếp theo')
+    expect(container.textContent).toContain('Quay về bản đồ đảo')
     act(() => root.unmount())
   })
 
@@ -2519,9 +2323,9 @@ describe('SixStageJourneyView', () => {
     })
 
     // Ở Chặng 3 (Reward) của Quy tắc 10 (trạm cuối), PHẢI có nút nhận chứng chỉ
-    expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
-    expect(container.textContent).not.toContain('Khám Phá Bài Tiếp Theo')
-    expect(container.textContent).toContain('Quay Về Bản Đồ Đảo')
+    expect(container.textContent).toContain('Nhận chứng chỉ hoàn thành khóa học')
+    expect(container.textContent).not.toContain('Khám phá bài tiếp theo')
+    expect(container.textContent).toContain('Quay về bản đồ đảo')
     expect(container.textContent).toContain('Sang khu khóa học')
     expect(container.textContent).not.toContain('Việc Ngoài Màn Hình (Home Mission)')
     expect(container.textContent).not.toContain('Hành động tiếp theo')
@@ -2547,8 +2351,8 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    expect(container.textContent).not.toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
-    expect(container.textContent).toContain('Khám Phá Bài Tiếp Theo')
+    expect(container.textContent).not.toContain('Nhận chứng chỉ hoàn thành khóa học')
+    expect(container.textContent).toContain('Khám phá bài tiếp theo')
     act(() => root.unmount())
   })
 
@@ -2566,7 +2370,7 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    expect(container.textContent).toContain('Nhận Chứng Chỉ Hoàn Thành Khóa Học')
+    expect(container.textContent).toContain('Nhận chứng chỉ hoàn thành khóa học')
     act(() => root.unmount())
   })
 
@@ -2591,8 +2395,8 @@ describe('SixStageJourneyView', () => {
       expect(container.textContent).toContain('Chặng 1/3')
       expect(container.textContent).not.toContain('Vinh danh Hiệp Sĩ Sáng Tạo')
       // Corrupted final stage cache must NOT remain
-      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).not.toBe('2')
-      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).toBe('0')
+      expect(mockLocalStorage.getItem(`aikids_lesson_stage_${testLessonId}`)).toBeNull()
+      expect(mockLocalStorage.getItem(`aikids_lesson_completed_stages_${testLessonId}`)).toBeNull()
       act(() => root.unmount())
     } finally {
       mockLocalStorage.removeItem(`aikids_lesson_stage_${testLessonId}`)
@@ -2921,12 +2725,18 @@ describe('SixStageJourneyView', () => {
     )
 
     // Advance to Stage 4 (Practice)
+    await act(async () => {
+      await import('./AikiStudioWorkspace')
+    })
     const toPracticeBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Vào xưởng thực hành')
+      b.textContent?.includes('Vào Xưởng Sáng Tạo AI') || b.textContent?.includes('Vào xưởng')
     )
     expect(toPracticeBtn).toBeDefined()
     await act(async () => {
       toPracticeBtn?.click()
+    })
+    await act(async () => {
+      await Promise.resolve()
     })
 
     // 5. Stage 4 (Practice): still 2/3 stars before submitting artwork!
@@ -2989,48 +2799,10 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
     expect(container.textContent).toContain('Chúc mừng Hiệp Sĩ Quy Tắc 1!')
     expect(container.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
-    expect(container.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
+    expect(container.textContent).toContain('Khám phá bài tiếp theo')
 
-    // Verify sidebar rendered smoothly without throwing TypeError
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar).not.toBeNull()
-    expect(sidebar?.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
-
-    act(() => root.unmount())
-  })
-
-  it('renders dedicated YouTube Video Player for Rule Lessons with 16:9 layout and star accumulation', async () => {
-    const root = createRoot(container)
-    act(() => {
-      root.render(
-        <SixStageJourneyView
-          lessonId="rule-2"
-          lessonTitle="Quy tắc 2: Tự viết nội dung trước"
-          initialStageIndex={0}
-          initialSidebarCollapsed={false}
-        />
-      )
-    })
-
-    // 1. Initially in YouTube Video Mode: contains iframe with _8Ig_cX25-4
-    const iframe = container.querySelector('iframe')
-    expect(iframe).not.toBeNull()
-    expect(iframe?.src).toContain('_8Ig_cX25-4')
-
-    // Timeline chapter nodes present in Video Mode
-    const chapterNode5 = container.querySelector('[data-testid="video-chapter-node-5"]') as HTMLButtonElement | null
-    expect(chapterNode5).not.toBeNull()
-
-    // Clicking chapter node 5 completes video and earns star
-    act(() => {
-      chapterNode5?.click()
-    })
-    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
-
-    // 2. Action button to continue to next stage (Stage 2 Quiz)
-    const continueBtn = container.querySelector('button.bg-brand-600') as HTMLButtonElement | null
-    expect(continueBtn).not.toBeNull()
-    expect(container.textContent).toContain('Tiếp tục sang Thử Tài Phản Xạ')
+    // Verify sidebar is omitted in favor of full-width completion canvas
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
     act(() => root.unmount())
   })
@@ -3054,21 +2826,14 @@ describe('SixStageJourneyView', () => {
 
       expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
       expect(container.querySelector('[data-testid="aiki-compact-rail"]')).toBeNull()
-
-      const assistantToggle = Array.from(container.querySelectorAll('button')).find((button) =>
-        button.textContent?.includes('Trợ lý AIKI')
-      ) as HTMLButtonElement
-      expect(assistantToggle).not.toBeNull()
-
-      act(() => assistantToggle.click())
-      expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+      expect(container.querySelector('[data-testid="toggle-sidebar-btn"]')).toBeNull()
     } finally {
       act(() => root.unmount())
       Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: originalInnerWidth })
     }
   })
 
-  it('keeps AIKI progress available as a compact rail when a Rule sidebar is collapsed', () => {
+  it('omits companion sidebar and compact rail in Rule journeys', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -3076,25 +2841,17 @@ describe('SixStageJourneyView', () => {
           lessonId="rule-1"
           lessonTitle="Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI"
           initialStageIndex={0}
-          initialSidebarCollapsed
         />
       )
     })
 
-    const rail = container.querySelector('[data-testid="aiki-compact-rail"]') as HTMLElement
-    expect(rail).not.toBeNull()
-    expect(rail.textContent).toContain('1/3')
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
-
-    const openButton = rail.querySelector('button[aria-label="Mở trợ lý AIKI"]') as HTMLButtonElement
-    act(() => openButton.click())
     expect(container.querySelector('[data-testid="aiki-compact-rail"]')).toBeNull()
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
 
     act(() => root.unmount())
   })
 
-  it('verifies Layout Defense Engine on short viewport height: responsive video classes and pinned sidebar progress footer', async () => {
+  it('verifies Layout Defense Engine on short viewport height: responsive video classes and omitted sidebar', async () => {
     const root = createRoot(container)
 
     await act(async () => {
@@ -3140,13 +2897,9 @@ describe('SixStageJourneyView', () => {
     expect(chapterTrack.className).toContain('lg:min-h-full')
     expect(chapterTrack.firstElementChild?.className).toContain('lg:shrink-0')
 
-    // 3. Check sidebar has pinned footer independent from the scroll body
-    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]') as HTMLElement
-    expect(sidebar).not.toBeNull()
-    const pinnedFooter = container.querySelector('[data-testid="sidebar-footer-progress"]') as HTMLElement
-    expect(pinnedFooter).not.toBeNull()
-    expect(pinnedFooter.parentElement).toBe(sidebar)
-    expect(pinnedFooter.textContent).toContain('Tiến độ:')
-    expect(pinnedFooter.textContent).toContain('42 Sao tích lũy')
+    // 3. Check sidebar is omitted and main canvas is full width
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+    const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
+    expect(mainCanvas?.className).toContain('w-full')
   })
 })
