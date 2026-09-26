@@ -132,18 +132,18 @@ function getWorkTypePill(kind?: string) {
   const k = (kind || '').toLowerCase()
   if (k.includes('comic') || k.includes('panel')) {
     return {
-      label: '📚 Truyện tranh',
+      label: 'Truyện tranh',
       className: 'border-amber-200/80 bg-amber-50 text-amber-800',
     }
   }
   if (k.includes('story') || k.includes('text') || k.includes('writing')) {
     return {
-      label: '✍️ Truyện chữ',
+      label: 'Truyện chữ',
       className: 'border-emerald-200/80 bg-emerald-50 text-emerald-800',
     }
   }
   return {
-    label: '🖼️ Tranh vẽ',
+    label: 'Tranh vẽ',
     className: 'border-sky-200/80 bg-sky-50 text-sky-800',
   }
 }
@@ -601,7 +601,7 @@ export function ProfilePage() {
       xp: explorerXp,
       isUnlocked: stationPercent === 100 || displayStations >= 32,
       statusText: (stationPercent === 100 || displayStations >= 32)
-        ? 'Đã tốt nghiệp khóa học 🏆'
+        ? 'Đã tốt nghiệp khóa học'
         : `Đang học (${displayStations}/32 trạm)`,
     }
   }, [displayStations, displayStars, explorerXp, stationPercent])
@@ -912,32 +912,32 @@ export function ProfilePage() {
         {[
           {
             id: 'progress' as const,
-            label: '📊 Tiến độ',
+            label: 'Tiến độ',
             badge: `${displayStations}/32`,
           },
           {
             id: 'certificates' as const,
-            label: '📜 Bằng khen',
+            label: 'Bằng khen',
             badge: backpackCertificates.length > 0 ? backpackCertificates.length : undefined,
           },
           {
             id: 'competencies' as const,
-            label: '🌱 Kỹ năng',
+            label: 'Kỹ năng',
             badge: 4,
           },
           {
             id: 'storybook' as const,
-            label: '📖 Sổ kỷ niệm',
+            label: 'Sổ kỷ niệm',
             badge: storybookPublishedEarnedCount > 0 ? storybookPublishedEarnedCount : undefined,
           },
           {
             id: 'memories' as const,
-            label: '🏆 Thành tích',
+            label: 'Thành tích',
             badge: achievements.length > 0 ? achievements.length : undefined,
           },
           {
             id: 'customize' as const,
-            label: '🎨 Trang trí',
+            label: 'Trang trí',
             badge: undefined,
           },
         ].map((tab) => {
@@ -953,7 +953,7 @@ export function ProfilePage() {
               onClick={() => setActiveTab(tab.id)}
               className={`min-h-[48px] shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer select-none ${
                 isActive
-                  ? 'bg-brand-500 text-white shadow-soft font-black'
+                  ? 'bg-gradient-to-r from-[#FD7D2E] to-[#F97316] text-white shadow-clay font-black rounded-xl'
                   : 'text-slate-600 hover:text-brand-700 hover:bg-white/60'
               }`}
             >
@@ -1079,7 +1079,7 @@ export function ProfilePage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-                  <span>📊</span> Nhịp học tập tuần này
+                  Nhịp học tập tuần này
                 </div>
                 <h2 id="weekly-pulse-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
                   Xem con học như thế nào
@@ -1145,7 +1145,7 @@ export function ProfilePage() {
                   </span>
                 </div>
                 <p className="text-slate-600">
-                  🌟 Lời khuyên của Mèo Mee: <span className="font-extrabold text-brand-700">Chỉ cần 15-20 phút mỗi ngày</span> để rèn luyện thói quen học tập và sáng tạo đều đặn!
+                  Lời khuyên của Mèo Mee: <span className="font-extrabold text-brand-700">Chỉ cần 15-20 phút mỗi ngày</span> để rèn luyện thói quen học tập và sáng tạo đều đặn!
                 </p>
               </div>
             </div>
@@ -1190,7 +1190,7 @@ export function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
-                  <SoftClayTrophyIcon size={18} /> 📜 Bằng Khen Trong Ba Lô
+                  <SoftClayTrophyIcon size={18} /> Bằng Khen Trong Ba Lô
                 </div>
                 <h2
                   id="course-certificates-title"
@@ -1205,7 +1205,7 @@ export function ProfilePage() {
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-100/90 border border-amber-300 px-3.5 py-2 text-xs font-black text-amber-900 shadow-2xs">
-                  <span>🎒</span> {backpackCertificates.length} Bằng khen trong Ba lô
+                  {backpackCertificates.length} Bằng khen trong Ba lô
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-xs font-extrabold text-amber-800 shadow-2xs">
                   <SoftClayStarIcon size={14} /> {displayStars} Sao gặt hái
@@ -1230,7 +1230,7 @@ export function ProfilePage() {
                         TỐT NGHIỆP XUẤT SẮC
                       </div>
                       <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                        🎉 CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ &amp; SÁNG TẠO!
+                        CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ &amp; SÁNG TẠO!
                       </h3>
                       <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
                         Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
@@ -1240,7 +1240,7 @@ export function ProfilePage() {
                           <SoftClayStarIcon size={14} /> {displayStars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
-                          <span>⚡</span> +{explorerXp} EXP
+                          +{explorerXp} EXP
                         </span>
                       </div>
                     </div>
@@ -1251,7 +1251,7 @@ export function ProfilePage() {
                       onClick={() => setSelectedCertificateForModal(courseCertificate)}
                       className="flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 font-display text-base font-black text-white shadow-soft transition-all hover:scale-105 hover:from-amber-600 hover:to-orange-600 active:scale-95 cursor-pointer ring-2 ring-amber-300/50"
                     >
-                      <span>Nhận Bằng Khen &amp; Cất Vào Ba Lô 🎒</span>
+                      <span>Nhận Bằng Khen &amp; Cất Vào Ba Lô</span>
                     </button>
                   </div>
                 </div>
@@ -1294,7 +1294,7 @@ export function ProfilePage() {
                         </div>
 
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-xs font-black text-emerald-900 shadow-2xs">
-                          <span>🎒</span> Đã lưu trong Ba lô
+                          Đã lưu trong Ba lô
                         </span>
                       </div>
 
@@ -1315,7 +1315,7 @@ export function ProfilePage() {
                           <SoftClayStarIcon size={14} /> {cert.stars || courseCertificate.stars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100/80 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
-                          <span>⚡</span> +{cert.xp || courseCertificate.xp} EXP
+                          +{cert.xp || courseCertificate.xp} EXP
                         </span>
                       </div>
                     </div>
@@ -1335,12 +1335,12 @@ export function ProfilePage() {
                             stars: cert.stars || courseCertificate.stars,
                             xp: cert.xp || courseCertificate.xp,
                             isUnlocked: true,
-                            statusText: 'Đã lưu trong Ba lô 🎒',
+                            statusText: 'Đã lưu trong Ba lô',
                           })
                         }}
                         className="w-full flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 font-display text-sm font-black text-white shadow-soft transition-all hover:scale-[1.02] hover:from-amber-600 hover:to-orange-600 active:scale-95 cursor-pointer ring-2 ring-amber-300/40"
                       >
-                        <span>Xem lại bằng khen 📜</span>
+                        <span>Xem lại bằng khen</span>
                       </button>
                     </div>
                   </div>
@@ -1471,7 +1471,7 @@ export function ProfilePage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-200/80 px-3 py-1 text-xs font-extrabold text-indigo-800">
-                    <span>📖</span> Sổ Kỷ Niệm Huyền Thoại
+                    Sổ Kỷ Niệm Huyền Thoại
                   </div>
                   <h2 id="storybook-header-title" className="mt-2 font-display text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                     Nhật Ký Phiêu Lưu Cùng Paco

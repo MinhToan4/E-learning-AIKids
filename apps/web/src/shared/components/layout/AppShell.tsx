@@ -193,7 +193,7 @@ const studentDrawerNav: StudentNavItem[] = [
   // { to: '/community',    label: 'Cộng đồng',   icon: KidProfileImageIcon,   tone: 'mint' },
   { to: '/achievements', label: 'Huy hiệu',    icon: KidBadgeImageIcon,     tone: 'sun' },
   { to: '/backpack',     label: 'Ba lô',       icon: KidBackpackImageIcon,  tone: 'sun' },
-  { to: '/profile',      label: 'Hồ sơ',       icon: KidProfileImageIcon,   tone: 'brand' },
+  { to: '/profile',      label: 'Hồ sơ',       icon: KidProfileAvatarIcon,  tone: 'brand' },
 ]
 // Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
 const studentNav: StudentNavItem[] = [
@@ -201,12 +201,36 @@ const studentNav: StudentNavItem[] = [
   ...studentDrawerNav,
 ]
 
+// ── Soft Clay Aiki Mascot Avatar Icon cho Cá nhân ─────────────
+function KidProfileAvatarIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center justify-center rounded-full overflow-hidden bg-gradient-to-b from-[#FFF4EC] to-[#FFE8D6] border border-[#FD7D2E]/50 shadow-xs shrink-0',
+        className
+      )}
+      style={{ width: size, height: size }}
+    >
+      <img
+        src={designerAssets.brand.mascot}
+        alt=""
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+        className="w-full h-full object-cover scale-110"
+      />
+    </span>
+  )
+}
+
 // ── Universal Floating Bottom Dock items (học sinh) ───────────
 const STUDENT_DOCK_ITEMS: RoleNavItem[] = [
   { to: '/home', label: 'Phiêu lưu', icon: KidHomeImageIcon, end: true },
   { to: '/world', label: 'Thư viện', icon: KidWorldImageIcon },
   { to: '/creative', label: 'Yêu thích', icon: KidCreativeImageIcon },
-  { to: '/profile', label: 'Cá nhân', icon: KidProfileImageIcon },
+  { to: '/profile', label: 'Cá nhân', icon: KidProfileAvatarIcon },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -917,8 +941,10 @@ export function AppShell() {
                   onPointerEnter={() => prefetchRoute(to)}
                   onFocus={() => prefetchRoute(to)}
                   className={cn(
-                    'student-floating-tab flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-2xl cursor-pointer transition-all active:scale-95 text-slate-400 font-bold',
-                    isItemActive ? 'active text-[#7c3aed] font-black' : 'hover:text-slate-600'
+                    'student-floating-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl cursor-pointer transition-all active:scale-95 border border-transparent',
+                    isItemActive
+                      ? 'active bg-gradient-to-b from-[#FFF4EC] to-[#FFE8D6] border-[#FD7D2E]/40 shadow-xs text-[#FD7D2E] font-black'
+                      : 'text-slate-400 font-bold hover:text-slate-600'
                   )}
                   data-active={isItemActive}
                   title={label}
@@ -926,20 +952,21 @@ export function AppShell() {
                 >
                   <div
                     className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
-                      isItemActive ? 'bg-[#f3e8ff]' : 'bg-transparent'
+                      'w-8 h-8 flex items-center justify-center transition-transform',
+                      isItemActive ? 'scale-105 transition-transform' : ''
                     )}
                   >
-                    <Icon size={22} className={isItemActive ? 'text-[#7c3aed]' : 'text-slate-400'} />
+                    <Icon size={22} className={isItemActive ? 'text-[#FD7D2E] scale-105 transition-transform' : 'text-slate-400'} />
                   </div>
                   <span
                     className={cn(
                       'text-[10px] tracking-tight',
-                      isItemActive ? 'text-[#7c3aed] font-black' : 'text-slate-400 font-bold'
+                      isItemActive ? 'text-[#FD7D2E] font-black' : 'text-slate-400 font-bold'
                     )}
                   >
                     {label}
                   </span>
+                  {isItemActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FD7D2E] mt-0.5" />}
                 </NavLink>
               )
             })}

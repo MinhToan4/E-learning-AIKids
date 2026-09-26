@@ -342,12 +342,12 @@ describe('ProfilePage Component', () => {
     })
 
     // Header & stats
-    expect(container.textContent).toContain('📜 Bằng Khen Trong Ba Lô')
+    expect(container.textContent).toContain('Bằng Khen Trong Ba Lô')
     expect(container.textContent).toContain('Bằng Khen Tốt Nghiệp Khóa Học')
     expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
     // Trường hợp 3: Khi chưa xong 32 trạm, KHÔNG có banner chúc mừng nhận bằng nào, chỉ có thẻ tiến độ
-    expect(container.textContent).not.toContain('🎉 CHÚC MỪNG CON ĐÃ TỐT NGHIỆP')
+    expect(container.textContent).not.toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP')
     expect(container.textContent).not.toContain('Chúc mừng con đã tốt nghiệp')
     expect(container.textContent).toContain(
       'Hoàn thành trọn vẹn 32/32 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!'
@@ -406,7 +406,7 @@ describe('ProfilePage Component', () => {
     expect(container.textContent).toContain('Tốt Nghiệp Xuất Sắc Toàn Khóa')
 
     const reviewBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Xem lại bằng khen 📜')
+      b.textContent?.includes('Xem lại bằng khen')
     )
     expect(reviewBtn).toBeDefined()
 
@@ -532,9 +532,9 @@ describe('ProfilePage Component', () => {
     })
 
     // Graduation banner & Claim to Backpack flow with non-AI text
-    expect(container.textContent).toContain('🎉 CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!')
+    expect(container.textContent).toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!')
     expect(container.textContent).toContain('Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.')
-    expect(container.textContent).toContain('Nhận Bằng Khen & Cất Vào Ba Lô 🎒')
+    expect(container.textContent).toContain('Nhận Bằng Khen & Cất Vào Ba Lô')
     expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
     const gradBanner = Array.from(container.querySelectorAll('[role="region"]')).find((el) =>

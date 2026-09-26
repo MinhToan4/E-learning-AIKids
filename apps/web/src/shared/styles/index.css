@@ -7383,19 +7383,13 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
 .student-floating-tab.active,
 .student-floating-tab[data-active='true'] {
-  background-color: #f3e8ff;
-  color: #7c3aed;
+  background: linear-gradient(to bottom, #FFF4EC, #FFE8D6);
+  color: #FD7D2E;
 }
 
 .student-floating-tab.active::after,
 .student-floating-tab[data-active='true']::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background-color: #7c3aed;
+  display: none;
 }
 
 .student-floating-tab-rose.active,
