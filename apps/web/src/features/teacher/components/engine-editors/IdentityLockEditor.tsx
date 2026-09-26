@@ -40,7 +40,7 @@ export function IdentityLockEditor({
       return
     }
     onLockedFeaturesChange([...currentFeatures, preset])
-    showToast(`🔒 Đã khóa đặc điểm ADN: ${preset}`, 'success')
+    showToast(`Đã khóa đặc điểm ADN: ${preset}`, 'success')
   }
 
   const handleAddFeature = () => {
@@ -65,7 +65,7 @@ export function IdentityLockEditor({
 
   const handleLoadDefaultFeatures = () => {
     onLockedFeaturesChange(DEFAULT_LOCKED_FEATURES)
-    showToast('🔒 Đã nạp 3 Mật mã ADN mẫu', 'success')
+    showToast('Đã nạp 3 Mật mã ADN mẫu', 'success')
   }
 
   // Expression handlers
@@ -75,7 +75,7 @@ export function IdentityLockEditor({
       return
     }
     onExpressionsChange([...currentExpressions, preset])
-    showToast(`🎭 Đã thêm biểu cảm: ${preset}`, 'success')
+    showToast(`Đã thêm biểu cảm: ${preset}`, 'success')
   }
 
   const handleAddExpression = () => {
@@ -100,16 +100,16 @@ export function IdentityLockEditor({
 
   const handleLoadDefaultExpressions = () => {
     onExpressionsChange(DEFAULT_EXPRESSIONS)
-    showToast('🪄 Đã nạp 6 biểu cảm mẫu Hallmark', 'success')
+    showToast('Đã nạp 6 biểu cảm mẫu Hallmark', 'success')
   }
 
   return (
-    <div className="rounded-2xl border-2 border-cyan-300 bg-white p-4 space-y-4 shadow-2xs">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-200/80 pb-2.5">
+    <div className="rounded-2xl border-2 border-cyan-200/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-200/70 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase text-cyan-950 flex items-center gap-1.5">
             <span>🔒 Khóa Mật Mã ADN & 6 Biểu Cảm (Identity Lock Editor)</span>
-            <span className="rounded-full bg-cyan-100 text-cyan-900 px-2 py-0.5 text-[10px] font-black">
+            <span className="rounded-full bg-cyan-100 text-cyan-900 border border-cyan-300 px-2 py-0.5 text-[10px] font-black">
               Bảo Toàn Nhân Vật
             </span>
           </h4>
@@ -120,7 +120,7 @@ export function IdentityLockEditor({
       </div>
 
       {/* ── Phần 1: 3 Mật Mã ADN Bất Biến ───────────────────────────── */}
-      <div className="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-3.5 space-y-3">
+      <div className="rounded-2xl border-2 border-cyan-200/80 bg-cyan-50/60 p-4 space-y-3 shadow-2xs">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 text-xs font-black text-cyan-900 uppercase">
             <ShieldCheck size={14} className="text-cyan-700" />
@@ -132,18 +132,18 @@ export function IdentityLockEditor({
           <button
             type="button"
             onClick={handleLoadDefaultFeatures}
-            className="text-[11px] font-black text-cyan-700 hover:text-cyan-900 bg-white border border-cyan-300 rounded-lg px-2 py-0.5 shadow-2xs cursor-pointer"
+            className="text-[11px] font-black text-cyan-700 hover:text-cyan-900 bg-white border border-cyan-300 rounded-xl px-2.5 py-1 shadow-2xs cursor-pointer active:scale-95 transition"
           >
             🔄 Mật mã mẫu
           </button>
         </div>
 
-        {/* Khay Chip ADN Có Sẵn */}
-        <div className="rounded-xl border border-cyan-200 bg-white/80 p-2 space-y-1">
-          <span className="text-[10px] font-bold text-cyan-800 uppercase block">
+        {/* Khay Chip ADN Có SẴn */}
+        <div className="rounded-xl border border-cyan-200 bg-white/90 p-3 space-y-1.5">
+          <span className="text-[10px] font-black text-cyan-800 uppercase block">
             + Ngân hàng đặc điểm ADN nhận diện (1-chạm khóa nhanh):
           </span>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {IDENTITY_LOCK_DNA_PRESETS.map((dna, dIdx) => {
               const isLocked = currentFeatures.includes(dna)
               return (
@@ -151,7 +151,7 @@ export function IdentityLockEditor({
                   key={dIdx}
                   type="button"
                   onClick={() => handleAddFeaturePreset(dna)}
-                  className={`rounded-full px-2.5 py-0.8 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                  className={`rounded-xl px-3 py-1 font-bold text-xs transition flex items-center gap-1 cursor-pointer shadow-2xs ${
                     isLocked
                       ? 'bg-cyan-100 text-cyan-900/60 border border-cyan-200 opacity-60 cursor-default'
                       : 'bg-white hover:bg-cyan-100 text-cyan-900 border border-cyan-300 active:scale-95'
@@ -166,13 +166,13 @@ export function IdentityLockEditor({
         </div>
 
         {/* Danh sách thẻ ADN đang khóa dạng Pill Chips */}
-        <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-xl bg-white border border-cyan-200">
+        <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-cyan-200">
           {currentFeatures.map((feat, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 text-[11px] font-bold bg-cyan-100 text-cyan-900 border border-cyan-300 px-2.5 py-1 rounded-full shadow-2xs"
+              className="inline-flex items-center gap-1.5 text-xs font-black bg-cyan-100 text-cyan-900 border border-cyan-300 px-3 py-1.5 rounded-xl shadow-2xs"
             >
-              <span className="font-mono font-black text-[10px] bg-cyan-200 px-1 rounded-md text-cyan-800">
+              <span className="font-mono font-black text-[10px] bg-cyan-200 px-1.5 py-0.5 rounded-md text-cyan-800">
                 #{idx + 1}
               </span>
               <span>{feat}</span>
@@ -187,12 +187,12 @@ export function IdentityLockEditor({
             </span>
           ))}
           {currentFeatures.length === 0 && (
-            <span className="text-[11px] text-muted italic p-1">Chưa có đặc điểm ADN nào</span>
+            <span className="text-xs text-cyan-800/60 italic p-1">Chưa có đặc điểm ADN nào</span>
           )}
         </div>
 
         {/* Input thêm ADN */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={inputFeature}
@@ -204,12 +204,12 @@ export function IdentityLockEditor({
               }
             }}
             placeholder="VD: Đội mũ len đỏ quả bông, Mắt xanh biếc..."
-            className="flex-1 min-w-0 rounded-xl border border-cyan-300 bg-white px-3 py-1.5 text-xs font-semibold text-cyan-950 placeholder:text-cyan-300 focus:border-cyan-500 focus:outline-hidden"
+            className="flex-1 min-w-0 rounded-xl border border-cyan-300 bg-white px-3 py-2 text-xs font-semibold text-cyan-950 placeholder:text-cyan-300 focus:border-cyan-500 focus:outline-hidden"
           />
           <button
             type="button"
             onClick={handleAddFeature}
-            className="rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+            className="rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
           >
             <Plus size={13} />
             <span>Thêm ADN</span>
@@ -218,7 +218,7 @@ export function IdentityLockEditor({
       </div>
 
       {/* ── Phần 2: Bánh Xe 6 Biểu Cảm Thần Thái ────────────────────── */}
-      <div className="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-3.5 space-y-3">
+      <div className="rounded-2xl border-2 border-cyan-200/80 bg-cyan-50/60 p-4 space-y-3 shadow-2xs">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 text-xs font-black text-cyan-900 uppercase">
             <Smile size={14} className="text-cyan-700" />
@@ -230,7 +230,7 @@ export function IdentityLockEditor({
           <button
             type="button"
             onClick={handleLoadDefaultExpressions}
-            className="rounded-xl border border-cyan-300 bg-white px-2.5 py-1 text-xs font-black text-cyan-800 shadow-2xs hover:bg-cyan-100 transition cursor-pointer flex items-center gap-1"
+            className="rounded-xl border border-cyan-300 bg-white px-3 py-1.5 text-xs font-black text-cyan-800 shadow-2xs hover:bg-cyan-100 transition cursor-pointer flex items-center gap-1.5"
           >
             <Sparkles size={12} className="text-cyan-600" />
             <span>🪄 Nạp 6 biểu cảm mẫu Hallmark</span>
@@ -238,11 +238,11 @@ export function IdentityLockEditor({
         </div>
 
         {/* Khay Chip Biểu Cảm Có Sẵn */}
-        <div className="rounded-xl border border-cyan-200 bg-white/80 p-2 space-y-1">
-          <span className="text-[10px] font-bold text-cyan-800 uppercase block">
+        <div className="rounded-xl border border-cyan-200 bg-white/90 p-3 space-y-1.5">
+          <span className="text-[10px] font-black text-cyan-800 uppercase block">
             + Ngân hàng biểu cảm thần thái (1-chạm thêm nhanh):
           </span>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {IDENTITY_LOCK_EXPRESSION_PRESETS.map((expr, eIdx) => {
               const isIncluded = currentExpressions.includes(expr)
               return (
@@ -250,7 +250,7 @@ export function IdentityLockEditor({
                   key={eIdx}
                   type="button"
                   onClick={() => handleAddExpressionPreset(expr)}
-                  className={`rounded-full px-2.5 py-0.8 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                  className={`rounded-xl px-3 py-1 font-bold text-xs transition flex items-center gap-1 cursor-pointer shadow-2xs ${
                     isIncluded
                       ? 'bg-cyan-100 text-cyan-900/60 border border-cyan-200 opacity-60 cursor-default'
                       : 'bg-white hover:bg-cyan-100 text-cyan-900 border border-cyan-300 active:scale-95'
@@ -265,11 +265,11 @@ export function IdentityLockEditor({
         </div>
 
         {/* Danh sách Biểu Cảm dạng Pill Chips Soft Clay */}
-        <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-xl bg-white border border-cyan-200">
+        <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-cyan-200">
           {currentExpressions.map((expr, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 text-[11px] font-bold bg-cyan-100 text-cyan-900 border border-cyan-300 px-2.5 py-1 rounded-full shadow-2xs"
+              className="inline-flex items-center gap-1.5 text-xs font-black bg-cyan-100 text-cyan-900 border border-cyan-300 px-3 py-1.5 rounded-xl shadow-2xs"
             >
               <span>{expr}</span>
               <button
@@ -283,12 +283,12 @@ export function IdentityLockEditor({
             </span>
           ))}
           {currentExpressions.length === 0 && (
-            <span className="text-[11px] text-muted italic p-1">Chưa có biểu cảm nào</span>
+            <span className="text-xs text-cyan-800/60 italic p-1">Chưa có biểu cảm nào</span>
           )}
         </div>
 
         {/* Input thêm biểu cảm */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={inputExpression}
@@ -300,12 +300,12 @@ export function IdentityLockEditor({
               }
             }}
             placeholder="VD: 🤩 Hào hứng reo hò, 🥺 Lo lắng ôm má..."
-            className="flex-1 min-w-0 rounded-xl border border-cyan-300 bg-white px-3 py-1.5 text-xs font-semibold text-cyan-950 placeholder:text-cyan-300 focus:border-cyan-500 focus:outline-hidden"
+            className="flex-1 min-w-0 rounded-xl border border-cyan-300 bg-white px-3 py-2 text-xs font-semibold text-cyan-950 placeholder:text-cyan-300 focus:border-cyan-500 focus:outline-hidden"
           />
           <button
             type="button"
             onClick={handleAddExpression}
-            className="rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+            className="rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
           >
             <Plus size={13} />
             <span>+ Thêm biểu cảm</span>

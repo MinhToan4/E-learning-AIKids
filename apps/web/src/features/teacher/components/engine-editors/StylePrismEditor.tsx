@@ -50,7 +50,7 @@ export function StylePrismEditor({
       promptStyle: preset.promptStyle,
     }
     onChange([...currentStyles, newStyle])
-    showToast(`🪄 Đã thêm phong cách: ${preset.name}`, 'success')
+    showToast(`Đã thêm phong cách: ${preset.name}`, 'success')
   }
 
   const handleAddNewCustom = () => {
@@ -87,17 +87,17 @@ export function StylePrismEditor({
 
   const handleLoadDefaults = () => {
     onChange(DEFAULT_STYLE_PRISM_OPTIONS)
-    showToast('🪄 Đã nạp bộ lăng kính mỹ thuật mẫu', 'success')
+    showToast('Đã nạp bộ lăng kính mỹ thuật mẫu', 'success')
   }
 
   return (
-    <div className="rounded-2xl border-2 border-purple-300 bg-white p-4 space-y-4 shadow-2xs">
+    <div className="rounded-2xl border-2 border-purple-200/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-2xs">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-purple-200/80 pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-purple-200/70 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase text-purple-950 flex items-center gap-1.5">
             <span>🔮 Lăng Kính Phù Thủy (Style Prism Editor)</span>
-            <span className="rounded-full bg-purple-100 text-purple-900 px-2 py-0.5 text-[10px] font-black">
+            <span className="rounded-full bg-purple-100 text-purple-900 border border-purple-300 px-2 py-0.5 text-[10px] font-black">
               Biến Hóa Phong Cách
             </span>
           </h4>
@@ -105,11 +105,11 @@ export function StylePrismEditor({
             Quản lý các lăng kính phong cách mỹ thuật giúp học sinh biến hóa tranh vẽ tức thì qua cụm prompt có sẵn.
           </p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleLoadDefaults}
-            className="rounded-xl border border-purple-300 bg-purple-50 px-2.5 py-1.5 text-xs font-black text-purple-800 shadow-2xs hover:bg-purple-100 transition cursor-pointer flex items-center gap-1"
+            className="rounded-xl border border-purple-300 bg-white px-3 py-1.5 text-xs font-black text-purple-800 shadow-2xs hover:bg-purple-50 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5"
           >
             <Sparkles size={13} className="text-purple-600" />
             <span>🪄 Nạp bộ lăng kính mỹ thuật mẫu</span>
@@ -118,16 +118,17 @@ export function StylePrismEditor({
       </div>
 
       {/* ── KHAY CỤM PROMPT CÓ SẴN (PRESET CHIPS BANK) ──────────────── */}
-      <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 space-y-2">
+      <div className="rounded-2xl border-2 border-purple-200/80 bg-purple-50/70 p-4 space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black text-purple-900 flex items-center gap-1">
-            ✨ Ngân Hàng Phong Cách Mỹ Thuật Có Sẵn (1-Chạm Thêm Nhanh):
+            <span>✨</span>
+            <span>Ngân Hàng Phong Cách Mỹ Thuật Có Sẵn (1-Chạm Thêm Nhanh):</span>
           </span>
-          <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200">
             {STYLE_PRISM_PRESETS.length} phong cách mẫu
           </span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {STYLE_PRISM_PRESETS.map((preset) => {
             const isAdded = currentStyles.some(
               (s) => s.name.toLowerCase() === preset.name.toLowerCase() || s.id === preset.id
@@ -137,10 +138,10 @@ export function StylePrismEditor({
                 key={preset.id}
                 type="button"
                 onClick={() => handleAddPreset(preset)}
-                className={`rounded-full px-2.5 py-1 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                   isAdded
                     ? 'bg-purple-200/80 text-purple-950 border border-purple-300 opacity-70 cursor-default'
-                    : 'bg-white hover:bg-purple-100 text-purple-900 border border-purple-300 active:scale-95'
+                    : 'bg-white hover:bg-purple-100 text-purple-900 border border-purple-200 active:scale-95'
                 }`}
                 title={preset.promptStyle}
               >
@@ -157,18 +158,18 @@ export function StylePrismEditor({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-black text-purple-900 uppercase">
             <Palette size={14} className="text-purple-700" />
-            <span>🔮 Quản Lý {currentStyles.length}/8 Lăng Kính Đang Dùng</span>
+            <span>Quản Lý {currentStyles.length}/8 Lăng Kính Đang Dùng</span>
           </div>
           <span className="text-[10px] font-medium text-slate-500 italic">
             Nhấp vào ô để tinh chỉnh tên hoặc cụm prompt
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {currentStyles.map((style, idx) => (
             <div
               key={style.id || idx}
-              className="rounded-2xl border border-purple-200 bg-white p-3 space-y-2.5 shadow-2xs hover:border-purple-300 transition"
+              className="rounded-2xl border-2 border-purple-200/80 bg-[#FFFDF8] p-3.5 space-y-3 shadow-xs hover:border-purple-400 transition"
             >
               {/* Dòng 1: Icon/Badge + Ô sửa tên phong cách + Nút Xóa */}
               <div className="flex items-center justify-between gap-2">
@@ -178,20 +179,20 @@ export function StylePrismEditor({
                     value={style.icon || '🎨'}
                     onChange={(e) => handleUpdateStyle(idx, { icon: e.target.value })}
                     title="Icon hoặc Emoji"
-                    className="size-8 text-center rounded-lg border border-purple-200 bg-purple-50 text-base shrink-0 font-bold"
+                    className="size-8 text-center rounded-xl border border-purple-200 bg-purple-50 text-base shrink-0 font-bold"
                   />
                   <input
                     type="text"
                     value={style.name}
                     onChange={(e) => handleUpdateStyle(idx, { name: e.target.value })}
                     placeholder="Tên phong cách..."
-                    className="flex-1 min-w-0 rounded-lg border border-purple-200 bg-white px-2.5 py-1 text-xs font-black text-purple-950 focus:border-purple-400 focus:outline-hidden"
+                    className="flex-1 min-w-0 rounded-xl border border-purple-200 bg-white px-2.5 py-1.5 text-xs font-black text-purple-950 focus:border-purple-400 focus:outline-hidden"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => handleRemoveStyle(idx)}
-                  className="size-7 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 grid place-items-center transition cursor-pointer shrink-0"
+                  className="size-7 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 grid place-items-center transition cursor-pointer shrink-0"
                   title="Xóa phong cách này"
                 >
                   <X size={14} />
@@ -202,7 +203,7 @@ export function StylePrismEditor({
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-slate-600 uppercase">Cụm prompt áp dụng:</span>
-                  <span className="text-[9px] font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded-md">
+                  <span className="text-[9px] font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-md">
                     Prompt Style
                   </span>
                 </div>
@@ -211,7 +212,7 @@ export function StylePrismEditor({
                   value={style.promptStyle || ''}
                   onChange={(e) => handleUpdateStyle(idx, { promptStyle: e.target.value })}
                   placeholder="VD: phong cách đất nặn 3D Soft Clay bo tròn pastel..."
-                  className="w-full rounded-xl border border-indigo-200 bg-indigo-50/50 px-2.5 py-1.5 text-xs font-medium text-indigo-950 placeholder:text-indigo-300 focus:bg-white focus:border-indigo-400 focus:outline-hidden"
+                  className="w-full rounded-xl border border-indigo-200 bg-indigo-50/50 px-3 py-1.5 text-xs font-medium text-indigo-950 placeholder:text-indigo-300 focus:bg-white focus:border-indigo-400 focus:outline-hidden"
                 />
               </div>
 
@@ -223,7 +224,7 @@ export function StylePrismEditor({
                   value={style.desc || ''}
                   onChange={(e) => handleUpdateStyle(idx, { desc: e.target.value })}
                   placeholder="VD: Bề mặt đất nặn mịn màng màu ấm áp..."
-                  className="w-full rounded-lg border border-purple-100 bg-purple-50/30 px-2.5 py-1 text-[11px] text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-purple-300 focus:outline-hidden"
+                  className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-3 py-1 text-[11px] text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-purple-300 focus:outline-hidden"
                 />
               </div>
             </div>
@@ -243,15 +244,15 @@ export function StylePrismEditor({
               }
             }}
             placeholder="Nhập tên phong cách mới (VD: Tranh khắc gỗ, Cyberpunk dễ thương)..."
-            className="flex-1 min-w-0 rounded-xl border border-purple-300 bg-white px-3 py-1.5 text-xs font-semibold text-purple-950 placeholder:text-purple-300 focus:border-purple-500 focus:outline-hidden"
+            className="flex-1 min-w-0 rounded-xl border border-purple-300 bg-white px-3 py-2 text-xs font-semibold text-purple-950 placeholder:text-purple-300 focus:border-purple-500 focus:outline-hidden"
           />
           <button
             type="button"
             onClick={handleAddNewCustom}
-            className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+            className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
           >
             <Plus size={13} />
-            <span>+ Thêm phong cách</span>
+            <span>Thêm phong cách</span>
           </button>
         </div>
       </div>

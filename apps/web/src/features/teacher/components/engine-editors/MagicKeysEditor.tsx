@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, X, Plus } from 'lucide-react'
 import type { SixStageFourKeysOptions, SixStagePracticePartDef } from '@/shared/lib/api'
 import { DEFAULT_FOUR_KEYS_OPTIONS, suggestFourKeysForSubject } from './engine-editor-defaults'
 
@@ -64,16 +64,16 @@ export function MagicKeysEditor({
       onSuggestParts(suggested.parts)
     }
     onChange(suggested.fourKeys)
-    showToast('🪄 Đã gợi ý bộ thẻ 4 Chìa Khóa và món đồ chuẩn theo bài!', 'success')
+    showToast('Đã gợi ý bộ thẻ 4 Chìa Khóa và món đồ chuẩn theo bài!', 'success')
   }
 
   return (
-    <div className="rounded-2xl border-2 border-brand-200 bg-white p-4 space-y-3.5 shadow-2xs">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-2.5">
+    <div className="rounded-2xl border-2 border-amber-200/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/70 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
-            <span>🔑 Ngân Hàng Thẻ 4 Chìa Khóa (AI Studio Magic Keys)</span>
-            <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-black">
+            <span>Ngân Hàng Thẻ 4 Chìa Khóa (AI Studio Magic Keys)</span>
+            <span className="rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 text-[10px] font-black">
               Hallmark SSOT
             </span>
           </h4>
@@ -84,98 +84,104 @@ export function MagicKeysEditor({
         <button
           type="button"
           onClick={handleSuggestFourKeys}
-          className="rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer flex items-center gap-1.5"
+          className="rounded-xl bg-gradient-to-r from-[#FD7D2E] to-[#F97316] text-white font-black shadow-xs hover:opacity-95 active:scale-[0.98] transition px-3.5 py-1.5 text-xs flex items-center gap-1.5 cursor-pointer"
         >
-          <Sparkles size={13} className="text-brand-600" />
-          <span>🪄 Gợi ý thẻ 4 Chìa Khóa theo bài</span>
+          <Sparkles size={13} className="text-white" />
+          <span>Gợi ý thẻ 4 Chìa Khóa theo bài</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* Khay 1: Cái gì? (Sky Blue) - Tự động đồng bộ từ Tầng 1 */}
-        <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/70 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-sky-900 flex items-center gap-1">
-              🔑 1. Cái gì? (Chủ thể / Món đồ)
-            </span>
-            <span className="rounded-full bg-sky-500 text-white text-[9px] font-black px-1.5 py-0.2">
-              {resolvedWhat.length} thẻ (Đồng bộ Tầng 1)
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-sky-200">
-            {resolvedWhat.map((tag, tIdx) => (
-              <span
-                key={tIdx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-300 px-2.5 py-1 rounded-lg shadow-2xs"
-              >
-                <span>🎨 {tag}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Khay 1: Cái gì? (Tông Cam Aiki ấm áp) - Tự động đồng bộ từ Tầng 1 */}
+        <div className="rounded-2xl border-2 border-[#FD7D2E]/40 bg-[#FFF9F5] text-amber-950 p-4 space-y-3 shadow-2xs flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black flex items-center gap-1 text-amber-950">
+                1. Cái gì? (Chủ thể / Món đồ)
               </span>
-            ))}
-            {resolvedWhat.length === 0 && (
-              <span className="text-[11px] text-muted italic">Chưa có món đồ nào từ Tầng 1</span>
-            )}
+              <span className="rounded-full bg-[#FD7D2E] text-white text-[10px] font-black px-2 py-0.5 shadow-2xs">
+                {resolvedWhat.length} thẻ (Đồng bộ Tầng 1)
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2 min-h-[38px] p-2.5 rounded-xl bg-white/90 border border-amber-200/80">
+              {resolvedWhat.map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1 text-xs font-black bg-amber-100/90 text-amber-950 border border-amber-300 px-3 py-1.5 rounded-xl shadow-2xs"
+                >
+                  <span>{tag}</span>
+                </span>
+              ))}
+              {resolvedWhat.length === 0 && (
+                <span className="text-xs text-amber-800/60 italic p-1">Chưa có món đồ nào từ Tầng 1</span>
+              )}
+            </div>
           </div>
-          <p className="text-[10px] text-sky-800 font-medium italic">
-            💡 Tự động hiển thị và đồng bộ từ danh sách món đồ thực hành (Tầng 1).
+          <p className="text-[11px] text-amber-900/80 font-medium italic pt-1 border-t border-amber-200/60">
+            Tự động hiển thị và đồng bộ từ danh sách món đồ thực hành (Tầng 1).
           </p>
         </div>
 
-        {/* Khay 2: Trông thế nào? (Sun Yellow) */}
-        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/70 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-amber-900 flex items-center gap-1">
-              🔑 2. Trông thế nào? (Hình dáng / Màu sắc)
-            </span>
-            <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2">
-              {(fourKeys.how || []).length} thẻ
-            </span>
-          </div>
-
-          {/* Preset Chips Bank */}
-          <div className="flex flex-wrap gap-1 items-center text-[10px]">
-            <span className="text-amber-800 font-bold">Gợi ý:</span>
-            {(DEFAULT_FOUR_KEYS_OPTIONS.how || []).map((preset, pIdx) => {
-              const isAdded = (fourKeys.how || []).includes(preset)
-              return (
-                <button
-                  key={pIdx}
-                  type="button"
-                  onClick={() => handleAddTag('how', preset, setInputHow)}
-                  className={`rounded-full px-2 py-0.5 font-bold transition flex items-center gap-0.5 cursor-pointer text-[10px] ${
-                    isAdded
-                      ? 'bg-amber-100 text-amber-900/60 opacity-60 cursor-default'
-                      : 'bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 active:scale-95 shadow-2xs'
-                  }`}
-                >
-                  <span>{isAdded ? '✓' : '+'}</span>
-                  <span>{preset}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-amber-200">
-            {(fourKeys.how || []).map((tag, tIdx) => (
-              <span
-                key={tIdx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg shadow-2xs"
-              >
-                <span>{tag}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag('how', tIdx)}
-                  className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                >
-                  ×
-                </button>
+        {/* Khay 2: Trông thế nào? (Tông Tím Soft Clay) */}
+        <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/80 text-purple-950 p-4 space-y-3 shadow-2xs flex flex-col justify-between">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black flex items-center gap-1 text-purple-950">
+                2. Trông thế nào? (Hình dáng / Màu sắc)
               </span>
-            ))}
-            {(fourKeys.how || []).length === 0 && (
-              <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-            )}
+              <span className="rounded-full bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 shadow-2xs">
+                {(fourKeys.how || []).length} thẻ
+              </span>
+            </div>
+
+            {/* Preset Chips Bank */}
+            <div className="flex flex-wrap gap-1.5 items-center text-xs">
+              <span className="text-purple-900 font-black text-[11px]">Gợi ý:</span>
+              {(DEFAULT_FOUR_KEYS_OPTIONS.how || []).map((preset, pIdx) => {
+                const isAdded = (fourKeys.how || []).includes(preset)
+                return (
+                  <button
+                    key={pIdx}
+                    type="button"
+                    onClick={() => handleAddTag('how', preset, setInputHow)}
+                    className={`rounded-xl px-2.5 py-1 font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      isAdded
+                        ? 'bg-purple-200/80 text-purple-900/60 opacity-60 cursor-default border border-purple-200'
+                        : 'bg-white hover:bg-purple-100 text-purple-900 border border-purple-200 active:scale-95 shadow-2xs'
+                    }`}
+                  >
+                    <span>{isAdded ? '✓' : '+'}</span>
+                    <span>{preset}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="flex flex-wrap gap-2 min-h-[38px] p-2.5 rounded-xl bg-white/90 border border-purple-200">
+              {(fourKeys.how || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1.5 text-xs font-black bg-purple-100/90 text-purple-950 border border-purple-300 px-3 py-1.5 rounded-xl shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('how', tIdx)}
+                    className="hover:text-rose-600 text-purple-700 font-black cursor-pointer ml-0.5 transition"
+                    title="Xóa thẻ này"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.how || []).length === 0 && (
+                <span className="text-xs text-purple-800/60 italic p-1">Chưa có thẻ nào</span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
+
+          <div className="flex items-center gap-2 pt-1 border-t border-purple-200/60">
             <input
               type="text"
               value={inputHow}
@@ -187,73 +193,78 @@ export function MagicKeysEditor({
                 }
               }}
               placeholder="VD: men bóng mẻ miệng, màu xanh mini..."
-              className="flex-1 min-w-0 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-950 placeholder:text-amber-300"
+              className="flex-1 min-w-0 rounded-xl border border-purple-300 bg-white px-3 py-1.5 text-xs font-bold text-purple-950 placeholder:text-purple-300 focus:outline-hidden focus:border-purple-500"
             />
             <button
               type="button"
               onClick={() => handleAddTag('how', inputHow, setInputHow)}
-              className="rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-1.5 text-xs font-black shadow-xs transition cursor-pointer shrink-0 flex items-center gap-1"
             >
-              + Thêm
+              <Plus size={13} />
+              <span>Thêm</span>
             </button>
           </div>
         </div>
 
-        {/* Khay 3: Đang làm gì? (Mango Orange / Mint Green) */}
-        <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-emerald-900 flex items-center gap-1">
-              🔑 3. Đang làm gì? (Hành động)
-            </span>
-            <span className="rounded-full bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.2">
-              {(fourKeys.action || []).length} thẻ
-            </span>
-          </div>
-
-          {/* Preset Chips Bank */}
-          <div className="flex flex-wrap gap-1 items-center text-[10px]">
-            <span className="text-emerald-800 font-bold">Gợi ý:</span>
-            {(DEFAULT_FOUR_KEYS_OPTIONS.action || []).map((preset, pIdx) => {
-              const isAdded = (fourKeys.action || []).includes(preset)
-              return (
-                <button
-                  key={pIdx}
-                  type="button"
-                  onClick={() => handleAddTag('action', preset, setInputAction)}
-                  className={`rounded-full px-2 py-0.5 font-bold transition flex items-center gap-0.5 cursor-pointer text-[10px] ${
-                    isAdded
-                      ? 'bg-emerald-100 text-emerald-900/60 opacity-60 cursor-default'
-                      : 'bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 active:scale-95 shadow-2xs'
-                  }`}
-                >
-                  <span>{isAdded ? '✓' : '+'}</span>
-                  <span>{preset}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-emerald-200">
-            {(fourKeys.action || []).map((tag, tIdx) => (
-              <span
-                key={tIdx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-lg shadow-2xs"
-              >
-                <span>{tag}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag('action', tIdx)}
-                  className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                >
-                  ×
-                </button>
+        {/* Khay 3: Đang làm gì? (Tông Xanh Dương Soft Clay) */}
+        <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/80 text-blue-950 p-4 space-y-3 shadow-2xs flex flex-col justify-between">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black flex items-center gap-1 text-blue-950">
+                3. Đang làm gì? (Hành động)
               </span>
-            ))}
-            {(fourKeys.action || []).length === 0 && (
-              <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-            )}
+              <span className="rounded-full bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 shadow-2xs">
+                {(fourKeys.action || []).length} thẻ
+              </span>
+            </div>
+
+            {/* Preset Chips Bank */}
+            <div className="flex flex-wrap gap-1.5 items-center text-xs">
+              <span className="text-blue-900 font-black text-[11px]">Gợi ý:</span>
+              {(DEFAULT_FOUR_KEYS_OPTIONS.action || []).map((preset, pIdx) => {
+                const isAdded = (fourKeys.action || []).includes(preset)
+                return (
+                  <button
+                    key={pIdx}
+                    type="button"
+                    onClick={() => handleAddTag('action', preset, setInputAction)}
+                    className={`rounded-xl px-2.5 py-1 font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      isAdded
+                        ? 'bg-blue-200/80 text-blue-900/60 opacity-60 cursor-default border border-blue-200'
+                        : 'bg-white hover:bg-blue-100 text-blue-900 border border-blue-200 active:scale-95 shadow-2xs'
+                    }`}
+                  >
+                    <span>{isAdded ? '✓' : '+'}</span>
+                    <span>{preset}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="flex flex-wrap gap-2 min-h-[38px] p-2.5 rounded-xl bg-white/90 border border-blue-200">
+              {(fourKeys.action || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1.5 text-xs font-black bg-blue-100/90 text-blue-950 border border-blue-300 px-3 py-1.5 rounded-xl shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('action', tIdx)}
+                    className="hover:text-rose-600 text-blue-700 font-black cursor-pointer ml-0.5 transition"
+                    title="Xóa thẻ này"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.action || []).length === 0 && (
+                <span className="text-xs text-blue-800/60 italic p-1">Chưa có thẻ nào</span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
+
+          <div className="flex items-center gap-2 pt-1 border-t border-blue-200/60">
             <input
               type="text"
               value={inputAction}
@@ -264,74 +275,79 @@ export function MagicKeysEditor({
                   handleAddTag('action', inputAction, setInputAction)
                 }
               }}
-              placeholder="VD: đang bốc khói nghi ngút, đang chạy bon bon..."
-              className="flex-1 min-w-0 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300"
+              placeholder="VD: đang bốc khói, đang lăn tròn..."
+              className="flex-1 min-w-0 rounded-xl border border-blue-300 bg-white px-3 py-1.5 text-xs font-bold text-blue-950 placeholder:text-blue-300 focus:outline-hidden focus:border-blue-500"
             />
             <button
               type="button"
               onClick={() => handleAddTag('action', inputAction, setInputAction)}
-              className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 text-xs font-black shadow-xs transition cursor-pointer shrink-0 flex items-center gap-1"
             >
-              + Thêm
+              <Plus size={13} />
+              <span>Thêm</span>
             </button>
           </div>
         </div>
 
-        {/* Khay 4: Ở đâu? (Rose Pink) */}
-        <div className="rounded-2xl border-2 border-rose-300 bg-rose-50/70 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-rose-900 flex items-center gap-1">
-              🔑 4. Ở đâu? (Bối cảnh / Vị trí)
-            </span>
-            <span className="rounded-full bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2">
-              {(fourKeys.where || []).length} thẻ
-            </span>
-          </div>
-
-          {/* Preset Chips Bank */}
-          <div className="flex flex-wrap gap-1 items-center text-[10px]">
-            <span className="text-rose-800 font-bold">Gợi ý:</span>
-            {(DEFAULT_FOUR_KEYS_OPTIONS.where || []).map((preset, pIdx) => {
-              const isAdded = (fourKeys.where || []).includes(preset)
-              return (
-                <button
-                  key={pIdx}
-                  type="button"
-                  onClick={() => handleAddTag('where', preset, setInputWhere)}
-                  className={`rounded-full px-2 py-0.5 font-bold transition flex items-center gap-0.5 cursor-pointer text-[10px] ${
-                    isAdded
-                      ? 'bg-rose-100 text-rose-900/60 opacity-60 cursor-default'
-                      : 'bg-white hover:bg-rose-100 text-rose-900 border border-rose-300 active:scale-95 shadow-2xs'
-                  }`}
-                >
-                  <span>{isAdded ? '✓' : '+'}</span>
-                  <span>{preset}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-rose-200">
-            {(fourKeys.where || []).map((tag, tIdx) => (
-              <span
-                key={tIdx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded-lg shadow-2xs"
-              >
-                <span>{tag}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag('where', tIdx)}
-                  className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
-                >
-                  ×
-                </button>
+        {/* Khay 4: Ở đâu? (Tông Xanh Ngọc Soft Clay) */}
+        <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/80 text-emerald-950 p-4 space-y-3 shadow-2xs flex flex-col justify-between">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black flex items-center gap-1 text-emerald-950">
+                4. Ở đâu? (Bối cảnh / Không gian)
               </span>
-            ))}
-            {(fourKeys.where || []).length === 0 && (
-              <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
-            )}
+              <span className="rounded-full bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 shadow-2xs">
+                {(fourKeys.where || []).length} thẻ
+              </span>
+            </div>
+
+            {/* Preset Chips Bank */}
+            <div className="flex flex-wrap gap-1.5 items-center text-xs">
+              <span className="text-emerald-900 font-black text-[11px]">Gợi ý:</span>
+              {(DEFAULT_FOUR_KEYS_OPTIONS.where || []).map((preset, pIdx) => {
+                const isAdded = (fourKeys.where || []).includes(preset)
+                return (
+                  <button
+                    key={pIdx}
+                    type="button"
+                    onClick={() => handleAddTag('where', preset, setInputWhere)}
+                    className={`rounded-xl px-2.5 py-1 font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      isAdded
+                        ? 'bg-emerald-200/80 text-emerald-900/60 opacity-60 cursor-default border border-emerald-200'
+                        : 'bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 active:scale-95 shadow-2xs'
+                    }`}
+                  >
+                    <span>{isAdded ? '✓' : '+'}</span>
+                    <span>{preset}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="flex flex-wrap gap-2 min-h-[38px] p-2.5 rounded-xl bg-white/90 border border-emerald-200">
+              {(fourKeys.where || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-100/90 text-emerald-950 border border-emerald-300 px-3 py-1.5 rounded-xl shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('where', tIdx)}
+                    className="hover:text-rose-600 text-emerald-700 font-black cursor-pointer ml-0.5 transition"
+                    title="Xóa thẻ này"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.where || []).length === 0 && (
+                <span className="text-xs text-emerald-800/60 italic p-1">Chưa có thẻ nào</span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
+
+          <div className="flex items-center gap-2 pt-1 border-t border-emerald-200/60">
             <input
               type="text"
               value={inputWhere}
@@ -342,15 +358,16 @@ export function MagicKeysEditor({
                   handleAddTag('where', inputWhere, setInputWhere)
                 }
               }}
-              placeholder="VD: trên bàn gỗ mộc, bên cửa sổ..."
-              className="flex-1 min-w-0 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-950 placeholder:text-rose-300"
+              placeholder="VD: trên bàn gỗ mộc, ở sân cỏ xanh..."
+              className="flex-1 min-w-0 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-bold text-emerald-950 placeholder:text-emerald-300 focus:outline-hidden focus:border-emerald-500"
             />
             <button
               type="button"
               onClick={() => handleAddTag('where', inputWhere, setInputWhere)}
-              className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 text-xs font-black shadow-xs transition cursor-pointer shrink-0 flex items-center gap-1"
             >
-              + Thêm
+              <Plus size={13} />
+              <span>Thêm</span>
             </button>
           </div>
         </div>

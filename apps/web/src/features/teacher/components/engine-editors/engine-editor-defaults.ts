@@ -8,9 +8,9 @@ import type {
 } from '../../../../shared/lib/api'
 
 export const DEFAULT_MAGIC_KEYS_PARTS: SixStagePracticePartDef[] = [
-  { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', emoji: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
-  { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', emoji: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-  { partNumber: 3, title: 'Cuốn sổ tay bìa da', icon: '📖', emoji: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
+  { partNumber: 1, title: 'Cái cốc sứ trắng', icon: 'cup', emoji: '', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
+  { partNumber: 2, title: 'Cái xe đạp', icon: 'bicycle', emoji: '', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
+  { partNumber: 3, title: 'Cuốn sổ tay bìa da', icon: 'notebook', emoji: '', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
 ]
 
 export const DEFAULT_STYLE_PRISM_PARTS: SixStagePracticePartDef[] = [
@@ -371,25 +371,25 @@ export interface PromptDoctorCurePreset {
 
 export const PROMPT_DOCTOR_CURE_PRESETS: PromptDoctorCurePreset[] = [
   {
-    name: '✋ Bàn tay năm ngón cầm bút chì',
+    name: 'Bàn tay năm ngón cầm bút chì',
     prompt: 'một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
     role: 'cure',
     targetCase: 'Đặc trị Ca 1: Tay sáu ngón',
   },
   {
-    name: '🧢 Đội mũ len đỏ có quả bông trắng',
+    name: 'Đội mũ len đỏ có quả bông trắng',
     prompt: 'một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
     role: 'trap',
     targetCase: 'Đặc trị Ca 2: Mất cái mũ',
   },
   {
-    name: '🌳 Không có con vật nào trên cành',
+    name: 'Không có con vật nào trên cành',
     prompt: 'một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
     role: 'trap',
     targetCase: 'Đặc trị Ca 3: Thừa ba con chim',
   },
   {
-    name: '🎂 Đang nhìn vào cái bánh',
+    name: 'Đang nhìn vào cái bánh',
     prompt: 'một bạn nhỏ ngồi trước cái bánh sinh nhật, đang nhìn vào cái bánh, hai tay chống cằm',
     role: 'trap',
     targetCase: 'Đặc trị Ca 4: Nhìn sai hướng',
@@ -423,12 +423,12 @@ export const LAYER_STACKING_PRESETS = {
 
 // ── 4. IDENTITY LOCK PRESETS (KHÓA MẬT MÃ ADN & BIỂU CẢM) ───────────
 export const IDENTITY_LOCK_DNA_PRESETS: string[] = [
-  '☕ Cốc sứ trắng men bóng',
-  '🦊 Bộ lông vằn cam trắng',
-  '🧶 Mũ len đỏ quả bông',
-  '👓 Cặp kính cận gọng tròn',
-  '🧣 Khăn quàng cổ kẻ caro',
-  '⭐ Vết bớt ngôi sao ở má',
+  'Cốc sứ trắng men bóng',
+  'Bộ lông vằn cam trắng',
+  'Mũ len đỏ quả bông',
+  'Cặp kính cận gọng tròn',
+  'Khăn quàng cổ kẻ caro',
+  'Vết bớt ngôi sao ở má',
 ]
 
 export const IDENTITY_LOCK_EXPRESSION_PRESETS: string[] = [
@@ -452,11 +452,11 @@ export interface CardForgeElementPreset {
 }
 
 export const CARD_FORGE_ELEMENT_PRESETS: CardForgeElementPreset[] = [
-  { id: 'ice', name: '❄️ Băng Tuyết', icon: '❄️', skill: 'Hơi Thở Băng Giá', hp: 1200, atk: 850 },
-  { id: 'fire', name: '🔥 Lửa Thiêng', icon: '🔥', skill: 'Bão Lửa Cuồng Phong', hp: 1100, atk: 950 },
-  { id: 'nature', name: '🌿 Rừng Xanh', icon: '🌿', skill: 'Khiên Gai Độc Mộc', hp: 1400, atk: 750 },
-  { id: 'thunder', name: '⚡ Sấm Sét', icon: '⚡', skill: 'Lôi Thần Giáng Lâm', hp: 1000, atk: 1100 },
-  { id: 'crystal', name: '💎 Pha Lê', icon: '💎', skill: 'Ánh Sáng Khúc Xạ', hp: 1300, atk: 900 },
+  { id: 'ice', name: 'Băng Tuyết', icon: '❄️', skill: 'Hơi Thở Băng Giá', hp: 1200, atk: 850 },
+  { id: 'fire', name: 'Lửa Thiêng', icon: '🔥', skill: 'Bão Lửa Cuồng Phong', hp: 1100, atk: 950 },
+  { id: 'nature', name: 'Rừng Xanh', icon: '🌿', skill: 'Khiên Gai Độc Mộc', hp: 1400, atk: 750 },
+  { id: 'thunder', name: 'Sấm Sét', icon: '⚡', skill: 'Lôi Thần Giáng Lâm', hp: 1000, atk: 1100 },
+  { id: 'crystal', name: 'Pha Lê', icon: '💎', skill: 'Ánh Sáng Khúc Xạ', hp: 1300, atk: 900 },
 ]
 
 export interface CardForgeTierPreset {

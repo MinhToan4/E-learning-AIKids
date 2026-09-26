@@ -61,17 +61,17 @@ export function LayerStackingEditor({
 
   const handleLoadDefaults = () => {
     onChange(DEFAULT_LAYER_STACKING_OPTIONS)
-    showToast('🪄 Đã gợi ý 3 tầng bố cục sân khấu', 'success')
+    showToast('Đã gợi ý 3 tầng bố cục sân khấu', 'success')
   }
 
   return (
-    <div className="rounded-2xl border-2 border-emerald-300 bg-white p-4 space-y-4 shadow-2xs">
+    <div className="rounded-2xl border-2 border-emerald-200/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-2xs">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-200/80 pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-200/70 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase text-emerald-950 flex items-center gap-1.5">
             <span>🎭 3 Tầng Sân Khấu (Layer Stacking Editor)</span>
-            <span className="rounded-full bg-emerald-100 text-emerald-900 px-2 py-0.5 text-[10px] font-black">
+            <span className="rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 text-[10px] font-black">
               Bố Cục 1/3
             </span>
           </h4>
@@ -82,7 +82,7 @@ export function LayerStackingEditor({
         <button
           type="button"
           onClick={handleLoadDefaults}
-          className="rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-800 shadow-2xs hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1"
+          className="rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black text-emerald-800 shadow-2xs hover:bg-emerald-50 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5"
         >
           <Sparkles size={12} className="text-emerald-600" />
           <span>🪄 Gợi ý 3 tầng bố cục sân khấu</span>
@@ -91,7 +91,7 @@ export function LayerStackingEditor({
 
       <div className="space-y-4">
         {/* ── Tầng 1: Hậu Cảnh (Background) ─────────────────────────── */}
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-3.5 space-y-2.5">
+        <div className="rounded-2xl border-2 border-emerald-200/80 bg-emerald-50/50 p-4 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-emerald-950 uppercase flex items-center gap-1">
               🌄 Tầng 1: Hậu Cảnh (Background)
@@ -102,11 +102,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Preset Chips Bank */}
-          <div className="rounded-xl border border-emerald-200 bg-white/80 p-2 space-y-1">
-            <span className="text-[10px] font-bold text-emerald-800 uppercase block">
+          <div className="rounded-xl border border-emerald-200 bg-white/90 p-3 space-y-1.5">
+            <span className="text-[10px] font-black text-emerald-800 uppercase block">
               + Gợi ý phông nền có sẵn (1-chạm thêm nhanh):
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {LAYER_STACKING_PRESETS.background.map((bgItem, bIdx) => {
                 const isSelected = (currentLayers.background || []).includes(bgItem)
                 return (
@@ -114,7 +114,7 @@ export function LayerStackingEditor({
                     key={bIdx}
                     type="button"
                     onClick={() => handleAddLayerItem('background', bgItem)}
-                    className={`rounded-full px-2.5 py-0.8 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                       isSelected
                         ? 'bg-emerald-100 text-emerald-900/60 border border-emerald-200 opacity-60 cursor-default'
                         : 'bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 active:scale-95'
@@ -129,11 +129,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Current Chips List */}
-          <div className="flex flex-wrap gap-1.5 min-h-[38px] p-2 rounded-xl bg-white border border-emerald-200">
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-emerald-200">
             {(currentLayers.background || []).map((item, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-1 rounded-full shadow-2xs"
+                className="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-xl shadow-2xs"
               >
                 <span>{item}</span>
                 <button
@@ -147,12 +147,12 @@ export function LayerStackingEditor({
               </span>
             ))}
             {(currentLayers.background || []).length === 0 && (
-              <span className="text-[11px] text-muted italic p-1">Chưa có bối cảnh hậu cảnh nào</span>
+              <span className="text-xs text-muted italic p-1">Chưa có bối cảnh hậu cảnh nào</span>
             )}
           </div>
 
           {/* Input Add */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={inputBg}
@@ -164,12 +164,12 @@ export function LayerStackingEditor({
                 }
               }}
               placeholder="Nhập hậu cảnh mới (VD: Bầu trời hoàng hôn cam rực rỡ, Rừng thông sương mù)..."
-              className="flex-1 min-w-0 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-500 focus:outline-hidden"
+              className="flex-1 min-w-0 rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-500 focus:outline-hidden"
             />
             <button
               type="button"
               onClick={() => handleAddLayerItem('background', inputBg, setInputBg)}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
             >
               <Plus size={13} />
               <span>+ Thêm</span>
@@ -178,7 +178,7 @@ export function LayerStackingEditor({
         </div>
 
         {/* ── Tầng 2: Ngôi Sao 1/3 (Hero / Subject) ─────────────────── */}
-        <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-3.5 space-y-2.5 ring-1 ring-emerald-300">
+        <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-4 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-emerald-950 uppercase flex items-center gap-1">
               ⭐ Tầng 2: Ngôi Sao 1/3 (Hero / Subject)
@@ -189,11 +189,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Preset Chips Bank */}
-          <div className="rounded-xl border border-emerald-300 bg-white/80 p-2 space-y-1">
-            <span className="text-[10px] font-bold text-emerald-900 uppercase block">
+          <div className="rounded-xl border border-emerald-300 bg-white/90 p-3 space-y-1.5">
+            <span className="text-[10px] font-black text-emerald-900 uppercase block">
               + Gợi ý chủ thể ngôi sao 1/3 có sẵn:
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {LAYER_STACKING_PRESETS.hero.map((heroItem, hIdx) => {
                 const isSelected = (currentLayers.hero || []).includes(heroItem)
                 return (
@@ -201,7 +201,7 @@ export function LayerStackingEditor({
                     key={hIdx}
                     type="button"
                     onClick={() => handleAddLayerItem('hero', heroItem)}
-                    className={`rounded-full px-2.5 py-0.8 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                       isSelected
                         ? 'bg-emerald-200 text-emerald-950/60 border border-emerald-300 opacity-60 cursor-default'
                         : 'bg-white hover:bg-emerald-100 text-emerald-950 border border-emerald-400 active:scale-95'
@@ -216,11 +216,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Current Chips List */}
-          <div className="flex flex-wrap gap-1.5 min-h-[38px] p-2 rounded-xl bg-white border border-emerald-300">
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-emerald-300">
             {(currentLayers.hero || []).map((item, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-200 text-emerald-950 border border-emerald-400 px-2.5 py-1 rounded-full shadow-2xs"
+                className="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-200 text-emerald-950 border border-emerald-400 px-3 py-1.5 rounded-xl shadow-2xs"
               >
                 <span>{item}</span>
                 <button
@@ -234,12 +234,12 @@ export function LayerStackingEditor({
               </span>
             ))}
             {(currentLayers.hero || []).length === 0 && (
-              <span className="text-[11px] text-muted italic p-1">Chưa có chủ thể ngôi sao 1/3 nào</span>
+              <span className="text-xs text-muted italic p-1">Chưa có chủ thể ngôi sao 1/3 nào</span>
             )}
           </div>
 
           {/* Input Add */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={inputHero}
@@ -251,12 +251,12 @@ export function LayerStackingEditor({
                 }
               }}
               placeholder="Nhập chủ thể 1/3 mới (VD: Chú Sóc Bông ở vị trí 1/3, Hiệp sĩ giương kiếm)..."
-              className="flex-1 min-w-0 rounded-xl border border-emerald-400 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-600 focus:outline-hidden"
+              className="flex-1 min-w-0 rounded-xl border border-emerald-400 bg-white px-3 py-2 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-600 focus:outline-hidden"
             />
             <button
               type="button"
               onClick={() => handleAddLayerItem('hero', inputHero, setInputHero)}
-              className="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+              className="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
             >
               <Plus size={13} />
               <span>+ Thêm</span>
@@ -265,7 +265,7 @@ export function LayerStackingEditor({
         </div>
 
         {/* ── Tầng 3: Tiền Cảnh (Foreground) ────────────────────────── */}
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-3.5 space-y-2.5">
+        <div className="rounded-2xl border-2 border-emerald-200/80 bg-emerald-50/50 p-4 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-emerald-950 uppercase flex items-center gap-1">
               🌿 Tầng 3: Tiền Cảnh (Foreground)
@@ -276,11 +276,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Preset Chips Bank */}
-          <div className="rounded-xl border border-emerald-200 bg-white/80 p-2 space-y-1">
-            <span className="text-[10px] font-bold text-emerald-800 uppercase block">
+          <div className="rounded-xl border border-emerald-200 bg-white/90 p-3 space-y-1.5">
+            <span className="text-[10px] font-black text-emerald-800 uppercase block">
               + Gợi ý tiền cảnh có sẵn:
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {LAYER_STACKING_PRESETS.foreground.map((fgItem, fIdx) => {
                 const isSelected = (currentLayers.foreground || []).includes(fgItem)
                 return (
@@ -288,7 +288,7 @@ export function LayerStackingEditor({
                     key={fIdx}
                     type="button"
                     onClick={() => handleAddLayerItem('foreground', fgItem)}
-                    className={`rounded-full px-2.5 py-0.8 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                       isSelected
                         ? 'bg-emerald-100 text-emerald-900/60 border border-emerald-200 opacity-60 cursor-default'
                         : 'bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 active:scale-95'
@@ -303,11 +303,11 @@ export function LayerStackingEditor({
           </div>
 
           {/* Current Chips List */}
-          <div className="flex flex-wrap gap-1.5 min-h-[38px] p-2 rounded-xl bg-white border border-emerald-200">
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-emerald-200">
             {(currentLayers.foreground || []).map((item, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-1 rounded-full shadow-2xs"
+                className="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-xl shadow-2xs"
               >
                 <span>{item}</span>
                 <button
@@ -321,12 +321,12 @@ export function LayerStackingEditor({
               </span>
             ))}
             {(currentLayers.foreground || []).length === 0 && (
-              <span className="text-[11px] text-muted italic p-1">Chưa có chi tiết tiền cảnh nào</span>
+              <span className="text-xs text-muted italic p-1">Chưa có chi tiết tiền cảnh nào</span>
             )}
           </div>
 
           {/* Input Add */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={inputFg}
@@ -338,12 +338,12 @@ export function LayerStackingEditor({
                 }
               }}
               placeholder="Nhập tiền cảnh mới (VD: Cành lá phong đỏ thắm bay, Bụi hoa đọng sương, Đom đóm)..."
-              className="flex-1 min-w-0 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-500 focus:outline-hidden"
+              className="flex-1 min-w-0 rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300 focus:border-emerald-500 focus:outline-hidden"
             />
             <button
               type="button"
               onClick={() => handleAddLayerItem('foreground', inputFg, setInputFg)}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
             >
               <Plus size={13} />
               <span>+ Thêm</span>

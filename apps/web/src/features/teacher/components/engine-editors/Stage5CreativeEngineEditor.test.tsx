@@ -75,7 +75,7 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
     expect(html).toContain('2. Trông thế nào?')
     expect(html).toContain('3. Đang làm gì?')
     expect(html).toContain('4. Ở đâu?')
-    expect(html).toContain('🪄 Gợi ý thẻ 4 Chìa Khóa theo bài')
+    expect(html).toContain('Gợi ý thẻ 4 Chìa Khóa theo bài')
   })
 
   it('renders Identity Lock CMS editor when mode is identity-lock', () => {

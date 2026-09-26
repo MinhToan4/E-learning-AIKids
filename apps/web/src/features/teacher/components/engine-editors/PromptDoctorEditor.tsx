@@ -43,7 +43,7 @@ export function PromptDoctorEditor({
         ? preset.suggestedCures
         : currentCase.cureCards,
     })
-    showToast(`🩺 Đã nạp ca bệnh: ${preset.title}`, 'success')
+    showToast(`Đã nạp ca bệnh: ${preset.title}`, 'success')
   }
 
   const handleAddCurePreset = (preset: PromptDoctorCurePreset) => {
@@ -55,7 +55,7 @@ export function PromptDoctorEditor({
       ...currentCase,
       cureCards: [...currentCase.cureCards, preset.name],
     })
-    showToast(`💊 Đã kê thêm thuốc: ${preset.name}`, 'success')
+    showToast(`Đã kê thêm thuốc: ${preset.name}`, 'success')
   }
 
   const handleAddCure = () => {
@@ -86,17 +86,17 @@ export function PromptDoctorEditor({
 
   const handleLoadDefaultCase = () => {
     onChange(DEFAULT_PROMPT_DOCTOR_CASE)
-    showToast('🩺 Đã nạp ca bệnh & toa thuốc mẫu', 'success')
+    showToast('Đã nạp ca bệnh & toa thuốc mẫu', 'success')
   }
 
   return (
-    <div className="rounded-2xl border-2 border-rose-300 bg-white p-4 space-y-4 shadow-2xs">
+    <div className="rounded-2xl border-2 border-rose-200/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-2xs">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rose-200/80 pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-200/70 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase text-rose-950 flex items-center gap-1.5">
             <span>🩺 Bác Sĩ Câu Lệnh (Prompt Doctor Clinic Editor)</span>
-            <span className="rounded-full bg-rose-100 text-rose-900 px-2 py-0.5 text-[10px] font-black">
+            <span className="rounded-full bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 text-[10px] font-black">
               Bắt Bệnh &amp; Chữa Lành
             </span>
           </h4>
@@ -107,7 +107,7 @@ export function PromptDoctorEditor({
         <button
           type="button"
           onClick={handleLoadDefaultCase}
-          className="rounded-xl border border-rose-300 bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-800 shadow-2xs hover:bg-rose-100 transition cursor-pointer flex items-center gap-1"
+          className="rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs font-black text-rose-800 shadow-2xs hover:bg-rose-50 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5"
         >
           <Sparkles size={12} className="text-rose-600" />
           <span>🪄 Nạp ca bệnh &amp; toa thuốc mẫu</span>
@@ -115,16 +115,17 @@ export function PromptDoctorEditor({
       </div>
 
       {/* ── KHAY CA BỆNH MẪU CÓ SẴN (PRESET DOCTOR CASES) ───────────── */}
-      <div className="rounded-2xl border-2 border-rose-200 bg-rose-50/70 p-3 space-y-2">
+      <div className="rounded-2xl border-2 border-rose-200/80 bg-rose-50/70 p-4 space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black text-rose-900 flex items-center gap-1">
-            🩺 Ngân Hàng Ca Bệnh Mẫu (1-Chạm Nạp Nhanh):
+            <span>🩺</span>
+            <span>Ngân Hàng Ca Bệnh Mẫu (1-Chạm Nạp Nhanh):</span>
           </span>
-          <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold text-rose-700 bg-rose-100 border border-rose-200 px-2 py-0.5 rounded-full">
             {PROMPT_DOCTOR_CASE_PRESETS.length} ca bệnh mẫu
           </span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {PROMPT_DOCTOR_CASE_PRESETS.map((preset) => {
             const isSelected = currentCase.caseTitle === preset.title
             return (
@@ -132,14 +133,13 @@ export function PromptDoctorEditor({
                 key={preset.id}
                 type="button"
                 onClick={() => handleSelectCasePreset(preset)}
-                className={`rounded-full px-2.5 py-1 text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs ${
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                   isSelected
                     ? 'bg-rose-600 text-white border border-rose-700 shadow-xs'
                     : 'bg-white hover:bg-rose-100 text-rose-900 border border-rose-300 active:scale-95'
                 }`}
                 title={preset.symptom}
               >
-                <span>{preset.title.includes('Bàn tay') ? '✋' : preset.title.includes('Sóc') ? '🐿️' : preset.title.includes('Mèo') ? '🐱' : '🧹'}</span>
                 <span>{preset.title}</span>
               </button>
             )
@@ -148,19 +148,19 @@ export function PromptDoctorEditor({
       </div>
 
       {/* ── 1. Hồ Sơ Bệnh Án Tranh Hỏng ─────────────────────────────── */}
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-3.5 space-y-3">
+      <div className="rounded-2xl border-2 border-rose-200/80 bg-rose-50/50 p-4 space-y-3 shadow-2xs">
         <div className="flex items-center gap-1.5 text-xs font-black text-rose-900 uppercase">
           <Stethoscope size={14} className="text-rose-700" />
           <span>🩺 Hồ Sơ Bệnh Án Tranh Hỏng</span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           <div className="flex items-center gap-3">
             {currentCase.refImageUrl && (
               <img
                 src={currentCase.refImageUrl}
                 alt={currentCase.caseTitle || 'Ảnh bệnh án'}
-                className="size-11 rounded-full object-cover border-2 border-rose-300 shadow-2xs shrink-0"
+                className="size-11 rounded-xl object-cover border-2 border-rose-300 shadow-2xs shrink-0"
               />
             )}
             <div className="flex-1 min-w-0">
@@ -214,7 +214,7 @@ export function PromptDoctorEditor({
       </div>
 
       {/* ── 2. Tủ Thuốc Thẻ Chữ Chữa Lành ───────────────────────────── */}
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-3.5 space-y-3">
+      <div className="rounded-2xl border-2 border-rose-200/80 bg-rose-50/50 p-4 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-black text-rose-900 uppercase">
             <Pill size={14} className="text-rose-700" />
@@ -225,17 +225,17 @@ export function PromptDoctorEditor({
           </div>
         </div>
 
-        {/* Khay Toa Thuốc Chữa Lành Có Sẵn */}
-        <div className="rounded-xl border border-rose-200 bg-white/80 p-2.5 space-y-2">
+        {/* Khay Toa Thuốc Chữa Lành Có SẴn */}
+        <div className="rounded-xl border border-rose-200 bg-white/90 p-3 space-y-2">
           <div className="flex items-center justify-between flex-wrap gap-1">
-            <span className="text-[10px] font-bold text-rose-800 uppercase block">
+            <span className="text-[10px] font-black text-rose-800 uppercase block">
               + Khay Thẻ Thuốc Gợi Ý (1 Thuốc Đặc Trị Chính Xác + Các Thuốc Bẫy Nhầm Bệnh):
             </span>
-            <span className="text-[9px] font-black text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">
+            <span className="text-[9px] font-black text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200">
               Minigame Bác Sĩ Bắt Bệnh
             </span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {PROMPT_DOCTOR_CURE_PRESETS.map((cure, cIdx) => {
               const isIncluded = currentCase.cureCards.includes(cure.name)
               const isCorrectCure = cure.role === 'cure'
@@ -245,7 +245,7 @@ export function PromptDoctorEditor({
                   key={cIdx}
                   type="button"
                   onClick={() => handleAddCurePreset(cure)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                     isIncluded
                       ? 'bg-rose-100 text-rose-900/60 border border-rose-200 opacity-60 cursor-default'
                       : isCorrectCure
@@ -272,17 +272,17 @@ export function PromptDoctorEditor({
         </div>
 
         {/* Danh sách thẻ thuốc đang có dạng Pill Chips Soft Clay */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <span className="text-[10px] font-bold text-slate-600 uppercase block">
             Toa thuốc hiện tại bé cần dùng để chữa lành:
           </span>
-          <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-xl bg-white border border-rose-200">
+          <div className="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-white border border-rose-200">
             {currentCase.cureCards.map((cure, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300 px-2.5 py-1 rounded-full shadow-2xs"
+                className="inline-flex items-center gap-1.5 text-xs font-black bg-rose-100 text-rose-900 border border-rose-300 px-3 py-1.5 rounded-xl shadow-2xs"
               >
-                <span>💊 {cure}</span>
+                <span>{cure}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveCure(idx)}
@@ -294,13 +294,13 @@ export function PromptDoctorEditor({
               </span>
             ))}
             {currentCase.cureCards.length === 0 && (
-              <span className="text-[11px] text-muted italic p-1">Chưa có thẻ thuốc nào</span>
+              <span className="text-xs text-muted italic p-1">Chưa có thẻ thuốc nào</span>
             )}
           </div>
         </div>
 
         {/* Input nhập thuốc mới nhanh */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={inputCure}
@@ -312,12 +312,12 @@ export function PromptDoctorEditor({
               }
             }}
             placeholder="Nhập tên liều thuốc mới (VD: Kê đơn 5 ngón tay hoàn chỉnh, Thêm đuôi cam)..."
-            className="flex-1 min-w-0 rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-950 placeholder:text-rose-300 focus:border-rose-500 focus:outline-hidden"
+            className="flex-1 min-w-0 rounded-xl border border-rose-300 bg-white px-3 py-2 text-xs font-semibold text-rose-950 placeholder:text-rose-300 focus:border-rose-500 focus:outline-hidden"
           />
           <button
             type="button"
             onClick={handleAddCure}
-            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
+            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 text-xs font-black shadow-2xs transition cursor-pointer flex items-center gap-1 shrink-0"
           >
             <Plus size={13} />
             <span>+ Thêm thuốc</span>
