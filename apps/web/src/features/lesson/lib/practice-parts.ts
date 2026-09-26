@@ -71,12 +71,10 @@ export function getDefaultPracticeParts(
     return []
   }
 
-  // 1. Bài 1.1: Đúng 3 món đồ: Con mèo (🐱), Con cá vàng (🐠), Con cún (🐶)
+  // 1. Bài 1.1: Đúng 1 món đồ duy nhất: Con mèo (🐱) theo kịch bản Google Sheet SSOT (1 từ vs 5 điều)
   if (lessonNum === '1.1' || normId.includes('1-1') || normId.includes('1.1')) {
     return [
       { partNumber: 1, title: 'Con mèo', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
-      { partNumber: 2, title: 'Con cá vàng', icon: '🐠', emoji: '🐠', iconImage: '/assets/pregenerated-fallback/magic-keys/goldfish_full_details_v1.webp' },
-      { partNumber: 3, title: 'Con cún', icon: '🐶', emoji: '🐶', iconImage: '/assets/pregenerated-fallback/magic-keys/dog_one_word_v1.webp' },
     ]
   }
 

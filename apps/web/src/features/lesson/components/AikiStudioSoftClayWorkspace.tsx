@@ -101,57 +101,17 @@ const VOCABULARY_BY_TYPE: Record<string, GoldenKeyVocabulary> = {
   },
 }
 
-// SSOT Từ vựng chính xác cho Bài 1.1: Một từ hay năm từ
+// SSOT Từ vựng chính xác cho Bài 1.1: Một từ hay năm từ (Kịch bản Google Sheet FIX)
 const VOCABULARY_1_1: Record<string, GoldenKeyVocabulary> = {
   cat: {
     descriptions: [
-      { id: 'beo-tron', label: 'Mướp vằn nâu béo tròn', text: 'mướp vằn nâu béo tròn' },
-      { id: 'long-xu-dai', label: 'Trắng lông xù dài', text: 'trắng lông xù dài' },
-      { id: 'tam-the', label: 'Tam thể ba màu', text: 'tam thể ba màu' },
+      { id: 'long-mau-trang', label: 'Lông màu trắng', text: 'lông màu trắng' },
     ],
     actions: [
-      { id: 'ngu-cuon-tron', label: 'Đang ngủ cuộn tròn', text: 'đang ngủ cuộn tròn' },
-      { id: 'vuon-vai', label: 'Đang vươn vai duỗi chân', text: 'đang vươn vai duỗi chân' },
-      { id: 'rinh-buom', label: 'Đang rình con bướm', text: 'đang rình con bướm' },
+      { id: 'dang-nam-nham-mat', label: 'Đang nằm nhắm mắt', text: 'đang nằm nhắm mắt' },
     ],
     contexts: [
-      { id: 'ghe-may', label: 'Trên ghế mây cạnh cửa sổ', text: 'trên ghế mây cạnh cửa sổ' },
-      { id: 'bac-them', label: 'Trên bậc thềm nắng sớm', text: 'trên bậc thềm nắng sớm' },
-      { id: 'thung-giay', label: 'Trong thùng giấy các-tông', text: 'trong thùng giấy các-tông' },
-    ],
-  },
-  fish: {
-    descriptions: [
-      { id: 'duoi-voan', label: 'Đuôi voan dài mềm', text: 'đuôi voan dài mềm' },
-      { id: 'than-tron', label: 'Thân tròn mắt lồi', text: 'thân tròn mắt lồi' },
-      { id: 'vay-anh-bac', label: 'Vảy ánh bạc lấp lánh', text: 'vảy ánh bạc lấp lánh' },
-    ],
-    actions: [
-      { id: 'dop-bot', label: 'Đang ngoi lên đớp bọt', text: 'đang ngoi lên đớp bọt' },
-      { id: 'nap-da', label: 'Đang nấp sau hòn đá', text: 'đang nấp sau hòn đá' },
-      { id: 'ria-rong', label: 'Đang rỉa nhánh rong xanh', text: 'đang rỉa nhánh rong xanh' },
-    ],
-    contexts: [
-      { id: 'binh-thuy-tinh', label: 'Trong bình thuỷ tinh tròn', text: 'trong bình thuỷ tinh tròn' },
-      { id: 'be-soi-trang', label: 'Trong bể cá rải sỏi trắng', text: 'trong bể cá rải sỏi trắng' },
-      { id: 'chum-sanh', label: 'Trong chum sành ngoài sân', text: 'trong chum sành ngoài sân' },
-    ],
-  },
-  dog: {
-    descriptions: [
-      { id: 'tai-cup', label: 'Lông vàng hai tai cụp', text: 'lông vàng hai tai cụp' },
-      { id: 'trang-dom', label: 'Trắng đốm nâu quanh mắt', text: 'trắng đốm nâu quanh mắt' },
-      { id: 'long-xu', label: 'Lông xù rối bù', text: 'lông xù rối bù' },
-    ],
-    actions: [
-      { id: 'duoi-bong', label: 'Đang chạy đuổi quả bóng', text: 'đang chạy đuổi quả bóng' },
-      { id: 'vay-duoi', label: 'Đang ngồi vẫy đuôi chờ', text: 'đang ngồi vẫy đuôi chờ' },
-      { id: 'tha-dep', label: 'Đang tha một chiếc dép', text: 'đang tha một chiếc dép' },
-    ],
-    contexts: [
-      { id: 'san-gach-do', label: 'Ở góc sân gạch đỏ', text: 'ở góc sân gạch đỏ' },
-      { id: 'cay-bang', label: 'Dưới gốc cây bàng', text: 'dưới gốc cây bàng' },
-      { id: 'tham-phong-khach', label: 'Trên thảm phòng khách', text: 'trên thảm phòng khách' },
+      { id: 'o-truoc-san', label: 'Ở trước sân', text: 'ở trước sân' },
     ],
   },
 }
@@ -239,18 +199,6 @@ const DEFAULT_PARTS_MAPPING_1_1 = [
     title: 'Con mèo',
     icon: '🐱',
     thumb: '/assets/aiki-keys/key_subject_cat.jpg',
-  },
-  {
-    partNumber: 2,
-    title: 'Con cá vàng',
-    icon: '🐠',
-    thumb: '/assets/pregenerated-fallback/magic-keys/goldfish_full_details_v1.webp',
-  },
-  {
-    partNumber: 3,
-    title: 'Con cún',
-    icon: '🐶',
-    thumb: '/assets/pregenerated-fallback/magic-keys/dog_one_word_v1.webp',
   },
 ]
 
@@ -376,12 +324,15 @@ export function AikiStudioSoftClayWorkspace({
   const itemPrefix = getItemPrefix(currentItemType)
   const currentPrompt = useMemo(() => {
     if (isLesson1_1) {
-      return `${currentPart.title} ${activeDescObj.text}, ${activeActionObj.text} ${activeContextObj.text}.`
+      if (currentPartTurn === 1) {
+        return 'con mèo'
+      }
+      return 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân'
     }
     return `${itemPrefix}${activeDescObj.text}, ${activeActionObj.text} ${activeContextObj.text}.`
   }, [
     isLesson1_1,
-    currentPart.title,
+    currentPartTurn,
     itemPrefix,
     activeDescObj.text,
     activeActionObj.text,
@@ -444,14 +395,14 @@ export function AikiStudioSoftClayWorkspace({
           const t1Url = getLesson1_1Artwork(currentItemType, 1)
           setTurn1Artworks((prev) => ({
             ...prev,
-            [activeIdx]: { url: t1Url, prompt: currentPart.title },
+            [activeIdx]: { url: t1Url, prompt: 'con mèo' },
           }))
           setTurnByPart((prev) => ({ ...prev, [activeIdx]: 2 }))
         } else {
           const t2Url = getLesson1_1Artwork(currentItemType, 2)
           setTurn2Artworks((prev) => ({
             ...prev,
-            [activeIdx]: { url: t2Url, prompt: currentPrompt },
+            [activeIdx]: { url: t2Url, prompt: 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân' },
           }))
           if (!completedParts.includes(activeIdx)) {
             setCompletedParts((prev) => [...prev, activeIdx])
@@ -470,10 +421,17 @@ export function AikiStudioSoftClayWorkspace({
   const handleConfirmSubmit = () => {
     playInstantSound('star')
     setIsSubmitModalOpen(false)
+    const effectiveSubmitPrompt =
+      isLesson1_1 && completedParts.includes(activeIdx) && turn2Artworks[activeIdx]
+        ? ((favoriteByPart[activeIdx] ?? 2) === 1
+            ? (turn1Artworks[activeIdx]?.prompt || 'con mèo')
+            : (turn2Artworks[activeIdx]?.prompt || 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân'))
+        : currentPrompt
+
     const selectedImage = {
       id: `art-${Date.now()}`,
       url: currentArtworkUrl,
-      prompt: currentPrompt,
+      prompt: effectiveSubmitPrompt,
       turn: currentPartTurn,
       partIndex: activeIdx,
       partTurn: currentPartTurn,
@@ -481,7 +439,7 @@ export function AikiStudioSoftClayWorkspace({
     }
     onSubmitWork?.({
       selectedImage,
-      prompt: currentPrompt,
+      prompt: effectiveSubmitPrompt,
     })
   }
 
@@ -490,69 +448,98 @@ export function AikiStudioSoftClayWorkspace({
       data-testid="aiki-studio-workspace"
       className={cn('w-full flex flex-col gap-2.5 font-sans text-slate-900 min-w-0', className)}
     >
-      {/* ── THANH MINI-CARDS NẰM NGANG: DANH SÁCH MÓN ĐỒ / CON VẬT THỰC HÀNH ── */}
-      <div className="w-full flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-2xl border-2 border-amber-200/80 bg-[#FFFDF8] shadow-2xs">
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 uppercase tracking-wider">
-            <span>🎯</span>
-            <span>{isLesson1_1 ? 'Bé chọn con vật thực hành:' : 'Bé chọn món đồ thực hành:'}</span>
+      {/* ── BÀI 1.1: BANNER CHỦ ĐỀ KỊCH BẢN (CÙNG 1 CON MÈO · 2 CÂU LỆNH) HOẶC THANH CHỌN MÓN ĐỒ (CÁC BÀI KHÁC) ── */}
+      {isLesson1_1 ? (
+        <div
+          data-testid="lesson-1-1-banner"
+          className="w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 shadow-2xs"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-2xl p-1 bg-white rounded-xl border border-amber-200 shadow-2xs shrink-0">🐱</span>
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm font-black text-amber-950 tracking-tight">
+                  THỰC HÀNH: CÙNG MỘT CON MÈO · HAI CÂU LỆNH (1 TỪ VS 5 ĐIỀU)
+                </span>
+                <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-orange-100 text-[#FD7D2E] border border-orange-200/80 shrink-0">
+                  Mèo AIKI
+                </span>
+              </div>
+              <span className="text-[10.5px] sm:text-[11px] text-slate-500 font-semibold truncate">
+                So sánh sự khác biệt khi ra lệnh ngắn (1 từ) và ra lệnh chi tiết (5 điều) cho AIKI
+              </span>
+            </div>
           </div>
-          <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200/80">
-            {parts.length} {isLesson1_1 ? 'con' : 'món'} · {completedParts.length}/{parts.length} đã xong
-          </span>
+          <div className="shrink-0 flex items-center gap-1.5 pl-2">
+            <span className="text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl bg-[#FD7D2E] text-white shadow-2xs">
+              Lượt {currentPartTurn}/2
+            </span>
+          </div>
         </div>
+      ) : (
+        <div className="w-full flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-2xl border-2 border-amber-200/80 bg-[#FFFDF8] shadow-2xs">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 uppercase tracking-wider">
+              <span>🎯</span>
+              <span>Bé chọn món đồ thực hành:</span>
+            </div>
+            <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200/80">
+              {parts.length} món · {completedParts.length}/{parts.length} đã xong
+            </span>
+          </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
-          {parts.map((part, idx) => {
-            const isSelected = activeIdx === idx
-            const isDone = completedParts.includes(idx)
-            const statusLabel = isDone
-              ? '✓ Đã xong'
-              : isSelected
-              ? 'Đang vẽ'
-              : 'Chưa vẽ'
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
+            {parts.map((part, idx) => {
+              const isSelected = activeIdx === idx
+              const isDone = completedParts.includes(idx)
+              const statusLabel = isDone
+                ? '✓ Đã xong'
+                : isSelected
+                ? 'Đang vẽ'
+                : 'Chưa vẽ'
 
-            return (
-              <button
-                key={`part-card-${idx}`}
-                type="button"
-                onClick={() => handleSelectPart(idx)}
-                className={cn(
-                  'p-2 rounded-2xl transition-all flex items-center gap-2 cursor-pointer text-left select-none',
-                  isSelected
-                    ? 'border-2 border-[#FD7D2E] bg-gradient-to-r from-[#FFF4EC] to-[#FFE8D6] shadow-sm'
-                    : isDone
-                    ? 'border border-emerald-300/80 bg-emerald-50/50 hover:border-emerald-400'
-                    : 'border border-slate-200/90 bg-white hover:border-amber-300'
-                )}
-              >
-                <img
-                  src={part.thumb}
-                  alt={part.title}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain bg-amber-50 p-1 shrink-0 border border-amber-200/60"
-                />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
-                    {part.title}
+              return (
+                <button
+                  key={`part-card-${idx}`}
+                  type="button"
+                  onClick={() => handleSelectPart(idx)}
+                  className={cn(
+                    'p-2 rounded-2xl transition-all flex items-center gap-2 cursor-pointer text-left select-none',
+                    isSelected
+                      ? 'border-2 border-[#FD7D2E] bg-gradient-to-r from-[#FFF4EC] to-[#FFE8D6] shadow-sm'
+                      : isDone
+                      ? 'border border-emerald-300/80 bg-emerald-50/50 hover:border-emerald-400'
+                      : 'border border-slate-200/90 bg-white hover:border-amber-300'
+                  )}
+                >
+                  <img
+                    src={part.thumb}
+                    alt={part.title}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain bg-amber-50 p-1 shrink-0 border border-amber-200/60"
+                  />
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
+                      {part.title}
+                    </div>
+                    <div
+                      className={cn(
+                        'text-[10px] sm:text-[11px] truncate',
+                        isDone
+                          ? 'text-emerald-700 font-bold'
+                          : isSelected
+                          ? 'text-[#FD7D2E] font-black'
+                          : 'text-slate-400 font-semibold'
+                      )}
+                    >
+                      {statusLabel}
+                    </div>
                   </div>
-                  <div
-                    className={cn(
-                      'text-[10px] sm:text-[11px] truncate',
-                      isDone
-                        ? 'text-emerald-700 font-bold'
-                        : isSelected
-                        ? 'text-[#FD7D2E] font-black'
-                        : 'text-slate-400 font-semibold'
-                    )}
-                  >
-                    {statusLabel}
-                  </div>
-                </div>
-              </button>
-            )
-          })}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── BỐ CỤC 2 CỘT: 4 CHÌA KHÓA VÀNG (TRÁI) & TRANH SÁNG TẠO (PHẢI) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-2.5 items-stretch w-full min-w-0">
@@ -564,7 +551,7 @@ export function AikiStudioSoftClayWorkspace({
               <span>4 CHÌA KHÓA VÀNG AIKI</span>
             </div>
             <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-orange-100 text-[#FD7D2E]">
-              {isLesson1_1 ? (currentPartTurn === 1 ? 'Lượt 1: Bé chọn từ' : 'Lượt 2: Đủ 5 điều') : 'Chạm đổi từ'}
+              {isLesson1_1 ? (currentPartTurn === 1 ? 'Lượt 1: 1 từ FIX' : 'Lượt 2: Đủ 5 điều') : 'Chạm đổi từ'}
             </span>
           </div>
 
@@ -576,23 +563,33 @@ export function AikiStudioSoftClayWorkspace({
                   1. Cái gì?
                 </span>
                 <span className="text-[9px] font-bold text-amber-700 bg-amber-200/70 px-1.5 py-0.2 rounded-full">
-                  Chủ thể
+                  {isLesson1_1 ? 'Chủ thể: con mèo (FIX)' : 'Chủ thể'}
                 </span>
               </div>
               <div className="p-1.5 rounded-lg bg-white text-zinc-900 shadow-2xs flex items-center justify-between border border-amber-100">
-                <span className="font-extrabold text-xs text-zinc-900">{currentPart.title}</span>
+                <span className="font-extrabold text-xs text-zinc-900">
+                  {isLesson1_1 ? 'con mèo' : currentPart.title}
+                </span>
                 <span className="text-xs text-amber-500">🎯</span>
               </div>
             </div>
 
             {/* Khóa 2: Trông thế nào? */}
-            <div className="p-2 rounded-xl bg-purple-50/90 border border-purple-200/70 shadow-2xs flex flex-col justify-between gap-1">
+            <div className={cn(
+              'p-2 rounded-xl bg-purple-50/90 border border-purple-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
+              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
+            )}>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-purple-800">
                   2. Trông thế nào?
                 </span>
-                <span className="text-[9px] font-bold text-purple-700 bg-purple-200/70 px-1.5 py-0.2 rounded-full">
-                  Đặc điểm
+                <span className={cn(
+                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                  isLesson1_1 && currentPartTurn === 1
+                    ? 'text-purple-600 bg-purple-100 border border-purple-200'
+                    : 'text-purple-700 bg-purple-200/70'
+                )}>
+                  {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Đặc điểm'}
                 </span>
               </div>
               <div className="space-y-1">
@@ -600,15 +597,18 @@ export function AikiStudioSoftClayWorkspace({
                   <button
                     key={d.id}
                     type="button"
+                    disabled={isLesson1_1 && currentPartTurn === 1}
                     onClick={() => {
                       playInstantSound('click')
                       setSelectedDescByPart((prev) => ({ ...prev, [activeIdx]: d.id }))
                     }}
                     className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block cursor-pointer break-words',
-                      currentDescId === d.id
-                        ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100'
+                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                      isLesson1_1 && currentPartTurn === 1
+                        ? 'bg-purple-100/70 text-purple-900 border border-purple-200 cursor-default'
+                        : currentDescId === d.id
+                        ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400 cursor-pointer'
+                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100 cursor-pointer'
                     )}
                   >
                     {d.label}
@@ -618,13 +618,21 @@ export function AikiStudioSoftClayWorkspace({
             </div>
 
             {/* Khóa 3: Đang làm gì? */}
-            <div className="p-2 rounded-xl bg-blue-50/90 border border-blue-200/70 shadow-2xs flex flex-col justify-between gap-1">
+            <div className={cn(
+              'p-2 rounded-xl bg-blue-50/90 border border-blue-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
+              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
+            )}>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-blue-800">
                   3. Đang làm gì?
                 </span>
-                <span className="text-[9px] font-bold text-blue-700 bg-blue-200/70 px-1.5 py-0.2 rounded-full">
-                  Hành động
+                <span className={cn(
+                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                  isLesson1_1 && currentPartTurn === 1
+                    ? 'text-blue-600 bg-blue-100 border border-blue-200'
+                    : 'text-blue-700 bg-blue-200/70'
+                )}>
+                  {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Hành động'}
                 </span>
               </div>
               <div className="space-y-1">
@@ -632,15 +640,18 @@ export function AikiStudioSoftClayWorkspace({
                   <button
                     key={a.id}
                     type="button"
+                    disabled={isLesson1_1 && currentPartTurn === 1}
                     onClick={() => {
                       playInstantSound('click')
                       setSelectedActionByPart((prev) => ({ ...prev, [activeIdx]: a.id }))
                     }}
                     className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block cursor-pointer break-words',
-                      currentActionId === a.id
-                        ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100'
+                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                      isLesson1_1 && currentPartTurn === 1
+                        ? 'bg-blue-100/70 text-blue-900 border border-blue-200 cursor-default'
+                        : currentActionId === a.id
+                        ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400 cursor-pointer'
+                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100 cursor-pointer'
                     )}
                   >
                     {a.label}
@@ -650,13 +661,21 @@ export function AikiStudioSoftClayWorkspace({
             </div>
 
             {/* Khóa 4: Ở đâu? */}
-            <div className="p-2 rounded-xl bg-emerald-50/90 border border-emerald-200/70 shadow-2xs flex flex-col justify-between gap-1">
+            <div className={cn(
+              'p-2 rounded-xl bg-emerald-50/90 border border-emerald-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
+              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
+            )}>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-800">
                   4. Ở đâu?
                 </span>
-                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-200/70 px-1.5 py-0.2 rounded-full">
-                  Bối cảnh
+                <span className={cn(
+                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                  isLesson1_1 && currentPartTurn === 1
+                    ? 'text-emerald-600 bg-emerald-100 border border-emerald-200'
+                    : 'text-emerald-700 bg-emerald-200/70'
+                )}>
+                  {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Bối cảnh'}
                 </span>
               </div>
               <div className="space-y-1">
@@ -664,15 +683,18 @@ export function AikiStudioSoftClayWorkspace({
                   <button
                     key={c.id}
                     type="button"
+                    disabled={isLesson1_1 && currentPartTurn === 1}
                     onClick={() => {
                       playInstantSound('click')
                       setSelectedContextByPart((prev) => ({ ...prev, [activeIdx]: c.id }))
                     }}
                     className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block cursor-pointer break-words',
-                      currentContextId === c.id
-                        ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100'
+                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                      isLesson1_1 && currentPartTurn === 1
+                        ? 'bg-emerald-100/70 text-emerald-900 border border-emerald-200 cursor-default'
+                        : currentContextId === c.id
+                        ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400 cursor-pointer'
+                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100 cursor-pointer'
                     )}
                   >
                     {c.label}
@@ -733,13 +755,13 @@ export function AikiStudioSoftClayWorkspace({
               <span className="font-extrabold text-[11px] sm:text-xs text-purple-950">
                 {isLesson1_1
                   ? currentPartTurn === 1
-                    ? 'LƯỢT 1: CHỌN TỪ KHÓA ĐẦY ĐỦ'
+                    ? 'LƯỢT 1: MỘT TỪ DUY NHẤT (CON MÈO)'
                     : 'LƯỢT 2: NĂM ĐIỀU CHI TIẾT'
                   : '1 LƯỢT DUY NHẤT'}
               </span>
             </div>
             <span className="text-[10px] font-black text-[#FD7D2E] bg-orange-100/80 border border-orange-200/80 px-2 py-0.5 rounded-lg">
-              Đủ 4 khóa
+              {isLesson1_1 ? (currentPartTurn === 1 ? '1 từ' : 'Đủ 5 điều') : 'Đủ 4 khóa'}
             </span>
           </div>
 
@@ -771,7 +793,7 @@ export function AikiStudioSoftClayWorkspace({
                   )}
                 >
                   <span className="text-[9px] font-black text-purple-900 truncate">
-                    1. Một từ ({currentPart.title})
+                    1. Một từ ({isLesson1_1 ? 'con mèo' : currentPart.title})
                   </span>
                   <img
                     src={turn1Artworks[activeIdx].url}
@@ -846,11 +868,11 @@ export function AikiStudioSoftClayWorkspace({
                 <span>Balo bài học:</span>
               </span>
               <span className="text-[9px] text-zinc-500 font-bold">
-                {parts.length} tranh lưu trữ
+                {parts.length} {isLesson1_1 ? 'con' : 'tranh'} lưu trữ
               </span>
             </div>
 
-            <div className={cn('grid gap-1', parts.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+            <div className={cn('grid gap-1', parts.length === 1 ? 'grid-cols-1' : parts.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
               {parts.map((part, idx) => {
                 const isCurrent = activeIdx === idx
                 return (
@@ -890,7 +912,7 @@ export function AikiStudioSoftClayWorkspace({
               <span>
                 {isLesson1_1
                   ? currentPartTurn === 1
-                    ? 'CÂU LỆNH: 4/4 CHÌA KHÓA'
+                    ? 'CÂU LỆNH: 1 TỪ DUY NHẤT'
                     : 'CÂU LỆNH: ĐỦ 5 ĐIỀU CHI TIẾT (4/4 CHÌA KHÓA)'
                   : 'CÂU LỆNH: 4/4 CHÌA KHÓA'}
               </span>
@@ -901,17 +923,16 @@ export function AikiStudioSoftClayWorkspace({
                 'bg-emerald-100 text-emerald-800'
               )}
             >
-              {isLesson1_1 ? (currentPartTurn === 1 ? 'Đủ 4 khóa' : 'Đủ 5 điều') : 'Đủ 4 khóa'}
+              {isLesson1_1 ? (currentPartTurn === 1 ? '1 từ FIX' : 'Đủ 5 điều') : 'Đủ 4 khóa'}
             </span>
           </div>
           <p className="text-xs sm:text-[13px] font-black text-zinc-900 leading-snug break-words bg-white/90 p-2 rounded-lg border border-amber-200/70">
             {isLesson1_1 ? (
-              <>
-                &ldquo;<span className="text-purple-700">{currentPart.title}</span>{' '}
-                <span className="text-amber-600">{activeDescObj.text}</span>,{' '}
-                <span className="text-blue-600">{activeActionObj.text}</span>{' '}
-                <span className="text-emerald-700">{activeContextObj.text}</span>.&rdquo;
-              </>
+              currentPartTurn === 1 ? (
+                <>“<span className="text-purple-700">con mèo</span>”</>
+              ) : (
+                <>“<span className="text-purple-700">con mèo</span> · <span className="text-amber-600">lông màu trắng</span> · <span className="text-blue-600">đang nằm</span> · <span className="text-blue-600">nhắm mắt</span> · <span className="text-emerald-700">ở trước sân</span>”</>
+              )
             ) : (
               <>
                 &ldquo;<span className="text-purple-700">{itemPrefix.trim()}</span>{' '}
@@ -933,8 +954,8 @@ export function AikiStudioSoftClayWorkspace({
             <span>
               {isLesson1_1
                 ? currentPartTurn === 1
-                  ? `Vẽ Lượt 1 (${currentPart.title})`
-                  : 'Vẽ Lượt 2 (5 điều chi tiết)'
+                  ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
+                  : 'Vẽ Lượt 2: Năm điều chi tiết'
                 : 'Vẽ tranh cùng AIKI'}{' '}
               · còn {attemptsLeft} lượt
             </span>
@@ -971,7 +992,11 @@ export function AikiStudioSoftClayWorkspace({
                 Nộp Tranh Vào Balo Nghệ Thuật?
               </h3>
               <p className="text-xs text-zinc-600 font-semibold mt-1">
-                Bé đã hoàn thành kiệt tác <strong>{currentPart.title}</strong> trong 1 lượt vẽ xuất sắc!
+                {isLesson1_1 ? (
+                  <>Bé đã hoàn thành xuất sắc 2 lượt vẽ cho <strong>con mèo</strong>!</>
+                ) : (
+                  <>Bé đã hoàn thành kiệt tác <strong>{currentPart.title}</strong> trong 1 lượt vẽ xuất sắc!</>
+                )}
               </p>
             </div>
             <div className="w-full aspect-16/10 rounded-xl overflow-hidden border border-amber-200 shadow-inner bg-[#FFFDF8] p-1 flex items-center justify-center">

@@ -109,10 +109,10 @@ describe('Curriculum Data Integrity Audit', () => {
   })
 
   it('verifies exact practice parts count and titles for all 22 lessons matching Excel curriculum SSOT', () => {
-    // 1.1: đúng 3 món (Con mèo, Con cá vàng, Con cún)
+    // 1.1: đúng 1 món duy nhất (Con mèo) theo kịch bản Google Sheet SSOT (1 từ vs 5 điều)
     const p1_1 = getDefaultPracticeParts('bai-1-1')
-    expect(p1_1).toHaveLength(3)
-    expect(p1_1.map((p) => p.title)).toEqual(['Con mèo', 'Con cá vàng', 'Con cún'])
+    expect(p1_1).toHaveLength(1)
+    expect(p1_1.map((p) => p.title)).toEqual(['Con mèo'])
 
     // 1.2: đúng 2 món (Con cún, Cái xe đạp)
     const p1_2 = getDefaultPracticeParts('bai-1-2')

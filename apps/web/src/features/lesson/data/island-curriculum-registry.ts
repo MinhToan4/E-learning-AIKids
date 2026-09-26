@@ -157,40 +157,26 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "workflowSteps": [
           {
             "step": 1,
-            "title": "Thử câu lệnh ban đầu (1-2 từ)",
-            "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Chú Mèo\" xem tớ vẽ thế nào nhé!",
-            "quickPrompt": "Chú Mèo",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
+            "title": "Thực hành 01 — Một từ",
+            "akiSpeech": "Bé chỉ cần gõ đúng một từ 'con mèo' thôi, rồi bấm tạo để xem tớ vẽ thế nào nhé!",
+            "quickPrompt": "con mèo",
+            "instruction": "Câu lệnh 1 từ: con mèo ▸ FIX"
           },
           {
             "step": 2,
-            "title": "Thêm hình dáng & màu sắc",
-            "akiSpeech": "Giỏi lắm! Giờ hãy thêm chi tiết màu sắc và hình dáng để tớ không phải đoán bừa!",
-            "quickPrompt": "Chú Mèo mèo mướp vàng béo tròn",
-            "instruction": "Bổ sung màu sắc, hình dáng đặc trưng"
-          },
-          {
-            "step": 3,
-            "title": "Hoàn thiện 5 chi tiết vàng",
-            "akiSpeech": "Bây giờ hãy bổ sung hành động và bối cảnh để bức tranh thật sinh động nhé!",
-            "quickPrompt": "Con mèo mướp vàng béo tròn đang nằm ngủ cuộn tròn trên chiếc ghế mây cạnh cửa sổ ngập nắng",
-            "instruction": "Hoàn thiện câu lệnh đầy đủ chi tiết"
-          },
-          {
-            "step": 4,
-            "title": "Soi kỹ tranh & Cất Balo",
-            "akiSpeech": "Tuyệt đẹp! Bé hãy soi kỹ xem đã đạt chuẩn chưa và bấm Nộp Bài để cất vào Balo nhé!",
-            "quickPrompt": "",
-            "instruction": "Kiểm tra tranh và bấm nộp bài"
+            "title": "Thực hành 02 — Năm điều",
+            "akiSpeech": "Bây giờ câu lệnh đã có đủ năm điều chi tiết, bé hãy bấm tạo để so sánh với bức ảnh trước nhé!",
+            "quickPrompt": "con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân",
+            "instruction": "Câu lệnh 5 điều chi tiết ▸ FIX"
           }
         ],
         "sampleUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "creativeEngineMode": "magic-keys",
         "fourKeysOptions": {
-          "what": ["Con mèo", "Con cá vàng", "Con cún"],
-          "how": ["Mướp vằn nâu béo tròn", "Đuôi voan dài mềm", "Lông vàng hai tai cụp"],
-          "action": ["Đang ngủ cuộn tròn", "Đang ngoi lên đớp bọt", "Đang chạy đuổi quả bóng"],
-          "where": ["Trên ghế mây cạnh cửa sổ", "Trong bình thuỷ tinh tròn", "Ở góc sân gạch đỏ"]
+          "what": ["con mèo"],
+          "how": ["lông màu trắng"],
+          "action": ["đang nằm nhắm mắt"],
+          "where": ["ở trước sân"]
         },
         "practiceParts": [
           {
@@ -199,20 +185,6 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "icon": "🐱",
             "emoji": "🐱",
             "iconImage": "/assets/aiki-keys/key_subject_cat.jpg"
-          },
-          {
-            "partNumber": 2,
-            "title": "Con cá vàng",
-            "icon": "🐠",
-            "emoji": "🐠",
-            "iconImage": "/assets/aiki-islands/island1_lesson1_cat.jpg"
-          },
-          {
-            "partNumber": 3,
-            "title": "Con cún",
-            "icon": "🐶",
-            "emoji": "🐶",
-            "iconImage": "/assets/pregenerated-fallback/magic-keys/dog_one_word_v1.webp"
           }
         ]
       },

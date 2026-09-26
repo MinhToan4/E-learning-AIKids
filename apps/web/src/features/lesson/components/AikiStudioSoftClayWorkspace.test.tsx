@@ -213,7 +213,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.2 Bốn chiếc chìa khoá', () 
 })
 
 describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () => {
-  it('renders exactly 3 animals (Con mèo, Con cá vàng, Con cún) matching Excel SSOT', async () => {
+  it('renders exactly 1 cat matching Google Sheet SSOT and shows banner instead of animal selector', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -224,13 +224,15 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
 
     const text = container.textContent || ''
 
-    // Verify 3 items count
-    expect(text).toContain('3 con')
-    expect(text).toContain('Con mèo')
-    expect(text).toContain('Con cá vàng')
-    expect(text).toContain('Con cún')
+    // Verify banner present
+    expect(text).toContain('THỰC HÀNH: CÙNG MỘT CON MÈO · HAI CÂU LỆNH (1 TỪ VS 5 ĐIỀU)')
+    expect(text).toContain('Mèo AIKI')
+    expect(text).toContain('Lượt 1/2')
 
-    // Absolutely NO bicycle or other irrelevant items
+    // Absolutely NO multiple animal selector (no 'Bé chọn con vật thực hành', no 'Con cá vàng', no 'Con cún', no 'Cái xe đạp')
+    expect(text).not.toContain('Bé chọn con vật thực hành')
+    expect(text).not.toContain('Con cá vàng')
+    expect(text).not.toContain('Con cún')
     expect(text).not.toContain('Cái xe đạp')
 
     act(() => {
@@ -239,7 +241,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     container.remove()
   })
 
-  it('Turn 1 unlocks all Golden Keys, allows student to freely select prompt chips, and updates prompt dynamically', async () => {
+  it('Turn 1: shows Chìa khóa 1 con mèo FIX, dimmed suggestions for keys 2-4 with Gợi ý Lượt 2, prompt “con mèo”, and draw button for Turn 1', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -248,42 +250,24 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
       root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-1" />)
     })
 
-    let text = container.textContent || ''
+    const text = container.textContent || ''
 
-    // Keys 2, 3, 4 NO LONGER show lock overlays
-    expect(text).not.toContain('Khóa ở Lượt 1')
-    expect(text).not.toContain('AIKI sẽ tự điền')
+    // Khóa 1: con mèo (Chủ thể: con mèo (FIX))
+    expect(text).toContain('1. Cái gì?')
+    expect(text).toContain('con mèo')
 
-    // Initial prompt contains full keys with Con mèo
-    expect(text).toContain('Con mèo')
-    expect(text).toContain('mướp vằn nâu béo tròn')
-    expect(text).toContain('đang ngủ cuộn tròn')
-    expect(text).toContain('trên ghế mây cạnh cửa sổ')
+    // Keys 2, 3, 4 show Gợi ý Lượt 2 with dimmed suggestions
+    expect(text).toContain('Gợi ý Lượt 2')
+    expect(text).toContain('Lông màu trắng')
+    expect(text).toContain('Đang nằm nhắm mắt')
+    expect(text).toContain('Ở trước sân')
 
-    // Student can freely click chips in Turn 1
-    const buttons = Array.from(container.querySelectorAll('button'))
-    const whiteFurBtn = buttons.find((b) => b.textContent?.includes('Trắng lông xù dài'))
-    expect(whiteFurBtn).toBeDefined()
-    expect(whiteFurBtn?.hasAttribute('disabled')).toBe(false)
+    // Turn 1 prompt display is only "con mèo"
+    expect(text).toContain('CÂU LỆNH: 1 TỪ DUY NHẤT')
+    expect(text).toContain('“con mèo”')
 
-    await act(async () => {
-      whiteFurBtn?.click()
-    })
-
-    text = container.textContent || ''
-    expect(text).toContain('trắng lông xù dài')
-
-    // Select action
-    const chaseButterflyBtn = buttons.find((b) => b.textContent?.includes('Đang rình con bướm'))
-    expect(chaseButterflyBtn).toBeDefined()
-    expect(chaseButterflyBtn?.hasAttribute('disabled')).toBe(false)
-
-    await act(async () => {
-      chaseButterflyBtn?.click()
-    })
-
-    text = container.textContent || ''
-    expect(text).toContain('đang rình con bướm')
+    // Draw button for Turn 1
+    expect(text).toContain('Vẽ Lượt 1: Một từ duy nhất (con mèo)')
 
     act(() => {
       root.unmount()
@@ -291,7 +275,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     container.remove()
   })
 
-  it('draws Turn 1, unlocks Keys 2-4 for Turn 2, shows 5-detail prompt, allows drawing Turn 2, and renders side-by-side comparison', async () => {
+  it('draws Turn 1, switches to Turn 2 with 5 details prompt, allows drawing Turn 2, and renders side-by-side comparison', async () => {
     vi.useFakeTimers()
     const onSubmitWork = vi.fn()
 
@@ -310,11 +294,11 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
 
     // Draw Turn 1
     const buttons = Array.from(container.querySelectorAll('button'))
-    const drawBtn = buttons.find((b) => b.textContent?.includes('Vẽ Lượt 1'))
-    expect(drawBtn).toBeDefined()
+    const drawBtn1 = buttons.find((b) => b.textContent?.includes('Vẽ Lượt 1'))
+    expect(drawBtn1).toBeDefined()
 
     await act(async () => {
-      drawBtn?.click()
+      drawBtn1?.click()
     })
 
     act(() => {
@@ -323,23 +307,11 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
 
     // Now in Turn 2
     let text = container.textContent || ''
-    expect(text).toContain('Lượt 2: Đủ 5 điều')
-    expect(text).toContain('Vẽ Lượt 2 (5 điều chi tiết)')
+    expect(text).toContain('Lượt 2/2')
+    expect(text).toContain('LƯỢT 2: NĂM ĐIỀU CHI TIẾT')
     expect(text).toContain('CÂU LỆNH: ĐỦ 5 ĐIỀU CHI TIẾT (4/4 CHÌA KHÓA)')
-    expect(text).toContain('mướp vằn nâu béo tròn')
-    expect(text).toContain('đang ngủ cuộn tròn')
-    expect(text).toContain('trên ghế mây cạnh cửa sổ')
-
-    // Keys 2, 3, 4 are unlocked; select alternative option
-    const newButtons = Array.from(container.querySelectorAll('button'))
-    const calicoBtn = newButtons.find((b) => b.textContent?.includes('Tam thể ba màu'))
-    expect(calicoBtn).toBeDefined()
-
-    await act(async () => {
-      calicoBtn?.click()
-    })
-
-    expect(container.textContent).toContain('tam thể ba màu')
+    expect(text).toContain('con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân')
+    expect(text).toContain('Vẽ Lượt 2: Năm điều chi tiết')
 
     // Draw Turn 2
     const drawBtn2 = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -358,7 +330,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     // Now side-by-side comparison is rendered!
     text = container.textContent || ''
     expect(text).toContain('So sánh 2 bức tranh của bé')
-    expect(text).toContain('1. Một từ (Con mèo)')
+    expect(text).toContain('1. Một từ (con mèo)')
     expect(text).toContain('2. Năm điều')
     expect(text).toContain('Vì sao con thích bức này hơn?')
 
@@ -377,7 +349,8 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
 
     expect(onSubmitWork).toHaveBeenCalledTimes(1)
     const callArg = onSubmitWork.mock.calls[0][0]
-    expect(callArg.prompt).toContain('Con mèo')
+    expect(callArg.prompt).toContain('con mèo')
+    expect(callArg.prompt).toContain('lông màu trắng')
     expect(callArg.selectedImage.url).toContain('cat_full_details_v1.webp')
 
     act(() => {

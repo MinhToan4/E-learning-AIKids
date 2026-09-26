@@ -171,7 +171,9 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage5_practice.subjectName).toBe('Chú Mèo Mướp Béo')
       expect(resolved.stage5_practice.badge).toBe('Bài 1.1')
       expect(resolved.stage5_practice.maxAttempts).toBe(6)
-      expect(resolved.stage5_practice.workflowSteps.length).toBeGreaterThanOrEqual(4)
+      expect(resolved.stage5_practice.workflowSteps.length).toBeGreaterThanOrEqual(2)
+      expect(resolved.stage5_practice.workflowSteps[0].title).toBe('Thực hành 01 — Một từ')
+      expect(resolved.stage5_practice.workflowSteps[1].title).toBe('Thực hành 02 — Năm điều')
 
       // Stage 6: Completion
       expect(resolved.stage6_completion.nextLessonSlug).toBe('bai-1-2-bon-chiec-chia-khoa')

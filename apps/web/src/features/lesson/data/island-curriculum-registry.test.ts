@@ -49,10 +49,17 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
     for (const lesson of magicKeysLessons) {
       const fk = lesson.journey.stage5_practice.fourKeysOptions
       expect(fk).toBeDefined()
-      expect(fk?.what?.length).toBeGreaterThanOrEqual(3)
-      expect(fk?.how?.length).toBeGreaterThanOrEqual(3)
-      expect(fk?.action?.length).toBeGreaterThanOrEqual(3)
-      expect(fk?.where?.length).toBeGreaterThanOrEqual(3)
+      if (lesson.lessonNumber === '1.1') {
+        expect(fk?.what).toEqual(['con mèo'])
+        expect(fk?.how).toEqual(['lông màu trắng'])
+        expect(fk?.action).toEqual(['đang nằm nhắm mắt'])
+        expect(fk?.where).toEqual(['ở trước sân'])
+      } else {
+        expect(fk?.what?.length).toBeGreaterThanOrEqual(3)
+        expect(fk?.how?.length).toBeGreaterThanOrEqual(3)
+        expect(fk?.action?.length).toBeGreaterThanOrEqual(3)
+        expect(fk?.where?.length).toBeGreaterThanOrEqual(3)
+      }
     }
   })
 
