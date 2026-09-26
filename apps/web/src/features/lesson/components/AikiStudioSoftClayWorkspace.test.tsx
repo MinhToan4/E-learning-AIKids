@@ -239,7 +239,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     container.remove()
   })
 
-  it('Turn 1 locks Keys 2, 3, 4 and displays 1-word prompt', async () => {
+  it('Turn 1 unlocks all Golden Keys, allows student to freely select prompt chips, and updates prompt dynamically', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -248,16 +248,42 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
       root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-1" />)
     })
 
-    const text = container.textContent || ''
+    let text = container.textContent || ''
 
-    // Prompt contains 1 word only
-    expect(text).toContain('“Con mèo”')
-    expect(text).toContain('CÂU LỆNH: 1 TỪ DUY NHẤT (AIKI TỰ ĐOÁN)')
-    expect(text).toContain('Vẽ Lượt 1 (1 từ: Con mèo)')
+    // Keys 2, 3, 4 NO LONGER show lock overlays
+    expect(text).not.toContain('Khóa ở Lượt 1')
+    expect(text).not.toContain('AIKI sẽ tự điền')
 
-    // Keys 2, 3, 4 show lock indicators
-    expect(text).toContain('Khóa ở Lượt 1')
-    expect(text).toContain('AIKI sẽ tự điền')
+    // Initial prompt contains full keys with Con mèo
+    expect(text).toContain('Con mèo')
+    expect(text).toContain('mướp vằn nâu béo tròn')
+    expect(text).toContain('đang ngủ cuộn tròn')
+    expect(text).toContain('trên ghế mây cạnh cửa sổ')
+
+    // Student can freely click chips in Turn 1
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const whiteFurBtn = buttons.find((b) => b.textContent?.includes('Trắng lông xù dài'))
+    expect(whiteFurBtn).toBeDefined()
+    expect(whiteFurBtn?.hasAttribute('disabled')).toBe(false)
+
+    await act(async () => {
+      whiteFurBtn?.click()
+    })
+
+    text = container.textContent || ''
+    expect(text).toContain('trắng lông xù dài')
+
+    // Select action
+    const chaseButterflyBtn = buttons.find((b) => b.textContent?.includes('Đang rình con bướm'))
+    expect(chaseButterflyBtn).toBeDefined()
+    expect(chaseButterflyBtn?.hasAttribute('disabled')).toBe(false)
+
+    await act(async () => {
+      chaseButterflyBtn?.click()
+    })
+
+    text = container.textContent || ''
+    expect(text).toContain('đang rình con bướm')
 
     act(() => {
       root.unmount()
