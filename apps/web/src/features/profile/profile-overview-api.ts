@@ -1,4 +1,8 @@
-import { api, type AchievementRow } from '@/shared/lib/api'
+import {
+  api,
+  normalizeGatewayResponse,
+  type AchievementRow,
+} from '@/shared/lib/api'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import type {
   Audience,
@@ -130,7 +134,52 @@ export async function loadProfileOverview(
   includeProgression = true,
   includeAppearance = true,
 ): Promise<ProfileOverviewData> {
-  return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance)
+  // The Hub BFF runs the service-owned reads concurrently over its shared
+  // keep-alive pool. Keep the legacy fan-out only as a rolling-deploy fallback.
+  try {
+    const activeIpId = typeof localStorage !== 'undefined'
+      ? localStorage.getItem('storymee_active_ip_id')
+      : null
+    const sections = ['core']
+    if (includeProgression) sections.push('progression')
+    if (includeAppearance) sections.push('appearance')
+    const query = new URLSearchParams({ sections: sections.join(',') })
+    if (activeIpId) query.set('ipId', activeIpId)
+    const aggregate = await withTimeout(request<Record<string, unknown>>(
+      `/api/v1/aikids/profile-overview?${query.toString()}`,
+    ), timeoutMs)
+    if (!aggregate.streak || !aggregate.achievements || !aggregate.projects) {
+      throw new Error('Profile overview aggregate is incomplete')
+    }
+    const streak = normalizeGatewayResponse('/api/gamification/streak', aggregate.streak) as { current?: number }
+    const achievements = normalizeGatewayResponse('/api/gamification/achievements', aggregate.achievements) as { achievements?: AchievementRow[] }
+    const projects = normalizeGatewayResponse('/api/projects', aggregate.projects) as { projects?: ShowcaseProject[] }
+    const progression = includeProgression
+      ? normalizeGatewayResponse('/api/gamification/profile', aggregate.progression) as { totalXp?: number; level?: number }
+      : null
+    const settings = includeAppearance
+      ? normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null
+      : null
+    const storybook = includeAppearance
+      ? normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as { equipment?: ProfileEquipmentRow[] }
+      : null
+    const media = includeMedia
+      ? normalizeGatewayResponse('/api/backpack', aggregate.projects) as { assets?: ProfileMediaAsset[] }
+      : null
+
+    return {
+      streak: Number(streak.current ?? 0),
+      achievements: achievements.achievements ?? [],
+      projects: projects.projects ?? [],
+      avatarChoices: media?.assets ?? [],
+      totalXp: Number(progression?.totalXp ?? 0),
+      level: Number(progression?.level ?? 1),
+      profileSettings: settings,
+      equipment: storybook?.equipment ?? [],
+    }
+  } catch {
+    return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance)
+  }
 }
 
 export async function loadProfileAppearance(

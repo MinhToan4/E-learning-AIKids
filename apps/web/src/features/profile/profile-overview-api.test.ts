@@ -30,30 +30,29 @@ describe('profile overview adapter', () => {
     mockStorage = {}
   })
 
-  it('loads optional profile sections from local service routes without probing a missing aggregate route', async () => {
-    const request = vi.fn()
-      .mockResolvedValueOnce({ current: 4 })
-      .mockResolvedValueOnce({ achievements: [] })
-      .mockResolvedValueOnce({ projects: [] })
-      .mockResolvedValueOnce({ assets: [] })
-      .mockResolvedValueOnce({ totalXp: 1200, level: 12 })
-      .mockResolvedValueOnce({
+  it('loads optional profile sections through one Hub aggregate request', async () => {
+    const request = vi.fn().mockResolvedValue({
+      streak: { currentStreak: 4 },
+      achievements: { achievements: [] },
+      projects: { items: [] },
+      progression: { totalXp: 1200, level: 12 },
+      appearance: {
         childProfileId: 'child-1',
         slug: 'bo',
         enabled: true,
         visibility: ['family'],
         modules: ['works'],
-      })
-      .mockResolvedValueOnce({ equipment: [] })
+      },
+      storybook: { equipment: [] },
+    })
 
     await expect(loadProfileOverview(request)).resolves.toMatchObject({
       streak: 4,
       totalXp: 1200,
       level: 12,
     })
-    expect(request).toHaveBeenCalledTimes(7)
-    expect(request).not.toHaveBeenCalledWith('/api/v1/profile/overview')
-    expect(request).toHaveBeenCalledWith('/api/profile/settings')
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cprogression%2Cappearance')
   })
 
   it('fails closed instead of trusting localStorage when gamification request fails', async () => {
