@@ -880,25 +880,22 @@ export function AppShell() {
         </aside>
       </div>
 
-      <div className={cn(
-        "fixed z-40 flex items-center gap-2",
-        isLessonOrRule
-          ? "right-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:left-6 md:right-auto md:bottom-24"
-          : "right-3 top-3 sm:right-4 md:right-6",
-      )}>
-        {showParentButton && (
-          <button
-            type="button"
-            onClick={() => setGateOpen(true)}
-            aria-label="Gọi ba mẹ"
-            title="Ba / Mẹ ơi!"
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100"
-          >
-            <ParentHomeIcon size={24} />
-          </button>
-        )}
-        <NotificationBell />
-      </div>
+      {!isLessonOrRule && (
+        <div className="fixed z-40 flex items-center gap-2 right-3 top-3 sm:right-4 md:right-6">
+          {showParentButton && (
+            <button
+              type="button"
+              onClick={() => setGateOpen(true)}
+              aria-label="Gọi ba mẹ"
+              title="Ba / Mẹ ơi!"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100"
+            >
+              <ParentHomeIcon size={24} />
+            </button>
+          )}
+          <NotificationBell />
+        </div>
+      )}
 
       {isLessonOrRule ? (
         <div className="w-full flex-1 min-h-0 flex justify-center overflow-hidden">
