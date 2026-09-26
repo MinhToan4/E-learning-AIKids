@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { api } from '@/shared/lib/api'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
+import { clampCourseAggregateStars } from '@/shared/lib/star-progress'
 import {
   learningApi,
   type LearningPathway,
@@ -31,6 +32,18 @@ type StreakData = {
   current: number
   longest: number
   lastActivityDate: string | null
+}
+
+export function calculatePathwayTotalStars(
+  courses: LearningPathwayCourse[],
+  progressByCourse: Record<string, CourseProgress>,
+): number {
+  return courses.reduce((sum, course) => {
+    const progress = progressByCourse[course.id]
+    const stationCount = progress?.quests?.length || getCourseStationCount(course)
+    const earned = progress ? progress.totalStars : course.totalStars
+    return sum + clampCourseAggregateStars(earned, stationCount)
+  }, 0)
 }
 
 /**
@@ -156,10 +169,7 @@ export function ProgressPage() {
     selectedCourseStations.every((s) => s.status === 'completed' || s.stars > 0)
 
   // Tính tổng số sao gặt hái
-  const totalStarsCalculated = Object.values(courseProgressMap).reduce(
-    (acc, cur) => acc + (cur.totalStars || 0),
-    courses.reduce((acc, c) => acc + (c.totalStars || 0), 0),
-  )
+  const totalStarsCalculated = calculatePathwayTotalStars(courses, courseProgressMap)
 
   // Tính tổng số trạm
   const totalQuestsCalculated = courses.reduce(
@@ -172,7 +182,7 @@ export function ProgressPage() {
     courses.reduce((acc, c) => acc + (c.completedCount || 0), 0)
 
   return (
-    <PageMotion className="progress-experience flex flex-col gap-6 w-full max-w-5xl mx-auto min-w-0 pb-16">
+    <PageMotion className="progress-experience flex flex-col gap-6 w-full max-w-[1024px] mx-auto px-3 sm:px-4 md:px-6 min-w-0 pb-16">
       {/* Contract test anchors for phase4-surfaces: Con đang học đến đâu? | Việc tiếp theo của con | Điều gì đang lớn lên? | Con đang đi đến đâu? | Mở Huy hiệu */}
       {/* Phân tầng 1: Hộ Chiếu Thám Hiểm - Học sinh đang học đến đâu? */}
       <ProgressPassportHero

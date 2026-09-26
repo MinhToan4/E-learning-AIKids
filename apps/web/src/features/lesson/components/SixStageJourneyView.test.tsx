@@ -791,7 +791,10 @@ describe('SixStageJourneyView', () => {
     // Mainbar iframe has base video URL initially
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe).not.toBeNull()
-    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/NMdHhsLY5jc')
+    expect(iframe?.getAttribute('src')).toContain('https://www.youtube.com/embed/NMdHhsLY5jc')
+    expect(iframe?.getAttribute('src')).toContain('controls=0')
+    expect(iframe?.getAttribute('src')).toContain('disablekb=1')
+    expect(iframe?.className).toContain('pointer-events-none')
 
     // Sidebar is omitted; timestamps are built into video timeline stepper in main canvas
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
@@ -804,10 +807,11 @@ describe('SixStageJourneyView', () => {
     act(() => {
       chapterBtn?.click()
     })
-    expect(stage2Section?.querySelector('iframe')?.getAttribute('src')).toContain('start=45')
+    expect(stage2Section?.querySelector('iframe')?.getAttribute('src')).not.toContain('start=45')
+    expect(stage2Section?.querySelector('[data-testid="video-timeline-stepper"]')?.textContent).toContain('0:45')
 
     // Action button footer container
-    const footerAction = stage2Section?.querySelector('.flex.justify-between.items-center.pt-1')
+    const footerAction = stage2Section?.querySelector('[data-testid="video-action-footer"]')
     expect(footerAction).not.toBeNull()
   })
 
@@ -1703,8 +1707,9 @@ describe('SixStageJourneyView', () => {
     // Kiểm tra timeline stepper dàn ngang chuẩn AikiRuleVideoPlayer
     const timelineStepper = stage2Section?.querySelector('[data-testid="video-timeline-stepper"]')
     expect(timelineStepper).not.toBeNull()
-    expect(timelineStepper?.textContent).toContain('Xem lại video')
-    expect(timelineStepper?.textContent).toContain('Nghe AIKI giảng')
+    expect(timelineStepper?.textContent).not.toContain('Xem lại video')
+    expect(timelineStepper?.textContent).not.toContain('Nghe AIKI giảng')
+    expect(timelineStepper?.querySelector('[aria-label="Tua lại từ đầu"]')).not.toBeNull()
     expect(timelineStepper?.textContent).toContain('Tình huống khởi động')
 
     // Bấm mốc "Thực hành cùng AIKI" (node thứ 3, startSec = 120)
@@ -1714,13 +1719,14 @@ describe('SixStageJourneyView', () => {
       node3.click()
     })
 
-    // iframe URL cập nhật tua tới giây 120
+    // Player dùng YouTube API để tua mà không reload iframe; UI tiến độ phải cập nhật.
     const iframe = stage2Section?.querySelector('iframe')
-    expect(iframe?.getAttribute('src')).toContain('start=120')
+    expect(iframe?.getAttribute('src')).not.toContain('start=120')
+    expect(timelineStepper?.textContent).toContain('2:00')
   })
 
-  it('renders warm notice when lesson uses generic AIKid video and hides it for dedicated lessons 1.2 and 1.3', () => {
-    // 1. Bài 1.1 (Generic video): Phải hiển thị thông báo ấm áp của AIKI
+  it('keeps the video canvas compact without generic preparation notices', () => {
+    // Bài 1.1 không lặp lại thông báo chuẩn bị video dưới player.
     const root1 = createRoot(container)
     act(() => {
       root1.render(
@@ -1735,9 +1741,7 @@ describe('SixStageJourneyView', () => {
     })
 
     const notice = container.querySelector('[data-testid="generic-video-notice"]')
-    expect(notice).not.toBeNull()
-    expect(notice?.textContent).toContain('Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị.')
-    expect(notice?.textContent).toContain('Con hãy xem đủ video trước khi sang phần thử tài nhé')
+    expect(notice).toBeNull()
 
     // 2. Bài 1.2 (Dedicated video): Không hiển thị thông báo
     act(() => {
@@ -2499,10 +2503,9 @@ describe('SixStageJourneyView', () => {
       chapterNode4?.click()
     })
 
-    // Now video is completed: 1 star earned!
+    // Progress is represented once in the compact header pill.
     expect(headerPill?.textContent).toContain('1/3')
-    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
-    expect(container.textContent).toContain('⭐ Đã nhận 1/3 Sao: Bạn đã hoàn thành Rạp chiếu bài giảng!')
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).toBeNull()
 
     // Click next to reach the final slide
     const nextSlideBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -2649,10 +2652,9 @@ describe('SixStageJourneyView', () => {
       chapterNode3?.click()
     })
 
-    // Video completed: 1 star earned!
+    // Progress is represented once in the compact header pill.
     expect(headerPill?.textContent).toContain('1/3')
-    expect(container.querySelector('[data-testid="video-completed-badge"]')).not.toBeNull()
-    expect(container.textContent).toContain('⭐ Đã nhận 1/3 Sao: Bạn đã hoàn thành Rạp chiếu bài giảng!')
+    expect(container.querySelector('[data-testid="video-completed-badge"]')).toBeNull()
 
     // Advance to Stage 3 (Quiz)
     const toQuizBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -2887,7 +2889,7 @@ describe('SixStageJourneyView', () => {
     expect(stepper.className).toContain('overflow-hidden')
     expect(stepper.className).toContain('lg:h-fit')
     expect(stepper.className).toContain('lg:max-h-full')
-    expect(stepper.className).toContain('lg:self-center')
+    expect(stepper.className).toContain('lg:self-start')
 
     // Vertical chapter labels must be taller than their viewport and scroll
     // inside the track instead of painting over the pinned continue button.

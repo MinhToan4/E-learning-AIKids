@@ -108,21 +108,21 @@ export function ChildPickerPage() {
     >
       <div className="absolute inset-0 bg-[#f7f5ff]/88" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6 sm:py-8">
-        <header className="mb-6 flex items-start justify-between gap-3">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1024px] flex-1 flex-col px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+        <header className="mb-6 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="min-w-0">
             <BrandLogo size="md" className="max-w-[140px]" />
             <p className="mt-3 text-xs font-extrabold uppercase tracking-widest text-brand-600">Chuyển chế độ thiết bị</p>
-            <h1 className="font-display mt-1 text-3xl leading-tight text-text sm:text-4xl">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mt-1">
               Chọn hồ sơ để vào học
             </h1>
-            <p className="mt-1 text-base text-muted sm:text-lg">
+            <p className="mt-1 text-sm sm:text-base text-muted">
               Sau khi chọn, thiết bị sẽ chuyển sang không gian riêng của con. Phần quản lý của Ba / Mẹ sẽ được ẩn.
             </p>
           </div>
           <Link
             to="/parent"
-            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft"
+            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft self-start"
             title="Quay lại khu vực Ba / Mẹ"
           >
             Quay lại quản lý
@@ -135,7 +135,7 @@ export function ChildPickerPage() {
               pose="welcome"
               className="h-28 w-28 shrink-0 drop-shadow-md"
             />
-            <h2 className="font-display text-2xl">Chưa có hồ sơ con</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Chưa có hồ sơ con</h2>
             <p className="text-sm text-muted">
               Ba / Mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
             </p>
@@ -194,7 +194,7 @@ export function ChildPickerPage() {
             className="ui-btn ui-btn-secondary !min-h-11 !px-5 text-sm shadow-soft"
             onClick={async () => {
               await logout()
-              navigate('/login?mode=adult')
+              navigate('/login?mode=adult', { replace: true })
             }}
           >
             Đăng xuất Ba / Mẹ

@@ -38,10 +38,27 @@ export type CourseProgress = {
 
 export type LessonPhase = 'learn' | 'game' | 'practice' | 'check'
 
-type LessonProgress = {
+export type LessonProgress = {
   status: string
   phase: LessonPhase
   stars: number
+  sectionId?: string | null
+  lastSectionId?: string | null
+  anchor?: { sectionId?: string | null } | null
+  resume?: { sectionId?: string | null } | null
+}
+
+/** Convert the server-owned six-stage checkpoint into the zero-based UI index. */
+export function lessonStageIndexFromProgress(progress: LessonProgress): number {
+  const sectionId = progress.sectionId
+    ?? progress.lastSectionId
+    ?? progress.anchor?.sectionId
+    ?? progress.resume?.sectionId
+    ?? ''
+  const match = /^stage-(\d+)$/.exec(sectionId.trim())
+  if (!match) return 0
+  const stageNumber = Number(match[1])
+  return Number.isFinite(stageNumber) ? Math.max(0, stageNumber - 1) : 0
 }
 
 type LessonAdvanceInput = {

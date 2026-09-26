@@ -41,16 +41,21 @@ export function RewardStageBlock({
     fallbackRewardUrl
 
   const [displayedSrc, setDisplayedSrc] = React.useState<string>(targetArtworkUrl)
+  const [isSavingProgress, setIsSavingProgress] = React.useState(false)
 
   const finishThenNavigate = (
     summary: LessonCompletionSummary,
     navigate: () => void,
   ) => {
+    if (isSavingProgress) return
     const result = onFinishLesson?.(summary)
     if (result instanceof Promise) {
-      void result.then((saved) => {
-        if (saved !== false) navigate()
-      })
+      setIsSavingProgress(true)
+      void result
+        .then((saved) => {
+          if (saved !== false) navigate()
+        })
+        .finally(() => setIsSavingProgress(false))
       return
     }
     if (result !== false) navigate()
@@ -181,7 +186,8 @@ export function RewardStageBlock({
             {config?.nextLessonSlug && onNavigateNextLesson ? (
               <button
                 type="button"
-                className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
+                disabled={isSavingProgress}
+                className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center gap-2 cursor-pointer shadow-clay transition-all active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
                 onClick={() => {
                   finishThenNavigate({
                     stars: effectiveStars,
@@ -190,7 +196,7 @@ export function RewardStageBlock({
                   }, () => onNavigateNextLesson(config.nextLessonSlug!))
                 }}
               >
-                <span>Khám phá bài tiếp theo</span>
+                <span>{isSavingProgress ? 'Đang lưu tiến trình…' : 'Khám phá bài tiếp theo'}</span>
               </button>
             ) : null}
 
@@ -218,6 +224,7 @@ export function RewardStageBlock({
             {onBackToMap && (
               <Button
                 variant="secondary"
+                disabled={isSavingProgress}
                 className="w-full min-h-[44px] py-2.5 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5"
                 onClick={() => {
                   finishThenNavigate({
@@ -226,7 +233,7 @@ export function RewardStageBlock({
                   }, onBackToMap)
                 }}
               >
-                <span>Quay về bản đồ đảo</span>
+                <span>{isSavingProgress ? 'Đang lưu tiến trình…' : 'Quay về bản đồ đảo'}</span>
               </Button>
             )}
           </div>

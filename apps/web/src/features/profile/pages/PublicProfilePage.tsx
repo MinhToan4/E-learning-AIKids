@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { ArrowLeft } from 'lucide-react'
 import { ApiError, api } from '@/shared/lib/api'
 import {
   profileCardBackgroundStyle,
@@ -94,9 +95,10 @@ export function PublicProfilePage() {
           <div className="mt-5 flex justify-center gap-2">
             <Link
               to={loginRequired ? `/login?returnTo=${encodeURIComponent(`/u/${childId}`)}` : '/profile'}
-              className="rounded-full bg-brand-600 px-4 py-2 font-extrabold text-white"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 font-extrabold text-white"
             >
-              {loginRequired ? 'Đăng nhập' : '← Hồ sơ của con'}
+              {!loginRequired && <ArrowLeft size={16} />}
+              <span>{loginRequired ? 'Đăng nhập' : 'Hồ sơ của con'}</span>
             </Link>
             <Link to="/" className="rounded-full bg-brand-50 px-4 py-2 font-extrabold text-brand-600">Về AIKid.vn</Link>
           </div>
@@ -111,8 +113,9 @@ export function PublicProfilePage() {
     <main className="min-h-screen px-4 py-8" style={profilePageThemeStyle(profile.themeKey ?? undefined)}>
       <div className="mx-auto max-w-4xl space-y-6">
         <nav className="flex flex-wrap items-center justify-between gap-2" aria-label="Điều hướng trang cá nhân">
-          <Link to="/profile" className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">
-            ← Quay lại hồ sơ
+          <Link to="/profile" className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">
+            <ArrowLeft size={16} />
+            <span>Quay lại hồ sơ</span>
           </Link>
           <Link to="/home" className="text-sm font-extrabold text-brand-600">Về sảnh AIKid</Link>
         </nav>

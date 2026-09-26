@@ -160,14 +160,14 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
         className={cn(
           'flex min-h-[48px] sm:min-h-[58px] self-stretch sm:self-auto w-full shrink-0 items-center justify-center gap-1.5 rounded-2xl px-4 py-2 text-sm font-black shadow-clay transition-all duration-150 active:scale-95 cursor-pointer select-none sm:w-auto sm:px-6 sm:py-2.5 sm:text-base',
           !isTurnLocked && attemptsLeft > 0 && !isGenerating && currentPrompt.trim()
-            ? 'bg-amber-500 hover:bg-amber-600 text-white border-b-4 border-amber-700 hover:border-amber-800'
+            ? 'border-2 border-sky-600 bg-sky-500 text-white hover:bg-sky-600'
             : 'bg-slate-200 text-slate-400 cursor-not-allowed border-none'
         )}
       >
         {!isTurnLocked && <span className="text-base">✨</span>}
         <span>
           {isTurnLocked
-            ? turnLockedMessage || '🔒 Lượt này đã vẽ xong'
+            ? turnLockedMessage || 'Phần này đã có tranh'
             : attemptsLeft > 0
             ? `Vẽ đi AIKI! · còn ${attemptsLeft} lượt`
             : 'Đã hết lượt vẽ của bài này'}

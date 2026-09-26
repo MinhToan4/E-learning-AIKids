@@ -1985,7 +1985,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 }}
                 className="w-full min-h-[44px] px-4 py-2 rounded-2xl bg-white hover:bg-zinc-50 text-purple-700 text-xs font-bold transition-all cursor-pointer"
               >
-                Thực hành thêm tranh khác ➔
+                Thực hành thêm tranh khác
               </button>
             </div>
           </div>

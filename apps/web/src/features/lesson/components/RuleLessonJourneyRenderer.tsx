@@ -11,6 +11,7 @@ type Props = {
   ruleId: number
   effectiveCourseId: string
   liveStars: number
+  initialStageIndex?: number
   onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onStageChange?: (stageIndex: number, stageCount: number) => void
 }
@@ -20,6 +21,7 @@ export default function RuleLessonJourneyRenderer({
   ruleId,
   effectiveCourseId,
   liveStars,
+  initialStageIndex = 0,
   onFinish,
   onStageChange,
 }: Props) {
@@ -123,6 +125,7 @@ export default function RuleLessonJourneyRenderer({
         lessonId={quest.id}
         lessonTitle={quest.title}
         studentStars={liveStars || 42}
+        initialStageIndex={initialStageIndex}
         rewardXp={50}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)}

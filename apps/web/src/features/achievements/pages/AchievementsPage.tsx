@@ -296,7 +296,7 @@ export function AchievementsPage() {
   }, [])
 
   return (
-    <PageMotion className="achievement-experience flex flex-col gap-6 min-w-0">
+    <PageMotion className="achievement-experience flex flex-col gap-6 min-w-0 max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6">
       {/* Header Hero */}
       <header className="student-feature-hero achievement-hero" data-tone="sun">
         <ImportantCardMascot pose="celebrate" />
@@ -304,7 +304,7 @@ export function AchievementsPage() {
           to="/profile"
           className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline"
         >
-          ← Về hồ sơ
+          Về hồ sơ
         </Link>
         <div className="student-feature-hero-row mt-2">
           <div>
@@ -312,7 +312,7 @@ export function AchievementsPage() {
               <NavBadgeIcon size={20} aria-hidden="true" />
               Vùng sưu tập báu vật
             </div>
-            <h1 className="font-display text-3xl text-text sm:text-4xl">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Kệ Trưng Bày Huy Hiệu Soft Clay
             </h1>
             <p className="mt-1 max-w-xl text-base font-semibold text-muted">

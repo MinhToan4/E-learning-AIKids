@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { Check, ChevronRight, Lock } from 'lucide-react'
+import { Check, Lock } from 'lucide-react'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import {
@@ -99,14 +99,14 @@ export function ExplorerLevelPage() {
   const upcoming = levelRewards.filter((reward) => rewardLevel(reward) >= level).slice(0, 6)
   const nextReward = upcoming.find((reward) => rewardLevel(reward) > level)
   return (
-    <PageMotion className="flex flex-col gap-5">
+    <PageMotion className="flex flex-col gap-5 max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6">
       <header className="ui-card overflow-hidden p-5 sm:p-6">
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <Link to="/profile" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
               Về Hồ sơ
             </Link>
-            <h1 className="font-display text-3xl sm:text-4xl">Hành trình cấp độ</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Hành trình cấp độ</h1>
             <p className="mt-1 max-w-2xl text-base text-muted">
               Mỗi hoạt động giúp con tiến gần cấp mới và một món quà mới.
             </p>
@@ -191,7 +191,7 @@ export function ExplorerLevelPage() {
                   </div>
                 </div>
                 <Link to="/backpack" className="mt-4 inline-flex min-h-11 items-center gap-1 font-extrabold text-sun-200 hover:underline">
-                  Xem quà đã nhận <ChevronRight size={18} aria-hidden />
+                  Xem quà đã nhận
                 </Link>
               </div>
             </div>
@@ -206,7 +206,7 @@ export function ExplorerLevelPage() {
                 <h2 id="reward-road-title" className="font-display text-2xl">Các mốc gần nhất</h2>
               </div>
               <Link to="/backpack" className="inline-flex min-h-11 items-center gap-1 font-extrabold text-brand-700 hover:underline">
-                Mở Ba lô <ChevronRight size={18} aria-hidden />
+                Mở Ba lô
               </Link>
             </div>
 

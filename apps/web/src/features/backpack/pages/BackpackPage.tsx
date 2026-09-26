@@ -38,6 +38,15 @@ import {
 import { profilePageThemeStyle } from '@/features/rewards/student-theme'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { useProgression } from '@/shared/lib/progression-query'
+import { CourseCertificateModal } from '@/features/lesson/components/CourseCertificateModal'
+import {
+  getBackpackCertificates,
+  type BackpackCertificate,
+} from '@/features/backpack/lib/backpack-certificates'
+import {
+  SoftClayTrophyIcon,
+  SoftClayStarIcon,
+} from '@/features/leaderboard/components/ProgressPassportIcons'
 
 export const PROJECT_FILTERS = [
   { id: 'all', label: 'Tác phẩm của con' },
@@ -234,26 +243,46 @@ function shareStatusLabel(status: string) {
 
 function isImgUrl(src?: string) {
   if (!src) return false
-  return src.startsWith('data:') || src.startsWith('/') || src.startsWith('http')
+  return src.startsWith('data:') || src.startsWith('/') || src.startsWith('http') || src.startsWith('blob:')
 }
 
-function friendlyProjectTitle(title: string): string {
+export function friendlyProjectTitle(title: string): string {
   if (!title) return 'Tác phẩm của con'
   const clean = title
     .replace(/\.(json|png|jpe?g|webp|gif|mp4)$/i, '')
-    .replace(/^storyPlot[-_]?comic[-_]?\d*/i, 'Kịch bản truyện tranh')
-    .replace(/^prompt[-_]?schema[-_]?\d*/i, 'Ý tưởng sáng tạo')
+    .replace(/^storyPlot[-_\s]?comic[-_\s]?\d*/i, 'Truyện tranh AI')
+    .replace(/^prompt[-_\s]?schema[-_\s]?\d*/i, 'Ý tưởng sáng tạo')
     .replace(/[-_]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+
   return clean || 'Tác phẩm của con'
 }
 
-function isRawInternalFile(title: string): boolean {
+export function isCleanBackpackProject(p: Project | Asset | { title?: string; thumbnail?: string; name?: string; url?: string }): boolean {
+  if (!p) return false
+  const title = (('title' in p ? p.title : (p as any).name) || '').trim()
+  if (!title) return false
+
+  const lower = title.toLowerCase()
+  if (lower.endsWith('.json')) return false
+  if (/storyplot[-_\s]?comic/i.test(title)) return false
+  if (/prompt[-_\s]?schema/i.test(title)) return false
+  if (/^temp[-_\s]|draft[-_\s]|untitled[-_\s]internal/i.test(title)) return false
+
+  const thumb = (('thumbnail' in p ? p.thumbnail : (p as any).thumbnail) || (p as any).url || '').trim()
+  if (!thumb) return false
+  if (thumb.endsWith('.json')) return false
+
+  return true
+}
+
+export function isRawInternalFile(title: string): boolean {
   if (!title) return false
   const lower = title.toLowerCase()
   if (lower.endsWith('.json')) return true
-  if (lower.startsWith('prompt-schema-')) return true
+  if (/storyplot[-_\s]?comic/i.test(title)) return true
+  if (/prompt[-_\s]?schema/i.test(title)) return true
   return false
 }
 
@@ -266,6 +295,7 @@ function MediaThumbnail({
   kind: string
   className: string
 }) {
+  const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
   const fKind = filterFormat(kind)
 
@@ -296,7 +326,20 @@ function MediaThumbnail({
     )
   }
   return (
-    <img src={src} alt="" loading="lazy" decoding="async" className={className} onError={() => setFailed(true)} />
+    <div className="relative h-full w-full overflow-hidden bg-brand-50/50">
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-brand-50 via-white/80 to-brand-50" />
+      )}
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+        className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </div>
   )
 }
 
@@ -399,10 +442,16 @@ export function BackpackPage() {
     }
   }, [user?.id])
 
+  const backpackCacheRef = useRef<{
+    creations?: { assets: Asset[]; projects: Project[] }
+    achievements?: AchievementRow[]
+    treasures?: GamificationReward[]
+  }>({})
+
   const [assets, setAssets] = useState<Asset[]>([])
 
   const [projects, setProjects] = useState<Project[]>(() =>
-    readLocalBackpackWorks().filter((project) => !isRawInternalFile(project.title)),
+    readLocalBackpackWorks().filter(isCleanBackpackProject),
   )
 
   const [rewards, setRewards] = useState<GamificationReward[]>([])
@@ -411,6 +460,21 @@ export function BackpackPage() {
 
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [backpackCertificates, setBackpackCertificates] = useState<BackpackCertificate[]>(() =>
+    getBackpackCertificates(user?.id)
+  )
+  const [selectedBackpackCert, setSelectedBackpackCert] = useState<BackpackCertificate | null>(null)
+
+  useEffect(() => {
+    setBackpackCertificates(getBackpackCertificates(user?.id))
+    const handleClaimed = () => {
+      setBackpackCertificates(getBackpackCertificates(user?.id))
+    }
+    window.addEventListener('aikids:certificate-claimed', handleClaimed)
+    return () => {
+      window.removeEventListener('aikids:certificate-claimed', handleClaimed)
+    }
+  }, [user?.id])
 
   // 0ms instant mount: loading=false immediately so user sees their backpack shell instantly!
   const [loading, setLoading] = useState(false)
@@ -420,25 +484,42 @@ export function BackpackPage() {
   const [sourceFilter, setSourceFilter] = useState<ProjectFilter>('all')
   const [formatFilter, setFormatFilter] = useState<ProjectFormat>('all')
 
+  const PAGE_SIZE = 12
+  const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE)
+
+  useEffect(() => {
+    setVisibleLimit(PAGE_SIZE)
+  }, [sourceFilter, formatFilter])
+
   const [selectedItem, setSelectedItem] = useState<Project | Asset | GamificationReward | null>(null)
   const loadedSections = useRef(new Set<BackpackSection>())
 
-  const loadCreations = useCallback(async () => {
-    if (loadedSections.current.has('creations')) return
+  const loadCreations = useCallback(async (force = false) => {
+    if (!force && backpackCacheRef.current.creations) {
+      setAssets(backpackCacheRef.current.creations.assets)
+      setProjects(backpackCacheRef.current.creations.projects)
+      return
+    }
+    if (!force && loadedSections.current.has('creations')) return
     projects.length === 0 && assets.length === 0 ? setLoading(true) : setSyncing(true)
     setError(null)
     try {
-      const [backpack, projectResult] = await fetchWithTimeout(Promise.all([
-        api<{ assets: Asset[] }>('/api/backpack'),
-        api<{ projects: Project[] }>('/api/projects'),
-      ]))
-      const remoteAssets = backpack.assets ?? []
-      const remoteProjects = projectResult.projects ?? []
-      const localProjects = readLocalBackpackWorks()
+      const backpack = await fetchWithTimeout(api<{
+        assets: Asset[]
+        projects: Project[]
+      }>('/api/backpack/overview'))
+      const remoteAssets = (backpack.assets ?? []).filter(isCleanBackpackProject)
+      const remoteProjects = (backpack.projects ?? []).filter(isCleanBackpackProject)
+      const localProjects = readLocalBackpackWorks().filter(isCleanBackpackProject)
       const mergedProjects = [
         ...localProjects,
         ...remoteProjects.filter((remote) => !localProjects.some((local) => local.id === remote.id)),
-      ].filter((project) => !isRawInternalFile(project.title))
+      ].filter(isCleanBackpackProject)
+
+      backpackCacheRef.current.creations = {
+        assets: remoteAssets,
+        projects: mergedProjects,
+      }
       setAssets(remoteAssets)
       setProjects(mergedProjects)
       loadedSections.current.add('creations')
@@ -450,12 +531,17 @@ export function BackpackPage() {
     }
   }, [assets.length, projects.length])
 
-  const loadAchievements = useCallback(async () => {
-    if (loadedSections.current.has('achievements')) return
+  const loadAchievements = useCallback(async (force = false) => {
+    if (!force && backpackCacheRef.current.achievements) {
+      setAchievements(backpackCacheRef.current.achievements)
+      return
+    }
+    if (!force && loadedSections.current.has('achievements')) return
     setSyncing(true)
     try {
       const result = await fetchWithTimeout(api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'))
       const unlocked = result.achievements?.filter((achievement) => achievement.unlocked) ?? []
+      backpackCacheRef.current.achievements = unlocked
       setAchievements(unlocked)
       loadedSections.current.add('achievements')
     } catch {
@@ -465,8 +551,12 @@ export function BackpackPage() {
     }
   }, [achievements.length])
 
-  const loadTreasures = useCallback(async () => {
-    if (loadedSections.current.has('treasures')) return
+  const loadTreasures = useCallback(async (force = false) => {
+    if (!force && backpackCacheRef.current.treasures) {
+      setRewards(backpackCacheRef.current.treasures)
+      return
+    }
+    if (!force && loadedSections.current.has('treasures')) return
     setSyncing(true)
     try {
       const [inventory, catalog] = await Promise.all([
@@ -493,6 +583,7 @@ export function BackpackPage() {
       const nextRewards = combined.filter((item) => owned.has(item.code) || (
         item.unlock?.type === 'xp_level' && typeof item.unlock.value === 'number' && item.unlock.value <= level
       ))
+      backpackCacheRef.current.treasures = nextRewards
       setRewards(nextRewards)
       loadedSections.current.add('treasures')
     } catch {
@@ -513,7 +604,8 @@ export function BackpackPage() {
   useEffect(() => {
     const handleXpUpdate = () => {
       loadedSections.current.delete('treasures')
-      if (section === 'treasures') void loadTreasures()
+      delete backpackCacheRef.current.treasures
+      if (section === 'treasures') void loadTreasures(true)
     }
     window.addEventListener('aikids:xp-updated', handleXpUpdate)
     return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
@@ -527,6 +619,12 @@ export function BackpackPage() {
       return true
     })
   }, [projects, sourceFilter, formatFilter])
+
+  const paginatedProjects = useMemo(() => {
+    return visibleProjects.slice(0, visibleLimit)
+  }, [visibleProjects, visibleLimit])
+
+  const hasMoreProjects = visibleProjects.length > visibleLimit
 
   const treasureRewards = rewards.filter((r) =>
     ['event_ticket', 'perk', 'effect'].includes(r.kind) || r.unlock?.type === 'storybook_sticker',
@@ -555,7 +653,7 @@ export function BackpackPage() {
 
   return (
     <PageMotion
-      className="flex flex-col gap-6 relative min-h-screen"
+      className="flex flex-col gap-6 relative min-h-screen max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6"
     >
       <header
         className="home-profile-banner p-5 sm:p-7 relative overflow-hidden border-4 border-white shadow-clay rounded-3xl"
@@ -596,7 +694,7 @@ export function BackpackPage() {
                   <KidBackpackImageIcon size={20} /> Kho báu của con
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
-                  <h1 className="font-display text-2xl font-extrabold leading-tight text-text sm:text-3xl drop-shadow-sm">
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight drop-shadow-sm">
                     Ba lô của con
                   </h1>
                   {equippedTitleLabel && (
@@ -605,6 +703,9 @@ export function BackpackPage() {
                     </span>
                   )}
                 </div>
+                <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium">
+                  Nơi lưu giữ các tác phẩm sáng tạo, huy hiệu đạt được và bảo bối thần kỳ của con
+                </p>
               </div>
             </div>
 
@@ -693,7 +794,7 @@ export function BackpackPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h2 id="projects-title" className="font-display text-2xl">Tác phẩm sáng tạo</h2>
               <span className="text-xs font-bold text-muted bg-brand-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
-                {visibleProjects.length} / {projects.length} tác phẩm
+                Đang hiện {paginatedProjects.length} / {visibleProjects.length} tác phẩm
               </span>
             </div>
 
@@ -754,44 +855,58 @@ export function BackpackPage() {
               }
             />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {visibleProjects.map((p) => (
-                <div
-                  key={p.id}
-                  className="ui-card flex flex-col overflow-hidden shadow-sm hover:shadow-clay transition-shadow cursor-pointer"
-                  onClick={() => setSelectedItem(p)}
-                >
-                  <div className="h-40 bg-brand-50 relative overflow-hidden">
-                    <MediaThumbnail src={p.thumbnail} kind={p.kind} className="w-full h-full object-cover" />
-                    <span className={`absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm ${
-                      isLessonProject(p) ? 'bg-emerald-500 text-white' : 'bg-brand-500 text-white'
-                    }`}>
-                      {isLessonProject(p) ? '🏫 Bài học AI' : '🎨 Play AIKid'}
-                    </span>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col">
-                    <p className="font-extrabold text-base truncate">{p.title || friendlyProjectTitle(p.title)}</p>
-                    <p className="text-xs text-muted font-semibold mt-1">
-                      {kindLabel(p.kind)} • {shareStatusLabel(p.shareStatus)}
-                    </p>
-                    <div className="mt-auto pt-3">
-                      {p.shareStatus === 'private' && (
-                        <Button
-                          className="w-full !min-h-10 !text-xs rounded-xl"
-                          variant="secondary"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            requestShare(p.id)
-                          }}
-                        >
-                          Xin chia sẻ
-                        </Button>
-                      )}
+            <>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedProjects.map((p) => (
+                  <div
+                    key={p.id}
+                    className="ui-card flex flex-col overflow-hidden shadow-sm hover:shadow-clay transition-shadow cursor-pointer"
+                    onClick={() => setSelectedItem(p)}
+                  >
+                    <div className="h-40 bg-brand-50 relative overflow-hidden">
+                      <MediaThumbnail src={p.thumbnail} kind={p.kind} className="w-full h-full object-cover" />
+                      <span className={`absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm ${
+                        isLessonProject(p) ? 'bg-emerald-500 text-white' : 'bg-brand-500 text-white'
+                      }`}>
+                        {isLessonProject(p) ? '🏫 Bài học AI' : '🎨 Play AIKid'}
+                      </span>
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                      <p className="font-extrabold text-base truncate">{friendlyProjectTitle(p.title)}</p>
+                      <p className="text-xs text-muted font-semibold mt-1">
+                        {kindLabel(p.kind)} • {shareStatusLabel(p.shareStatus)}
+                      </p>
+                      <div className="mt-auto pt-3">
+                        {p.shareStatus === 'private' && (
+                          <Button
+                            className="w-full !min-h-10 !text-xs rounded-xl"
+                            variant="secondary"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              requestShare(p.id)
+                            }}
+                          >
+                            Xin chia sẻ
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {hasMoreProjects && (
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleLimit((prev) => prev + PAGE_SIZE)}
+                    className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-200 bg-brand-50 px-6 py-3 font-display text-sm font-black text-brand-700 shadow-soft transition-all hover:border-brand-300 hover:bg-brand-100 hover:shadow-clay active:scale-95"
+                  >
+                    <span>✨</span> Xem thêm tác phẩm (+{Math.min(PAGE_SIZE, visibleProjects.length - visibleLimit)})
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </section>
       )}
@@ -827,6 +942,81 @@ export function BackpackPage() {
               </p>
             </div>
           </div>
+
+          {/* Phân khu trang trọng: Bằng Khen Tốt Nghiệp Con Đã Nhận */}
+          {backpackCertificates.length > 0 && (
+            <div className="mb-6 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/80 via-white to-amber-100/40 p-4 sm:p-5 shadow-clay">
+              <div className="mb-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/90 text-amber-800 shadow-xs ring-2 ring-amber-200/50">
+                    <SoftClayTrophyIcon size={22} />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                      📜 Bằng Khen Tốt Nghiệp Con Đã Nhận ({backpackCertificates.length})
+                    </h3>
+                    <p className="text-xs font-bold text-muted">
+                      Các chứng nhận danh dự chính thức con đã xuất sắc hoàn thành và lưu giữ trong Ba Lô
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {backpackCertificates.map((cert) => (
+                  <div
+                    key={cert.id}
+                    data-testid="backpack-certificate-card"
+                    onClick={() => setSelectedBackpackCert(cert)}
+                    className="group relative cursor-pointer overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-white p-4 shadow-sm hover:shadow-clay hover:-translate-y-0.5 transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2.5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 text-amber-700 shadow-2xs">
+                          <SoftClayTrophyIcon size={20} />
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-black text-emerald-800 shadow-2xs">
+                          <span>🎒</span> Đã lưu
+                        </span>
+                      </div>
+
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500">
+                        {cert.islandTitle || cert.courseTitle}
+                      </span>
+                      <h4 className="mt-0.5 font-display text-sm sm:text-base font-black text-slate-900 tracking-tight leading-snug line-clamp-2">
+                        {cert.courseTitle || cert.islandTitle}
+                      </h4>
+                      <p className="mt-1 text-[11px] font-bold text-muted">
+                        Vinh danh: {cert.studentName}
+                      </p>
+
+                      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100/70 px-2 py-0.5 text-[11px] font-black text-amber-900 border border-amber-200 shadow-2xs">
+                          <SoftClayStarIcon size={14} /> {cert.stars} Sao
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-violet-100/70 px-2 py-0.5 text-[11px] font-black text-violet-900 border border-violet-200 shadow-2xs">
+                          <span>⚡</span> +{cert.xp} EXP
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedBackpackCert(cert)
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 text-xs font-black text-brand-600 group-hover:text-brand-700 cursor-pointer"
+                      >
+                        <span>Xem chi tiết bằng khen 📜</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {treasureRewards.length === 0 ? (
             <div className="text-center py-10 bg-brand-50 rounded-2xl p-6">
@@ -939,6 +1129,21 @@ export function BackpackPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedBackpackCert && (
+        <CourseCertificateModal
+          isOpen={Boolean(selectedBackpackCert)}
+          onClose={() => setSelectedBackpackCert(null)}
+          courseId={selectedBackpackCert.id || selectedBackpackCert.courseId}
+          studentName={selectedBackpackCert.studentName || user?.nickname || user?.name || undefined}
+          courseTitle={selectedBackpackCert.courseTitle}
+          islandTitle={selectedBackpackCert.islandTitle}
+          stars={selectedBackpackCert.stars}
+          xp={selectedBackpackCert.xp}
+          issuedDate={selectedBackpackCert.issuedDate}
+          studentId={user?.id}
+        />
       )}
     </PageMotion>
   )

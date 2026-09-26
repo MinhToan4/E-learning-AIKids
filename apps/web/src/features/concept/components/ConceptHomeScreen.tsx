@@ -313,7 +313,6 @@ export const ConceptHomeScreen: React.FC<ConceptHomeScreenProps> = ({
           className="shrink-0 px-3.5 py-1.5 rounded-full bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-xs font-black shadow-2xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap"
         >
           <span>Làm ngay</span>
-          <span className="text-xs">➔</span>
         </button>
       </div>
 

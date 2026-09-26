@@ -1,8 +1,8 @@
 import React, { useMemo, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import {
+  Pause,
   Play,
   RotateCcw,
-  Volume2,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
@@ -25,7 +25,7 @@ export function VideoStageBlock({
   stage,
   videoSeekSec = 0,
   onSeekVideo,
-  onSpeakCurrentStage,
+  onSpeakCurrentStage: _onSpeakCurrentStage,
   onPrevious,
   onContinue,
   onVideoCompleted,
@@ -33,6 +33,8 @@ export function VideoStageBlock({
 }: VideoStageBlockProps) {
   const { config } = stage
   const stageRef = useRef<HTMLElement | null>(null)
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const [isPlaying, setIsPlaying] = React.useState(false)
   const [useHorizontalTimeline, setUseHorizontalTimeline] = React.useState(false)
   const slides = useMemo(() => config.slides || [], [config.slides])
   const hasSlides = slides.length > 0
@@ -111,9 +113,62 @@ export function VideoStageBlock({
     return idx !== -1 ? idx : 0
   }, [videoChapters, videoSeekSec])
 
-  const videoEmbedSrc = useMemo(() => {
-    return buildVideoEmbedUrl(config.videoUrl, videoSeekSec)
-  }, [config.videoUrl, videoSeekSec])
+  const videoEmbedSrc = useMemo(() => buildVideoEmbedUrl(config.videoUrl), [config.videoUrl])
+
+  const postToYouTube = useCallback((command: string, args: unknown[] = []) => {
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({
+      event: 'command',
+      func: command,
+      args,
+    }), '*')
+  }, [])
+
+  const handleSeek = useCallback((sec: number, resume = true) => {
+    const target = Math.max(0, Math.min(totalDurationSec, Math.floor(sec)))
+    onSeekVideo?.(target)
+    postToYouTube('seekTo', [target, true])
+    if (resume) {
+      postToYouTube('playVideo')
+      setIsPlaying(true)
+    }
+  }, [onSeekVideo, postToYouTube, totalDurationSec])
+
+  const togglePlayPause = useCallback(() => {
+    if (isPlaying) {
+      postToYouTube('pauseVideo')
+      setIsPlaying(false)
+      return
+    }
+    postToYouTube('playVideo')
+    setIsPlaying(true)
+  }, [isPlaying, postToYouTube])
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return
+      let data: { event?: string; info?: number | { currentTime?: number } }
+      try {
+        data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
+      } catch {
+        return
+      }
+      if (data.event === 'onStateChange' && typeof data.info === 'number') {
+        setIsPlaying(data.info === 1)
+      }
+      if (data.event === 'infoDelivery' && typeof data.info === 'object') {
+        const currentTime = data.info?.currentTime
+        if (typeof currentTime === 'number') onSeekVideo?.(Math.floor(currentTime))
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [onSeekVideo])
+
+  useEffect(() => {
+    if (!isPlaying) return
+    const timer = window.setInterval(() => postToYouTube('getCurrentTime'), 750)
+    return () => window.clearInterval(timer)
+  }, [isPlaying, postToYouTube])
 
   // Theo dõi tiến độ Video YouTube (các đảo AIKids M1-M5 hoặc video bài giảng 10 quy tắc)
   useEffect(() => {
@@ -151,85 +206,93 @@ export function VideoStageBlock({
       {/* CỘT TRÁI (Main Video Cinema - Phóng to cực đại theo chiều cao khả dụng) */}
       <div className="lesson-video-main flex flex-1 min-w-0 flex-col items-center justify-center h-full min-h-0 py-0.5 overflow-hidden">
         <div
-          className="lesson-video-frame relative aspect-video max-w-full max-h-full overflow-hidden bg-transparent flex items-center justify-center shrink-0 w-full lg:max-w-none"
+          className="lesson-video-frame group relative aspect-video max-w-full max-h-full overflow-hidden bg-transparent flex items-center justify-center shrink-0 w-full lg:max-w-none"
           style={{
             width: 'min(100%, 1100px, calc((100dvh - 190px) * 16 / 9))',
             maxHeight: 'min(68vh, calc(100dvh - 190px))',
           }}
         >
           <iframe
+            ref={iframeRef}
             src={videoEmbedSrc}
             title={config.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="w-full h-full border-0"
+            allow="autoplay; encrypted-media"
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="pointer-events-none h-full w-full border-0"
+            onLoad={() => {
+              iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1 }), '*')
+            }}
           />
+          <button
+            type="button"
+            onClick={togglePlayPause}
+            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+            className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-transparent focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-400"
+          >
+            <span className={cn(
+              'flex size-14 items-center justify-center rounded-full bg-brand-500/95 text-white shadow-2xl transition-opacity sm:size-16',
+              isPlaying && 'opacity-0 group-hover:opacity-100 focus:opacity-100',
+            )}>
+              {isPlaying ? <Pause size={28} className="fill-white" /> : <Play size={28} className="translate-x-0.5 fill-white" />}
+            </span>
+          </button>
         </div>
 
-        {/* Thông báo ấm áp khi bài học dùng video chung của AIKI */}
-        {!config.isDedicatedLessonVideo && !hasSlides && (
-          <div
-            data-testid="generic-video-notice"
-            className="w-full max-w-4xl mx-auto mt-2 rounded-2xl bg-amber-50/95 border-2 border-amber-200/90 px-3 py-1.5 text-center text-xs sm:text-sm font-bold text-amber-900 shadow-2xs shrink-0 flex items-center justify-center gap-2 animate-fade-in"
-          >
-            <span>🎬 Video bài học chuyên sâu của trạm này đang được AIKI chuẩn bị. Con hãy xem đủ video trước khi sang phần thử tài nhé ✨</span>
-          </div>
-        )}
-
-        {/* Banner huy hiệu nhận sao khi hoàn thành video */}
-        {isVideoCompleted && (
-          <div
-            data-testid="video-completed-badge"
-            className="w-full max-w-4xl mx-auto mt-2 rounded-2xl bg-amber-100/95 border-2 border-amber-300 px-3 py-1.5 text-center text-xs sm:text-sm font-black text-amber-950 shadow-2xs flex items-center justify-center gap-2 animate-fade-in shrink-0"
-          >
-            <span>⭐ Đã nhận 1/3 Sao: Bạn đã hoàn thành Rạp chiếu bài giảng!</span>
-          </div>
-        )}
       </div>
 
       {/* CỘT PHẢI: Thanh tiến trình stepper & Vertical Playlist & Action Dock */}
       <div
         data-testid="video-timeline-stepper"
-        className="lesson-video-timeline relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-amber-50/80 border-2 border-amber-200 p-2 sm:p-2.5 [@media(max-height:760px)]:py-1 shadow-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-center lg:self-center"
+        className="lesson-video-timeline relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-brand-50/70 border-2 border-brand-200 p-2.5 sm:p-3 [@media(max-height:760px)]:py-1 shadow-clay-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-start lg:self-start"
       >
         {/* Header mốc & Thời gian */}
-        <div className="shrink-0 flex items-center justify-between gap-1 pb-1 border-b border-amber-200/80 text-xs">
+        <div className="shrink-0 flex items-center justify-between gap-1 pb-2 border-b border-brand-200/80 text-xs">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-black uppercase tracking-wider text-amber-950 flex items-center gap-1 truncate">
+            <span className="font-black uppercase tracking-wider text-brand-900 flex items-center gap-1 truncate">
               <span className="truncate">Lộ trình</span>
             </span>
-            <span className="text-[10px] sm:text-[11px] font-black px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 shrink-0">
               {videoChapters.length} mốc
             </span>
           </div>
 
-          <span className="text-[11px] sm:text-xs font-mono font-black text-amber-900 shrink-0">
+          <span className="text-[11px] sm:text-xs font-mono font-black text-brand-700 shrink-0">
             {Math.floor((videoSeekSec || 0) / 60)}:{String((videoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
           </span>
         </div>
 
         {/* TRACK & CONTROLS GRID */}
-        <div className="lesson-video-controls grid grid-cols-[auto_1fr] grid-rows-[auto_auto] landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
+        <div className="lesson-video-controls grid grid-cols-[auto_auto_1fr] grid-rows-1 landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
           
           {/* NÚT PLAY / TUA LẠI */}
           <button
             type="button"
             data-testid="video-timeline-play-btn"
-            onClick={() => onSeekVideo?.((videoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-            className="lesson-video-play col-start-1 row-start-1 landscape:order-2 lg:order-2 size-8 sm:size-9 rounded-xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center gap-1 cursor-pointer transition-all self-center shrink-0 z-10"
+            onClick={togglePlayPause}
+            className="lesson-video-play col-start-1 row-start-1 landscape:order-2 lg:order-2 size-11 sm:size-12 rounded-2xl border-2 border-brand-600 bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all self-center shrink-0 z-10"
+            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+            title={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+          >
+            {isPlaying ? <Pause size={16} className="fill-white shrink-0" /> : <Play size={16} className="translate-x-0.5 fill-white shrink-0" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSeek(0)}
+            className="col-start-2 row-start-1 landscape:order-3 lg:order-3 size-11 sm:size-12 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 active:scale-95 flex items-center justify-center cursor-pointer transition-all self-center shrink-0"
             aria-label="Tua lại từ đầu"
             title="Tua lại từ đầu"
           >
-            <Play size={16} className="translate-x-0.5 fill-white shrink-0" />
+            <RotateCcw size={17} />
           </button>
 
           {/* TRACK TIẾN ĐỘ */}
-          <div className="lesson-video-track col-start-2 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[40px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
+          <div className="lesson-video-track col-start-3 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[48px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
             
-            {/* Horizontal Line (Portrait) */}
-            <div className="lesson-video-horizontal-line absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-amber-100 border border-amber-300 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
+            {/* Thanh tiến trình ngang: bấm các mốc để tua tới đoạn cần xem. */}
+            <div className="lesson-video-horizontal-line absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-white border-2 border-brand-200 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
+                className="h-full rounded-full bg-gradient-to-r from-mint-400 via-sky-400 to-brand-500 transition-all duration-150 pointer-events-none"
                 style={{
                   width: `${Math.min(100, Math.max(4, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
                 }}
@@ -237,9 +300,9 @@ export function VideoStageBlock({
             </div>
 
             {/* Vertical Line (Landscape) */}
-            <div className="lesson-video-vertical-line absolute left-[11px] top-4 bottom-4 w-1.5 bg-amber-200 rounded-full shadow-inner hidden landscape:block lg:block z-0">
+            <div className="lesson-video-vertical-line absolute left-[11px] top-4 bottom-4 w-1.5 bg-brand-100 rounded-full shadow-inner hidden landscape:block lg:block z-0">
               <div
-                className="w-full rounded-full bg-gradient-to-b from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
+                className="w-full rounded-full bg-gradient-to-b from-mint-400 via-sky-400 to-brand-500 transition-all duration-150 pointer-events-none"
                 style={{
                   height: `${Math.min(100, Math.max(0, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
                 }}
@@ -263,14 +326,14 @@ export function VideoStageBlock({
                     <button
                       type="button"
                       data-testid={`video-chapter-node-${idx + 1}`}
-                      onClick={() => onSeekVideo?.(m.startSec)}
+                      onClick={() => handleSeek(m.startSec)}
                       className={cn(
                         'lesson-video-node-button flex items-center justify-center rounded-full font-display font-black text-[10px] sm:text-xs select-none cursor-pointer border shadow-clay transition-all duration-200 shrink-0 z-10',
                         isCurrent
                           ? 'size-5 sm:size-6 landscape:size-6 lg:size-6 bg-brand-500 text-white border-brand-200 ring-2 ring-brand-300'
                           : isPassed
-                          ? 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-amber-400 text-amber-950 border-white hover:bg-amber-500'
-                          : 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-amber-100 text-amber-600 border-white hover:bg-amber-200'
+                          ? 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-mint-500 text-white border-white hover:bg-mint-600'
+                          : 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-white text-brand-600 border-brand-200 hover:bg-brand-50'
                       )}
                       title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
                     >
@@ -280,16 +343,16 @@ export function VideoStageBlock({
                     {/* Node Label (Landscape only) */}
                     <button
                       type="button"
-                      onClick={() => onSeekVideo?.(m.startSec)}
+                      onClick={() => handleSeek(m.startSec)}
                       className={cn(
                         "lesson-video-node-label hidden landscape:flex lg:flex flex-1 text-left px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all min-w-0 flex-col gap-0 shadow-2xs cursor-pointer",
                         isCurrent ? 'bg-brand-500 text-white border-brand-600 ring-1 ring-brand-300 shadow-clay-xs' :
-                        isPassed ? 'bg-amber-100/90 text-amber-950 border-amber-300 hover:bg-amber-200' :
-                        'bg-white text-slate-700 border-amber-200 hover:bg-amber-50'
+                        isPassed ? 'bg-mint-50 text-mint-900 border-mint-200 hover:bg-mint-100' :
+                        'bg-white text-slate-700 border-brand-200 hover:bg-brand-50'
                       )}
                     >
                       <div className="text-xs sm:text-[13px] font-bold truncate leading-tight w-full">{m.label}</div>
-                      <div className={cn("text-[10px] sm:text-[11px] font-mono", isCurrent ? 'text-brand-100 font-black' : 'text-amber-800')}>
+                      <div className={cn("text-[10px] sm:text-[11px] font-mono", isCurrent ? 'text-brand-100 font-black' : 'text-slate-500')}>
                         {Math.floor(m.startSec / 60)}:{String(m.startSec % 60).padStart(2, '0')}
                       </div>
                     </button>
@@ -299,32 +362,10 @@ export function VideoStageBlock({
             </div>
           </div>
 
-          {/* CỤM NÚT PHỤ */}
-          <div className="lesson-video-secondary col-span-2 col-start-1 row-start-2 landscape:order-3 lg:order-3 landscape:flex-1 lg:flex-1 landscape:min-w-0 lg:min-w-0 flex gap-1.5 self-center">
-            <button
-              type="button"
-              onClick={() => onSeekVideo?.(0)}
-              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-1 min-w-0"
-              title="Xem lại từ đầu"
-            >
-              <RotateCcw size={12} className="text-amber-700 shrink-0" />
-              <span className="whitespace-normal text-center leading-tight">Xem lại video</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSpeakCurrentStage?.(stage.speech || '')}
-              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-amber-300 bg-white px-2 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer [@media(max-height:760px)]:py-1 min-w-0"
-              title="Nghe AIKI giảng bài"
-            >
-              <Volume2 size={12} className="text-brand-600 shrink-0" />
-              <span className="whitespace-normal text-center leading-tight">Nghe AIKI giảng</span>
-            </button>
-          </div>
         </div>
 
         {/* Action Button Footer Neo Ở Chân Cột Phải */}
-        <div className="shrink-0 flex justify-between items-center pt-1 border-t border-amber-200/80 gap-2 mt-auto">
+        <div data-testid="video-action-footer" className="shrink-0 flex justify-between items-center pt-2 border-t border-brand-200/80 gap-2 mt-auto">
           {onPrevious ? (
             <Button
               variant="secondary"
@@ -337,7 +378,7 @@ export function VideoStageBlock({
 
           <button
             type="button"
-            className="flex-1 min-h-[44px] py-2 px-3 text-xs sm:text-sm font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-md transition-all active:scale-95 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed"
+            className="flex-1 min-h-[48px] py-2.5 px-3 text-xs sm:text-sm font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-clay transition-all active:scale-[0.98] disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
             onClick={handleContinue}
             disabled={!isVideoCompleted}
             aria-describedby={!isVideoCompleted ? 'video-progress-requirement' : undefined}

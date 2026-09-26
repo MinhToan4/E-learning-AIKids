@@ -394,7 +394,7 @@ export function QuizStageBlock({
       </div>
 
       {/* Action buttons - Đáy cố định độc lập không đè nội dung (Layout Defense) */}
-      <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex flex-wrap gap-2 sm:gap-3 justify-between items-center border-t border-slate-100">
+      <div className="shrink-0 pt-2 pb-1 bg-white/95 flex flex-wrap gap-2 sm:gap-3 justify-between items-center border-t border-slate-100">
         <Button
           variant="secondary"
           onClick={onPrevious}
@@ -408,14 +408,15 @@ export function QuizStageBlock({
             variant="primary"
             disabled={Object.keys(quizAnswers).length < questions.length}
             onClick={onSubmitQuiz}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-base font-black rounded-xl"
+            className="min-h-[48px] px-5 sm:px-6 py-2 text-xs sm:text-sm font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 shadow-clay"
           >
-            Nộp bài kiểm tra
+            <span aria-hidden="true">Hoàn tất</span>
+            <span className="sr-only">Nộp bài kiểm tra</span>
           </Button>
         ) : (
           <button
             type="button"
-            className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center cursor-pointer shadow-md transition-all active:scale-95"
+            className="min-h-[48px] px-6 sm:px-8 py-3 text-sm sm:text-base font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center cursor-pointer shadow-clay transition-all active:scale-[0.98]"
             onClick={onContinue}
           >
             <span>{continueLabel}</span>

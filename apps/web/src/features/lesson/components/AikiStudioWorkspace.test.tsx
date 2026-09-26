@@ -418,7 +418,7 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 
-  it('manages 4 practice items/parts and 8-slot gallery grid matching requirements', async () => {
+  it('manages 4 practice items with one official artwork per item', async () => {
     const html = renderToStaticMarkup(
       <AikiStudioWorkspace
         lessonId="bai-1-2"
@@ -437,17 +437,14 @@ describe('AikiStudioWorkspace', () => {
 
     // 2. Kiểm tra Badges yêu cầu
     expect(html).toContain('BALO SÁNG TẠO (0/8 ảnh)')
-    expect(html).toContain('Lượt tạo của phần này 0/2')
+    expect(html).toContain('Chưa có tranh')
 
-    // 3. Kiểm tra Lưới 8 ô (4 hàng x 2 cột: P1 lượt 1/2, P2 lượt 1/2, P3 lượt 1/2, P4 lượt 1/2)
-    expect(html).toContain('P1 lượt 1/2')
-    expect(html).toContain('P1 lượt 2/2')
-    expect(html).toContain('P2 lượt 1/2')
-    expect(html).toContain('P2 lượt 2/2')
-    expect(html).toContain('P3 lượt 1/2')
-    expect(html).toContain('P3 lượt 2/2')
-    expect(html).toContain('P4 lượt 1/2')
-    expect(html).toContain('P4 lượt 2/2')
+    // 3. Mỗi phần chỉ có một tác phẩm, không còn lượt 2.
+    expect(html).toContain('P1 một tác phẩm')
+    expect(html).toContain('P2 một tác phẩm')
+    expect(html).toContain('P3 một tác phẩm')
+    expect(html).toContain('P4 một tác phẩm')
+    expect(html).not.toContain('lượt 2/2')
 
     // 4. Kiểm tra Thanh Chọn 4 Món Đồ Thực Hành (Practice Items Switcher) ngay trên Header
     expect(html).toContain('Món đồ bé vẽ:')
@@ -613,8 +610,8 @@ describe('AikiStudioWorkspace', () => {
     expect(part1Card).not.toBeNull()
     expect(part1Card?.textContent).toContain('THỰC HÀNH 01 · ĐANG LÀM')
     expect(part1Card?.textContent).toContain('Con cún')
-    expect(part1Card?.textContent).toContain('lượt 1')
-    expect(part1Card?.textContent).toContain('lượt 2')
+    expect(part1Card?.textContent).toContain('Chưa vẽ')
+    expect(part1Card?.textContent).not.toContain('lượt 2')
 
     expect(part2Card).not.toBeNull()
     expect(part2Card?.textContent).toContain('THỰC HÀNH 02 · CHỜ')
@@ -716,7 +713,7 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 
-  it('accurately reflects turn 1 and turn 2 states based on gallery, preventing turn 1 from being green when not drawn', async () => {
+  it('reflects the single artwork state for each practice item', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -729,7 +726,6 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
-          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={[]}
         />
@@ -741,15 +737,10 @@ describe('AikiStudioWorkspace', () => {
     expect(part1Card.textContent).toContain('THỰC HÀNH 01 · ĐANG LÀM')
 
     const turnBadges = part1Card.querySelectorAll('span.rounded-md')
-    expect(turnBadges.length).toBe(2)
-    // Lượt 1: đang làm, màu vàng amber, tuyệt đối không có dấu tick xanh
-    expect(turnBadges[0].textContent).toBe('lượt 1')
+    expect(turnBadges.length).toBe(1)
+    expect(turnBadges[0].textContent).toBe('Chưa vẽ')
     expect(turnBadges[0].className).toContain('bg-amber-100/80')
     expect(turnBadges[0].className).not.toContain('bg-emerald-100/90')
-
-    // Lượt 2: chờ, màu xám slate
-    expect(turnBadges[1].textContent).toBe('lượt 2')
-    expect(turnBadges[1].className).toContain('bg-slate-100')
 
     act(() => {
       root.unmount()
@@ -781,7 +772,6 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
-          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={oneImageMock}
         />
@@ -789,14 +779,11 @@ describe('AikiStudioWorkspace', () => {
     })
 
     const part1CardAfter1 = container2.querySelector('[data-testid="practice-item-select-1"]') as HTMLButtonElement
-    expect(part1CardAfter1.textContent).toContain('THỰC HÀNH 01 · 1/2 LƯỢT')
+    expect(part1CardAfter1.textContent).toContain('THỰC HÀNH 01 · XONG ✓')
     const turnBadgesAfter1 = part1CardAfter1.querySelectorAll('span.rounded-md')
-    // Lượt 1: đã xong, xanh lá có tick
-    expect(turnBadgesAfter1[0].textContent).toBe('✓ lượt 1')
+    expect(turnBadgesAfter1.length).toBe(1)
+    expect(turnBadgesAfter1[0].textContent).toBe('✓ Đã có tranh')
     expect(turnBadgesAfter1[0].className).toContain('bg-emerald-100/90')
-    // Lượt 2: đang làm, màu vàng amber
-    expect(turnBadgesAfter1[1].textContent).toBe('lượt 2')
-    expect(turnBadgesAfter1[1].className).toContain('bg-amber-100/80')
 
     act(() => {
       root2.unmount()
@@ -804,7 +791,7 @@ describe('AikiStudioWorkspace', () => {
     container2.remove()
   })
 
-  it('handles 2-turn evolution tabs and switches displayedPartImage vs studio-canvas-empty correctly', async () => {
+  it('renders one artwork per part without a second-turn switcher', async () => {
     const mockImages: StudioImageItem[] = [
       {
         id: 'img-p1-t1',
@@ -829,23 +816,19 @@ describe('AikiStudioWorkspace', () => {
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           lessonBadge="Bài 1.2"
           characterName="Cốc Sứ Trắng"
-          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={mockImages}
         />
       )
     })
 
-    // 1. Kiểm tra Turn Switcher tabs
-    expect(container.textContent).toContain('Lượt 1: Sơ khai')
-    expect(container.textContent).toContain('Lượt 2: Hoàn thiện ★')
-    expect(container.textContent).toContain('✓ Đã vẽ')
-    expect(container.textContent).toContain('Chưa vẽ')
+    expect(container.textContent).not.toContain('Lượt 2: Hoàn thiện ★')
+    expect(container.textContent).toContain('✓ Đã có tranh')
 
     // 2. Khung ảnh to đang hiển thị ảnh Lượt 1, kiểm tra responsive max-h giải phóng chiều cao cho Prompt Bar và max-w bảo toàn tỷ lệ 4:3
     const liveCanvas = container.querySelector('[data-testid="studio-live-canvas-display"]')
     expect(liveCanvas).not.toBeNull()
-    expect(liveCanvas?.textContent).toContain('Lượt 1')
+    expect(liveCanvas?.textContent).toContain('Con cún')
     expect(liveCanvas?.className).toContain('lg:max-h-[290px]')
     expect(liveCanvas?.className).toContain('xl:max-h-[310px]')
     expect(liveCanvas?.className).toContain('2xl:max-h-[350px]')
@@ -856,29 +839,9 @@ describe('AikiStudioWorkspace', () => {
     const liveImg = liveCanvas?.querySelector('img')
     expect(liveImg?.className).toContain('object-contain')
 
-    // 3. Click chuyển sang Tab Lượt 2
-    const buttons = container.querySelectorAll('button')
-    const turn2Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 2: Hoàn thiện ★'))
-    expect(turn2Btn).toBeDefined()
-
-    await act(async () => {
-      turn2Btn?.click()
-    })
-
-    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty, kiểm tra responsive max-h và max-w
-    const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
-    expect(emptyCanvas).not.toBeNull()
-    expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Học Sinh Đang Chờ!')
-    expect(emptyCanvas?.className).toContain('lg:max-h-[290px]')
-    expect(emptyCanvas?.className).toContain('xl:max-h-[310px]')
-    expect(emptyCanvas?.className).toContain('2xl:max-h-[350px]')
-    expect(emptyCanvas?.className).toContain('max-w-md')
-    expect(emptyCanvas?.className).toContain('sm:max-w-lg')
-    expect(emptyCanvas?.className).toContain('xl:max-w-none')
-    expect(emptyCanvas?.className).toContain('mx-auto')
-
-    // 5. Kiểm tra Dải phim Mini Filmstrip Gallery
+    // Dải phim chỉ còn một ô cho mỗi phần thực hành.
     expect(container.textContent).toContain('Balo bài học:')
+    expect(container.textContent).not.toContain('L2')
 
     act(() => {
       root.unmount()
@@ -1048,7 +1011,7 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 
-  it('blocks Turn 1 when already drawn with clear message, and blocks Turn 2 when completed', async () => {
+  it('blocks drawing again after the single artwork for a part is completed', async () => {
     const mockImages: StudioImageItem[] = [
       {
         id: 'img-p1-t1',
@@ -1071,37 +1034,17 @@ describe('AikiStudioWorkspace', () => {
         <AikiStudioWorkspace
           lessonId="bai-1-2"
           characterName="Cốc Sứ Trắng"
-          turnsPerItem={2}
           maxAttempts={8}
           preloadedImages={mockImages}
         />
       )
     })
 
-    // Theo logic tối ưu mới: Nếu Lượt 1 đã vẽ mà Lượt 2 chưa vẽ, hệ thống tự động chọn Lượt 2 để trẻ vẽ tiếp (không bị khóa)
     const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
     expect(drawBtn).not.toBeNull()
-    expect(drawBtn.textContent).not.toContain('🔒 Lượt 1 đã vẽ xong')
-
-    // Khi trẻ bấm chọn lại Lượt 1: Sơ khai đã vẽ, nút vẽ bị khóa với thông báo rõ ràng
-    const buttons = container.querySelectorAll('button')
-    const turn1Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 1: Sơ khai'))
-    await act(async () => {
-      turn1Btn?.click()
-    })
-
     expect(drawBtn.disabled).toBe(true)
-    expect(drawBtn.textContent).toContain('🔒 Lượt 1 đã vẽ xong · Chuyển sang Lượt 2 nhé!')
-
-    // Chuyển lại sang Lượt 2: Chưa vẽ nên nút mở khóa sẵn sàng
-    const turn2Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 2: Hoàn thiện ★'))
-    await act(async () => {
-      turn2Btn?.click()
-    })
-
-    // Turn 2 is not drawn yet, button should NOT show locked message
-    const drawBtnAfter = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
-    expect(drawBtnAfter.textContent).not.toContain('🔒 Lượt 1 đã vẽ xong')
+    expect(drawBtn.textContent).toContain('Phần này đã có tranh')
+    expect(container.textContent).not.toContain('Lượt 2: Hoàn thiện')
 
     act(() => {
       root.unmount()
@@ -1126,7 +1069,7 @@ describe('AikiStudioWorkspace', () => {
     expect(html).toContain('data-testid="aiki-studio-workspace"')
   })
 
-  it('restores gallery and selectedTurnByPart from localStorage session, calculating attemptsLeft accurately', async () => {
+  it('restores gallery from localStorage and deduplicates legacy second-turn images', async () => {
     const sessionKey = 'aiki_studio_session_bai-test-session'
     const sessionTurnsKey = 'aiki_studio_turns_bai-test-session'
     const savedGallery = [
@@ -1163,18 +1106,16 @@ describe('AikiStudioWorkspace', () => {
       root.render(
         <AikiStudioWorkspace
           lessonId="bai-test-session"
-          turnsPerItem={2}
           maxAttempts={8}
         />
       )
     })
 
-    // attemptsLeft should be maxAttempts - 2 = 6
-    expect(container.textContent).toContain('6')
-    // Both turns drawn for part 0 -> on turn 2 shows completion message
+    // Four practice parts minus one restored artwork leaves three creations.
+    expect(container.textContent).toContain('3 / 4 lượt')
     const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
     expect(drawBtn.disabled).toBe(true)
-    expect(drawBtn.textContent).toContain('🏆 Đã hoàn thành 2/2 lượt món này')
+    expect(drawBtn.textContent).toContain('Phần này đã có tranh')
 
     localStorage.removeItem(sessionKey)
     localStorage.removeItem(sessionTurnsKey)

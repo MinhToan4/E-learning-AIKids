@@ -41,7 +41,7 @@ export function createStudentRoutes() {
     <Route key="world-creator-legacy-redirect" path="/world/program/aikid_official/creator" element={<Navigate to="/world/program/aikid_official" replace />} />,
     <Route key="program" path="/world/program/:programId" element={student(<WorldPage />)} />,
     <Route key="program-track" path="/world/program/:programId/:trackId" element={student(<WorldPage />)} />,
-    <Route key="world-spaces" path="/world/spaces" element={student(<WorldPage showSpacesSelector />)} />,
+    <Route key="world-spaces" path="/world/spaces" element={<Navigate to="/world/program/aikid_official" replace />} />,
     <Route key="world-lesson" path="/world/:courseId/lesson/:lessonId" element={student(<LessonPage />)} />,
     <Route key="world-quest" path="/world/:courseId/quests/:lessonId" element={student(<LessonPage />)} />,
     <Route key="world-rule" path="/world/:courseId/rule/:ruleId" element={student(<LessonPage />)} />,

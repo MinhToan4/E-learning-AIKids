@@ -11,7 +11,6 @@ import {
   Lock,
   X,
   Sparkles,
-  Bell,
   Star,
   CheckCircle2,
   ArrowUpRight,
@@ -295,8 +294,8 @@ export function HomePage() {
   return (
     <PageMotion className="flex flex-col gap-6">
       {/* ── 1. HEADER TINH GIẢN, ÍT CHỮ (Theo mẫu ảnh 1 & 2) ── */}
-      <header className="min-h-[64px] sm:min-h-[72px] px-2 sm:px-4 pt-2 pb-1 w-full flex items-center justify-between gap-3">
-        {/* Cụm trái: Avatar tròn Jacob + Hey, Jacob! + Tiến độ */}
+      <header className="flex min-h-[64px] w-full items-center justify-between gap-3 px-1 py-2 pr-14 sm:min-h-[72px] sm:px-2 sm:pr-16">
+        {/* Cụm trái: hồ sơ và tiến độ học tập */}
         <Link
           to="/profile"
           className="flex items-center gap-3 min-w-0 group focus-visible:outline-focus"
@@ -308,7 +307,7 @@ export function HomePage() {
               <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
                 <img
                   src={avatarImage(user?.avatarId) || designerAssets.brand.mascot}
-                  alt={user?.nickname || 'Jacob'}
+                  alt={user?.nickname || 'Bạn nhỏ'}
                   className="w-full h-full object-cover object-top scale-110"
                 />
               </div>
@@ -319,12 +318,11 @@ export function HomePage() {
 
           {/* Lời chào & Dòng phụ siêu ngắn gọn */}
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight whitespace-nowrap flex items-center gap-1.5">
-              <span>Hey, {user?.nickname || 'Jacob'}!</span>
-              <span className="sr-only">Chào {user?.nickname || 'Jacob'}!</span>
+            <h1 className="flex items-center gap-1.5 whitespace-nowrap text-lg font-black tracking-tight text-slate-900 sm:text-2xl">
+              <span>Chào {user?.nickname || 'bạn'}!</span>
             </h1>
-            <p className="text-xs sm:text-sm font-bold text-zinc-500 flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span>⏱️ Tiến độ {courseOverallProgressPct || 75}%</span>
+            <p className="mt-0.5 flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-zinc-500 sm:text-sm">
+              <span>Tiến độ {courseOverallProgressPct}%</span>
               <span>•</span>
               <span className="text-[#FD7D2E]">Cấp {explorerLevel}</span>
               <span className="sr-only">Nhà Thám Hiểm Nhí</span>
@@ -332,27 +330,18 @@ export function HomePage() {
           </div>
         </Link>
 
-        {/* Cụm phải: Token XP pill dẹt siêu nhỏ + Chuông tròn trắng có chấm cam */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* XP là dữ liệu phụ; chuông thông báo toàn cục do AppShell quản lý. */}
+        <div className="hidden shrink-0 items-center sm:flex">
           {/* Token Sét XP nhỏ xíu dạng pill dẹt (hiện trên màn hình >= xs) */}
           <div
             data-xp-into-level={xpIntoLevel}
-            className="hidden xs:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-900 border border-amber-300/40 text-xs sm:text-sm font-black shadow-2xs"
+            className="flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-500/10 px-3 py-1.5 text-xs font-black text-amber-900 shadow-2xs sm:text-sm"
             title={`Còn ${xpToNextLevel} XP để lên Cấp ${explorerLevel + 1}`}
           >
             <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
             <span>{explorerXp.toLocaleString('vi-VN')} XP</span>
           </div>
 
-          {/* Chuông thông báo nút tròn trắng có chấm cam */}
-          <button
-            type="button"
-            aria-label="Thông báo"
-            className="relative shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-zinc-50 shadow-2xs hover:shadow-xs flex items-center justify-center text-zinc-700 active:scale-95 transition-all cursor-pointer border border-zinc-200/60"
-          >
-            <Bell className="w-4 h-4 text-zinc-700" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#FD7D2E] ring-2 ring-white" />
-          </button>
         </div>
       </header>
 
@@ -403,15 +392,15 @@ export function HomePage() {
               <div className="relative h-2.5 sm:h-3 bg-black/20 backdrop-blur-xs rounded-full overflow-visible flex items-center p-0.5 shadow-inner">
                 <div
                   className="h-full rounded-full bg-[#FD7D2E] transition-all duration-500 shadow-xs"
-                  style={{ width: `${Math.max(10, Math.min(100, courseOverallProgressPct || 75))}%` }}
+                  style={{ width: `${courseOverallProgressPct}%` }}
                 />
                 <div
                   className="absolute top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FD7D2E] border-2 border-white shadow-md transform -translate-x-1/2 cursor-pointer hover:scale-110 transition-transform"
-                  style={{ left: `${Math.max(10, Math.min(100, courseOverallProgressPct || 75))}%` }}
+                  style={{ left: `${Math.max(2, courseOverallProgressPct)}%` }}
                 />
               </div>
               <div className="flex justify-between items-center mt-1 text-[10px] sm:text-[11px] font-black text-white/90 drop-shadow-xs">
-                <span className="whitespace-nowrap">{courseOverallProgressPct || 75}% hoàn thành</span>
+                <span className="whitespace-nowrap">{courseOverallProgressPct}% hoàn thành</span>
                 <span className="whitespace-nowrap">+{xpToNextLevel} XP lên cấp</span>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router'
+import { getAccessToken } from '@/shared/lib/api'
 import { hasAnyPermission } from '@/shared/lib/rbac'
 import { useAuth } from '@/shared/store/auth'
 import type { User } from '@/shared/lib/api'
@@ -40,8 +41,27 @@ export function RouteGuard({
   const user = useAuth((state) => state.user)
   const activeContext = useAuth((state) => state.activeContext)
   const loading = useAuth((state) => state.loading)
+  const error = useAuth((state) => state.error)
+  const bootstrap = useAuth((state) => state.bootstrap)
 
   if (loading) return <RouteFallback />
+  if (!user && getAccessToken() && error) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-page px-4 py-10">
+        <section className="ui-card w-full max-w-lg p-7 text-center" role="alert">
+          <h1 className="font-display text-2xl text-ink">Chưa kết nối được phiên học</h1>
+          <p className="mt-2 text-sm text-muted">{error}</p>
+          <button
+            type="button"
+            className="ui-btn ui-btn-primary mt-5"
+            onClick={() => void bootstrap()}
+          >
+            Thử kết nối lại
+          </button>
+        </section>
+      </main>
+    )
+  }
   if (!user) return <Navigate to="/login" replace />
   if (roles && !roles.includes(user.role)) {
     return <Navigate to={homeFor(user.role)} replace />

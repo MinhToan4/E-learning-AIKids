@@ -499,3 +499,56 @@ export function SoftClayRocketIcon({ size = 22, className, 'aria-label': ariaLab
     </svg>
   )
 }
+
+/**
+ * 11. SoftClayClockIcon - Đồng hồ rèn luyện Soft Clay cho chỉ số giờ học
+ */
+export function SoftClayClockIcon({ size = 28, className, 'aria-label': ariaLabel = 'Thời lượng học tập' }: ProgressIconProps) {
+  const id = React.useId().replace(/:/g, '')
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    >
+      <defs>
+        <radialGradient id={`clock-grad-${id}`} cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="60%" stopColor="#0284c7" />
+          <stop offset="100%" stopColor="#0369a1" />
+        </radialGradient>
+        <filter id={`clock-shadow-${id}`} x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="2.5" stdDeviation="1.5" floodColor="#0369a1" floodOpacity="0.3" />
+        </filter>
+      </defs>
+      {/* Thân đồng hồ tròn Soft Clay */}
+      <circle
+        cx="24"
+        cy="24"
+        r="20"
+        fill={`url(#clock-grad-${id})`}
+        stroke="#0284c7"
+        strokeWidth="1.5"
+        filter={`url(#clock-shadow-${id})`}
+      />
+      {/* Vành trong */}
+      <circle cx="24" cy="24" r="16" fill="white" opacity="0.9" />
+      {/* Các vạch giờ 12, 3, 6, 9 */}
+      <circle cx="24" cy="12" r="1.5" fill="#0284c7" />
+      <circle cx="36" cy="24" r="1.5" fill="#0284c7" />
+      <circle cx="24" cy="36" r="1.5" fill="#0284c7" />
+      <circle cx="12" cy="24" r="1.5" fill="#0284c7" />
+      {/* Kim giờ & kim phút Soft Clay */}
+      <path d="M24 24L24 15" stroke="#0369a1" strokeWidth="2.8" strokeLinecap="round" />
+      <path d="M24 24L31 24" stroke="#0284c7" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="24" cy="24" r="2.5" fill="#f59e0b" stroke="#d97706" strokeWidth="1" />
+      {/* Vệt phản quang */}
+      <ellipse cx="18" cy="14" rx="4" ry="2" transform="rotate(-30 18 14)" fill="white" opacity="0.6" />
+    </svg>
+  )
+}

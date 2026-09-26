@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronRight, RotateCcw, Sparkles } from 'lucide-react'
+import { RotateCcw, Sparkles } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { generateCreativeImage } from '@/shared/lib/creative-api'
 import { designerAssets } from '@/shared/config/assets'
@@ -82,7 +82,7 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
         </div>
         <button type="button" onClick={() => onBack('hub')}
           className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted">
-          ← Trở về
+          Trở về
         </button>
       </header>
 
@@ -154,7 +154,7 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
             </button>
             <button type="button" onClick={() => void save()} disabled={!result || saving}
               className="ui-btn ui-btn-secondary gap-2 disabled:opacity-50">
-              {saving ? 'Đang lưu…' : 'Lưu vào Ba lô'} <ChevronRight size={16} />
+              {saving ? 'Đang lưu…' : 'Lưu vào Ba lô'}
             </button>
           </div>
         </aside>

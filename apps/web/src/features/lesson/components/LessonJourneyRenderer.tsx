@@ -12,11 +12,12 @@ type Props = {
   ruleId: number
   effectiveCourseId: string
   liveStars: number
+  initialStageIndex?: number
   onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onStageChange?: (stageIndex: number, stageCount: number) => void
 }
 
-export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, onFinish, onStageChange }: Props) {
+export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, initialStageIndex = 0, onFinish, onStageChange }: Props) {
   const navigate = useNavigate()
   const journey = resolveIslandSixStageJourney(quest)
   const matchedCurriculum = findIslandCurriculum(quest)
@@ -37,6 +38,7 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         studentStars={liveStars || 42}
         rewardXp={journey?.stage6_completion?.rewardBadge?.xp ?? 50}
         matchedCurriculum={matchedCurriculum}
+        initialStageIndex={initialStageIndex}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => {
           const nextCurriculum = findIslandCurriculum({ id: nextSlug, slug: nextSlug })

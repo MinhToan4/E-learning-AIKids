@@ -121,4 +121,53 @@ describe('CourseCertificateModal', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('calls onSaveToBackpack and saves to backpack when clicking Cất Vào Balo', () => {
+    vi.useFakeTimers()
+    const onSaveToBackpack = vi.fn()
+    const onClose = vi.fn()
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <CourseCertificateModal
+          isOpen={true}
+          onClose={onClose}
+          courseId="cert-dao-1"
+          studentName="Bé Minh"
+          courseTitle="Đảo Tiên Quyết"
+          islandTitle="Đảo 1: Đảo Tiên Quyết"
+          stars={15}
+          xp={350}
+          studentId="student-123"
+          onSaveToBackpack={onSaveToBackpack}
+        />
+      )
+    })
+
+    const saveBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Cất Vào Balo')
+    )
+    expect(saveBtn).toBeDefined()
+
+    act(() => {
+      saveBtn?.click()
+    })
+
+    expect(onSaveToBackpack).toHaveBeenCalledTimes(1)
+    expect(onSaveToBackpack).toHaveBeenCalledWith(
+      expect.objectContaining({
+        courseId: 'cert-dao-1',
+        studentName: 'Bé Minh',
+        stars: 15,
+        xp: 350,
+      })
+    )
+    expect(container.textContent).toContain('Đã Cất Vào Balo! 🎉')
+
+    act(() => {
+      vi.advanceTimersByTime(1300)
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+    vi.useRealTimers()
+  })
 })

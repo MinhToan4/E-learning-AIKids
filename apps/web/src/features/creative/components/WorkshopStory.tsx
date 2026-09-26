@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
+import { BookOpen, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
 import { generateCreativeStory } from '@/shared/lib/creative-api'
@@ -53,7 +53,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
           </div>
           <button type="button" onClick={() => onBack('hub')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted">
-            ← Trở về
+            Trở về
           </button>
         </div>
         <div className="grid flex-1 gap-4 sm:grid-cols-2">
@@ -66,7 +66,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
               <span className="font-display text-2xl text-text">{title}</span>
               <span className="mt-2 block text-sm text-muted">{description}</span>
               <span className="mt-5 inline-flex items-center gap-1 text-sm font-extrabold text-brand-600">
-                Bắt đầu <ChevronRight size={16} />
+                Bắt đầu
               </span>
             </button>
           ))}
@@ -92,7 +92,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
             onClick={() => setFlowStep('mode')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
           >
-            ← Trở về
+            Trở về
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
             onClick={() => setFlowStep('idea')}
             className="ui-btn ui-btn-primary gap-2 disabled:opacity-50"
           >
-            Tiếp tục <ChevronRight size={16} />
+            Tiếp tục
           </button>
         </div>
       </div>
@@ -152,7 +152,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
             onClick={() => setFlowStep('genre')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
           >
-            ← Thể loại
+            Thể loại
           </button>
         </div>
 
@@ -212,7 +212,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
             onClick={() => setFlowStep('genre')}
             className="rounded-btn border border-border px-4 py-2 text-sm font-bold text-muted"
           >
-            ← Quay lại
+            Quay lại
           </button>
           <button
             type="button"
@@ -249,7 +249,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
           onClick={() => { setFlowStep('idea'); setStoryResult(null); setError(null) }}
           className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
         >
-          ← Viết lại
+          Viết lại
         </button>
       </div>
 

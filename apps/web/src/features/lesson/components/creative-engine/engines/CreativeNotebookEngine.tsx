@@ -945,14 +945,14 @@ export const CreativeNotebookEngine: React.FC<CreativeNotebookEngineProps> = ({
               )}
             </div>
 
-            {/* Phải: Nút to nổi bật Nộp bài & Cất vào Ba lô */}
+            {/* CTA chính: hoàn tất thực hành và lưu sản phẩm. */}
             <button
               type="button"
               data-testid="btn-submit-notebook"
               onClick={handleSubmitAction}
-              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-b-4 border-amber-700 hover:border-amber-800 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+              className="min-h-[48px] w-full sm:w-auto border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
             >
-              <span>🎒 Nộp bài & Cất vào Ba Lô</span>
+              <span>Hoàn tất thực hành</span>
             </button>
           </div>
         </div>

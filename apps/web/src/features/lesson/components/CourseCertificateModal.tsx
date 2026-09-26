@@ -1,30 +1,50 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Trophy, Award, Sparkles, X, Star, Zap, CheckCircle2, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { playInstantSound } from './LessonInteractiveSidebar'
+import {
+  saveCertificateToBackpack,
+  isCertificateClaimed,
+  OFFICIAL_COURSE_CERTIFICATE_ID,
+  type BackpackCertificate,
+} from '@/features/backpack/lib/backpack-certificates'
 
 export interface CourseCertificateModalProps {
   isOpen: boolean
   onClose: () => void
+  courseId?: string
   studentName?: string
   courseTitle?: string
   islandTitle?: string
   issuedDate?: string
   stars?: number
   xp?: number
+  studentId?: string
+  onSaveToBackpack?: (cert: BackpackCertificate) => void
 }
 
 export function CourseCertificateModal({
   isOpen,
   onClose,
+  courseId = OFFICIAL_COURSE_CERTIFICATE_ID,
   studentName = 'Nhà Sáng Tạo Nhí AIKI',
-  courseTitle = 'Hành Trình Chinh Phục Đảo Trí Tuệ',
-  islandTitle,
+  courseTitle = 'Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)',
+  islandTitle = 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
   issuedDate,
   stars = 18,
   xp = 1500,
+  studentId,
+  onSaveToBackpack,
 }: CourseCertificateModalProps) {
   const [isSaved, setIsSaved] = useState(false)
+
+  useEffect(() => {
+    if (isOpen && courseId) {
+      setIsSaved(isCertificateClaimed(courseId, studentId))
+    } else if (isOpen) {
+      setIsSaved(false)
+    }
+  }, [isOpen, courseId, studentId])
 
   if (!isOpen) return null
 
@@ -39,6 +59,22 @@ export function CourseCertificateModal({
 
   const handleSaveToBackpack = () => {
     setIsSaved(true)
+    const effectiveCourseId =
+      courseId || (islandTitle || courseTitle).toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    const savedCert = saveCertificateToBackpack(
+      {
+        id: courseId || effectiveCourseId,
+        courseId: effectiveCourseId,
+        courseTitle,
+        islandTitle: islandTitle || courseTitle,
+        studentName,
+        issuedDate: formattedDate,
+        stars,
+        xp,
+      },
+      studentId,
+    )
+    onSaveToBackpack?.(savedCert)
     try {
       playInstantSound('star')
     } catch {

@@ -376,7 +376,9 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     position: relative;
     isolation: isolate;
     width: 100%;
-    max-width: 76rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
     margin-inline: auto;
     padding: 0;
     border: 0;
@@ -416,7 +418,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   .storybook-page-left {
     display: flex;
-    min-height: clamp(36rem, 66cqw, 44rem);
+    min-height: clamp(26rem, 46cqw, 33rem);
     flex-direction: column;
     padding: clamp(1.25rem, 3cqw, 2rem);
     color: white;
@@ -426,7 +428,11 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   }
 
   .storybook-page-right {
-    min-height: clamp(36rem, 66cqw, 44rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: clamp(26rem, 46cqw, 33rem);
     padding: clamp(0.75rem, 2.4cqw, 1.5rem);
     background-color: #fffaf5;
     background-image: linear-gradient(90deg, #e9ded5 0, #f5eee8 3%, #fffaf5 11%, #fffaf5 100%);
@@ -462,6 +468,9 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   .storybook-sticker-canvas[data-layout='figma-scatter'] {
     display: block;
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
     aspect-ratio: 822.887 / 880.025;
     min-height: 0;
     animation: storybook-stickers-enter 300ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
@@ -906,21 +915,25 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
 
     .storybook-book-layout {
-      grid-template-columns: minmax(0, 1fr) 5rem;
-      gap: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 4.5rem;
+      gap: 0.5rem;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
     }
 
     .storybook-chapter-rail {
-      width: 5rem;
+      width: 4.5rem;
       grid-template-columns: 1fr;
-      grid-template-rows: 32px minmax(0, 1fr) 32px;
-      align-items: stretch;
-      justify-items: stretch;
-      justify-self: start;
-      gap: 0.15rem;
+      grid-template-rows: 28px minmax(0, 1fr) 28px;
+      align-items: center;
+      justify-items: center;
+      gap: 0.25rem;
       padding-block: 0.25rem;
-      margin-left: -1rem;
+      margin-left: 0;
       z-index: 2;
+      max-height: 100%;
     }
 
     .storybook-rail-tabs {
@@ -959,10 +972,15 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
     .storybook-rail-arrow {
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      min-height: 44px;
+      height: 28px;
+      min-height: 28px;
       border: 0;
       background: transparent;
+      padding: 0;
     }
 
     .storybook-rail-arrow::before {
@@ -971,11 +989,12 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
       background: #ff5787;
       clip-path: path('M 22 1 C 24.5 1 26.5 3 28.5 6 L 42.5 30.5 C 45 35 42 39 37 39 L 7 39 C 2 39 -1 35 1.5 30.5 L 15.5 6 C 17.5 3 19.5 1 22 1 Z');
       content: '';
-      transform: translate(0.6rem, 0.7rem);
+      transform: scale(0.6);
+      transform-origin: center;
     }
 
     .storybook-rail-arrow:last-child::before {
-      transform: translate(0.6rem, -0.7rem) rotate(180deg);
+      transform: scale(0.6) rotate(180deg);
     }
 
     .storybook-rail-arrow:disabled {
@@ -993,7 +1012,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
     .storybook-page {
       display: flex;
-      min-height: clamp(38rem, 54cqw, 44rem);
+      min-height: clamp(26rem, 46cqw, 33rem);
     }
 
     .storybook-page-left {

@@ -33,11 +33,11 @@ export class AppErrorBoundary extends Component<Props, State> {
   }
 
   private goHome = () => {
-    window.location.href = '/'
+    window.location.replace('/')
   }
 
   private goLogin = () => {
-    window.location.href = '/login'
+    window.location.replace('/login')
   }
 
   render() {

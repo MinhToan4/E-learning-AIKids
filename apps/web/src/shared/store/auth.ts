@@ -243,8 +243,22 @@ export const useAuth = create<AuthState>((set, get) => ({
         return
       }
       set({ ...(await hydrateAdultAccess(user)), loading: false, enteredFromParent: false })
-    } catch {
-      set({ user: null, access: null, activeContext: null, loading: false, enteredFromParent: false })
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        get().expireSession()
+        return
+      }
+      // A network/5xx failure does not prove that the credential is invalid.
+      // Keep the token so the user can retry instead of being incorrectly
+      // bounced to login (and then seeing the old page again via Back/BFCache).
+      set({
+        user: null,
+        access: null,
+        activeContext: null,
+        loading: false,
+        error: 'Chưa thể kiểm tra phiên đăng nhập. Vui lòng thử lại.',
+        enteredFromParent: false,
+      })
     }
   },
 

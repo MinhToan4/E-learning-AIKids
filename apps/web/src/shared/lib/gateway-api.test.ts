@@ -165,6 +165,32 @@ describe('StoryMee Gateway adapter', () => {
       .toBeNull()
   })
 
+  it('normalizes a direct Hub course-detail payload with its lecture catalog', async () => {
+    setAccessToken('storymee-jwt')
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      data: {
+        id: 'course-2',
+        slug: 'dao-1-nha-tham-hiem-ai',
+        title: 'Nhà thám hiểm AI',
+        lectures: [
+          { id: 'lesson-1', slug: 'bai-1-1-mot-tu-hay-nam-tu', position: 1, title: 'Một từ hay năm từ' },
+          { id: 'lesson-2', slug: 'bai-1-2-bon-chiec-chia-khoa', position: 2, title: 'Bốn chiếc chìa khóa' },
+        ],
+      },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ course: { id: string; quests: Array<{ id: string; slug?: string }> } }>(
+      '/api/courses/course-2',
+    )
+
+    expect(result.course.id).toBe('course-2')
+    expect(result.course.quests).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'lesson-1', slug: 'bai-1-1-mot-tu-hay-nam-tu' }),
+      expect.objectContaining({ id: 'lesson-2', slug: 'bai-1-2-bon-chiec-chia-khoa' }),
+    ]))
+  })
+
   it('clears an expired consumer session and announces the auth failure', async () => {
     setAccessToken('expired-storymee-jwt')
     const unauthorized = vi.fn()
@@ -373,6 +399,7 @@ describe('StoryMee Gateway adapter', () => {
       courses: [
         {
           id: 'course-1',
+          slug: 'ai-co-ban',
           title: 'AI cơ bản',
           shortTitle: 'Khởi đầu',
           ageBand: '8-11',
@@ -406,6 +433,7 @@ describe('StoryMee Gateway adapter', () => {
       recommendedCourseId: 'course-1',
       courses: [{
         id: 'course-1',
+        slug: 'ai-co-ban',
         status: 'active',
         completionPercent: 25,
         enrolled: true,

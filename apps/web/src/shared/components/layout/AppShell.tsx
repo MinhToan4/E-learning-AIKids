@@ -113,7 +113,9 @@ function aikidStudentBackground(pathname: string): CSSProperties {
     backgroundImage: `linear-gradient(180deg, rgb(255 255 255 / 10%), var(--student-page-wash) 72%), url("${image}")`,
     backgroundPosition: 'top center, top center',
     backgroundRepeat: 'no-repeat, no-repeat',
-    backgroundSize: 'cover, max(100%, 76rem) auto',
+    // Cover the complete route surface instead of ending the artwork after one
+    // fixed-width image height on tall/mobile pages.
+    backgroundSize: 'cover, cover',
   }
 }
 
@@ -129,7 +131,7 @@ function useLogoutAction() {
       await logout()
     } finally {
       setLoggingOut(false)
-      navigate('/', { replace: true })
+      navigate('/login', { replace: true })
     }
   }
 

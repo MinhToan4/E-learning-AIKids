@@ -631,7 +631,7 @@ export function SixStageJourneyView({
   const StageComp = STAGE_REGISTRY[currentStageDef?.type]
 
   return (
-    <div className="w-full max-w-[1024px] min-w-0 max-w-full mx-auto h-auto min-h-full flex-none flex flex-col gap-2 overflow-x-hidden md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
+    <div className="mx-auto flex h-auto min-h-full w-full max-w-[1024px] min-w-0 flex-none flex-col gap-2 overflow-x-hidden md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
       {/* ── HÀNG 1: TOP BAR (BẢN ĐỒ & SAO/XP) ── */}
       <div className="shrink-0 flex items-center justify-between gap-2 w-full px-0.5">
         {onBackToMap ? (

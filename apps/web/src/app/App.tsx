@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { Route, Routes } from 'react-router'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
 import { AUTH_UNAUTHORIZED_EVENT } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
@@ -12,6 +12,9 @@ import { createStudentRoutes } from './routing/student-routes'
 
 const AppShell = lazy(() => import('@/shared/components/layout/AppShell').then((module) => ({
   default: module.AppShell,
+})))
+const NotFoundPage = lazy(() => import('@/features/auth/pages/NotFoundPage').then((module) => ({
+  default: module.NotFoundPage,
 })))
 
 /**
@@ -30,6 +33,15 @@ export function App() {
 
   useEffect(() => {
     void bootstrap()
+  }, [bootstrap])
+
+  useEffect(() => {
+    const verifyRestoredSession = (event: PageTransitionEvent) => {
+      if (!event.persisted) return
+      void bootstrap()
+    }
+    window.addEventListener('pageshow', verifyRestoredSession)
+    return () => window.removeEventListener('pageshow', verifyRestoredSession)
   }, [bootstrap])
 
   useEffect(() => {
@@ -75,7 +87,7 @@ export function App() {
             {createLmsRoutes()}
             {createAdminRoutes()}
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </AgeExperienceProvider>

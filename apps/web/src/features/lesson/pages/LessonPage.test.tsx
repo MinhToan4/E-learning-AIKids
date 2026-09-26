@@ -240,6 +240,63 @@ describe('LessonPage prefetch', () => {
     expect(openLessonSpy).not.toHaveBeenCalledWith('rule-1')
   })
 
+  it('opens a local island lesson by UUID and restores its server checkpoint', async () => {
+    const authoritativeId = '22222222-2222-4222-8222-222222222222'
+    vi.spyOn(learningApi, 'getPathway').mockResolvedValue({
+      student: { nickname: 'Bo', ageBand: '8-10' },
+      policy: null,
+      recommendedCourseId: 'dao-2',
+      courses: [{
+        id: 'dao-2',
+        title: 'Nhà thám hiểm AI',
+        shortTitle: 'Đảo 2',
+        status: 'active',
+        reasonCode: 'manual_override',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: null,
+        enrolled: true,
+        enrollmentId: 'enrollment-bo',
+        stations: [{
+          id: authoritativeId,
+          slug: 'bai-2-1-buc-tranh-biet-noi',
+          order: 1,
+          title: 'Bức Tranh Biết Nói',
+          skill: '', reward: '', duration: '180 giây', hook: '', accent: '#f59e0b', practiceKind: 'chips',
+          status: 'in_progress', phase: 'practice', stars: 1, xpEarned: 0,
+        }],
+      }],
+    })
+    const openLessonSpy = vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
+      progress: {
+        status: 'in_progress',
+        phase: 'practice',
+        stars: 1,
+        sectionId: 'stage-5',
+      },
+      quest: { id: authoritativeId } as import('@/shared/lib/api').QuestDetail,
+    })
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/dao-2/lesson/bai-2-1-buc-tranh-biet-noi']}>
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    await vi.waitFor(() => expect(openLessonSpy).toHaveBeenCalledWith(authoritativeId))
+    expect(openLessonSpy).not.toHaveBeenCalledWith('bai-2-1-buc-tranh-biet-noi')
+    await vi.waitFor(
+      () => expect(container.textContent).toContain('Chặng 5/6'),
+      { timeout: 5_000 },
+    )
+  })
+
   it('automatically normalizes raw UUID in URL to friendly /rule-2 slug (Kịch bản 3)', async () => {
     vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
       progress: {

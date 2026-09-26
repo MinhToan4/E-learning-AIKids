@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { BookOpen, BrainCircuit, Check, ChevronLeft, ChevronRight, Clock3, Gamepad2, Lightbulb, MessageSquareText, MoveRight, PencilLine, Play, Printer, ScanSearch, ShieldCheck, Sparkles, Square, Star, Target, Timer, Trophy, Volume2, ZoomIn } from 'lucide-react'
 import {
@@ -56,7 +56,8 @@ import {
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
 import { clearWorldPageCache, findCourseByIdentifier, isUserTestingUnlocked } from '@/features/world/pages/WorldPage'
-import { learningApi } from '@/shared/lib/learning-api'
+import { learningApi, lessonStageIndexFromProgress } from '@/shared/lib/learning-api'
+import { clampStationStars } from '@/shared/lib/star-progress'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
 import {
@@ -301,6 +302,7 @@ export function LessonPage() {
   const [gameHint, setGameHint] = useState<GameHint | null>(null)
   const [maxUnlockedPhase, setMaxUnlockedPhase] = useState<Phase>('learn')
   const [aikiRuleStage, setAikiRuleStage] = useState(0)
+  const [resumeStageIndex, setResumeStageIndex] = useState(0)
   const [aikiQuizAnswer, setAikiQuizAnswer] = useState<number | null>(null)
   const [aikiQuizAnswerCorrect, setAikiQuizAnswerCorrect] = useState(false)
   const [zoomedImage, setZoomedImage] = useState<ZoomImageData | null>(null)
@@ -434,6 +436,7 @@ export function LessonPage() {
     setOfflineManifest(null)
     setQuest(null)
     setAikiRuleStage(0)
+    setResumeStageIndex(0)
     setAikiQuizAnswer(null)
     setAikiQuizAnswerCorrect(false)
     setZoomedImage(null)
@@ -520,11 +523,13 @@ export function LessonPage() {
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
-          setLiveStars(opened.progress.stars)
+          const openedStars = clampStationStars(opened.progress.stars)
+          setLiveStars(openedStars)
+          setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
           if (opened.progress.status === 'completed') {
             setPhase('done')
             setCheckResult({
-              stars: opened.progress.stars,
+              stars: openedStars,
               message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
               nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
             })
@@ -570,8 +575,36 @@ export function LessonPage() {
 
       const islandCurriculum = await islandCurriculumPromise
       if (islandCurriculum) {
+        let authoritativeLessonId = islandCurriculum.id || questId
+        try {
+          const pathway = await learningApi.getPathway()
+          if (cancelled) return
+          const course = routeCourseId
+            ? findCourseByIdentifier(pathway.courses, routeCourseId)
+            : pathway.courses.find((row) => row.id === `dao-${islandCurriculum.islandNumber}`)
+          const station = course?.stations?.find((row) =>
+            row.slug === questId ||
+            row.id === questId ||
+            row.title.trim().toLocaleLowerCase('vi') === islandCurriculum.title.trim().toLocaleLowerCase('vi'),
+          )
+          authoritativeLessonId = station?.id?.trim() || authoritativeLessonId
+
+          const opened = await learningApi.openLesson(authoritativeLessonId)
+          if (cancelled) return
+          setLiveStars(clampStationStars(opened.progress.stars))
+          setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
+        } catch (progressError) {
+          if (!cancelled) {
+            setError(
+              progressError instanceof Error
+                ? `Chưa khôi phục được chặng đang học: ${progressError.message}`
+                : 'Chưa khôi phục được chặng đang học từ hệ thống.',
+            )
+          }
+        }
         setQuest({
-          id: islandCurriculum.id || questId,
+          id: authoritativeLessonId,
+          slug: questId,
           courseId: (islandCurriculum as any).courseId || (routeCourseId && !routeCourseId.startsWith('dao-') ? routeCourseId : `dao-${islandCurriculum.islandNumber}`),
           order: (islandCurriculum as any).lessonNumber || 1,
           title: islandCurriculum.title,
@@ -598,14 +631,16 @@ export function LessonPage() {
         const opened = await learningApi.openLesson(questId)
         if (cancelled) return
         setQuest(opened.quest)
-        setLiveStars(opened.progress.stars)
+        const openedStars = clampStationStars(opened.progress.stars)
+        setLiveStars(openedStars)
+        setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
 
         // Resume mid-quest; completed stations open on celebrate/review
         if (opened.progress.status === 'completed') {
           setPhase('done')
           setCheckResult({
-            stars: opened.progress.stars,
-            message: opened.progress.stars > 0
+            stars: openedStars,
+            message: openedStars > 0
               ? 'Con đã hoàn thành trạm này! Có thể thử lại để nâng số sao.'
               : 'Lần trước con chưa nhận được sao. Hãy thử lại phần Thử tài nhé!',
             nextQuestId: null,
@@ -896,10 +931,12 @@ export function LessonPage() {
     stopSituationNarrator()
   }, [aikiRuleStage, phase, stopSituationNarrator])
 
+  const finishLessonPromiseRef = useRef<Promise<boolean> | null>(null)
+
   async function handleAikiFinish(customSummary?: { answers?: Array<{ questionId: string; optionIndex: number }> }) {
     if (checkResult) return true
-    if (!quest || busy) return false
-    setBusy(true)
+    if (finishLessonPromiseRef.current) return finishLessonPromiseRef.current
+    if (!quest) return false
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const answersPayload = customSummary?.answers?.length
       ? customSummary.answers
@@ -916,7 +953,9 @@ export function LessonPage() {
             optionIndex: (answers && typeof answers[q.id] === 'number') ? answers[q.id] : -1,
           }))
         : []
-    try {
+    const finishPromise = (async () => {
+      setBusy(true)
+      try {
       const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
       const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
@@ -937,11 +976,20 @@ export function LessonPage() {
       clearWorldPageCache()
       window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
       return true
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')
-      return false
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')
+        return false
+      } finally {
+        setBusy(false)
+      }
+    })()
+    finishLessonPromiseRef.current = finishPromise
+    try {
+      return await finishPromise
     } finally {
-      setBusy(false)
+      if (finishLessonPromiseRef.current === finishPromise) {
+        finishLessonPromiseRef.current = null
+      }
     }
   }
 
@@ -949,8 +997,10 @@ export function LessonPage() {
     const progressId = quest?.id || questId
     if (!navigator.onLine || !progressId || stageCount <= 0) return
     const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
+    setResumeStageIndex(stageIndex)
     void api(`/api/learning/quests/${progressId}/resume`, {
       method: 'PUT',
+      keepalive: true,
       body: JSON.stringify({
         percent,
         positionSeconds: 0,
@@ -1095,7 +1145,7 @@ export function LessonPage() {
         gameEvidence,
       })
       if (result?.progress?.stars != null) {
-        setLiveStars(result.progress.stars)
+        setLiveStars(clampStationStars(result.progress.stars))
       }
       if (result?.progress?.phase) {
         setPhase(result.progress.phase)
@@ -1247,7 +1297,7 @@ export function LessonPage() {
         const advance = await learningApi.advanceLesson(questId, {
           fromPhase: 'practice',
         })
-        setLiveStars(advance.progress.stars)
+        setLiveStars(clampStationStars(advance.progress.stars))
         setStarBurst({ id: Date.now(), count: 1 })
         setPracticeAdvanced(true)
       } catch {
@@ -1271,7 +1321,7 @@ export function LessonPage() {
       const result = await learningApi.advanceLesson(questId, {
         fromPhase: 'practice',
       })
-      setLiveStars(result.progress.stars)
+      setLiveStars(clampStationStars(result.progress.stars))
       setStarBurst({ id: Date.now(), count: 1 })
       setPracticeAdvanced(true)
       setPhase('check')
@@ -1307,9 +1357,10 @@ export function LessonPage() {
         setError(res.message)
         return
       }
-      setLiveStars(res.stars)
+      const confirmedStars = clampStationStars(res.stars)
+      setLiveStars(confirmedStars)
       setStarBurst({ id: Date.now(), count: 1 })
-      setCheckResult(res)
+      setCheckResult({ ...res, stars: confirmedStars })
       setPhase('done')
       setGameHint(null)
       clearApiCache()
@@ -1638,7 +1689,7 @@ export function LessonPage() {
   if (isAikiRuleJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }
@@ -1647,7 +1698,7 @@ export function LessonPage() {
   if (isIslandJourney && quest) {
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadProfileOverview } from './profile-overview-api'
+import { loadProfileAppearance, loadProfileOverview } from './profile-overview-api'
 
 let mockStorage: Record<string, string> = {}
 const mockLocalStorage = {
@@ -110,5 +110,27 @@ describe('profile overview adapter', () => {
     // Run with a very short timeout for testing speed
     const overview = await loadProfileOverview(request, 50)
     expect(overview.profileSettings).toBeNull()
+  })
+
+  it('loads appearance independently from slow non-critical profile sections', async () => {
+    const request = vi.fn().mockImplementation((path: string) => {
+      if (path === '/api/profile/settings') {
+        return Promise.resolve({ slug: 'bo', themeKey: 'theme-ocean' })
+      }
+      if (path === '/api/gamification/storybook') {
+        return Promise.resolve({
+          inventory: [{ rewardId: 'theme-ocean' }],
+          equipment: [{ kind: 'theme', rewardId: 'theme-ocean' }],
+        })
+      }
+      return Promise.reject(new Error(`Unexpected request: ${path}`))
+    })
+
+    await expect(loadProfileAppearance(request)).resolves.toMatchObject({
+      profileSettings: { slug: 'bo', themeKey: 'theme-ocean' },
+      equipment: [{ kind: 'theme', rewardId: 'theme-ocean' }],
+      ownedRewardIds: ['theme-ocean'],
+    })
+    expect(request).toHaveBeenCalledTimes(2)
   })
 })

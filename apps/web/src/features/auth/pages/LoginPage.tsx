@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
@@ -17,6 +17,8 @@ export function LoginPage() {
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
   const loginAdult = useAuth((state) => state.loginAdult)
+  const sessionUser = useAuth((state) => state.user)
+  const sessionLoading = useAuth((state) => state.loading)
   const navigate = useNavigate()
 
   function goAfterLogin(user: User) {
@@ -24,6 +26,10 @@ export function LoginPage() {
     else if (user.role === 'teacher') navigate('/teacher', { replace: true })
     else navigate('/kids', { replace: true })
   }
+
+  useEffect(() => {
+    if (!sessionLoading && sessionUser) goAfterLogin(sessionUser)
+  }, [sessionLoading, sessionUser])
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()

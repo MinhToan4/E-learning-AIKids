@@ -3,6 +3,7 @@ import type { LearningPathway, LearningPathwayCourse } from '@/shared/lib/learni
 import { learningApi } from '@/shared/lib/learning-api'
 import type { RulesOverallProgress, RuleUserProgress } from '../types'
 import { AIKI_RULES_DATA } from '../data/rules-data'
+import { calculateCourseStars, clampStationStars } from '@/shared/lib/star-progress'
 
 const LEGACY_STORAGE_KEY = 'aikids_golden_rules_progress_v1'
 
@@ -52,7 +53,7 @@ export function rulesProgressFromPathway(pathway: LearningPathway): RulesOverall
       ruleId,
       status: completed ? 'completed' : station.status === 'locked' ? 'locked' : 'available',
       completedQuestions: completed ? 2 : 0,
-      starsEarned: Math.max(0, Math.min(3, station.stars || 0)),
+      starsEarned: clampStationStars(station.stars),
     }
   }
 
@@ -62,10 +63,7 @@ export function rulesProgressFromPathway(pathway: LearningPathway): RulesOverall
     }
   }
 
-  result.totalStars = course.totalStars ?? Object.values(result.rules).reduce(
-    (sum, rule) => sum + rule.starsEarned,
-    0,
-  )
+  result.totalStars = calculateCourseStars(course.stations, course.totalStars).earned
   result.totalXp = course.stations.reduce((sum, station) => sum + (station.xpEarned || 0), 0)
   result.unlockedPosters = Object.values(result.rules)
     .filter((rule) => rule.status === 'completed')
@@ -97,8 +95,7 @@ export function useRulesProgress() {
 
   const completeRule = useCallback((ruleId: number, confirmedStars = 3) => {
     setProgress((prev) => {
-      const starsEarned = Math.max(0, Math.min(3, confirmedStars))
-      const currentRule = prev.rules[ruleId]
+      const starsEarned = clampStationStars(confirmedStars)
 
       const newRules = { ...prev.rules }
       newRules[ruleId] = {
@@ -122,11 +119,12 @@ export function useRulesProgress() {
         ? prev.unlockedPosters
         : [...prev.unlockedPosters, ruleId].sort((a, b) => a - b)
 
-      const addedStars = Math.max(0, starsEarned - (currentRule?.starsEarned || 0))
-
       return {
         rules: newRules,
-        totalStars: prev.totalStars + addedStars,
+        totalStars: Object.values(newRules).reduce(
+          (sum, rule) => sum + clampStationStars(rule.starsEarned),
+          0,
+        ),
         totalXp: prev.totalXp,
         unlockedPosters,
       }

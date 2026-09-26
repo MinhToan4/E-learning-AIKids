@@ -136,7 +136,7 @@ export function StorybookPage() {
   }
 
   return (
-    <PageMotion className="flex flex-col gap-5 sm:gap-6">
+    <PageMotion className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 pb-32 sm:pb-36 flex flex-col gap-5 sm:gap-6 min-w-0">
       <header className="student-feature-hero storybook-hero ui-card" data-tone="coral">
         <div className="student-feature-hero-row">
           <div className="max-w-2xl">
@@ -150,7 +150,7 @@ export function StorybookPage() {
               những lời động viên tích cực.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <Link to="/home" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">← Về sảnh</Link>
+              <Link to="/home" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">Về sảnh</Link>
               {/* Tạm ẩn Cộng đồng: <Link to="/community" className="storybook-community-gate">🏝️ Ghé Đảo cộng đồng</Link> */}
             </div>
           </div>
@@ -174,15 +174,17 @@ export function StorybookPage() {
         </p>
       )}
 
-      <BookSpread
-        page={currentPage}
-        pages={pages}
-        pageIndex={pageIndex}
-        onPageChange={setPageIndex}
-        earned={earned}
-        ownedRewards={ownedRewards}
-        onClaimed={load}
-      />
+      <div className="w-full flex flex-col items-center justify-center">
+        <BookSpread
+          page={currentPage}
+          pages={pages}
+          pageIndex={pageIndex}
+          onPageChange={setPageIndex}
+          earned={earned}
+          ownedRewards={ownedRewards}
+          onClaimed={load}
+        />
+      </div>
     </PageMotion>
   )
 }

@@ -33,6 +33,10 @@ export function NotificationBell() {
   }, [])
 
   useEffect(() => {
+    void load()
+  }, [load])
+
+  useEffect(() => {
     const refreshVisible = () => {
       if (hasLoaded.current && document.visibilityState === 'visible') void load()
     }
@@ -168,7 +172,7 @@ export function NotificationBell() {
                     <p className="text-sm font-bold leading-snug">{n.title}</p>
                     <p className="text-xs text-muted">{n.body}</p>
                     {notificationRoute(n, role) && (
-                      <p className="mt-1 text-xs font-bold text-brand-600">Xem chi tiết →</p>
+                      <p className="mt-1 text-xs font-bold text-brand-600">Xem chi tiết</p>
                     )}
                   </button>
                 </li>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, CheckCircle2, Lock, Star, ChevronRight, Award, Printer } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Lock, Star, Award, Printer } from 'lucide-react'
 import { AIKI_RULES_DATA } from '../data/rules-data'
 import { useRulesProgress } from '../hooks/useRulesProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -41,8 +41,8 @@ export function RulesRoadmapContent({
   return (
     <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden bg-[#f3f0ff] text-text selection:bg-brand-500 selection:text-white">
       {/* ── Top Header ────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-4 py-3 backdrop-blur-md sm:px-8 shadow-xs">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+      <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-3 sm:px-4 md:px-6 py-3 backdrop-blur-md shadow-xs">
+        <div className="mx-auto flex max-w-[1024px] w-full items-center justify-between gap-3">
           {/* Left: Back button & Title */}
           <div className="flex items-center gap-3 sm:gap-4">
             {onBack ? (
@@ -103,23 +103,26 @@ export function RulesRoadmapContent({
       </header>
 
       {/* ── Main Content Area ─────────────────────────────────────── */}
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
+      <main className="mx-auto max-w-[1024px] w-full px-3 sm:px-4 md:px-6 py-6 sm:py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           {/* ══════════════════════════════════════════════════════════
               CỘT TRÁI (8 COLS): 10 THẺ QUY TẮC + THANH TIẾN ĐỘ
              ══════════════════════════════════════════════════════════ */}
           <div className="space-y-6 lg:col-span-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h1 className="font-display text-2xl font-black text-text sm:text-3xl">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-black uppercase tracking-wider mb-2">
+                  🛡️ 10 Quy Tắc Vàng
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   Lộ trình 10 Quy Tắc Vàng
                 </h1>
-                <p className="mt-1 text-xs font-medium text-muted sm:text-sm">
+                <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
                   Hoàn thành từng quy tắc để tích lũy ngôi sao và mở khóa toàn bộ Xưởng sáng tạo
                 </p>
               </div>
 
-              <div className="text-right">
+              <div className="text-left sm:text-right">
                 <span className="font-display text-xl font-black text-brand-600 sm:text-2xl">
                   {completedCount}/{totalCount}
                 </span>
@@ -245,7 +248,6 @@ export function RulesRoadmapContent({
                             className="inline-flex items-center gap-1 rounded-2xl border border-mint-200 bg-mint-50 px-3.5 py-2 min-h-[40px] text-xs font-black text-mint-800 transition-all hover:bg-mint-100 cursor-pointer shadow-2xs active:scale-95"
                           >
                             <span>Xem lại</span>
-                            <ChevronRight size={14} />
                           </button>
                         ) : isCurrent ? (
                           <button
@@ -254,7 +256,6 @@ export function RulesRoadmapContent({
                             className="inline-flex items-center gap-1.5 rounded-2xl bg-[#f59e0b] hover:bg-[#d97706] px-4 py-2.5 min-h-[44px] text-xs font-black text-white clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] active:scale-95 transition-all cursor-pointer shadow-sm"
                           >
                             <span>Xem ngay</span>
-                            <ChevronRight size={15} />
                           </button>
                         ) : isAvailable ? (
                           <button
@@ -263,7 +264,6 @@ export function RulesRoadmapContent({
                             className="inline-flex items-center gap-1 rounded-2xl border border-brand-200 bg-brand-100 px-3.5 py-2 min-h-[40px] text-xs font-bold text-brand-800 hover:bg-brand-200 cursor-pointer shadow-2xs transition-all active:scale-95"
                           >
                             <span>Khám phá</span>
-                            <ChevronRight size={14} />
                           </button>
                         ) : (
                           <div className="inline-flex items-center gap-1 rounded-2xl bg-slate-200 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-slate-500">

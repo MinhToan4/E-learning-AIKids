@@ -1306,7 +1306,6 @@ export function AikiStudioWorkspace({
   activePartIndex: propActivePartIndex,
   onPartChange,
   onPracticePartsSync,
-  turnsPerItem,
   creativeEngineMode,
   practiceParts,
   initialInstantFallback,
@@ -1316,7 +1315,9 @@ export function AikiStudioWorkspace({
     return config || getAikiStudioConfig(lessonId, lessonTitle)
   }, [config, lessonId, lessonTitle])
 
-  const maxTurnsPerPart = turnsPerItem || effectiveConfig?.maxTurnsPerItem || 2
+  // Mỗi phần thực hành chỉ tạo một tác phẩm chính thức. Không duy trì vòng
+  // "lượt 2" ở frontend vì dễ gây nhầm số lượt và nộp trùng sản phẩm.
+  const maxTurnsPerPart = 1
 
   const effectiveBadge = lessonBadge || effectiveConfig?.badge || 'Bài 3.2'
   const effectiveTitle = lessonTitle || effectiveConfig?.subjectName || 'Bắt AIKI vẽ Sóc Bông bằng mật mã của các cậu'
@@ -1484,7 +1485,7 @@ export function AikiStudioWorkspace({
 
   const initialGalleryLength = (initialSavedGallery || preloadedImages || []).length
 
-  // attemptsLeft tính chuẩn xác dựa trên số tranh ban đầu và số lượng đồ vật (2 lượt/món)
+  // attemptsLeft tính theo một tác phẩm cho mỗi phần thực hành.
   const [attemptsLeft, setAttemptsLeft] = useState<number>(() => {
     if (initialAttemptsLeft !== undefined) {
       return initialAttemptsLeft
@@ -1528,13 +1529,24 @@ export function AikiStudioWorkspace({
   // gallery: khôi phục từ localStorage nếu có, nếu không nạp preloadedImages hoặc []
   const [gallery, setGallery] = useState<StudioImageItem[]>(() => {
     if (initialSavedGallery && initialSavedGallery.length > 0) {
+      const seenParts = new Set<number>()
       return initialSavedGallery
+        .map((img, idx) => ({
+          ...img,
+          partIndex: img.partIndex !== undefined ? img.partIndex : idx,
+          partTurn: 1 as const,
+        }))
+        .filter((img) => {
+          if (seenParts.has(img.partIndex)) return false
+          seenParts.add(img.partIndex)
+          return true
+        })
     }
     if (preloadedImages && preloadedImages.length > 0) {
       return preloadedImages.map((img, idx) => ({
         ...img,
-        partIndex: img.partIndex !== undefined ? img.partIndex : Math.floor(idx / 2),
-        partTurn: img.partTurn !== undefined ? img.partTurn : (((idx % 2) + 1) as 1 | 2),
+        partIndex: img.partIndex !== undefined ? img.partIndex : idx,
+        partTurn: 1,
       }))
     }
     return []
@@ -1790,19 +1802,10 @@ export function AikiStudioWorkspace({
     }
   }, [selectedTurnByPart, sessionTurnsKey])
 
-  const currentPartTurn =
-    selectedTurnByPart[activePartIndex] ||
-    (activePartImages.some((img) => img.partTurn === 1) && !activePartImages.some((img) => img.partTurn === 2)
-      ? 2
-      : activePartImages.some((img) => img.partTurn === 2)
-      ? 2
-      : 1)
+  const currentPartTurn = 1 as const
 
   const isCurrentPartTurnAlreadyDrawn = activePartImages.some((img) => img.partTurn === currentPartTurn)
-  const turnLockedMessage =
-    currentPartTurn === 1
-      ? '🔒 Lượt 1 đã vẽ xong · Chuyển sang Lượt 2 nhé!'
-      : '🏆 Đã hoàn thành 2/2 lượt món này'
+  const turnLockedMessage = 'Phần này đã có tranh. Chọn phần khác hoặc nộp bài nhé!'
 
   const latestStudioImage = useMemo(() => {
     if (activePartImages && activePartImages.length > 0) {
@@ -1999,10 +2002,7 @@ export function AikiStudioWorkspace({
       }
     }
 
-    const currentPartImages = gallery.filter((img) =>
-      img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
-    )
-    const turnInPart = (currentPartImages.some((img) => img.partTurn === 1) ? 2 : 1) as 1 | 2
+    const turnInPart = 1 as const
 
     const newImage: StudioImageItem = {
       id: `img-p${activePartIndex + 1}-${turnInPart}-${Date.now()}`,
@@ -2022,15 +2022,11 @@ export function AikiStudioWorkspace({
     setIsGenerating(false)
     playInstantSound('correct')
 
-    if (turnInPart === 1) {
-      setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 2 }))
-    } else if (turnInPart === 2) {
-      if (activePartIndex < practicePartDefs.length - 1) {
-        setTimeout(() => {
-          handleSelectPart(activePartIndex + 1)
-          setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex + 1]: 1 }))
-        }, 900)
-      }
+    if (activePartIndex < practicePartDefs.length - 1) {
+      setTimeout(() => {
+        handleSelectPart(activePartIndex + 1)
+        setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex + 1]: 1 }))
+      }, 900)
     }
 
     // Tiến lên bước tiếp theo
@@ -2277,9 +2273,7 @@ export function AikiStudioWorkspace({
             img.partIndex !== undefined ? img.partIndex === pIdx : Math.floor((img.turn - 1) / 2) === pIdx
           )
           const turn1Done = partImages.some((img) => img.partTurn === 1) || partImages.length >= 1
-          const turn2Done = partImages.some((img) => img.partTurn === 2) || partImages.length >= 2
-          const isPartFullyDone = turn2Done
-          const isPartPartiallyDone = turn1Done
+          const isPartFullyDone = turn1Done
 
           return (
             <button
@@ -2312,7 +2306,7 @@ export function AikiStudioWorkspace({
                       : 'bg-slate-100 text-slate-500'
                   )}
                 >
-                  THỰC HÀNH 0{pIdx + 1} · {isPartFullyDone ? 'XONG ✓' : isPartPartiallyDone ? '1/2 LƯỢT' : isSelected ? 'ĐANG LÀM' : 'CHỜ'}
+                  THỰC HÀNH 0{pIdx + 1} · {isPartFullyDone ? 'XONG ✓' : isSelected ? 'ĐANG LÀM' : 'CHỜ'}
                 </span>
                 {isPartFullyDone && <span className="text-emerald-600 text-xs font-black">✓</span>}
               </div>
@@ -2348,19 +2342,7 @@ export function AikiStudioWorkspace({
                       : 'bg-slate-100 text-slate-400 border border-slate-200/40 font-bold'
                   )}
                 >
-                  {turn1Done ? '✓ lượt 1' : 'lượt 1'}
-                </span>
-                <span
-                  className={cn(
-                    'text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded-md flex items-center gap-0.5 transition-colors',
-                    turn2Done
-                      ? 'bg-emerald-100/90 text-emerald-800 border border-emerald-200/60 font-black'
-                      : turn1Done && isSelected
-                      ? 'bg-amber-100/80 text-amber-900 border border-amber-300/80 font-black'
-                      : 'bg-slate-100 text-slate-400 border border-slate-200/40 font-bold'
-                  )}
-                >
-                  {turn2Done ? '✓ lượt 2' : 'lượt 2'}
+                  {turn1Done ? '✓ Đã có tranh' : 'Chưa vẽ'}
                 </span>
               </div>
             </button>
@@ -2420,67 +2402,6 @@ export function AikiStudioWorkspace({
         </span>
       </div>
 
-      {/* Tầng 1: Bộ Chuyển Đổi 2 Lượt Tiến Hóa (Turn Switcher) */}
-      <div className="grid grid-cols-2 gap-1.5 shrink-0 max-w-md sm:max-w-lg xl:max-w-none w-full mx-auto">
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 1 }))
-            playInstantSound('click')
-          }}
-          className={cn(
-            'flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none',
-            currentPartTurn === 1
-              ? 'bg-amber-100 border-2 border-amber-400 text-amber-950 font-black shadow-xs'
-              : 'bg-white/80 border-2 border-slate-200 text-slate-600 hover:bg-amber-50/60 font-bold'
-          )}
-        >
-          <span className="flex items-center gap-1">
-            <span>🌱</span>
-            <span>Lượt 1: Sơ khai</span>
-          </span>
-          <span
-            className={cn(
-              'text-[10px] px-1.5 py-0.5 rounded-md font-bold',
-              activePartImages.some((img) => img.partTurn === 1)
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-slate-100 text-slate-400'
-            )}
-          >
-            {activePartImages.some((img) => img.partTurn === 1) ? '✓ Đã vẽ' : 'Chưa vẽ'}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 2 }))
-            playInstantSound('click')
-          }}
-          className={cn(
-            'flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none',
-            currentPartTurn === 2
-              ? 'bg-indigo-100 border-2 border-indigo-400 text-indigo-950 font-black shadow-xs'
-              : 'bg-white/80 border-2 border-slate-200 text-slate-600 hover:bg-indigo-50/60 font-bold'
-          )}
-        >
-          <span className="flex items-center gap-1">
-            <span>✨</span>
-            <span>Lượt 2: Hoàn thiện ★</span>
-          </span>
-          <span
-            className={cn(
-              'text-[10px] px-1.5 py-0.5 rounded-md font-bold',
-              activePartImages.some((img) => img.partTurn === 2)
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-slate-100 text-slate-400'
-            )}
-          >
-            {activePartImages.some((img) => img.partTurn === 2) ? '✓ Đã vẽ' : 'Chưa vẽ'}
-          </span>
-        </button>
-      </div>
-
       {displayedPartImage ? (
         <div
           data-testid="studio-live-canvas-display"
@@ -2500,7 +2421,7 @@ export function AikiStudioWorkspace({
             <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10 pointer-events-none">
               <div className="bg-amber-500/95 backdrop-blur-xs text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-amber-300">
                 <span>✨</span>
-                <span className="uppercase tracking-wide">Món: {activePartSubject} · Lượt {displayedPartImage.partTurn || currentPartTurn}</span>
+                <span className="uppercase tracking-wide">{activePartSubject}</span>
               </div>
               <button
                 type="button"
@@ -2639,7 +2560,7 @@ export function AikiStudioWorkspace({
           </span>
           {practicePartDefs.map((part, pIdx) => (
             <React.Fragment key={pIdx}>
-              {([1, 2] as const).map((tNum) => {
+              {([1] as const).map((tNum) => {
                 const img = gallery.find(
                   (g) =>
                     (g.partIndex !== undefined ? g.partIndex === pIdx : Math.floor((g.turn - 1) / 2) === pIdx) &&
@@ -2662,7 +2583,7 @@ export function AikiStudioWorkspace({
                         setSelectedTurnByPart((prev) => ({ ...prev, [pIdx]: tNum }))
                         playInstantSound('click')
                       }}
-                      title={`${part.title} - Lượt ${tNum}`}
+                      title={part.title}
                       className={cn(
                         'size-12 sm:size-14 rounded-xl border-2 overflow-hidden cursor-pointer relative group transition-transform hover:scale-105 shadow-2xs shrink-0 snap-start',
                         isCurrentDisplayed
@@ -2672,13 +2593,13 @@ export function AikiStudioWorkspace({
                     >
                       <img
                         src={img.url || getStudioAIArtwork(illustrationType, lessonId, part.title || effectiveCharacterName)}
-                        alt={`${part.title} Lượt ${tNum}`}
+                        alt={part.title}
                         className="size-full object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).src = getStudioAIArtwork(illustrationType, lessonId, part.title || effectiveCharacterName) || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
                       />
                       <div className="absolute top-0.5 left-0.5 bg-black/60 backdrop-blur-xs text-white text-[9px] font-black px-1 rounded-sm flex items-center gap-0.5 pointer-events-none">
                         <span>{part.icon}</span>
-                        <span>L{tNum}</span>
+                        <span>Ảnh</span>
                       </div>
                     </div>
                   )
@@ -2694,14 +2615,14 @@ export function AikiStudioWorkspace({
                       setSelectedTurnByPart((prev) => ({ ...prev, [pIdx]: tNum }))
                       playInstantSound('click')
                     }}
-                    title={`${part.title} - Lượt ${tNum} (Chưa vẽ)`}
+                    title={`${part.title} (Chưa vẽ)`}
                     className={cn(
                       'size-12 sm:size-14 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col items-center justify-center text-[10px] text-slate-400 font-bold shrink-0 cursor-pointer transition-transform hover:scale-105 snap-start',
                       pIdx === activePartIndex && currentPartTurn === tNum && 'border-amber-400 bg-amber-50/50 ring-2 ring-amber-400/40'
                     )}
                   >
                     <span className="text-xs opacity-60">{part.icon}</span>
-                    <span className="text-[9px] opacity-70">L{tNum}</span>
+                    <span className="text-[9px] opacity-70">Chờ</span>
                   </div>
                 )
               })}
@@ -2996,14 +2917,14 @@ export function AikiStudioWorkspace({
                   }}
                   disabled={gallery.length === 0}
                   className={cn(
-                    'flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl px-5 py-2 text-sm font-black shadow-clay transition active:scale-95 sm:min-h-[58px]',
+                    'flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl border-2 px-5 py-2 text-sm font-black shadow-clay transition active:scale-[0.98] sm:min-h-[58px]',
                     gallery.length > 0
-                      ? 'cursor-pointer bg-indigo-600 text-white hover:bg-indigo-700'
-                      : 'cursor-not-allowed bg-slate-200 text-slate-400 shadow-none',
+                      ? 'cursor-pointer border-brand-600 bg-brand-500 text-white hover:bg-brand-600'
+                      : 'cursor-not-allowed border-slate-200 bg-slate-200 text-slate-400 shadow-none',
                   )}
                 >
                   <Trophy size={16} />
-                  <span>Nộp bài{gallery.length > 0 ? ` · ${gallery.length} ảnh` : ''}</span>
+                  <span>Hoàn tất{gallery.length > 0 ? ` · ${gallery.length} ảnh` : ''}</span>
                 </button>
               }
               currentPrompt={currentPrompt}
@@ -3181,7 +3102,7 @@ export function AikiStudioWorkspace({
               </div>
             </div>
 
-            {/* Dòng lượt tạo của phần này */}
+            {/* Trạng thái tác phẩm của phần hiện tại. */}
             {!isCreativeNotebook ? (
               (() => {
                 const activeImgsCount = gallery.filter((img) =>
@@ -3189,7 +3110,7 @@ export function AikiStudioWorkspace({
                 ).length
                 return (
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span>Lượt tạo của phần này {activeImgsCount >= 2 ? '2/2' : `${activeImgsCount}/2`}</span>
+                    <span>{activeImgsCount > 0 ? 'Đã có tranh' : 'Chưa có tranh'}</span>
                     <span className="text-[11px] font-bold text-slate-500">Phần {activePartIndex + 1}: {currentPartDef.title}</span>
                   </div>
                 )
@@ -3256,27 +3177,20 @@ export function AikiStudioWorkspace({
             <span>Truyện Tranh</span>
             <span>Huy Hiệu</span>
 
-            {/* Test 8: 4 parts definitions & 8-slot turns */}
+            {/* Danh sách phần thực hành — mỗi phần có một tác phẩm. */}
             <div>
               {practicePartDefs.map((pDef, pIdx) => {
                 const partNum = pIdx + 1
                 return (
                   <div key={pDef.partNumber}>
                     <span>{pDef.title}</span>
-                    <span>P{partNum} lượt 1/2</span>
-                    <span>P{partNum} lượt 2/2</span>
+                    <span>P{partNum} một tác phẩm</span>
                   </div>
                 )
               })}
             </div>
 
-            {/* Ensures wait turns exist for tests checking 🎨 Lượt 1..3 */}
-            <span>🎨 Lượt 1: Đang chờ bé vẽ...</span>
-            <span>🎨 Lượt 2: Đang chờ bé vẽ...</span>
-            <span>🎨 Lượt 3: Đang chờ bé vẽ...</span>
-            <span>🎨 Lượt 1</span>
-            <span>🎨 Lượt 2</span>
-            <span>🎨 Lượt 3</span>
+            <span>Đang chờ bé vẽ tác phẩm</span>
           </div>
         </div>
       </div>

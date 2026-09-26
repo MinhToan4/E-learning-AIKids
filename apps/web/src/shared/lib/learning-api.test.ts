@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearAccessToken } from './api'
-import { learningApi } from './learning-api'
+import { learningApi, lessonStageIndexFromProgress } from './learning-api'
 
 function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -13,6 +13,27 @@ describe('learning API facade', () => {
   beforeEach(() => {
     clearAccessToken()
     vi.restoreAllMocks()
+  })
+
+  it('restores a six-stage lesson from the server checkpoint', () => {
+    expect(lessonStageIndexFromProgress({
+      status: 'in_progress',
+      phase: 'practice',
+      stars: 1,
+      sectionId: 'stage-5',
+    })).toBe(4)
+    expect(lessonStageIndexFromProgress({
+      status: 'in_progress',
+      phase: 'learn',
+      stars: 0,
+      anchor: { sectionId: 'stage-2' },
+    })).toBe(1)
+    expect(lessonStageIndexFromProgress({
+      status: 'in_progress',
+      phase: 'practice',
+      stars: 0,
+      resume: { sectionId: 'stage-4' },
+    })).toBe(3)
   })
 
   it('keeps child pathway calls on the gateway-owned LMS route', async () => {

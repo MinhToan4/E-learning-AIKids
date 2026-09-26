@@ -655,7 +655,7 @@ export const ConceptIslandStationScreen: React.FC<ConceptIslandStationScreenProp
             </span>
           </div>
           <span className="text-xs font-semibold text-zinc-500 hidden sm:inline">
-            Cuộn ngang để khám phá toàn cảnh ➔
+            Cuộn ngang để khám phá toàn cảnh
           </span>
         </div>
 

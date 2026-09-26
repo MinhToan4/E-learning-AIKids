@@ -643,7 +643,7 @@ export function AikiStudioSoftClayWorkspace({
             type="button"
             onClick={handleDraw}
             disabled={isGenerating}
-            className="min-h-[38px] sm:min-h-[40px] px-3 sm:px-5 py-1.5 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs sm:text-sm font-black shadow-xs active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+            className="min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-sky-600 bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
           >
             <span>Vẽ tranh cùng AIKI · còn {attemptsLeft} lượt</span>
           </button>
@@ -654,10 +654,9 @@ export function AikiStudioSoftClayWorkspace({
               playInstantSound('click')
               setIsSubmitModalOpen(true)
             }}
-            className="flex-1 min-h-[38px] sm:min-h-[40px] px-3 sm:px-5 py-1.5 rounded-xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-xs sm:text-sm font-black shadow-xs active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+            className="flex-1 min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
           >
-            <span>Nộp bài • 1 ảnh</span>
-            <span className="text-sm sm:text-base">🚀</span>
+            <span>Hoàn tất thực hành</span>
           </button>
         </div>
       </div>

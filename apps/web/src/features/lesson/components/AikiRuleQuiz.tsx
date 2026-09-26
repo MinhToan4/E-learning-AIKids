@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, X, ChevronRight, RotateCcw, BrainCircuit, Sparkles } from 'lucide-react'
+import { Check, X, RotateCcw, BrainCircuit, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type { AikiRuleQuestion } from '@/features/rules/types'
 import { Button } from '@/shared/components/ui/Button'
@@ -201,7 +201,6 @@ export function AikiRuleQuiz({
               onClick={handleNext}
             >
               <span>{isLastQuestion ? 'Tiếp tục sang Chặng 3: Poster Vàng' : 'Tiếp tục sang Câu 2'}</span>
-              <ChevronRight size={18} />
             </Button>
           </div>
         </div>
@@ -223,7 +222,7 @@ export function AikiRuleQuiz({
               className="inline-flex items-center gap-1.5 rounded-full border-2 border-coral-300 bg-white px-3.5 py-1.5 text-xs font-bold text-coral-800 hover:bg-coral-50 shadow-2xs transition cursor-pointer"
             >
               <RotateCcw size={14} />
-              <span>↺ Thử chọn lại</span>
+              <span>Thử chọn lại</span>
             </button>
           </div>
         </div>

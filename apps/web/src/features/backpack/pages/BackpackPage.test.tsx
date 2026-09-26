@@ -5,7 +5,12 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
-import { BackpackPage } from './BackpackPage'
+import {
+  BackpackPage,
+  isCleanBackpackProject,
+  isRawInternalFile,
+  friendlyProjectTitle,
+} from './BackpackPage'
 import * as apiModule from '@/shared/lib/api'
 import { syncRewardEquipment } from '@/features/rewards/reward-equipment'
 
@@ -30,6 +35,43 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: mockLocalStorage,
   writable: true,
   configurable: true,
+})
+
+describe('BackpackPage filtering helpers', () => {
+  it('isCleanBackpackProject eliminates junk files and missing thumbnails', () => {
+    // Should reject junk files reported by boss
+    expect(isCleanBackpackProject({ title: 'storyPlot comic 1785830218476', thumbnail: '/thumb.webp' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'storyPlot-comic-999', thumbnail: '/thumb.webp' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'prompt-schema-1234', thumbnail: '/thumb.webp' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'project.json', thumbnail: '/thumb.webp' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'temp-preview', thumbnail: '/thumb.webp' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'draft-file', thumbnail: '/thumb.webp' })).toBe(false)
+
+    // Should reject invalid or missing thumbnails
+    expect(isCleanBackpackProject({ title: 'Bức tranh của bé', thumbnail: '' })).toBe(false)
+    expect(isCleanBackpackProject({ title: 'Bức tranh của bé', thumbnail: 'data.json' })).toBe(false)
+
+    // Should accept clean projects and assets
+    expect(isCleanBackpackProject({ title: 'Truyện tranh Vẹt Paco', thumbnail: '/thumb.webp' })).toBe(true)
+    expect(isCleanBackpackProject({ name: 'Tranh Vẹt Paco', thumbnail: '/thumb.webp' })).toBe(true)
+    expect(isCleanBackpackProject({ title: 'Tranh chú cún', url: 'https://example.com/dog.png' })).toBe(true)
+  })
+
+  it('isRawInternalFile identifies internal junk files', () => {
+    expect(isRawInternalFile('storyPlot comic 1785830218476')).toBe(true)
+    expect(isRawInternalFile('storyPlot-comic-555')).toBe(true)
+    expect(isRawInternalFile('prompt-schema-01')).toBe(true)
+    expect(isRawInternalFile('backup.json')).toBe(true)
+    expect(isRawInternalFile('Bức tranh của bé')).toBe(false)
+    expect(isRawInternalFile('')).toBe(false)
+  })
+
+  it('friendlyProjectTitle cleans up raw technical names', () => {
+    expect(friendlyProjectTitle('storyPlot-comic-1234')).toBe('Truyện tranh AI')
+    expect(friendlyProjectTitle('prompt-schema-99')).toBe('Ý tưởng sáng tạo')
+    expect(friendlyProjectTitle('chu_cun_nho.png')).toBe('chu cun nho')
+    expect(friendlyProjectTitle('')).toBe('Tác phẩm của con')
+  })
 })
 
 describe('BackpackPage', () => {
@@ -115,8 +157,10 @@ describe('BackpackPage', () => {
 
   it('loads creations first and fetches each optional compartment only when opened', async () => {
     const apiSpy = vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
-      if (endpoint === '/api/backpack') return { assets: [{ id: 'asset-1', type: 'image', name: 'Ảnh', thumbnail: '/a.webp', private: true, createdAt: '' }] } as any
-      if (endpoint === '/api/projects') return { projects: [{ id: 'project-1', title: 'Tranh', kind: 'image', thumbnail: '/p.webp', shareStatus: 'private' }] } as any
+      if (endpoint === '/api/backpack/overview') return {
+        assets: [{ id: 'asset-1', type: 'image', name: 'Ảnh', thumbnail: '/a.webp', private: true, createdAt: '' }],
+        projects: [{ id: 'project-1', title: 'Tranh', kind: 'image', thumbnail: '/p.webp', shareStatus: 'private' }],
+      } as any
       if (endpoint === '/api/gamification/storybook') return { inventory: [{ rewardId: 'reward-1' }] } as any
       if (endpoint === '/api/gamification/catalog?type=reward') return { items: [{ code: 'reward-1', name: 'Quà', description: '', kind: 'perk' }] } as any
       if (endpoint === '/api/gamification/achievements') return { achievements: [{ id: 'badge-1', type: 'first_lesson', title: 'Bước đầu', unlocked: true }] } as any
@@ -134,8 +178,9 @@ describe('BackpackPage', () => {
     })
 
     let calls = apiSpy.mock.calls.map(([endpoint]) => endpoint)
-    expect(calls.filter((value) => value === '/api/backpack')).toHaveLength(1)
-    expect(calls.filter((value) => value === '/api/projects')).toHaveLength(1)
+    expect(calls.filter((value) => value === '/api/backpack/overview')).toHaveLength(1)
+    expect(calls).not.toContain('/api/backpack')
+    expect(calls).not.toContain('/api/projects')
     expect(calls).not.toContain('/api/gamification/storybook')
     expect(calls).not.toContain('/api/gamification/catalog?type=reward')
     expect(calls).not.toContain('/api/gamification/achievements')
@@ -317,6 +362,75 @@ describe('BackpackPage', () => {
     })
 
     expect(container.textContent).toContain('Bài học: Cánh Cổng AI Đầu Tiên')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('renders Bằng Khen Tốt Nghiệp Con Đã Nhận in treasures tab and opens modal on click', async () => {
+    const certs = [
+      {
+        id: 'cert-course-aikid-official',
+        courseId: 'cert-course-aikid-official',
+        courseTitle: 'Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)',
+        islandTitle: 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
+        studentName: 'Bé An Nhi',
+        issuedDate: '25/09/2026',
+        stars: 96,
+        xp: 3200,
+        claimedAt: Date.now(),
+      },
+    ]
+    localStorage.setItem('aiki_backpack_certificates', JSON.stringify(certs))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Click on "Bảo bối & Kỷ vật" tab
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const treasuresBtn = buttons.find((b) => b.textContent?.includes('Bảo bối & Kỷ vật'))
+    expect(treasuresBtn).toBeDefined()
+
+    await act(async () => {
+      treasuresBtn?.click()
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Verify certificates section in treasures tab
+    expect(container.textContent).toContain('📜 Bằng Khen Tốt Nghiệp Con Đã Nhận (1)')
+    expect(container.textContent).toContain('Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)')
+    expect(container.textContent).toContain('Bé An Nhi')
+    expect(container.textContent).toContain('96 Sao')
+    expect(container.textContent).toContain('+3200 EXP')
+
+    // Click certificate card to open modal
+    const certBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xem chi tiết bằng khen 📜')
+    )
+    expect(certBtn).toBeDefined()
+
+    await act(async () => {
+      certBtn?.click()
+    })
+
+    // Modal is open
+    expect(document.body.textContent).toContain('Chứng Nhận Tốt Nghiệp')
+    expect(document.body.textContent).toContain('Bé An Nhi')
 
     act(() => {
       root.unmount()

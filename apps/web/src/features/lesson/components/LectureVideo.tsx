@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { Pause, Play } from 'lucide-react'
 import { resolveLectureVideo } from '@/features/lesson/lib/lecture-video'
 
 type Props = {
@@ -11,6 +12,20 @@ type Props = {
 
 export function LectureVideo({ title, url, onPlay, onPause, onEnded }: Props) {
   const source = useMemo(() => resolveLectureVideo(url), [url])
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const toggleYouTube = useCallback(() => {
+    const nextPlaying = !isPlaying
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({
+      event: 'command',
+      func: nextPlaying ? 'playVideo' : 'pauseVideo',
+      args: [],
+    }), '*')
+    setIsPlaying(nextPlaying)
+    if (nextPlaying) onPlay?.()
+    else onPause?.()
+  }, [isPlaying, onPause, onPlay])
 
   if (!source) {
     return (
@@ -26,14 +41,27 @@ export function LectureVideo({ title, url, onPlay, onPause, onEnded }: Props) {
         Video bài giảng
       </p>
       {source.kind === 'youtube' ? (
-        <iframe
-          className="aspect-video w-full bg-black"
-          src={source.src}
-          title={`Video bài giảng: ${title}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
+        <div className="group relative aspect-video w-full bg-black">
+          <iframe
+            ref={iframeRef}
+            className="pointer-events-none size-full"
+            src={source.src}
+            title={`Video bài giảng: ${title}`}
+            allow="autoplay; encrypted-media"
+            referrerPolicy="strict-origin-when-cross-origin"
+            onLoad={() => iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1 }), '*')}
+          />
+          <button
+            type="button"
+            onClick={toggleYouTube}
+            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+            className="absolute inset-0 flex cursor-pointer items-center justify-center bg-transparent focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-400"
+          >
+            <span className={`flex size-16 items-center justify-center rounded-full bg-brand-500/95 text-white shadow-2xl transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100 focus:opacity-100' : ''}`}>
+              {isPlaying ? <Pause size={28} className="fill-white" /> : <Play size={28} className="translate-x-0.5 fill-white" />}
+            </span>
+          </button>
+        </div>
       ) : (
         <video
           className="aspect-video w-full bg-black"

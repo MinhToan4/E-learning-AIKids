@@ -15,10 +15,24 @@ import { type QuestProgress } from '@/shared/lib/api'
 import { AIKID_ISLANDS_META, type IslandMeta } from './WorldProgramIslandCard'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 
+export type IslandCourseSummary = {
+  id: string
+  slug?: string
+  title: string
+  shortTitle?: string
+  status: 'completed' | 'active' | 'available' | 'locked'
+  completionPercent?: number
+  completedCount?: number
+  totalStars?: number
+  questCount?: number
+  stations?: QuestProgress[]
+}
+
 export interface IslandStationsExplorerViewProps {
   courseId: string
   courseTitle: string
   quests: QuestProgress[]
+  courses?: IslandCourseSummary[]
   meta: { totalStars: number; completedCount: number }
   currentRegion?: {
     name: string
@@ -37,6 +51,7 @@ export function IslandStationsExplorerView({
   courseId,
   courseTitle,
   quests,
+  courses = [],
   meta,
   currentRegion,
   isCurrentCourseRule = false,
@@ -49,12 +64,17 @@ export function IslandStationsExplorerView({
   const [meeWaved, setMeeWaved] = useState<boolean>(true)
 
   // Tìm thông tin đảo hiện tại dựa vào courseId
-  const currentIslandIndex = AIKID_ISLANDS_META.findIndex(
-    (isl) =>
-      isl.targetSlug === courseId ||
-      isl.canonicalSlug === courseId ||
-      isl.id === courseId
+  const currentCourseIndex = courses.findIndex(
+    (course) => course.id === courseId || course.slug === courseId,
   )
+  const currentIslandIndex = currentCourseIndex >= 0
+    ? currentCourseIndex
+    : AIKID_ISLANDS_META.findIndex(
+        (isl) =>
+          isl.targetSlug === courseId ||
+          isl.canonicalSlug === courseId ||
+          isl.id === courseId,
+      )
   const currentIsland: IslandMeta =
     currentIslandIndex >= 0
       ? AIKID_ISLANDS_META[currentIslandIndex]
@@ -87,7 +107,7 @@ export function IslandStationsExplorerView({
   }
 
   return (
-    <div className="w-full max-w-[1024px] mx-auto flex flex-col gap-5 text-zinc-900 pb-16 select-none min-w-0 px-2 sm:px-4">
+    <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 flex flex-col gap-5 text-zinc-900 pb-16 select-none min-w-0">
       {/* ── 1. TOP NAV BAR: Back Button + Island Title + Total Stars/XP Pill ── */}
       <div className="flex items-center justify-between gap-2.5 pt-1">
         <button
@@ -205,27 +225,57 @@ export function IslandStationsExplorerView({
 
         {/* Thanh trượt ngang 6 Đảo */}
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 pt-2 px-1 no-scrollbar scroll-smooth snap-x snap-mandatory">
-          {AIKID_ISLANDS_META.map((island, idx) => {
+          {(courses.length > 0 ? courses : AIKID_ISLANDS_META).map((entry, idx) => {
+            const course = courses.length > 0 ? entry as IslandCourseSummary : undefined
+            const island = AIKID_ISLANDS_META[idx] || AIKID_ISLANDS_META[AIKID_ISLANDS_META.length - 1]
             const isSelected =
-              island.targetSlug === courseId ||
-              island.canonicalSlug === courseId ||
-              island.id === courseId
+              course?.id === courseId ||
+              course?.slug === courseId ||
+              (!course && (
+                island.targetSlug === courseId ||
+                island.canonicalSlug === courseId ||
+                island.id === courseId
+              ))
 
-            // Xác định trạng thái đảo
-            const isCompleted = idx < currentIslandIndex
-            const isInProgress = isSelected
-            const isLocked = idx > currentIslandIndex && !isSelected
+            // Trạng thái đảo luôn lấy từ pathway backend. Chỉ dùng suy luận cũ
+            // khi client cũ không truyền danh sách khóa học.
+            const isCompleted = course ? course.status === 'completed' : idx < currentIslandIndex
+            const isInProgress = course
+              ? course.status === 'active' || course.status === 'available'
+              : isSelected
+            const isLocked = course ? course.status === 'locked' : idx > currentIslandIndex && !isSelected
+            // `stations` trong projection cũ có thể chứa nhiều dòng phase cho
+            // cùng một bài. `questCount` đã được chuẩn hóa tại WorldPage nên
+            // phải được ưu tiên để không hiển thị x2/x3 số trạm.
+            const stationCount = course?.questCount || course?.stations?.length || 0
+            const completedCount = Math.min(stationCount, Math.max(0, course?.completedCount || 0))
+            const completionPercent = course?.status === 'completed'
+              ? 100
+              : stationCount > 0
+              ? Math.round((completedCount / stationCount) * 100)
+              : Math.max(0, course?.completionPercent || 0)
+            const islandTitle = course?.shortTitle || course?.title || island.title
 
             return (
               <div
-                key={island.id}
-                onClick={() => handleIslandClick(island)}
+                key={course?.id || island.id}
+                onClick={() => {
+                  if (!isLocked) {
+                    handleIslandClick({
+                      ...island,
+                      targetSlug: course?.slug || course?.id || island.targetSlug,
+                    })
+                  }
+                }}
+                aria-disabled={isLocked}
                 className={cn(
                   'snap-start shrink-0 flex flex-col justify-between transition-all duration-300 cursor-pointer rounded-2xl p-2.5 w-[200px] sm:w-[220px]',
                   isSelected
                     ? 'bg-white ring-2 ring-[#FD7D2E] scale-[1.02] shadow-md -translate-y-0.5'
                     : isCompleted
                     ? 'bg-white hover:bg-slate-50 hover:shadow-xs'
+                    : isLocked
+                    ? 'cursor-not-allowed bg-white/70 opacity-70'
                     : 'bg-white/80 hover:bg-white opacity-90 hover:opacity-100'
                 )}
               >
@@ -273,7 +323,7 @@ export function IslandStationsExplorerView({
                 <div className="mt-2 space-y-1 px-0.5 min-w-0">
                   <div className="flex items-baseline justify-between gap-1">
                     <h3 className="text-xs sm:text-sm font-black text-zinc-900 truncate">
-                      {island.title}
+                      {islandTitle}
                     </h3>
                     <span className="text-[10px] font-bold text-zinc-400 shrink-0">
                       {island.desc}
@@ -281,7 +331,9 @@ export function IslandStationsExplorerView({
                   </div>
 
                   <p className="text-[10px] font-semibold text-purple-700 leading-snug line-clamp-1">
-                    {island.landmark}
+                    {stationCount > 0
+                      ? `${completedCount}/${stationCount} trạm · ${completionPercent}%`
+                      : island.landmark}
                   </p>
                 </div>
               </div>

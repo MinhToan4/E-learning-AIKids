@@ -65,6 +65,21 @@ export function buildVideoEmbedUrl(url?: string, seekSec?: number | null): strin
     }
   } else raw = 'https://www.youtube-nocookie.com/embed/NMdHhsLY5jc'
 
-  if (seekSec === null || seekSec === undefined) return raw
-  return `${raw}${raw.includes('?') ? '&' : '?'}start=${seekSec}&autoplay=1`
+  try {
+    const embed = new URL(raw)
+    embed.searchParams.set('controls', '0')
+    embed.searchParams.set('disablekb', '1')
+    embed.searchParams.set('enablejsapi', '1')
+    embed.searchParams.set('fs', '0')
+    embed.searchParams.set('iv_load_policy', '3')
+    embed.searchParams.set('modestbranding', '1')
+    embed.searchParams.set('playsinline', '1')
+    embed.searchParams.set('rel', '0')
+    if (seekSec !== null && seekSec !== undefined) {
+      embed.searchParams.set('start', String(Math.max(0, Math.floor(seekSec))))
+    }
+    return embed.toString()
+  } catch {
+    return raw
+  }
 }

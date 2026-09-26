@@ -218,11 +218,16 @@ export function RewardCollection({
   xpLevel,
   avatarUrl,
   compact = false,
+  initialWardrobe,
 }: {
   userId: string
   xpLevel: number
   avatarUrl?: string | null
   compact?: boolean
+  initialWardrobe?: {
+    ownedRewardIds: string[]
+    equipment: Array<{ kind: RewardKind; rewardId: string }>
+  } | null
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
   const [owned, setOwned] = useState<Set<string>>(new Set())
@@ -232,6 +237,9 @@ export function RewardCollection({
   const [previewReward, setPreviewReward] = useState<CatalogReward | null>(null)
   const [pendingRewardId, setPendingRewardId] = useState<string | null>(null)
   const equipmentMutationVersion = useRef(0)
+  // Capture the server bootstrap available when this tab mounts. This keeps
+  // opening "Trang trí" from requesting the same storybook payload twice.
+  const initialWardrobeRef = useRef(initialWardrobe)
   const bundles = useMemo(() => {
     const grouped = new Map<string, { name: string; rewards: CatalogReward[] }>()
     for (const reward of catalog) {
@@ -259,11 +267,18 @@ export function RewardCollection({
   }, [equipment])
   useEffect(() => {
     const loadVersion = equipmentMutationVersion.current
+    const bootstrap = initialWardrobeRef.current
+    const wardrobeRequest = bootstrap
+      ? Promise.resolve({
+          inventory: bootstrap.ownedRewardIds.map((rewardId) => ({ rewardId })),
+          equipment: bootstrap.equipment,
+        })
+      : api<{
+          inventory: Array<{ rewardId: string }>
+          equipment: Array<{ kind: RewardKind; rewardId: string }>
+        }>('/api/gamification/storybook')
     void Promise.all([
-      api<{
-        inventory: Array<{ rewardId: string }>
-        equipment: Array<{ kind: RewardKind; rewardId: string }>
-      }>('/api/gamification/storybook'),
+      wardrobeRequest,
       api<{ items: Array<{
         code: string
         name: string

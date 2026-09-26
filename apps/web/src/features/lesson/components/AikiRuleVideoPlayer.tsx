@@ -652,14 +652,25 @@ export function AikiRuleVideoPlayer({
               <div className="relative size-full">
                 <iframe
                   ref={iframeRef}
-                  className="size-full aspect-video bg-black"
+                  className="pointer-events-none size-full aspect-video bg-black"
                   src={youtubeEmbedSrc}
                   title={`Video bài giảng: ${rule.title}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allow="autoplay; encrypted-media"
                   referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
                   onLoad={() => postToYouTube('listening')}
                 />
+                <button
+                  type="button"
+                  onClick={togglePlayPause}
+                  aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+                  className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-transparent focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-400"
+                >
+                  {!isPlaying && (
+                    <span className="flex size-16 items-center justify-center rounded-full bg-brand-500/95 text-white shadow-2xl sm:size-20">
+                      <Play size={32} className="translate-x-0.5 fill-white" />
+                    </span>
+                  )}
+                </button>
                 {(currentSlideIndex === 1 || quizNotice) && (selectedAnswer !== correctIdx && selectedAnswer !== String(correctIdx)) && (
                   <div className="absolute inset-x-0 bottom-3 sm:bottom-4 z-20 mx-auto max-w-lg px-3 sm:px-4 pointer-events-auto">
                     <div className="rounded-2xl bg-white/95 border-2 border-brand-400 p-2.5 sm:p-3 shadow-clay flex items-center gap-2 animate-bounce">

@@ -40,6 +40,10 @@ export type ProfileOverviewData = {
   equipment: ProfileEquipmentRow[]
 }
 
+export type ProfileAppearanceData = Pick<ProfileOverviewData, 'profileSettings' | 'equipment'> & {
+  ownedRewardIds: string[] | null
+}
+
 type ProfileRequest = <T>(
   path: string,
   options?: RequestInit,
@@ -62,6 +66,7 @@ async function loadLegacyProfileOverview(
   timeoutMs = 3500,
   includeMedia = true,
   includeProgression = true,
+  includeAppearance = true,
 ): Promise<ProfileOverviewData> {
   const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
 
@@ -79,8 +84,12 @@ async function loadLegacyProfileOverview(
             totalXp: 0,
             level: 1,
           }),
-      safeReq<PublicProfileSettings>('/api/profile/settings'),
-      safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook'),
+      includeAppearance
+        ? safeReq<PublicProfileSettings>('/api/profile/settings')
+        : Promise.resolve(null),
+      includeAppearance
+        ? safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook')
+        : Promise.resolve({ equipment: [] as ProfileEquipmentRow[] }),
     ])
 
   return {
@@ -119,6 +128,27 @@ export async function loadProfileOverview(
   timeoutMs = 3500,
   includeMedia = true,
   includeProgression = true,
+  includeAppearance = true,
 ): Promise<ProfileOverviewData> {
-  return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression)
+  return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance)
+}
+
+export async function loadProfileAppearance(
+  request: ProfileRequest = api,
+  timeoutMs = 3500,
+): Promise<ProfileAppearanceData> {
+  const [settings, rewards] = await Promise.allSettled([
+    withTimeout(request<PublicProfileSettings>('/api/profile/settings'), timeoutMs),
+    withTimeout(request<{
+      inventory?: Array<{ rewardId: string }>
+      equipment: ProfileEquipmentRow[]
+    }>('/api/gamification/storybook'), timeoutMs),
+  ])
+  return {
+    profileSettings: settings.status === 'fulfilled' ? settings.value : null,
+    equipment: rewards.status === 'fulfilled' ? rewards.value.equipment ?? [] : [],
+    ownedRewardIds: rewards.status === 'fulfilled'
+      ? rewards.value.inventory?.map((item) => item.rewardId) ?? []
+      : null,
+  }
 }

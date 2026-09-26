@@ -255,6 +255,28 @@ describe('auth store', () => {
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
   })
 
+  it('clears an invalid session when bootstrap receives 401', async () => {
+    mocks.api.mockRejectedValueOnce(new ApiError(401, 'Expired'))
+
+    await useAuth.getState().bootstrap()
+
+    expect(useAuth.getState().user).toBeNull()
+    expect(useAuth.getState().loading).toBe(false)
+    expect(useAuth.getState().error).toContain('hết hạn')
+    expect(mocks.clearAccessToken).toHaveBeenCalled()
+  })
+
+  it('does not erase the token or report logout on a temporary bootstrap failure', async () => {
+    mocks.api.mockRejectedValueOnce(new ApiError(503, 'Unavailable'))
+
+    await useAuth.getState().bootstrap()
+
+    expect(useAuth.getState().user).toBeNull()
+    expect(useAuth.getState().loading).toBe(false)
+    expect(useAuth.getState().error).toContain('kiểm tra phiên')
+    expect(mocks.clearAccessToken).not.toHaveBeenCalled()
+  })
+
   it('refreshes the server-owned avatar without browser storage', async () => {
     useAuth.setState({
       user: {

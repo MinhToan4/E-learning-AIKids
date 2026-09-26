@@ -5,7 +5,7 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
-import { ProgressPage } from './LeaderboardPage'
+import { calculatePathwayTotalStars, ProgressPage } from './LeaderboardPage'
 import * as apiModule from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 
@@ -24,6 +24,26 @@ const mockStreak = {
   longest: 12,
   lastActivityDate: '2026-09-19T00:00:00Z',
 }
+
+describe('pathway star totals', () => {
+  it('replaces a pathway summary with loaded progress instead of counting both', () => {
+    const courses = [{
+      id: 'course-1',
+      questCount: 4,
+      totalStars: 6,
+    }] as any
+    const progress = {
+      'course-1': { quests: Array.from({ length: 4 }, (_, index) => ({ id: `q-${index}` })), totalStars: 7, completedCount: 2 },
+    } as any
+
+    expect(calculatePathwayTotalStars(courses, progress)).toBe(7)
+  })
+
+  it('clamps stale duplicated aggregates to three stars per station', () => {
+    const courses = [{ id: 'course-1', questCount: 4, totalStars: 30 }] as any
+    expect(calculatePathwayTotalStars(courses, {})).toBe(12)
+  })
+})
 
 const mockCompetency = {
   status: 'ready' as const,

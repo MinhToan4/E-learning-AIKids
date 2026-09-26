@@ -1,4 +1,3 @@
-import { ChevronRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -39,7 +38,7 @@ type Props = {
 
 export function WorkshopHub({ onGo }: Props) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6">
       {/* Header */}
       <div className="flex items-start gap-4">
         <AikidCatCharacter
@@ -47,7 +46,7 @@ export function WorkshopHub({ onGo }: Props) {
           className="h-14 w-14 shrink-0 drop-shadow-soft"
         />
         <div>
-          <h1 className="font-display text-3xl text-text">Xưởng Sáng Tạo</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Xưởng Sáng Tạo</h1>
           <p className="mt-1 text-sm text-muted">
             Hôm nay con muốn tạo ra điều gì? Chọn một hoạt động bên dưới nhé!
           </p>
@@ -92,8 +91,8 @@ export function WorkshopHub({ onGo }: Props) {
               <h2 className="font-display text-xl text-text">{card.label}</h2>
               <p className="flex-1 text-sm text-muted">{card.desc}</p>
               {!card.comingSoon && (
-                <div className="mt-3 flex items-center gap-1 text-sm font-extrabold text-brand-600">
-                  Bắt đầu <ChevronRight size={14} />
+                <div className="mt-3 flex items-center text-sm font-extrabold text-brand-600">
+                  Bắt đầu
                 </div>
               )}
             </div>

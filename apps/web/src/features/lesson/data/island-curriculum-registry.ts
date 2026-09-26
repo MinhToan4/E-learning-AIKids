@@ -110,7 +110,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
               "B. Cứ bấm nhiều lần là sẽ ra hình đẹp",
               "C. Viết càng ngắn, AI càng hiểu đúng"
             ],
-            "correctIndex": 2,
+            "correctIndex": 0,
             "explanation": "Đúng rồi! / Chưa đúng rồi!",
             "visualUrl": ""
           },
@@ -122,7 +122,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
               "B. Năm ý",
               "C. Một ý"
             ],
-            "correctIndex": 2,
+            "correctIndex": 1,
             "explanation": "Chính xác! / Thử lại nhé!",
             "visualUrl": ""
           },
@@ -134,7 +134,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
               "B. Thêm chi tiết vào câu tả rồi tạo lại",
               "C. Đổi sang con vật khác cho dễ"
             ],
-            "correctIndex": 2,
+            "correctIndex": 1,
             "explanation": "Đúng rồi! / Chưa đúng, thử lại nhé!",
             "visualUrl": ""
           }

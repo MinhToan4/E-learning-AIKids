@@ -18,8 +18,15 @@ import {
   getStationSlug,
   selectNextLearningTarget,
   getCourseStationCount,
+  mapCourseCatalogStations,
+  mapPublishedCurriculumStations,
   selectCanonicalAikidCourses,
+  AIKID_SIX_ISLANDS_CONFIG,
+  ModernIslandCard,
 } from './WorldPage'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { MemoryRouter } from 'react-router'
 
 type PathwayCourseInput = Parameters<typeof isPathwayCourseVisible>[0]
 
@@ -49,7 +56,6 @@ describe('World pathway enrollment visibility', () => {
     expect(isPathwayCourseVisible(course({ status: 'locked' }))).toBe(true)
   })
 })
-
 describe('Course station count', () => {
   it('prefers the concrete station list over an inflated pathway summary', () => {
     const stations = Array.from({ length: 10 }, (_, index) => ({
@@ -72,6 +78,115 @@ describe('Course station count', () => {
   it('does not rewrite an unrelated or genuinely changed course total', () => {
     expect(getCourseStationCount(course({ id: 'other-course', questCount: 12 }))).toBe(12)
     expect(getCourseStationCount(course({ id: 'course-2', slug: 'dao-1-nha-tham-hiem-ai', questCount: 7 }))).toBe(7)
+  })
+})
+
+describe('Course catalog station fallback', () => {
+  it('uses the server course catalog when pathway/progress have no station rows', () => {
+    const stations = mapCourseCatalogStations({
+      id: 'course-2',
+      title: 'Nhà thám hiểm AI',
+      shortTitle: 'Khám phá',
+      tagline: '',
+      description: '',
+      coverFrom: '',
+      coverTo: '',
+      accent: '#7c3aed',
+      coverImage: null,
+      ageLabel: '8–11 tuổi',
+      durationLabel: '',
+      productLabel: '',
+      status: 'open',
+      recommended: false,
+      skills: [],
+      questCount: 2,
+      enrolled: true,
+      quests: [
+        { id: 'lesson-1', order: 1, title: 'Một từ hay năm từ', accent: '#7c3aed', practiceKind: 'lesson' },
+        { id: 'lesson-2', order: 2, title: 'Bốn chiếc chìa khóa', accent: '#7c3aed', practiceKind: 'lesson' },
+      ],
+    })
+
+    expect(stations).toHaveLength(2)
+    expect(stations.map((station) => station.id)).toEqual(['lesson-1', 'lesson-2'])
+    expect(stations.every((station) => station.status === 'locked')).toBe(true)
+  })
+
+  it('does not create placeholder stations from a count-only course', () => {
+    expect(mapCourseCatalogStations({
+      id: 'course-2',
+      title: 'Nhà thám hiểm AI',
+      shortTitle: 'Khám phá',
+      tagline: '',
+      description: '',
+      coverFrom: '',
+      coverTo: '',
+      accent: '#7c3aed',
+      coverImage: null,
+      ageLabel: '8–11 tuổi',
+      durationLabel: '',
+      productLabel: '',
+      status: 'open',
+      recommended: false,
+      skills: [],
+      questCount: 4,
+      enrolled: true,
+      quests: [],
+    })).toEqual([])
+  })
+})
+
+describe('Published AIKID curriculum compatibility', () => {
+  it('maps the four published lessons for Đảo 2 when Hub only returns a count', () => {
+    const stations = mapPublishedCurriculumStations(course({
+      id: 'course-2',
+      slug: 'dao-1-nha-tham-hiem-ai',
+      title: 'Nhà thám hiểm AI',
+      questCount: 4,
+      status: 'active',
+      enrolled: true,
+    }))
+
+    expect(stations).toHaveLength(4)
+    expect(stations[0]).toMatchObject({
+      slug: 'bai-1-1-mot-tu-hay-nam-tu',
+      order: 1,
+      status: 'locked',
+    })
+  })
+
+  it('maps the published lessons when an active official course reports a stale zero count', () => {
+    const stations = mapPublishedCurriculumStations(course({
+      id: 'course-2',
+      slug: 'dao-1-nha-tham-hiem-ai',
+      title: 'Nhà thám hiểm AI',
+      questCount: 0,
+      status: 'active',
+      enrolled: true,
+    }))
+
+    expect(stations).toHaveLength(4)
+  })
+
+  it('uses the official route alias when an older pathway omits the course slug', () => {
+    const stations = mapPublishedCurriculumStations(course({
+      id: 'legacy-course-uuid',
+      title: 'Nhà thám hiểm AI',
+      questCount: 0,
+      status: 'active',
+      enrolled: true,
+    }), 'dao-2')
+
+    expect(stations).toHaveLength(4)
+    expect(stations[0].slug).toBe('bai-1-1-mot-tu-hay-nam-tu')
+  })
+
+  it('does not invent stations for an unrelated count-only course', () => {
+    expect(mapPublishedCurriculumStations(course({
+      id: 'other-course',
+      title: 'Khóa học khác',
+      questCount: 4,
+    }))).toEqual([])
   })
 })
 
@@ -593,5 +708,146 @@ describe('Server-owned World map progress', () => {
       expect(uuidRegex.test(slug)).toBe(false)
       expect(slug).toMatch(/^rule-[1-9]|rule-10$/)
     })
+  })
+})
+
+describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
+  it('defines 6 modern island presets with exact titles and subtitles', () => {
+    expect(AIKID_SIX_ISLANDS_CONFIG).toHaveLength(6)
+
+    expect(AIKID_SIX_ISLANDS_CONFIG[0]).toMatchObject({
+      badge: 'ĐẢO 1',
+      title: 'Đảo Tiên Quyết',
+      subtitle: '10 Quy tắc vàng',
+      slug: 'dao-1',
+    })
+    expect(AIKID_SIX_ISLANDS_CONFIG[1]).toMatchObject({
+      badge: 'ĐẢO 2',
+      title: 'Đảo Khám Phá',
+      subtitle: '4 Chìa khóa lệnh',
+      slug: 'dao-2',
+    })
+    expect(AIKID_SIX_ISLANDS_CONFIG[2]).toMatchObject({
+      badge: 'ĐẢO 3',
+      title: 'Đảo Họa Sĩ',
+      subtitle: 'Sắc màu cọ vẽ',
+      slug: 'dao-3',
+    })
+    expect(AIKID_SIX_ISLANDS_CONFIG[3]).toMatchObject({
+      badge: 'ĐẢO 4',
+      title: 'Đảo Nhân Vật',
+      subtitle: 'Hồ sơ 3 điểm',
+      slug: 'dao-4',
+    })
+    expect(AIKID_SIX_ISLANDS_CONFIG[4]).toMatchObject({
+      badge: 'ĐẢO 5',
+      title: 'Đảo Truyện Tranh',
+      subtitle: 'Storyboard 8 ô',
+      slug: 'dao-5',
+    })
+    expect(AIKID_SIX_ISLANDS_CONFIG[5]).toMatchObject({
+      badge: 'ĐẢO 6',
+      title: 'Đảo Trò Chơi',
+      subtitle: 'Đấu trường thẻ bài',
+      slug: 'dao-6',
+    })
+  })
+
+  it('renders completed island with ĐÃ XONG badge, 100% progress, and Ôn lại đảo button (0 arrows)', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ModernIslandCard, {
+          course: course({
+            id: 'muoi-quy-tac-xuong-sang-tao',
+            title: 'Đảo Tiên Quyết',
+            status: 'completed',
+            completedCount: 10,
+            questCount: 10,
+          }),
+          index: 0,
+        })
+      )
+    )
+
+    expect(html).toContain('ĐẢO 1')
+    expect(html).toContain('Đảo Tiên Quyết')
+    expect(html).toContain('10 Quy tắc vàng')
+    expect(html).toContain('ĐÃ XONG')
+    expect(html).toContain('✨')
+    expect(html).toContain('Ôn lại đảo')
+    expect(html).toContain('100%')
+
+    // Zero-arrow assertion
+    expect(html).not.toContain('→')
+    expect(html).not.toContain('➔')
+    expect(html).not.toContain('-&gt;')
+    expect(html).not.toContain('←')
+  })
+
+  it('renders active island with ĐANG HỌC badge, progress fraction, and Khám phá đảo button (0 arrows)', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ModernIslandCard, {
+          course: course({
+            id: 'dao-1-nha-tham-hiem-ai',
+            title: 'Đảo Khám Phá',
+            status: 'active',
+            completedCount: 2,
+            questCount: 4,
+          }),
+          index: 1,
+        })
+      )
+    )
+
+    expect(html).toContain('ĐẢO 2')
+    expect(html).toContain('Đảo Khám Phá')
+    expect(html).toContain('4 Chìa khóa lệnh')
+    expect(html).toContain('ĐANG HỌC')
+    expect(html).toContain('🚀')
+    expect(html).toContain('Khám phá đảo')
+    expect(html).toContain('2/4 trạm')
+
+    // Zero-arrow assertion
+    expect(html).not.toContain('→')
+    expect(html).not.toContain('➔')
+    expect(html).not.toContain('-&gt;')
+    expect(html).not.toContain('←')
+  })
+
+  it('renders locked island with CHƯA MỞ badge, lock explanation, and Xem điều kiện button (0 arrows)', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ModernIslandCard, {
+          course: course({
+            id: 'dao-2-hoa-si-ai',
+            title: 'Đảo Họa Sĩ',
+            status: 'locked',
+            lockMessage: 'Bé hãy hoàn thành Đảo Khám Phá trước để mở khóa nhé!',
+          }),
+          index: 2,
+        })
+      )
+    )
+
+    expect(html).toContain('ĐẢO 3')
+    expect(html).toContain('Đảo Họa Sĩ')
+    expect(html).toContain('Sắc màu cọ vẽ')
+    expect(html).toContain('CHƯA MỞ')
+    expect(html).toContain('🔒')
+    expect(html).toContain('Xem điều kiện')
+    expect(html).toContain('Bé hãy hoàn thành Đảo Khám Phá trước để mở khóa nhé!')
+
+    // Zero-arrow assertion
+    expect(html).not.toContain('→')
+    expect(html).not.toContain('➔')
+    expect(html).not.toContain('-&gt;')
+    expect(html).not.toContain('←')
   })
 })

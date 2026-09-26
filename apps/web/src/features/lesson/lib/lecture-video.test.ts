@@ -9,7 +9,7 @@ describe('resolveLectureVideo', () => {
       ),
     ).toEqual({
       kind: 'youtube',
-      src: 'https://www.youtube-nocookie.com/embed/yuuWdm5tBD0?cc_load_policy=1&cc_lang_pref=vi&playsinline=1&rel=0',
+      src: 'https://www.youtube-nocookie.com/embed/yuuWdm5tBD0?cc_load_policy=1&cc_lang_pref=vi&controls=0&disablekb=1&enablejsapi=1&fs=0&iv_load_policy=3&modestbranding=1&playsinline=1&rel=0',
     })
   })
 

@@ -1,5 +1,6 @@
 import { environment } from '@/shared/config/environment'
 import { createUuid } from '../uuid'
+import { clampStationStars } from '../star-progress'
 import {
   type GatewayRequest,
   jsonBody,
@@ -25,8 +26,11 @@ export function normalizeLearningGatewayRequest(
   if (path === '/api/enrollments') {
     return { path: '/api/v1/lms/enrollments', options }
   }
-  if (path === '/api/notifications') {
-    return { path: '/api/v1/notifications', options }
+  if (path === '/api/notifications' || path.startsWith('/api/notifications?')) {
+    return {
+      path: `/api/v1/notifications${path.slice('/api/notifications'.length)}`,
+      options,
+    }
   }
   if (path === '/api/notifications/read-all') {
     return { path: '/api/v1/notifications/read-all', options }
@@ -43,10 +47,11 @@ export function normalizeLearningGatewayRequest(
     }
   }
 
-  if (path === '/api/media/refs' || path === '/api/backpack') {
+  if (path === '/api/media/refs' || path === '/api/backpack' || path === '/api/backpack/overview') {
     const activeIpId = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
     const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
-    return { path: `/api/v1/media/gallery${ipSuffix}`, options }
+    const joiner = ipSuffix ? '&' : '?'
+    return { path: `/api/v1/media/gallery${ipSuffix}${joiner}limit=50&includeTotal=0`, options }
   }
   if (path === '/api/projects') {
     const activeIpId = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
@@ -557,6 +562,35 @@ export function normalizeLearningGatewayResponse(
     return { assets }
   }
 
+  if (path === '/api/backpack/overview') {
+    const rows = Array.isArray(payload.items)
+      ? payload.items as Array<Record<string, unknown>>
+      : []
+    const normalized = rows.map(normalizeGalleryItem)
+    return {
+      assets: normalized.flatMap((item) => item.isProject ? [] : [{
+        id: item.id,
+        type: item.kind,
+        name: item.title,
+        thumbnail: item.url,
+        url: item.url,
+        private: true,
+        questId: item.questId,
+        jobId: item.jobId,
+        createdAt: item.createdAt,
+      }]),
+      projects: normalized.flatMap((item) => item.isProject ? [{
+        id: item.id,
+        title: item.title,
+        kind: item.kind,
+        thumbnail: item.url,
+        content: item.content,
+        shareStatus: item.shareStatus,
+        jobId: item.jobId,
+      }] : []),
+    }
+  }
+
   if (path === '/api/projects') {
     const rows = Array.isArray(payload.items)
       ? payload.items as Array<Record<string, unknown>>
@@ -662,6 +696,7 @@ export function normalizeLearningGatewayResponse(
           canonicalStatus === 'completed'
         return {
           id: mapped.id,
+          slug: mapped.courseKey,
           title: mapped.title,
           shortTitle: mapped.shortTitle,
           enrolled: isEnrolled,
@@ -716,8 +751,16 @@ export function normalizeLearningGatewayResponse(
     }
   }
 
-  if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
-    const raw = payload.course as Record<string, unknown>
+  if (/^\/api\/courses\/[^/?]+$/.test(path)) {
+    // Hub versions have returned both `{ data: { course } }` and
+    // `{ data: course }`. Accept either canonical shape so a count-only
+    // pathway can still hydrate its authoritative lecture catalog.
+    const raw = (payload.course && typeof payload.course === 'object'
+      ? payload.course
+      : payload.id || payload.title
+        ? payload
+        : null) as Record<string, unknown> | null
+    if (!raw) return undefined
     return {
       course: {
         ...mapCourse(raw),
@@ -753,7 +796,7 @@ export function normalizeLearningGatewayResponse(
       summary: {
         completed: progress.filter((row) => row.status === 'completed').length,
         total: progress.length,
-        totalStars: progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0),
+        totalStars: progress.reduce((sum, row) => sum + clampStationStars(row.stars), 0),
         currentPhase: progress.find((row) => row.status === 'in_progress')?.phase ?? null,
       },
       insights: { strengths: [], nextFocus: null, outcomes: [] },
@@ -769,7 +812,7 @@ export function normalizeLearningGatewayResponse(
         practiceKind: String(row.practiceKind ?? ''),
         status: String(row.status ?? 'locked'),
         phase: String(row.phase ?? 'learn'),
-        stars: Number(row.stars ?? 0),
+        stars: clampStationStars(row.stars),
         xpEarned: Number(row.xpEarned ?? 0),
         videoUrl: typeof row.videoUrl === 'string' ? row.videoUrl : null,
         slug: (row as any).slug ? String((row as any).slug) : undefined,

@@ -976,7 +976,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     expect(htmlCreativeNotebook).toContain('TÓM TẮT THỬ THÁCH')
     expect(htmlCreativeNotebook).toContain('HỒ SƠ MẪU CỦA AIKI')
     expect(htmlCreativeNotebook).toContain('Tên nhân vật')
-    expect(htmlCreativeNotebook).toContain('Cất vào Ba Lô')
+    expect(htmlCreativeNotebook).toContain('Hoàn tất thực hành')
     expect(htmlCreativeNotebook).not.toContain('Bàn phím 4 Chìa Khóa')
     expect(htmlCreativeNotebook).not.toContain('Khung Tranh AI Canvas')
     expect(htmlCreativeNotebook).not.toContain('AIKI Vẽ Tranh (Còn 4/4 lượt)')
