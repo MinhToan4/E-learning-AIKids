@@ -81,6 +81,44 @@ describe('ProfilePage Component', () => {
     })
 
     vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+      if (endpoint.startsWith('/api/v1/aikids/profile-overview?')) {
+        return {
+          streak: { current: 5 },
+          achievements: {
+            achievements: [
+              {
+                type: 'first_lesson',
+                title: 'Bước Chân Đầu Tiên',
+                description: 'Hoàn thành bài học đầu tiên.',
+                unlocked: true,
+                icon: '🏆',
+              },
+              {
+                type: 'streak_3',
+                title: 'Ngọn Lửa Chăm Chỉ',
+                description: 'Học 3 ngày liên tiếp.',
+                unlocked: true,
+                icon: '🔥',
+              },
+            ],
+          },
+          projects: {
+            items: [
+              {
+                id: 'p-clean-1',
+                title: 'Truyện tranh Vẹt Paco',
+                kind: 'comic',
+                creativeKind: 'comic',
+                thumbnail: '/assets/paco.jpg',
+                shareStatus: 'approved',
+              },
+            ],
+          },
+          appearance: { slug: 'be-minh' },
+          storybook: { equipment: [] },
+          pathway: await learningApiModule.learningApi.getPathway(),
+        } as any
+      }
       if (endpoint === '/api/gamification/streak') return { current: 5 } as any
       if (endpoint === '/api/gamification/achievements') {
         return {

@@ -9,6 +9,7 @@ import type {
   ProfileModule,
 } from '@/features/community/community-store'
 import type { ShowcaseProject } from './profile-showcase'
+import type { LearningPathway } from '@/shared/lib/learning-api'
 
 export type ProfileMediaAsset = {
   id: string
@@ -42,6 +43,15 @@ export type ProfileOverviewData = {
   level: number
   profileSettings: PublicProfileSettings | null
   equipment: ProfileEquipmentRow[]
+  storybook: ProfileStorybookData | null
+  pathway: LearningPathway | null
+}
+
+export type ProfileStorybookData = {
+  earnedStickerIds?: string[]
+  inventory?: Array<{ rewardId: string }>
+  equipment?: ProfileEquipmentRow[]
+  studio?: { chapters?: unknown[] }
 }
 
 export type ProfileAppearanceData = Pick<ProfileOverviewData, 'profileSettings' | 'equipment'> & {
@@ -71,10 +81,11 @@ async function loadLegacyProfileOverview(
   includeMedia = true,
   includeProgression = true,
   includeAppearance = true,
+  includePathway = false,
 ): Promise<ProfileOverviewData> {
   const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
 
-  const [streak, achievements, projects, media, gamification, settings, rewards] =
+  const [streak, achievements, projects, media, gamification, settings, rewards, pathway] =
     await Promise.allSettled([
       safeReq<{ current: number }>('/api/gamification/streak'),
       safeReq<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
@@ -94,6 +105,9 @@ async function loadLegacyProfileOverview(
       includeAppearance
         ? safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook')
         : Promise.resolve({ equipment: [] as ProfileEquipmentRow[] }),
+      includePathway
+        ? safeReq<LearningPathway>('/api/learning/pathway')
+        : Promise.resolve(null),
     ])
 
   return {
@@ -117,15 +131,15 @@ async function loadLegacyProfileOverview(
     equipment: rewards.status === 'fulfilled'
       ? rewards.value.equipment ?? []
       : [],
+    storybook: rewards.status === 'fulfilled' ? rewards.value : null,
+    pathway: pathway.status === 'fulfilled' ? pathway.value : null,
   }
 }
 
 /**
- * Load the profile from the service-owned endpoints available through the
- * local gateway. The aggregate route is not part of the local Hub contract;
- * probing it first only creates a guaranteed 404 on every profile visit.
- * Promise.allSettled keeps optional sections independent so one unavailable
- * section cannot prevent the rest of the profile from rendering.
+ * Load profile data through the Hub aggregate endpoint. The Hub executes the
+ * service-owned reads concurrently over its shared keep-alive transport, while
+ * the legacy fan-out below remains a rolling-deploy fallback for older servers.
  */
 export async function loadProfileOverview(
   request: ProfileRequest = api,
@@ -133,6 +147,7 @@ export async function loadProfileOverview(
   includeMedia = true,
   includeProgression = true,
   includeAppearance = true,
+  includePathway = false,
 ): Promise<ProfileOverviewData> {
   // The Hub BFF runs the service-owned reads concurrently over its shared
   // keep-alive pool. Keep the legacy fan-out only as a rolling-deploy fallback.
@@ -143,6 +158,7 @@ export async function loadProfileOverview(
     const sections = ['core']
     if (includeProgression) sections.push('progression')
     if (includeAppearance) sections.push('appearance')
+    if (includePathway) sections.push('pathway')
     const query = new URLSearchParams({ sections: sections.join(',') })
     if (activeIpId) query.set('ipId', activeIpId)
     const aggregate = await withTimeout(request<Record<string, unknown>>(
@@ -150,6 +166,11 @@ export async function loadProfileOverview(
     ), timeoutMs)
     if (!aggregate.streak || !aggregate.achievements || !aggregate.projects) {
       throw new Error('Profile overview aggregate is incomplete')
+    }
+    if ((includeProgression && !aggregate.progression) ||
+        (includeAppearance && (!aggregate.appearance || !aggregate.storybook)) ||
+        (includePathway && !aggregate.pathway)) {
+      throw new Error('Profile overview optional sections are incomplete')
     }
     const streak = normalizeGatewayResponse('/api/gamification/streak', aggregate.streak) as { current?: number }
     const achievements = normalizeGatewayResponse('/api/gamification/achievements', aggregate.achievements) as { achievements?: AchievementRow[] }
@@ -161,7 +182,10 @@ export async function loadProfileOverview(
       ? normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null
       : null
     const storybook = includeAppearance
-      ? normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as { equipment?: ProfileEquipmentRow[] }
+      ? normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData
+      : null
+    const pathway = includePathway
+      ? normalizeGatewayResponse('/api/learning/pathway', aggregate.pathway) as LearningPathway
       : null
     const media = includeMedia
       ? normalizeGatewayResponse('/api/backpack', aggregate.projects) as { assets?: ProfileMediaAsset[] }
@@ -176,9 +200,11 @@ export async function loadProfileOverview(
       level: Number(progression?.level ?? 1),
       profileSettings: settings,
       equipment: storybook?.equipment ?? [],
+      storybook,
+      pathway,
     }
   } catch {
-    return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance)
+    return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance, includePathway)
   }
 }
 

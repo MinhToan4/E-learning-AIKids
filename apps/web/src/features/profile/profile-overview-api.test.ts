@@ -55,6 +55,29 @@ describe('profile overview adapter', () => {
     expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cprogression%2Cappearance')
   })
 
+  it('hydrates profile, backpack and pathway through one scoped request', async () => {
+    const request = vi.fn().mockResolvedValue({
+      streak: { currentStreak: 4 },
+      achievements: { achievements: [] },
+      projects: { items: [] },
+      appearance: { childProfileId: 'child-1', enabled: true },
+      storybook: { inventory: [], equipment: [], studio: { chapters: [] } },
+      pathway: {
+        student: { nickname: 'Bo', ageBand: '8-10' },
+        policy: null,
+        recommendedCourseId: null,
+        courses: [],
+      },
+    })
+
+    await expect(loadProfileOverview(request, 3500, false, false, true, true)).resolves.toMatchObject({
+      storybook: { inventory: [], equipment: [] },
+      pathway: { courses: [] },
+    })
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cappearance%2Cpathway')
+  })
+
   it('fails closed instead of trusting localStorage when gamification request fails', async () => {
     localStorage.setItem('aiki_last_known_level', '7')
     localStorage.setItem('aiki_last_known_xp', '850')

@@ -25,7 +25,6 @@ import { STORYBOOK_PAGES, type StorybookPage } from '@/features/storybook/storyb
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '@/features/storybook/storybook-contract'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { api, type AchievementRow } from '@/shared/lib/api'
-import { learningApi } from '@/shared/lib/learning-api'
 import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
@@ -54,7 +53,6 @@ import {
   xpRequiredForLevel,
 } from '@/shared/lib/creation/xp-levels'
 import {
-  loadProfileAppearance,
   loadProfileOverview,
   type ProfileEquipmentRow,
   type PublicProfileSettings,
@@ -239,10 +237,6 @@ export function ProfilePage() {
     }
   }, [])
 
-  useEffect(() => {
-    void loadStorybook()
-  }, [loadStorybook])
-
   const storybookEarned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
   const storybookOwnedRewards = useMemo(() => new Set(ownedRewardIds), [ownedRewardIds])
   const storybookPages = useMemo(() => {
@@ -357,12 +351,39 @@ export function ProfilePage() {
       })
       .catch(() => undefined)
 
-    loadProfileAppearance(api, 3500)
-      .then(({ profileSettings, equipment: serverRows, ownedRewardIds }) => {
+    loadProfileOverview(api, 3500, false, false, true, true)
+      .then((overview) => {
         if (!active) return
-        if (ownedRewardIds !== null) {
-          setWardrobeBootstrap({ ownedRewardIds, equipment: serverRows })
-        }
+        setStreak(overview.streak)
+        setAchievements(overview.achievements.filter((row) => row.unlocked))
+        const cleanProjects = (overview.projects ?? []).filter(isCleanDisplayableWork)
+        setProjects(cleanProjects)
+        setAvatarChoices(overview.avatarChoices
+          .filter((asset) => asset.thumbnail)
+          .map((asset) => ({
+            id: asset.id,
+            url: asset.thumbnail,
+            label: asset.name,
+            source: asset.type.includes('generated') ? 'generated' : 'library',
+          })))
+
+        const profileSettings = overview.profileSettings
+        const serverRows = overview.equipment
+        const storybook = overview.storybook
+        const storybookInventory = Array.isArray(storybook?.inventory) ? storybook.inventory : []
+        setWardrobeBootstrap({
+          ownedRewardIds: storybookInventory.map((item) => item.rewardId),
+          equipment: serverRows,
+        })
+        setEarnedStickerIds(uniqueStorybookIds(
+          Array.isArray(storybook?.earnedStickerIds) ? storybook.earnedStickerIds : [],
+        ))
+        setOwnedRewardIds(uniqueRewardIds(storybookInventory.map((item) => item.rewardId)))
+        setStudioChapters(Array.isArray(storybook?.studio?.chapters)
+          ? storybook.studio.chapters as typeof studioChapters
+          : [])
+        setStorybookNotice(storybook ? '' : 'Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
+
         if (profileSettings) {
           setProfileSlug(profileSettings.slug)
           setProfileAppearance({
@@ -396,48 +417,27 @@ export function ProfilePage() {
         if (user && equipmentMutationVersion.current === loadVersion) {
           setEquipment(syncRewardEquipment(user.id, rewardEquipmentFromRows(serverRows)))
         }
-      })
-      .catch(() => undefined)
 
-    loadProfileOverview(api, 3500, false, false, false)
-      .then((overview) => {
-        if (!active) return
-        setStreak(overview.streak)
-        setAchievements(overview.achievements.filter((row) => row.unlocked))
-        const cleanProjects = (overview.projects ?? []).filter(isCleanDisplayableWork)
-        setProjects(cleanProjects)
-        setAvatarChoices(overview.avatarChoices
-          .filter((asset) => asset.thumbnail)
-          .map((asset) => ({
-            id: asset.id,
-            url: asset.thumbnail,
-            label: asset.name,
-            source: asset.type.includes('generated') ? 'generated' : 'library',
-          })))
+        const pw = overview.pathway
+        if (pw && Array.isArray(pw.courses)) {
+          setPathwayCourses(pw.courses)
+          const comp = pw.courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
+          const stars = pw.courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
+          if (comp > 0) setCompletedStations(comp)
+          if (stars > 0) setStarsCollected(stars)
+          try {
+            const rulesProg = rulesProgressFromPathway(pw)
+            const rCount = Object.values(rulesProg.rules).filter((r) => r.status === 'completed').length
+            if (rCount > 0) setPathwayRulesCompleted(rCount)
+          } catch {
+            // ignore
+          }
+        }
       })
       .catch(() => undefined)
       .finally(() => {
         if (active) setLoading(false)
       })
-
-    // Tải hành trình để đếm số trạm và số sao chuẩn xác
-    learningApi.getPathway()
-      .then((pw) => {
-        if (!active || !pw || !Array.isArray(pw.courses)) return
-        setPathwayCourses(pw.courses)
-        const comp = pw.courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
-        const stars = pw.courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
-        if (comp > 0) setCompletedStations(comp)
-        if (stars > 0) setStarsCollected(stars)
-        try {
-          const rulesProg = rulesProgressFromPathway(pw)
-          const rCount = Object.values(rulesProg.rules).filter((r) => r.status === 'completed').length
-          if (rCount > 0) setPathwayRulesCompleted(rCount)
-        } catch {
-          // ignore
-        }
-      })
-      .catch(() => undefined)
 
     return () => {
       active = false
