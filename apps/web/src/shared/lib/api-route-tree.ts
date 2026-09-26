@@ -28,6 +28,10 @@ export type ApiRouteBranch = {
  */
 export const API_ROUTE_TREE: readonly ApiRouteBranch[] = [
   {
+    id: 'aikids-overview', label: 'Tổng hợp màn hình trẻ em', legacyPrefixes: [],
+    gatewayPrefix: '/api/v1/aikids/profile-overview', audiences: ['student'], adapter: 'profileOverviewApi', owner: 'hub-system', status: 'canonical',
+  },
+  {
     id: 'account', label: 'Tài khoản & phiên đăng nhập',
     legacyPrefixes: ['/api/auth', '/api/account', '/api/profile'],
     gatewayPrefix: '/api/v1/account', audiences: ['public', 'authenticated'], adapter: 'api', owner: 'core-account', status: 'compatibility',

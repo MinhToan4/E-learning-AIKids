@@ -42,6 +42,7 @@ describe('application API route coverage', () => {
       'shared/lib/creative-api.ts',
       'shared/lib/learning-api.ts',
       'shared/lib/media-api.ts',
+      'features/profile/profile-overview-api.ts',
       // These are already canonical contracts; move them into the matching
       // domain adapter when those feature modules are next changed.
       'features/admin/components/RewardPackAdmin.tsx',
