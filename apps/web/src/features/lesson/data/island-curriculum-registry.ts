@@ -186,6 +186,12 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         ],
         "sampleUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "creativeEngineMode": "magic-keys",
+        "fourKeysOptions": {
+          "what": ["Con mèo", "Con cá vàng", "Con cún"],
+          "how": ["Mướp vằn nâu béo tròn", "Đuôi voan dài mềm", "Lông vàng hai tai cụp"],
+          "action": ["Đang ngủ cuộn tròn", "Đang ngoi lên đớp bọt", "Đang chạy đuổi quả bóng"],
+          "where": ["Trên ghế mây cạnh cửa sổ", "Trong bình thuỷ tinh tròn", "Ở góc sân gạch đỏ"]
+        },
         "practiceParts": [
           {
             "partNumber": 1,
@@ -417,20 +423,6 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "icon": "🚲",
             "emoji": "🚲",
             "iconImage": "/assets/aiki-islands/island1_lesson2_bicycle.jpg"
-          },
-          {
-            "partNumber": 3,
-            "title": "Cuốn sách",
-            "icon": "📖",
-            "emoji": "📖",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_notebook.jpg"
-          },
-          {
-            "partNumber": 4,
-            "title": "Cái đồng hồ",
-            "icon": "⏰",
-            "emoji": "⏰",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_clock.jpg"
           }
         ]
       },
@@ -827,44 +819,44 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Ca 1: Hiệp Sĩ Bạc (Bàn tay 5 ngón)",
+            "title": "Ca 1: Tay sáu ngón",
             "icon": "✋",
             "emoji": "✋",
             "iconImage": "/assets/aiki-doctor/doctor_hand_broken_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Ca 2: Sóc Bông (Mũ len đỏ quả bông)",
-            "icon": "🐿️",
-            "emoji": "🐿️",
+            "title": "Ca 2: Mất cái mũ",
+            "icon": "🧢",
+            "emoji": "🧢",
             "iconImage": "/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp"
           },
           {
             "partNumber": 3,
-            "title": "Ca 3: Mèo Mướp (Ghế mây đệm êm)",
-            "icon": "🐱",
-            "emoji": "🐱",
+            "title": "Ca 3: Thừa ba con chim",
+            "icon": "🐦",
+            "emoji": "🐦",
             "iconImage": "/assets/aiki-doctor/doctor_cat_floating_v1.webp"
           },
           {
             "partNumber": 4,
-            "title": "Ca 4: Tranh Lem Nhem (Dọn sạch nền)",
-            "icon": "🧹",
-            "emoji": "🧹",
+            "title": "Ca 4: Nhìn sai hướng",
+            "icon": "👀",
+            "emoji": "👀",
             "iconImage": "/assets/aiki-doctor/doctor_clutter_broken_v1.webp"
           }
         ],
         "promptDoctorCase": {
-          "caseTitle": "Bàn tay hiệp sĩ bị dị tật (Hiệp Sĩ Bạc)",
-          "symptom": "Tranh vẽ hiệp sĩ nhưng bàn tay bị dị tật chỉ có 3 ngón tay và thiếu mất chiếc mũ len đỏ!",
-          "originalPrompt": "Hiệp sĩ bọc giáp cầm kiếm thần đứng giữa rừng cây",
-          "refImageUrl": "/assets/aiki-islands/island1_lesson4_opt_a.jpg",
+          "caseTitle": "Ca 1: Tay sáu ngón",
+          "symptom": "Một bạn nhỏ đang vẫy tay nhưng bàn tay có tận 6 ngón tay!",
+          "originalPrompt": "Một bạn nhỏ đang vẫy tay chào vui vẻ",
+          "refImageUrl": "/assets/aiki-doctor/doctor_hand_broken_v1.webp",
           "curedImageUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
           "cureCards": [
-            "✋ Kê đơn 5 ngón tay đầy đủ chuẩn xác",
-            "🧶 Đội mũ len đỏ quả bông trắng",
-            "🪑 Thêm ghế mây ấm cúng",
-            "🦊 Đuôi cam to xù kiêu hãnh"
+            "Đúng một bàn tay năm ngón rõ ràng",
+            "Thêm đồng hồ đeo tay màu xanh lá",
+            "Vẽ thêm chiếc nón lá trên đầu",
+            "Đổi màu áo sang màu vàng cam"
           ]
         }
       },
@@ -1433,11 +1425,11 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "badge": "Bài 2.3",
         "illustrationType": "color-emotions",
         "lockedFeatures": [
-          "ngọn hải đăng sọc đỏ trắng sừng sững",
-          "luồng sáng vàng rực rỡ xuyên qua màn đêm",
-          "bầu trời đêm bão giông tím thẫm sóng dữ"
+          "Cảm xúc: Vui · Buồn · Nhớ · Sợ",
+          "Thứ tự: Chọn cảm xúc trước -> Chọn ánh sáng sau",
+          "Mục tiêu: Chọn bức ĐÚNG với cảm xúc, không chỉ bức đẹp nhất"
         ],
-        "akiMotto": "Chọn cảm xúc trước -> Chọn ánh sáng sau! 4 tông ánh sáng: Bình minh vàng, Hoàng hôn cam tím, Đêm xanh trăng, Đèn nến tương phản.",
+        "akiMotto": "Chọn cảm xúc trước -> Chọn ánh sáng sau! 4 kiểu ánh sáng: Buổi sáng (nắng vàng nhạt), Giữa trưa (bóng đậm), Chiều muộn (nắng vàng cam), Buổi tối (vùng sáng nhỏ).",
         "maxAttempts": 6,
         "workflowSteps": [
           {
@@ -1471,31 +1463,61 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         ],
         "sampleUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
         "creativeEngineMode": "style-prism",
+        "stylePrismOptions": [
+          {
+            "id": "morning",
+            "name": "Buổi sáng (nắng vàng nhạt)",
+            "icon": "🌅",
+            "desc": "Cảnh trông nhẹ nhàng, nắng vàng nhạt trong trẻo",
+            "promptStyle": "ánh sáng buổi sáng, nắng vàng nhạt trong trẻo nhẹ nhàng"
+          },
+          {
+            "id": "noon",
+            "name": "Giữa trưa (ánh sáng mạnh, bóng đậm)",
+            "icon": "☀️",
+            "desc": "Thấy nóng, bức bối, ánh sáng mạnh và bóng đổ đậm",
+            "promptStyle": "ánh sáng giữa trưa gay gắt, bóng đậm rõ nét"
+          },
+          {
+            "id": "sunset",
+            "name": "Chiều muộn (nắng vàng cam, bóng dài)",
+            "icon": "🌇",
+            "desc": "Hơi buồn, hơi nhớ, nắng vàng cam rực và bóng đổ dài",
+            "promptStyle": "ánh sáng chiều muộn, nắng vàng cam bóng dài hoài niệm"
+          },
+          {
+            "id": "night",
+            "name": "Buổi tối (xung quanh tối, một vùng sáng nhỏ)",
+            "icon": "🌙",
+            "desc": "Hơi đáng sợ, xung quanh tối chỉ còn một vùng sáng nhỏ",
+            "promptStyle": "buổi tối xung quanh tối thẫm, chỉ có một vùng sáng nhỏ tương phản"
+          }
+        ],
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Ánh sáng Ban Mai",
+            "title": "Buổi sáng (nắng vàng nhạt)",
             "icon": "🌅",
             "emoji": "🌅",
             "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 2,
-            "title": "Ánh sáng Nắng Trưa",
+            "title": "Giữa trưa (ánh sáng mạnh, bóng đậm)",
             "icon": "☀️",
             "emoji": "☀️",
             "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Ánh sáng Hoàng Hôn",
+            "title": "Chiều muộn (nắng vàng cam, bóng dài)",
             "icon": "🌇",
             "emoji": "🌇",
             "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "partNumber": 4,
-            "title": "Ánh sáng Ánh Trăng",
+            "title": "Buổi tối (xung quanh tối, một vùng sáng nhỏ)",
             "icon": "🌙",
             "emoji": "🌙",
             "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg"
@@ -1679,7 +1701,33 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           }
         ],
         "sampleUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
-        "creativeEngineMode": "layer-stacking",
+        "creativeEngineMode": "magic-keys",
+        "fourKeysOptions": {
+          "what": [
+            "một cậu bé đang thả diều ngày cuối kỳ nghỉ hè",
+            "một bạn nhỏ đang tìm con mèo trốn sau bụi cây",
+            "một bạn nhỏ đang tưới cây trước hiên nhà",
+            "một bạn nhỏ đang chờ xe buýt dưới cơn mưa"
+          ],
+          "how": [
+            "cậu bé thả diều",
+            "bạn nhỏ đang tìm mèo",
+            "bạn nhỏ cầm bình tưới",
+            "bạn nhỏ cầm ô đứng chờ"
+          ],
+          "action": [
+            "hơi buồn và tiếc + chiều muộn",
+            "vui + buổi sáng nắng vàng nhạt",
+            "hồi hộp + buổi tối một vùng sáng nhỏ",
+            "sốt ruột + giữa trưa bóng đậm"
+          ],
+          "where": [
+            "Chiếc diều cuối cùng của mùa hè",
+            "Ngày mai tớ đi học rồi",
+            "Gió chiều nay hơi buồn",
+            "Cậu bé thả diều"
+          ]
+        },
         "practiceParts": [
           {
             "partNumber": 1,
@@ -4461,11 +4509,11 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "badge": "Bài 5.3",
         "illustrationType": "magic-gear-back",
         "lockedFeatures": [
-          "mặt lưng họa tiết bánh răng vàng kim đối xứng tâm 100%",
-          "vòng tròn ma thuật cổ ngữ bảo vệ",
-          "nền lam thẫm bí ẩn đồng nhất cho cả 12 lá"
+          "Bộ sưu tập: Bếp nhà tớ (12 món) · Ngăn kéo của bà (12 món) · Hàng tạp hoá đầu ngõ (12 món)",
+          "Phong cách: Nét truyện tranh · Màu nước",
+          "Công thức nền: Phong cách – Nền – Góc nhìn – Khung viền giữ cố định, chỉ thay phần riêng"
         ],
-        "akiMotto": "Mặt lưng phải giống hệt nhau 100% để đảm bảo tính công bằng tuyệt đối, không ai đoán trước được lá bài úp!",
+        "akiMotto": "Ảnh mẫu giữ cả bộ cùng kiểu · Công thức nền giữ thứ không đổi · Chỉ thay phần riêng của từng lá bài!",
         "maxAttempts": 6,
         "workflowSteps": [
           {
@@ -4499,89 +4547,105 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         ],
         "sampleUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
         "creativeEngineMode": "style-prism",
+        "stylePrismOptions": [
+          {
+            "id": "comic",
+            "name": "Nét truyện tranh",
+            "icon": "🎨",
+            "desc": "Nét đen rõ, màu phẳng, nền vàng nhạt, nhìn ngang, khung bo tròn",
+            "promptStyle": "phong cách nét truyện tranh nét đen rõ màu phẳng nền vàng nhạt nhìn ngang khung bo tròn"
+          },
+          {
+            "id": "watercolor",
+            "name": "Màu nước",
+            "icon": "🖌️",
+            "desc": "Viền mềm loang nhẹ, nền giấy kraft nâu, nhìn chéo 45 độ, không khung chừa lề trắng",
+            "promptStyle": "phong cách màu nước viền mềm loang nhẹ nền giấy kraft nâu nhìn chéo 45 độ"
+          }
+        ],
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Lá 1",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Cái chảo gang",
+            "icon": "🍳",
+            "emoji": "🍳",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 2,
-            "title": "Lá 2",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Đôi đũa tre",
+            "icon": "🥢",
+            "emoji": "🥢",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 3,
-            "title": "Lá 3",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Cái rổ nhựa xanh",
+            "icon": "🧺",
+            "emoji": "🧺",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 4,
-            "title": "Lá 4",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Nồi cơm điện",
+            "icon": "🍚",
+            "emoji": "🍚",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 5,
-            "title": "Lá 5",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Chai nước mắm",
+            "icon": "🍾",
+            "emoji": "🍾",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 6,
-            "title": "Lá 6",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Lọ muối",
+            "icon": "🧂",
+            "emoji": "🧂",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 7,
-            "title": "Lá 7",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Cái thớt gỗ",
+            "icon": "🪵",
+            "emoji": "🪵",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 8,
-            "title": "Lá 8",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Muôi canh",
+            "icon": "🥄",
+            "emoji": "🥄",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 9,
-            "title": "Lá 9",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Hộp tăm",
+            "icon": "📦",
+            "emoji": "📦",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 10,
-            "title": "Lá 10",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Khăn lau bếp",
+            "icon": "🧻",
+            "emoji": "🧻",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 11,
-            "title": "Lá 11",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Bát sứ trắng",
+            "icon": "🥣",
+            "emoji": "🥣",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           },
           {
             "partNumber": 12,
-            "title": "Lá 12",
-            "icon": "🎴",
-            "emoji": "🎴",
+            "title": "Ấm đun nước",
+            "icon": "🫖",
+            "emoji": "🫖",
             "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp"
           }
         ]
@@ -5888,7 +5952,7 @@ for (const lesson of ISLAND_CURRICULUM_LESSONS) {
     }
   } else if (mode === 'magic-keys' && !p.fourKeysOptions) {
     p.fourKeysOptions = DEFAULT_FOUR_KEYS_OPTIONS
-  } else if (mode === 'style-prism' && (!p.stylePrismOptions || p.stylePrismOptions.length < 4)) {
+  } else if (mode === 'style-prism' && (!p.stylePrismOptions || p.stylePrismOptions.length === 0)) {
     p.stylePrismOptions = DEFAULT_STYLE_PRISM_OPTIONS
   } else if (mode === 'prompt-doctor' && !p.promptDoctorCase) {
     p.promptDoctorCase = DEFAULT_PROMPT_DOCTOR_CASE

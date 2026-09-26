@@ -8,6 +8,7 @@ import {
   Award,
   Compass,
   Trophy,
+  Star,
 } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
@@ -131,7 +132,7 @@ export function IslandStationsExplorerView({
           </div>
 
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-bold shadow-xs whitespace-nowrap shrink-0">
-            <span className="text-amber-500">⭐</span>
+            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
             <span>{meta.totalStars}/{quests.length * 3} Sao</span>
             <span className="text-amber-400/80">•</span>
             <span className="text-[#FD7D2E]">+{meta.completedCount * 50} XP</span>
@@ -454,7 +455,7 @@ export function IslandStationsExplorerView({
                       {isCompleted && (
                         <div className="flex items-center text-amber-400 text-xs">
                           {Array.from({ length: quest.stars || 3 }).map((_, sIdx) => (
-                            <span key={sIdx}>⭐</span>
+                            <Star key={sIdx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                           ))}
                         </div>
                       )}

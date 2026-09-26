@@ -160,6 +160,10 @@ export const designerAssets = {
     progressValley: '/assets/designer/achievements/progress-valley-v2.webp',
     badgeCabinet: '/assets/designer/achievements/badge-cabinet-v2.webp',
   },
+  aiki: {
+    mascotPose1: '/assets/mee/aiki/AIKI pose 1.png',
+    mascotPose1Svg: '/assets/mee/aiki/AIKI pose 1.svg',
+  },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
     badges: '/assets/ui-badges.webp',

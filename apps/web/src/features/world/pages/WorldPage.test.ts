@@ -775,7 +775,8 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
     expect(html).toContain('Đảo Tiên Quyết')
     expect(html).toContain('10 Quy tắc vàng')
     expect(html).toContain('ĐÃ XONG')
-    expect(html).toContain('✨')
+    expect(html).not.toContain('✨')
+    expect(html).not.toContain('🛡️')
     expect(html).toContain('Ôn lại đảo')
     expect(html).toContain('100%')
 
@@ -808,7 +809,7 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
     expect(html).toContain('Đảo Khám Phá')
     expect(html).toContain('4 Chìa khóa lệnh')
     expect(html).toContain('ĐANG HỌC')
-    expect(html).toContain('🚀')
+    expect(html).not.toContain('🚀')
     expect(html).toContain('Khám phá đảo')
     expect(html).toContain('2/4 trạm')
 
@@ -840,7 +841,8 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
     expect(html).toContain('Đảo Họa Sĩ')
     expect(html).toContain('Sắc màu cọ vẽ')
     expect(html).toContain('CHƯA MỞ')
-    expect(html).toContain('🔒')
+    expect(html).not.toContain('🔒')
+    expect(html).toContain('lucide-lock')
     expect(html).toContain('Xem điều kiện')
     expect(html).toContain('Bé hãy hoàn thành Đảo Khám Phá trước để mở khóa nhé!')
 

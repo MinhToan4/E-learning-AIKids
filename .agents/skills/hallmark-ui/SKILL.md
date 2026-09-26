@@ -213,3 +213,54 @@ document.querySelectorAll('*').forEach(el => {
 });
 ```
 
+---
+
+## 9. Khung Chassis 1024px & Quy Chuẩn Title Đồng Bộ (Unified 1024px Chassis & Page Header SSOT)
+
+Để đảm bảo toàn bộ hệ thống giao diện học sinh, các đảo học tập, trạm học, ba lô, hồ sơ, thành tích và xưởng sáng tạo có sự liền mạch, đồng nhất và tuyệt đối không xé toạc bố cục:
+
+### 9.1. Khung Kích Thước Chuẩn Duy Nhất (Chassis 1024px SSOT)
+- **Container chuẩn**: Bắt buộc mọi trang học sinh và nội dung chức năng phải được ôm gọn trong khung:
+  ```tsx
+  className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6"
+  ```
+- **TUYỆT ĐỐI CẤM**:
+  - Không được dùng `max-w-7xl`, `max-w-6xl` hay bung full-bleed vô tận trên màn hình desktop lớn gây mỏi cổ và phân mảnh trải nghiệm.
+  - Không được co cụm cục bộ `max-w-xl` làm lệch nhịp trải nghiệm so với trang chủ và các trang học tập.
+  - Shell `AppShell.tsx` đã cung cấp khung `max-w-[1024px] mx-auto w-full`, mọi trang con bên trong phải kế thừa (`w-full`) hoặc khai báo tương thích.
+
+### 9.2. Cấu Trúc Header & Tiêu Đề Đồng Bộ ("Cùng Title Dễ Nhìn")
+Mọi trang đều phải tuân theo cấu trúc Header 3 tầng trực quan:
+```tsx
+<div className="mb-6 flex flex-col gap-1.5 sm:gap-2">
+  {/* Tầng 1: Eyebrow Badge/Pill định danh khu vực */}
+  <div className="flex items-center gap-2">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-black uppercase tracking-wider">
+      {badgeIcon} {badgeText}
+    </span>
+  </div>
+  {/* Tầng 2: Tiêu đề H1 to rõ, đậm nét, tương phản cao */}
+  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+    {pageTitle}
+  </h1>
+  {/* Tầng 3: Phụ đề giải thích ngắn gọn, thân thiện */}
+  <p className="text-xs sm:text-sm text-slate-500 font-medium">
+    {pageSubtitle}
+  </p>
+</div>
+```
+
+### 9.3. Kỷ Luật Loại Bỏ Mũi Tên & Yếu Tố AI Giả Cầy Trên Button
+- **CẤM TUYỆT ĐỐI**:
+  - Không đặt các ký tự mũi tên (`→`, `->`, `>>>`, `←`) hoặc icon mũi tên (`<ArrowRight />`, `<ChevronRight />`, `<MoveRight />`) bên trong các nút bấm hành động (Action Buttons/Pills).
+  - Nút bấm phải thể hiện hành động rõ ràng bằng từ ngữ tự nhiên của trẻ em: "Vào học ngay", "Xem lại", "Khám phá", "Tiếp tục", "Lưu vào Ba lô", "Quay lại".
+  - Tránh các biểu tượng ma thuật AI rập khuôn (`✨`, robot lạnh lùng) trên các nút tương tác thông thường.
+
+### 9.4. Tối Ưu Mobile 390px Dọc (Mobile First Stack)
+- Trên mobile (chiều rộng 360px - 390px):
+  - Chuyển toàn bộ bố cục nhiều cột thành dạng cuộn dọc 1 cột (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`).
+  - Đảm bảo khoảng cách lề `px-3` hoặc `px-4`, không tạo viền đen hai bên hay tràn chữ.
+  - Chiều cao touch targets luôn $\ge 44\text{px} - 48\text{px}$.
+  - Tiêu đề co giãn tự nhiên: `text-2xl sm:text-3xl font-black`.
+
+

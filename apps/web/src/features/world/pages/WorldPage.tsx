@@ -621,7 +621,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   if (!courseId) {
     if (loading) {
       return (
-        <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 space-y-4 py-6">
+        <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 space-y-4 py-4 sm:py-6">
           <div className="ui-skeleton h-32 rounded-3xl" />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="ui-skeleton h-40 rounded-3xl" />
@@ -632,8 +632,8 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     }
     if (error || !pathway) {
       return (
-        <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 py-6">
-          <p className="ui-card p-5 text-danger rounded-2xl" role="alert">
+        <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-4 sm:py-6">
+          <p className="ui-card p-4 sm:p-6 text-danger rounded-2xl" role="alert">
             {error ?? 'Chưa tải được lộ trình học.'}
           </p>
         </div>
@@ -653,8 +653,8 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     const ruleCourse = pathway?.courses.find((c, i) => isAikiRuleCourse(c, i))
     const ruleCourseHref = `/world/${ruleCourse?.slug || 'dao-1'}`
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 flex flex-col items-center justify-center py-10 page-enter">
-        <div className="ui-card mx-auto w-full max-w-xl p-8 text-center border-2 border-amber-200 bg-white/95 shadow-clay rounded-3xl">
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 flex flex-col items-center justify-center py-6 sm:py-8 page-enter">
+        <div className="ui-card mx-auto w-full max-w-xl p-6 sm:p-8 text-center border-2 border-amber-200 bg-white/95 shadow-clay rounded-3xl">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100/90 border-2 border-amber-300 shadow-soft mb-4">
             <KidLockImageIcon size={52} aria-hidden="true" />
           </div>
@@ -665,13 +665,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           <p className="mt-3 text-sm sm:text-base font-semibold text-muted leading-relaxed max-w-md mx-auto">
             {error || 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'}
           </p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Button onClick={() => navigate('/world/program/aikid_official')} className="w-full sm:w-auto rounded-2xl font-black">
-              🗺️ Danh sách các Đảo
+              Danh sách các Đảo
             </Button>
             <Link to={ruleCourseHref} className="w-full sm:w-auto">
               <Button variant="secondary" className="w-full rounded-2xl font-black">
-                🛡️ Đến Đảo Quy Tắc Vàng
+                Đến Đảo Quy Tắc Vàng
               </Button>
             </Link>
           </div>
@@ -682,7 +682,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
 
   if (loading) {
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 space-y-4 py-6">
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 space-y-4 py-4 sm:py-6">
         <div className="ui-skeleton h-44 rounded-[2.5rem]" />
         <div className="ui-skeleton h-32 rounded-3xl" />
         <div className="space-y-3">
@@ -695,7 +695,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   }
 
   return (
-    <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 flex flex-col gap-6 page-enter py-4 sm:py-6">
+    <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 flex flex-col gap-4 sm:gap-6 page-enter py-4 sm:py-6">
       {enrollmentRequired && !loading ? (
         <section className="ui-card mx-auto w-full max-w-xl p-6 text-center rounded-3xl shadow-clay">
           <CourseBookIcon size={42} className="mx-auto text-brand-500" aria-hidden="true" />
@@ -1260,12 +1260,12 @@ export function ModernIslandCard({
 
           {/* Badge số thứ tự: ĐẢO 1..6 */}
           <div className="absolute left-[8%] top-[8%] z-20 flex items-center gap-1.5">
-            <span className="rounded-full border border-white/80 bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-800 shadow-2xs">
+            <span className="rounded-full border border-amber-200/80 bg-[#FFFDF7]/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-800 shadow-2xs">
               {config.badge}
             </span>
             {course.isGatekeeper && (
-              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[10px] font-black shadow-2xs">
-                🛡️ Tiên Quyết
+              <span className="px-2.5 py-1 rounded-full bg-amber-400 text-amber-950 text-[10px] font-black shadow-2xs">
+                Tiên Quyết
               </span>
             )}
           </div>
@@ -1273,21 +1273,19 @@ export function ModernIslandCard({
           {/* Trạng thái rõ ràng */}
           <div className="absolute right-[8%] top-[8%] z-20">
             {isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-xs border border-white/60">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-xs border border-white/60">
                 <span>ĐÃ XONG</span>
-                <span>✨</span>
               </span>
             )}
             {isActive && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-black shadow-xs border border-white/60 animate-pulse">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-black shadow-xs border border-white/60 animate-pulse">
                 <span>ĐANG HỌC</span>
-                <span>🚀</span>
               </span>
             )}
             {isLocked && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-800/90 text-slate-200 text-[10px] font-black shadow-xs backdrop-blur-xs border border-white/30">
+                <Lock size={10} className="text-slate-300" />
                 <span>CHƯA MỞ</span>
-                <span>🔒</span>
               </span>
             )}
           </div>
@@ -1295,14 +1293,14 @@ export function ModernIslandCard({
         </div>
       </div>
 
-      <div className="relative z-20 -mt-12 w-[calc(100%-1rem)] max-w-[52rem] min-w-0 rounded-[1.5rem] border border-amber-100 bg-[#fffdf7] px-4 py-4 shadow-[0_10px_24px_rgba(72,64,46,.08)] sm:-mt-20 sm:w-[calc(100%-3rem)] sm:px-5 md:rounded-[1.75rem] md:px-6">
+      <div className="relative z-20 -mt-12 w-[calc(100%-1rem)] max-w-[52rem] min-w-0 rounded-[1.5rem] border border-amber-200/80 bg-[#FFFDF7] px-4 py-4 sm:px-6 shadow-clay sm:-mt-20 sm:w-[calc(100%-3rem)] md:rounded-[1.75rem]">
         {/* Tên đảo & chủ đề học rõ ràng */}
         <div className="space-y-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
               {config.title}
             </h3>
-            <span className="text-xs font-black text-brand-700 shrink-0">
+            <span className="text-xs font-black text-[#FD7D2E] shrink-0">
               {config.subtitle}
             </span>
           </div>
@@ -1328,7 +1326,7 @@ export function ModernIslandCard({
               {completedStations}/{stationCount} trạm ({percent}%)
             </span>
           </div>
-          <div className="w-full h-2 rounded-full bg-slate-200/80 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-amber-100/80 overflow-hidden">
             <div
               className={cn(
                 'h-full rounded-full transition-all duration-500',
@@ -1361,7 +1359,7 @@ export function ModernIslandCard({
                     ? 'border-emerald-500 bg-emerald-500 text-white'
                     : isCurrent
                     ? 'border-orange-400 bg-orange-100 text-orange-800 ring-2 ring-orange-200'
-                    : 'border-slate-200 bg-white text-slate-500',
+                    : 'border-amber-200/80 bg-[#FFFCEB] text-slate-500',
                 )
                 const canOpenStation =
                   Boolean(stationSlug.trim()) &&
@@ -1393,8 +1391,9 @@ export function ModernIslandCard({
 
         {/* Chỉ dẫn điều kiện mở khóa khi chưa mở */}
         {isLocked && (
-          <div className="mt-3 rounded-xl bg-slate-100/80 p-2.5 text-xs font-semibold leading-relaxed text-slate-600">
-            🔒 {course.lockMessage || 'Bé hãy hoàn thành đảo trước để mở khóa nhé!'}
+          <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-[#FFFCEB] border border-amber-200/70 p-2.5 text-xs font-semibold leading-relaxed text-amber-950/80">
+            <Lock size={13} className="shrink-0 text-amber-600" />
+            <span>{course.lockMessage || 'Bé hãy hoàn thành đảo trước để mở khóa nhé!'}</span>
           </div>
         )}
 
@@ -1432,7 +1431,7 @@ export function ModernIslandCard({
             type="button"
             variant="secondary"
             onClick={handleCardClick}
-            className="min-h-11 w-full cursor-pointer rounded-2xl border-slate-300 px-6 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-100 active:scale-95 sm:w-auto sm:min-w-40 sm:text-sm"
+            className="min-h-11 w-full cursor-pointer rounded-2xl border-amber-200 bg-white px-6 py-2.5 text-xs font-black text-amber-950 hover:bg-amber-50 active:scale-95 sm:w-auto sm:min-w-40 sm:text-sm"
           >
             Xem điều kiện
           </Button>
@@ -1453,10 +1452,10 @@ function ConnectedIslandJourney({
   onLockedClick: (course: PathwayCourse) => void
 }) {
   return (
-    <ol className="relative space-y-5 py-2 sm:space-y-6 sm:py-4" aria-label="Hải trình các đảo học tập">
+    <ol className="relative space-y-4 py-4 sm:space-y-6 sm:py-6" aria-label="Hải trình các đảo học tập">
       {courses.map((course, index) => {
         return (
-          <li key={course.id} className="relative z-10 min-w-0 py-2 sm:py-3">
+          <li key={course.id} className="relative z-10 min-w-0 py-2 sm:py-4">
             <div className="min-w-0">
               <ModernIslandCard
                 course={course}
@@ -1641,11 +1640,11 @@ function PathwayOverview({
     ? Math.round((completedStations / totalStations) * 100)
     : 0
   const nextTicket = sourceRecommended && (
-    <div className="rounded-2xl bg-brand-50/85 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+    <div className="rounded-2xl bg-[#FFFDF7] border border-amber-200/80 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 shadow-clay">
       <div className="min-w-0 space-y-1">
         <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200/60">
-            <Star size={11} className="fill-brand-500 text-brand-500" />
+          <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-[#FD7D2E] bg-[#FFF4EC] px-2.5 py-0.5 rounded-full border border-amber-200/60">
+            <Star size={11} className="fill-[#FD7D2E] text-[#FD7D2E]" />
             <span>Trạm tiếp theo</span>
           </span>
           <span className="text-xs font-bold text-slate-500 truncate">
@@ -1666,7 +1665,7 @@ function PathwayOverview({
         {sourceRecommended.status === 'locked' ? (
           <Button
             onClick={() => handleLockedCourseClick(sourceRecommended)}
-            className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-5 py-2.5 shadow-clay active:scale-95"
+            className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-6 py-3 shadow-clay active:scale-95"
           >
             Xem điều kiện
           </Button>
@@ -1678,7 +1677,7 @@ function PathwayOverview({
                 : courseHref(sourceRecommended)
             }
           >
-            <Button className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-6 py-2.5 shadow-clay active:scale-95">
+            <Button className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-6 py-3 shadow-clay active:scale-95">
               Vào học tiếp
             </Button>
           </Link>
@@ -1692,27 +1691,25 @@ function PathwayOverview({
   // ─────────────────────────────────────────────────────────────
   if (isSpacesView || !selectedSource) {
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 page-enter flex flex-col gap-6 py-6">
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-4 sm:gap-6 py-4 sm:py-6">
         <header className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               to="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-700 shadow-xs border border-slate-200/80 text-xs font-black hover:bg-slate-50 transition-colors"
             >
-              <span>🏠</span>
               <span>Trang chủ</span>
             </Link>
             <button
               type="button"
               onClick={() => navigate('/world/program/aikid_official')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-brand-700 shadow-xs border border-brand-200/80 text-xs font-black hover:bg-brand-50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-[#FD7D2E] shadow-xs border border-amber-200/80 text-xs font-black hover:bg-amber-50 transition-colors cursor-pointer"
             >
-              <span>🗺️</span>
               <span>AIKid của em</span>
             </button>
           </div>
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-black uppercase tracking-wider border border-brand-200/60 shadow-2xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4EC] text-[#FD7D2E] text-xs font-black uppercase tracking-wider border border-amber-200/60 shadow-2xs">
               Thư Viện Không Gian
             </span>
             <h1 className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
@@ -1725,7 +1722,7 @@ function PathwayOverview({
         </header>
 
         <section aria-labelledby="learning-library-title" className="space-y-4">
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
             {categories.map((category) => {
               const sourceRows = visibleCourses.filter((course) => sourceOf(course) === category.id)
               const courses = category.id === 'aikid_official'
@@ -1745,7 +1742,7 @@ function PathwayOverview({
                 <div
                   key={category.id}
                   className={cn(
-                    'rounded-3xl border p-5 sm:p-6 text-left transition-all duration-300 hover:-translate-y-1 shadow-clay clay-card-subtle flex flex-col justify-between bg-white/95',
+                    'rounded-3xl border p-4 sm:p-6 text-left transition-all duration-300 hover:-translate-y-1 shadow-clay clay-card-subtle flex flex-col justify-between bg-white/95',
                     category.tone,
                   )}
                 >
@@ -1768,7 +1765,7 @@ function PathwayOverview({
                     <div className="rounded-2xl bg-white/90 p-3 border border-slate-200/80 shadow-2xs space-y-2">
                       <div className="flex flex-wrap items-center justify-between text-xs font-black text-slate-700">
                         <span>{doneStations}/{stations} trạm</span>
-                        <span className="text-brand-700">{progress}% hoàn thành</span>
+                        <span className="text-[#FD7D2E]">{progress}% hoàn thành</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden shadow-inner">
                         <div
@@ -1777,7 +1774,7 @@ function PathwayOverview({
                         />
                       </div>
                       {active > 0 && (
-                        <span className="block text-[11px] font-extrabold text-brand-700">
+                        <span className="block text-[11px] font-extrabold text-[#FD7D2E]">
                           {active} khóa đang học
                         </span>
                       )}
@@ -1808,12 +1805,12 @@ function PathwayOverview({
   // ─────────────────────────────────────────────────────────────
   if (selectedSource === 'aikid_official' && !trackId) {
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 page-enter flex flex-col gap-6 py-6">
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-4 sm:gap-6 py-4 sm:py-6">
         {/* ── Chuẩn hóa Tiêu đề 3 tầng ── */}
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-black uppercase tracking-wider border border-brand-200/60 shadow-2xs">
-              🗺️ Thư Viện Các Khóa Học AIKids
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4EC] text-[#FD7D2E] text-xs font-black uppercase tracking-wider border border-amber-200/60 shadow-2xs">
+              Thư Viện Các Khóa Học AIKids
             </span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
@@ -1835,7 +1832,7 @@ function PathwayOverview({
                 <span>{totalProgress}% tiến độ tổng</span>
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <span className="text-amber-500">⭐</span>
+                <Star size={14} className="fill-amber-400 text-amber-500" />
                 <span>{totalStars} Sao tích lũy</span>
               </span>
             </div>
@@ -1858,7 +1855,7 @@ function PathwayOverview({
         <section aria-labelledby="programs-heading" className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-[#FD7D2E]">
                 Hải trình rèn luyện
               </p>
               <h2 id="programs-heading" className="mt-0.5 font-display text-2xl text-slate-900 sm:text-3xl font-black">
@@ -1867,7 +1864,7 @@ function PathwayOverview({
             </div>
             <Link
               to="/world/spaces"
-              className="text-xs sm:text-sm font-extrabold text-brand-700 hover:text-brand-900 transition-colors"
+              className="text-xs sm:text-sm font-extrabold text-[#FD7D2E] hover:text-amber-800 transition-colors"
             >
               Xem không gian khác
             </Link>
@@ -1885,7 +1882,7 @@ function PathwayOverview({
           open={Boolean(lockedModalCourse)}
           onClose={() => setLockedModalCourse(null)}
           tone="guidance"
-          eyebrow="🛡️ Đảo Đang Chờ Mở Khóa"
+          eyebrow="Đảo Đang Chờ Mở Khóa"
           title="Đảo Này Đang Chờ Mở Khóa!"
           description={
             lockedModalCourse?.lockMessage ||
@@ -1907,7 +1904,7 @@ function PathwayOverview({
                 onClick={() => setLockedModalCourse(null)}
               >
                 <Button className="w-full rounded-2xl font-black">
-                  🛡️ Đến Đảo Quy Tắc Ngay
+                  Đến Đảo Quy Tắc Ngay
                 </Button>
               </Link>
               <Button
@@ -1955,7 +1952,7 @@ function PathwayOverview({
   const isCreatorTrack = selectedSource === 'aikid_official' && trackId === 'creator'
 
   return (
-    <div className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 page-enter flex flex-col gap-6 py-6">
+    <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-4 sm:gap-6 py-4 sm:py-6">
       {/* ── Header ── */}
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -1963,22 +1960,20 @@ function PathwayOverview({
             to="/"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-700 shadow-xs border border-slate-200/80 text-xs font-black hover:bg-slate-50 transition-colors"
           >
-            <span>🏠</span>
             <span>Trang chủ</span>
           </Link>
           <button
             type="button"
             onClick={() => navigate('/world/program/aikid_official')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-brand-700 shadow-xs border border-brand-200/80 text-xs font-black hover:bg-brand-50 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-[#FD7D2E] shadow-xs border border-amber-200/80 text-xs font-black hover:bg-amber-50 transition-colors cursor-pointer"
           >
-            <span>🗺️</span>
             <span>Danh sách 6 đảo</span>
           </button>
         </div>
 
         <div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-black uppercase tracking-wider border border-brand-200/60 shadow-2xs">
-            🗺️ Thư Viện Các Khóa Học AIKids
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4EC] text-[#FD7D2E] text-xs font-black uppercase tracking-wider border border-amber-200/60 shadow-2xs">
+            Thư Viện Các Khóa Học AIKids
           </span>
           <h1 className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
             {isCreatorTrack
@@ -2003,7 +1998,7 @@ function PathwayOverview({
               <span>{totalProgress}% tiến độ tổng</span>
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-              <span className="text-amber-500">⭐</span>
+              <Star size={14} className="fill-amber-400 text-amber-500" />
               <span>{totalStars} Sao tích lũy</span>
             </span>
           </div>
@@ -2029,7 +2024,7 @@ function PathwayOverview({
       {/* Danh sách khóa của không gian hiện tại; bản đồ 6 đảo chỉ dùng cho
           chương trình AIKid chính thức ở nhánh phía trên. */}
       {selectedCourses.length === 0 ? (
-        <div className="ui-card p-6 text-center rounded-3xl shadow-clay">
+        <div className="ui-card p-4 sm:p-6 text-center rounded-3xl shadow-clay">
           <CourseBookIcon size={44} className="mx-auto text-brand-500" aria-hidden="true" />
           <p className="mt-3 font-display text-xl font-black">Chưa có chương trình trong mục này</p>
           <p className="mt-2 text-sm text-muted">
@@ -2047,7 +2042,7 @@ function PathwayOverview({
         <section aria-label={isCreatorTrack ? 'Bộ sưu tập 6 đảo học tập' : 'Các khóa học trong không gian'} className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-[#FD7D2E]">
                 {isCreatorTrack ? 'Hải trình rèn luyện' : selectedCategory?.eyebrow || 'Chương trình của con'}
               </p>
               <h2 className="mt-0.5 font-display text-2xl text-slate-900 sm:text-3xl font-black">
@@ -2064,11 +2059,11 @@ function PathwayOverview({
 
           {/* Finish celebration if all completed */}
           {completedCount === selectedCourses.length && selectedCourses.length > 0 && (
-            <div className="flex flex-col items-center mt-8 p-6 rounded-3xl bg-amber-50/80 border border-amber-200/90 text-center animate-pop">
+            <div className="flex flex-col items-center mt-8 p-4 sm:p-6 rounded-3xl bg-amber-50/80 border border-amber-200/90 text-center animate-pop">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow-md mb-2">
                 <Trophy size={40} aria-hidden="true" />
               </div>
-              <h3 className="font-display text-2xl font-black text-slate-900">🎉 Xuất sắc!</h3>
+              <h3 className="font-display text-2xl font-black text-slate-900">Xuất sắc!</h3>
               <p className="text-sm font-semibold text-slate-600 mt-1">
                 {isCreatorTrack
                   ? 'Con đã hoàn thành toàn bộ hành trình 6 đảo sáng tạo!'
@@ -2084,7 +2079,7 @@ function PathwayOverview({
         open={Boolean(lockedModalCourse)}
         onClose={() => setLockedModalCourse(null)}
         tone="guidance"
-        eyebrow="🛡️ Đảo Đang Chờ Mở Khóa"
+        eyebrow="Đảo Đang Chờ Mở Khóa"
         title="Đảo Này Đang Chờ Mở Khóa!"
         description={
           lockedModalCourse?.lockMessage ||
@@ -2106,7 +2101,7 @@ function PathwayOverview({
               onClick={() => setLockedModalCourse(null)}
             >
               <Button className="w-full rounded-2xl font-black">
-                🛡️ Đến Đảo Quy Tắc Ngay
+                Đến Đảo Quy Tắc Ngay
               </Button>
             </Link>
             <Button

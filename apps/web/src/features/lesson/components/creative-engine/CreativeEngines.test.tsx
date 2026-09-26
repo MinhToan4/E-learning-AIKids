@@ -42,7 +42,7 @@ describe('CreativeEngine Suite', () => {
         'bai-2-1': 'creative-notebook',
         'bai-2-2': 'layer-stacking',
         'bai-2-3': 'style-prism',
-        'bai-2-4': 'layer-stacking',
+        'bai-2-4': 'magic-keys',
         // M3
         'bai-3-1': 'creative-notebook',
         'bai-3-2': 'identity-lock',
@@ -276,13 +276,13 @@ describe('CreativeEngine Suite', () => {
       )
       expect(html).toContain('data-testid="prompt-doctor-engine"')
       expect(html).toContain('Bệnh Viện Câu Lệnh AIKids')
-      expect(html).toContain('Bàn Tay Hiệp Sĩ Biến Dạng')
+      expect(html).toContain('Tay sáu ngón')
       expect(html).toContain('Tủ Thuốc Thần Kỳ')
       expect(html).toContain('data-testid="doctor-cure-slot"')
       // Khung hiển thị ảnh tham chiếu bệnh án trực quan
       expect(html).toContain('🏥 BỆNH VIỆN TRANH LỖI · ẢNH BỆNH NHÂN CẦN KHÁM')
       expect(html).toContain('doctor_hand_broken_v1.webp')
-      expect(html).toContain('5 ngón tay bọc giáp')
+      expect(html).toContain('bàn tay năm ngón')
     })
 
     it('renders CreativeEngineShell with canvasSlot for style-prism and prompt-doctor modes', () => {
@@ -1270,12 +1270,12 @@ describe('CreativeEngine Suite', () => {
       // Initial state: brokenBlock (câu lệnh cũ) is passed
       expect(onPromptChange).toHaveBeenCalled()
       const lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
-      expect(lastCall[0]).toContain('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(lastCall[0]).toContain('một bàn tay đang cầm bút')
       expect(lastCall[1]).toHaveLength(1)
       expect(lastCall[1][0].category).toBe('subject')
-      expect(lastCall[1][0].label).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(lastCall[1][0].label).toBe('một bàn tay đang cầm bút')
 
-      // Select first cure (5 ngón tay bọc giáp)
+      // Select first cure (5 ngón tay)
       const cureCard = container.querySelector('[data-testid^="cure-card-"]') as HTMLElement
       expect(cureCard).not.toBeNull()
       act(() => {
@@ -1284,7 +1284,7 @@ describe('CreativeEngine Suite', () => {
 
       // Combined prompt: old prompt + cure text, with both blocks
       const afterCureCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
-      expect(afterCureCall[0]).toContain('Hiệp sĩ bọc giáp cầm kiếm thần, ')
+      expect(afterCureCall[0]).toContain('một bàn tay đang cầm bút, ')
       expect(afterCureCall[1]).toHaveLength(2)
       expect(afterCureCall[1][0].category).toBe('subject')
       expect(afterCureCall[1][1].category).toBe('cure')
@@ -1361,7 +1361,7 @@ describe('CreativeEngine Suite', () => {
 
       let lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
       expect(lastCall[1]).toHaveLength(2) // 1 broken + 1 cure
-      expect(lastCall[0]).toContain('bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay')
+      expect(lastCall[0]).toContain('một bàn tay năm ngón đang cầm bút chì')
       // Hiển thị huy hiệu bốc đúng thuốc đặc trị
       expect(container.textContent).toContain('🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!')
 
@@ -1372,11 +1372,11 @@ describe('CreativeEngine Suite', () => {
 
       lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
       expect(lastCall[1]).toHaveLength(2) // Vẫn đúng 1 broken + 1 cure (thay thế, không dồn tích)
-      expect(lastCall[0]).toContain('đội ngay ngắn chiếc mũ len đỏ quả bông trắng ấm áp trên đầu')
-      expect(lastCall[0]).not.toContain('bàn tay bọc găng giáp bạc')
+      expect(lastCall[0]).toContain('một bạn nhỏ đội mũ len đỏ')
+      expect(lastCall[0]).not.toContain('một bàn tay năm ngón đang cầm bút chì')
       // Hiển thị cảnh báo bốc nhầm thuốc
       expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
-      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Hiệp Sĩ Bạc')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Tay sáu ngón')
 
       // 3. Click nút X trên thẻ thuốc để gỡ bỏ
       const removeButton = container.querySelector('[data-testid="doctor-cure-slot"] button') as HTMLElement
@@ -1388,7 +1388,7 @@ describe('CreativeEngine Suite', () => {
 
       lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
       expect(lastCall[1]).toHaveLength(1) // Chỉ còn lại 1 brokenBlock
-      expect(lastCall[0]).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(lastCall[0]).toBe('một bàn tay đang cầm bút')
       expect(container.textContent).toContain('Chạm hoặc kéo 1 liều thuốc đặc trị bên dưới vào đây để chữa bệnh')
 
       act(() => {
@@ -1415,13 +1415,13 @@ describe('CreativeEngine Suite', () => {
         )
       })
 
-      // Kiểm tra bệnh án hiển thị đúng Sóc Bông
-      expect(container.textContent).toContain('Sóc Bông Bị Mất Mũ Len')
-      expect(container.textContent).toContain('Sóc Bông đang ôm quả thông trong rừng')
+      // Kiểm tra bệnh án hiển thị đúng Mất cái mũ
+      expect(container.textContent).toContain('Mất cái mũ')
+      expect(container.textContent).toContain('một bạn nhỏ đội mũ đang đứng trong sân')
 
-      // Click chuyển sang Ca 3 (Mèo Mướp)
+      // Click chuyển sang Ca 3 (Thừa ba con chim)
       const caseButtons = container.querySelectorAll('button')
-      const catButton = Array.from(caseButtons).find((b) => b.textContent?.includes('Ca 3: Mèo Mướp'))
+      const catButton = Array.from(caseButtons).find((b) => b.textContent?.includes('Ca 3: Thừa ba con chim'))
       expect(catButton).toBeDefined()
 
       await act(async () => {
@@ -1463,7 +1463,7 @@ describe('CreativeEngine Suite', () => {
       })
       lastCall = onPromptChange.mock.calls[onPromptChange.mock.calls.length - 1]
       expect(lastCall[1]).toHaveLength(1)
-      expect(lastCall[0]).toBe('Hiệp sĩ bọc giáp cầm kiếm thần')
+      expect(lastCall[0]).toBe('một bàn tay đang cầm bút')
       expect(container.textContent).toContain('+ Kê đơn')
       expect(container.textContent).not.toContain('✓ Đang kê đơn')
 
@@ -1473,13 +1473,13 @@ describe('CreativeEngine Suite', () => {
       container.remove()
     })
 
-    it('validates Case 2 (Sóc Bông) and Case 3 (Mèo Mướp) special cures vs trap medicines', async () => {
+    it('validates Case 2 (Mất cái mũ) and Case 3 (Thừa ba con chim) special cures vs trap medicines', async () => {
       const container = document.createElement('div')
       document.body.appendChild(container)
       const root = createRoot(container)
       const onPromptChange = vi.fn()
 
-      // --- CASE 2: Sóc Bông ---
+      // --- CASE 2: Mất cái mũ ---
       await act(async () => {
         root.render(
           <PromptDoctorEngine
@@ -1495,7 +1495,7 @@ describe('CreativeEngine Suite', () => {
         trapHand.click()
       })
       expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
-      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Sóc Bông')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Mất cái mũ')
       const slotElement = container.querySelector('[data-testid="doctor-cure-slot"]') as HTMLElement
       expect(slotElement.className).toContain('border-amber-400')
 
@@ -1508,7 +1508,7 @@ describe('CreativeEngine Suite', () => {
       expect(container.textContent).not.toContain('⚠️ BỐC NHẦM THUỐC RỒI')
       expect(slotElement.className).toContain('border-emerald-400')
 
-      // --- CASE 3: Mèo Mướp ---
+      // --- CASE 3: Thừa ba con chim ---
       await act(async () => {
         root.render(
           <PromptDoctorEngine
@@ -1524,12 +1524,12 @@ describe('CreativeEngine Suite', () => {
         trapHat.click()
       })
       expect(container.textContent).toContain('⚠️ BỐC NHẦM THUỐC RỒI! BÉ HÃY THỬ LẠI NHÉ!')
-      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Mèo Mướp')
+      expect(container.textContent).toContain('thuốc này không chữa được bệnh của Thừa ba con chim')
 
-      // Select Special Cure: cure-them-nen-ghe
-      const specialBed = container.querySelector('[data-testid="cure-card-cure-them-nen-ghe"]') as HTMLElement
+      // Select Special Cure: cure-cay-khong-chim
+      const specialBird = container.querySelector('[data-testid="cure-card-cure-cay-khong-chim"]') as HTMLElement
       await act(async () => {
-        specialBed.click()
+        specialBird.click()
       })
       expect(container.textContent).toContain('🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!')
       expect(container.textContent).not.toContain('⚠️ BỐC NHẦM THUỐC RỒI')
@@ -1560,7 +1560,7 @@ describe('CreativeEngine Suite', () => {
       // Lightbox dialog should be open
       const dialog = container.querySelector('div[role="dialog"]') as HTMLElement
       expect(dialog).not.toBeNull()
-      expect(dialog.textContent).toContain('Bệnh Án Tham Chiếu: Bàn Tay Hiệp Sĩ Biến Dạng')
+      expect(dialog.textContent).toContain('Bệnh Án Tham Chiếu: Tay sáu ngón')
 
       // Click close button
       const closeBtn = dialog.querySelector('button') as HTMLButtonElement

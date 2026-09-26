@@ -7,11 +7,7 @@ import {
   NavCreativeIcon,
   NavLevelIcon,
 } from '@/shared/components/icons/KidNavIcons'
-import {
-  KidProfileBadgeImageIcon,
-  KidProfileStreakImageIcon,
-  KidProfileWorkImageIcon,
-} from '@/shared/components/icons/KidImageIcons'
+
 import {
   SoftClayStarIcon,
   SoftClayFlagIcon,
@@ -47,12 +43,15 @@ import {
   type ProfileModule,
 } from '@/features/community/community-store'
 import { AvatarPickerModal } from '../components/AvatarPickerModal'
+import { ProfileHeaderCard } from '../components/ProfileHeaderCard'
+import { ProfileStatsGrid } from '../components/ProfileStatsGrid'
 import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import type { ProfileAvatar, ShowcaseProject } from '../profile-showcase'
 import { updateMyProfileAvatar } from '@/shared/lib/media-api'
 import {
   explorerLevelProgress,
   nextExplorerLevel,
+  xpRequiredForLevel,
 } from '@/shared/lib/creation/xp-levels'
 import {
   loadProfileAppearance,
@@ -875,59 +874,36 @@ export function ProfilePage() {
 
   const nextLevel = nextExplorerLevel(explorerXp, explorerLevel)
   const levelProgress = explorerLevelProgress(explorerXp, explorerLevel)
-  const xpToNextLevel = Math.max(0, nextLevel.xpRequired - explorerXp)
+  const remainingXpToNextLevel = Math.max(0, nextLevel.xpRequired - explorerXp)
+  const currentFloor = xpRequiredForLevel(explorerLevel)
+  const nextFloor = xpRequiredForLevel(explorerLevel + 1)
+  const levelSpan = Math.max(1, nextFloor - currentFloor)
+  const xpIntoLevel = progression?.xpIntoLevel ?? Math.max(0, (explorerXp - currentFloor) % levelSpan)
+  const xpToNextLevel = progression?.xpToNextLevel ?? levelSpan
 
   return (
     <PageMotion
-      className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1024px] w-full px-3 sm:px-4 md:px-6 pb-32 sm:pb-36 flex-col gap-6"
+      className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1024px] w-full px-4 sm:px-6 md:px-8 py-4 sm:py-6 pb-32 sm:pb-36 flex-col gap-4 sm:gap-6"
     >
-      {/* 1. Thẻ Explorer Căn Cước Học Sinh (Student Explorer ID Banner) */}
-      <section
-        className="aikid-flat-panel overflow-hidden border-2 border-white shadow-clay rounded-3xl"
-        data-profile-composition="simple"
-        style={{
-          ...profileCardBackgroundStyle(equipment.background),
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="grid items-center gap-5 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_18rem] lg:grid-cols-[minmax(0,1fr)_21rem] md:px-5 lg:px-6 lg:py-5">
-          {user && (
-            <EquippedProfile
-              user={user}
-              xp={explorerXp}
-              level={explorerLevel}
-              compact
-              equipment={equipment}
-              onAvatarClick={() => setAvatarPickerOpen(true)}
-            />
-          )}
-          <div className="profile-summary-strip grid grid-cols-3 bg-white/80 backdrop-blur-xs rounded-2xl p-1 border border-white/60 shadow-soft" aria-label="Thành quả học tập">
-            {[
-              { value: streak, label: 'Ngày học', to: '/level', icon: KidProfileStreakImageIcon },
-              { value: achievements.length, label: 'Huy hiệu', to: '/achievements', icon: KidProfileBadgeImageIcon },
-              { value: displayableProjects.length, label: 'Tác phẩm', to: '/backpack', icon: KidProfileWorkImageIcon },
-            ].map(({ value, label, to, icon: Icon }) => (
-              <Link key={label} to={to} className="profile-summary-item flex min-h-20 min-w-0 flex-col items-center justify-center px-2 py-2 text-center text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:min-h-24">
-                <Icon size={24} aria-hidden="true" />
-                <span className="font-display text-xl text-brand-700">{value}</span>
-                <span className="text-xs font-extrabold text-muted sm:text-sm">{label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-        {profileSlug && (
-          <div className="flex items-center justify-end border-t border-white/70 bg-white/40 backdrop-blur-xs p-2.5 px-4">
-            <Link
-              to={`/u/${profileSlug}`}
-              className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft hover:bg-brand-50 transition-colors"
-            >
-              Xem bản chia sẻ
-            </Link>
-          </div>
-        )}
-      </section>
+      {/* 1. Thẻ Header Card chuẩn Lingofy + Màu sắc Aiki */}
+      <ProfileHeaderCard
+        user={user}
+        explorerLevel={explorerLevel}
+        explorerXp={explorerXp}
+        xpIntoLevel={xpIntoLevel}
+        xpToNextLevel={xpToNextLevel}
+        onOpenAvatarPicker={() => setAvatarPickerOpen(true)}
+        profileSlug={profileSlug}
+      />
 
-      {/* 2. Thanh Tab Điều Hướng Soft Clay (Floating Pill Tabs) */}
+      {/* 2. Thống kê 3 chỉ số nhanh Soft Clay */}
+      <ProfileStatsGrid
+        streakDays={streak}
+        totalStars={displayStars}
+        completedStations={displayStations}
+      />
+
+      {/* 3. Thanh Tab Điều Hướng Soft Clay (Floating Pill Tabs) */}
       <nav
         aria-label="Các mục hồ sơ cá nhân"
         className="flex items-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-soft"
@@ -1025,7 +1001,6 @@ export function ProfilePage() {
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-orange-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-800">
-                <span className="shrink-0">🔥</span>
                 <span>Chăm chỉ giữ lửa học tập!</span>
               </div>
             </div>
@@ -1046,7 +1021,6 @@ export function ProfilePage() {
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-sky-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-sky-800">
-                <span className="shrink-0">⏱️</span>
                 <span>Tích lũy học &amp; sáng tạo</span>
               </div>
             </div>
@@ -1087,7 +1061,7 @@ export function ProfilePage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none">
-                    {displayStars} ⭐
+                    {displayStars}
                   </span>
                   <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700">
                     Ngôi sao tri thức
@@ -1095,7 +1069,6 @@ export function ProfilePage() {
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-amber-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-amber-800">
-                <span className="shrink-0">✨</span>
                 <span>Tích lũy qua bài học</span>
               </div>
             </div>
@@ -1194,7 +1167,7 @@ export function ProfilePage() {
               </span>
               <CuteProgress className="mt-3" value={levelProgress} label={`Tiến độ lên Cấp ${nextLevel.level}`} tone="violet" />
               <span className="mt-2 block text-sm font-bold text-muted">
-                {xpToNextLevel > 0 ? `Còn ${xpToNextLevel} XP để lên Cấp ${nextLevel.level}` : 'Con đã sẵn sàng cho cấp tiếp theo'}
+                {remainingXpToNextLevel > 0 ? `Còn ${remainingXpToNextLevel} XP để lên Cấp ${nextLevel.level}` : 'Con đã sẵn sàng cho cấp tiếp theo'}
               </span>
               <span className="sr-only">Xem quà sắp mở và các mốc cấp tiếp theo.</span>
             </span>
@@ -1235,7 +1208,7 @@ export function ProfilePage() {
                   <span>🎒</span> {backpackCertificates.length} Bằng khen trong Ba lô
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-xs font-extrabold text-amber-800 shadow-2xs">
-                  <span>⭐</span> {displayStars} Sao gặt hái
+                  <SoftClayStarIcon size={14} /> {displayStars} Sao gặt hái
                 </span>
               </div>
             </div>
@@ -1254,17 +1227,17 @@ export function ProfilePage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-2.5 py-0.5 text-xs font-black text-amber-900 mb-1">
-                        <span>✨</span> TỐT NGHIỆP XUẤT SẮC
+                        TỐT NGHIỆP XUẤT SẮC
                       </div>
                       <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                        🎉 CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!
+                        🎉 CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ &amp; SÁNG TẠO!
                       </h3>
                       <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
                         Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
-                          <span>⭐</span> {displayStars} Sao
+                          <SoftClayStarIcon size={14} /> {displayStars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
                           <span>⚡</span> +{explorerXp} EXP
@@ -1339,7 +1312,7 @@ export function ProfilePage() {
                       {/* Stats Details */}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100/80 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
-                          <span>⭐</span> {cert.stars || courseCertificate.stars} Sao
+                          <SoftClayStarIcon size={14} /> {cert.stars || courseCertificate.stars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100/80 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
                           <span>⚡</span> +{cert.xp || courseCertificate.xp} EXP
@@ -1464,7 +1437,7 @@ export function ProfilePage() {
                       </p>
                       {/* Minh chứng thực tế Pill */}
                       <div className="mt-3 flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-700 shadow-2xs">
-                        <span className="shrink-0">🎯</span>
+                        <SoftClayCheckIcon size={14} />
                         <span>
                           Minh chứng: <strong className="font-black text-slate-900">{comp.evidenceText}</strong>
                         </span>
@@ -1509,7 +1482,7 @@ export function ProfilePage() {
                 </div>
                 <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
                   <div className="flex items-center gap-2.5 rounded-2xl border-2 border-indigo-200/80 bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-2.5 shadow-soft">
-                    <span className="text-2xl" aria-hidden="true">✨</span>
+                    <SoftClayStarIcon size={24} />
                     <div>
                       <strong className="block font-display text-lg font-black text-indigo-950 leading-tight">
                         {storybookPublishedEarnedCount} / {storybookPublishedStickerIds.size}
@@ -1549,7 +1522,7 @@ export function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
-                  <SoftClayTrophyIcon size={18} /> 🏆 Bục Vinh Danh Thành Tích
+                  <SoftClayTrophyIcon size={18} /> Bục Vinh Danh Thành Tích
                 </div>
                 <h2 id="featured-badges-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
                   Huy Hiệu &amp; Cúp Danh Dự
@@ -1561,7 +1534,7 @@ export function ProfilePage() {
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-100/80 border border-amber-200 px-3.5 py-2 text-xs font-black text-amber-900 shadow-2xs">
-                  <span>✨</span> {achievements.length} / 45 Huy hiệu đã mở
+                  <SoftClayTrophyIcon size={14} /> {achievements.length} / 45 Huy hiệu đã mở
                 </span>
                 <Link
                   to="/achievements"
@@ -1600,7 +1573,7 @@ export function ProfilePage() {
                     </p>
                   </div>
                   <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-black text-emerald-800">
-                    <span>✨</span> Đã đạt được
+                    <SoftClayCheckIcon size={12} /> Đã đạt được
                   </span>
                 </div>
               ))}
@@ -1702,6 +1675,24 @@ export function ProfilePage() {
                 Mở Avatar Studio
               </span>
             </Link>
+            {user && (
+              <div
+                className="mb-5 overflow-hidden rounded-3xl border-2 border-white shadow-clay bg-white/60 p-4 sm:p-5"
+                style={{
+                  ...profileCardBackgroundStyle(equipment.background),
+                  backgroundPosition: 'center',
+                }}
+              >
+                <EquippedProfile
+                  user={user}
+                  xp={explorerXp}
+                  level={explorerLevel}
+                  compact
+                  equipment={equipment}
+                  onAvatarClick={() => setAvatarPickerOpen(true)}
+                />
+              </div>
+            )}
             <RewardCollection
               userId={user.id}
               xpLevel={explorerLevel}

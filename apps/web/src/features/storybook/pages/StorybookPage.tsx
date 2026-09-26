@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, Navigate, useSearchParams } from 'react-router'
+import { Navigate, useSearchParams } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import { api } from '@/shared/lib/api'
-import { designerAssets } from '@/shared/config/assets'
-import { KidStorybookImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { BookSpread } from '../components/BookSpread'
+import { StorybookHero } from '../components/StorybookHero'
 import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '../storybook-contract'
 
@@ -136,40 +134,15 @@ export function StorybookPage() {
   }
 
   return (
-    <PageMotion className="max-w-[1024px] mx-auto w-full px-3 sm:px-4 md:px-6 pb-32 sm:pb-36 flex flex-col gap-5 sm:gap-6 min-w-0">
-      <header className="student-feature-hero storybook-hero ui-card" data-tone="coral">
-        <div className="student-feature-hero-row">
-          <div className="max-w-2xl">
-            <div className="eyebrow-chip">
-              <KidStorybookImageIcon size={22} />
-              Huyền thoại
-            </div>
-            <h1 className="mt-3 font-display text-3xl font-extrabold leading-[1.08] text-text sm:text-4xl">Cuốn sách của con</h1>
-            <p className="mt-3 text-base font-semibold leading-relaxed text-muted sm:text-lg">
-              Mọi trang đều mở sẵn. Con tự chọn hành trình, sưu tầm sticker và lan tỏa
-              những lời động viên tích cực.
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <Link to="/home" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">Về sảnh</Link>
-              {/* Tạm ẩn Cộng đồng: <Link to="/community" className="storybook-community-gate">🏝️ Ghé Đảo cộng đồng</Link> */}
-            </div>
-          </div>
-          <div className="storybook-hero-count" aria-label={`${publishedEarnedCount} trên ${publishedStickerIds.size} sticker đã mở`}>
-            <span className="student-feature-hero-icon" aria-hidden="true"><KidStorybookImageIcon size={42} /></span>
-            <p>
-              <strong className="block font-display text-2xl text-text">{loading ? '…' : `${publishedEarnedCount}/${publishedStickerIds.size}`}</strong>
-              <span className="text-sm font-bold text-muted">sticker đã mở</span>
-            </p>
-          </div>
-        </div>
-        <div className="student-feature-scene" aria-hidden="true">
-          <img src={designerAssets.worldScenes.storyIsland} alt="" />
-          <ImportantCardMascot pose="thinking" className="important-card-mascot--scene" />
-        </div>
-      </header>
+    <PageMotion className="max-w-[1080px] mx-auto w-full px-4 sm:px-6 md:px-8 py-4 sm:py-6 pb-32 sm:pb-36 flex flex-col gap-4 sm:gap-6 min-w-0">
+      <StorybookHero
+        publishedEarnedCount={publishedEarnedCount}
+        totalStickersCount={publishedStickerIds.size}
+        loading={loading}
+      />
 
       {notice && (
-        <p className="rounded-2xl border border-sun-200 bg-sun-50 p-4 text-base font-semibold text-warning">
+        <p className="rounded-2xl border border-sun-200 bg-sun-50 p-4 text-base font-semibold text-warning shadow-2xs">
           {notice}
         </p>
       )}

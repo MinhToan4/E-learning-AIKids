@@ -114,10 +114,10 @@ describe('Curriculum Data Integrity Audit', () => {
     expect(p1_1).toHaveLength(3)
     expect(p1_1.map((p) => p.title)).toEqual(['Con mèo', 'Con cá vàng', 'Con cún'])
 
-    // 1.2: đúng 4 món (Con cún, Cái xe đạp, Cuốn sách, Cái đồng hồ)
+    // 1.2: đúng 2 món (Con cún, Cái xe đạp)
     const p1_2 = getDefaultPracticeParts('bai-1-2')
-    expect(p1_2).toHaveLength(4)
-    expect(p1_2.map((p) => p.title)).toEqual(['Con cún', 'Cái xe đạp', 'Cuốn sách', 'Cái đồng hồ'])
+    expect(p1_2).toHaveLength(2)
+    expect(p1_2.map((p) => p.title)).toEqual(['Con cún', 'Cái xe đạp'])
 
     // 1.3: đúng 4 phong cách
     const p1_3 = getDefaultPracticeParts('bai-1-3')
@@ -133,10 +133,10 @@ describe('Curriculum Data Integrity Audit', () => {
     const p1_4 = getDefaultPracticeParts('bai-1-4')
     expect(p1_4).toHaveLength(4)
     expect(p1_4.map((p) => p.title)).toEqual([
-      'Ca 1: Hiệp Sĩ Bạc (Bàn tay 5 ngón)',
-      'Ca 2: Sóc Bông (Mũ len đỏ quả bông)',
-      'Ca 3: Mèo Mướp (Ghế mây đệm êm)',
-      'Ca 4: Tranh Lem Nhem (Dọn sạch nền)',
+      'Ca 1: Tay sáu ngón',
+      'Ca 2: Mất cái mũ',
+      'Ca 3: Thừa ba con chim',
+      'Ca 4: Nhìn sai hướng',
     ])
 
     // 2.1, 3.1, 4.1, 4.2, 4.3, 4.5, 5.1, 5.2, 5.4, 5.5: đúng 0 món (notebook text engine)
@@ -155,10 +155,10 @@ describe('Curriculum Data Integrity Audit', () => {
     const p2_3 = getDefaultPracticeParts('bai-2-3')
     expect(p2_3).toHaveLength(4)
     expect(p2_3.map((p) => p.title)).toEqual([
-      'Ánh sáng Ban Mai',
-      'Ánh sáng Nắng Trưa',
-      'Ánh sáng Hoàng Hôn',
-      'Ánh sáng Ánh Trăng',
+      'Buổi sáng (nắng vàng nhạt)',
+      'Giữa trưa (ánh sáng mạnh, bóng đậm)',
+      'Chiều muộn (nắng vàng cam, bóng dài)',
+      'Buổi tối (xung quanh tối, một vùng sáng nhỏ)',
     ])
 
     // 2.4: đúng 1 món ('Bức tranh của bé (Ghép 4 mảnh)')

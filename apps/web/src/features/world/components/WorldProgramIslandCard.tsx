@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
@@ -213,7 +214,7 @@ export function WorldProgramIslandCard({
 
   if (type === 'asmo') {
     return (
-      <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-amber-200/80 bg-[#fffbeb] p-5 sm:p-7 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(217,119,6,0.18)] transition-all hover:shadow-xl">
+      <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-amber-200/80 bg-[#fffbeb] p-4 sm:p-6 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(217,119,6,0.18)] transition-all hover:shadow-xl">
         {/* Background Image Landscape - Mờ chìm tinh tế */}
         <div className="absolute top-0 right-0 bottom-0 w-full lg:w-[45%] pointer-events-none opacity-20 lg:opacity-40 overflow-hidden">
           <img
@@ -225,7 +226,7 @@ export function WorldProgramIslandCard({
           />
         </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full h-full">
+        <div className="relative z-10 flex flex-col md:flex-row gap-4 sm:gap-6 items-start md:items-center justify-between w-full h-full">
           <div className="flex-1 space-y-4 min-w-0 w-full max-w-xl relative z-20">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1 text-xs font-black uppercase text-amber-700 shadow-2xs border border-amber-200">
@@ -279,7 +280,7 @@ export function WorldProgramIslandCard({
 
   // AIKID Official Creator Program Card
   return (
-    <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-brand-200/80 bg-[#f8faff] p-5 sm:p-7 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(91,95,199,0.18)] transition-all hover:shadow-xl">
+    <div className="ui-card relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-amber-200/60 bg-[#FFFDF8] p-4 sm:p-6 lg:p-8 shadow-clay clay-card-subtle [--clay-shadow:rgba(253,125,46,0.15)] transition-all hover:shadow-xl">
       {/* Background open landscape with soft blend */}
       <div className="absolute top-0 right-0 bottom-0 w-full md:w-[45%] lg:w-[50%] pointer-events-none overflow-hidden rounded-r-[2.5rem] sm:rounded-r-[3rem] opacity-25 lg:opacity-40">
         <img
@@ -289,14 +290,14 @@ export function WorldProgramIslandCard({
         />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row gap-6 items-stretch justify-between w-full h-full">
+      <div className="relative z-10 flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch justify-between w-full h-full">
         {/* Cột Nội Dung Bên Trái */}
-        <div className="flex-1 space-y-5 sm:space-y-6 min-w-0 w-full md:max-w-[60%] lg:max-w-[62%] xl:max-w-[66%] relative z-30">
+        <div className="flex-1 space-y-4 sm:space-y-6 min-w-0 w-full md:max-w-[60%] lg:max-w-[62%] xl:max-w-[66%] relative z-30">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3.5 py-1 text-xs font-black uppercase text-mint-800 shadow-2xs border border-mint-200">
               CHƯƠNG TRÌNH CHÍNH THỨC
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-brand-700 shadow-2xs border border-brand-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-[#FD7D2E] shadow-2xs border border-amber-200/70">
               {totalCourses} Đảo học tập
             </span>
           </div>
@@ -318,7 +319,7 @@ export function WorldProgramIslandCard({
               </p>
 
               <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-[11px] font-extrabold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200/60 hidden sm:inline-block">
+                <span className="text-[11px] font-extrabold text-[#FD7D2E] bg-[#FFF4EC] px-2.5 py-0.5 rounded-full border border-amber-200/60 hidden sm:inline-block">
                   {completedCount}/{islands.length} đảo đã khám phá
                 </span>
                 {/* Nút điều hướng cuộn Soft Clay */}
@@ -327,7 +328,7 @@ export function WorldProgramIslandCard({
                     type="button"
                     onClick={() => handleScroll('left')}
                     aria-label="Cuộn sang trái"
-                    className="rounded-full size-7.5 sm:size-8 bg-white/90 border border-brand-200/90 shadow-clay flex items-center justify-center text-brand-700 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                    className="rounded-full size-7.5 sm:size-8 bg-white/90 border border-amber-200/90 shadow-clay flex items-center justify-center text-[#FD7D2E] hover:scale-110 active:scale-95 transition-all cursor-pointer"
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -335,7 +336,7 @@ export function WorldProgramIslandCard({
                     type="button"
                     onClick={() => handleScroll('right')}
                     aria-label="Cuộn sang phải"
-                    className="rounded-full size-7.5 sm:size-8 bg-white/90 border border-brand-200/90 shadow-clay flex items-center justify-center text-brand-700 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                    className="rounded-full size-7.5 sm:size-8 bg-white/90 border border-amber-200/90 shadow-clay flex items-center justify-center text-[#FD7D2E] hover:scale-110 active:scale-95 transition-all cursor-pointer"
                   >
                     <ChevronRight size={15} />
                   </button>
@@ -348,9 +349,9 @@ export function WorldProgramIslandCard({
               className="w-full overflow-x-auto pt-6 pb-3 scrollbar-none scroll-smooth"
               ref={scrollContainerRef}
             >
-              <div className="flex items-center gap-6 relative px-3 min-w-max">
+              <div className="flex items-center gap-4 sm:gap-6 relative px-3 min-w-max">
                 {/* Đường nối giữa các đảo */}
-                <div className="absolute top-[34px] left-8 right-10 h-1 bg-slate-200/80 rounded-full -translate-y-1/2 z-0" />
+                <div className="absolute top-[34px] left-8 right-10 h-1 bg-amber-200/50 rounded-full -translate-y-1/2 z-0" />
                 {/* Vệt tiến độ phát sáng */}
                 <div
                   className="absolute top-[34px] left-8 h-1 bg-mint-400 rounded-full -translate-y-1/2 z-0 transition-all duration-700"
@@ -392,7 +393,7 @@ export function WorldProgramIslandCard({
                         'relative z-10 flex flex-col items-center gap-1.5 group rounded-2xl shrink-0 transition-transform',
                         isLocked
                           ? 'cursor-not-allowed opacity-60'
-                          : 'cursor-pointer hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500',
+                          : 'cursor-pointer hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD7D2E]',
                       )}
                       title={
                         isLocked
@@ -497,7 +498,7 @@ export function WorldProgramIslandCard({
                 <span className="text-xs font-black uppercase tracking-wider text-slate-700">
                   Tiến độ khóa học
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 text-[11px] font-black border border-brand-200 shadow-2xs">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#FFF4EC] text-[#FD7D2E] text-[11px] font-black border border-amber-200/70 shadow-2xs">
                   {totalProgress}%
                 </span>
               </div>
@@ -507,7 +508,7 @@ export function WorldProgramIslandCard({
                   {completedStations}/{totalStations} trạm
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-amber-500 font-black">★</span>
+                  <Star size={13} className="fill-amber-400 text-amber-500" />
                   {totalStars} sao
                 </span>
               </div>
@@ -523,7 +524,7 @@ export function WorldProgramIslandCard({
           </div>
 
           {/* Nút Hành Động Soft Clay */}
-          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 pt-2 sm:gap-4 sm:flex-row sm:items-center">
             <Button
               onClick={handlePrimaryAction}
               className="w-full sm:w-auto shadow-clay active:shadow-press rounded-2xl gap-2 px-8 py-4 text-base font-black inline-flex items-center justify-center cursor-pointer"
@@ -542,10 +543,10 @@ export function WorldProgramIslandCard({
 
           {/* Mèo Aiki Trong Luồng Tự Nhiên Cho Mobile Phone (< md) - 100% Không Bao Giờ Đè Lên Nút */}
           <div className="flex md:hidden flex-col items-center pt-6 pb-2 w-full relative z-20">
-            <div className="py-2 px-4 rounded-2xl border border-brand-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center">
+            <div className="py-2 px-4 rounded-2xl border border-amber-200 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center mb-2.5 bg-white/95 backdrop-blur-xs relative animate-float flex items-center justify-center">
               <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
-              <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
+              <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-amber-200/80 -z-10" />
             </div>
             <div className="w-28 sm:w-32 drop-shadow-[0_8px_0_rgba(47,38,91,0.12)]">
               <AikidCatCharacter pose="welcome" className="w-full h-full object-contain" />
@@ -555,13 +556,13 @@ export function WorldProgramIslandCard({
 
         {/* Cột Mèo Aiki Riêng Biệt Cho Tablet & Desktop (>= md) - Không Bao Giờ Đè Lên Cột Trái */}
         <div className="hidden md:flex flex-col items-center justify-end w-[200px] lg:w-[240px] xl:w-[280px] shrink-0 relative z-20 self-stretch pb-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 border border-brand-200/80 shadow-2xs text-[11px] font-extrabold text-brand-700 backdrop-blur-xs mb-2">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 border border-amber-200/80 shadow-2xs text-[11px] font-extrabold text-[#FD7D2E] backdrop-blur-xs mb-2">
             <span>Trợ lý đồng hành Aiki</span>
           </div>
-          <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border border-brand-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center mb-3 relative">
+          <div className="bg-white/95 backdrop-blur-xs rounded-2xl py-2.5 px-4 border border-amber-200/80 shadow-soft text-[11px] sm:text-xs font-black text-slate-800 text-center animate-float flex items-center justify-center mb-3 relative">
             <span>Cùng Aiki chinh phục 6 hòn đảo nhé!</span>
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[6px] border-x-transparent border-t-[8px] border-t-white" />
-            <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-brand-200/80 -z-10" />
+            <div className="absolute -bottom-[10.5px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[7px] border-x-transparent border-t-[9px] border-t-amber-200/80 -z-10" />
           </div>
           <div className="w-48 xl:w-56 drop-shadow-[0_8px_0_rgba(47,38,91,0.12)]">
             <AikidCatCharacter pose="welcome" className="w-full h-full object-contain" />

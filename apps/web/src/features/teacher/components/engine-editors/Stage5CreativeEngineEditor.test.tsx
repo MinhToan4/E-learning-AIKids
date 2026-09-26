@@ -191,12 +191,12 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
 
     expect(html).toContain('Bác Sĩ Câu Lệnh (Prompt Doctor Clinic Editor)')
     expect(html).toContain('Hồ Sơ Bệnh Án Tranh Hỏng')
-    expect(html).toContain('Bàn tay hiệp sĩ bị dị tật')
+    expect(html).toContain('Ca 1: Tay sáu ngón')
     expect(html).toContain('Ảnh tham chiếu (Ref Image URL)')
-    expect(html).toContain('/assets/aiki-islands/island1_lesson4_opt_a.jpg')
+    expect(html).toContain('/assets/aiki-doctor/doctor_hand_broken_v1.webp')
     expect(html).toContain('Tủ Thuốc Thẻ Chữ Chữa Lành')
-    expect(html).toContain('Kê đơn 5 ngón tay đầy đủ chuẩn xác')
-    expect(html).toContain('Đội mũ len đỏ quả bông trắng')
+    expect(html).toContain('một bàn tay năm ngón đang cầm bút chì')
+    expect(html).toContain('một bạn nhỏ đội mũ len đỏ')
     expect(html).toContain('🪄 Nạp ca bệnh &amp; toa thuốc mẫu')
     expect(html).toContain('🎯 Đặc trị')
     expect(html).toContain('⚠️ Bẫy')
@@ -282,11 +282,11 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
       />
     )
     expect(htmlDoctor).toContain('Ngân Hàng Ca Bệnh Mẫu')
-    expect(htmlDoctor).toContain('Bàn tay 3 ngón dị tật')
-    expect(htmlDoctor).toContain('Sóc mất mũ len')
-    expect(htmlDoctor).toContain('Mèo trôi nổi không ghế')
+    expect(htmlDoctor).toContain('Ca 1: Tay sáu ngón')
+    expect(htmlDoctor).toContain('Ca 2: Mất cái mũ')
+    expect(htmlDoctor).toContain('Ca 3: Thừa ba con chim')
     expect(htmlDoctor).toContain('Khay Thẻ Thuốc Gợi Ý')
-    expect(htmlDoctor).toContain('Vẽ chuẩn 5 ngón tay')
+    expect(htmlDoctor).toContain('Bàn tay năm ngón cầm bút chì')
 
     // 4. Layer Stacking Preset Chips
     const htmlLayers = renderToStaticMarkup(
@@ -348,10 +348,10 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
     )
     expect(htmlDoctor).toContain('🩺 NGÂN HÀNG CA BỆNH TRANH HỎNG')
     expect(htmlDoctor).toContain('4 Ca bệnh')
-    expect(htmlDoctor).toContain('Ca 1: Hiệp Sĩ Bạc')
-    expect(htmlDoctor).toContain('Ca 2: Sóc Bông')
-    expect(htmlDoctor).toContain('Ca 3: Mèo Mướp')
-    expect(htmlDoctor).toContain('Ca 4: Tranh Lem Nhem')
+    expect(htmlDoctor).toContain('Ca 1: Tay sáu ngón')
+    expect(htmlDoctor).toContain('Ca 2: Mất cái mũ')
+    expect(htmlDoctor).toContain('Ca 3: Thừa ba con chim')
+    expect(htmlDoctor).toContain('Ca 4: Nhìn sai hướng')
     expect(htmlDoctor).not.toContain('Cái cốc sứ trắng')
     expect(htmlDoctor).toContain('Toa thuốc thẻ chữ ghép vào chữa lành')
 
@@ -464,10 +464,10 @@ describe('Stage5CreativeEngineEditor Component — Dynamic CMS for 6 Creative En
     expect(onChangeDoctor).toHaveBeenCalledWith(
       expect.objectContaining({
         practiceParts: expect.arrayContaining([
-          expect.objectContaining({ title: expect.stringContaining('Hiệp Sĩ Bạc') }),
-          expect.objectContaining({ title: expect.stringContaining('Sóc Bông') }),
-          expect.objectContaining({ title: expect.stringContaining('Mèo Mướp') }),
-          expect.objectContaining({ title: expect.stringContaining('Tranh Lem Nhem') }),
+          expect.objectContaining({ title: expect.stringContaining('Ca 1: Tay sáu ngón') }),
+          expect.objectContaining({ title: expect.stringContaining('Ca 2: Mất cái mũ') }),
+          expect.objectContaining({ title: expect.stringContaining('Ca 3: Thừa ba con chim') }),
+          expect.objectContaining({ title: expect.stringContaining('Ca 4: Nhìn sai hướng') }),
         ]),
       })
     )

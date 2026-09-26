@@ -429,11 +429,11 @@ describe('AikiStudioWorkspace', () => {
       />
     )
 
-    // 1. Kiểm tra 4 Món đồ mặc định theo bài 1.2
+    // 1. Kiểm tra 2 Món đồ mặc định theo bài 1.2
     expect(html).toContain('Con cún')
     expect(html).toContain('Cái xe đạp')
-    expect(html).toContain('Cuốn sách')
-    expect(html).toContain('Cái đồng hồ')
+    expect(html).not.toContain('Cuốn sách')
+    expect(html).not.toContain('Cái đồng hồ')
 
     // 2. Kiểm tra Badges yêu cầu
     expect(html).toContain('BALO SÁNG TẠO (0/8 ảnh)')
@@ -442,19 +442,16 @@ describe('AikiStudioWorkspace', () => {
     // 3. Mỗi phần chỉ có một tác phẩm, không còn lượt 2.
     expect(html).toContain('P1 một tác phẩm')
     expect(html).toContain('P2 một tác phẩm')
-    expect(html).toContain('P3 một tác phẩm')
-    expect(html).toContain('P4 một tác phẩm')
+    expect(html).not.toContain('P3 một tác phẩm')
     expect(html).not.toContain('lượt 2/2')
 
-    // 4. Kiểm tra Thanh Chọn 4 Món Đồ Thực Hành (Practice Items Switcher) ngay trên Header
+    // 4. Kiểm tra Thanh Chọn 2 Món Đồ Thực Hành (Practice Items Switcher) ngay trên Header
     expect(html).toContain('Món đồ bé vẽ:')
     expect(html).toContain('data-testid="practice-item-select-1"')
     expect(html).toContain('data-testid="practice-item-select-2"')
-    expect(html).toContain('data-testid="practice-item-select-3"')
-    expect(html).toContain('data-testid="practice-item-select-4"')
   })
 
-  it('synchronizes step1QuickPrompt when switching practice items (e.g. from dog to clock)', async () => {
+  it('synchronizes step1QuickPrompt when switching practice items (e.g. from dog to bicycle)', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -475,17 +472,17 @@ describe('AikiStudioWorkspace', () => {
     const quickPromptBtnInitial = container.querySelector('[data-testid="studio-step-quick-btn"]')
     expect(quickPromptBtnInitial?.textContent).toContain('Con cún')
 
-    // Click chuyển sang Part 4: Cái đồng hồ
-    const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
-    expect(part4Btn).not.toBeNull()
+    // Click chuyển sang Part 2: Cái xe đạp
+    const part2Btn = container.querySelector('[data-testid="practice-item-select-2"]') as HTMLButtonElement
+    expect(part2Btn).not.toBeNull()
 
     await act(async () => {
-      part4Btn.click()
+      part2Btn.click()
     })
 
-    // Sau khi chuyển, prompt gợi ý cập nhật theo Món 4 (Cái đồng)
+    // Sau khi chuyển, prompt gợi ý cập nhật theo Món 2 (Cái xe đạp)
     const quickPromptBtnAfter = container.querySelector('[data-testid="studio-step-quick-btn"]')
-    expect(quickPromptBtnAfter?.textContent).toContain('Cái đồng')
+    expect(quickPromptBtnAfter?.textContent).toContain('Cái xe')
     expect(quickPromptBtnAfter?.textContent).not.toContain('Con cún')
 
     act(() => {
@@ -494,12 +491,10 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 
-  it('switches sample artwork and banner dynamically across 4 soft clay items in Lesson 1.2', async () => {
+  it('switches sample artwork and banner dynamically across soft clay items in Lesson 1.2', async () => {
     // 1. Kiểm tra unit hàm getStudioAIArtwork
     expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Con cún')).toBe('/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp')
     expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái xe đạp')).toBe('/assets/aiki-islands/island1_lesson2_bicycle.jpg')
-    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cuốn sách')).toBe('/assets/aiki-islands/island1_lesson2_notebook.jpg')
-    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái đồng hồ')).toBe('/assets/aiki-islands/island1_lesson2_clock.jpg')
 
     // 2. Kiểm tra tương tác component AikiStudioWorkspace
     const container = document.createElement('div')
@@ -533,22 +528,6 @@ describe('AikiStudioWorkspace', () => {
     })
     expect(emptyImg.src).toContain('island1_lesson2_bicycle.jpg')
     expect(emptyCanvas?.textContent).toContain('Món 2: Cái xe đạp')
-
-    // Chuyển sang Món 3 (Cuốn sách)
-    const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
-    await act(async () => {
-      part3Btn.click()
-    })
-    expect(emptyImg.src).toContain('island1_lesson2_notebook.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sách')
-
-    // Chuyển sang Món 4 (Cái đồng hồ)
-    const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
-    await act(async () => {
-      part4Btn.click()
-    })
-    expect(emptyImg.src).toContain('island1_lesson2_clock.jpg')
-    expect(emptyCanvas?.textContent).toContain('Món 4: Cái đồng hồ')
 
     act(() => {
       root.unmount()
@@ -696,16 +675,16 @@ describe('AikiStudioWorkspace', () => {
     expect(activeCanvasImg).not.toBeNull()
     expect(activeCanvasImg.src).toContain('dog_full_details_v1.webp')
 
-    // Chuyển sang Part 3 (Cuốn sách) - phần này chưa vẽ
-    const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
+    // Chuyển sang Part 2 (Cái xe đạp) - phần này chưa vẽ
+    const part2Btn = container.querySelector('[data-testid="practice-item-select-2"]') as HTMLButtonElement
     await act(async () => {
-      part3Btn.click()
+      part2Btn.click()
     })
 
-    // Khung canvas phải ở trạng thái empty chờ vẽ Part 3, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Con cún)
+    // Khung canvas phải ở trạng thái empty chờ vẽ Part 2, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Con cún)
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
-    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sách')
+    expect(emptyCanvas?.textContent).toContain('Món 2: Cái xe đạp')
 
     act(() => {
       root.unmount()
@@ -1194,7 +1173,7 @@ describe('AikiStudioWorkspace', () => {
   it('returns engine-specific default practice parts based on mode or lessonId', () => {
     // 1. prompt-doctor
     expect(getDefaultPracticeParts(undefined, undefined, 'prompt-doctor')).toHaveLength(4)
-    expect(getDefaultPracticeParts('bai-1-4')[0].title).toContain('Ca 1: Hiệp Sĩ Bạc')
+    expect(getDefaultPracticeParts('bai-1-4')[0].title).toContain('Ca 1: Tay sáu ngón')
 
     // 2. layer-stacking
     expect(getDefaultPracticeParts(undefined, undefined, 'layer-stacking')[0].title).toContain('Hiệp Sĩ Cáo Lửa')

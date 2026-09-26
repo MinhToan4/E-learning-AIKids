@@ -44,7 +44,7 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
     const magicKeysLessons = ISLAND_CURRICULUM_LESSONS.filter(
       (l) => l.journey.stage5_practice.creativeEngineMode === 'magic-keys'
     )
-    expect(magicKeysLessons.length).toBe(2) // 1.1, 1.2
+    expect(magicKeysLessons.length).toBe(3) // 1.1, 1.2, 2.4
 
     for (const lesson of magicKeysLessons) {
       const fk = lesson.journey.stage5_practice.fourKeysOptions
@@ -56,7 +56,7 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
     }
   })
 
-  it('các trạm style-prism phải có stylePrismOptions với ít nhất 4 phong cách', () => {
+  it('các trạm style-prism phải có stylePrismOptions với ít nhất 2 phong cách', () => {
     const stylePrismLessons = ISLAND_CURRICULUM_LESSONS.filter(
       (l) => l.journey.stage5_practice.creativeEngineMode === 'style-prism'
     )
@@ -65,7 +65,7 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
     for (const lesson of stylePrismLessons) {
       const sp = lesson.journey.stage5_practice.stylePrismOptions
       expect(sp).toBeDefined()
-      expect(sp?.length).toBeGreaterThanOrEqual(4)
+      expect(sp?.length).toBeGreaterThanOrEqual(2)
       sp?.forEach((opt) => {
         expect(opt.id).toBeDefined()
         expect(opt.name.length).toBeGreaterThan(0)
@@ -95,7 +95,7 @@ describe('SSOT Aiki Islands Curriculum Registry (22 Trạm M1 - M5)', () => {
     const layerLessons = ISLAND_CURRICULUM_LESSONS.filter(
       (l) => l.journey.stage5_practice.creativeEngineMode === 'layer-stacking'
     )
-    expect(layerLessons.length).toBe(3) // 2.2, 2.4, 3.4
+    expect(layerLessons.length).toBe(2) // 2.2, 3.4
 
     for (const lesson of layerLessons) {
       const ls = lesson.journey.stage5_practice.layerStackingOptions

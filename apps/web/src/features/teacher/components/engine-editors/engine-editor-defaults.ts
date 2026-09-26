@@ -21,10 +21,10 @@ export const DEFAULT_STYLE_PRISM_PARTS: SixStagePracticePartDef[] = [
 ]
 
 export const DEFAULT_PROMPT_DOCTOR_PARTS: SixStagePracticePartDef[] = [
-  { partNumber: 1, title: 'Ca 1: Hiệp Sĩ Bạc (Bàn tay 5 ngón)', icon: '✋', emoji: '✋', iconImage: '/assets/aiki-doctor/doctor_hand_broken_v1.webp' },
-  { partNumber: 2, title: 'Ca 2: Sóc Bông (Mũ len đỏ quả bông)', icon: '🐿️', emoji: '🐿️', iconImage: '/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp' },
-  { partNumber: 3, title: 'Ca 3: Mèo Mướp (Ghế mây đệm êm)', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-doctor/doctor_cat_floating_v1.webp' },
-  { partNumber: 4, title: 'Ca 4: Tranh Lem Nhem (Dọn sạch nền)', icon: '🧹', emoji: '🧹', iconImage: '/assets/aiki-doctor/doctor_clutter_broken_v1.webp' },
+  { partNumber: 1, title: 'Ca 1: Tay sáu ngón', icon: '✋', emoji: '✋', iconImage: '/assets/aiki-doctor/doctor_hand_broken_v1.webp' },
+  { partNumber: 2, title: 'Ca 2: Mất cái mũ', icon: '🧢', emoji: '🧢', iconImage: '/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp' },
+  { partNumber: 3, title: 'Ca 3: Thừa ba con chim', icon: '🌳', emoji: '🌳', iconImage: '/assets/aiki-doctor/doctor_cat_floating_v1.webp' },
+  { partNumber: 4, title: 'Ca 4: Nhìn sai hướng', icon: '🎂', emoji: '🎂', iconImage: '/assets/aiki-doctor/doctor_clutter_broken_v1.webp' },
 ]
 
 export const DEFAULT_LAYER_STACKING_PARTS: SixStagePracticePartDef[] = [
@@ -186,16 +186,16 @@ export const DEFAULT_STYLE_PRISM_OPTIONS: SixStageStylePrismOption[] = [
 ]
 
 export const DEFAULT_PROMPT_DOCTOR_CASE: SixStagePromptDoctorCase = {
-  caseTitle: 'Bàn tay hiệp sĩ bị dị tật (Hiệp Sĩ Bạc)',
-  symptom: 'Tranh vẽ hiệp sĩ nhưng bàn tay bị dị tật chỉ có 3 ngón tay và thiếu mất chiếc mũ len đỏ!',
-  originalPrompt: 'Hiệp sĩ bọc giáp cầm kiếm thần đứng giữa rừng cây',
-  refImageUrl: '/assets/aiki-islands/island1_lesson4_opt_a.jpg',
-  curedImageUrl: '/assets/aiki-islands/island1_lesson4_engineer.jpg',
+  caseTitle: 'Ca 1: Tay sáu ngón',
+  symptom: 'Lỗi: tay có sáu ngón. Bàn tay đang cầm bút có tới sáu ngón tay!',
+  originalPrompt: 'một bàn tay đang cầm bút',
+  refImageUrl: '/assets/aiki-doctor/doctor_hand_broken_v1.webp',
+  curedImageUrl: '/assets/aiki-doctor/doctor_hand_cured_v1.webp',
   cureCards: [
-    '✋ Kê đơn 5 ngón tay đầy đủ chuẩn xác',
-    '🧶 Đội mũ len đỏ quả bông trắng',
-    '🪑 Thêm ghế mây ấm cúng',
-    '🦊 Đuôi cam to xù kiêu hãnh',
+    '✋ một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
+    '🧢 một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
+    '🌳 một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
+    '🎂 một bạn nhỏ ngồi trước cái bánh sinh nhật, đang nhìn vào cái bánh, hai tay chống cằm',
   ],
 }
 
@@ -313,35 +313,52 @@ export interface PromptDoctorCasePreset {
 
 export const PROMPT_DOCTOR_CASE_PRESETS: PromptDoctorCasePreset[] = [
   {
-    id: 'hand_3_fingers',
-    title: 'Bàn tay 3 ngón dị tật',
-    symptom: 'Bàn tay nhân vật vẽ thiếu ngón kỳ quặc',
-    brokenPrompt: 'chú mèo cầm cốc nước',
-    refImageUrl: '/assets/aiki-islands/island1_lesson4_opt_a.jpg',
-    suggestedCures: ['✋ Vẽ chuẩn 5 ngón tay', '🧶 Đội mũ len quả bông', '🪑 Ghế mây đệm êm'],
+    id: 'case_six_fingers',
+    title: 'Ca 1: Tay sáu ngón',
+    symptom: 'tay có sáu ngón',
+    brokenPrompt: 'một bàn tay đang cầm bút',
+    refImageUrl: '/assets/aiki-doctor/doctor_hand_broken_v1.webp',
+    suggestedCures: [
+      '✋ một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
+      '🧢 một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
+      '🌳 một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
+    ],
   },
   {
-    id: 'squirrel_lost_beanie',
-    title: 'Sóc mất mũ len',
-    symptom: 'Sóc bị thiếu chiếc mũ len ấm áp ngày đông',
-    brokenPrompt: 'chú sóc nhỏ đứng trong tuyết lạnh',
-    refImageUrl: '/assets/game-engines/prompt-color-error.webp',
-    suggestedCures: ['🧶 Đội mũ len quả bông', '🧣 Khăn quàng cổ kẻ caro', '🦊 Thêm đuôi cam to xù'],
+    id: 'case_lost_hat',
+    title: 'Ca 2: Mất cái mũ',
+    symptom: 'mất cái mũ',
+    brokenPrompt: 'một bạn nhỏ đội mũ đang đứng trong sân',
+    refImageUrl: '/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp',
+    suggestedCures: [
+      '🧢 một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
+      '✋ một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
+      '🎂 một bạn nhỏ ngồi trước cái bánh sinh nhật, đang nhìn vào cái bánh, hai tay chống cằm',
+    ],
   },
   {
-    id: 'floating_cat',
-    title: 'Mèo trôi nổi không ghế',
-    symptom: 'Chú mèo lơ lửng giữa không trung không có chỗ ngồi',
-    brokenPrompt: 'chú mèo con trong phòng khách',
-    refImageUrl: '/assets/aiki-islands/island1_lesson1_opt_a.jpg',
-    suggestedCures: ['🪑 Ghế mây đệm êm', '🧹 Dọn sạch phông nền', '✨ Thêm ánh sáng lung linh'],
+    id: 'case_extra_birds',
+    title: 'Ca 3: Thừa ba con chim',
+    symptom: 'thừa ba con chim',
+    brokenPrompt: 'một cái cây trong vườn buổi sáng',
+    refImageUrl: '/assets/aiki-doctor/doctor_cat_floating_v1.webp',
+    suggestedCures: [
+      '🌳 một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
+      '✋ một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
+      '🧢 một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
+    ],
   },
   {
-    id: 'messy_scene',
-    title: 'Tranh lem nhem chi tiết thừa',
-    symptom: 'Phông nền lộn xộn có nhiều vật thể kỳ lạ',
-    brokenPrompt: 'góc học tập bừa bộn nhiều đồ vật lạ',
-    suggestedCures: ['🧹 Dọn sạch phông nền', '✨ Thêm ánh sáng lung linh', '✋ Vẽ chuẩn 5 ngón tay'],
+    id: 'case_wrong_gaze',
+    title: 'Ca 4: Nhìn sai hướng',
+    symptom: 'nhân vật nhìn ra ngoài, không nhìn vào bánh',
+    brokenPrompt: 'một bạn nhỏ ngồi trước cái bánh sinh nhật',
+    refImageUrl: '/assets/aiki-doctor/doctor_clutter_broken_v1.webp',
+    suggestedCures: [
+      '🎂 một bạn nhỏ ngồi trước cái bánh sinh nhật, đang nhìn vào cái bánh, hai tay chống cằm',
+      '🌳 một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
+      '✋ một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
+    ],
   },
 ]
 
@@ -354,40 +371,28 @@ export interface PromptDoctorCurePreset {
 
 export const PROMPT_DOCTOR_CURE_PRESETS: PromptDoctorCurePreset[] = [
   {
-    name: '✋ Vẽ chuẩn 5 ngón tay',
-    prompt: 'bàn tay bọc găng giáp bạc có đầy đủ chuẩn xác đúng 5 ngón tay rõ ràng',
+    name: '✋ Bàn tay năm ngón cầm bút chì',
+    prompt: 'một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ',
     role: 'cure',
-    targetCase: 'Đặc trị: Hiệp Sĩ Bạc',
+    targetCase: 'Đặc trị Ca 1: Tay sáu ngón',
   },
   {
-    name: '🧶 Đội mũ len quả bông',
-    prompt: 'đội ngay ngắn chiếc mũ len đỏ quả bông trắng ấm áp trên đầu',
+    name: '🧢 Đội mũ len đỏ có quả bông trắng',
+    prompt: 'một bạn nhỏ đội mũ len đỏ có quả bông trắng, đang đứng trong sân gạch, nhìn thẳng',
     role: 'trap',
-    targetCase: 'Bẫy: Thuốc của Sóc Bông',
+    targetCase: 'Đặc trị Ca 2: Mất cái mũ',
   },
   {
-    name: '🪑 Ghế mây đệm êm',
-    prompt: 'đang nằm ngủ cuộn tròn trên chiếc ghế mây lót đệm êm ái cạnh cửa sổ',
+    name: '🌳 Không có con vật nào trên cành',
+    prompt: 'một cái cây trong vườn buổi sáng, không có con vật nào trên cành',
     role: 'trap',
-    targetCase: 'Bẫy: Thuốc của Mèo Mướp',
+    targetCase: 'Đặc trị Ca 3: Thừa ba con chim',
   },
   {
-    name: '🧹 Dọn sạch phông nền',
-    prompt: 'phông nền xưởng rèn sạch sẽ gọn gàng ánh sáng rạng ngời không chi tiết thừa',
+    name: '🎂 Đang nhìn vào cái bánh',
+    prompt: 'một bạn nhỏ ngồi trước cái bánh sinh nhật, đang nhìn vào cái bánh, hai tay chống cằm',
     role: 'trap',
-    targetCase: 'Bẫy: Thuốc của Tranh Lem Nhem',
-  },
-  {
-    name: '🦊 Thêm đuôi cam to xù',
-    prompt: 'chiếc đuôi vằn to xù ấm áp uốn lượn',
-    role: 'trap',
-    targetCase: 'Bẫy phụ kiện',
-  },
-  {
-    name: '✨ Thêm ánh sáng lung linh',
-    prompt: 'ánh sáng lung linh huyền ảo dịu mắt',
-    role: 'trap',
-    targetCase: 'Bẫy phụ kiện',
+    targetCase: 'Đặc trị Ca 4: Nhìn sai hướng',
   },
 ]
 

@@ -26,7 +26,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: '4 Chìa Khóa',
     icon: '🔑',
     description: 'Ghép 4 chìa khóa vàng: Ai? + Trông thế nào? + Đang làm gì? + Ở đâu?',
-    badge: 'M1.1 · M1.2',
+    badge: 'M1.1 · M1.2 · M2.4',
   },
   'style-prism': {
     mode: 'style-prism',
@@ -50,7 +50,7 @@ export const ENGINE_CONFIGS: Record<CreativeEngineMode, EngineConfigInfo> = {
     shortName: '3 Tầng',
     icon: '🎭',
     description: 'Xếp bố cục không gian 3 tầng: Hậu cảnh - Ngôi sao 1/3 - Tiền cảnh',
-    badge: 'M2.2 · M2.4 · M3.4',
+    badge: 'M2.2 · M3.4',
   },
   'identity-lock': {
     mode: 'identity-lock',
@@ -94,7 +94,7 @@ export const LESSON_ENGINE_MAP: Record<string, CreativeEngineMode> = {
   '2.1': 'creative-notebook', // Cốt truyện Cáo Lửa
   '2.2': 'layer-stacking',
   '2.3': 'style-prism',
-  '2.4': 'layer-stacking',
+  '2.4': 'magic-keys',
 
   // M3: Nhân Vật & Nhận Diện Nhất Quán
   '3.1': 'creative-notebook', // Hồ sơ ADN 6 chỉ số

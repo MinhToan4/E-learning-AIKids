@@ -80,13 +80,11 @@ export function getDefaultPracticeParts(
     ]
   }
 
-  // 2. Bài 1.2: Đúng 4 món đồ: Con cún (🐶), Cái xe đạp (🚲), Cuốn sách (📖), Cái đồng hồ (⏰)
+  // 2. Bài 1.2: Đúng 2 món đồ: Con cún (🐶), Cái xe đạp (🚲)
   if (lessonNum === '1.2' || normId.includes('1-2') || normId.includes('1.2')) {
     return [
       { partNumber: 1, title: 'Con cún', icon: '🐶', emoji: '🐶', iconImage: '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp' },
       { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', emoji: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-      { partNumber: 3, title: 'Cuốn sách', icon: '📖', emoji: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-      { partNumber: 4, title: 'Cái đồng hồ', icon: '⏰', emoji: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
     ]
   }
 
@@ -112,13 +110,13 @@ export function getDefaultPracticeParts(
     ]
   }
 
-  // 6. Bài 2.3: Đúng 4 món đồ ánh sáng: Ánh sáng Ban Mai, Ánh sáng Nắng Trưa, Ánh sáng Hoàng Hôn, Ánh sáng Ánh Trăng
+  // 6. Bài 2.3: Đúng 4 món đồ ánh sáng: Buổi sáng, Giữa trưa, Chiều muộn, Buổi tối
   if (lessonNum === '2.3' || normId.includes('2-3') || normId.includes('2.3')) {
     return [
-      { partNumber: 1, title: 'Ánh sáng Ban Mai', icon: '🌅', emoji: '🌅', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_morning_v1.webp' },
-      { partNumber: 2, title: 'Ánh sáng Nắng Trưa', icon: '☀️', emoji: '☀️', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_noon_v1.webp' },
-      { partNumber: 3, title: 'Ánh sáng Hoàng Hôn', icon: '🌇', emoji: '🌇', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_sunset_v1.webp' },
-      { partNumber: 4, title: 'Ánh sáng Ánh Trăng', icon: '🌙', emoji: '🌙', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_moon_v1.webp' },
+      { partNumber: 1, title: 'Buổi sáng (nắng vàng nhạt)', icon: '🌅', emoji: '🌅', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_morning_v1.webp' },
+      { partNumber: 2, title: 'Giữa trưa (ánh sáng mạnh, bóng đậm)', icon: '☀️', emoji: '☀️', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_noon_v1.webp' },
+      { partNumber: 3, title: 'Chiều muộn (nắng vàng cam, bóng dài)', icon: '🌇', emoji: '🌇', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_sunset_v1.webp' },
+      { partNumber: 4, title: 'Buổi tối (xung quanh tối, một vùng sáng nhỏ)', icon: '🌙', emoji: '🌙', iconImage: '/assets/pregenerated-fallback/light-atmosphere/light_moon_v1.webp' },
     ]
   }
 
@@ -207,8 +205,6 @@ export function getDefaultPracticeParts(
     return [
       { partNumber: 1, title: subjectName, icon: '🎨', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
       { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
-      { partNumber: 3, title: 'Cuốn sách', icon: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
-      { partNumber: 4, title: 'Cái đồng hồ', icon: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
     ]
   }
 

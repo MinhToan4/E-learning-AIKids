@@ -11,13 +11,13 @@ const budgets = [
   { pattern: /^LessonPage-.*\.js$/, maxKb: 130 },
   // The profile route now owns the six-tab profile experience. Keep the
   // route-level raw chunk capped while its compressed payload remains small.
-  { pattern: /^ProfilePage-.*\.js$/, maxKb: 80 },
+  { pattern: /^ProfilePage-.*\.js$/, maxKb: 85 },
   { pattern: /^BackpackPage-.*\.js$/, maxKb: 32 },
   { pattern: /^data-island-curriculum-.*\.js$/, maxKb: 275 },
   { pattern: /^AsmoHubPage-.*\.js$/, maxKb: 20 },
   { pattern: /^asmo-api-.*\.js$/, maxKb: 15 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
-  { pattern: /^index-.*\.css$/, maxKb: 605 },
+  { pattern: /^index-.*\.css$/, maxKb: 615 },
 ]
 
 const failures = []

@@ -884,7 +884,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     )
     expect(htmlPromptDoctor).toContain('Bác Sĩ AIKI')
     expect(htmlPromptDoctor).toContain('HỒ SƠ BỆNH ÁN TRANH HỎNG')
-    expect(htmlPromptDoctor).toContain('Kê đơn 5 ngón tay đầy đủ chuẩn xác')
+    expect(htmlPromptDoctor).toContain('một bàn tay năm ngón đang cầm bút chì')
     expect(htmlPromptDoctor).toContain('Chiếc cốc sứ ấm áp')
 
     // 3. Layer Stacking Engine
