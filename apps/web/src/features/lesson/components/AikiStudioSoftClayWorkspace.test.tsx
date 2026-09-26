@@ -359,4 +359,99 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     container.remove()
     vi.useRealTimers()
   })
+
+  it('verifies 2-step stepper, AIKI speech bubble messages, blank vs 5-detail key states, and side-by-side comparison canvas', async () => {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-1" />)
+    })
+
+    // ── STEP 1 VERIFICATION ──
+    let text = container.textContent || ''
+    // Header Stepper
+    expect(text).toContain('Bước 1: Thử thách 1 từ')
+    expect(text).toContain('Chỉ nói “con mèo” ➔ AIKI tự đoán')
+    expect(text).toContain('Bước 2: Nâng cấp 5 điều')
+    expect(text).toContain('Nói đủ 5 điều ➔ AIKI vẽ đúng ý')
+    // AIKI Speech bubble Step 1
+    expect(text).toContain('Đầu tiên, bé hãy thử thách AIKI bằng đúng 1 từ \'con mèo\' xem tớ vẽ thế nào nhé!')
+
+    // Key 1 has badge [1] and (Từ thứ 1)
+    expect(text).toContain('[1]')
+    expect(text).toContain('(Từ thứ 1)')
+
+    // Keys 2, 3, 4 show ❓ Bỏ trống — AIKI tự đoán
+    expect(text).toContain('❓ Bỏ trống — AIKI tự đoán')
+
+    // Draw Step 1
+    const drawBtn1 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 1')
+    )
+    expect(drawBtn1).toBeDefined()
+    await act(async () => {
+      drawBtn1?.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+
+    // ── STEP 2 VERIFICATION ──
+    text = container.textContent || ''
+    // Stepper status
+    expect(text).toContain('✓ Đã thử thách')
+    // AIKI Speech bubble Step 2
+    expect(text).toContain('Ơ, vì bé bỏ trống nên tranh lúc nãy chung chung quá! Giờ bé hãy cùng tớ điền đủ 5 điều chi tiết nhé!')
+
+    // Keys 1 to 4 with all 5 numbered badges: [1], [2], [3], [4], [5]
+    expect(text).toContain('[1]')
+    expect(text).toContain('(Điều 1)')
+    expect(text).toContain('[2]')
+    expect(text).toContain('(Điều 2)')
+    expect(text).toContain('Lông màu trắng')
+    expect(text).toContain('[3]')
+    expect(text).toContain('(Điều 3)')
+    expect(text).toContain('mướp béo')
+    expect(text).toContain('[4]')
+    expect(text).toContain('(Điều 4)')
+    expect(text).toContain('Đang nằm nhắm mắt')
+    expect(text).toContain('[5]')
+    expect(text).toContain('(Điều 5)')
+    expect(text).toContain('Ở trước sân')
+
+    // Draw Step 2
+    const drawBtn2 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 2')
+    )
+    expect(drawBtn2).toBeDefined()
+    await act(async () => {
+      drawBtn2?.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+
+    // ── COMPARISON CANVAS VERIFICATION ──
+    text = container.textContent || ''
+    // AIKI Speech bubble comparison
+    expect(text).toContain('Bé thấy chưa: tả càng rõ thì AIKI vẽ càng đúng ý! Con thích bức tranh nào hơn?')
+    expect(text).toContain('TRANH SÁNG TẠO: BẢNG SO SÁNH 2 BƯỚC')
+    expect(text).toContain('So sánh 2 bức tranh của bé')
+    expect(text).toContain('Bức 1: 1. Một từ (con mèo)')
+    expect(text).toContain('AKI tự đoán bừa')
+    expect(text).toContain('Bức 2: 2. Năm điều')
+    expect(text).toContain('Khuyên chọn')
+    expect(text).toContain('Đủ 5 chi tiết')
+    expect(text).toContain('Vì sao con thích bức này hơn?')
+    expect(text).toContain('Cất vào Ba Lô & Tiếp tục')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+    vi.useRealTimers()
+  })
 })

@@ -268,6 +268,7 @@ export function AikiStudioSoftClayWorkspace({
   const [turn2Artworks, setTurn2Artworks] = useState<Record<number, { url: string; prompt: string }>>({})
   const [favoriteByPart, setFavoriteByPart] = useState<Record<number, 1 | 2>>({})
   const [favoriteReasonByPart, setFavoriteReasonByPart] = useState<Record<number, string>>({})
+  const hasBothTurns = Boolean(isLesson1_1 && turn1Artworks[activeIdx] && turn2Artworks[activeIdx])
 
   const [attemptsLeft, setAttemptsLeft] = useState<number>(
     initialAttemptsLeft ?? (isLesson1_1 ? 6 : (parts.length > 0 ? parts.length : 2))
@@ -448,15 +449,16 @@ export function AikiStudioSoftClayWorkspace({
       data-testid="aiki-studio-workspace"
       className={cn('w-full flex flex-col gap-2.5 font-sans text-slate-900 min-w-0', className)}
     >
-      {/* ── BÀI 1.1: BANNER CHỦ ĐỀ KỊCH BẢN (CÙNG 1 CON MÈO · 2 CÂU LỆNH) HOẶC THANH CHỌN MÓN ĐỒ (CÁC BÀI KHÁC) ── */}
+      {/* ── BÀI 1.1: HEADER STEPPER TIẾN TRÌNH SƯ PHẠM 2 BƯỚC + BONG BÓNG MÈO AIKI HOẶC THANH CHỌN MÓN ĐỒ (CÁC BÀI KHÁC) ── */}
       {isLesson1_1 ? (
         <div
           data-testid="lesson-1-1-banner"
-          className="w-full flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 shadow-2xs"
+          className="w-full flex flex-col gap-2 p-2.5 sm:p-3 rounded-2xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 shadow-2xs"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-2xl p-1 bg-white rounded-xl border border-amber-200 shadow-2xs shrink-0">🐱</span>
-            <div className="flex flex-col min-w-0">
+          {/* Hàng 1: Tiêu đề kịch bản & Badge Lượt */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xl sm:text-2xl p-1 bg-white rounded-xl border border-amber-200 shadow-2xs shrink-0">🐱</span>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs sm:text-sm font-black text-amber-950 tracking-tight">
                   THỰC HÀNH: CÙNG MỘT CON MÈO · HAI CÂU LỆNH (1 TỪ VS 5 ĐIỀU)
@@ -465,15 +467,146 @@ export function AikiStudioSoftClayWorkspace({
                   Mèo AIKI
                 </span>
               </div>
-              <span className="text-[10.5px] sm:text-[11px] text-slate-500 font-semibold truncate">
-                So sánh sự khác biệt khi ra lệnh ngắn (1 từ) và ra lệnh chi tiết (5 điều) cho AIKI
+            </div>
+            <div className="shrink-0 flex items-center gap-1.5">
+              <span className="text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl bg-[#FD7D2E] text-white shadow-2xs">
+                Lượt {currentPartTurn}/2
               </span>
             </div>
           </div>
-          <div className="shrink-0 flex items-center gap-1.5 pl-2">
-            <span className="text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl bg-[#FD7D2E] text-white shadow-2xs">
-              Lượt {currentPartTurn}/2
-            </span>
+
+          {/* Hàng 2: Thanh Stepper 2 bước cực kỳ trực quan */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-0.5">
+            {/* Bước 1: Thử thách 1 từ */}
+            <button
+              type="button"
+              disabled={isGenerating}
+              onClick={() => {
+                if (turn1Artworks[activeIdx]) {
+                  playInstantSound('click')
+                  setTurnByPart((prev) => ({ ...prev, [activeIdx]: 1 }))
+                }
+              }}
+              className={cn(
+                'p-2.5 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
+                currentPartTurn === 1 && !hasBothTurns
+                  ? 'border-[#FD7D2E] bg-white ring-2 ring-orange-200 shadow-sm'
+                  : turn1Artworks[activeIdx]
+                  ? 'border-emerald-300 bg-emerald-50/70 hover:border-emerald-400'
+                  : 'border-slate-200 bg-slate-50/80'
+              )}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={cn(
+                    'size-7 sm:size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0',
+                    turn1Artworks[activeIdx]
+                      ? 'bg-emerald-500 text-white'
+                      : currentPartTurn === 1
+                      ? 'bg-[#FD7D2E] text-white'
+                      : 'bg-slate-200 text-slate-600'
+                  )}
+                >
+                  {turn1Artworks[activeIdx] ? '✓' : '1'}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
+                    Bước 1: Thử thách 1 từ
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold truncate">
+                    Chỉ nói &ldquo;con mèo&rdquo; ➔ AIKI tự đoán
+                  </div>
+                </div>
+              </div>
+              <span
+                className={cn(
+                  'text-[9.5px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+                  turn1Artworks[activeIdx]
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : currentPartTurn === 1
+                    ? 'bg-orange-100 text-[#FD7D2E]'
+                    : 'bg-slate-200 text-slate-500'
+                )}
+              >
+                {turn1Artworks[activeIdx] ? '✓ Đã thử thách' : 'Đang làm'}
+              </span>
+            </button>
+
+            {/* Bước 2: Nâng cấp 5 điều */}
+            <button
+              type="button"
+              disabled={isGenerating || !turn1Artworks[activeIdx]}
+              onClick={() => {
+                if (turn1Artworks[activeIdx]) {
+                  playInstantSound('click')
+                  setTurnByPart((prev) => ({ ...prev, [activeIdx]: 2 }))
+                }
+              }}
+              className={cn(
+                'p-2.5 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
+                currentPartTurn === 2 && !hasBothTurns
+                  ? 'border-purple-500 bg-white ring-2 ring-purple-200 shadow-sm'
+                  : turn2Artworks[activeIdx]
+                  ? 'border-emerald-300 bg-emerald-50/70 hover:border-emerald-400'
+                  : !turn1Artworks[activeIdx]
+                  ? 'border-slate-200 bg-slate-50/60 opacity-60 cursor-not-allowed'
+                  : 'border-slate-200 bg-slate-50/80 hover:border-purple-300'
+              )}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className={cn(
+                    'size-7 sm:size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0',
+                    turn2Artworks[activeIdx]
+                      ? 'bg-emerald-500 text-white'
+                      : currentPartTurn === 2
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-slate-200 text-slate-500'
+                  )}
+                >
+                  {turn2Artworks[activeIdx] ? '✓' : '2'}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
+                    Bước 2: Nâng cấp 5 điều
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold truncate">
+                    Nói đủ 5 điều ➔ AIKI vẽ đúng ý
+                  </div>
+                </div>
+              </div>
+              <span
+                className={cn(
+                  'text-[9.5px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+                  turn2Artworks[activeIdx]
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : currentPartTurn === 2
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-slate-200 text-slate-500'
+                )}
+              >
+                {turn2Artworks[activeIdx] ? '✓ Đã nâng cấp' : currentPartTurn === 2 ? 'Đang làm' : 'Bước kế tiếp'}
+              </span>
+            </button>
+          </div>
+
+          {/* Hàng 3: Bong bóng thoại Mèo AIKI giải thích mục tiêu sư phạm */}
+          <div className="flex items-center gap-2.5 p-2 sm:p-2.5 rounded-xl bg-white/90 border border-amber-200 shadow-2xs">
+            <div className="size-8 sm:size-9 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+              🐱
+            </div>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">
+                Mèo AIKI nhắn bé:
+              </span>
+              <p className="text-xs sm:text-[13px] font-bold text-amber-950 leading-snug">
+                {hasBothTurns
+                  ? '“Bé thấy chưa: tả càng rõ thì AIKI vẽ càng đúng ý! Con thích bức tranh nào hơn?”'
+                  : currentPartTurn === 1
+                  ? '“Đầu tiên, bé hãy thử thách AIKI bằng đúng 1 từ \'con mèo\' xem tớ vẽ thế nào nhé!”'
+                  : '“Ơ, vì bé bỏ trống nên tranh lúc nãy chung chung quá! Giờ bé hãy cùng tớ điền đủ 5 điều chi tiết nhé!”'}
+              </p>
+            </div>
           </div>
         </div>
       ) : (
@@ -557,7 +690,7 @@ export function AikiStudioSoftClayWorkspace({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs font-bold">
             {/* Khóa 1: Cái gì? */}
-            <div className="p-2 rounded-xl bg-amber-50/90 border border-amber-200/70 shadow-2xs flex flex-col justify-between gap-1">
+            <div className="p-2 rounded-xl bg-amber-50/90 border border-amber-200/70 shadow-2xs flex flex-col justify-between gap-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-800">
                   1. Cái gì?
@@ -566,152 +699,253 @@ export function AikiStudioSoftClayWorkspace({
                   {isLesson1_1 ? 'Chủ thể: con mèo (FIX)' : 'Chủ thể'}
                 </span>
               </div>
-              <div className="p-1.5 rounded-lg bg-white text-zinc-900 shadow-2xs flex items-center justify-between border border-amber-100">
-                <span className="font-extrabold text-xs text-zinc-900">
-                  {isLesson1_1 ? 'con mèo' : currentPart.title}
-                </span>
-                <span className="text-xs text-amber-500">🎯</span>
-              </div>
+              {isLesson1_1 ? (
+                <div className="p-2 rounded-lg bg-amber-100/90 border-2 border-amber-300 text-amber-950 shadow-2xs flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-black">
+                      [1]
+                    </span>
+                    <span className="font-extrabold text-xs text-amber-950">con mèo</span>
+                    <span className="text-[10px] text-amber-700 font-bold">
+                      {currentPartTurn === 1 ? '(Từ thứ 1)' : '(Điều 1)'}
+                    </span>
+                  </div>
+                  <span className="text-xs text-amber-500">🎯</span>
+                </div>
+              ) : (
+                <div className="p-1.5 rounded-lg bg-white text-zinc-900 shadow-2xs flex items-center justify-between border border-amber-100">
+                  <span className="font-extrabold text-xs text-zinc-900">
+                    {currentPart.title}
+                  </span>
+                  <span className="text-xs text-amber-500">🎯</span>
+                </div>
+              )}
             </div>
 
             {/* Khóa 2: Trông thế nào? */}
-            <div className={cn(
-              'p-2 rounded-xl bg-purple-50/90 border border-purple-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
-              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
-            )}>
+            <div
+              className={cn(
+                'p-2 rounded-xl border shadow-2xs flex flex-col justify-between gap-1.5 transition-all',
+                isLesson1_1 && currentPartTurn === 1
+                  ? 'bg-slate-50 border-slate-200'
+                  : 'bg-purple-50/90 border-purple-200/70'
+              )}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-purple-800">
                   2. Trông thế nào?
                 </span>
-                <span className={cn(
-                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
-                  isLesson1_1 && currentPartTurn === 1
-                    ? 'text-purple-600 bg-purple-100 border border-purple-200'
-                    : 'text-purple-700 bg-purple-200/70'
-                )}>
+                <span
+                  className={cn(
+                    'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                    isLesson1_1 && currentPartTurn === 1
+                      ? 'text-purple-600 bg-purple-100 border border-purple-200'
+                      : 'text-purple-700 bg-purple-200/70'
+                  )}
+                >
                   {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Đặc điểm'}
                 </span>
               </div>
-              <div className="space-y-1">
-                {currentVocab.descriptions.map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    disabled={isLesson1_1 && currentPartTurn === 1}
-                    onClick={() => {
-                      playInstantSound('click')
-                      setSelectedDescByPart((prev) => ({ ...prev, [activeIdx]: d.id }))
-                    }}
-                    className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
-                      isLesson1_1 && currentPartTurn === 1
-                        ? 'bg-purple-100/70 text-purple-900 border border-purple-200 cursor-default'
-                        : currentDescId === d.id
-                        ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400 cursor-pointer'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100 cursor-pointer'
-                    )}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
+
+              {isLesson1_1 && currentPartTurn === 1 ? (
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
+                  <span className="text-slate-600 font-black flex items-center gap-1">
+                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Gợi ý Lượt 2: Lông màu trắng
+                  </span>
+                </div>
+              ) : isLesson1_1 ? (
+                <div className="space-y-1">
+                  <div className="p-1.5 rounded-lg bg-purple-100/90 border-2 border-purple-300 text-purple-950 shadow-2xs flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-1.5 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-black">[2]</span>
+                      <span className="font-extrabold text-xs text-purple-950">Lông màu trắng</span>
+                      <span className="text-[10px] text-purple-700 font-bold">(Điều 2)</span>
+                    </div>
+                    <span className="text-[10px] text-purple-600 font-bold">Màu sắc</span>
+                  </div>
+                  <div className="p-1.5 rounded-lg bg-purple-100/90 border-2 border-purple-300 text-purple-950 shadow-2xs flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-1.5 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-black">[3]</span>
+                      <span className="font-extrabold text-xs text-purple-950">mướp béo</span>
+                      <span className="text-[10px] text-purple-700 font-bold">(Điều 3)</span>
+                    </div>
+                    <span className="text-[10px] text-purple-600 font-bold">Vóc dáng</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {currentVocab.descriptions.map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => {
+                        playInstantSound('click')
+                        setSelectedDescByPart((prev) => ({ ...prev, [activeIdx]: d.id }))
+                      }}
+                      className={cn(
+                        'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                        currentDescId === d.id
+                          ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400 cursor-pointer'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100 cursor-pointer'
+                      )}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Khóa 3: Đang làm gì? */}
-            <div className={cn(
-              'p-2 rounded-xl bg-blue-50/90 border border-blue-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
-              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
-            )}>
+            <div
+              className={cn(
+                'p-2 rounded-xl border shadow-2xs flex flex-col justify-between gap-1.5 transition-all',
+                isLesson1_1 && currentPartTurn === 1
+                  ? 'bg-slate-50 border-slate-200'
+                  : 'bg-blue-50/90 border-blue-200/70'
+              )}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-blue-800">
                   3. Đang làm gì?
                 </span>
-                <span className={cn(
-                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
-                  isLesson1_1 && currentPartTurn === 1
-                    ? 'text-blue-600 bg-blue-100 border border-blue-200'
-                    : 'text-blue-700 bg-blue-200/70'
-                )}>
+                <span
+                  className={cn(
+                    'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                    isLesson1_1 && currentPartTurn === 1
+                      ? 'text-blue-600 bg-blue-100 border border-blue-200'
+                      : 'text-blue-700 bg-blue-200/70'
+                  )}
+                >
                   {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Hành động'}
                 </span>
               </div>
-              <div className="space-y-1">
-                {currentVocab.actions.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    disabled={isLesson1_1 && currentPartTurn === 1}
-                    onClick={() => {
-                      playInstantSound('click')
-                      setSelectedActionByPart((prev) => ({ ...prev, [activeIdx]: a.id }))
-                    }}
-                    className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
-                      isLesson1_1 && currentPartTurn === 1
-                        ? 'bg-blue-100/70 text-blue-900 border border-blue-200 cursor-default'
-                        : currentActionId === a.id
-                        ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400 cursor-pointer'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100 cursor-pointer'
-                    )}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
+
+              {isLesson1_1 && currentPartTurn === 1 ? (
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
+                  <span className="text-slate-600 font-black flex items-center gap-1">
+                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Gợi ý Lượt 2: Đang nằm nhắm mắt
+                  </span>
+                </div>
+              ) : isLesson1_1 ? (
+                <div className="p-2 rounded-lg bg-blue-100/90 border-2 border-blue-300 text-blue-950 shadow-2xs flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-black">[4]</span>
+                    <span className="font-extrabold text-xs text-blue-950">Đang nằm nhắm mắt</span>
+                    <span className="text-[10px] text-blue-700 font-bold">(Điều 4)</span>
+                  </div>
+                  <span className="text-xs">💤</span>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {currentVocab.actions.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => {
+                        playInstantSound('click')
+                        setSelectedActionByPart((prev) => ({ ...prev, [activeIdx]: a.id }))
+                      }}
+                      className={cn(
+                        'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                        currentActionId === a.id
+                          ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400 cursor-pointer'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100 cursor-pointer'
+                      )}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Khóa 4: Ở đâu? */}
-            <div className={cn(
-              'p-2 rounded-xl bg-emerald-50/90 border border-emerald-200/70 shadow-2xs flex flex-col justify-between gap-1 transition-all',
-              isLesson1_1 && currentPartTurn === 1 && 'opacity-60'
-            )}>
+            <div
+              className={cn(
+                'p-2 rounded-xl border shadow-2xs flex flex-col justify-between gap-1.5 transition-all',
+                isLesson1_1 && currentPartTurn === 1
+                  ? 'bg-slate-50 border-slate-200'
+                  : 'bg-emerald-50/90 border-emerald-200/70'
+              )}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-800">
                   4. Ở đâu?
                 </span>
-                <span className={cn(
-                  'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
-                  isLesson1_1 && currentPartTurn === 1
-                    ? 'text-emerald-600 bg-emerald-100 border border-emerald-200'
-                    : 'text-emerald-700 bg-emerald-200/70'
-                )}>
+                <span
+                  className={cn(
+                    'text-[9px] font-bold px-1.5 py-0.2 rounded-full',
+                    isLesson1_1 && currentPartTurn === 1
+                      ? 'text-emerald-600 bg-emerald-100 border border-emerald-200'
+                      : 'text-emerald-700 bg-emerald-200/70'
+                  )}
+                >
                   {isLesson1_1 && currentPartTurn === 1 ? 'Gợi ý Lượt 2' : 'Bối cảnh'}
                 </span>
               </div>
-              <div className="space-y-1">
-                {currentVocab.contexts.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    disabled={isLesson1_1 && currentPartTurn === 1}
-                    onClick={() => {
-                      playInstantSound('click')
-                      setSelectedContextByPart((prev) => ({ ...prev, [activeIdx]: c.id }))
-                    }}
-                    className={cn(
-                      'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
-                      isLesson1_1 && currentPartTurn === 1
-                        ? 'bg-emerald-100/70 text-emerald-900 border border-emerald-200 cursor-default'
-                        : currentContextId === c.id
-                        ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400 cursor-pointer'
-                        : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100 cursor-pointer'
-                    )}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
+
+              {isLesson1_1 && currentPartTurn === 1 ? (
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
+                  <span className="text-slate-600 font-black flex items-center gap-1">
+                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Gợi ý Lượt 2: Ở trước sân
+                  </span>
+                </div>
+              ) : isLesson1_1 ? (
+                <div className="p-2 rounded-lg bg-emerald-100/90 border-2 border-emerald-300 text-emerald-950 shadow-2xs flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-black">[5]</span>
+                    <span className="font-extrabold text-xs text-emerald-950">Ở trước sân</span>
+                    <span className="text-[10px] text-emerald-700 font-bold">(Điều 5)</span>
+                  </div>
+                  <span className="text-xs">🏡</span>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {currentVocab.contexts.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        playInstantSound('click')
+                        setSelectedContextByPart((prev) => ({ ...prev, [activeIdx]: c.id }))
+                      }}
+                      className={cn(
+                        'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
+                        currentContextId === c.id
+                          ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400 cursor-pointer'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100 cursor-pointer'
+                      )}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* CỘT 3 (BÊN PHẢI): TRANH SÁNG TẠO 1 LƯỢT DUY NHẤT HOẶC 2 LƯỢT SO SÁNH */}
+        {/* CỘT 2 (BÊN PHẢI): TRANH SÁNG TẠO HOẶC BẢNG SO SÁNH 2 BƯỚC */}
         <div className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 sm:p-2.5 shadow-2xs">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-amber-950 uppercase tracking-wider truncate">
               <span>🖼️</span>
               <span className="truncate">
-                {isLesson1_1 ? 'TRANH SÁNG TẠO: 2 LƯỢT SO SÁNH' : 'TRANH SÁNG TẠO: 1 LƯỢT DUY NHẤT'}
+                {isLesson1_1
+                  ? hasBothTurns
+                    ? 'TRANH SÁNG TẠO: BẢNG SO SÁNH 2 BƯỚC'
+                    : 'TRANH SÁNG TẠO: 2 LƯỢT SO SÁNH'
+                  : 'TRANH SÁNG TẠO: 1 LƯỢT DUY NHẤT'}
               </span>
             </div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-2xs shrink-0">
@@ -719,66 +953,22 @@ export function AikiStudioSoftClayWorkspace({
             </span>
           </div>
 
-          {/* Khung Canvas Tranh Soft Clay */}
-          <div className="relative w-full aspect-4/3 sm:aspect-16/10 min-h-[200px] sm:min-h-[230px] rounded-2xl overflow-hidden bg-[#FFFDF8] border-2 border-amber-200/80 p-2 flex items-center justify-center group shadow-inner">
-            {isGenerating ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-amber-50/90 gap-1.5 z-20">
-                <div className="size-8 animate-spin rounded-full border-3 border-[#FD7D2E] border-t-transparent" />
-                <span className="text-xs font-black text-[#FD7D2E] animate-pulse">
-                  {isLesson1_1 ? `AIKI đang vẽ Lượt ${currentPartTurn}... ✨` : 'AIKI đang vẽ trong 1 lượt... ✨'}
-                </span>
-              </div>
-            ) : null}
-
-            <img
-              src={currentArtworkUrl}
-              alt={currentPart.title}
-              className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
-            />
-
-            {/* Badge Đã lưu vào Balo */}
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-600/95 text-white text-[10px] font-black shadow-md flex items-center gap-1 backdrop-blur-xs">
-              <Backpack className="w-3 h-3" />
-              <span>Đã lưu vào Balo</span>
-            </span>
-
-            {/* Tag Phong cách */}
-            <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold backdrop-blur-xs">
-              Phong cách: Mực &amp; Đất Nặn
-            </span>
-          </div>
-
-          {/* Thông tin lượt vẽ */}
-          <div className="p-1.5 sm:p-2 rounded-xl bg-purple-50/80 border border-purple-100 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#FD7D2E] shrink-0" />
-              <span className="font-extrabold text-[11px] sm:text-xs text-purple-950">
-                {isLesson1_1
-                  ? currentPartTurn === 1
-                    ? 'LƯỢT 1: MỘT TỪ DUY NHẤT (CON MÈO)'
-                    : 'LƯỢT 2: NĂM ĐIỀU CHI TIẾT'
-                  : '1 LƯỢT DUY NHẤT'}
-              </span>
-            </div>
-            <span className="text-[10px] font-black text-[#FD7D2E] bg-orange-100/80 border border-orange-200/80 px-2 py-0.5 rounded-lg">
-              {isLesson1_1 ? (currentPartTurn === 1 ? '1 từ' : 'Đủ 5 điều') : 'Đủ 4 khóa'}
-            </span>
-          </div>
-
-          {/* So sánh 2 bức tranh của Bài 1.1 */}
-          {isLesson1_1 && turn1Artworks[activeIdx] && turn2Artworks[activeIdx] && (
-            <div className="p-2 rounded-xl bg-amber-50/95 border border-amber-300 shadow-2xs flex flex-col gap-1.5">
+          {/* KHI ĐÃ XONG CẢ 2 BƯỚC: HIỂN THỊ TRỰC TIẾP BẢNG SO SÁNH SIDE-BY-SIDE (KHÔNG ĐÈ ẢNH TO Ở TRÊN) */}
+          {hasBothTurns ? (
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-amber-50/95 border-2 border-amber-300 shadow-clay flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase text-amber-900 flex items-center gap-1">
+                <span className="text-xs sm:text-[13px] font-black uppercase text-amber-950 flex items-center gap-1.5">
                   <span>⚖️</span>
                   <span>So sánh 2 bức tranh của bé</span>
                 </span>
-                <span className="text-[8.5px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded-full">
+                <span className="text-[9px] sm:text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
                   Chạm chọn bức thích hơn
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-1.5">
+              {/* Side-by-side 2 bức tranh */}
+              <div className="grid grid-cols-2 gap-2">
+                {/* Bức 1: Chỉ 1 từ */}
                 <button
                   type="button"
                   onClick={() => {
@@ -786,23 +976,38 @@ export function AikiStudioSoftClayWorkspace({
                     setFavoriteByPart((prev) => ({ ...prev, [activeIdx]: 1 }))
                   }}
                   className={cn(
-                    'p-1.5 rounded-xl border-2 flex flex-col gap-1 text-left transition-all cursor-pointer select-none',
+                    'p-2 rounded-xl border-2 flex flex-col gap-1.5 text-left transition-all cursor-pointer select-none shadow-2xs',
                     (favoriteByPart[activeIdx] ?? 2) === 1
-                      ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-300'
+                      ? 'border-purple-500 bg-purple-50/90 ring-3 ring-purple-300 scale-[1.01]'
                       : 'border-slate-200 bg-white hover:border-slate-300'
                   )}
                 >
-                  <span className="text-[9px] font-black text-purple-900 truncate">
-                    1. Một từ ({isLesson1_1 ? 'con mèo' : currentPart.title})
-                  </span>
-                  <img
-                    src={turn1Artworks[activeIdx].url}
-                    alt="Tranh 1 từ"
-                    className="w-full aspect-16/10 object-contain rounded-lg border border-slate-200 bg-[#FFFDF8] p-1"
-                  />
-                  <span className="text-[8.5px] text-slate-500 truncate">AKI tự đoán bừa</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] sm:text-[11px] font-black text-purple-900 truncate">
+                      Bức 1: 1. Một từ ({isLesson1_1 ? 'con mèo' : currentPart.title})
+                    </span>
+                    <span className="text-[8px] font-bold px-1 rounded bg-slate-100 text-slate-500 shrink-0">
+                      1 từ
+                    </span>
+                  </div>
+                  <div className="w-full aspect-16/10 rounded-lg overflow-hidden border border-slate-200 bg-[#FFFDF8] p-1 flex items-center justify-center">
+                    <img
+                      src={turn1Artworks[activeIdx]?.url || getLesson1_1Artwork(currentItemType, 1)}
+                      alt="Tranh 1 từ"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[9px]">
+                    <span className="text-slate-500 font-semibold truncate">AKI tự đoán bừa</span>
+                    {(favoriteByPart[activeIdx] ?? 2) === 1 && (
+                      <span className="text-purple-700 font-black flex items-center gap-0.5">
+                        <span>❤️</span> Đã chọn
+                      </span>
+                    )}
+                  </div>
                 </button>
 
+                {/* Bức 2: Đủ 5 điều chi tiết */}
                 <button
                   type="button"
                   onClick={() => {
@@ -810,28 +1015,43 @@ export function AikiStudioSoftClayWorkspace({
                     setFavoriteByPart((prev) => ({ ...prev, [activeIdx]: 2 }))
                   }}
                   className={cn(
-                    'p-1.5 rounded-xl border-2 flex flex-col gap-1 text-left transition-all cursor-pointer select-none',
+                    'p-2 rounded-xl border-2 flex flex-col gap-1.5 text-left transition-all cursor-pointer select-none shadow-2xs',
                     (favoriteByPart[activeIdx] ?? 2) === 2
-                      ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-300'
+                      ? 'border-emerald-500 bg-emerald-50/90 ring-3 ring-emerald-300 scale-[1.01]'
                       : 'border-slate-200 bg-white hover:border-slate-300'
                   )}
                 >
-                  <span className="text-[9px] font-black text-emerald-900 flex items-center justify-between">
-                    <span>2. Năm điều</span>
-                    <span className="text-[7.5px] bg-emerald-200 text-emerald-950 px-1 rounded font-black">Khuyên chọn</span>
-                  </span>
-                  <img
-                    src={turn2Artworks[activeIdx].url}
-                    alt="Tranh 5 điều"
-                    className="w-full aspect-16/10 object-contain rounded-lg border border-slate-200 bg-[#FFFDF8] p-1"
-                  />
-                  <span className="text-[8.5px] text-emerald-700 truncate font-semibold">Đủ 5 chi tiết</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] sm:text-[11px] font-black text-emerald-900 truncate">
+                      Bức 2: 2. Năm điều
+                    </span>
+                    <span className="text-[8px] bg-emerald-200 text-emerald-950 px-1 rounded font-black shrink-0">
+                      Khuyên chọn
+                    </span>
+                  </div>
+                  <div className="w-full aspect-16/10 rounded-lg overflow-hidden border border-slate-200 bg-[#FFFDF8] p-1 flex items-center justify-center">
+                    <img
+                      src={turn2Artworks[activeIdx]?.url || getLesson1_1Artwork(currentItemType, 2)}
+                      alt="Tranh 5 điều"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[9px]">
+                    <span className="text-emerald-700 font-semibold truncate">Đủ 5 chi tiết</span>
+                    {(favoriteByPart[activeIdx] ?? 2) === 2 && (
+                      <span className="text-emerald-700 font-black flex items-center gap-0.5">
+                        <span>❤️</span> Đã chọn
+                      </span>
+                    )}
+                  </div>
                 </button>
               </div>
 
-              <div className="flex flex-col gap-1 pt-1 border-t border-amber-200">
-                <span className="text-[9.5px] font-black text-amber-950">
-                  Vì sao con thích bức này hơn?
+              {/* Câu hỏi ngắn: Vì sao con thích bức này hơn? */}
+              <div className="flex flex-col gap-1 pt-1.5 border-t border-amber-200">
+                <span className="text-[10px] sm:text-[11px] font-black text-amber-950 flex items-center gap-1">
+                  <span>💭</span>
+                  <span>Vì sao con thích bức này hơn?</span>
                 </span>
                 <div className="grid grid-cols-2 gap-1">
                   {LESSON_1_1_REASONS.map((reason) => {
@@ -845,7 +1065,7 @@ export function AikiStudioSoftClayWorkspace({
                           setFavoriteReasonByPart((prev) => ({ ...prev, [activeIdx]: reason }))
                         }}
                         className={cn(
-                          'px-1.5 py-1 rounded-lg text-[9px] font-bold text-left transition-all cursor-pointer truncate',
+                          'px-2 py-1 rounded-lg text-[9.5px] font-bold text-left transition-all cursor-pointer truncate',
                           isChosen
                             ? 'bg-amber-500 text-white font-black shadow-2xs'
                             : 'bg-white hover:bg-amber-100/60 text-slate-700 border border-amber-200/80'
@@ -857,49 +1077,113 @@ export function AikiStudioSoftClayWorkspace({
                   })}
                 </div>
               </div>
+
+              {/* Nút Hoàn thành: Cất vào Ba Lô & Tiếp tục */}
+              <button
+                type="button"
+                onClick={() => {
+                  playInstantSound('click')
+                  setIsSubmitModalOpen(true)
+                }}
+                className="w-full mt-1 min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs sm:text-sm shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Backpack className="w-4 h-4" />
+                <span>Cất vào Ba Lô &amp; Tiếp tục</span>
+                <span>🎒</span>
+              </button>
             </div>
+          ) : (
+            /* KHI ĐANG VẼ BƯỚC 1 HOẶC BƯỚC 2: KHUNG TRANH CANVAS HIỂN THỊ TRANH HIỆN TẠI 100% OBJECT-CONTAIN */
+            <>
+              <div className="relative w-full aspect-4/3 sm:aspect-16/10 min-h-[200px] sm:min-h-[230px] rounded-2xl overflow-hidden bg-[#FFFDF8] border-2 border-amber-200/80 p-2 flex items-center justify-center group shadow-inner">
+                {isGenerating ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-amber-50/90 gap-1.5 z-20">
+                    <div className="size-8 animate-spin rounded-full border-3 border-[#FD7D2E] border-t-transparent" />
+                    <span className="text-xs font-black text-[#FD7D2E] animate-pulse">
+                      {isLesson1_1 ? `AIKI đang vẽ Lượt ${currentPartTurn}... ✨` : 'AIKI đang vẽ trong 1 lượt... ✨'}
+                    </span>
+                  </div>
+                ) : null}
+
+                <img
+                  src={currentArtworkUrl}
+                  alt={currentPart.title}
+                  className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                />
+
+                {/* Badge Đã lưu vào Balo */}
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-600/95 text-white text-[10px] font-black shadow-md flex items-center gap-1 backdrop-blur-xs">
+                  <Backpack className="w-3 h-3" />
+                  <span>Đã lưu vào Balo</span>
+                </span>
+
+                {/* Tag Phong cách */}
+                <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold backdrop-blur-xs">
+                  Phong cách: Mực &amp; Đất Nặn
+                </span>
+              </div>
+
+              {/* Thông tin lượt vẽ */}
+              <div className="p-1.5 sm:p-2 rounded-xl bg-purple-50/80 border border-purple-100 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#FD7D2E] shrink-0" />
+                  <span className="font-extrabold text-[11px] sm:text-xs text-purple-950">
+                    {isLesson1_1
+                      ? currentPartTurn === 1
+                        ? 'LƯỢT 1: MỘT TỪ DUY NHẤT (CON MÈO)'
+                        : 'LƯỢT 2: NĂM ĐIỀU CHI TIẾT'
+                      : '1 LƯỢT DUY NHẤT'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-black text-[#FD7D2E] bg-orange-100/80 border border-orange-200/80 px-2 py-0.5 rounded-lg">
+                  {isLesson1_1 ? (currentPartTurn === 1 ? '1 từ' : 'Đủ 5 điều') : 'Đủ 4 khóa'}
+                </span>
+              </div>
+            </>
           )}
 
-          {/* Balo bài học mini filmstrip lưu tranh bên dưới */}
-          <div className="space-y-1 pt-0.5">
-            <div className="flex items-center justify-between px-1">
-              <span className="text-[10px] sm:text-[11px] font-black uppercase text-amber-950 flex items-center gap-1">
-                <Backpack className="w-3 h-3 text-amber-700" />
-                <span>Balo bài học:</span>
-              </span>
-              <span className="text-[9px] text-zinc-500 font-bold">
-                {parts.length} {isLesson1_1 ? 'con' : 'tranh'} lưu trữ
-              </span>
-            </div>
+          {/* Balo bài học mini filmstrip lưu tranh bên dưới (Chỉ hiện cho Bài 1.2+ hoặc khi không phải Lesson 1.1) */}
+          {!isLesson1_1 && (
+            <div className="space-y-1 pt-0.5">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase text-amber-950 flex items-center gap-1">
+                  <Backpack className="w-3 h-3 text-amber-700" />
+                  <span>Balo bài học:</span>
+                </span>
+                <span className="text-[9px] text-zinc-500 font-bold">
+                  {parts.length} tranh lưu trữ
+                </span>
+              </div>
 
-            <div className={cn('grid gap-1', parts.length === 1 ? 'grid-cols-1' : parts.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
-              {parts.map((part, idx) => {
-                const isCurrent = activeIdx === idx
-                return (
-                  <button
-                    key={`filmstrip-${idx}`}
-                    type="button"
-                    onClick={() => handleSelectPart(idx)}
-                    className={cn(
-                      'p-1 rounded-xl border flex flex-col items-center gap-0.5 text-center cursor-pointer transition-all select-none',
-                      isCurrent
-                        ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-300'
-                        : 'border-zinc-200 bg-white hover:bg-zinc-50'
-                    )}
-                  >
-                    <img
-                      src={part.thumb}
-                      alt={part.title}
-                      className="size-7 sm:size-8 rounded-lg object-contain bg-amber-50 p-0.5"
-                    />
-                    <div className="w-full truncate text-[9px] font-black text-zinc-800">
-                      0{idx + 1}
-                    </div>
-                  </button>
-                )
-              })}
+              <div className={cn('grid gap-1', parts.length === 1 ? 'grid-cols-1' : parts.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+                {parts.map((part, idx) => {
+                  const isCurrent = activeIdx === idx
+                  return (
+                    <button
+                      key={`filmstrip-${idx}`}
+                      type="button"
+                      onClick={() => handleSelectPart(idx)}
+                      className={cn(
+                        'p-1 rounded-xl border flex flex-col items-center gap-0.5 text-center cursor-pointer transition-all select-none',
+                        isCurrent
+                          ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-300'
+                          : 'border-zinc-200 bg-white hover:bg-zinc-50'
+                      )}
+                    >
+                      <img
+                        src={part.thumb}
+                        alt={part.title}
+                        className="size-7 sm:size-8 rounded-lg object-contain bg-amber-50 p-0.5"
+                      />
+                      <div className="w-full truncate text-[9px] font-black text-zinc-800">
+                        0{idx + 1}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -945,21 +1229,23 @@ export function AikiStudioSoftClayWorkspace({
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-0.5 w-full">
-          <button
-            type="button"
-            onClick={handleDraw}
-            disabled={isGenerating}
-            className="min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-sky-600 bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
-          >
-            <span>
-              {isLesson1_1
-                ? currentPartTurn === 1
-                  ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
-                  : 'Vẽ Lượt 2: Năm điều chi tiết'
-                : 'Vẽ tranh cùng AIKI'}{' '}
-              · còn {attemptsLeft} lượt
-            </span>
-          </button>
+          {(!isLesson1_1 || !hasBothTurns) && (
+            <button
+              type="button"
+              onClick={handleDraw}
+              disabled={isGenerating || attemptsLeft <= 0}
+              className="min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-sky-600 bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+            >
+              <span>
+                {isLesson1_1
+                  ? currentPartTurn === 1
+                    ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
+                    : 'Vẽ Lượt 2: Năm điều chi tiết'
+                  : 'Vẽ tranh cùng AIKI'}{' '}
+                · còn {attemptsLeft} lượt
+              </span>
+            </button>
+          )}
           <button
             type="button"
             data-testid="studio-submit-btn"
@@ -969,7 +1255,7 @@ export function AikiStudioSoftClayWorkspace({
             }}
             className="flex-1 min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
           >
-            <span>Hoàn tất thực hành</span>
+            <span>{isLesson1_1 && hasBothTurns ? 'Cất vào Ba Lô & Tiếp tục' : 'Hoàn tất thực hành'}</span>
           </button>
         </div>
       </div>
