@@ -56,8 +56,15 @@ must revoke or discard parent authority on the shared device.
 ## Firebase console configuration
 
 - Enable Email/Password and Google providers.
-- Add every production/staging hostname to Authorized domains.
-- Configure the password-reset email action URL to the web `/reset-password`
-  route so Firebase supplies `mode=resetPassword&oobCode=...`.
+- Add every production/staging hostname to Authorized domains. Production must
+  include `app.aikid.vn` (hostname only, without protocol or path).
+- In **Authentication > Templates > Password reset**, customize the template's
+  **Action URL** to exactly `https://app.aikid.vn/reset-password`. This is the
+  URL opened first from the email; it is not the `url`/`continueUrl` passed to
+  `sendPasswordResetEmail`.
+- Verify a newly generated email contains a link beginning with
+  `https://app.aikid.vn/reset-password?mode=resetPassword&oobCode=...`. Links
+  generated before changing the template keep their old destination and must
+  not be used for acceptance testing.
 - Configure service-account credentials only in Hub/core Account; no Admin SDK
   credentials or secrets may be exposed through `VITE_*` variables.

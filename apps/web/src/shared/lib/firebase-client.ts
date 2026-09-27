@@ -113,9 +113,9 @@ export async function sendFirebasePasswordReset(email: string): Promise<void> {
   const { sendPasswordResetEmail } = await import('firebase/auth')
   auth.languageCode = 'vi'
   await sendPasswordResetEmail(auth, email, {
-    // Firebase's email template action URL must point at /reset-password.
-    // This continue URL gives both the default and custom handlers a safe
-    // first-party destination instead of leaving the user on firebaseapp.com.
+    // This is only the post-action continue URL. It does NOT select the page
+    // opened from the email. The Firebase Password reset template Action URL
+    // must separately be set to https://app.aikid.vn/reset-password.
     url: `${window.location.origin}/login`,
     handleCodeInApp: false,
   })
