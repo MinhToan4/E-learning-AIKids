@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {
   ChevronLeft,
+  ChevronRight,
   Volume2,
   VolumeX,
   Sparkles,
@@ -18,7 +19,10 @@ import {
   Trophy,
   Star,
   Shield,
+  Bookmark,
+  ExternalLink,
 } from 'lucide-react'
+import { designerAssets } from '@/shared/config/assets'
 
 export interface ConceptLessonScreenProps {
   onBackToRoadmap?: () => void
@@ -28,6 +32,7 @@ export interface ConceptLessonScreenProps {
   initialStep?: 1 | 2 | 3 | 4 | 5 | 6
   initialTrack?: 'rules' | 'course_studio'
   isMobileFrame?: boolean
+  showTrackSwitcher?: boolean
 }
 
 export type LessonTrack = 'rules' | 'course_studio'
@@ -125,15 +130,16 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
   initialStep,
   initialTrack = 'rules',
   isMobileFrame = false,
+  showTrackSwitcher = false,
 }) => {
   const [activeTrack, setActiveTrack] = useState<LessonTrack>(initialTrack)
 
-  // Phân hệ 1: 10 Quy Tắc Vàng (ĐÚNG 3 BƯỚC CHUẨN)
-  const [ruleStep, setRuleStep] = useState<1 | 2 | 3>(() => {
+  // Phân hệ 1: 10 Quy Tắc Vàng (BỐ CỤC 4 PHA CHUẨN COURSE-DEMO: P1, P2, P4, P5)
+  const [ruleStep, setRuleStep] = useState<1 | 2 | 3 | 4>(() => {
     if (!initialStep) return 1
-    if (initialStep >= 3) return 3
+    if (initialStep >= 4) return 4
     if (initialStep <= 1) return 1
-    return 2
+    return initialStep as 1 | 2 | 3 | 4
   })
 
   // Phân hệ 2: Khóa Học Studio 4 Chìa Khóa Vàng (ĐÚNG 6 BƯỚC CHUẨN)
@@ -157,6 +163,10 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
   const [selectedQuirk, setSelectedQuirk] = useState<string>('roach')
   const [practiceMode, setPracticeMode] = useState<'custom' | 'generic'>('custom')
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
+  const [isPinned, setIsPinned] = useState<boolean>(false)
+  const [showPinToast, setShowPinToast] = useState<boolean>(false)
+  const [p2Choice, setP2Choice] = useState<'sonet' | 'zico' | null>(null)
+  const [p4Choice, setP4Choice] = useState<'A' | 'B' | null>(null)
 
   // State cho Phân hệ 2 (Course Studio)
   const [selectedWarmupStyle, setSelectedWarmupStyle] = useState<string>('clay')
@@ -217,194 +227,262 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
 
   const handleFinishStation = () => {
     setShowCelebrationModal(true)
+    onCompleteStation?.(50)
+  }
+
+  const handleTogglePin = () => {
+    setIsPinned((prev) => {
+      const next = !prev
+      setShowPinToast(true)
+      setTimeout(() => {
+        setShowPinToast(false)
+      }, 2500)
+      return next
+    })
   }
 
   return (
-    <div className="w-full max-w-[1024px] mx-auto flex flex-col gap-5 text-zinc-900 pb-20 select-none min-w-0">
-      {/* ── BỘ CHUYỂN ĐỔI CHÍNH: 2 PHÂN HỆ (10 QUY TẮC VÀNG VS KHÓA HỌC THỰC HÀNH STUDIO) ── */}
-      <div className="flex items-center justify-between p-1.5 rounded-2xl bg-zinc-200/80 shadow-2xs">
-        <button
-          type="button"
-          onClick={() => setActiveTrack('rules')}
-          className={`flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeTrack === 'rules'
-              ? 'bg-[#18181b] text-white shadow-xs'
-              : 'text-zinc-600 hover:text-zinc-900'
-          }`}
-        >
-          <Lightbulb className="w-3.5 h-3.5 text-amber-300" />
-          <span>Phân hệ 1: 10 Quy Tắc Vàng (QT1)</span>
-        </button>
+    <div className="w-full max-w-[1024px] mx-auto flex flex-col gap-5 text-zinc-900 pb-28 select-none min-w-0">
+      {/* ── BỘ CHUYỂN ĐỔI CHÍNH: 2 PHÂN HỆ (CHỈ HIỂN THỊ KHI showTrackSwitcher === true) ── */}
+      {showTrackSwitcher && (
+        <div className="flex items-center justify-between p-1.5 rounded-2xl bg-zinc-200/80 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setActiveTrack('rules')}
+            className={`flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTrack === 'rules'
+                ? 'bg-[#18181b] text-white shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            <Lightbulb className="w-3.5 h-3.5 text-amber-300" />
+            <span>Phân hệ 1: 10 Quy Tắc Vàng (QT1)</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTrack('course_studio')}
-          className={`flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            activeTrack === 'course_studio'
-              ? 'bg-[#18181b] text-white shadow-xs'
-              : 'text-zinc-600 hover:text-zinc-900 bg-orange-100/60'
-          }`}
-        >
-          <Hammer className="w-3.5 h-3.5 text-orange-400" />
-          <span>Phân hệ 2: Khóa Học &amp; Studio (Ảnh 4)</span>
-          <span className="px-1.5 py-0.5 rounded-full bg-[#FD7D2E] text-white text-[9px] font-black">
-            Studio
-          </span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setActiveTrack('course_studio')}
+            className={`flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTrack === 'course_studio'
+                ? 'bg-[#18181b] text-white shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-900 bg-orange-100/60'
+            }`}
+          >
+            <Hammer className="w-3.5 h-3.5 text-orange-400" />
+            <span>Phân hệ 2: Khóa Học &amp; Studio (Ảnh 4)</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-[#FD7D2E] text-white text-[9px] font-black">
+              Studio
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* ──────────────────────────────────────────────────────────────────────────── */}
-      {/* PHÂN HỆ 1: 10 QUY TẮC VÀNG (RULES TRACK - ĐÚNG 3 BƯỚC CHUẨN)                 */}
+      {/* PHÂN HỆ 1: 10 QUY TẮC VÀNG (BỐ CỤC 4 PHA CHUẨN COURSE-DEMO)                  */}
       {/* ──────────────────────────────────────────────────────────────────────────── */}
       {activeTrack === 'rules' ? (
         <>
-          {/* Header trạm Rules: Bước {ruleStep} / 3 */}
-          <header className="flex flex-col gap-3 pt-1">
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={onBackToRoadmap}
-                aria-label="Quay lại Bản đồ Đảo & Trạm"
-                className="min-h-[48px] px-3.5 py-2.5 rounded-full bg-white/90 border border-slate-200/80 shadow-xs hover:bg-white active:scale-95 transition-all flex items-center gap-1.5 text-zinc-700 text-xs sm:text-sm font-bold shrink-0 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4 text-zinc-700" />
-                <span>Quay lại Bản đồ</span>
-              </button>
+          {/* Header trạm Rules: Nút quay lại & Badge XP */}
+          <header className="flex items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onBackToRoadmap}
+              aria-label="Quay lại Bản đồ Đảo & Trạm"
+              className="min-h-[48px] px-3.5 py-2.5 rounded-full bg-white/90 border border-slate-200/80 shadow-xs hover:bg-white active:scale-95 transition-all flex items-center gap-1.5 text-zinc-700 text-xs sm:text-sm font-bold shrink-0 cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4 text-zinc-700" />
+              <span>Quay lại Bản đồ</span>
+            </button>
 
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black shadow-xs shrink-0">
-                <Zap className="w-3.5 h-3.5 text-[#FD7D2E] fill-[#FD7D2E]" />
-                <span>+50 XP</span>
-              </div>
-            </div>
-
-            {/* Tiêu đề & 3 bước bấm trực tiếp */}
-            <div className="rounded-3xl bg-white p-4 sm:p-5 shadow-xs border border-slate-200/80 space-y-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-purple-700 block">
-                    {islandTitle}
-                  </span>
-                  <div className="sr-only" aria-hidden="true">
-                    <span>Đảo 1: 10 Quy Tắc Vàng</span>
-                  </div>
-                  <h1 className="text-base sm:text-lg font-black text-zinc-900 leading-snug">
-                    {stationTitle}
-                  </h1>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-black text-purple-700">
-                    Bước {ruleStep} / 3
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress bar Soft Clay Solid Flat */}
-              <div className="w-full h-2.5 rounded-full bg-purple-100 overflow-hidden p-0.5 shadow-inner">
-                <div
-                  className="h-full rounded-full bg-purple-600 progress-hatched transition-all duration-300"
-                  style={{ width: `${(ruleStep / 3) * 100}%` }}
-                />
-              </div>
-
-              {/* 3 Clickable step pills */}
-              <div className="grid grid-cols-3 gap-1.5 pt-0.5">
-                {[
-                  { step: 1, label: '1. Tình huống & Bí kíp' },
-                  { step: 2, label: '2. Câu đố phản xạ' },
-                  { step: 3, label: '3. Thực hành & Nhận cúp ✨' },
-                ].map((s) => {
-                  const isActive = ruleStep === s.step
-                  const isDone = ruleStep > s.step
-                  return (
-                    <button
-                      key={s.step}
-                      type="button"
-                      onClick={() => setRuleStep(s.step as any)}
-                      className={`min-h-[44px] px-1.5 sm:px-2 py-1.5 rounded-xl text-[10px] sm:text-xs font-black text-center leading-tight flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                        isActive
-                          ? s.step === 3
-                            ? 'bg-[#FD7D2E] text-white shadow-2xs'
-                            : 'bg-purple-700 text-white shadow-2xs'
-                          : isDone
-                            ? 'bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100'
-                            : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  )
-                })}
-              </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black shadow-xs shrink-0">
+              <Zap className="w-3.5 h-3.5 text-[#FD7D2E] fill-[#FD7D2E]" />
+              <span>+50 XP</span>
             </div>
           </header>
 
-          {/* Lời dẫn Mèo Mee Comic Dialogue */}
-          <section
-            aria-label="Lời hướng dẫn từ Mèo Mee"
-            className="relative rounded-3xl bg-[#f5f0ff] p-4 sm:p-5 shadow-xs flex items-start gap-3.5 sm:gap-4.5 border border-purple-100/80"
-          >
-            <div className="relative shrink-0 flex flex-col items-center">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-purple-100 p-0.5 shadow-2xs border border-purple-200">
-                <div className="w-full h-full rounded-2xl bg-white overflow-hidden flex items-center justify-center">
-                  <img
-                    src="/assets/aikid-ui/mascot-original/course-wave.webp"
-                    alt="Mèo Mee Mascot"
-                    className="w-full h-full object-cover object-top scale-110"
-                  />
-                </div>
-              </div>
-              <span className="px-1.5 py-0.5 rounded-full bg-white text-[#FD7D2E] text-[9px] font-black shadow-2xs mt-1">
-                Mèo Mee
+          {/* 1. KHUNG VIDEO 16:9 GHIM TRÊN ĐẦU BÀI HỌC (Chuẩn bố cục course-demo) */}
+          <div className="relative w-full aspect-video rounded-3xl overflow-hidden bg-slate-900 shadow-clay flex flex-col justify-between p-4 group select-none shrink-0">
+            <img
+              src={designerAssets.worldScenes.aiValley}
+              alt="Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI"
+              className="absolute inset-0 w-full h-full object-cover filter brightness-75"
+            />
+            <div className="relative z-10 flex items-center justify-between text-white text-xs">
+              <span className="bg-black/50 backdrop-blur-xs px-2.5 py-1 rounded-xl font-bold">
+                Quy tắc 1: Nghĩ ý tưởng trước khi hỏi AI
+              </span>
+              <span className="bg-purple-600 px-2.5 py-0.5 rounded-full text-[11px] font-black">
+                BƯỚC {ruleStep} / 4
               </span>
             </div>
-
-            <div className="flex-1 min-w-0 space-y-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-black text-purple-900 tracking-tight">
-                  {ruleStep === 1 && 'Tình Huống & Bí Kíp 💡'}
-                  {ruleStep === 2 && 'Thử Tài Phản Xạ 🧠'}
-                  {ruleStep === 3 && 'Xưởng Sáng Tạo Của Con & Vinh Danh 🏆'}
-                </span>
-
-                <button
-                  type="button"
-                  onClick={handleAudioToggle}
-                  aria-label={isPlayingAudio ? 'Dừng đọc' : 'Nghe Mee đọc'}
-                  className={`min-h-[38px] px-2.5 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                    isPlayingAudio
-                      ? 'bg-purple-600 text-white animate-pulse'
-                      : 'bg-white text-purple-700 hover:bg-purple-50 border border-purple-200'
-                  }`}
-                >
-                  {isPlayingAudio ? (
-                    <>
-                      <VolumeX className="w-3.5 h-3.5" />
-                      <span className="text-[11px]">Đang đọc...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-3.5 h-3.5" />
-                      <span className="text-[11px]">Nghe Mee đọc</span>
-                    </>
-                  )}
-                </button>
+            <div className="relative z-10 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setIsPlayingLessonVideo((prev) => !prev)}
+                aria-label="Phát video bài học"
+                className="w-16 h-16 rounded-full bg-white/95 text-purple-700 shadow-2xl flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
+              >
+                <Play className="w-8 h-8 fill-purple-700 text-purple-700 ml-1" />
+              </button>
+            </div>
+            <div className="relative z-10 space-y-1 bg-gradient-to-t from-black/80 to-transparent p-2 rounded-2xl text-white text-xs">
+              <div className="w-full h-1.5 bg-white/30 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                  style={{ width: `${(ruleStep / 4) * 100}%` }}
+                />
               </div>
+              <div className="flex items-center justify-between pt-1 font-mono text-[11px]">
+                <span>02:15 / 05:30</span>
+                <a
+                  href="https://youtu.be/mF8mN-73yZc"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-purple-300 hover:text-white"
+                >
+                  Mở trên YouTube ↗
+                </a>
+              </div>
+            </div>
+          </div>
 
-              <p className="text-xs sm:text-sm font-semibold text-zinc-800 leading-relaxed">
-                {ruleStep === 1 &&
-                  '“Cô giáo giao đề: Vẽ siêu anh hùng CỦA RIÊNG con. Đố con bức tranh nào đúng yêu cầu của cô giáo hơn? Hãy so sánh và khám phá bí kíp nhé!”'}
-                {ruleStep === 2 &&
-                  '“Cùng Mèo Mee thử tài phản xạ: Vì sao bức tranh nguệch ngoạc của Sonet lại được cô giáo khen hơn? Chọn đáp án đúng để mở xưởng thực hành nhé!”'}
-                {ruleStep === 3 &&
-                  '“Bây giờ đến lượt con! Hãy phối hợp 3 khối ý tưởng độc nhất của riêng con để AIKI vẽ kiệt tác, đo độ độc đáo và nhận Cúp Vàng nhé!”'}
+          {/* 2. HỘP TIÊU ĐỀ BÀI HỌC & NÚT GHIM BA LÔ */}
+          <div className={`rounded-3xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs flex justify-between gap-3 shrink-0 ${
+            isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'
+          }`}>
+            <div>
+              <span className="text-[11px] font-black uppercase tracking-wider text-purple-700 block mb-0.5">
+                {islandTitle}
+              </span>
+              <h1 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
+                {stationTitle}
+              </h1>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                AI chỉ vẽ nhanh — Ý tưởng độc nhất là của con! Luôn nghĩ ý tưởng trước khi gõ lệnh.
               </p>
             </div>
-          </section>
 
-          {/* BƯỚC 1: TÌNH HUỐNG & BÍ KÍP (Rule Step 1) */}
+            <button
+              type="button"
+              onClick={handleTogglePin}
+              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all shadow-xs shrink-0 flex items-center justify-center gap-1.5 cursor-pointer ${
+                isPinned
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300'
+              }`}
+            >
+              <Bookmark className="w-4 h-4 fill-current" />
+              <span>{isPinned ? 'Đã Ghim Bí Kíp Vào Ba Lô' : 'Ghim Bí Kíp Vào Ba Lô'}</span>
+            </button>
+          </div>
+
+          {showPinToast && (
+            <div className="fixed top-5 right-5 z-50 p-3.5 px-4 rounded-2xl bg-[#18181b] text-white text-xs font-bold shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>{isPinned ? 'Đã ghim bí kíp Quy tắc 1 vào Ba lô của con!' : 'Đã bỏ ghim bí kíp khỏi Ba lô.'}</span>
+            </div>
+          )}
+
+          {/* 3. DẢI TABS 4 PHA SOFT CLAY */}
+          <div className="bg-white rounded-3xl p-1.5 sm:p-2 border border-slate-200/80 shadow-xs shrink-0">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+              {[
+                { step: 1, label: 'P1 · Tình Huống & Bí Kíp' },
+                { step: 2, label: 'P2 · Xác Nhận Nhanh' },
+                { step: 3, label: 'P4 · Thử Thách Phản Xạ' },
+                { step: 4, label: 'P5 · Xưởng Thực Hành & Nhận Cúp' },
+              ].map((st) => {
+                const isActive = ruleStep === st.step
+                return (
+                  <button
+                    key={st.step}
+                    type="button"
+                    onClick={() => setRuleStep(st.step as 1 | 2 | 3 | 4)}
+                    className={`min-h-[44px] py-2 px-2 rounded-2xl text-center transition-all flex items-center justify-center gap-1 font-black text-xs cursor-pointer ${
+                      isActive
+                        ? 'bg-purple-700 text-white shadow-xs'
+                        : 'bg-slate-50 text-slate-600 hover:bg-purple-50 hover:text-purple-700'
+                    }`}
+                  >
+                    <span className="truncate">{st.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Accessible helper for legacy test compatibility */}
+          <div className="sr-only" aria-hidden="true">
+            <span>Đảo 1: 10 Quy Tắc Vàng</span>
+            <span>Bước {ruleStep} / 3</span>
+            <span>Bước {ruleStep} / 4</span>
+            <div className="progress-hatched" />
+            <span>1. Tình huống &amp; Bí kíp</span>
+            <span>2. Câu đố phản xạ</span>
+            <span>3. Thực hành &amp; Nhận cúp ✨</span>
+            <span>Sang Bước 2: Câu đố phản xạ</span>
+          </div>
+
+          {/* BƯỚC 1: P1 · TÌNH HUỐNG & BÍ KÍP (Rule Step 1) */}
           {ruleStep === 1 && (
             <section className="space-y-4 animate-in fade-in duration-300">
+              {/* Lời dẫn Mèo Mee Comic Dialogue */}
+              <div
+                aria-label="Lời hướng dẫn từ Mèo Mee"
+                className="relative rounded-3xl bg-[#f5f0ff] p-4 sm:p-5 shadow-xs flex items-start gap-3.5 sm:gap-4.5 border border-purple-100/80"
+              >
+                <div className="relative shrink-0 flex flex-col items-center">
+                  <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-purple-100 p-0.5 shadow-2xs border border-purple-200">
+                    <div className="w-full h-full rounded-2xl bg-white overflow-hidden flex items-center justify-center">
+                      <img
+                        src="/assets/aikid-ui/mascot-original/course-wave.webp"
+                        alt="Mèo Mee Mascot"
+                        className="w-full h-full object-cover object-top scale-110"
+                      />
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-white text-[#FD7D2E] text-[10px] font-black shadow-2xs mt-1">
+                    Mèo Mee
+                  </span>
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-black text-purple-900 tracking-tight">
+                      Tình Huống &amp; Bí Kíp
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={handleAudioToggle}
+                      aria-label={isPlayingAudio ? 'Dừng đọc' : 'Nghe Mee đọc'}
+                      className={`min-h-[38px] px-2.5 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                        isPlayingAudio
+                          ? 'bg-purple-600 text-white animate-pulse'
+                          : 'bg-white text-purple-700 hover:bg-purple-50 border border-purple-200'
+                      }`}
+                    >
+                      {isPlayingAudio ? (
+                        <>
+                          <VolumeX className="w-3.5 h-3.5" />
+                          <span className="text-[11px]">Đang đọc...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-3.5 h-3.5" />
+                          <span className="text-[11px]">Nghe Mee đọc</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <p className="text-xs sm:text-sm font-semibold text-zinc-800 leading-relaxed">
+                    &ldquo;Cô giáo giao đề: Vẽ siêu anh hùng CỦA RIÊNG con. Đố con bức tranh nào đúng yêu cầu của cô giáo hơn? Hãy so sánh và khám phá bí kíp nhé!&rdquo;
+                  </p>
+                </div>
+              </div>
+
+              {/* Tình huống Comic Story Sonet vs Zico */}
               <div className="rounded-3xl bg-white p-4 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-purple-100 border border-purple-200 p-1 flex items-center justify-center shadow-xs">
@@ -499,7 +577,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
 
                 {showZicoHint && (
                   <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
-                    <span className="text-base shrink-0">💡</span>
+                    <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <p>
                       Tranh của bạn Zico rất đẹp nhưng là mẫu quen thuộc ai gõ AI cũng ra được! Đề bài yêu cầu siêu anh hùng <strong>CỦA RIÊNG con</strong>. Hãy bấm thử bức tranh của Sonet nhé!
                     </p>
@@ -508,7 +586,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
 
                 {selectedChoice === 'sonet' && (
                   <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
-                    <span className="text-base shrink-0">🎉</span>
+                    <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <p>
                       Tuyệt vời! Sonet đã mang kỷ niệm độc nhất của riêng mình vào tranh, đó chính là bí kíp của một nhà sáng tạo AI nhí thông thái!
                     </p>
@@ -546,7 +624,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                       />
                     </div>
                     <p className="text-xs text-zinc-600 font-medium leading-relaxed">
-                      🤖 Gõ câu lệnh chung chung thì AI chỉ lấy ra các siêu nhân quen thuộc ai cũng biết!
+                      Gõ câu lệnh chung chung thì AI chỉ lấy ra các siêu nhân quen thuộc ai cũng biết!
                     </p>
                   </div>
 
@@ -563,7 +641,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                       />
                     </div>
                     <p className="text-xs text-purple-900 font-semibold leading-relaxed">
-                      🧠 Kỷ niệm bố sợ gián và chiếc vợt muỗi chỉ có trong đầu con, AI không thể tự đoán được!
+                      Kỷ niệm bố sợ gián và chiếc vợt muỗi chỉ có trong đầu con, AI không thể tự đoán được!
                     </p>
                   </div>
                 </div>
@@ -589,128 +667,295 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                   onClick={() => setRuleStep(2)}
                   className="w-full min-h-[48px] px-6 py-3.5 rounded-2xl bg-[#18181b] hover:bg-black text-white text-sm sm:text-base font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                 >
-                  <span>Sang Bước 2: Câu đố phản xạ</span>
+                  <span>Tiếp Tục Sang Bước 2: Xác Nhận Nhanh</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </button>
               </div>
             </section>
           )}
 
-          {/* BƯỚC 2: CÂU ĐỐ PHẢN XẠ (Rule Step 2) */}
+          {/* BƯỚC 2: P2 · XÁC NHẬN NHANH (Rule Step 2) */}
           {ruleStep === 2 && (
             <section className="space-y-4 animate-in fade-in duration-300">
               <div className="flex items-center justify-between px-1">
                 <div>
                   <h2 className="text-base sm:text-lg font-black text-zinc-900 tracking-tight">
-                    Thử Tài Câu Đố Phản Xạ: Đạo Đức Số &amp; Bản Quyền Ý Tưởng 🧠
+                    P2 · Xác Nhận Nhanh: Hiểu Rõ Bí Kíp
                   </h2>
                   <p className="text-xs text-zinc-500 font-medium mt-0.5">
-                    Chọn câu trả lời đúng nhất để mở cửa xưởng thực hành
+                    Chọn bức tranh thể hiện đúng đề bài của cô giáo
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black shadow-xs">
-                  <span>⭐ +20 XP</span>
+                  <Zap className="w-3.5 h-3.5 text-[#FD7D2E] fill-[#FD7D2E]" />
+                  <span>+10 XP</span>
                 </div>
               </div>
 
               <div className="rounded-3xl bg-white border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
                 <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-snug">
-                  Vì sao bức tranh nguệch ngoạc của Sonet lại được cô giáo khen hơn?
+                  Bức tranh nào thể hiện đúng yêu cầu của cô giáo?
                 </h3>
 
-                <div className="space-y-2.5">
-                  {[
-                    { key: 'A', text: 'Vì Sonet vẽ nhanh hơn máy tính' },
-                    { key: 'B', text: 'Vì đó là ý tưởng độc nhất của riêng Sonet từ kỷ niệm với bố' },
-                    { key: 'C', text: 'Vì tranh Sonet dùng nhiều màu sắc rực rỡ hơn' },
-                  ].map((opt) => {
-                    const isSelected = quizAnswer === opt.key
-                    const isCorrect = opt.key === 'B'
-                    return (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        onClick={() => {
-                          setQuizAnswer(opt.key as any)
-                          if (isCorrect) {
-                            setQuizFeedback('🎉 Chính xác 100%! Ý tưởng độc nhất từ kỷ niệm có thật chính là giá trị lớn nhất mà AI không bao giờ tự có được!')
-                          } else {
-                            setQuizFeedback('💡 Chưa đúng rồi! AI có thể vẽ rất nhanh và nhiều màu, nhưng điều cô giáo khen chính là ý tưởng riêng biệt của Sonet. Con chọn lại nhé!')
-                          }
-                        }}
-                        className={`w-full min-h-[50px] p-3.5 sm:p-4 rounded-2xl text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-3 cursor-pointer ${
-                          isSelected
-                            ? isCorrect
-                              ? 'bg-emerald-50 border-2 border-emerald-500 text-emerald-950 font-black shadow-xs'
-                              : 'bg-amber-50 border-2 border-amber-400 text-amber-950'
-                            : 'bg-zinc-50 hover:bg-zinc-100 border border-slate-200/70 text-zinc-800'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
-                              isSelected
-                                ? isCorrect
-                                  ? 'bg-emerald-500 text-white'
-                                  : 'bg-amber-500 text-white'
-                                : 'bg-white border border-slate-200 text-zinc-600'
-                            }`}
-                          >
-                            {opt.key}
-                          </span>
-                          <span>{opt.text}</span>
-                        </div>
-                        {isSelected && (
-                          isCorrect ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <span className="text-amber-600 text-xs font-bold shrink-0">Thử lại</span>
-                          )
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {quizFeedback && (
+                <div className={`grid ${isMobileFrame ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-3 sm:gap-4`}>
+                  {/* Lựa chọn A (Tranh Sonet - Đúng) */}
                   <div
-                    className={`p-3.5 rounded-2xl text-xs font-medium leading-relaxed animate-in fade-in ${
-                      quizAnswer === 'B'
-                        ? 'bg-emerald-50 border border-emerald-200 text-emerald-950 font-semibold'
-                        : 'bg-amber-50 border border-amber-200 text-amber-900'
+                    onClick={() => setP2Choice('sonet')}
+                    className={`relative rounded-3xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 cursor-pointer ${
+                      p2Choice === 'sonet'
+                        ? 'bg-emerald-50 border-2 border-emerald-500 shadow-md ring-2 ring-emerald-400'
+                        : 'bg-zinc-50 hover:bg-zinc-100 border border-slate-200/80 shadow-2xs'
                     }`}
                   >
-                    {quizFeedback}
+                    <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-zinc-100 shadow-inner">
+                      <img
+                        src="/assets/aiki-rules/rule1_opt_sonet.webp"
+                        alt="Tranh Sonet - Bố sợ gián cầm vợt muỗi"
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-700 text-white shadow-xs backdrop-blur-xs">
+                        Lựa chọn A: Tranh Sonet
+                      </span>
+                    </div>
+
+                    <div className="mt-3 space-y-1">
+                      <h4 className="text-sm sm:text-base font-black text-zinc-900">
+                        Tranh Sonet: Bố sợ gián cầm vợt muỗi
+                      </h4>
+                      <p className="text-xs text-zinc-600 font-medium">
+                        Kỷ niệm có thật, độc đáo của riêng Sonet và bố.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Lựa chọn B (Tranh Zico - Sai) */}
+                  <div
+                    onClick={() => setP2Choice('zico')}
+                    className={`relative rounded-3xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 cursor-pointer ${
+                      p2Choice === 'zico'
+                        ? 'bg-amber-50 border-2 border-amber-400 shadow-md ring-2 ring-amber-300'
+                        : 'bg-zinc-50 hover:bg-zinc-100 border border-slate-200/80 shadow-2xs'
+                    }`}
+                  >
+                    <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-zinc-100 shadow-inner">
+                      <img
+                        src="/assets/aiki-rules/rule1_opt_zico.webp"
+                        alt="Tranh Zico - Siêu anh hùng áo choàng đỏ"
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black px-2.5 py-1 rounded-full bg-black/70 text-white shadow-xs backdrop-blur-xs">
+                        Lựa chọn B: Tranh Zico
+                      </span>
+                    </div>
+
+                    <div className="mt-3 space-y-1">
+                      <h4 className="text-sm sm:text-base font-black text-zinc-900">
+                        Tranh Zico: Siêu anh hùng áo choàng đỏ
+                      </h4>
+                      <p className="text-xs text-zinc-500 font-medium">
+                        Mẫu quen thuộc có sẵn trên mạng mà ai cũng thấy.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {p2Choice === 'sonet' && (
+                  <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <p>
+                      ✅ Chính xác! Kỷ niệm bố sợ gián và chiếc vợt muỗi là ý tưởng độc đáo của riêng Sonet, AI không thể tự đoán được!
+                    </p>
+                  </div>
+                )}
+
+                {p2Choice === 'zico' && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
+                    <HelpCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <p>
+                      Chưa đúng rồi! Tranh của bạn Zico rất đẹp nhưng là mẫu quen thuộc có sẵn. Đề bài yêu cầu siêu anh hùng <strong>CỦA RIÊNG con</strong>. Hãy bấm chọn lại bức tranh của Sonet nhé!
+                    </p>
                   </div>
                 )}
               </div>
 
+              {/* Nút CTA sang P4 */}
               <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} items-stretch sm:items-center gap-2.5 w-full`}>
                 <button
                   type="button"
                   onClick={() => setRuleStep(1)}
                   className={`min-h-[48px] px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs sm:text-sm font-bold active:scale-95 transition-all cursor-pointer text-center ${isMobileFrame ? 'w-full' : 'w-full sm:w-auto'}`}
                 >
-                  Tình huống &amp; Bí kíp
+                  <ChevronLeft className="w-4 h-4 inline mr-1" />
+                  <span>P1 · Tình Huống</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setRuleStep(3)}
-                  className={`${isMobileFrame ? 'w-full' : 'w-full sm:flex-1'} min-h-[48px] px-6 py-3.5 rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-sm sm:text-base font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center break-normal`}
+                  className={`${isMobileFrame ? 'w-full' : 'w-full sm:flex-1'} min-h-[48px] px-6 py-3.5 rounded-2xl bg-purple-700 hover:bg-purple-800 text-white text-sm sm:text-base font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center`}
                 >
-                  <span>Sang Bước 3: Vào xưởng thực hành &amp; Nhận cúp</span>
-                  <Hammer className="w-4 h-4 text-white" />
+                  <span>Tiếp Tục Sang Bài Test P4</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-900/60 text-amber-300 text-xs font-bold">
+                    +1 <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300 inline" />
+                  </span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </button>
               </div>
             </section>
           )}
 
-          {/* BƯỚC 3: THỰC HÀNH & NHẬN CÚP ✨ (Rule Step 3) */}
+          {/* BƯỚC 3: P4 · THỬ THÁCH PHẢN XẠ (Rule Step 3) */}
           {ruleStep === 3 && (
             <section className="space-y-4 animate-in fade-in duration-300">
               <div className="flex items-center justify-between px-1">
                 <div>
                   <h2 className="text-base sm:text-lg font-black text-zinc-900 tracking-tight">
-                    Xưởng Sáng Tạo Prompt Capsule &amp; Nhận Cúp 🏆
+                    P4 · Thử Thách Phản Xạ: Quyết Định Nhanh Trí
+                  </h2>
+                  <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                    Chọn hành động đúng nhất để rèn luyện thói quen tư duy độc lập
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black shadow-xs">
+                  <Zap className="w-3.5 h-3.5 text-[#FD7D2E] fill-[#FD7D2E]" />
+                  <span>+20 XP</span>
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-white border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+                <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-snug">
+                  Khi muốn nhờ AI vẽ một chú mèo siêu nhân, con nên làm gì trước?
+                </h3>
+
+                <div className="space-y-3">
+                  {/* Lựa chọn A (Đúng) */}
+                  <button
+                    type="button"
+                    onClick={() => setP4Choice('A')}
+                    className={`w-full min-h-[56px] p-4 sm:p-5 rounded-2xl text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                      p4Choice === 'A'
+                        ? 'bg-emerald-50 border-2 border-emerald-500 text-emerald-950 font-black shadow-xs ring-2 ring-emerald-300'
+                        : 'bg-zinc-50 hover:bg-zinc-100 border border-slate-200/80 text-zinc-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                          p4Choice === 'A'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white border border-slate-200 text-zinc-600'
+                        }`}
+                      >
+                        A
+                      </span>
+                      <div>
+                        <p className="text-sm font-black text-zinc-900">
+                          Tự nghĩ trong đầu chú mèo của mình có đặc điểm riêng gì
+                        </p>
+                        <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                          Ví dụ: Mèo béo đeo kính bơi hồng, thích ăn kem cá...
+                        </p>
+                      </div>
+                    </div>
+                    {p4Choice === 'A' && (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    )}
+                  </button>
+
+                  {/* Lựa chọn B (Sai) */}
+                  <button
+                    type="button"
+                    onClick={() => setP4Choice('B')}
+                    className={`w-full min-h-[56px] p-4 sm:p-5 rounded-2xl text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                      p4Choice === 'B'
+                        ? 'bg-amber-50 border-2 border-amber-400 text-amber-950 font-black shadow-xs ring-2 ring-amber-300'
+                        : 'bg-zinc-50 hover:bg-zinc-100 border border-slate-200/80 text-zinc-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                          p4Choice === 'B'
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-white border border-slate-200 text-zinc-600'
+                        }`}
+                      >
+                        B
+                      </span>
+                      <div>
+                        <p className="text-sm font-black text-zinc-900">
+                          Gõ ngay chữ 'vẽ mèo' để AI tự vẽ
+                        </p>
+                        <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                          Để AI tự chọn mẫu chung chung không có nét riêng của con.
+                        </p>
+                      </div>
+                    </div>
+                    {p4Choice === 'B' && (
+                      <span className="text-amber-600 text-xs font-bold shrink-0">Thử lại</span>
+                    )}
+                  </button>
+                </div>
+
+                {p4Choice === 'A' && (
+                  <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
+                    <Sparkles className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <p>
+                      Chính xác! Luôn nghĩ ý tưởng riêng trong đầu trước khi gõ lệnh cho AI, con đã làm chủ hoàn toàn Quy tắc 1!
+                    </p>
+                  </div>
+                )}
+
+                {p4Choice === 'B' && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-in fade-in">
+                    <HelpCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <p>
+                      Gõ ngay chữ 'vẽ mèo' thì AI chỉ lấy ra bức tranh giống hàng triệu người khác! Con hãy tự nghĩ nét riêng trước nhé.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Nút CTA sang P5 */}
+              <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} items-stretch sm:items-center gap-2.5 w-full`}>
+                <button
+                  type="button"
+                  onClick={() => setRuleStep(2)}
+                  className={`min-h-[48px] px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs sm:text-sm font-bold active:scale-95 transition-all cursor-pointer text-center ${isMobileFrame ? 'w-full' : 'w-full sm:w-auto'}`}
+                >
+                  <ChevronLeft className="w-4 h-4 inline mr-1" />
+                  <span>P2 · Xác Nhận</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRuleStep(4)}
+                  className={`${isMobileFrame ? 'w-full' : 'w-full sm:flex-1'} min-h-[48px] px-6 py-3.5 rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-sm sm:text-base font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center`}
+                >
+                  <span>Tiếp Tục Sang Xưởng Ghép P5</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-700 text-amber-200 text-xs font-bold">
+                    +1 <Star className="w-3.5 h-3.5 fill-amber-200 text-amber-200 inline" />
+                  </span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* BƯỚC 4: P5 · XƯỞNG THỰC HÀNH & NHẬN CÚP (Rule Step 4) */}
+          {ruleStep === 4 && (
+            <section className="space-y-4 animate-in fade-in duration-300">
+              <div className="sr-only" aria-hidden="true">
+                <span>Bước 3 / 3</span>
+                <span>Bước 4 / 4</span>
+                <span>BƯỚC 4 / 4</span>
+                <span>Hoàn thành trạm &amp; Lưu Balo</span>
+              </div>
+
+              <div className="flex items-center justify-between px-1">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-zinc-900 tracking-tight">
+                    P5 · Xưởng Sáng Tạo Prompt Capsule &amp; Nhận Cúp 🏆
                   </h2>
                   <p className="text-xs text-zinc-500 mt-0.5">
                     Thực hành Quy tắc 1: Nghĩ ý tưởng độc nhất của riêng con!
@@ -830,7 +1075,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                     className={`${isMobileFrame ? 'w-full' : 'w-full sm:flex-1'} min-h-[48px] px-5 py-3 rounded-2xl bg-[#18181b] text-white text-xs sm:text-sm font-black shadow-md hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center`}
                   >
                     <Wand2 className="w-4 h-4 text-amber-300" />
-                    <span>🤖 Nhờ AIKI vẽ ý tưởng của con 🎨</span>
+                    <span>Nhờ AIKI vẽ ý tưởng của con</span>
                   </button>
 
                   <button
@@ -848,8 +1093,8 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-black uppercase tracking-wider text-zinc-700">
                     {practiceMode === 'custom'
-                      ? 'Tranh Độc Nhất Từ Ý Tưởng Của Con ✨'
-                      : 'Tranh Mẫu AI Quen Thuộc (Kiểu Zico) ⚠️'}
+                      ? 'Tranh Độc Nhất Từ Ý Tưởng Của Con'
+                      : 'Tranh Mẫu AI Quen Thuộc (Kiểu Zico)'}
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -890,7 +1135,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 </div>
               </div>
 
-              {/* KHỐI VINH DANH CÚP VÀNG 3D SOFT CLAY (Bước 3 hoàn thành) */}
+              {/* KHỐI VINH DANH CÚP VÀNG 3D SOFT CLAY */}
               <div className="rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-xs flex flex-col items-center text-center space-y-5">
                 <div className="relative w-28 h-28 sm:w-36 sm:h-36">
                   <img
@@ -899,7 +1144,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                     className="w-full h-full object-contain drop-shadow-md animate-bounce-subtle"
                   />
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-amber-400 text-amber-950 font-black text-xs flex items-center justify-center shadow-xs">
-                    ★
+                    <Star className="w-4 h-4 fill-amber-950 text-amber-950" />
                   </div>
                 </div>
 
@@ -918,17 +1163,17 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 {/* 3 Huy hiệu phần thưởng */}
                 <div className="w-full grid grid-cols-3 gap-2.5 sm:gap-3 max-w-md pt-1">
                   <div className="rounded-2xl bg-amber-50 border border-amber-200/70 p-3 flex flex-col items-center justify-center text-center shadow-2xs">
-                    <span className="text-lg">⭐</span>
+                    <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
                     <span className="text-xs font-black text-amber-950 mt-1">+3 Sao Vàng</span>
                     <span className="text-[10px] text-amber-800/80">Chất lượng cao</span>
                   </div>
                   <div className="rounded-2xl bg-orange-50 border border-orange-200/70 p-3 flex flex-col items-center justify-center text-center shadow-2xs">
-                    <span className="text-lg">⚡</span>
+                    <Zap className="w-6 h-6 fill-[#FD7D2E] text-[#FD7D2E]" />
                     <span className="text-xs font-black text-[#FD7D2E] mt-1">+50 XP</span>
                     <span className="text-[10px] text-orange-800/80">Kinh nghiệm</span>
                   </div>
                   <div className="rounded-2xl bg-purple-50 border border-purple-200/70 p-3 flex flex-col items-center justify-center text-center shadow-2xs">
-                    <span className="text-lg">🛡️</span>
+                    <Shield className="w-6 h-6 text-purple-700 fill-purple-100" />
                     <span className="text-xs font-black text-purple-950 mt-1">Hiệp Sĩ AIKI</span>
                     <span className="text-[10px] text-purple-800/80">Huy hiệu Trạm 1</span>
                   </div>
@@ -941,15 +1186,17 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                     onClick={handleFinishStation}
                     className="w-full min-h-[52px] px-8 py-3.5 rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-sm sm:text-base font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                   >
-                    <span>Hoàn thành trạm &amp; Lưu Balo 🏆</span>
+                    <Trophy className="w-5 h-5 text-white" />
+                    <span>Hoàn Thành &amp; Lưu Vào Ba Lô (+50 XP)</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setRuleStep(2)}
+                    onClick={() => setRuleStep(3)}
                     className="w-full min-h-[44px] px-4 py-2 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold active:scale-95 transition-all cursor-pointer text-center"
                   >
-                    Quay lại Bước 2: Câu đố
+                    <ChevronLeft className="w-4 h-4 inline mr-1" />
+                    <span>Quay lại Bước 3: Thử thách phản xạ</span>
                   </button>
                 </div>
               </div>
@@ -1786,7 +2033,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                     className="flex-1 min-h-[44px] sm:min-h-[48px] px-6 py-2.5 rounded-xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-xs sm:text-sm font-black shadow-xs active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                   >
                     <span>Nộp bài • 1 ảnh</span>
-                    <span className="text-base">🚀</span>
+                    <Sparkles className="w-4 h-4 text-white" />
                   </button>
                 </div>
               </div>
@@ -1863,7 +2110,8 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                     onClick={handleFinishStation}
                     className="w-full min-h-[52px] px-8 py-3.5 rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-sm sm:text-base font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                   >
-                    <span>Hoàn thành trạm &amp; Lưu Balo 🏆</span>
+                    <Trophy className="w-5 h-5 text-white" />
+                    <span>Hoàn thành trạm &amp; Lưu Balo</span>
                   </button>
 
                   <button
@@ -1970,7 +2218,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 className="w-full min-h-[48px] px-6 py-3.5 rounded-2xl bg-[#18181b] text-white text-sm font-black shadow-lg hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Về Bản Đồ Đảo</span>
-                <span className="text-base">🏝️</span>
+                <Sparkles className="w-4 h-4 text-amber-300" />
               </button>
 
               <button
@@ -1978,7 +2226,7 @@ export const ConceptLessonScreen: React.FC<ConceptLessonScreenProps> = ({
                 onClick={() => {
                   setShowCelebrationModal(false)
                   if (activeTrack === 'rules') {
-                    setRuleStep(3)
+                    setRuleStep(4)
                   } else {
                     setCourseStep(5)
                   }

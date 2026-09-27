@@ -109,6 +109,31 @@ describe('auth store', () => {
     )
   })
 
+  it('uses access returned by the Firebase session without a second request', async () => {
+    mocks.api.mockResolvedValueOnce({
+      user: {
+        id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
+        avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
+        parentId: null, classId: null,
+      },
+      access: {
+        contexts: [{
+          id: 'family:parent-1', type: 'family', label: 'Gia đình của tôi',
+          defaultRoute: '/parent', actor: 'parent', roles: ['parent'], permissions: [],
+        }],
+        active: { mode: 'family', contextId: 'family:parent-1' },
+        personas: ['parent'],
+        platformRoles: [],
+      },
+    })
+
+    const user = await useAuth.getState().loginAdult('parent@example.test', 'example-password')
+
+    expect(user.role).toBe('parent')
+    expect(useAuth.getState().activeContext?.id).toBe('family:parent-1')
+    expect(mocks.api).toHaveBeenCalledTimes(1)
+  })
+
   it('resolves an account alias before Firebase authentication', async () => {
     mocks.api
       .mockResolvedValueOnce({

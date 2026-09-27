@@ -45,7 +45,7 @@ export function QuizStageBlock({
   onImageClick,
   onPrevious,
   onContinue,
-  continueLabel = '👉 Vào Xưởng Sáng Tạo AI 🎨',
+  continueLabel = '👉 Vào Xưởng Sáng Tạo AI 🎨 • Tiếp Tục Sang Xưởng Ghép P5 (+1 Sao)',
 }: QuizStageBlockProps) {
   const { config } = stage
   const questions = config.questions || []

@@ -1,13 +1,19 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { PrismaClient } = require('/Users/imam/storymee/0-Shared-Libs/prisma-client/dist');
+const prismaClientPath = process.env.PRISMA_CLIENT_PATH;
 
-const supabaseUrl = "postgresql://postgres.kkiimvaiwnibgfcmmnpg:TQXHpVh8AElMijTz@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres";
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl || !prismaClientPath) {
+  throw new Error("Missing DATABASE_URL or PRISMA_CLIENT_PATH. Load both from approved sources before running this script.");
+}
+
+const { PrismaClient } = require(prismaClientPath);
 
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: supabaseUrl,
+      url: databaseUrl,
     },
   },
 });

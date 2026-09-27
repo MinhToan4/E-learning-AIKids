@@ -18,10 +18,14 @@ import {
   ZoomOut,
   Maximize2,
   Minimize2,
+  Play,
+  Bookmark,
+  ExternalLink,
 } from 'lucide-react'
 import { CourseCertificateModal } from './CourseCertificateModal'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
+import { designerAssets } from '@/shared/config/assets'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import {
   type StudioImageItem,
@@ -30,10 +34,10 @@ import {
 import { playInstantSound } from './LessonInteractiveSidebar'
 import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
 import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
-import { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES } from '../lib/stage-view-utils'
+import { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES, buildVideoEmbedUrl } from '../lib/stage-view-utils'
 import { isAikiRuleJourney, extractRuleNumber } from '../lib/rule-journey-identifiers'
 import { STAGE_REGISTRY } from './stages'
-import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig } from '../types/stage-schema'
+import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig, VideoStageConfig } from '../types/stage-schema'
 
 const StudentStageBlocksView = React.lazy(() =>
   import('./StudentStageBlocksView').then((module) => ({ default: module.StudentStageBlocksView })),
@@ -282,6 +286,17 @@ export function SixStageJourneyView({
     }
   }, [currentStage])
 
+  // The authoritative resume checkpoint arrives with the async lesson-open
+  // response. Apply a newer server checkpoint without ever moving a learner
+  // backwards if they already advanced while the request was in flight.
+  useEffect(() => {
+    const resumedStage = Math.max(
+      0,
+      Math.min(initialStageIndex, Math.max(0, stages.length - 1)),
+    )
+    setCurrentStage((current) => Math.max(current, resumedStage))
+  }, [initialStageIndex, stages.length])
+
   // Stage 1 (Confirm goal) state
   const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(null)
   const [isConfirmCorrect, setIsConfirmCorrect] = useState<boolean | null>(null)
@@ -314,6 +329,37 @@ export function SixStageJourneyView({
   // Stage 4 (Practice) parts state
   const [activePracticePartIndex, setActivePracticePartIndex] = useState<number>(0)
   const [practicePartsState, setPracticePartsState] = useState<PracticePartState[]>([])
+
+  // Course Demo Layout State
+  const [isMobile, setIsMobile] = useState(false)
+  const [isPinned, setIsPinned] = useState(false)
+  const [showPinToast, setShowPinToast] = useState(false)
+  const [isTopVideoPlaying, setIsTopVideoPlaying] = useState(false)
+  const pinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(typeof window !== 'undefined' ? window.innerWidth < 640 : false)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const handleTogglePin = useCallback(() => {
+    setIsPinned((prev) => !prev)
+    setShowPinToast(true)
+    if (pinTimeoutRef.current) clearTimeout(pinTimeoutRef.current)
+    pinTimeoutRef.current = setTimeout(() => {
+      setShowPinToast(false)
+    }, 2500)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (pinTimeoutRef.current) clearTimeout(pinTimeoutRef.current)
+    }
+  }, [])
 
   // Lightbox Modal state
   const [zoomImage, setZoomImage] = useState<{ url: string; title: string; fallbackUrl?: string } | null>(null)
@@ -484,6 +530,9 @@ export function SixStageJourneyView({
       setActivePracticePartIndex(0)
       setPracticePartsState([])
       setZoomImage(null)
+      setIsPinned(false)
+      setShowPinToast(false)
+      setIsTopVideoPlaying(false)
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         try {
           window.speechSynthesis.cancel()
@@ -630,8 +679,48 @@ export function SixStageJourneyView({
   // Lookup Component from Schema Registry
   const StageComp = STAGE_REGISTRY[currentStageDef?.type]
 
+  const isIslandLesson = !isRuleLesson && stages.length > 3
+
+  const videoStageDef = stages.find((s) => s.type === 'VIDEO')
+  const videoConfig = videoStageDef?.config as VideoStageConfig | undefined
+
+  const videoUrl =
+    journey?.stage3_video?.videoUrl ||
+    videoConfig?.videoUrl ||
+    'https://www.youtube.com/embed/NMdHhsLY5jc'
+
+  const videoPosterUrl =
+    journey?.stage3_video?.posterUrl ||
+    videoConfig?.posterUrl ||
+    (matchedCurriculum as any)?.posterUrl ||
+    (matchedCurriculum as any)?.scene ||
+    designerAssets.worldScenes.promptKeys
+
+  const youtubeWatchUrl = videoUrl
+    .replace('/embed/', '/watch?v=')
+    .replace('?enablejsapi=1', '')
+    .replace('controls=0', '')
+    .replace('&controls=0', '')
+
+  const durationSec = journey?.stage3_video?.durationSec || videoConfig?.durationSec || 330
+  const videoDurationDisplay = `02:15 / ${Math.floor(durationSec / 60)
+    .toString()
+    .padStart(2, '0')}:${(durationSec % 60).toString().padStart(2, '0')}`
+
+  const lessonTagline =
+    journey?.stage1_goal?.goalText ||
+    (matchedCurriculum as any)?.tagline ||
+    `${stationInfo.islandName} • Bốn câu hỏi vàng mở khóa câu lệnh AI`
+
+  const currentPedagogicalStep = useMemo(() => {
+    if (currentStage === 0) return 1
+    if (currentStage === 1 || currentStage === 2) return 2
+    if (currentStage === 3) return 3
+    return 4
+  }, [currentStage])
+
   return (
-    <div className="mx-auto flex h-auto min-h-full w-full max-w-[1024px] min-w-0 flex-none flex-col gap-2 overflow-x-hidden md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-hidden">
+    <div className="mx-auto flex h-auto min-h-full w-full max-w-[1024px] min-w-0 flex-none flex-col gap-2 overflow-x-hidden md:h-full md:max-h-full md:min-h-0 md:flex-1 md:overflow-y-auto">
       {/* ── HÀNG 1: TOP BAR (BẢN ĐỒ & SAO/XP) ── */}
       <div className="shrink-0 flex items-center justify-between gap-2 w-full px-0.5">
         {onBackToMap ? (
@@ -660,60 +749,108 @@ export function SixStageJourneyView({
         </div>
       </div>
 
-      {/* ── HÀNG 2: CARD THÔNG TIN TRẠM & TIẾN ĐỘ SOFT CLAY ── */}
-      <div className="rounded-2xl sm:rounded-3xl bg-white p-2.5 sm:p-3 shadow-xs border border-slate-200/80 space-y-2 w-full min-w-0">
-        {/* Dòng tiêu đề */}
-        <div className="flex items-center justify-between gap-2">
-          <div data-testid="current-station-badge" className="min-w-0">
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-purple-700 block">
-              {stationInfo.islandName || 'Đảo Khám Phá'}
+      {/* ── NAVIGATION STEPPER: DÀNH CHO RULE LESSONS (3 CHẶNG) ── */}
+      {!isIslandLesson && (
+        <div className="rounded-2xl sm:rounded-3xl bg-white p-2.5 sm:p-3 shadow-xs border border-slate-200/80 space-y-2 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div data-testid="current-station-badge" className="min-w-0">
+              <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-purple-700 block">
+                {stationInfo.islandName || 'Đảo Khám Phá'}
+              </span>
+              <h1 className="text-sm sm:text-base font-black text-zinc-900 leading-snug flex items-center gap-1.5 truncate">
+                <span className="truncate">{stationInfo.stationLabel}</span>
+              </h1>
+            </div>
+            <span className="text-xs font-black text-purple-700 shrink-0">
+              Chặng {currentStage + 1}/{stages.length}
             </span>
-            <h1 className="text-sm sm:text-base font-black text-zinc-900 leading-snug flex items-center gap-1.5 truncate">
-              <span className="truncate">{stationInfo.stationLabel}</span>
-            </h1>
           </div>
-          <span className="text-xs font-black text-purple-700 shrink-0">
-            Chặng {currentStage + 1}/{stages.length}
-          </span>
-        </div>
 
-        {/* Thanh tiến độ Soft Clay */}
-        <div className="w-full h-2 rounded-full bg-purple-100 overflow-hidden p-0.5 shadow-inner">
-          <div
-            className="h-full rounded-full bg-purple-600 progress-hatched transition-all duration-300"
-            style={{ width: `${((currentStage + 1) / stages.length) * 100}%` }}
-          />
-        </div>
+          <div className="w-full h-2 rounded-full bg-purple-100 overflow-hidden p-0.5 shadow-inner">
+            <div
+              className="h-full rounded-full bg-purple-600 progress-hatched transition-all duration-300"
+              style={{ width: `${((currentStage + 1) / stages.length) * 100}%` }}
+            />
+          </div>
 
-        {/* Dải Step Pills chặng (Clickable Step Pills) */}
-        <nav
-          aria-label="Tiến độ bài học 6 chặng"
-          className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 w-full min-w-0"
-        >
-          {stages.map((stageItem, idx) => {
-            const isActive = currentStage === idx
-            const isDone = (
-              isRuleLesson || stages.length === 3
-                ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
-                  (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
-                  (idx === 2 && completedStages.has(2))
-                : completedStages.has(idx)
-            ) && currentStage > idx
-            const isUnlocked =
-              idx <= currentStage ||
-              completedStages.has(idx) ||
-              completedStages.has(idx - 1) ||
-              (idx === 1 && !isRuleLesson && stages.length > 3) ||
-              (idx === 1 && isVideoCompleted)
+          <nav
+            aria-label="Tiến độ bài học 6 chặng"
+            className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 w-full min-w-0"
+          >
+            {stages.map((stageItem, idx) => {
+              const isActive = currentStage === idx
+              const isDone = (
+                (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
+                (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
+                (idx === 2 && completedStages.has(2))
+              ) && currentStage > idx
+              const isUnlocked =
+                idx <= currentStage ||
+                completedStages.has(idx) ||
+                completedStages.has(idx - 1) ||
+                (idx === 1 && isVideoCompleted)
 
-            const defaultTitle =
-              stages.length === 3
-                ? idx === 0
+              const defaultTitle =
+                idx === 0
                   ? '1. Tình huống & Bí kíp'
                   : idx === 1
                   ? '2. Câu đố phản xạ'
                   : '3. Thực hành & Cúp'
-                : stages.length === 6
+
+              return (
+                <React.Fragment key={stageItem.id || idx}>
+                  {idx > 0 && (
+                    <ChevronRight
+                      size={12}
+                      className="lucide-chevron-right mx-0.5 size-3 shrink-0 text-slate-400"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    disabled={!isUnlocked}
+                    onClick={() => handleStageSelect(idx)}
+                    className={cn(
+                      'flex-1 min-w-0 shrink-0 min-h-[32px] sm:min-h-[34px] py-1 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer truncate',
+                      !isUnlocked && 'bg-zinc-100 text-zinc-400 font-bold opacity-40 cursor-not-allowed',
+                      isUnlocked && isDone && !isActive && 'bg-purple-50 text-purple-800 border border-purple-200 font-bold hover:bg-purple-100',
+                      isUnlocked && !isActive && !isDone && 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold',
+                      isUnlocked && isActive && 'bg-purple-700 text-white font-black shadow-2xs'
+                    )}
+                    title={`Chặng ${idx + 1}: ${stageItem.title}${!isUnlocked ? ' (Chưa mở)' : ''}`}
+                  >
+                    {isDone && !isActive ? (
+                      <CheckCircle2 size={12} className="text-purple-600 shrink-0" />
+                    ) : !isUnlocked ? (
+                      <Lock size={12} className="text-zinc-400 shrink-0" />
+                    ) : null}
+                    <span className="truncate">{defaultTitle}</span>
+                  </button>
+                </React.Fragment>
+              )
+            })}
+          </nav>
+        </div>
+      )}
+
+      {/* ── THANH TIẾN ĐỘ ẨN BẢO TOÀN TEST TRONG ISLAND LESSONS ── */}
+      {isIslandLesson && (
+        <nav
+          aria-label="Tiến độ bài học 6 chặng"
+          className="sr-only"
+        >
+          {stages.map((stageItem, idx) => {
+            const isActive = currentStage === idx
+            const isDone = completedStages.has(idx) && currentStage > idx
+            const isUnlocked =
+              idx <= currentStage ||
+              completedStages.has(idx) ||
+              completedStages.has(idx - 1) ||
+              (idx === 1 && stages.length > 3) ||
+              (idx === 1 && isVideoCompleted)
+
+            const defaultTitle =
+              stages.length === 6
                 ? idx === 0
                   ? '1. Mục tiêu'
                   : idx === 1
@@ -760,7 +897,154 @@ export function SixStageJourneyView({
             )
           })}
         </nav>
-      </div>
+      )}
+
+      {/* ── BẢN ĐỒ / CURRENT STATION BADGE Ở CHẶNG HOÀN THÀNH (SR-ONLY) ── */}
+      {isIslandLesson && currentStage === 5 && (
+        <div data-testid="current-station-badge" className="sr-only">
+          <span>{stationInfo.stationLabel}</span>
+        </div>
+      )}
+
+      {/* ── BỐ CỤC CHUẨN COURSE DEMO CHO ISLAND LESSONS (P1, P2, P4, P5) ── */}
+      {isIslandLesson && currentStage !== 5 && (
+        <>
+          {/* 1. VIDEO PLAYER 16:9 (GHIM CỐ ĐỊNH Ở ĐẦU BÀI HỌC) */}
+          {currentStage !== 2 && (
+            <div className="relative w-full aspect-video rounded-3xl overflow-hidden bg-slate-900 shadow-clay flex flex-col justify-between p-3.5 sm:p-4 group select-none shrink-0">
+              {isTopVideoPlaying ? (
+                <iframe
+                  src={buildVideoEmbedUrl(videoUrl)}
+                  title={stationInfo.stationLabel}
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <>
+                  <img
+                    src={videoPosterUrl}
+                    alt={stationInfo.stationLabel}
+                    className="absolute inset-0 w-full h-full object-cover filter brightness-75 transition-all duration-300 group-hover:scale-105"
+                  />
+                  <div className="relative z-10 flex items-center justify-between text-white text-xs">
+                    <span className="bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-xl font-black">
+                      {stationInfo.stationLabel}
+                    </span>
+                    <span className="bg-purple-600/90 backdrop-blur-xs text-white px-2.5 py-0.5 rounded-full text-[11px] font-black">
+                      BƯỚC {currentPedagogicalStep} / 4
+                    </span>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsTopVideoPlaying(true)
+                        setIsVideoCompleted(true)
+                      }}
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 text-purple-700 shadow-2xl flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all border-2 border-purple-200"
+                      aria-label="Phát video bài giảng"
+                    >
+                      <Play className="size-6 text-purple-700 fill-purple-700 translate-x-0.5" />
+                    </button>
+                  </div>
+
+                  <div className="relative z-10 space-y-1.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5 sm:p-3 rounded-2xl text-white text-xs">
+                    <div className="w-full h-1.5 bg-white/30 rounded-full overflow-hidden">
+                      <div className="h-full bg-purple-500 rounded-full w-[45%]" />
+                    </div>
+                    <div className="flex items-center justify-between pt-0.5 font-mono text-[11px]">
+                      <span className="font-bold text-slate-200">{videoDurationDisplay}</span>
+                      <a
+                        href={youtubeWatchUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-purple-300 hover:text-white flex items-center gap-1 font-bold underline cursor-pointer"
+                      >
+                        <span>Mở trên YouTube</span>
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* 2. TIÊU ĐỀ BÀI HỌC & NÚT GHIM BA LÔ */}
+          <div className="rounded-2xl sm:rounded-3xl bg-white p-3.5 sm:p-4 border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+            <div data-testid="current-station-badge" className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-purple-700 block">
+                  {stationInfo.islandName || 'Đảo Khám Phá'}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                  Chặng {currentStage + 1}/{stages.length}
+                </span>
+              </div>
+              <h1 className="text-sm sm:text-base font-black text-zinc-900 leading-snug flex items-center gap-1.5 truncate mt-0.5">
+                <span className="truncate">{stationInfo.stationLabel}</span>
+              </h1>
+              <p className="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1">
+                {lessonTagline}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleTogglePin}
+                className={cn(
+                  'px-4 py-2.5 rounded-2xl font-extrabold text-xs sm:text-sm transition-all shadow-xs shrink-0 flex items-center justify-center gap-1.5 cursor-pointer',
+                  isPinned
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300'
+                )}
+              >
+                <Bookmark size={15} className={isPinned ? 'fill-white' : 'fill-amber-700 text-amber-800'} />
+                <span>{isPinned ? 'Đã Ghim Bí Kíp Vào Ba Lô' : 'Ghim Bí Kíp Vào Ba Lô'}</span>
+              </button>
+            </div>
+          </div>
+
+          {showPinToast && (
+            <div className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl animate-fade-in flex items-center gap-1.5 shadow-xs">
+              <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+              <span>{isPinned ? 'Đã ghim bí kíp bài học vào Ba Lô của bé!' : 'Đã bỏ ghim bí kíp khỏi Ba Lô'}</span>
+            </div>
+          )}
+
+          {/* 3. THANH TABS 4 PHA (P1, P2, P4, P5) */}
+          <div className="bg-white rounded-2xl p-1.5 sm:p-2 border border-slate-200 shadow-2xs shrink-0">
+            <div className="flex items-center justify-between gap-1 sm:gap-2">
+              {[
+                { step: 1, stageIndex: 0, label: isMobile ? 'P1 · Bí Kíp' : 'P1 · Mục Tiêu & Bí Kíp (4 Thẻ)' },
+                { step: 2, stageIndex: 1, label: isMobile ? 'P2 · Xác Nhận' : 'P2 · Xác Nhận Nhanh (Kiểm Tra Hiểu)' },
+                { step: 3, stageIndex: 3, label: isMobile ? 'P4 · Test' : 'P4 · Thử Thách Test' },
+                { step: 4, stageIndex: 4, label: isMobile ? 'P5 · Xưởng Ghép' : 'P5 · Xưởng Ghép 4 Chìa Khóa Vàng' },
+              ].map((st) => {
+                const isActive = currentPedagogicalStep === st.step
+                return (
+                  <button
+                    key={st.step}
+                    type="button"
+                    onClick={() => handleStageSelect(st.stageIndex)}
+                    className={cn(
+                      'flex-1 min-w-0 py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1 font-bold text-xs cursor-pointer',
+                      isActive
+                        ? 'bg-purple-600 text-white shadow-xs'
+                        : 'bg-slate-50 text-slate-600 hover:bg-purple-50 hover:text-purple-700'
+                    )}
+                  >
+                    <span className="truncate">{st.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── KHÔNG GIAN BÀI HỌC CHÍNH (FULL WIDTH) ── */}
       <div className="flex flex-1 flex-col items-stretch gap-4 min-h-0 w-full max-w-full min-w-0 overflow-x-hidden md:overflow-hidden">
@@ -770,9 +1054,9 @@ export function SixStageJourneyView({
           style={{ WebkitOverflowScrolling: 'touch' }}
           className={cn(
             'flex-1 min-w-0 w-full max-w-full overflow-x-hidden flex flex-col gap-4 pr-1 md:overflow-y-auto md:overscroll-contain',
-            currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'md:hidden-scrollbar',
+            currentStageDef?.type === 'PRACTICE' ? 'gap-2 pr-0.5 sm:pr-1' : 'scrollbar-none hidden-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
             currentStageDef?.type === 'REWARD' ? 'overflow-y-auto pb-28 sm:pb-6' : '',
-            currentStageDef?.type === 'VIDEO' ? 'overflow-y-auto overflow-x-hidden overscroll-contain pb-20 md:pb-1' : '',
+            currentStageDef?.type === 'VIDEO' ? 'overflow-hidden md:overflow-hidden overflow-x-hidden overscroll-contain pb-1' : '',
           )}
         >
           {StageComp && (

@@ -122,8 +122,8 @@ function preferredContext(
   )
 }
 
-async function hydrateAdultAccess(user: User) {
-  const access = await api<AccountAccess>('/api/auth/access')
+async function hydrateAdultAccess(user: User, sessionAccess?: AccountAccess) {
+  const access = sessionAccess ?? await api<AccountAccess>('/api/auth/access')
   const context = preferredContext(access, user.role)
   if (!context) return { user, access, activeContext: null }
   // Returning users already have their selected context persisted server-side.
@@ -146,7 +146,7 @@ async function exchangeFirebaseSession(
   idToken: string,
   options: { role: 'parent'; registration?: { nickname?: string; parentalConsentAccepted: boolean } },
 ) {
-  const { user } = await api<{ user: User }>('/api/auth/login/firebase', {
+  const { user, access } = await api<{ user: User; access?: AccountAccess }>('/api/auth/login/firebase', {
     method: 'POST',
     body: JSON.stringify({
       idToken,
@@ -161,7 +161,7 @@ async function exchangeFirebaseSession(
         : {}),
     }),
   })
-  return hydrateAdultAccess(user)
+  return hydrateAdultAccess(user, access)
 }
 
 export function resolveLoginAlias(login: string): string {

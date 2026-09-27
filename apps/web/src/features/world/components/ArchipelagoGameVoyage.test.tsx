@@ -1,0 +1,90 @@
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { MemoryRouter } from 'react-router'
+import { describe, it, expect } from 'vitest'
+import { ArchipelagoGameVoyage } from './ArchipelagoGameVoyage'
+
+describe('ArchipelagoGameVoyage', () => {
+  it('renders unified card layout without empty right info card column', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ArchipelagoGameVoyage, {
+          courses: [
+            {
+              id: 'dao-1',
+              title: 'Đảo Tiên Quyết',
+              shortTitle: '10 Quy tắc vàng',
+              description: 'Nắm vững 10 nguyên tắc',
+              status: 'completed',
+              totalStars: 15,
+              questCount: 5,
+              completedCount: 5,
+            },
+            {
+              id: 'dao-2',
+              title: 'Đảo Khám Phá',
+              shortTitle: '4 Chìa khóa lệnh',
+              description: 'Tạo hình ảnh đơn lẻ',
+              status: 'active',
+              totalStars: 6,
+              questCount: 4,
+              completedCount: 2,
+            },
+          ] as any,
+        })
+      )
+    )
+
+    // Should NOT have the old empty right-hand side column
+    expect(html).not.toContain('w-full lg:w-80 shrink-0')
+    expect(html).not.toContain('Info Card side')
+
+    // Should have the unified card with soft clay styling
+    expect(html).toContain('rounded-[2rem]')
+    expect(html).toContain('shadow-clay')
+    expect(html).toContain('Lộ Trình Trạm Học:')
+  })
+
+  it('renders compact diorama header and 2-column station grid', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ArchipelagoGameVoyage)
+      )
+    )
+
+    // Header has progress information
+    expect(html).toContain('Tiến độ:')
+    expect(html).toContain('trạm xong')
+
+    // Stations roadmap rendered in 2-column responsive grid
+    expect(html).toContain('grid grid-cols-1 sm:grid-cols-2')
+    expect(html).toContain('TRẠM 1')
+  })
+
+  it('complies strictly with Hallmark UI: zero emoji glyphs and zero arrows', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ArchipelagoGameVoyage)
+      )
+    )
+
+    // Zero emoji glyphs in buttons or badges
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+    expect(html.match(emojiRegex)).toBeNull()
+
+    // Zero star emoji
+    expect(html).not.toContain('⭐')
+
+    // Zero arrows in buttons
+    expect(html).not.toContain('→')
+    expect(html).not.toContain('➔')
+    expect(html).not.toContain('->')
+    expect(html).not.toContain('←')
+  })
+})

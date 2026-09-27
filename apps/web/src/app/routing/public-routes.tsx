@@ -14,9 +14,12 @@ const CredentialVerifyPage = lazy(() => import('@/features/achievements/pages/Cr
 const ChildPickerPage = lazy(() => import('@/features/family/pages/ChildPickerPage').then((module) => ({ default: module.ChildPickerPage })))
 const OnboardingPage = lazy(() => import('@/features/auth/pages/OnboardingPage').then((module) => ({ default: module.OnboardingPage })))
 const StudentConceptTestPage = lazy(() => import('@/features/concept/pages/StudentConceptTestPage').then((module) => ({ default: module.StudentConceptTestPage })))
+const AiKidCourseDemoPage = lazy(() => import('@/features/concept/pages/AiKidCourseDemoPage').then((module) => ({ default: module.AiKidCourseDemoPage })))
 
 export function createPublicRoutes() {
   return [
+    <Route key="course-demo" path="/course-demo" element={<AiKidCourseDemoPage />} />,
+    <Route key="demo" path="/demo" element={<AiKidCourseDemoPage />} />,
     <Route key="concept-test" path="/concept-test" element={<StudentConceptTestPage />} />,
     <Route key="lab-concept" path="/lab/concept" element={<StudentConceptTestPage />} />,
     <Route key="welcome" path="/" element={<WelcomePage />} />,

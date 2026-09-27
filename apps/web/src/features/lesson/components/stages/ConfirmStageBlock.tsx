@@ -508,10 +508,10 @@ export function ConfirmStageBlock({
             </div>
             <button
               type="button"
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 min-h-[48px] text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-md transition-all active:scale-95"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 min-h-[48px] text-sm sm:text-base font-black rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-clay transition-all active:scale-95"
               onClick={onContinue}
             >
-              <span>🎬 Xem video bài học thôi nào</span>
+              <span>🎬 Xem video bài học thôi nào • Tiếp Tục Sang Bài Test P4 (+1 Sao)</span>
             </button>
           </div>
         ) : (

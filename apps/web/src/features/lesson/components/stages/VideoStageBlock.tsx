@@ -45,14 +45,11 @@ export function VideoStageBlock({
     const element = stageRef.current
     if (!element || typeof ResizeObserver === 'undefined') return
     const canvas = element.closest<HTMLElement>('[data-testid="main-learning-canvas"]') ?? element
-    const updateLayout = (width: number, height: number) => {
-      // Observe the stable parent canvas, not this stage. Measuring the stage
-      // itself creates a feedback loop: horizontal layout changes its height,
-      // which can immediately switch it back to vertical and make it flicker.
-      // Prefer the bottom timeline until the canvas is genuinely panoramic.
-      // Around 16:10/3:2, reclaiming the 320px side rail produces a materially
-      // larger teaching video with less unused space.
-      setUseHorizontalTimeline(width < 768 || width / Math.max(height, 1) <= 1.75)
+    const updateLayout = (width: number, _height: number) => {
+      // Chỉ kích hoạt horizontal timeline dạng xếp chồng cho màn hình di động hẹp (< 768px).
+      // Trên Desktop / Laptop / Tablet (>= 768px), luôn giữ layout 2 cột side-by-side (Video bên trái, Timeline bên phải).
+      // Layout này vừa khít 100% viewport (chiều cao ~570px <= 574px), không bao giờ bị cuộn dọc.
+      setUseHorizontalTimeline(width < 768)
     }
     const observer = new ResizeObserver(([entry]) => {
       if (entry) updateLayout(entry.contentRect.width, entry.contentRect.height)
@@ -198,7 +195,7 @@ export function VideoStageBlock({
       ref={stageRef}
       data-testid="stage-2-video"
       data-timeline-layout={useHorizontalTimeline ? 'horizontal' : 'vertical'}
-      className="lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden overflow-y-auto flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border border-slate-200/80 bg-white p-2.5 shadow-xs animate-fade-up sm:p-3"
+      className={cn("lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border border-slate-200/80 bg-white p-2.5 shadow-xs animate-fade-up sm:p-3", useHorizontalTimeline ? "overflow-y-auto" : "overflow-hidden")}
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>

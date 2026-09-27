@@ -312,6 +312,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                     islandTitle={currentIslandTitle}
                     stationTitle={currentStationTitle}
                     initialTrack={selectedIslandId === 'dao-2' ? 'course_studio' : 'rules'}
+                    showTrackSwitcher={true}
                     onBackToRoadmap={() => setActiveTab('island_station')}
                     onCompleteStation={() => {
                       setActiveTab('island_station')
@@ -389,6 +390,7 @@ export const StudentConceptTestPage: React.FC<StudentConceptTestPageProps> = ({
                   islandTitle={currentIslandTitle}
                   stationTitle={currentStationTitle}
                   initialTrack={selectedIslandId === 'dao-2' ? 'course_studio' : 'rules'}
+                  showTrackSwitcher={true}
                   onBackToRoadmap={() => setActiveTab('island_station')}
                   onCompleteStation={() => {
                     setActiveTab('island_station')

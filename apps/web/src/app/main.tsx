@@ -11,6 +11,12 @@ import '../shared/styles/index.css'
 
 initAffiliateTracker()
 
+if (import.meta.env.DEV) {
+  import('@/shared/store/auth').then(({ useAuth }) => {
+    ;(window as any).useAuth = useAuth
+  })
+}
+
 window.addEventListener('vite:preloadError', (event) => {
   const lastReload = sessionStorage.getItem('vite_preload_error_reload')
   const now = Date.now()

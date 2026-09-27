@@ -198,10 +198,10 @@ export function GoalStageBlock({
       <div className="pt-2 flex justify-end border-t border-slate-100">
         <button
           type="button"
-          className="w-full sm:w-auto min-h-[48px] px-8 py-3.5 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
+          className="w-full sm:w-auto min-h-[48px] px-8 py-3.5 text-sm sm:text-base font-black rounded-2xl bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-2 cursor-pointer shadow-clay transition-all active:scale-95"
           onClick={onContinue}
         >
-          <span>Đã hiểu mục tiêu! Bắt đầu học</span>
+          <span>Đã hiểu mục tiêu! Tiếp Tục Sang Bước 2: Xác Nhận Nhanh</span>
         </button>
       </div>
     </section>

@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { Lock } from 'lucide-react'
 import type { CourseSummary } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
@@ -291,7 +290,7 @@ export const SecondaryCoursesSection: React.FC<SecondaryCoursesSectionProps> = (
                         </span>
                       ) : (
                         <span className="bg-amber-50/95 text-amber-900 border border-amber-200/80 text-[10px] font-black px-2 py-0.5 rounded-full shadow-2xs inline-flex items-center gap-1 backdrop-blur-xs">
-                          <Lock className="w-3 h-3 text-amber-700" />
+                          <span>🔒</span>
                           Chưa Mở Khóa
                         </span>
                       )}
@@ -336,7 +335,7 @@ export const SecondaryCoursesSection: React.FC<SecondaryCoursesSectionProps> = (
                   )}
                 </div>
 
-                {/* Footer Action Card */}
+                {/* Footer Action Card (NO SVG INSIDE BUTTON) */}
                 <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col gap-2 min-w-0">
                   {course.enrolled ? (
                     <>
@@ -356,7 +355,7 @@ export const SecondaryCoursesSection: React.FC<SecondaryCoursesSectionProps> = (
                         </div>
                       </div>
 
-                      {/* Nút kẹo Học tiếp */}
+                      {/* Nút Học tiếp */}
                       <button
                         type="button"
                         onClick={() => onSelectCourse?.(course)}
@@ -367,16 +366,15 @@ export const SecondaryCoursesSection: React.FC<SecondaryCoursesSectionProps> = (
                     </>
                   ) : (
                     <>
-                      {/* Nút kẹo Mở khóa */}
+                      {/* Nút Mở khóa (NO SVG INSIDE BUTTON) */}
                       <button
                         type="button"
                         onClick={() =>
                           onUnlockCourse ? onUnlockCourse(course) : onSelectCourse?.(course)
                         }
-                        className="w-full min-h-[38px] px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-black shadow-2xs active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                        className="w-full min-h-[38px] px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-black shadow-2xs active:scale-98 transition-all flex items-center justify-center cursor-pointer text-center"
                       >
-                        <Lock className="w-3.5 h-3.5 text-white/90" />
-                        <span>Mở khóa</span>
+                        Mở khóa
                       </button>
                     </>
                   )}

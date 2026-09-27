@@ -86,9 +86,9 @@ export function ProfileHeaderCard({
             onClick={onOpenAvatarPicker}
             aria-label="Đổi hình đại diện"
             title="Đổi hình đại diện"
-            className="absolute -bottom-1 -right-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white text-[#C0392B] shadow-clay hover:scale-105 active:scale-95 transition-transform border-2 border-white/90 cursor-pointer"
+            className="absolute -bottom-1 -right-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white text-[#C0392B] shadow-clay hover:scale-105 active:scale-95 transition-transform border-2 border-white/90 cursor-pointer text-sm"
           >
-            <SoftClayBrushIcon size={18} />
+            <span>✏️</span>
           </button>
         </div>
 

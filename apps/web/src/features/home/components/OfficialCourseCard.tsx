@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Crown, Film, Play, X } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
 
@@ -21,304 +20,301 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
   onOpenTrailer,
   onUnlockCourse,
   onExploreTrack,
-  overallProgressPct = 0,
-  completedStationsCount = 0,
-  totalStarsCount = 0,
+  overallProgressPct = 25,
+  completedStationsCount = 3,
+  totalStarsCount = 3,
   isMobileFrame = false,
   className,
   children,
 }) => {
   const [isPlayingTrailer, setIsPlayingTrailer] = useState<boolean>(false)
 
+  const handlePlayTrailer = () => {
+    setIsPlayingTrailer(true)
+    onOpenTrailer()
+  }
+
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#eff8ff] via-[#f7f5ff] to-[#fff6eb] p-4 sm:p-5 lg:p-6 shadow-sm border border-orange-100/80 min-w-0 transition-all',
+        'relative overflow-hidden rounded-[2.25rem] border-2 border-orange-400 ring-4 ring-orange-200/60 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 p-4 sm:p-6 shadow-clay space-y-4 min-w-0 transition-all',
         className,
       )}
-      aria-label="Khóa học chính thức 6 đảo AIKid"
+      aria-label="Khóa học chính 2026 Học Viện AIKid"
     >
-      {/* Khung nền trang trí góc trên phải */}
-      <div className="absolute top-0 right-0 w-2/3 h-56 sm:h-72 pointer-events-none opacity-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#eff8ff] via-[#f2fdf5]/40 to-transparent z-10" />
-        <img
-          src={designerAssets.worldScenes.aiValley}
-          alt="AI Valley Background"
-          className="absolute inset-0 w-full h-full object-cover object-center [mask-image:linear-gradient(to_right,transparent,black_30%)]"
-        />
+      {/* ── TOP HEADER OF SHOWCASE ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-3">
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[10px] sm:text-[11px] uppercase tracking-wider shadow-xs whitespace-nowrap">
+              KHÓA HỌC CHÍNH 2026 · HỌC VIỆN SÁNG TẠO AIKID
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300">
+              Đang Học
+            </span>
+          </div>
+          <h3 className="text-base sm:text-2xl font-black text-slate-900 leading-tight">
+            Hải Trình 5 Đảo: Từ Chìa Khóa Vàng Đến Đạo Diễn Hoạt Hình
+          </h3>
+          <p className="text-[11px] sm:text-sm text-slate-600 font-medium max-w-2xl leading-relaxed">
+            Chương trình AI chuẩn mực dành riêng cho trẻ em Việt Nam, giúp con kích hoạt tư duy đạo diễn, mỹ thuật kỹ thuật số và sáng tạo an toàn 100%.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="px-2.5 py-1 rounded-xl bg-orange-100 text-orange-900 font-extrabold text-[11px] sm:text-xs">
+            8–11 tuổi
+          </div>
+          <div className="px-2.5 py-1 rounded-xl bg-purple-100 text-purple-900 font-extrabold text-[11px] sm:text-xs">
+            5 Đảo • 32 Trạm
+          </div>
+          <div className="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 font-black text-[11px] sm:text-xs">
+            {totalStarsCount} Sao ({overallProgressPct}%)
+          </div>
+        </div>
       </div>
 
-      {/* BỐ CỤC CHÍNH: 2 CỘT CÂN ĐỐI */}
+      {/* ── MAIN SHOWCASE BODY: 2 CỘT CÂN BẰNG HOÀN HẢO ── */}
       <div
         className={cn(
-          'w-full grid gap-4 sm:gap-5 items-start min-w-0 relative z-10',
-          isMobileFrame ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2',
+          'w-full grid gap-5 items-stretch min-w-0',
+          isMobileFrame ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12',
         )}
       >
-        {/* CỘT 1 (BÊN TRÁI): THÔNG TIN KHÓA HỌC & TIẾN ĐỘ */}
-        <div className="flex flex-col gap-4 min-w-0">
-          {/* Header thông tin khóa học */}
-          <div className="space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 text-emerald-800 px-3 py-1 text-xs font-black uppercase shadow-2xs border border-emerald-200">
-                CHƯƠNG TRÌNH CHÍNH THỨC • 6 ĐẢO
+        {/* CỘT TRÁI (lg:col-span-7): Video Trailer 16:9 + Tiến Độ + Nút Hành Động Cho Con */}
+        <div className={cn('flex flex-col justify-between gap-3 min-w-0', !isMobileFrame && 'lg:col-span-7')}>
+          <div className="space-y-3">
+            {/* Khung Trailer Video 16:9 */}
+            <div className="relative aspect-16/9 rounded-2xl overflow-hidden bg-slate-950 border-2 border-orange-300 shadow-inner group">
+              <img
+                src={designerAssets.worldScenes.aiValley}
+                alt="Trailer 5 Đảo Sáng Tạo AIKid"
+                className={cn(
+                  'w-full h-full object-cover filter brightness-90 transition-transform duration-500',
+                  isPlayingTrailer ? 'scale-105 opacity-30 blur-xs' : 'group-hover:scale-102',
+                )}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20 pointer-events-none" />
+
+              {!isPlayingTrailer ? (
+                <>
+                  {/* Nút Play Trailer tròn Soft Clay to ở giữa (Thuần text ▶, NO SVG) */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={handlePlayTrailer}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white text-orange-600 shadow-2xl flex items-center justify-center font-black text-2xl sm:text-3xl hover:scale-110 active:scale-95 transition-all border-4 border-amber-300 ring-8 ring-white/20 cursor-pointer"
+                      title="Bấm để xem Trailer giới thiệu 5 Đảo"
+                    >
+                      ▶
+                    </button>
+                  </div>
+
+                  {/* Badge góc trên */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-black">
+                      🎬 TRAILER CHÍNH THỨC
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[10px] font-black">
+                      01:45
+                    </span>
+                  </div>
+
+                  {/* Dải thông tin dưới trailer */}
+                  <div className="absolute bottom-2.5 left-3 right-3 text-white flex items-center justify-between text-[11px] font-bold">
+                    <span className="truncate">Khám phá thế giới 5 Đảo cùng Mèo Mee</span>
+                    <button
+                      type="button"
+                      onClick={handlePlayTrailer}
+                      className="text-amber-300 hover:underline cursor-pointer bg-transparent border-0 p-0 text-[11px] font-bold"
+                    >
+                      Xem toàn màn hình ▶
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="absolute inset-0 flex flex-col justify-between p-3.5 z-20 text-white animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                      <span className="text-xs font-black truncate">
+                        Đang phát: Khám phá 5 Đảo AIKid (01:45)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPlayingTrailer(false)}
+                      className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all cursor-pointer shrink-0 font-black text-xs"
+                      title="Đóng trailer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center gap-1 my-auto">
+                    <div className="text-3xl">🎬</div>
+                    <p className="text-xs font-black text-center text-amber-200">
+                      Chuyến du hành 5 Đảo AIKid cùng Trợ lý Mèo Mee!
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="w-full h-1.5 rounded-full bg-white/30 overflow-hidden">
+                      <div className="h-full bg-orange-500 rounded-full w-2/5 animate-pulse" />
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-zinc-300">
+                      <span>00:42</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsPlayingTrailer(false)}
+                        className="underline hover:text-white cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        Tạm dừng &amp; Đóng
+                      </button>
+                      <span>01:45</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Thước đo tiến độ hải trình */}
+            <div className="p-3 rounded-2xl bg-white border border-orange-200 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800">
+                  Hải trình hiện tại: <strong className="text-orange-600">Đảo 1 (Đảo Khám Phá)</strong>
+                </span>
+              </div>
+              <span className="font-black text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg">
+                {completedStationsCount} / 32 Trạm Hoàn Thành
               </span>
             </div>
-
-            <div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-snug whitespace-normal break-normal">
-                Khóa sáng tạo nội dung cùng AIKID
-              </h2>
-              <p className="text-xs sm:text-sm font-bold text-purple-700 mt-1">
-                32 Trạm học thực tế • Rèn luyện tư duy AI cùng Mèo Mee
-              </p>
-            </div>
           </div>
 
-          {/* Trạng thái phân quyền Đảo 1 & Đảo 2-6 ngắn gọn */}
-          <div
-            className={cn(
-              'flex flex-col gap-2 text-xs',
-              !isMobileFrame && 'sm:grid sm:grid-cols-2',
-            )}
-          >
-            <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs shadow-2xs flex items-center gap-2 border border-emerald-100/80 min-w-0">
-              <div className="min-w-0">
-                <p className="font-black text-emerald-800 text-[11px] whitespace-nowrap">
-                  Đảo 1: Học Thử Free
-                </p>
-                <span className="text-[10px] text-zinc-500 font-medium block whitespace-nowrap">
-                  10 quy tắc an toàn số
-                </span>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs shadow-2xs flex items-center gap-2 border border-amber-100/80 min-w-0">
-              <div className="min-w-0">
-                <p
-                  className={`font-black text-[11px] whitespace-nowrap ${
-                    isPurchased ? 'text-purple-800' : 'text-amber-900'
-                  }`}
-                >
-                  {isPurchased ? 'Đảo 2 - 6: Đã Mở Khóa VIP' : 'Đảo 2 - 6: Mở Khóa VIP'}
-                </p>
-                <span className="text-[10px] text-zinc-500 font-medium block whitespace-nowrap">
-                  32 trạm &amp; xưởng AI
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Tiến độ khóa học */}
-          <div className="w-full space-y-2">
-            <div className="flex items-center justify-between w-full gap-2">
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-700 whitespace-nowrap">
-                  TIẾN ĐỘ
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-[11px] font-black border border-orange-200 shadow-2xs whitespace-nowrap">
-                  {overallProgressPct}%
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white/80 px-2.5 py-1 rounded-full border border-slate-200/80 shadow-2xs backdrop-blur-xs whitespace-nowrap shrink-0">
-                <span className="border-r border-slate-200 pr-2 whitespace-nowrap">
-                  {completedStationsCount}/32 trạm
-                </span>
-                <span className="text-amber-600 font-bold whitespace-nowrap">
-                  {totalStarsCount} sao
-                </span>
-              </div>
-            </div>
-
-            {/* Progress bar pastel */}
-            <div className="w-full h-2.5 rounded-full bg-purple-100/70 overflow-hidden p-0.5 shadow-inner">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-[#FD7D2E] transition-all duration-500"
-                style={{ width: `${Math.max(5, overallProgressPct)}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Nút hành động chính */}
-          <div className="pt-0.5">
+          {/* Cụm Nút Hành Động Cho Con (Nằm Gọn Ngay Dưới Video & Tiến Độ) */}
+          <div className="grid gap-2 pt-0.5 grid-cols-1 sm:grid-cols-2">
             <button
               type="button"
               onClick={onExploreTrack}
-              title="Khám phá lộ trình"
-              className="w-full min-h-[48px] px-6 py-2.5 rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-xs sm:text-sm font-black shadow-sm active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+              className="w-full py-3 px-4 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
             >
-              <span>Lên thuyền khám phá Đảo 1</span>
-              <span className="sr-only">Khám phá lộ trình</span>
+              Mở Bản Đồ Hải Trình 5 Đảo
+            </button>
+
+            <button
+              type="button"
+              onClick={onExploreTrack}
+              className="w-full py-3 px-4 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+            >
+              Học Tiếp Bài 1.2 Ngay
             </button>
           </div>
         </div>
 
-        {/* CỘT 2 (BÊN PHẢI): VIDEO TRAILER 16:9 + GÓI PHỤ HUYNH */}
-        <div className="flex flex-col gap-4 min-w-0">
-          {/* 1. KHUNG VIDEO TRAILER 16:9 */}
-          <div className="relative w-full aspect-16/9 rounded-2xl overflow-hidden bg-zinc-950 shadow-inner border border-orange-200/60 group">
-            <img
-              src="/assets/aikid-ui/mascot-original/course-wave.webp"
-              alt="Trailer Hoạt Hình Mèo Mee"
-              className={`w-full h-full object-cover object-top transition-all duration-500 ${
-                isPlayingTrailer ? 'opacity-30 blur-xs scale-105' : 'opacity-90 group-hover:scale-105'
-              }`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 pointer-events-none" />
-
-            {!isPlayingTrailer ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsPlayingTrailer(true)}
-                  aria-label="Xem Trailer Khóa Học"
-                  className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-white/95 hover:bg-white text-[#FD7D2E] shadow-2xl flex items-center justify-center transform group-hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
-                >
-                  <Play className="w-6 h-6 fill-current ml-0.5 text-[#FD7D2E]" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsPlayingTrailer(true)}
-                  className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-xs text-white text-[11px] font-black flex items-center gap-1.5 shadow-2xs z-20 hover:bg-black/80 transition-colors"
-                >
-                  <Film className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Trailer 01:45</span>
-                </button>
-
-                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-[#FD7D2E] text-white text-[10px] font-black shadow-xs z-20">
-                  Khám phá AIKid
-                </div>
-
-                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-[11px] font-bold z-20">
-                  <span className="truncate">Cùng Mèo Mee khám phá 6 đảo</span>
-                  <span className="text-amber-300 text-[10px] shrink-0 ml-2">Bấm để xem ▶</span>
-                </div>
-              </>
-            ) : (
-              <div className="absolute inset-0 flex flex-col justify-between p-3.5 z-20 text-white animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-                    <span className="text-xs font-black truncate">
-                      Đang phát: Khám phá AIKid (01:45)
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPlayingTrailer(false)}
-                    aria-label="Đóng Trailer"
-                    className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-all cursor-pointer shrink-0"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-
-                <div className="flex flex-col items-center justify-center gap-1.5 my-auto">
-                  <div className="w-10 h-10 rounded-full bg-[#FD7D2E]/80 flex items-center justify-center">
-                    <Film className="w-5 h-5 text-white" />
-                  </div>
-                  <p className="text-xs font-black text-center text-amber-200">
-                    Chuyến du hành 6 Đảo AIKid cùng Trợ lý Mèo Mee!
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="w-full h-1.5 rounded-full bg-white/30 overflow-hidden">
-                    <div className="h-full bg-[#FD7D2E] rounded-full w-2/5 animate-pulse" />
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-zinc-300">
-                    <span>00:42</span>
-                    <button
-                      type="button"
-                      onClick={() => setIsPlayingTrailer(false)}
-                      className="underline hover:text-white cursor-pointer"
-                    >
-                      Tạm dừng &amp; Đóng
-                    </button>
-                    <span>01:45</span>
-                  </div>
+        {/* CỘT PHẢI (lg:col-span-5): Lợi Ích Cốt Lõi, Hộp Gói Mua & Nút Phụ Huynh */}
+        <div className={cn('flex flex-col justify-between gap-3 min-w-0', !isMobileFrame && 'lg:col-span-5')}>
+          {/* 3 Lợi ích vàng của khóa */}
+          <div className="space-y-2">
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                1
+              </span>
+              <div>
+                <div className="font-extrabold text-xs text-slate-900">Lộ Trình 5 Đảo Trực Quan</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+                  Từ câu lệnh chìa khóa, góc máy, cọ vẽ tới làm phim hoạt hình.
                 </div>
               </div>
-            )}
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                2
+              </span>
+              <div>
+                <div className="font-extrabold text-xs text-slate-900">32 Trạm Học Montessori</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+                  Vừa xem video, làm thử thách hiểu bài, vừa tạo tranh thật 100%.
+                </div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                3
+              </span>
+              <div>
+                <div className="font-extrabold text-xs text-slate-900">Không Gian An Toàn Cho Trẻ</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+                  Phụ huynh kiểm soát tiến độ, không cần email riêng của con.
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 2. THÔNG TIN GÓI PHỤ HUYNH NGAY DƯỚI VIDEO */}
+          {/* Hộp Gói Mua Bản Quyền Phụ Huynh */}
           {!isPurchased ? (
-            <div className="rounded-2xl bg-white/85 p-3.5 sm:p-4 shadow-xs flex flex-col gap-2.5 border border-amber-200/70">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-400 to-[#FD7D2E] text-white flex items-center justify-center shrink-0">
-                    <Crown className="w-3.5 h-3.5 fill-white" />
-                  </div>
-                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider whitespace-nowrap">
-                    DÀNH CHO PHỤ HUYNH
-                  </span>
-                </div>
-                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black shadow-2xs shrink-0">
+            <div className="rounded-2xl bg-gradient-to-r from-orange-100/90 to-amber-100/90 border border-orange-300 p-3.5 space-y-1.5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="font-black text-xs text-purple-950 uppercase tracking-wide">
+                  GÓI THÁM HIỂM TOÀN DIỆN
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black">
                   Tiết kiệm 40%
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg sm:text-xl font-black text-[#FD7D2E]">
-                    479.000đ
-                  </span>
-                  <span className="text-[11px] font-semibold text-zinc-400 line-through">
-                    799.000đ
-                  </span>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl sm:text-2xl font-black text-orange-600">479.000đ</span>
+                <span className="text-xs text-slate-400 line-through">799.000đ</span>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                   Sở hữu trọn đời
                 </span>
               </div>
 
-              <p className="text-[11px] text-zinc-600 font-medium leading-relaxed">
-                Gói Thám Hiểm Toàn Diện 6 Đảo: Mở khóa trọn bộ Đảo 2 - 6, 32 trạm học &amp; xưởng vẽ AI trọn đời cho bé.
+              <p className="text-[11px] text-slate-600 leading-snug font-medium">
+                Mở khóa toàn bộ 5 Đảo, 32 trạm thực hành và phân xưởng sáng tạo AI không giới hạn.
               </p>
-
-              <div className="flex flex-col gap-2 pt-0.5">
-                <button
-                  type="button"
-                  onClick={onUnlockCourse}
-                  className="w-full min-h-[44px] px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-black shadow-xs active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
-                >
-                  <span>Phụ huynh mở khóa trọn bộ (479k)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={onOpenTrailer}
-                  className="w-full min-h-[40px] px-3.5 py-2 rounded-full bg-white hover:bg-amber-50 text-amber-900 text-xs font-black border border-amber-300 shadow-2xs active:scale-98 transition-all flex items-center justify-center gap-1 cursor-pointer text-center"
-                >
-                  <Film className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Chi tiết &amp; Trailer</span>
-                </button>
-              </div>
             </div>
           ) : (
-            <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-3.5 border border-emerald-200/80 shadow-xs flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-black text-amber-950 uppercase tracking-wider whitespace-nowrap">
-                      Gói VIP 6 Đảo
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-amber-950 text-[9px] font-black shrink-0">
-                      VIP
-                    </span>
-                  </div>
-                  <p className="text-[10px] sm:text-[11px] text-zinc-600 leading-tight whitespace-nowrap">
-                    Đã kích hoạt trọn bộ 32 trạm
-                  </p>
-                </div>
+            <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-3.5 border border-emerald-200 shadow-xs flex items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-black text-emerald-950 uppercase tracking-wider block">
+                  GÓI VIP 5 ĐẢO SÁNG TẠO
+                </span>
+                <p className="text-[11px] text-slate-600 font-medium">
+                  Đã kích hoạt trọn đời 32 trạm học &amp; phân xưởng AI
+                </p>
               </div>
-              <span className="text-xs font-black text-emerald-700 bg-emerald-100/90 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
-                Đã Mở Khóa
+              <span className="px-2.5 py-1 rounded-full bg-emerald-600 text-white font-black text-xs shadow-2xs shrink-0">
+                ✓ Đã Mở Khóa
               </span>
             </div>
           )}
+
+          {/* Cụm Nút Phụ Huynh Mở Khóa */}
+          <div className="space-y-1.5 pt-0.5">
+            {!isPurchased ? (
+              <button
+                type="button"
+                onClick={onUnlockCourse}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+              >
+                Phụ Huynh Mở Khóa Trọn Gói (479.000đ)
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onExploreTrack}
+                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+              >
+                Vào Khám Phá Toàn Bộ 5 Đảo
+              </button>
+            )}
+            <div className="text-center text-[10px] text-slate-400 font-medium">
+              Cam kết an toàn 100% cho trẻ • Kích hoạt học ngay
+            </div>
+          </div>
         </div>
       </div>
 

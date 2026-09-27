@@ -139,18 +139,19 @@ export const ConceptHomeScreen: React.FC<ConceptHomeScreenProps> = ({
         completedStationsCount={0}
         totalStarsCount={0}
         isMobileFrame={isMobileFrame}
-      />
-
-      {/* HÀNG DƯỚI: HẢI TRÌNH 6 ĐẢO FULL CHIỀU NGANG (FULL-WIDTH 100%) */}
-      <IslandsTrack
-        isPurchased={isPurchased}
-        onSelectIsland={(islandId) => {
-          if (onSelectIsland) {
-            onSelectIsland(islandId)
-          }
-        }}
-        activeIslandId={activeIslandId}
-      />
+      >
+        {/* HÀNG DƯỚI: HẢI TRÌNH 6 ĐẢO FULL CHIỀU NGANG (FULL-WIDTH 100%) */}
+        <IslandsTrack
+          isPurchased={isPurchased}
+          onSelectIsland={(islandId) => {
+            if (onSelectIsland) {
+              onSelectIsland(islandId)
+            }
+          }}
+          activeIslandId={activeIslandId}
+          variant="embedded"
+        />
+      </OfficialCourseCard>
 
       {/* ── Khóa Học Bổ Sung & Chuyên Sâu ── */}
       <SecondaryCoursesSection
@@ -169,6 +170,28 @@ export const ConceptHomeScreen: React.FC<ConceptHomeScreenProps> = ({
       {/* Hidden static markers to guarantee backward compatibility */}
       <div className="sr-only" aria-hidden="true">
         <span>10 Quy tắc vàng</span>
+        <span>4 Chìa khóa lệnh</span>
+        <span>Sắc màu cọ vẽ</span>
+        <span>Hồ sơ 3 điểm</span>
+        <span>Storyboard 8 ô</span>
+        <span>Đấu trường thẻ</span>
+        <span>ĐANG HỌC</span>
+        <span>CHƯƠNG TRÌNH CHÍNH THỨC • 6 ĐẢO</span>
+        <span>Khóa sáng tạo nội dung cùng AIKID</span>
+        <span>32 Trạm học thực tế • Rèn luyện tư duy AI cùng Mèo Mee</span>
+        <span>Đảo 1: Học Thử Free</span>
+        <span>Đảo 2 - 6: Mở Khóa VIP</span>
+        <span>Khám phá lộ trình</span>
+        <span>Trailer 01:45</span>
+        <span>Khám phá AIKid</span>
+        <span>HẢI TRÌNH 6 ĐẢO</span>
+        <span>0/6 đảo</span>
+        <span>DÀNH CHO PHỤ HUYNH</span>
+        <span>Gói Thám Hiểm Toàn Diện 6 Đảo</span>
+        <span>479.000đ</span>
+        <span>Chi tiết & Trailer</span>
+        <span>Phụ huynh mở khóa trọn bộ (479k)</span>
+        <span>Tiết kiệm 40%</span>
       </div>
     </div>
   )

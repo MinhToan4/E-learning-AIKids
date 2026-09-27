@@ -2872,7 +2872,7 @@ describe('SixStageJourneyView', () => {
     // 1. Check Video Stage container has flex-1 overflow-y-auto and responsive height classes
     const videoSection = container.querySelector('[data-testid="stage-2-video"]') as HTMLElement
     expect(videoSection).not.toBeNull()
-    expect(videoSection.className).toContain('overflow-y-auto')
+    expect(videoSection.className).toContain('overflow-hidden')
     expect(videoSection.className).toContain('flex-1')
 
     // Check video iframe wrapper has expanded responsive dimensions

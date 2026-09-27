@@ -181,9 +181,9 @@ function MobileLogoutButton() {
 
 // ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav: StudentNavItem[] = [
-  { to: '/home',     label: 'Nhà',     icon: KidHomeImageIcon,     tone: 'brand' },
-  { to: '/world',    label: 'Học',     icon: KidWorldImageIcon,    tone: 'sky' },
-  { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
+  { to: '/home',     label: 'Trang Chủ', icon: KidHomeImageIcon,     tone: 'brand' },
+  { to: '/world',    label: 'Bản Đồ',    icon: KidWorldImageIcon,    tone: 'sky' },
+  { to: '/profile',  label: 'Hồ Sơ',     icon: KidProfileAvatarIcon, tone: 'brand' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
   // Tạm thời ẩn Olympic 3D, Sự kiện, Cộng đồng để phát triển trên localhost
@@ -227,10 +227,9 @@ function KidProfileAvatarIcon({ size = 24, className = '' }: { size?: number; cl
 
 // ── Universal Floating Bottom Dock items (học sinh) ───────────
 const STUDENT_DOCK_ITEMS: RoleNavItem[] = [
-  { to: '/home', label: 'Phiêu lưu', icon: KidHomeImageIcon, end: true },
-  { to: '/world', label: 'Thư viện', icon: KidWorldImageIcon },
-  { to: '/creative', label: 'Yêu thích', icon: KidCreativeImageIcon },
-  { to: '/profile', label: 'Cá nhân', icon: KidProfileAvatarIcon },
+  { to: '/home', label: 'Trang Chủ', icon: KidHomeImageIcon, end: true },
+  { to: '/world', label: 'Bản Đồ', icon: KidWorldImageIcon },
+  { to: '/profile', label: 'Hồ Sơ', icon: KidProfileAvatarIcon },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -880,7 +879,7 @@ export function AppShell() {
         </aside>
       </div>
 
-      {!isLessonOrRule && (
+      {!isLessonOrRule && location.pathname !== '/home' && (
         <div className="fixed z-40 flex items-center gap-2 right-3 top-3 sm:right-4 md:right-6">
           {showParentButton && (
             <button
@@ -911,25 +910,27 @@ export function AppShell() {
         </div>
       )}
 
-      {/* Universal Floating Bottom Dock (dành cho học sinh cả Desktop & Mobile) */}
+      {/* Docked Bottom Navigation Bar (bám sát đáy màn hình mép dưới, cố định chuẩn thanh điều hướng, không float lơ lửng) */}
       {!isLessonOrRule && (
         <nav
-          aria-label="Floating Navigation Dock"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all w-full max-w-sm sm:max-w-md px-4 pointer-events-none"
+          aria-label="Student Navigation Bar"
+          className="fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] py-1 px-4 transition-all"
         >
-          <div className="student-floating-dock bg-white/95 backdrop-blur-md rounded-full px-6 py-2.5 flex items-center justify-between sm:justify-around shadow-2xl border border-slate-200/80 max-w-sm sm:max-w-md mx-auto pointer-events-auto">
+          <div className="max-w-[1024px] mx-auto flex items-center justify-around">
             {STUDENT_DOCK_ITEMS.map(({ to, label, icon: Icon }) => {
               const isItemActive =
                 to === '/home'
                   ? location.pathname === '/home' || location.pathname === '/'
                   : to === '/world'
-                    ? location.pathname.startsWith('/world') || location.pathname.startsWith('/course')
-                    : to === '/creative'
-                      ? location.pathname.startsWith('/creative')
-                      : location.pathname.startsWith('/progress') ||
-                        location.pathname.startsWith('/achievements') ||
-                        location.pathname.startsWith('/backpack') ||
-                        location.pathname.startsWith('/profile')
+                    ? location.pathname.startsWith('/world') ||
+                      location.pathname.startsWith('/course') ||
+                      location.pathname.startsWith('/creative')
+                    : location.pathname.startsWith('/progress') ||
+                      location.pathname.startsWith('/achievements') ||
+                      location.pathname.startsWith('/backpack') ||
+                      location.pathname.startsWith('/profile')
+
+              const emojiIcon = to === '/home' ? '🏠' : to === '/world' ? '🗺️' : '👤'
 
               return (
                 <NavLink
@@ -938,32 +939,24 @@ export function AppShell() {
                   onPointerEnter={() => prefetchRoute(to)}
                   onFocus={() => prefetchRoute(to)}
                   className={cn(
-                    'student-floating-tab flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl cursor-pointer transition-all active:scale-95 border border-transparent',
+                    'flex flex-col items-center gap-0.5 px-4 py-1 rounded-2xl transition-all cursor-pointer select-none active:scale-95',
                     isItemActive
-                      ? 'active bg-gradient-to-b from-[#FFF4EC] to-[#FFE8D6] border-[#FD7D2E]/40 shadow-xs text-[#FD7D2E] font-black'
-                      : 'text-slate-400 font-bold hover:text-slate-600'
+                      ? 'bg-purple-100/70 text-purple-700 font-black shadow-2xs'
+                      : 'text-slate-500 font-semibold hover:text-slate-800',
                   )}
                   data-active={isItemActive}
                   title={label}
                   aria-label={label}
                 >
-                  <div
-                    className={cn(
-                      'w-8 h-8 flex items-center justify-center transition-transform',
-                      isItemActive ? 'scale-105 transition-transform' : ''
-                    )}
-                  >
-                    <Icon size={22} className={isItemActive ? 'text-[#FD7D2E] scale-105 transition-transform' : 'text-slate-400'} />
-                  </div>
-                  <span
-                    className={cn(
-                      'text-[10px] tracking-tight',
-                      isItemActive ? 'text-[#FD7D2E] font-black' : 'text-slate-400 font-bold'
-                    )}
-                  >
+                  <span className="text-lg leading-none" aria-hidden="true">
+                    {emojiIcon}
+                  </span>
+                  <span className={cn('text-[11px] leading-tight', isItemActive ? 'font-black' : 'font-bold')}>
                     {label}
                   </span>
-                  {isItemActive && <span className="w-1.5 h-1.5 rounded-full bg-[#FD7D2E] mt-0.5" />}
+                  <span className="sr-only">
+                    <Icon size={20} />
+                  </span>
                 </NavLink>
               )
             })}

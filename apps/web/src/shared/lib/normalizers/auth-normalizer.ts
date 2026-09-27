@@ -1,4 +1,4 @@
-import { clearAccessToken, setAccessToken, type User } from '../api'
+import { clearAccessToken, setAccessToken, type AccountAccess, type User } from '../api'
 import { createUuid } from '../uuid'
 import {
   type GatewayRequest,
@@ -388,7 +388,12 @@ export function normalizeAuthGatewayResponse(
         },
       }
     }
-    return { user: baseUser }
+    return {
+      user: baseUser,
+      ...(payload.access && typeof payload.access === 'object'
+        ? { access: payload.access as AccountAccess }
+        : {}),
+    }
   }
 
   if (path === '/api/auth/me' && (payload.user || payload.id)) {

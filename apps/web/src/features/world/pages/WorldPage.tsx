@@ -18,6 +18,7 @@ import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { getCanonicalAikidCourseSlug, getCourseStationCount } from '@/shared/lib/course-station-count'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
+import { ArchipelagoGameVoyage } from '../components/ArchipelagoGameVoyage'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 import { designerAssets } from '@/shared/config/assets'
 import {
@@ -437,6 +438,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const [loading, setLoading] = useState(true)
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
+  const [viewMode, setViewMode] = useState<'game' | 'list'>('game')
 
   // Lắng nghe sự kiện hoàn thành bài học để xóa cache và tự động re-render bản đồ
   useEffect(() => {
@@ -1188,7 +1190,7 @@ export const AIKID_SIX_ISLANDS_CONFIG = [
 export function ModernIslandCard({
   course,
   index,
-  isRecommended,
+  isRecommended: _isRecommended,
   onLockedClick,
 }: {
   course: PathwayCourse
@@ -1236,22 +1238,24 @@ export function ModernIslandCard({
   }
 
   return (
-    <div
+    <article
+      id={`island-${safeIdx + 1}`}
       onClick={isLocked ? handleCardClick : undefined}
       className={cn(
-        'group relative flex min-w-0 flex-col items-center',
-        isLocked ? 'cursor-pointer opacity-80 hover:opacity-100' : '',
+        'group relative flex min-w-0 flex-col justify-between rounded-[2rem] border-2 bg-[#FFFDF7] p-3.5 sm:p-5 shadow-clay transition-all duration-300 hover:shadow-md h-full',
+        isActive ? 'border-orange-400 ring-2 ring-orange-200/60' : 'border-amber-200/90',
+        isLocked ? 'cursor-pointer opacity-85 hover:opacity-100 hover:border-amber-300' : '',
       )}
     >
-      <div className="relative min-w-0">
-        {/* Giữ trọn artwork theo đúng tỷ lệ gốc; không crop và không mask mất hai đầu ảnh. */}
-        <div className="relative mx-auto aspect-video w-full max-w-[52rem] overflow-visible">
+      <div>
+        {/* Khung ảnh Đảo To, Rõ Ràng, Tươi Sáng (Không bị hộp che mất nửa ảnh) */}
+        <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-amber-50/60 shadow-inner group flex items-center justify-center p-1.5 sm:p-2">
           <img
             src={config.scene}
             alt={config.title}
             className={cn(
               'h-full w-full object-contain object-center transition-transform duration-500',
-              !isLocked && 'group-hover:scale-[1.025]',
+              !isLocked && 'group-hover:scale-103',
               isLocked && 'filter grayscale contrast-75 brightness-95 opacity-70',
             )}
             loading={index < 2 ? 'eager' : 'lazy'}
@@ -1259,8 +1263,8 @@ export function ModernIslandCard({
           />
 
           {/* Badge số thứ tự: ĐẢO 1..6 */}
-          <div className="absolute left-[8%] top-[8%] z-20 flex items-center gap-1.5">
-            <span className="rounded-full border border-amber-200/80 bg-[#FFFDF7]/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-800 shadow-2xs">
+          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5">
+            <span className="rounded-full border border-amber-200/80 bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-800 shadow-2xs backdrop-blur-xs">
               {config.badge}
             </span>
             {course.isGatekeeper && (
@@ -1271,7 +1275,7 @@ export function ModernIslandCard({
           </div>
 
           {/* Trạng thái rõ ràng */}
-          <div className="absolute right-[8%] top-[8%] z-20">
+          <div className="absolute right-3 top-3 z-10">
             {isCompleted && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-xs border border-white/60">
                 <span>ĐÃ XONG</span>
@@ -1290,14 +1294,25 @@ export function ModernIslandCard({
             )}
           </div>
 
+          {/* Mèo AIKI đồng hành trên Đảo đang học */}
+          {isActive && (
+            <div className="absolute bottom-1 right-2 flex items-center gap-1 z-10 select-none animate-in fade-in duration-300">
+              <div className="bg-white/95 text-slate-900 px-2 py-0.5 rounded-xl rounded-br-xs text-[9.5px] font-black shadow-md border border-amber-300">
+                Vào cùng tớ nhé!
+              </div>
+              <img
+                src="/assets/aikid-ui/mascot-original/course-wave.webp"
+                alt="Mèo AIKI"
+                className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md"
+              />
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className="relative z-20 -mt-12 w-[calc(100%-1rem)] max-w-[52rem] min-w-0 rounded-[1.5rem] border border-amber-200/80 bg-[#FFFDF7] px-4 py-4 sm:px-6 shadow-clay sm:-mt-20 sm:w-[calc(100%-3rem)] md:rounded-[1.75rem]">
-        {/* Tên đảo & chủ đề học rõ ràng */}
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+        {/* Nội dung thông tin đảo tinh gọn, không box lồng thô cứng */}
+        <div className="mt-3.5 space-y-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+            <h3 className="font-display text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
               {config.title}
             </h3>
             <span className="text-xs font-black text-[#FD7D2E] shrink-0">
@@ -1305,13 +1320,13 @@ export function ModernIslandCard({
             </span>
           </div>
 
-          <p className="text-xs sm:text-[13px] font-medium text-slate-600 line-clamp-1 leading-relaxed">
+          <p className="text-xs font-medium text-slate-600 line-clamp-1 leading-relaxed">
             {config.description}
           </p>
         </div>
 
         {/* Thanh tiến độ */}
-        <div className="mt-3 space-y-1.5">
+        <div className="mt-3 space-y-1">
           <div className="flex items-center justify-between text-xs font-black">
             <span className="text-slate-600">Tiến độ đảo</span>
             <span
@@ -1341,6 +1356,7 @@ export function ModernIslandCard({
           </div>
         </div>
 
+        {/* Dãy các trạm học (Station Dots Soft Clay) */}
         {stationCount > 0 && (
           <div className="scrollbar-none mt-3 overflow-x-auto pb-1" aria-label={`${completedStations}/${stationCount} trạm hoàn thành`}>
             <ol className="flex min-w-max items-center gap-1.5 px-0.5">
@@ -1354,7 +1370,7 @@ export function ModernIslandCard({
                   (!isCompleted && stationNumber === completedStations + 1)
                 const stationSlug = station ? getStationSlug(station, isRuleCourse) : ''
                 const dotClassName = cn(
-                  'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-black transition-transform sm:h-9 sm:w-9',
+                  'inline-flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-black transition-transform cursor-pointer',
                   isDone
                     ? 'border-emerald-500 bg-emerald-500 text-white'
                     : isCurrent
@@ -1367,11 +1383,11 @@ export function ModernIslandCard({
                   (forceUnlock || station?.status !== 'locked')
 
                 return (
-                  <li key={`${course.id}-${station?.id || station?.slug || stationNumber}`} className="flex items-center gap-1.5">
+                  <li key={`${course.id}-${station?.id || station?.slug || stationNumber}`} className="flex items-center gap-1">
                     {canOpenStation && station ? (
                       <Link
                         to={`/world/${targetSlug}/lesson/${stationSlug}`}
-                        className={cn(dotClassName, 'hover:scale-105')}
+                        className={cn(dotClassName, 'hover:scale-110 active:scale-95')}
                         aria-label={`Mở trạm ${stationNumber}: ${station.title || ''}`}
                       >
                         {stationNumber}
@@ -1381,7 +1397,7 @@ export function ModernIslandCard({
                         {stationNumber}
                       </span>
                     )}
-                    {stationIndex < stationCount - 1 && <span className="h-0.5 w-3 rounded-full bg-amber-200 sm:w-5" />}
+                    {stationIndex < stationCount - 1 && <span className="h-0.5 w-2 rounded-full bg-amber-200" />}
                   </li>
                 )
               })}
@@ -1391,25 +1407,26 @@ export function ModernIslandCard({
 
         {/* Chỉ dẫn điều kiện mở khóa khi chưa mở */}
         {isLocked && (
-          <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-[#FFFCEB] border border-amber-200/70 p-2.5 text-xs font-semibold leading-relaxed text-amber-950/80">
-            <Lock size={13} className="shrink-0 text-amber-600" />
-            <span>{course.lockMessage || 'Bé hãy hoàn thành đảo trước để mở khóa nhé!'}</span>
+          <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-[#FFFCEB] border border-amber-200/70 p-2 text-xs font-semibold leading-relaxed text-amber-950/80">
+            <Lock size={12} className="shrink-0 text-amber-600" />
+            <span className="truncate">{course.lockMessage || 'Bé hãy hoàn thành Đảo Khám Phá trước để mở khóa nhé!'}</span>
           </div>
         )}
+      </div>
 
-        {/* Nút bấm hành động (ZERO ARROWS!) */}
-        <div className="pt-3">
+      {/* Nút bấm hành động (ZERO ARROWS, ZERO EMOJIS) */}
+      <div className="pt-3 mt-1">
         {isCompleted ? (
           <Link
             to={islandUrl}
-            className="block w-full sm:inline-block sm:w-auto"
+            className="block w-full"
             onPointerEnter={() => prefetchRoute(islandUrl)}
             onPointerDown={() => prefetchRouteImmediately(islandUrl)}
             onFocus={() => prefetchRoute(islandUrl)}
           >
             <Button
               variant="secondary"
-              className="min-h-11 w-full rounded-2xl border-emerald-300 px-6 py-2.5 text-xs font-black text-emerald-800 hover:bg-emerald-50 active:scale-95 sm:w-auto sm:min-w-40 sm:text-sm"
+              className="min-h-10 w-full rounded-xl border-emerald-300 px-4 py-2 text-xs sm:text-sm font-black text-emerald-800 hover:bg-emerald-50 active:scale-95 shadow-2xs"
             >
               Ôn lại đảo
             </Button>
@@ -1417,12 +1434,12 @@ export function ModernIslandCard({
         ) : isActive ? (
           <Link
             to={islandUrl}
-            className="block w-full sm:inline-block sm:w-auto"
+            className="block w-full"
             onPointerEnter={() => prefetchRoute(islandUrl)}
             onPointerDown={() => prefetchRouteImmediately(islandUrl)}
             onFocus={() => prefetchRoute(islandUrl)}
           >
-            <Button className="min-h-11 w-full rounded-2xl px-6 py-2.5 text-xs font-black active:scale-95 sm:w-auto sm:min-w-40 sm:text-sm">
+            <Button className="min-h-10 w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-2 text-xs sm:text-sm font-black active:scale-95 shadow-clay">
               Khám phá đảo
             </Button>
           </Link>
@@ -1431,14 +1448,13 @@ export function ModernIslandCard({
             type="button"
             variant="secondary"
             onClick={handleCardClick}
-            className="min-h-11 w-full cursor-pointer rounded-2xl border-amber-200 bg-white px-6 py-2.5 text-xs font-black text-amber-950 hover:bg-amber-50 active:scale-95 sm:w-auto sm:min-w-40 sm:text-sm"
+            className="min-h-10 w-full cursor-pointer rounded-xl border-amber-200 bg-white px-4 py-2 text-xs sm:text-sm font-black text-amber-950 hover:bg-amber-50 active:scale-95 shadow-2xs"
           >
             Xem điều kiện
           </Button>
         )}
-        </div>
       </div>
-    </div>
+    </article>
   )
 }
 
@@ -1451,49 +1467,77 @@ function ConnectedIslandJourney({
   recommendedCourseId?: string
   onLockedClick: (course: PathwayCourse) => void
 }) {
+  const scrollToIsland = (idx: number) => {
+    const el = document.getElementById(`island-${idx + 1}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+
   return (
-    <ol className="relative space-y-4 py-4 sm:space-y-6 sm:py-6" aria-label="Hải trình các đảo học tập">
-      {courses.map((course, index) => {
-        return (
-          <li key={course.id} className="relative z-10 min-w-0 py-2 sm:py-4">
-            <div className="min-w-0">
+    <div className="space-y-4 py-2 sm:py-3">
+      {/* ── THANH ĐIỀU HƯỚNG 6 ĐẢO NHANH (Mini Island Waypoint Bar) ── */}
+      <div className="scrollbar-none overflow-x-auto pb-1">
+        <nav
+          aria-label="Điều hướng nhanh 6 đảo"
+          className="flex min-w-max items-center gap-2 p-1.5 rounded-2xl bg-white/90 border border-amber-200/80 shadow-2xs"
+        >
+          {courses.map((course, index) => {
+            const order = getAikiCourseSortOrder(course)
+            const safeIdx =
+              order >= 0 && order < AIKID_SIX_ISLANDS_CONFIG.length
+                ? order
+                : index % AIKID_SIX_ISLANDS_CONFIG.length
+            const config = AIKID_SIX_ISLANDS_CONFIG[safeIdx]
+            const isCompleted = course.status === 'completed'
+            const isLocked = course.status === 'locked' && course.reasonCode !== 'manual_override'
+            const isActive = !isCompleted && !isLocked
+
+            return (
+              <button
+                key={`nav-${course.id}`}
+                type="button"
+                onClick={() => scrollToIsland(safeIdx)}
+                className={cn(
+                  'px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 border',
+                  isActive
+                    ? 'bg-orange-500 text-white border-orange-400 shadow-xs ring-2 ring-orange-200'
+                    : isCompleted
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100',
+                )}
+                title={`${config.badge}: ${config.title}`}
+              >
+                <span>{config.badge}</span>
+                <span className="font-extrabold text-[11px] opacity-90 hidden sm:inline">
+                  {config.title.replace('Đảo ', '')}
+                </span>
+                {isCompleted && <span className="text-[10px] font-black text-emerald-600">✓</span>}
+              </button>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* ── LƯỚI RESPONSIVE 2 CỘT TƯƠNG THÍCH MÀN HÌNH (KHÔNG PHẢI SCROLL RẤT NHIỀU) ── */}
+      <ol
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"
+        aria-label="Hải trình các đảo học tập"
+      >
+        {courses.map((course, index) => {
+          return (
+            <li key={course.id} className="min-w-0">
               <ModernIslandCard
                 course={course}
                 index={index}
                 isRecommended={course.id === recommendedCourseId}
                 onLockedClick={onLockedClick}
               />
-            </div>
-            {index < courses.length - 1 && (
-              <svg
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-[-11rem] left-1/2 z-0 h-48 w-20 -translate-x-1/2 overflow-visible"
-                viewBox="0 0 80 112"
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <path
-                  d="M40 0 C52 28 27 68 40 112"
-                  fill="none"
-                  stroke="rgba(255,253,244,.95)"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <path
-                  d="M40 0 C52 28 27 68 40 112"
-                  fill="none"
-                  stroke="#e8b84f"
-                  strokeWidth="3"
-                  strokeDasharray="2 10"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            )}
-          </li>
-        )
-      })}
-    </ol>
+            </li>
+          )
+        })}
+      </ol>
+    </div>
   )
 }
 
@@ -1640,12 +1684,11 @@ function PathwayOverview({
     ? Math.round((completedStations / totalStations) * 100)
     : 0
   const nextTicket = sourceRecommended && (
-    <div className="rounded-2xl bg-[#FFFDF7] border border-amber-200/80 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 shadow-clay">
+    <div className="rounded-2xl bg-[#FFFDF7] border-2 border-amber-200/90 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-clay">
       <div className="min-w-0 space-y-1">
         <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-[#FD7D2E] bg-[#FFF4EC] px-2.5 py-0.5 rounded-full border border-amber-200/60">
-            <Star size={11} className="fill-[#FD7D2E] text-[#FD7D2E]" />
-            <span>Trạm tiếp theo</span>
+          <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
+            Trạm tiếp theo
           </span>
           <span className="text-xs font-bold text-slate-500 truncate">
             {sourceRecommended.shortTitle || sourceRecommended.title}
@@ -1677,7 +1720,7 @@ function PathwayOverview({
                 : courseHref(sourceRecommended)
             }
           >
-            <Button className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-6 py-3 shadow-clay active:scale-95">
+            <Button className="w-full sm:w-auto rounded-2xl font-black text-xs sm:text-sm px-6 py-3 shadow-clay active:scale-95 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0">
               Vào học tiếp
             </Button>
           </Link>
@@ -1805,7 +1848,10 @@ function PathwayOverview({
   // ─────────────────────────────────────────────────────────────
   if (selectedSource === 'aikid_official' && !trackId) {
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-4 sm:gap-6 py-4 sm:py-6">
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-6 py-4 sm:py-6">
+        <ArchipelagoGameVoyage courses={selectedCourses} onLockedClick={handleLockedCourseClick} />
+        <div className="w-full h-px bg-slate-200 my-4" />
+        <div className="max-w-[1024px] mx-auto w-full flex flex-col gap-4 sm:gap-6">
         {/* ── Chuẩn hóa Tiêu đề 3 tầng ── */}
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -1823,16 +1869,13 @@ function PathwayOverview({
           {/* Tóm tắt tiến độ tổng thể */}
           {selectedCourses.length > 0 && (
             <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <CheckCircle2 size={14} className="text-mint-600" />
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
                 <span>{completedStations}/{totalStations} trạm đã hoàn thành</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <Trophy size={14} className="text-sun-600" />
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
                 <span>{totalProgress}% tiến độ tổng</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <Star size={14} className="fill-amber-400 text-amber-500" />
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
                 <span>{totalStars} Sao tích lũy</span>
               </span>
             </div>
@@ -1941,6 +1984,7 @@ function PathwayOverview({
             redirectTo="/parent/learning?upgrade=aikids_official_129k"
           />
         )}
+      </div>
       </div>
     )
   }

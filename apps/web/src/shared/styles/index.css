@@ -116,7 +116,7 @@
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-frame {
     width: min(100%, 1500px) !important;
-    max-height: none !important;
+    max-height: min(45vh, 340px) !important;
   }
 
   .lesson-video-stage[data-timeline-layout='horizontal'] .lesson-video-timeline {
