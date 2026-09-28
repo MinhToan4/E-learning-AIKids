@@ -87,4 +87,26 @@ describe('ArchipelagoGameVoyage', () => {
     expect(html).not.toContain('->')
     expect(html).not.toContain('←')
   })
+
+  it('contains zero bezier SVG path drawings and zero extraneous program switchers', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ArchipelagoGameVoyage)
+      )
+    )
+
+    // No SVG bezier curve connections
+    expect(html).not.toContain('viewBox="0 0 100 100"')
+    expect(html).not.toContain('strokeDasharray')
+
+    // No program switcher tabs or fake program cards
+    expect(html).not.toContain('Khóa Chính (6 Đảo)')
+    expect(html).not.toContain('Chương Trình Chuẩn')
+
+    // Focuses strictly on AIKids Official Voyage
+    expect(html).toContain('Hải Trình 6 Đảo Sáng Tạo')
+    expect(html).toContain('1 Đảo Quy Tắc + 5 Đảo Học AI')
+  })
 })

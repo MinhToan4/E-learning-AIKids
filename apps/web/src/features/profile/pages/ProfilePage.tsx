@@ -511,20 +511,20 @@ export function ProfilePage() {
   }, [projects])
 
   // Tính toán số trạm, số sao và thời lượng học tập
-  const displayStations = useMemo(() => {
-    if (completedStations > 0) return Math.min(32, completedStations)
-    return Math.min(32, Math.max(1, explorerLevel > 1 ? explorerLevel * 3 + 1 : 1))
-  }, [completedStations, explorerLevel])
+  const displayStations = useMemo(
+    () => Math.min(32, Math.max(0, completedStations)),
+    [completedStations],
+  )
 
-  const displayStars = useMemo(() => {
-    if (starsCollected > 0) return starsCollected
-    return Math.max(12, Math.floor(explorerXp / 15) || 12)
-  }, [starsCollected, explorerXp])
+  const displayStars = useMemo(
+    () => Math.max(0, starsCollected),
+    [starsCollected],
+  )
 
   const stationPercent = Math.min(100, Math.round((displayStations / 32) * 100))
 
   const totalStudyMinutes = useMemo(() => {
-    return Math.max(90, displayStations * 20 + displayableProjects.length * 15 + streak * 25)
+    return displayStations * 20 + displayableProjects.length * 15 + streak * 25
   }, [displayStations, displayableProjects.length, streak])
 
   const studyHoursFormatted = useMemo(() => {

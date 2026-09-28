@@ -47,6 +47,28 @@ describe('coursesWithEnrollments', () => {
       expect.objectContaining({ id: 'new', enrolled: false, progressPct: 0 }),
     ]))
   })
+
+  it('uses canonical pathway stations when the pathway does not expose legacy progress', () => {
+    const result = coursesWithEnrollments(
+      [course('ai')],
+      [{
+        courseId: 'ai',
+        status: 'active',
+        stations: [
+          { status: 'completed', stars: 3 },
+          { status: 'in_progress', stars: 1 },
+        ],
+      }],
+    )
+
+    expect(result[0]).toMatchObject({
+      enrolled: true,
+      completedCount: 1,
+      questCount: 2,
+      totalStars: 4,
+      progressPct: 50,
+    })
+  })
 })
 
 describe('courseBadge', () => {

@@ -11,6 +11,7 @@ import { getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
 import { useProgression } from '@/shared/lib/progression-query'
 import { avatarImage } from '@/shared/config/avatars'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
+import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
 import {
   ParentTrailerModal,
 } from '@/features/subscription/components/ParentPurchaseTrailerBanner'
@@ -28,6 +29,7 @@ type EnrollmentSummary = {
   courseId: string
   status: string
   progress?: Array<{ status?: string; stars?: number }>
+  stations?: Array<{ status?: string; stars?: number }>
 }
 
 export function coursesWithEnrollments(
@@ -40,7 +42,7 @@ export function coursesWithEnrollments(
     if (!enrollment || !['active', 'completed'].includes(enrollment.status)) {
       return { ...course, enrolled: false, completedCount: 0, totalStars: 0, progressPct: 0 }
     }
-    const progress = enrollment.progress ?? []
+    const progress = enrollment.progress ?? enrollment.stations ?? []
     const completedCount = progress.filter((row) => row.status === 'completed').length
     const questCount = progress.length || getCourseStationCount(course)
     return {
@@ -134,7 +136,10 @@ export function HomePage() {
 
   const completedStationsCount = courses.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
   const totalStarsCount = courses.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
-  const courseOverallProgressPct = Math.min(100, Math.round((completedStationsCount / 32) * 100)) || 25
+  const totalStationsCount = courses.reduce((sum, course) => sum + getCourseStationCount(course), 0)
+  const courseOverallProgressPct = totalStationsCount > 0
+    ? Math.min(100, Math.round((completedStationsCount / totalStationsCount) * 100))
+    : 0
   const streakInfo = streakState((user as any)?.currentStreak ?? 3, (user as any)?.lastActivityDate ?? null)
 
   const rawName = user?.nickname || user?.name || 'Bo'
@@ -153,14 +158,23 @@ export function HomePage() {
     setError(null)
 
     const coursesPromise = api<{ courses: CourseSummary[] }>('/api/courses')
+    const pathwayPromise = learningApi.getPathway().catch(() => null)
     const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
       .catch(() => ({ mission: null }))
 
     try {
-      const coursesRes = await coursesPromise
+      const [coursesRes, pathway] = await Promise.all([coursesPromise, pathwayPromise])
+      const pathwayCourses: EnrollmentSummary[] = (pathway?.courses ?? []).map(
+        (course: LearningPathwayCourse) => ({
+          courseId: course.id,
+          status: course.enrolled ? (course.status === 'completed' ? 'completed' : 'active') : course.status,
+          stations: course.stations,
+        }),
+      )
+      const canonicalCourses = coursesWithEnrollments(coursesRes.courses ?? [], pathwayCourses)
       setCourses(
-        coursesRes.courses && coursesRes.courses.length > 0
-          ? coursesRes.courses
+        canonicalCourses.length > 0
+          ? canonicalCourses
           : DEFAULT_SECONDARY_COURSES,
       )
       setLoading(false)
@@ -239,7 +253,7 @@ export function HomePage() {
           <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50/90 border border-amber-200 text-amber-800 shadow-2xs">
             <span className="text-base leading-none">⭐</span>
             <span className="font-black text-xs sm:text-sm text-amber-800">
-              {totalStarsCount > 0 ? totalStarsCount : 48}
+              {totalStarsCount}
             </span>
             <span className="text-xs font-bold text-amber-700 ml-0.5 inline">
               Sao
