@@ -39,12 +39,40 @@ changing them.
   listeners, timers or async subscriptions.
 - Do not keep hidden route trees mounted to simulate a cache.
 
+## API Proxy Rule
+
+- Luôn gọi API thông qua proxy `/api/*` từ browser.
+- Browser → `/api/*` → Vite proxy → `https://dev-hub.storymee.com` (dev).
+- Browser → `/api/*` → Vercel/Docker proxy → `https://dev-hub.storymee.com` (prod).
+- KHÔNG gọi trực tiếp `dev-hub.storymee.com` từ browser. Điều này đảm bảo cookie HttpOnly hoạt động đúng.
+
+## XP/Progression Pipeline
+
+Flow từ `submitCheck` đến UI:
+1. `LessonPage.submitCheck` gọi `POST /api/progress/{id}/check`.
+2. Trả về `{ stars, nextQuestId, newAchievements, totalXp?, level? }`.
+3. Phát event `aikids:xp-updated` kèm `{ stars, xp?, level? }`.
+4. Hook `useProgression`:
+   - Nếu `detail.xp` và `detail.level` tồn tại → gọi `setProgressionSnapshot()` NGAY LẬP TỨC.
+   - Nếu không → `invalidateQueries` với độ trễ (reconcile timer: 2000ms).
+5. `GET /api/gamification/profile` → `normalizeProgression()`.
+
+## Local Curriculum Guard
+
+Không gọi API cho các ID tạm/local. Sử dụng `isLocalId` pattern:
+```ts
+const isLocalId = progressId.startsWith('rule-') 
+               || progressId.startsWith('bai-') 
+               || progressId === 'aiki-rules';
+```
+
 ## Verification
 
 ```powershell
-npm test
-npm run typecheck
+cd apps/web && npm run typecheck
+cd apps/web && npx vitest run --reporter=verbose
 npm run build
 ```
+*(Lưu ý: Không dùng `pnpm --filter web test run` vì vitest không nằm trong root PATH).*
 
 Review the production chunk report and `git diff --check` before handoff.

@@ -9,6 +9,8 @@ import {
   type LearningPathwayCourse,
   type CourseProgress,
 } from '@/shared/lib/learning-api'
+import { useAuth } from '@/shared/store/auth'
+import { useProgression } from '@/shared/lib/progression-query'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -51,6 +53,10 @@ export function calculatePathwayTotalStars(
  * This is intentionally a student learning passport and station roadmap, not a public leaderboard.
  */
 export function ProgressPage() {
+  const user = useAuth((state) => state.user)
+  // useProgression dùng cùng React Query cache với ExplorerLevelPage
+  // → level/xp luôn nhất quán, không dual-source.
+  const { data: progression } = useProgression(user)
   const [celebration, setCelebration] = useState<Celebration | null>(null)
   const [competency, setCompetency] = useState<CompetencyMap | null>(null)
   const [pathway, setPathway] = useState<LearningPathway | null>(null)
@@ -190,8 +196,8 @@ export function ProgressPage() {
         completedQuests={completedQuestsDisplay}
         totalQuests={totalQuestsCalculated > 0 ? totalQuestsCalculated : undefined}
         streakDays={streak?.current ?? 0}
-        level={celebration?.personal.level ?? 1}
-        xp={celebration?.personal.xp ?? 0}
+        level={progression?.level ?? celebration?.personal.level ?? 1}
+        xp={progression?.totalXp ?? celebration?.personal.xp ?? 0}
       />
 
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}

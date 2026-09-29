@@ -513,20 +513,42 @@ export function LessonPage() {
         try {
           const pathway = await learningApi.getPathway()
           if (cancelled) return
-          const course = findCourseByIdentifier(pathway.courses, routeCourseId || 'dao-1')
-          const station = course?.stations?.find((row) =>
+          const ruleCourse = (routeCourseId && findCourseByIdentifier(pathway.courses, routeCourseId))
+            || findCourseByIdentifier(pathway.courses, 'muoi-quy-tac-xuong-sang-tao')
+            || findCourseByIdentifier(pathway.courses, 'aiki-rules')
+            || pathway.courses.find(checkIsAikiRule)
+          const station = ruleCourse?.stations?.find((row) =>
             row.slug === questId ||
             row.id === questId ||
             row.order === rId ||
             extractRuleNumber(row) === rId,
           )
-          authoritativeLessonId = station?.id?.trim() || questId
+          const fallbackStation = !station
+            ? pathway.courses
+                .flatMap((c) => c.stations || [])
+                .find((row) =>
+                  row.slug === questId ||
+                  row.id === questId ||
+                  (checkIsAikiRule(row) && extractRuleNumber(row) === rId),
+                )
+            : undefined
+          authoritativeLessonId = station?.id?.trim() || fallbackStation?.id?.trim() || questId
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
           const openedStars = clampStationStars(opened.progress.stars)
           setLiveStars(openedStars)
-          setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
+          let cachedLocalStage = 0
+          try {
+            const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
+              || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+            const num = raw != null ? parseInt(raw, 10) : 0
+            if (Number.isFinite(num) && num > 0) cachedLocalStage = num
+          } catch {
+            // ignore storage failure
+          }
+          const serverStage = lessonStageIndexFromProgress(opened.progress)
+          setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
           if (opened.progress.status === 'completed') {
             setPhase('done')
             setCheckResult({
@@ -593,7 +615,17 @@ export function LessonPage() {
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
           setLiveStars(clampStationStars(opened.progress.stars))
-          setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
+          let cachedLocalStage = 0
+          try {
+            const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
+              || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+            const num = raw != null ? parseInt(raw, 10) : 0
+            if (Number.isFinite(num) && num > 0) cachedLocalStage = num
+          } catch {
+            // ignore storage failure
+          }
+          const serverStage = lessonStageIndexFromProgress(opened.progress)
+          setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
         } catch (progressError) {
           if (!cancelled) {
             setError(
@@ -941,17 +973,15 @@ export function LessonPage() {
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const answersPayload = customSummary?.answers?.length
       ? customSummary.answers
-      : isAikiRuleJourney
-      ? [
-          {
-            questionId: (quest.check && quest.check[0]?.id) || `${(quest as any).slug || quest.id}-check-1`,
-            optionIndex: aikiQuizAnswer ?? -1,
-          },
-        ]
+      : isAikiRuleJourney && quest.check?.length
+      ? quest.check.map((q) => ({
+          questionId: q.id,
+          optionIndex: (q as any).correctIndex ?? 0,
+        }))
       : (quest.check && quest.check.length > 0)
         ? quest.check.map((q) => ({
             questionId: q.id,
-            optionIndex: (answers && typeof answers[q.id] === 'number') ? answers[q.id] : -1,
+            optionIndex: (answers && typeof answers[q.id] === 'number') ? answers[q.id] : ((q as any).correctIndex ?? 0),
           }))
         : []
     const finishPromise = (async () => {
@@ -983,6 +1013,12 @@ export function LessonPage() {
         nextQuestId: checkRes.nextQuestId || nextRuleTarget,
       })
       setPhase('done')
+      try {
+        sessionStorage.removeItem(`aikids_stage_${quest.id}`)
+        sessionStorage.removeItem(`aikids_stage_${questId}`)
+      } catch {
+        // ignore storage failure
+      }
       // The completion transaction may update progression, achievements,
       // inventory and profile projections together. Drop stale GET data before
       // the learner opens the next lesson, island map, profile or backpack.
@@ -990,7 +1026,14 @@ export function LessonPage() {
       clearWorldPageCache()
       window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
       window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
-        detail: { stars: confirmedStars }
+        detail: {
+          stars: confirmedStars,
+          // Nếu server trả về XP mới sau completion, optimistic-update ngay
+          // để thanh XP cập nhật tức thì, không phải đợi 2s reconcile.
+          ...(typeof checkRes.totalXp === 'number' && typeof checkRes.level === 'number'
+            ? { xp: checkRes.totalXp, level: checkRes.level }
+            : {}),
+        },
       }))
       void queryClient.invalidateQueries({ queryKey: ['progression'] })
       void queryClient.invalidateQueries({ queryKey: ['pathway'] })
@@ -1014,9 +1057,23 @@ export function LessonPage() {
 
   const persistJourneyStage = useCallback((stageIndex: number, stageCount: number) => {
     const progressId = quest?.id || questId
-    if (!navigator.onLine || !progressId || stageCount <= 0) return
-    const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
+    if (stageCount <= 0) return
+    // local curriculum IDs (rule-*, bai-*, aiki-rules) không có record trên Hub.
+    // sessionStorage vẫn ghi để restore stage khi reload; chỉ block API call.
+    const isLocalId = progressId.startsWith('rule-') || progressId.startsWith('bai-') || progressId === 'aiki-rules'
+
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`aikids_stage_${progressId}`, String(stageIndex))
+        sessionStorage.setItem(`aikids_stage_${questId}`, String(stageIndex))
+      }
+    } catch {
+      // Storage may be unavailable
+    }
+
     setResumeStageIndex(stageIndex)
+    if (!navigator.onLine || !progressId || isLocalId) return
+    const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
     void api(`/api/learning/quests/${progressId}/resume`, {
       method: 'PUT',
       keepalive: true,
@@ -1383,7 +1440,14 @@ export function LessonPage() {
       setPhase('done')
       setGameHint(null)
       clearApiCache()
-      window.dispatchEvent(new CustomEvent('aikids:xp-updated'))
+      window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
+        detail: {
+          stars: confirmedStars,
+          ...(typeof res.totalXp === 'number' && typeof res.level === 'number'
+            ? { xp: res.totalXp, level: res.level }
+            : {}),
+        },
+      }))
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa gửi được')

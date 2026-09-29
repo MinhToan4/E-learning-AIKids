@@ -153,7 +153,7 @@ export function useProgression(user: User | null) {
         clearTimeout(reconcileTimer)
         reconcileTimer = setTimeout(() => {
           void client.invalidateQueries({ queryKey: progressionQueryKey(userId) })
-        }, 5_000)
+        }, 2_000)
         return
       }
       void client.invalidateQueries({ queryKey: progressionQueryKey(userId) })

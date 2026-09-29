@@ -171,6 +171,9 @@ export const learningApi = {
       nextQuestId: string | null
       newAchievements?: string[]
       courseCredential?: string | null
+      /** Nếu server trả về XP mới sau completion, client có thể optimistic-update ngay */
+      totalXp?: number
+      level?: number
     }>(`/api/progress/${encodeURIComponent(lessonId)}/check`, {
       method: 'POST',
       body: JSON.stringify(input),
