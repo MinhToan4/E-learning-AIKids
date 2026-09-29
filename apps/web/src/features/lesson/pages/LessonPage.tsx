@@ -1013,6 +1013,10 @@ export function LessonPage() {
             occurredAt: new Date().toISOString(),
           }),
         })
+        // Advance phase learn → check before submitting (idempotent — ignore if already advanced)
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => {
+          // 409 = already advanced or lesson in different phase — continue to submitCheck
+        })
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
       const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
