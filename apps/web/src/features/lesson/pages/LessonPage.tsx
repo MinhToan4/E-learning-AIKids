@@ -981,7 +981,10 @@ export function LessonPage() {
     if (!quest) return false
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const answersPayload = customSummary?.answers?.length
-      ? customSummary.answers
+      ? customSummary.answers.map((a, idx) => ({
+          questionId: a.questionId,
+          optionIndex: a.optionIndex >= 0 ? a.optionIndex : ((quest?.check?.[idx] as any)?.correctIndex ?? 0),
+        }))
       : isAikiRuleJourney && quest.check?.length
       ? quest.check.map((q) => ({
           questionId: q.id,

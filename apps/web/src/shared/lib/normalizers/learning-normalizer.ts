@@ -204,6 +204,20 @@ export function normalizeLearningGatewayRequest(
     }
   }
 
+  const compatLessonCheck = path.match(
+    /^\/api\/v1\/lms\/compat\/lessons\/([^/?]+)\/(check|complete)$/,
+  )
+  if (compatLessonCheck) {
+    const headers = new Headers(options.headers)
+    if (!headers.has('Idempotency-Key')) {
+      headers.set('Idempotency-Key', createUuid())
+    }
+    return {
+      path,
+      options: { ...options, headers },
+    }
+  }
+
   if (path === '/api/teacher/class' ||
       path === '/api/teacher/class/stats' ||
       path === '/api/teacher/class/students' ||

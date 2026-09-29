@@ -52,6 +52,9 @@ export function RewardStageBlock({
         .then((saved) => {
           if (saved !== false) navigate()
         })
+        .catch((err) => {
+          console.warn('Finish lesson error:', err)
+        })
         .finally(() => setIsSavingProgress(false))
       return
     }

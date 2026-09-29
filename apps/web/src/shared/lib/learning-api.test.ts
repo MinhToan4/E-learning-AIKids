@@ -51,7 +51,7 @@ describe('learning API facade', () => {
     await learningApi.getPathway('child-1')
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/lms/family/children/child-1/pathway',
+      'https://dev-hub.storymee.com/api/v1/lms/compat/pathway?studentId=child-1',
       expect.any(Object),
     )
   })

@@ -164,7 +164,12 @@ export const learningApi = {
     )
   },
 
-  submitCheck(lessonId: string, input: LessonCheckInput) {
+  submitCheck(lessonId: string, input: LessonCheckInput, idempotencyKey?: string) {
+    const key =
+      idempotencyKey ||
+      (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `idemp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`)
     return api<{
       passed?: boolean
       stars: number
@@ -177,6 +182,9 @@ export const learningApi = {
       level?: number
     }>(`/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/check`, {
       method: 'POST',
+      headers: {
+        'Idempotency-Key': key,
+      },
       body: JSON.stringify(input),
     })
   },
