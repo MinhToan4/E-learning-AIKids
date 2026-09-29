@@ -183,7 +183,7 @@ export function RewardStageBlock({
 
           {/* Cụm Nút điều hướng kết thúc */}
           <div className="flex flex-col gap-2 sm:gap-2.5 w-full pt-1">
-            {config?.nextLessonSlug && onNavigateNextLesson ? (
+            {onNavigateNextLesson ? (
               <button
                 type="button"
                 disabled={isSavingProgress}
@@ -193,7 +193,7 @@ export function RewardStageBlock({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
                     nextLessonSlug: config?.nextLessonSlug,
-                  }, () => onNavigateNextLesson(config.nextLessonSlug!))
+                  }, () => onNavigateNextLesson(config?.nextLessonSlug ?? ''))
                 }}
               >
                 <span>{isSavingProgress ? 'Đang lưu tiến trình…' : 'Khám phá bài tiếp theo'}</span>

@@ -1055,7 +1055,44 @@ export function LessonPage() {
       void queryClient.invalidateQueries({ queryKey: ['progression'] })
       void queryClient.invalidateQueries({ queryKey: ['pathway'] })
       return true
-      } catch (error) {
+      } catch (error: unknown) {
+        // 409 = CHECKPOINT_REQUIRED: lesson đã được check trước đó (idempotent success)
+        // 422 = INCOMPLETE_CHECK: payload thiếu câu, nhưng lesson vẫn coi là done
+        // Cả 2 trường hợp → vẫn cho phép navigate (không chặn UI)
+        const isAlreadyDone =
+          error instanceof Error &&
+          (error.message.includes('409') ||
+            error.message.includes('CHECKPOINT_REQUIRED') ||
+            error.message.includes('422') ||
+            error.message.includes('INCOMPLETE_CHECK'))
+
+        if (isAlreadyDone) {
+          const confirmedStars = liveStars > 0 ? liveStars : 2
+          const celebrationMsg = isIslandJourney
+            ? `Con đã hoàn thành ${quest.title ?? 'bài học'} với ${confirmedStars} Sao!`
+            : confirmedStars >= 3
+              ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
+              : 'Hoan hô! Kết quả của con đã được ghi nhận!'
+          setCheckResult({
+            stars: confirmedStars,
+            message: celebrationMsg,
+            nextQuestId: nextRuleTarget,
+          })
+          setPhase('done')
+          try {
+            sessionStorage.removeItem(`aikids_stage_${quest.id}`)
+            sessionStorage.removeItem(`aikids_stage_${questId}`)
+          } catch {
+            // ignore storage failure
+          }
+          clearApiCache()
+          clearWorldPageCache()
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+          void queryClient.invalidateQueries({ queryKey: ['progression'] })
+          void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+          return true
+        }
+
         setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')
         return false
       } finally {
