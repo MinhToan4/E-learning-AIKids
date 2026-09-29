@@ -34,6 +34,9 @@ jobs:
       - name: Reject committed plaintext secrets
         run: npm run security:secrets
 
+      - name: Generate data-export artifacts
+        run: npx tsx apps/web/scripts/generate-station-achievements.ts
+
       - name: Run tests
         run: npm test
 

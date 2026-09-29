@@ -609,7 +609,7 @@ describe('ProfilePage Component', () => {
     })
 
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise((resolve) => setTimeout(resolve, 200))
     })
 
     // Click on Sổ kỷ niệm tab
@@ -618,7 +618,7 @@ describe('ProfilePage Component', () => {
 
     await act(async () => {
       storybookTab.click()
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise((resolve) => setTimeout(resolve, 300))
     })
 
     // Storybook header
