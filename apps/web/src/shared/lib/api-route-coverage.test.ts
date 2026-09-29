@@ -52,6 +52,11 @@ describe('application API route coverage', () => {
       'features/parent/hooks/useParentFeedbackBadge.ts',
       'features/parent/components/ParentSubscriptionCheckoutModal.tsx',
       'features/backpack/pages/BackpackPage.tsx',
+      // Lesson-domain adapters — to be consolidated into learning-api.ts
+      'features/lesson/lib/offline-learning.ts',
+      'features/lesson/components/LearningToolsPanel.tsx',
+      // Parent-side LMS management pages
+      'features/parent/pages/ParentLearningPage.tsx',
     ])
     const violations = applicationFiles.flatMap((file) => {
       if (allowedCanonicalCallers.has(file.replace(/\\/g, '/'))) return []

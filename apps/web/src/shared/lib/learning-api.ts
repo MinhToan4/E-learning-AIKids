@@ -157,6 +157,21 @@ export const learningApi = {
     )
   },
 
+  saveResume(
+    lessonId: string,
+    input: {
+      percent: number
+      positionSeconds: number
+      sectionId: string
+      occurredAt: string
+    },
+  ) {
+    return api<{ resume: { id: string } }>(
+      `/api/v1/lms/lessons/${encodeURIComponent(lessonId)}/resume`,
+      { method: 'PUT', keepalive: true, body: JSON.stringify(input) },
+    )
+  },
+
   savePractice<T = { result: unknown }>(lessonId: string, input: LessonPracticeInput) {
     return api<T>(
       `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/practice`,

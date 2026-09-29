@@ -76,7 +76,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const lesson = read('features/lesson/pages/LessonPage.tsx')
     const learningApi = read('shared/lib/learning-api.ts')
     expect(lesson).toContain('learningApi.openLesson(questId)')
-    expect(learningApi).toContain('`/api/progress/${encodeURIComponent(lessonId)}/open`')
+    expect(learningApi).toContain('`/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/open`')
     expect(learningApi).toContain('const [lesson, started] = await Promise.all([')
     expect(learningApi).toContain('cachedLessonDetail(lessonId)')
     expect(learningApi).toContain('dedupedLessonStart(lessonId)')

@@ -748,15 +748,12 @@ export function LessonPage() {
     }
     const timer = window.setTimeout(() => {
       const occurredAt = new Date().toISOString()
-      void api(`/api/v1/lms/lessons/${questId}/resume`, {
-        method: 'PUT',
-        body: JSON.stringify({
+      void learningApi.saveResume(questId, {
           percent: percentByPhase[phase],
           positionSeconds: 0,
           sectionId: phase,
           occurredAt,
-        }),
-      }).catch(() => {
+        }).catch(() => {
         queueOfflineProgress(questId, {
           percent: percentByPhase[phase],
           positionSeconds: 0,
@@ -1004,14 +1001,11 @@ export function LessonPage() {
         const lessonIdForSubmit = (isAikiRuleJourney && authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
           ? authoritativeLessonId
           : quest.id
-        await api(`/api/v1/lms/lessons/${lessonIdForSubmit}/resume`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            percent: 99,
-            positionSeconds: 0,
-            sectionId: 'check-ready',
-            occurredAt: new Date().toISOString(),
-          }),
+        await learningApi.saveResume(lessonIdForSubmit, {
+          percent: 99,
+          positionSeconds: 0,
+          sectionId: 'check-ready',
+          occurredAt: new Date().toISOString(),
         })
         // Advance phase learn → check before submitting (idempotent — ignore if already advanced)
         await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => {
@@ -1141,15 +1135,11 @@ export function LessonPage() {
 
     if (!navigator.onLine || !effectiveLessonIdForResume) return
     const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
-    void api(`/api/v1/lms/lessons/${effectiveLessonIdForResume}/resume`, {
-      method: 'PUT',
-      keepalive: true,
-      body: JSON.stringify({
-        percent,
-        positionSeconds: 0,
-        sectionId: `stage-${stageIndex + 1}`,
-        occurredAt: new Date().toISOString(),
-      }),
+    void learningApi.saveResume(effectiveLessonIdForResume, {
+      percent,
+      positionSeconds: 0,
+      sectionId: `stage-${stageIndex + 1}`,
+      occurredAt: new Date().toISOString(),
     }).catch(() => {
       queueOfflineProgress(effectiveLessonIdForResume, {
         percent,
