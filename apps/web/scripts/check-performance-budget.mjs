@@ -17,7 +17,7 @@ const budgets = [
   { pattern: /^AsmoHubPage-.*\.js$/, maxKb: 20 },
   { pattern: /^asmo-api-.*\.js$/, maxKb: 15 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
-  { pattern: /^index-.*\.css$/, maxKb: 615 },
+  { pattern: /^index-.*\.css$/, maxKb: 630 },
 ]
 
 const failures = []

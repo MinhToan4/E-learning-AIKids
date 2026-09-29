@@ -51,35 +51,77 @@ export const GOAL_CARD_STYLES = [
   { bg: 'bg-purple-50/90 border-purple-200 text-purple-950', badge: 'bg-purple-500 text-white shadow-2xs' },
 ] as const
 
+export function getYouTubeWatchUrl(url?: string): string {
+  if (!url) return 'https://www.youtube.com'
+  const youtuBeMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+  if (youtuBeMatch) return `https://www.youtube.com/watch?v=${youtuBeMatch[1]}`
+  const embedMatch = url.match(/youtube(?:-nocookie)?\.com\/embed\/([a-zA-Z0-9_-]+)/)
+  if (embedMatch) return `https://www.youtube.com/watch?v=${embedMatch[1]}`
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return `https://www.youtube.com/watch?v=${url.trim()}`
+  return url
+}
+
 export function buildVideoEmbedUrl(url?: string, seekSec?: number | null): string {
   let raw = url || ''
+  let videoId = ''
+  let incomingParams: URLSearchParams | null = null
+
   if (raw) {
-    const youtuBeMatch = raw.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
-    if (youtuBeMatch) raw = `https://www.youtube-nocookie.com/embed/${youtuBeMatch[1]}`
-    else {
-      const watchMatch = raw.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/)
-      if (watchMatch) raw = `https://www.youtube-nocookie.com/embed/${watchMatch[1]}`
-      else if (!raw.includes('/embed/') && /^[a-zA-Z0-9_-]{11}$/.test(raw)) {
-        raw = `https://www.youtube-nocookie.com/embed/${raw}`
+    try {
+      const parsed = new URL(raw.startsWith('http') ? raw : `https://${raw}`)
+      incomingParams = parsed.searchParams
+      const youtuBeMatch = raw.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+      if (youtuBeMatch) {
+        videoId = youtuBeMatch[1]
+      } else if (parsed.pathname === '/watch') {
+        videoId = parsed.searchParams.get('v') || ''
+      } else {
+        const embedMatch = parsed.pathname.match(/\/embed\/([a-zA-Z0-9_-]+)/)
+        if (embedMatch) {
+          videoId = embedMatch[1]
+        } else if (/^[a-zA-Z0-9_-]{11}$/.test(raw.trim())) {
+          videoId = raw.trim()
+        }
+      }
+    } catch {
+      if (/^[a-zA-Z0-9_-]{11}$/.test(raw.trim())) {
+        videoId = raw.trim()
       }
     }
-  } else raw = 'https://www.youtube-nocookie.com/embed/NMdHhsLY5jc'
+  }
+
+  if (!videoId) {
+    videoId = 'NMdHhsLY5jc'
+  }
+
+  const host = raw.includes('youtube-nocookie.com') ? 'www.youtube-nocookie.com' : 'www.youtube.com'
 
   try {
-    const embed = new URL(raw)
-    embed.searchParams.set('controls', '0')
-    embed.searchParams.set('disablekb', '1')
+    const embed = new URL(`https://${host}/embed/${videoId}`)
+    if (incomingParams) {
+      incomingParams.forEach((val, key) => {
+        if (key !== 'v') {
+          embed.searchParams.set(key, val)
+        }
+      })
+    }
+    embed.searchParams.set('controls', '1')
+    embed.searchParams.set('disablekb', '0')
     embed.searchParams.set('enablejsapi', '1')
-    embed.searchParams.set('fs', '0')
+    embed.searchParams.set('fs', '1')
     embed.searchParams.set('iv_load_policy', '3')
     embed.searchParams.set('modestbranding', '1')
     embed.searchParams.set('playsinline', '1')
     embed.searchParams.set('rel', '0')
+    if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null') {
+      embed.searchParams.set('origin', window.location.origin)
+      embed.searchParams.set('widget_referrer', window.location.href)
+    }
     if (seekSec !== null && seekSec !== undefined) {
       embed.searchParams.set('start', String(Math.max(0, Math.floor(seekSec))))
     }
     return embed.toString()
   } catch {
-    return raw
+    return `https://www.youtube-nocookie.com/embed/${videoId}`
   }
 }

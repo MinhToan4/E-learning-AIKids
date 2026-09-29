@@ -5,6 +5,7 @@ import {
   clearAccessToken,
   downloadAuthorizedBlob,
   getAccessToken,
+  markSessionTransition,
   setAccessToken,
   type AchievementRow,
 } from './api'
@@ -93,7 +94,7 @@ describe('StoryMee Gateway adapter', () => {
     })
   })
 
-  it('translates nickname + PIN child login without a family code and persists the StoryMee JWT', async () => {
+  it('translates nickname + PIN child login without a family code and relies on HttpOnly session cookie', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       token: 'storymee-jwt',
       user: { id: 'u1', actor: 'child', name: 'Bé Mây' },
@@ -116,15 +117,18 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/account/family/child-login',
       expect.objectContaining({
         method: 'POST',
+        credentials: 'include',
         body: JSON.stringify({
           nickname: 'Bé Mây',
           pin: '424242',
         }),
       }),
     )
+    expect(getAccessToken()).toBeNull()
+    expect(localStorage.getItem('storymee.access_token')).toBeNull()
   })
 
-  it('sends the JWT and maps LMS catalog responses for the existing UI', async () => {
+  it('uses the HttpOnly session cookie and maps LMS catalog responses for the existing UI', async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(response({
@@ -157,8 +161,8 @@ describe('StoryMee Gateway adapter', () => {
       status: 'open',
     })
     const secondRequest = fetchMock.mock.calls[1]
-    expect((secondRequest[1].headers as Headers).get('Authorization'))
-      .toBe('Bearer storymee-jwt')
+    expect((secondRequest[1].headers as Headers).get('Authorization')).toBeNull()
+    expect(secondRequest[1].credentials).toBe('include')
     // The deployed Hub currently does not whitelist X-Request-ID in its
     // cross-origin preflight response, so the browser must not send it here.
     expect((secondRequest[1].headers as Headers).get('X-Request-ID'))
@@ -192,7 +196,7 @@ describe('StoryMee Gateway adapter', () => {
   })
 
   it('clears an expired consumer session and announces the auth failure', async () => {
-    setAccessToken('expired-storymee-jwt')
+    markSessionTransition()
     const unauthorized = vi.fn()
     window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized, { once: true })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
@@ -206,7 +210,7 @@ describe('StoryMee Gateway adapter', () => {
   })
 
   it('does not let a late parent 401 clear a newly issued child session', async () => {
-    setAccessToken('parent-storymee-jwt')
+    markSessionTransition()
     const unauthorized = vi.fn()
     window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
 
@@ -220,19 +224,19 @@ describe('StoryMee Gateway adapter', () => {
     const staleParentRequest = api('/api/parent/children')
     await vi.waitFor(() => expect(resolveParentRequest).toBeTypeOf('function'))
 
-    // Selecting a child replaces the parent token before older page requests
+    // Selecting a child replaces the parent session before older page requests
     // have necessarily settled.
-    setAccessToken('child-storymee-jwt')
+    markSessionTransition()
     resolveParentRequest(response({ error: 'Consumer JWT required' }, 401))
 
     await expect(staleParentRequest).rejects.toMatchObject({ status: 401 })
-    expect(getAccessToken()).toBe('child-storymee-jwt')
+    expect(getAccessToken()).toBeNull()
     expect(unauthorized).not.toHaveBeenCalled()
     window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
   })
 
-  it('downloads binary files with bearer auth and without browser credentials', async () => {
-    setAccessToken('storymee-jwt')
+  it('downloads binary files with the HttpOnly browser session', async () => {
+    markSessionTransition()
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(new Uint8Array([1, 2, 3]), { status: 200 }),
     )
@@ -243,11 +247,10 @@ describe('StoryMee Gateway adapter', () => {
     expect(blob.size).toBe(3)
     expect(fetchMock).toHaveBeenCalledWith(
       'https://dev-hub.storymee.com/api/reports/report-1/pdf',
-      expect.objectContaining({ credentials: 'omit' }),
+      expect.objectContaining({ credentials: 'include' }),
     )
     const options = fetchMock.mock.calls[0]?.[1] as RequestInit
-    expect((options.headers as Headers).get('Authorization'))
-      .toBe('Bearer storymee-jwt')
+    expect((options.headers as Headers).get('Authorization')).toBeNull()
   })
 
   it('sends an adult username through the unified account login field', async () => {
@@ -1072,7 +1075,7 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/lms/aikids/admin/courses',
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
     ])
-    expect(localStorage.getItem('storymee.access_token')).toBe('parent-session-token')
+    expect(localStorage.getItem('storymee.access_token')).toBeNull()
   })
 
   it('routes revocable child profile shares through the Account boundary', async () => {
@@ -1239,7 +1242,7 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/account/me/access',
       'https://dev-hub.storymee.com/api/v1/account/me/contexts/select',
     ])
-    expect(localStorage.getItem('storymee.access_token')).toBe('scoped-session')
+    expect(localStorage.getItem('storymee.access_token')).toBeNull()
   })
 
   it('normalizes admin billing plans requests and unwraps response data cleanly', async () => {
@@ -1271,8 +1274,8 @@ describe('StoryMee Gateway adapter', () => {
     expect(fetchMock.mock.calls[1][0]).toBe('https://dev-hub.storymee.com/api/v1/billing/admin/plans/pro/toggle')
   })
 
-  describe('Cross-app SSO token and shared session', () => {
-    it('automatically reads sso_token from URL query and stores to localStorage and cookie', () => {
+  describe('HttpOnly server session', () => {
+    it('does not read sso_token from URL query', () => {
       const replaceStateMock = vi.fn()
       vi.stubGlobal('window', {
         location: {
@@ -1288,12 +1291,12 @@ describe('StoryMee Gateway adapter', () => {
       })
 
       const token = getAccessToken()
-      expect(token).toBe('child-sso-jwt-xyz')
-      expect(localStorage.getItem('storymee.access_token')).toBe('child-sso-jwt-xyz')
-      expect(replaceStateMock).toHaveBeenCalledWith(null, '', '/home?tab=missions')
+      expect(token).toBeNull()
+      expect(localStorage.getItem('storymee.access_token')).toBeNull()
+      expect(replaceStateMock).not.toHaveBeenCalled()
     })
 
-    it('automatically reads token param from URL when sso_token is absent', () => {
+    it('does not read token param from URL', () => {
       const replaceStateMock = vi.fn()
       vi.stubGlobal('window', {
         location: {
@@ -1309,12 +1312,12 @@ describe('StoryMee Gateway adapter', () => {
       })
 
       const token = getAccessToken()
-      expect(token).toBe('child-direct-token-123')
-      expect(localStorage.getItem('storymee.access_token')).toBe('child-direct-token-123')
-      expect(replaceStateMock).toHaveBeenCalledWith(null, '', '/')
+      expect(token).toBeNull()
+      expect(localStorage.getItem('storymee.access_token')).toBeNull()
+      expect(replaceStateMock).not.toHaveBeenCalled()
     })
 
-    it('writes cookie with .aikid.vn domain on apex or subdomains', () => {
+    it('never writes an access-token cookie from JavaScript', () => {
       let capturedCookie = ''
       vi.stubGlobal('window', {
         location: {
@@ -1333,9 +1336,8 @@ describe('StoryMee Gateway adapter', () => {
       })
 
       setAccessToken('token-apex-domain')
-      expect(capturedCookie).toContain('storymee_shared_token=token-apex-domain')
-      expect(capturedCookie).toContain('Domain=.aikid.vn')
-      expect(capturedCookie).toContain('Secure')
+      expect(capturedCookie).toBe('')
+      expect(localStorage.getItem('storymee.access_token')).toBeNull()
     })
   })
 })

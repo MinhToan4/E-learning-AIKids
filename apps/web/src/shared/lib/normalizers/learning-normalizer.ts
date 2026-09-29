@@ -618,7 +618,8 @@ export function normalizeLearningGatewayResponse(
     let url = ''
     try {
       const parsed = new URL(rawUrl)
-      if (parsed.origin === environment.storagePublicUrl) url = parsed.toString()
+      const expectedOrigin = environment.storagePublicUrl
+      if (expectedOrigin && parsed.origin === expectedOrigin) url = parsed.toString()
     } catch {
       // Must resolve to the configured storage origin
     }

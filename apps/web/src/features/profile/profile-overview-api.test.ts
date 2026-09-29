@@ -35,6 +35,7 @@ describe('profile overview adapter', () => {
       streak: { currentStreak: 4 },
       achievements: { achievements: [] },
       projects: { items: [] },
+      media: { items: [] },
       progression: { totalXp: 1200, level: 12 },
       appearance: {
         childProfileId: 'child-1',
@@ -52,7 +53,7 @@ describe('profile overview adapter', () => {
       level: 12,
     })
     expect(request).toHaveBeenCalledTimes(1)
-    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cprogression%2Cappearance')
+    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cmedia%2Cprogression%2Cappearance')
   })
 
   it('hydrates profile, backpack and pathway through one scoped request', async () => {
@@ -78,24 +79,14 @@ describe('profile overview adapter', () => {
     expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cappearance%2Cpathway')
   })
 
-  it('fails closed instead of trusting localStorage when gamification request fails', async () => {
+  it('fails closed instead of starting legacy browser fan-out', async () => {
     localStorage.setItem('aiki_last_known_level', '7')
     localStorage.setItem('aiki_last_known_xp', '850')
 
-    const request = vi.fn().mockImplementation((path: string) => {
-      if (path === '/api/gamification/profile') {
-        return Promise.reject(new Error('Network error'))
-      }
-      if (path === '/api/gamification/streak') {
-        return Promise.resolve({ current: 2 })
-      }
-      return Promise.resolve({})
-    })
+    const request = vi.fn().mockRejectedValue(new Error('Network error'))
 
-    const overview = await loadProfileOverview(request)
-    expect(overview.level).toBe(1)
-    expect(overview.totalXp).toBe(0)
-    expect(overview.streak).toBe(2)
+    await expect(loadProfileOverview(request)).rejects.toThrow('Network error')
+    expect(request).toHaveBeenCalledTimes(1)
 
     localStorage.removeItem('aiki_last_known_level')
     localStorage.removeItem('aiki_last_known_xp')
@@ -105,11 +96,11 @@ describe('profile overview adapter', () => {
     localStorage.removeItem('aiki_last_known_level')
     localStorage.removeItem('aiki_last_known_xp')
 
-    const request = vi.fn().mockImplementation((path: string) => {
-      if (path === '/api/gamification/profile') {
-        return Promise.resolve({ totalXp: 350, level: 5 })
-      }
-      return Promise.resolve({})
+    const request = vi.fn().mockResolvedValue({
+      streak: { currentStreak: 0 }, achievements: { achievements: [] },
+      projects: { items: [] }, media: { items: [] },
+      progression: { totalXp: 350, level: 5 },
+      appearance: {}, storybook: { equipment: [] },
     })
 
     await loadProfileOverview(request)
@@ -120,18 +111,12 @@ describe('profile overview adapter', () => {
     localStorage.removeItem('aiki_last_known_xp')
   })
 
-  it('safely handles slow requests via timeout without hanging', async () => {
-    const request = vi.fn().mockImplementation((path: string) => {
-      if (path === '/api/profile/settings') {
-        // Mock a hanging promise that takes longer than the timeout
-        return new Promise((resolve) => setTimeout(resolve, 200))
-      }
-      return Promise.resolve({})
-    })
+  it('fails a slow aggregate request via timeout without starting fallback requests', async () => {
+    const request = vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 200)))
 
     // Run with a very short timeout for testing speed
-    const overview = await loadProfileOverview(request, 50)
-    expect(overview.profileSettings).toBeNull()
+    await expect(loadProfileOverview(request, 50)).rejects.toThrow('Request timed out')
+    expect(request).toHaveBeenCalledTimes(1)
   })
 
   it('loads appearance independently from slow non-critical profile sections', async () => {

@@ -41,7 +41,7 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
     speech: 'Cùng AIKI trả lời câu hỏi trắc nghiệm phản xạ để nhận huy hiệu vàng nhé!',
   }
   const rewardConfig: RewardStageConfig = {
-    title: `Chúc mừng Hiệp Sĩ Quy Tắc ${rule.id}!`,
+    title: `Con đã hoàn thành Quy tắc ${rule.id}!`,
     congratsMessage: `Tuyệt vời! Con đã làm chủ "${rule.shortTitle}" và sẵn sàng sáng tạo cùng AIKI!`,
     rewardBadge: { name: `Huy hiệu ${rule.code}: ${rule.shortTitle}`, iconUrl: rule.posterImage, stars: 3, xp: 50 },
     nextLessonId,
@@ -51,6 +51,6 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
   return [
     { id: `rule-${rule.id}-stage-video`, type: 'VIDEO', title: rule.shortTitle || rule.title || 'Rạp chiếu Quy tắc vàng', stepNumber: 1, icon: '🎬', mascotRole: 'Mèo AIKI Kể Chuyện', instruction: 'Theo dõi các hoạt cảnh 16:9 và lắng nghe Mèo AIKI giải thích quy tắc vàng nhé!', speech: videoConfig.speech, config: videoConfig },
     { id: `rule-${rule.id}-stage-quiz`, type: 'QUIZ', title: 'Thử tài phản xạ', stepNumber: 2, icon: '⚡', mascotRole: 'Giám Khảo AIKI', instruction: 'Chọn phương án đúng để khắc sâu quy tắc vàng và nhận cúp vinh danh.', speech: quizConfig.speech, config: quizConfig },
-    { id: `rule-${rule.id}-stage-reward`, type: 'REWARD', title: 'Vinh danh Hiệp Sĩ', stepNumber: 3, icon: '🏆', mascotRole: 'Thần Đèn AIKI', instruction: 'Chiêm ngưỡng Huy Hiệu Poster vàng và sẵn sàng cho bài tiếp theo nhé!', speech: rewardConfig.speech, config: rewardConfig },
+    { id: `rule-${rule.id}-stage-reward`, type: 'REWARD', title: 'Hoàn thành bài học', stepNumber: 3, icon: '🏆', mascotRole: 'Mèo AIKI', instruction: 'Xem kết quả, nhận phần thưởng và tiếp tục hành trình học tập.', speech: rewardConfig.speech, config: rewardConfig },
   ]
 }

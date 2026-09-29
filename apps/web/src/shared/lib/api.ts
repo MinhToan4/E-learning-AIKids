@@ -9,9 +9,8 @@ export { normalizeGatewayRequest, normalizeGatewayResponse }
 export type { GatewayRequest }
 
 const API_BASE = environment.apiBaseUrl
-const TOKEN_KEY = 'storymee.access_token'
-const SHARED_TOKEN_COOKIE = 'storymee_shared_token'
 export const AUTH_UNAUTHORIZED_EVENT = 'storymee:auth-unauthorized'
+let sessionGeneration = 0
 
 function sharedCookieDomain(): string {
   if (typeof window === 'undefined') return ''
@@ -25,53 +24,13 @@ function sharedCookieDomain(): string {
   return ''
 }
 
-function readSharedTokenCookie(): string | null {
-  if (typeof document === 'undefined') return null
-  const prefix = `${SHARED_TOKEN_COOKIE}=`
-  const entry = document.cookie.split('; ').find((cookie) => cookie.startsWith(prefix))
-  if (!entry) return null
-  try {
-    return decodeURIComponent(entry.slice(prefix.length)) || null
-  } catch {
-    return null
-  }
-}
-
-function readUrlSsoToken(): string | null {
-  if (typeof window === 'undefined' || !window.location?.search) return null
-  try {
-    const params = new URLSearchParams(window.location.search)
-    const ssoToken = params.get('sso_token') || params.get('token')
-    if (ssoToken) {
-      params.delete('sso_token')
-      params.delete('token')
-      const searchStr = params.toString()
-      const newUrl =
-        window.location.pathname +
-        (searchStr ? `?${searchStr}` : '') +
-        window.location.hash
-      window.history.replaceState(null, '', newUrl)
-      return ssoToken
-    }
-  } catch {
-    // ignore query extraction or history state replacement issues
-  }
-  return null
-}
-
-function writeSharedTokenCookie(token: string): void {
-  if (typeof document === 'undefined') return
-  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:'
-    ? '; Secure'
-    : ''
-  document.cookie = `${SHARED_TOKEN_COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=2592000; SameSite=Lax${sharedCookieDomain()}${secure}`
-}
-
-function clearSharedTokenCookie(): void {
-  if (typeof document === 'undefined') return
-  document.cookie = `${SHARED_TOKEN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${sharedCookieDomain()}`
-  // Also clear any old host-only cookie left by a previous deployment.
-  document.cookie = `${SHARED_TOKEN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`
+function isDevPreviewMode(): boolean {
+  if (!import.meta.env.DEV || typeof window === 'undefined') return false
+  return (
+    window.location.search.includes('preview') ||
+    window.location.search.includes('guest') ||
+    (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true')
+  )
 }
 
 export function gatewayUrl(path: string): string {
@@ -79,44 +38,27 @@ export function gatewayUrl(path: string): string {
 }
 
 export function getAccessToken(): string | null {
-  const urlToken = readUrlSsoToken()
-  if (urlToken) {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(TOKEN_KEY, urlToken)
-    }
-    writeSharedTokenCookie(urlToken)
-    return urlToken
-  }
-
-  if (typeof localStorage === 'undefined') return readSharedTokenCookie()
-  const sharedToken = readSharedTokenCookie()
-  if (sharedToken) {
-    localStorage.setItem(TOKEN_KEY, sharedToken)
-    return sharedToken
-  }
-  const localToken = localStorage.getItem(TOKEN_KEY)
-  if (localToken) writeSharedTokenCookie(localToken)
-  return localToken
+  return null
 }
 
-export function setAccessToken(token: string): void {
+export function setAccessToken(_token: string): void {
+  markSessionTransition()
+}
+
+/** Isolate in-flight reads whenever the server rotates its HttpOnly session. */
+export function markSessionTransition(): void {
   clearResponseCache()
-  if (typeof localStorage !== 'undefined') localStorage.setItem(TOKEN_KEY, token)
-  writeSharedTokenCookie(token)
+  sessionGeneration += 1
 }
 
 export function clearAccessToken(): void {
   clearResponseCache()
-  if (typeof localStorage !== 'undefined') localStorage.removeItem(TOKEN_KEY)
-  clearSharedTokenCookie()
-}
-
-/**
- * A request started under the parent session may finish after the device has
- * switched to a child session. Its late 401 must never clear the newer token.
- */
-function isCurrentSessionToken(requestToken: string | null): requestToken is string {
-  return Boolean(requestToken) && getAccessToken() === requestToken
+  sessionGeneration += 1
+  if (typeof localStorage !== 'undefined') localStorage.removeItem('storymee.access_token')
+  if (typeof document !== 'undefined') {
+    document.cookie = `storymee_shared_token=; Path=/; Max-Age=0; SameSite=Lax${sharedCookieDomain()}`
+    document.cookie = 'storymee_shared_token=; Path=/; Max-Age=0; SameSite=Lax'
+  }
 }
 
 export async function fetchRemoteBlob(url: string): Promise<Blob> {
@@ -146,7 +88,7 @@ export async function downloadAuthorizedBlob(
     response = await fetch(`${API_BASE}${request.path}`, {
       ...request.options,
       headers,
-      credentials: 'omit',
+      credentials: 'include',
     })
   } catch (cause) {
     if (signal?.aborted) throw cause
@@ -154,7 +96,7 @@ export async function downloadAuthorizedBlob(
   }
 
   if (!response.ok) {
-    if (response.status === 401 && isCurrentSessionToken(token)) {
+    if (response.status === 401 && !isDevPreviewMode()) {
       clearAccessToken()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
@@ -185,7 +127,11 @@ export async function uploadToStoryMeeStorage(
     throw new Error('StoryMee trả về địa chỉ upload không hợp lệ.')
   }
 
-  if (target.origin !== environment.storagePublicUrl) {
+  const expectedStorageOrigin = environment.storagePublicUrl
+  if (!expectedStorageOrigin) {
+    throw new Error('StoryMee Storage chưa được cấu hình.')
+  }
+  if (target.origin !== expectedStorageOrigin) {
     throw new Error('Địa chỉ upload không thuộc StoryMee Storage.')
   }
 
@@ -344,7 +290,7 @@ export function api<T = unknown>(
     })
   }
 
-  const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
+  const key = `${sessionGeneration}:${legacyPath}`
   let pending = inFlightGetRequests.get(key) as Promise<T> | undefined
   if (!pending) {
     const fetchOpts: RequestInit = { ...options }
@@ -390,6 +336,7 @@ async function executeApi<T>(
   options: RequestInit,
 ): Promise<T> {
   const request = normalizeGatewayRequest(path, options)
+  const requestSessionGeneration = sessionGeneration
   const headers = new Headers(request.options.headers)
   const token = getAccessToken()
   if (request.options.body &&
@@ -415,7 +362,7 @@ async function executeApi<T>(
     res = await fetch(url, {
       ...request.options,
       headers,
-      credentials: 'omit',
+      credentials: 'include',
       signal,
     })
   } catch (e) {
@@ -454,7 +401,7 @@ async function executeApi<T>(
     // A JWT can expire while a route is already mounted. Fail closed and let
     // the auth store return the shared device to login instead of leaving a
     // child-facing screen populated with a gateway implementation error.
-    if (res.status === 401 && isCurrentSessionToken(token)) {
+    if (res.status === 401 && path !== '/api/auth/me' && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
       clearAccessToken()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
@@ -480,7 +427,7 @@ export async function openAuthorizedStream(
   const headers = new Headers({ Accept: 'text/event-stream' })
   const token = getAccessToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
-  const response = await fetch(gatewayUrl(path), { headers, signal })
+  const response = await fetch(gatewayUrl(path), { headers, signal, credentials: 'include' })
   if (!response.ok) {
     throw new ApiError(response.status, `Không mở được luồng cập nhật (HTTP ${response.status}).`)
   }

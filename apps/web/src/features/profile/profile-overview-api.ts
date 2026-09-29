@@ -75,71 +75,9 @@ export function withTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T
   })
 }
 
-async function loadLegacyProfileOverview(
-  request: ProfileRequest,
-  timeoutMs = 3500,
-  includeMedia = true,
-  includeProgression = true,
-  includeAppearance = true,
-  includePathway = false,
-): Promise<ProfileOverviewData> {
-  const safeReq = <T>(path: string) => withTimeout(request<T>(path), timeoutMs)
-
-  const [streak, achievements, projects, media, gamification, settings, rewards, pathway] =
-    await Promise.allSettled([
-      safeReq<{ current: number }>('/api/gamification/streak'),
-      safeReq<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-      safeReq<{ projects: ShowcaseProject[] }>('/api/projects'),
-      includeMedia
-        ? safeReq<{ assets: ProfileMediaAsset[] }>('/api/backpack')
-        : Promise.resolve({ assets: [] as ProfileMediaAsset[] }),
-      includeProgression
-        ? safeReq<{ totalXp: number; level: number }>('/api/gamification/profile')
-        : Promise.resolve({
-            totalXp: 0,
-            level: 1,
-          }),
-      includeAppearance
-        ? safeReq<PublicProfileSettings>('/api/profile/settings')
-        : Promise.resolve(null),
-      includeAppearance
-        ? safeReq<{ equipment: ProfileEquipmentRow[] }>('/api/gamification/storybook')
-        : Promise.resolve({ equipment: [] as ProfileEquipmentRow[] }),
-      includePathway
-        ? safeReq<LearningPathway>('/api/learning/pathway')
-        : Promise.resolve(null),
-    ])
-
-  return {
-    streak: streak.status === 'fulfilled' ? streak.value.current : 0,
-    achievements: achievements.status === 'fulfilled'
-      ? achievements.value.achievements ?? []
-      : [],
-    projects: projects.status === 'fulfilled'
-      ? projects.value.projects ?? []
-      : [],
-    avatarChoices: media.status === 'fulfilled'
-      ? media.value.assets ?? []
-      : [],
-    totalXp: gamification.status === 'fulfilled'
-      ? gamification.value.totalXp
-      : 0,
-    level: gamification.status === 'fulfilled'
-      ? gamification.value.level
-      : 1,
-    profileSettings: settings.status === 'fulfilled' ? settings.value : null,
-    equipment: rewards.status === 'fulfilled'
-      ? rewards.value.equipment ?? []
-      : [],
-    storybook: rewards.status === 'fulfilled' ? rewards.value : null,
-    pathway: pathway.status === 'fulfilled' ? pathway.value : null,
-  }
-}
-
 /**
  * Load profile data through the Hub aggregate endpoint. The Hub executes the
- * service-owned reads concurrently over its shared keep-alive transport, while
- * the legacy fan-out below remains a rolling-deploy fallback for older servers.
+ * service-owned reads concurrently over its shared keep-alive transport.
  */
 export async function loadProfileOverview(
   request: ProfileRequest = api,
@@ -149,13 +87,13 @@ export async function loadProfileOverview(
   includeAppearance = true,
   includePathway = false,
 ): Promise<ProfileOverviewData> {
-  // The Hub BFF runs the service-owned reads concurrently over its shared
-  // keep-alive pool. Keep the legacy fan-out only as a rolling-deploy fallback.
-  try {
+  // Fail closed when the aggregate contract is incomplete. Falling back to
+  // browser fan-out hides deployment mismatches and recreates the waterfall.
     const activeIpId = typeof localStorage !== 'undefined'
       ? localStorage.getItem('storymee_active_ip_id')
       : null
     const sections = ['core']
+    if (includeMedia) sections.push('media')
     if (includeProgression) sections.push('progression')
     if (includeAppearance) sections.push('appearance')
     if (includePathway) sections.push('pathway')
@@ -164,7 +102,7 @@ export async function loadProfileOverview(
     const aggregate = await withTimeout(request<Record<string, unknown>>(
       `/api/v1/aikids/profile-overview?${query.toString()}`,
     ), timeoutMs)
-    if (!aggregate.streak || !aggregate.achievements || !aggregate.projects) {
+    if (!aggregate.streak || !aggregate.achievements) {
       throw new Error('Profile overview aggregate is incomplete')
     }
     if ((includeProgression && !aggregate.progression) ||
@@ -174,7 +112,9 @@ export async function loadProfileOverview(
     }
     const streak = normalizeGatewayResponse('/api/gamification/streak', aggregate.streak) as { current?: number }
     const achievements = normalizeGatewayResponse('/api/gamification/achievements', aggregate.achievements) as { achievements?: AchievementRow[] }
-    const projects = normalizeGatewayResponse('/api/projects', aggregate.projects) as { projects?: ShowcaseProject[] }
+    const projects = aggregate.projects
+      ? normalizeGatewayResponse('/api/projects', aggregate.projects) as { projects?: ShowcaseProject[] }
+      : { projects: [] }
     const progression = includeProgression
       ? normalizeGatewayResponse('/api/gamification/profile', aggregate.progression) as { totalXp?: number; level?: number }
       : null
@@ -188,7 +128,7 @@ export async function loadProfileOverview(
       ? normalizeGatewayResponse('/api/learning/pathway', aggregate.pathway) as LearningPathway
       : null
     const media = includeMedia
-      ? normalizeGatewayResponse('/api/backpack', aggregate.projects) as { assets?: ProfileMediaAsset[] }
+      ? normalizeGatewayResponse('/api/backpack', aggregate.media) as { assets?: ProfileMediaAsset[] }
       : null
 
     return {
@@ -203,9 +143,6 @@ export async function loadProfileOverview(
       storybook,
       pathway,
     }
-  } catch {
-    return loadLegacyProfileOverview(request, timeoutMs, includeMedia, includeProgression, includeAppearance, includePathway)
-  }
 }
 
 export async function loadProfileAppearance(

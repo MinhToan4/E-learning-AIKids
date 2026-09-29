@@ -1,20 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Check,
   CheckCircle2,
   Copy,
   Download,
-  HardDrive,
-  Headphones,
   Palette,
-  QrCode,
   RefreshCw,
   Send,
   ShieldCheck,
-  Smartphone,
   Sparkles,
-  Users,
   X,
 } from 'lucide-react'
 import { AikidModalCatCharacter } from '@/shared/components/ui/AikidModalCatCharacter'
@@ -110,9 +105,9 @@ export interface ParentSubscriptionCheckoutModalProps {
   planName?: string
 }
 
-export type PaymentTab = 'vietqr' | 'manual' | 'wallets'
+export type PaymentTab = 'vietqr' | 'manual'
 
-const BANK_INFO = {
+export const BANK_INFO = {
   bankName: 'MBBank (Ngân hàng TMCP Quân Đội)',
   accountNumber: '0382228888',
   accountName: 'CONG TY CONG NGHE GIAO DUC AI KIDS',
@@ -121,6 +116,7 @@ const BANK_INFO = {
   hotline: '0382.228.888',
 }
 
+// Deprecated bank app list kept for external interface safety
 export const POPULAR_BANK_APPS = [
   { id: 'mbbank', name: 'MB Bank', scheme: 'mbmobile://', short: 'MB', color: 'bg-blue-600' },
   { id: 'vcb', name: 'Vietcombank', scheme: 'vietcombank://', short: 'VCB', color: 'bg-emerald-600' },
@@ -201,29 +197,19 @@ export function ParentSubscriptionCheckoutModal({
   planAmount,
   planName,
 }: ParentSubscriptionCheckoutModalProps) {
-  const bankAppRedirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [productMode, setProductMode] = useState<CheckoutProductMode>(initialMode)
   const [selectedPackId, setSelectedPackId] = useState<string>(
     initialPackId ?? 'credits_50',
   )
-  const [activeTab, setActiveTab] = useState<PaymentTab>('vietqr')
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
   const [manualSubmitted, setManualSubmitted] = useState(false)
-  const [walletProcessing, setWalletProcessing] = useState<string | null>(null)
   const [partialPayment, setPartialPayment] = useState<{
     amountPaid: number
     amountDue: number
   } | null>(null)
   const [overpayBonusCredits, setOverpayBonusCredits] = useState<number | null>(null)
-
-  useEffect(() => () => {
-    if (bankAppRedirectTimerRef.current) {
-      clearTimeout(bankAppRedirectTimerRef.current)
-      bankAppRedirectTimerRef.current = null
-    }
-  }, [])
 
   // Find currently selected credit pack
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
@@ -249,9 +235,7 @@ export function ParentSubscriptionCheckoutModal({
       setProductMode(initialMode)
       setSelectedPackId(initialPackId ?? 'credits_50')
       setIsSuccess(false)
-      setActiveTab('vietqr')
       setManualSubmitted(false)
-      setWalletProcessing(null)
       setCopiedField(null)
       setPartialPayment(null)
       setOverpayBonusCredits(null)
@@ -326,15 +310,15 @@ export function ParentSubscriptionCheckoutModal({
       )
       handlePaymentResponse(res)
     } catch {
-      // Gentle Montessori approach: quiet retry on polling error
+      // Quiet retry on polling error
     } finally {
       setIsPolling(false)
     }
   }, [activePublicId, isSuccess, handlePaymentResponse])
 
-  // Polling every 3 seconds for VietQR tab
+  // Polling every 3 seconds for VietQR
   useEffect(() => {
-    if (!open || activeTab !== 'vietqr' || isSuccess || !activePublicId) return
+    if (!open || isSuccess || !activePublicId) return
 
     let isMounted = true
     const interval = setInterval(async () => {
@@ -354,20 +338,7 @@ export function ParentSubscriptionCheckoutModal({
       isMounted = false
       clearInterval(interval)
     }
-  }, [open, activeTab, isSuccess, activePublicId, handlePaymentResponse])
-
-  // Handle 1-tap wallet payment
-  const handleWalletPay = useCallback(
-    (walletType: 'apple_pay' | 'google_pay') => {
-      setWalletProcessing(walletType)
-      setTimeout(() => {
-        setWalletProcessing(null)
-        setIsSuccess(true)
-        onSuccess?.()
-      }, 800)
-    },
-    [onSuccess],
-  )
+  }, [open, isSuccess, activePublicId, handlePaymentResponse])
 
   // Handle manual transfer confirmation
   const handleManualConfirm = useCallback(() => {
@@ -418,27 +389,6 @@ export function ParentSubscriptionCheckoutModal({
     const textToCopy = `Ngân hàng: ${BANK_INFO.bankName} | STK: ${BANK_INFO.accountNumber} | Chủ TK: ${BANK_INFO.accountName} | Số tiền: ${effectiveAmountFormatted} | Nội dung: ${activePaymentCode}`
     copyToClipboard(textToCopy, 'allInfo')
   }, [effectiveAmountFormatted, activePaymentCode, copyToClipboard])
-
-  // Open banking app with deep link scheme
-  const handleOpenBankApp = useCallback(
-    async (app: (typeof POPULAR_BANK_APPS)[0]) => {
-      await copyToClipboard(activePaymentCode, `bank_app_${app.id}`)
-      if (bankAppRedirectTimerRef.current) {
-        clearTimeout(bankAppRedirectTimerRef.current)
-      }
-      bankAppRedirectTimerRef.current = setTimeout(() => {
-        bankAppRedirectTimerRef.current = null
-        try {
-          if (typeof window !== 'undefined') {
-            window.location.href = app.scheme
-          }
-        } catch {
-          // ignore jsdom navigation error
-        }
-      }, 500)
-    },
-    [activePaymentCode, copyToClipboard],
-  )
 
   if (!open) return null
 
@@ -493,7 +443,7 @@ export function ParentSubscriptionCheckoutModal({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {isSuccess ? (
             /* SUCCESS CONGRATULATIONS SCREEN */
             <div className="flex flex-col items-center py-6 text-center animate-in fade-in zoom-in-95 duration-300">
@@ -608,13 +558,13 @@ export function ParentSubscriptionCheckoutModal({
                     setPartialPayment(null)
                   }}
                   className={cn(
-                    'flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs sm:text-sm font-black transition',
+                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition',
                     productMode === 'sub'
                       ? 'bg-white text-brand-700 shadow-clay'
                       : 'text-muted hover:text-text',
                   )}
                 >
-                  <Sparkles size={16} className={productMode === 'sub' ? 'text-amber-500' : 'text-muted'} />
+                  <Sparkles size={15} className={productMode === 'sub' ? 'text-amber-500' : 'text-muted'} />
                   <span>Gói Học AI Kid Toàn Diện</span>
                 </button>
 
@@ -628,98 +578,81 @@ export function ParentSubscriptionCheckoutModal({
                     setPartialPayment(null)
                   }}
                   className={cn(
-                    'flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs sm:text-sm font-black transition',
+                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition',
                     productMode === 'credits'
                       ? 'bg-white text-brand-700 shadow-clay'
                       : 'text-muted hover:text-text',
                   )}
                 >
-                  <Palette size={16} className={productMode === 'credits' ? 'text-coral-500' : 'text-muted'} />
+                  <Palette size={15} className={productMode === 'credits' ? 'text-coral-500' : 'text-muted'} />
                   <span>Nạp Lượt Tạo Ảnh AI</span>
                 </button>
               </div>
 
-              {/* LOẠI 1: Gói Học AI Kid Chính Thức (129K) */}
+              {/* Product Info Compact Card */}
               {productMode === 'sub' ? (
-                <div className="rounded-3xl border-2 border-cream-300 bg-gradient-to-r from-cream-50 via-sun-50/60 to-white p-4 sm:p-5 shadow-soft">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-300/60 pb-3">
+                <div className="rounded-2xl border-2 border-cream-300 bg-gradient-to-r from-cream-50 via-sun-50/50 to-white p-3.5 shadow-soft">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cream-200/80 pb-2.5">
                     <div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-200/80 px-2.5 py-0.5 text-[11px] font-black text-amber-900 uppercase">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-200/80 px-2 py-0.5 text-[10px] font-black text-amber-900 uppercase">
                         🌟 GÓI AI KID CHÍNH THỨC
                       </span>
-                      <h3 className="mt-1 font-display text-lg sm:text-xl font-black text-text">
+                      <h3 className="mt-0.5 font-display text-base sm:text-lg font-black text-text">
                         Gói Học Chuẩn Quốc Tế Cho Bé
                       </h3>
                     </div>
                     <div className="text-right">
-                      <div className="font-display text-xl sm:text-2xl font-black text-brand-600">
+                      <div className="font-display text-lg sm:text-xl font-black text-brand-600">
                         129.000đ / tháng
                       </div>
-                      <div className="text-[11px] font-bold text-muted">
+                      <div className="text-[10px] font-bold text-muted">
                         (Chưa tới 4.500đ/ngày)
                       </div>
                     </div>
                   </div>
 
-                  {/* 4 Key Benefits */}
-                  <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2 text-xs sm:text-sm font-bold text-text">
-                    <div className="flex items-center gap-2.5 rounded-2xl bg-white/70 p-2.5 border border-cream-200/80">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
-                        <Sparkles size={15} />
-                      </span>
-                      <span>Trọn bộ Khóa học AI Kid chính thức (6 chặng)</span>
+                  <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-text">
+                    <div className="flex items-center gap-2 rounded-xl bg-white/80 p-2 border border-cream-200/80">
+                      <Sparkles size={14} className="text-amber-600 shrink-0" />
+                      <span className="truncate">Trọn bộ Khóa học AI Kid chính thức (6 chặng)</span>
                     </div>
-
-                    <div className="flex items-center gap-2.5 rounded-2xl bg-white/70 p-2.5 border border-cream-200/80">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-coral-100 text-coral-700">
-                        <Palette size={15} />
-                      </span>
-                      <span>50 lượt tạo ảnh AI/tháng (2.000đ/lượt)</span>
+                    <div className="flex items-center gap-2 rounded-xl bg-white/80 p-2 border border-cream-200/80">
+                      <Palette size={14} className="text-coral-600 shrink-0" />
+                      <span className="truncate">50 lượt tạo ảnh AI/tháng (2.000đ/lượt)</span>
                     </div>
-
-                    <div className="flex items-center gap-2.5 rounded-2xl bg-white/70 p-2.5 border border-cream-200/80">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
-                        <Users size={15} />
-                      </span>
-                      <span>2 trẻ em cùng học</span>
+                    <div className="flex items-center gap-2 rounded-xl bg-white/80 p-2 border border-cream-200/80">
+                      <Check size={14} className="text-sky-600 shrink-0" />
+                      <span className="truncate">2 trẻ em cùng học</span>
                     </div>
-
-                    <div className="flex items-center gap-2.5 rounded-2xl bg-white/70 p-2.5 border border-cream-200/80">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-mint-100 text-mint-700">
-                        <HardDrive size={15} />
-                      </span>
-                      <span>500 MB lưu trữ đám mây</span>
+                    <div className="flex items-center gap-2 rounded-xl bg-white/80 p-2 border border-cream-200/80">
+                      <Check size={14} className="text-mint-600 shrink-0" />
+                      <span className="truncate">500 MB lưu trữ đám mây</span>
                     </div>
                   </div>
                 </div>
               ) : (
-                /* LOẠI 2: Nạp Thêm Lượt Tạo Ảnh AI Dự Phòng */
-                <div className="rounded-3xl border-2 border-cream-300 bg-gradient-to-r from-cream-50 via-sun-50/60 to-white p-4 sm:p-5 shadow-soft">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-300/60 pb-3">
+                <div className="rounded-2xl border-2 border-cream-300 bg-gradient-to-r from-cream-50 via-sun-50/50 to-white p-3.5 shadow-soft">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cream-200/80 pb-2">
                     <div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-coral-100 border border-coral-200/80 px-2.5 py-0.5 text-[11px] font-black text-coral-900 uppercase">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-coral-100 border border-coral-200/80 px-2 py-0.5 text-[10px] font-black text-coral-900 uppercase">
                         🎨 NẠP LƯỢT TẠO ẢNH AI DỰ PHÒNG
                       </span>
-                      <h3 className="mt-1 font-display text-lg sm:text-xl font-black text-text">
+                      <h3 className="mt-0.5 font-display text-base sm:text-lg font-black text-text">
                         Chọn Gói Lượt Tạo Ảnh Cho Bé
                       </h3>
-                      <p className="mt-0.5 text-xs text-muted">
-                        Lượt tạo ảnh dự phòng không bao giờ hết hạn. Bé tha hồ sáng tác truyện và tranh vẽ!
-                      </p>
                     </div>
                     <div className="text-right">
-                      <div className="font-display text-xl sm:text-2xl font-black text-brand-600">
+                      <div className="font-display text-lg sm:text-xl font-black text-brand-600">
                         {selectedPack.priceFormatted}
                       </div>
-                      <div className="text-[11px] font-bold text-muted">
+                      <div className="text-[10px] font-bold text-muted">
                         ({selectedPack.unitPriceText})
                       </div>
                     </div>
                   </div>
 
-                  {/* 5 Credit Packs Grid */}
                   <div
-                    className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5"
+                    className="mt-2.5 grid grid-cols-2 sm:grid-cols-5 gap-2"
                     role="radiogroup"
                     aria-label="Danh sách gói lượt tạo ảnh AI"
                   >
@@ -736,24 +669,24 @@ export function ParentSubscriptionCheckoutModal({
                             setPartialPayment(null)
                           }}
                           className={cn(
-                            'relative flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition text-center',
+                            'relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition text-center',
                             isSelected
                               ? 'border-brand-500 bg-brand-50/80 shadow-clay ring-2 ring-brand-400/30'
                               : 'border-cream-300 bg-white/90 hover:border-brand-300 hover:bg-cream-50/60',
                           )}
                         >
                           {pack.badge && (
-                            <span className="absolute -top-2.5 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black shadow-sm uppercase tracking-tight">
+                            <span className="absolute -top-2 px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[9px] font-black shadow-sm uppercase tracking-tight">
                               {pack.badge}
                             </span>
                           )}
-                          <span className="font-display text-base font-black text-text">
+                          <span className="font-display text-sm font-black text-text">
                             {pack.credits} lượt
                           </span>
-                          <span className="mt-0.5 text-xs font-extrabold text-brand-700">
+                          <span className="text-[11px] font-extrabold text-brand-700">
                             {pack.priceFormatted}
                           </span>
-                          <span className="mt-0.5 text-[10px] font-bold text-muted">
+                          <span className="text-[9px] font-bold text-muted">
                             {pack.unitPriceText}
                           </span>
                         </button>
@@ -767,7 +700,7 @@ export function ParentSubscriptionCheckoutModal({
               {partialPayment && (
                 <div
                   role="alert"
-                  className="rounded-2xl border-2 border-amber-400/80 bg-amber-50/95 p-3.5 sm:p-4 shadow-soft text-xs sm:text-sm text-amber-950 animate-in fade-in"
+                  className="rounded-2xl border-2 border-amber-400/80 bg-amber-50/95 p-3.5 shadow-soft text-xs sm:text-sm text-amber-950 animate-in fade-in"
                 >
                   <div className="flex items-start gap-2.5">
                     <span className="text-xl shrink-0">⚠️</span>
@@ -812,470 +745,218 @@ export function ParentSubscriptionCheckoutModal({
                 </div>
               )}
 
-              {/* Payment Methods 3-Tab Bar */}
+              {/* VIETQR HERO ELEMENT & PAYMENT SUMMARY */}
               <div
-                role="tablist"
-                aria-label="Phương thức thanh toán"
-                className="flex rounded-2xl border border-cream-300 bg-cream-100/70 p-1 shadow-soft"
+                id="vietqr-payment-hero"
+                className="rounded-3xl border-2 border-cream-300 bg-gradient-to-b from-white via-cream-50/30 to-white p-4 sm:p-5 shadow-clay space-y-4"
               >
-                <button
-                  type="button"
-                  role="tab"
-                  id="tab-vietqr"
-                  aria-selected={activeTab === 'vietqr'}
-                  aria-controls="tabpanel-vietqr"
-                  onClick={() => setActiveTab('vietqr')}
-                  className={cn(
-                    'flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-black transition',
-                    activeTab === 'vietqr'
-                      ? 'bg-white text-brand-700 shadow-clay'
-                      : 'text-muted hover:text-text',
-                  )}
-                >
-                  <QrCode size={16} />
-                  <span>Quét Mã VietQR (Tự Động)</span>
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  id="tab-manual"
-                  aria-selected={activeTab === 'manual'}
-                  aria-controls="tabpanel-manual"
-                  onClick={() => setActiveTab('manual')}
-                  className={cn(
-                    'flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-black transition',
-                    activeTab === 'manual'
-                      ? 'bg-white text-brand-700 shadow-clay'
-                      : 'text-muted hover:text-text',
-                  )}
-                >
-                  <Headphones size={16} />
-                  <span>Chuyển Khoản Thủ Công / Hỗ Trợ Admin</span>
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  id="tab-wallets"
-                  aria-selected={activeTab === 'wallets'}
-                  aria-controls="tabpanel-wallets"
-                  onClick={() => setActiveTab('wallets')}
-                  className={cn(
-                    'flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-black transition',
-                    activeTab === 'wallets'
-                      ? 'bg-white text-brand-700 shadow-clay'
-                      : 'text-muted hover:text-text',
-                  )}
-                >
-                  <Smartphone size={16} />
-                  <span>Apple Pay / Google Pay</span>
-                </button>
-              </div>
-
-              {/* TAB 1: Quét Mã VietQR (Tự Động) */}
-              {activeTab === 'vietqr' && (
-                <div
-                  id="tabpanel-vietqr"
-                  role="tabpanel"
-                  aria-labelledby="tab-vietqr"
-                  className="space-y-4 animate-in fade-in duration-200"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                    {/* Dynamic QR Code Image */}
-                    <div className="md:col-span-5 flex flex-col items-center">
-                      <div className="rounded-3xl border-2 border-cream-300 bg-white p-3 shadow-clay">
-                        <img
-                          src={vietQrUrl}
-                          alt={`VietQR ${activePaymentCode}`}
-                          className="h-48 w-48 sm:h-52 sm:w-52 rounded-2xl object-contain"
-                          loading="eager"
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                  {/* Hero QR Center / Left */}
+                  <div className="md:col-span-5 flex flex-col items-center justify-center">
+                    <div className="relative rounded-3xl border-2 border-cream-300 bg-white p-3 shadow-clay">
+                      <img
+                        src={vietQrUrl}
+                        alt={`VietQR ${activePaymentCode}`}
+                        className="h-48 w-48 sm:h-52 sm:w-52 rounded-2xl object-contain"
+                        loading="eager"
+                      />
+                      <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-mint-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-soft">
+                        VietQR 24/7
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleDownloadQr}
-                        className="mt-2.5 inline-flex items-center justify-center gap-1.5 w-full rounded-xl border border-brand-300 bg-brand-50/90 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-100 active:scale-[0.98] transition"
-                        aria-label="Tải mã QR về máy"
-                      >
-                        <Download size={14} />
-                        <span>Tải mã QR về máy</span>
-                      </button>
-                      <p className="mt-1.5 text-center text-[11px] font-bold text-muted">
-                        Mở App Ngân Hàng bất kỳ quét mã để thanh toán tức thì
-                      </p>
-                    </div>
-
-                    {/* Payment details box */}
-                    <div className="md:col-span-7 space-y-2 rounded-2xl border border-cream-300/80 bg-white/80 p-3.5 text-xs shadow-soft">
-                      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
-                        <span className="text-muted font-bold">Ngân hàng:</span>
-                        <span className="font-extrabold text-text text-right">
-                          {BANK_INFO.bankName}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
-                        <span className="text-muted font-bold">Số tài khoản:</span>
-                        <div className="flex items-center gap-1.5">
-                          <code className="font-mono text-sm font-black text-brand-700">
-                            {BANK_INFO.accountNumber}
-                          </code>
-                          <button
-                            type="button"
-                            onClick={() => copyToClipboard(BANK_INFO.accountNumber, 'account')}
-                            className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100"
-                            aria-label="Sao chép số tài khoản"
-                          >
-                            {copiedField === 'account' ? (
-                              <>
-                                <Check size={13} className="text-mint-600" />
-                                <span className="text-mint-700">Đã chép</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy size={13} />
-                                <span>Sao chép</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
-                        <span className="text-muted font-bold">Chủ tài khoản:</span>
-                        <span className="font-extrabold text-text text-right text-[11px] sm:text-xs">
-                          {BANK_INFO.accountName}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
-                        <span className="text-muted font-bold">
-                          {partialPayment ? 'Số tiền còn thiếu:' : 'Số tiền:'}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className={cn(
-                              'font-display text-sm font-black',
-                              partialPayment ? 'text-danger' : 'text-brand-600',
-                            )}
-                          >
-                            {effectiveAmountFormatted}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => copyToClipboard(String(effectiveAmount), 'amount')}
-                            className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100"
-                            aria-label="Sao chép số tiền"
-                          >
-                            {copiedField === 'amount' ? (
-                              <>
-                                <Check size={13} className="text-mint-600" />
-                                <span className="text-mint-700">Đã chép</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy size={13} />
-                                <span>Sao chép</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <span className="text-muted font-bold">Nội dung chuyển khoản:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="rounded-lg bg-amber-100 px-2 py-0.5 font-mono text-xs sm:text-sm font-black text-amber-900">
-                            {activePaymentCode}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => copyToClipboard(activePaymentCode, 'code')}
-                            className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-900 hover:bg-amber-100"
-                            aria-label="Sao chép nội dung chuyển khoản"
-                          >
-                            {copiedField === 'code' ? (
-                              <>
-                                <Check size={13} className="text-mint-600" />
-                                <span className="text-mint-700">Đã chép</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy size={13} />
-                                <span>Sao chép</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Copy full details button */}
-                      <button
-                        type="button"
-                        onClick={copyAllPaymentInfo}
-                        className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-cream-100 active:scale-[0.98] transition"
-                        aria-label="Sao chép toàn bộ thông tin chuyển khoản"
-                      >
-                        {copiedField === 'allInfo' ? (
-                          <>
-                            <Check size={14} className="text-mint-600" />
-                            <span className="text-mint-700">Đã chép toàn bộ thông tin chuyển khoản!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy size={14} />
-                            <span>Sao chép toàn bộ thông tin</span>
-                          </>
-                        )}
-                      </button>
-
-                      {/* Warning notice */}
-                      <div className="mt-2 rounded-xl bg-amber-50/80 p-2.5 border border-amber-200/80 text-[11px] font-bold text-amber-900 leading-snug">
-                        ⚠️ Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống kích hoạt tự động
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bank App Switcher Tray */}
-                  <div className="rounded-2xl border border-cream-300/80 bg-white/90 p-3.5 shadow-soft space-y-2.5">
-                    <div className="flex flex-wrap items-center justify-between gap-1">
-                      <span className="text-xs font-black uppercase tracking-wider text-brand-900">
-                        📱 Mở Nhanh Ứng Dụng Ngân Hàng / Ví Điện Tử
-                      </span>
-                      <span className="text-[11px] font-bold text-muted">
-                        (Tự động sao chép mã thanh toán khi chạm)
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                      {POPULAR_BANK_APPS.map((app) => {
-                        const isCopiedThis = copiedField === `bank_app_${app.id}`
-                        return (
-                          <button
-                            key={app.id}
-                            type="button"
-                            onClick={() => handleOpenBankApp(app)}
-                            className={cn(
-                              'flex flex-col items-center justify-center p-2 rounded-xl border transition shadow-soft text-center active:scale-95',
-                              isCopiedThis
-                                ? 'border-mint-500 bg-mint-50 text-mint-800 ring-2 ring-mint-300'
-                                : 'border-cream-200 bg-cream-50/70 hover:border-brand-300 hover:bg-brand-50/50 text-text',
-                            )}
-                            aria-label={`Mở app ${app.name}`}
-                          >
-                            <span
-                              className={cn(
-                                'flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black text-white shadow-sm mb-1',
-                                app.color,
-                              )}
-                            >
-                              {app.short}
-                            </span>
-                            <span className="text-[11px] font-extrabold truncate w-full">
-                              {app.name}
-                            </span>
-                            {isCopiedThis && (
-                              <span className="text-[9px] font-black text-mint-700 animate-in fade-in">
-                                Đã chép mã!
-                              </span>
-                            )}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 3-Step Quick Guide & Napas 24/7 Certification */}
-                  <div className="rounded-2xl border border-cream-300/70 bg-gradient-to-r from-cream-50 via-sun-50/40 to-white p-3.5 shadow-soft space-y-2">
-                    <div className="flex items-center justify-between gap-2 border-b border-cream-200/80 pb-2">
-                      <span className="text-xs font-black uppercase tracking-wider text-amber-900">
-                        ✨ 3 Bước Thanh Toán Nhanh Cho Ba Mẹ
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 border border-mint-200 px-2.5 py-0.5 text-[10px] font-black text-mint-800">
-                        <ShieldCheck size={12} className="text-mint-600" />
-                        Napas 24/7 Tự Động
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold text-text">
-                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
-                          1
-                        </span>
-                        <span className="text-[11px]">
-                          Tải ảnh QR hoặc chọn App ngân hàng phía trên.
-                        </span>
-                      </div>
-
-                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
-                          2
-                        </span>
-                        <span className="text-[11px]">
-                          Mở app ngân hàng, chọn Quét QR (hoặc chọn ảnh từ máy).
-                        </span>
-                      </div>
-
-                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
-                          3
-                        </span>
-                        <span className="text-[11px]">
-                          Xác nhận chuyển khoản. Gói kích hoạt sau 3 giây!
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Polling status bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-50/70 p-3 border border-brand-100">
-                    <div className="flex items-center gap-2 text-xs font-bold text-brand-900">
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
-                      </span>
-                      <span>Hệ thống đang tự động kiểm tra giao dịch chuyển khoản...</span>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => checkPaymentStatus()}
-                      disabled={isPolling}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-50 disabled:opacity-50"
+                      onClick={handleDownloadQr}
+                      className="mt-3 inline-flex items-center justify-center gap-1.5 w-full max-w-[200px] rounded-xl border border-brand-300 bg-brand-50/90 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-100 active:scale-[0.98] transition"
+                      aria-label="Tải mã QR về máy"
                     >
-                      <RefreshCw size={13} className={cn(isPolling && 'animate-spin')} />
-                      {isPolling ? 'Đang kiểm tra...' : 'Kiểm tra ngay'}
+                      <Download size={14} />
+                      <span>Tải mã QR về máy</span>
                     </button>
+                    <p className="mt-1.5 text-center text-[11px] font-bold text-muted">
+                      Mở app ngân hàng bất kỳ quét mã để kích hoạt tức thì
+                    </p>
+                  </div>
+
+                  {/* Payment Details Right / Below */}
+                  <div className="md:col-span-7 space-y-2 rounded-2xl border border-cream-300/80 bg-white/90 p-3.5 sm:p-4 text-xs shadow-soft">
+                    <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
+                      <span className="text-muted font-bold">Ngân hàng:</span>
+                      <span className="font-extrabold text-text text-right">
+                        {BANK_INFO.bankName}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
+                      <span className="text-muted font-bold">Số tài khoản:</span>
+                      <div className="flex items-center gap-1.5">
+                        <code className="font-mono text-sm font-black text-brand-700">
+                          {BANK_INFO.accountNumber}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(BANK_INFO.accountNumber, 'account')}
+                          className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100"
+                          aria-label="Sao chép số tài khoản"
+                        >
+                          {copiedField === 'account' ? (
+                            <>
+                              <Check size={13} className="text-mint-600" />
+                              <span className="text-mint-700">Đã chép</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={13} />
+                              <span>Sao chép</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
+                      <span className="text-muted font-bold">Chủ tài khoản:</span>
+                      <span className="font-extrabold text-text text-right text-[11px] sm:text-xs">
+                        {BANK_INFO.accountName}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-cream-200">
+                      <span className="text-muted font-bold">
+                        {partialPayment ? 'Số tiền còn thiếu:' : 'Số tiền:'}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={cn(
+                            'font-display text-sm font-black',
+                            partialPayment ? 'text-danger' : 'text-brand-600',
+                          )}
+                        >
+                          {effectiveAmountFormatted}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(String(effectiveAmount), 'amount')}
+                          className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100"
+                          aria-label="Sao chép số tiền"
+                        >
+                          {copiedField === 'amount' ? (
+                            <>
+                              <Check size={13} className="text-mint-600" />
+                              <span className="text-mint-700">Đã chép</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={13} />
+                              <span>Sao chép</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <span className="text-muted font-bold">Nội dung chuyển khoản:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="rounded-lg bg-amber-100 px-2 py-0.5 font-mono text-xs sm:text-sm font-black text-amber-900 border border-amber-300/80">
+                          {activePaymentCode}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(activePaymentCode, 'code')}
+                          className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-900 hover:bg-amber-100"
+                          aria-label="Sao chép nội dung chuyển khoản"
+                        >
+                          {copiedField === 'code' ? (
+                            <>
+                              <Check size={13} className="text-mint-600" />
+                              <span className="text-mint-700">Đã chép</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={13} />
+                              <span>Sao chép</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Copy All Button */}
+                    <button
+                      type="button"
+                      onClick={copyAllPaymentInfo}
+                      className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-cream-100 active:scale-[0.98] transition"
+                      aria-label="Sao chép toàn bộ thông tin chuyển khoản"
+                    >
+                      {copiedField === 'allInfo' ? (
+                        <>
+                          <Check size={14} className="text-mint-600" />
+                          <span className="text-mint-700">Đã chép toàn bộ thông tin chuyển khoản!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} />
+                          <span>Sao chép toàn bộ thông tin</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Warning note */}
+                    <div className="mt-2 rounded-xl bg-amber-50/80 p-2.5 border border-amber-200/80 text-[11px] font-bold text-amber-900 leading-snug">
+                      ⚠️ Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống kích hoạt tự động
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* TAB 2: Chuyển Khoản Thủ Công / Hỗ Trợ Admin */}
-              {activeTab === 'manual' && (
-                <div
-                  id="tabpanel-manual"
-                  role="tabpanel"
-                  aria-labelledby="tab-manual"
-                  className="space-y-4 animate-in fade-in duration-200"
-                >
-                  <div className="rounded-2xl border border-cream-300 bg-white/80 p-4 shadow-soft space-y-3">
-                    <h4 className="font-display text-base font-black text-text">
-                      Chuyển Khoản Trực Tiếp & Hỗ Trợ Kích Hoạt Nhanh
-                    </h4>
-                    <p className="text-xs text-muted leading-relaxed">
-                      Nếu ứng dụng ngân hàng của Ba Mẹ chưa hỗ trợ quét mã QR hoặc Ba Mẹ cần xuất hóa đơn tài chính (VAT) cho doanh nghiệp, vui lòng chuyển khoản theo thông tin dưới đây và bấm nút xác nhận.
-                    </p>
+                {/* Polling auto-check bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-50/70 p-3 border border-brand-100">
+                  <div className="flex items-center gap-2 text-xs font-bold text-brand-900">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500" />
+                    </span>
+                    <span>Hệ thống đang tự động kiểm tra giao dịch chuyển khoản...</span>
+                  </div>
 
-                    <div className="rounded-xl bg-cream-50 p-3 border border-cream-200 space-y-1.5 text-xs">
-                      <div><strong>Ngân hàng:</strong> {BANK_INFO.bankName}</div>
-                      <div><strong>Số tài khoản:</strong> <span className="font-mono font-bold text-brand-700">{BANK_INFO.accountNumber}</span></div>
-                      <div><strong>Chủ tài khoản:</strong> {BANK_INFO.accountName}</div>
-                      <div><strong>Số tiền:</strong> {effectiveAmountFormatted}</div>
-                      <div><strong>Nội dung:</strong> <span className="font-mono font-bold text-amber-900">{activePaymentCode}</span></div>
+                  <button
+                    type="button"
+                    onClick={() => checkPaymentStatus()}
+                    disabled={isPolling}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-50 disabled:opacity-50"
+                  >
+                    <RefreshCw size={13} className={cn(isPolling && 'animate-spin')} />
+                    {isPolling ? 'Đang kiểm tra...' : 'Kiểm tra ngay'}
+                  </button>
+                </div>
+
+                {/* Manual Transfer Confirmation / Support Note */}
+                <div className="rounded-2xl border border-cream-300/80 bg-cream-50/70 p-3 shadow-soft">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-xs text-muted">
+                      <span className="font-bold text-text">Hỗ trợ chuyển khoản & Hotline: </span>
+                      <strong className="text-brand-700">{BANK_INFO.hotline}</strong>
                     </div>
-
-                    {/* VAT guidance */}
-                    <div className="rounded-xl bg-sky-50 p-3 border border-sky-100 text-xs text-sky-950 space-y-1">
-                      <p className="font-black text-sky-900">🧾 Xuất Hóa Đơn Điện Tử VAT:</p>
-                      <p>
-                        Gửi thông tin Tên Doanh Nghiệp, Mã Số Thuế, Địa Chỉ và Email nhận HĐĐT về Zalo/Hotline CSKH: <strong>{BANK_INFO.hotline}</strong> hoặc email <strong>cskh@aikid.vn</strong>. Hóa đơn sẽ được xuất trong vòng 24h làm việc.
-                      </p>
-                    </div>
-
-                    {/* Action button */}
                     {manualSubmitted ? (
-                      <div className="rounded-2xl bg-mint-50 p-3.5 border border-mint-200 text-center text-xs font-bold text-mint-900 animate-in fade-in">
-                        <CheckCircle2 size={24} className="mx-auto text-mint-600 mb-1" />
-                        Đã gửi thông báo ưu tiên tới bộ phận CSKH & Admin! Chuyên viên sẽ hỗ trợ kiểm tra và kích hoạt gói cho gia đình trong vòng 5-15 phút.
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-mint-800 bg-mint-50 px-3 py-1.5 rounded-xl border border-mint-200 animate-in fade-in">
+                        <CheckCircle2 size={15} className="text-mint-600" />
+                        <span>Đã gửi thông báo ưu tiên tới bộ phận CSKH & Admin</span>
                       </div>
                     ) : (
                       <Button
                         type="button"
+                        variant="ghost"
                         onClick={handleManualConfirm}
-                        className="w-full py-3 text-sm font-black shadow-clay"
+                        className="!py-1.5 !px-3 text-xs font-bold border border-cream-300 bg-white hover:bg-cream-100 shadow-soft"
                       >
-                        <Send size={16} />
-                        Tôi đã chuyển khoản xong
+                        <Send size={13} />
+                        <span>Tôi đã chuyển khoản xong</span>
                       </Button>
                     )}
                   </div>
                 </div>
-              )}
-
-              {/* TAB 3: Apple Pay / Google Pay */}
-              {activeTab === 'wallets' && (
-                <div
-                  id="tabpanel-wallets"
-                  role="tabpanel"
-                  aria-labelledby="tab-wallets"
-                  className="space-y-4 animate-in fade-in duration-200"
-                >
-                  <div className="rounded-2xl border border-cream-300 bg-white/80 p-5 shadow-soft text-center space-y-4">
-                    <div className="flex justify-center gap-2 text-brand-600">
-                      <Smartphone size={32} />
-                    </div>
-                    <div>
-                      <h4 className="font-display text-base font-black text-text">
-                        Thanh Toán Nhanh 1 Chạm Bảo Mật Cao
-                      </h4>
-                      <p className="text-xs text-muted max-w-md mx-auto mt-1">
-                        Sử dụng thẻ Visa, Mastercard, JCB liên kết trên thiết bị di động của Ba Mẹ. Xác thực an toàn qua FaceID, TouchID hoặc mã PIN.
-                      </p>
-                    </div>
-
-                    <div className="max-w-sm mx-auto space-y-2.5 pt-2">
-                      {/* Apple Pay Button */}
-                      <button
-                        type="button"
-                        disabled={walletProcessing !== null}
-                        onClick={() => handleWalletPay('apple_pay')}
-                        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-black py-3 px-4 font-bold text-white shadow-soft transition hover:bg-black/90 active:scale-[0.98] disabled:opacity-50"
-                      >
-                        {walletProcessing === 'apple_pay' ? (
-                          <>
-                            <RefreshCw size={16} className="animate-spin" />
-                            <span>Đang xác thực ví Apple Pay...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="font-serif font-black text-lg"></span>
-                            <span>Pay with Apple Pay</span>
-                          </>
-                        )}
-                      </button>
-
-                      {/* Google Pay Button */}
-                      <button
-                        type="button"
-                        disabled={walletProcessing !== null}
-                        onClick={() => handleWalletPay('google_pay')}
-                        className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-300 bg-white py-3 px-4 font-bold text-slate-900 shadow-soft transition hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50"
-                      >
-                        {walletProcessing === 'google_pay' ? (
-                          <>
-                            <RefreshCw size={16} className="animate-spin" />
-                            <span>Đang kết nối Google Pay...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="font-black text-blue-600">G</span>
-                            <span className="font-black">Pay</span>
-                            <span className="text-xs text-muted font-normal ml-1">
-                              (Thanh toán qua Google Wallet)
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2 text-[11px] font-bold text-muted pt-1">
-                      <ShieldCheck size={14} className="text-mint-600" />
-                      <span>Bảo mật chuẩn quốc tế PCI-DSS & mã hóa sinh trắc học đầu-cuối</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
             </>
           )}
         </div>

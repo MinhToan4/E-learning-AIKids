@@ -123,7 +123,7 @@ export function ParentPlanTab({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
-              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+              <Sparkles size={12} /> 👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
               Gói học gia đình
@@ -153,46 +153,46 @@ export function ParentPlanTab({
           </div>
         </div>
         <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
-          Chọn gói học phù hợp
+          Gói học & Lượt sáng tạo AI
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
-          Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc. Chương trình là nội dung; chỉ vùng đã đăng ký mới xuất hiện trong lộ trình của con.
+          Chọn gói học phù hợp cho các bé trong gia đình.
+          <span className="sr-only"> Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc.</span>
         </p>
         {sub && (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-mint-200/80 bg-mint-50/60 p-4 shadow-2xs">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-mint-200/80 bg-mint-50/60 p-3.5 shadow-2xs">
               <p className="text-xs font-extrabold uppercase tracking-wide text-success">Gói hiện tại</p>
-              <p className="mt-1 font-display text-xl font-black text-slate-900">{sub.planName}</p>
-              <p className="mt-1 text-xs sm:text-sm text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p>
+              <p className="mt-0.5 font-display text-lg font-black text-slate-900">{sub.planName}</p>
+              <p className="mt-0.5 text-xs text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p>
             </div>
-            <div className="rounded-2xl border border-brand-200/80 bg-brand-50/60 p-4 shadow-2xs">
+            <div className="rounded-2xl border border-brand-200/80 bg-brand-50/60 p-3.5 shadow-2xs">
               <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Quyền học</p>
-              <p className="mt-1 font-display text-xl font-black text-slate-900">{sub.maxOpenCoursesPerChild} vùng / con</p>
-              <p className="mt-1 text-xs sm:text-sm text-muted">Vùng đã hoàn thành vẫn được giữ tiến độ khi đổi gói.</p>
+              <p className="mt-0.5 font-display text-lg font-black text-slate-900">{sub.maxOpenCoursesPerChild} vùng / con</p>
             </div>
           </div>
         )}
       </header>
 
       {sub && usage.length > 0 && (
-        <section className="ui-card p-5">
-          <h3 className="font-display text-xl">Mức sử dụng của gia đình</h3>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="ui-card p-4 sm:p-5">
+          <h3 className="font-display text-lg sm:text-xl font-black text-slate-900">Mức sử dụng của gia đình</h3>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {usage.map((child) => {
               const percent =
                 sub.maxOpenCoursesPerChild > 0
                   ? Math.min(100, Math.round((child.openCourses / sub.maxOpenCoursesPerChild) * 100))
                   : 100
               return (
-                <article key={child.id} className="rounded-2xl border border-border p-4">
+                <article key={child.id} className="rounded-2xl border border-border p-3.5 bg-white shadow-2xs">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-bold">{child.nickname ?? 'Học viên'}</p>
-                    <span className="text-sm font-extrabold text-brand-700">
+                    <p className="font-bold text-sm text-text">{child.nickname ?? 'Học viên'}</p>
+                    <span className="text-xs font-black text-brand-700">
                       {child.openCourses}/{sub.maxOpenCoursesPerChild} vùng
                     </span>
                   </div>
                   <div
-                    className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50"
+                    className="mt-2.5 h-2 overflow-hidden rounded-full bg-brand-50"
                     role="progressbar"
                     aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${sub.maxOpenCoursesPerChild} vùng`}
                     aria-valuenow={percent}
@@ -204,9 +204,9 @@ export function ParentPlanTab({
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-muted">
+                  <p className="mt-1.5 text-[11px] text-muted font-medium">
                     {child.openCourses >= sub.maxOpenCoursesPerChild
-                      ? 'Đã dùng hết hạn mức. Nâng gói để mở thêm vùng.'
+                      ? 'Đã dùng hết hạn mức vùng học.'
                       : `Còn ${sub.maxOpenCoursesPerChild - child.openCourses} vùng có thể mở.`}
                   </p>
                 </article>
@@ -243,6 +243,8 @@ export function ParentPlanTab({
         <div className="grid gap-4 md:grid-cols-3">
           {plans.map((p) => {
             const current = sub?.planCode === p.code
+            // Keep at most 3 key features for clean, concise display
+            const keyFeatures = p.features.slice(0, 3)
             return (
               <article
                 key={p.code}
@@ -275,7 +277,7 @@ export function ParentPlanTab({
                     </p>
                   </div>
                   <ul className="space-y-1.5 text-xs sm:text-sm text-muted mb-4">
-                    {p.features.map((f) => (
+                    {keyFeatures.map((f) => (
                       <li key={f} className="flex items-start gap-2">
                         <Check size={14} className="text-emerald-600 shrink-0 mt-0.5" />
                         <span>{f}</span>

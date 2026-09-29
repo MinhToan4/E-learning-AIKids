@@ -111,11 +111,11 @@ export const FEATURE_BLOCK_PEDAGOGY_MAP: Record<string, PedagogyGuide> = {
   },
   video: {
     useWhen: 'Phát video hướng dẫn thực hành, phóng sự khoa học hoặc phim hoạt hình giáo dục.',
-    studentSees: 'Khung phát video giao diện hiện đại với nút Play lớn và thanh tiến trình trực quan.',
+    studentSees: 'Khung video 16:9 rõ nét không bị che, kèm dải phụ đề lời thoại chuyên dụng nằm ngay dưới chân video.',
   },
   voice: {
-    useWhen: 'Luyện kỹ năng nghe, đọc hiểu và phát âm chuẩn với giọng đọc tương tác cùng cử chỉ.',
-    studentSees: 'Mèo AIKI ngộ nghĩnh cử động khẩu hình và phát sóng âm thanh lời đọc ấm áp.',
+    useWhen: 'Luyện kỹ năng nghe, đọc hiểu qua âm thanh lời đọc và cử chỉ của Mèo AIKI.',
+    studentSees: 'Âm thanh lời đọc đồng hành của Mèo AIKI (ẩn khung hình trên bài học để tối ưu diện tích).',
   },
   'layout-split': {
     useWhen: 'Kết hợp cân đối: 50% văn bản giải thích bên trái và 50% tranh ảnh/media bên phải.',
@@ -365,22 +365,24 @@ function renderMiniWireframe(id: string, blockName: string, blockIcon: string) {
 
     case 'video':
       return (
-        <div data-testid="wireframe-video" className="rounded-xl bg-slate-900 p-2 text-white shadow-inner flex flex-col justify-between h-18 relative">
-          <div className="flex items-center justify-between text-[8px] text-slate-400">
-            <span>🎬 Video bài giảng</span>
-            <span className="text-rose-400 font-bold">● HD</span>
-          </div>
-          <div className="self-center flex items-center justify-center w-7 h-7 rounded-full bg-rose-600/95 text-white text-xs shadow-md">
-            ▶
-          </div>
-          <div className="w-full space-y-0.5">
-            <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
-              <div className="w-1/3 h-full bg-amber-400 rounded-full" />
+        <div data-testid="wireframe-video" className="rounded-xl bg-slate-900 border border-slate-700 overflow-hidden shadow-inner flex flex-col">
+          <div className="p-2 text-white flex flex-col justify-between h-14 relative bg-slate-950">
+            <div className="flex items-center justify-between text-[8px] text-slate-400">
+              <span>🎬 Video 16:9 HD sạch bóng</span>
+              <span className="text-emerald-400 font-bold">● Không bị text che</span>
             </div>
-            <div className="flex justify-between text-[7px] text-slate-400">
-              <span>01:15</span>
-              <span>03:40</span>
+            <div className="self-center flex items-center justify-center w-6 h-6 rounded-full bg-rose-600 text-white text-xs shadow-md">
+              ▶
             </div>
+            <div className="w-full space-y-0.5">
+              <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-1/3 h-full bg-emerald-500 rounded-full" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-amber-50 px-2 py-1 border-t border-slate-200 flex items-center gap-1 text-[8px] text-slate-800 font-bold">
+            <span className="bg-brand-500 text-white rounded-full px-1 text-[7px]">AIKI</span>
+            <span className="truncate">"Phụ đề hiển thị dưới video, không che hình"</span>
           </div>
         </div>
       )

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { api, clearAccessToken, setAccessToken } from '@/shared/lib/api'
+import { api, clearAccessToken, markSessionTransition } from '@/shared/lib/api'
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -25,13 +25,13 @@ describe('parent free-plan enrollment flow', () => {
     const courseId = '22222222-2222-4222-8222-222222222222'
     let enrolled = false
 
-    setAccessToken('parent-session')
+    markSessionTransition()
     const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
       const url = String(input)
       const headers = new Headers(init?.headers)
 
       if (url.endsWith('/api/v1/billing/me/checkout')) {
-        expect(headers.get('Authorization')).toBe('Bearer parent-session')
+        expect(headers.get('Authorization')).toBeNull()
         expect(headers.get('Idempotency-Key')).toBeTruthy()
         expect(JSON.parse(String(init?.body))).toMatchObject({ plan: 'free' })
         return json({
@@ -56,18 +56,17 @@ describe('parent free-plan enrollment flow', () => {
       }
 
       if (url.endsWith(`/api/v1/lms/family/children/${childId}/courses`)) {
-        expect(headers.get('Authorization')).toBe('Bearer parent-session')
+        expect(headers.get('Authorization')).toBeNull()
         expect(JSON.parse(String(init?.body))).toEqual({ courseId, enroll: true })
         enrolled = true
         return json({ enrolled: true, enrollment: { courseId, status: 'active' } })
       }
 
       if (url.endsWith(`/api/v1/account/family/children/${childId}/session`)) {
-        expect(headers.get('Authorization')).toBe('Bearer parent-session')
+        expect(headers.get('Authorization')).toBeNull()
         return json({
           status: 'success',
           data: {
-            token: 'child-session',
             child: { id: childId, name: 'Bé Mây', actor: 'child' },
             parent: { id: 'parent-1' },
           },
@@ -75,7 +74,7 @@ describe('parent free-plan enrollment flow', () => {
       }
 
       if (url.endsWith('/api/v1/lms/enrollments')) {
-        expect(headers.get('Authorization')).toBe('Bearer child-session')
+        expect(headers.get('Authorization')).toBeNull()
         return json({
           enrollments: enrolled
             ? [{ courseId, status: 'active', progress: [] }]

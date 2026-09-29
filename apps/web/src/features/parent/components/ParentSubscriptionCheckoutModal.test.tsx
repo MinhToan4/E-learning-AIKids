@@ -90,7 +90,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(document.body.textContent).toContain('500 MB lưu trữ đám mây')
   })
 
-  it('renders VietQR tab by default with accurate bank information and QR code', () => {
+  it('renders VietQR Hero with accurate bank information and QR code', () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -100,10 +100,6 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
         }),
       )
     })
-
-    // Active tab is VietQR
-    const vietQrTab = document.body.querySelector('#tab-vietqr')
-    expect(vietQrTab?.getAttribute('aria-selected')).toBe('true')
 
     // Bank information
     expect(document.body.textContent).toContain('MBBank (Ngân hàng TMCP Quân Đội)')
@@ -121,7 +117,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(qrImage?.src).toContain('addInfo=AK129K8888')
   })
 
-  it('switches to Manual/Admin Support tab and sends confirmation', () => {
+  it('handles manual transfer confirmation and sends notification to CSKH', () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -132,17 +128,6 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       )
     })
 
-    const manualTab = document.body.querySelector('#tab-manual') as HTMLButtonElement | null
-    expect(manualTab).not.toBeNull()
-
-    act(() => {
-      manualTab?.click()
-    })
-
-    // Tab is now active
-    expect(manualTab?.getAttribute('aria-selected')).toBe('true')
-    expect(document.body.textContent).toContain('Chuyển Khoản Trực Tiếp & Hỗ Trợ Kích Hoạt Nhanh')
-    expect(document.body.textContent).toContain('Xuất Hóa Đơn Điện Tử VAT')
     expect(document.body.textContent).toContain('0382.228.888')
 
     // Click "Tôi đã chuyển khoản xong" button
@@ -156,51 +141,6 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
 
     // Feedback message appears
     expect(document.body.textContent).toContain('Đã gửi thông báo ưu tiên tới bộ phận CSKH & Admin')
-  })
-
-  it('switches to Apple Pay / Google Pay tab and handles 1-tap payment', async () => {
-    vi.useFakeTimers()
-    const onSuccess = vi.fn()
-
-    act(() => {
-      root.render(
-        createElement(ParentSubscriptionCheckoutModal, {
-          open: true,
-          onClose: vi.fn(),
-          onSuccess,
-        }),
-      )
-    })
-
-    const walletsTab = document.body.querySelector('#tab-wallets') as HTMLButtonElement | null
-    expect(walletsTab).not.toBeNull()
-
-    act(() => {
-      walletsTab?.click()
-    })
-
-    expect(walletsTab?.getAttribute('aria-selected')).toBe('true')
-    expect(document.body.textContent).toContain('Thanh Toán Nhanh 1 Chạm Bảo Mật Cao')
-    expect(document.body.textContent).toContain('Pay with Apple Pay')
-    expect(document.body.textContent).toContain('Pay')
-
-    const buttons = Array.from(document.body.querySelectorAll('button'))
-    const applePayBtn = buttons.find((b) => b.textContent?.includes('Pay with Apple Pay'))
-    expect(applePayBtn).toBeDefined()
-
-    act(() => {
-      applePayBtn?.click()
-    })
-
-    // Fast forward wallet processing timer
-    act(() => {
-      vi.advanceTimersByTime(1000)
-    })
-
-    // Triggers success screen and callback
-    expect(onSuccess).toHaveBeenCalledTimes(1)
-    expect(document.body.textContent).toContain('Chúc Mừng Ba Mẹ & Bé!')
-    expect(document.body.textContent).toContain('Kích Hoạt Thành Công')
   })
 
   it('copies payment code and account number to clipboard', async () => {
@@ -490,37 +430,5 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('AK129K9999'),
     )
-  })
-
-  it('renders popular bank apps and handles deep link click', async () => {
-    act(() => {
-      root.render(
-        createElement(ParentSubscriptionCheckoutModal, {
-          open: true,
-          onClose: vi.fn(),
-          paymentCode: 'AK129K8888',
-        }),
-      )
-    })
-
-    // Bank app buttons
-    expect(document.body.textContent).toContain('Mở Nhanh Ứng Dụng Ngân Hàng / Ví Điện Tử')
-    expect(document.body.textContent).toContain('MB Bank')
-    expect(document.body.textContent).toContain('Vietcombank')
-    expect(document.body.textContent).toContain('Techcombank')
-    expect(document.body.textContent).toContain('Ví MoMo')
-    expect(document.body.textContent).toContain('ZaloPay')
-
-    // Click on MB Bank
-    const mbBtn = document.body.querySelector('button[aria-label="Mở app MB Bank"]') as HTMLButtonElement | null
-    expect(mbBtn).not.toBeNull()
-
-    await act(async () => {
-      mbBtn?.click()
-    })
-
-    // Copies payment code to clipboard
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('AK129K8888')
-    expect(document.body.textContent).toContain('Đã chép mã!')
   })
 })

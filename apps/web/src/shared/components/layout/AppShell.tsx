@@ -930,8 +930,6 @@ export function AppShell() {
                       location.pathname.startsWith('/backpack') ||
                       location.pathname.startsWith('/profile')
 
-              const emojiIcon = to === '/home' ? '🏠' : to === '/world' ? '🗺️' : '👤'
-
               return (
                 <NavLink
                   key={to}
@@ -939,23 +937,20 @@ export function AppShell() {
                   onPointerEnter={() => prefetchRoute(to)}
                   onFocus={() => prefetchRoute(to)}
                   className={cn(
-                    'flex flex-col items-center gap-0.5 px-4 py-1 rounded-2xl transition-all cursor-pointer select-none active:scale-95',
+                    'flex flex-col items-center justify-center gap-1 px-5 py-1.5 rounded-2xl transition-all cursor-pointer select-none active:scale-95 border border-transparent',
                     isItemActive
-                      ? 'bg-purple-100/70 text-purple-700 font-black shadow-2xs'
+                      ? 'bg-purple-100 text-purple-700 font-black shadow-xs border border-purple-200/80'
                       : 'text-slate-500 font-semibold hover:text-slate-800',
                   )}
                   data-active={isItemActive}
                   title={label}
                   aria-label={label}
                 >
-                  <span className="text-lg leading-none" aria-hidden="true">
-                    {emojiIcon}
+                  <span className="flex items-center justify-center" aria-hidden="true">
+                    <Icon size={22} />
                   </span>
                   <span className={cn('text-[11px] leading-tight', isItemActive ? 'font-black' : 'font-bold')}>
                     {label}
-                  </span>
-                  <span className="sr-only">
-                    <Icon size={20} />
                   </span>
                 </NavLink>
               )

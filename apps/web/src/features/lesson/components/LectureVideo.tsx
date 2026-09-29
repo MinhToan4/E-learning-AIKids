@@ -41,7 +41,7 @@ export function LectureVideo({ title, url, onPlay, onPause, onEnded }: Props) {
         Video bài giảng
       </p>
       {source.kind === 'youtube' ? (
-        <div className="group relative aspect-video w-full bg-black">
+        <div className="group relative aspect-video w-full max-h-[50dvh] bg-black">
           <iframe
             ref={iframeRef}
             className="pointer-events-none size-full"
@@ -64,7 +64,7 @@ export function LectureVideo({ title, url, onPlay, onPause, onEnded }: Props) {
         </div>
       ) : (
         <video
-          className="aspect-video w-full bg-black"
+          className="aspect-video w-full max-h-[50dvh] bg-black"
           controls
           playsInline
           preload="metadata"

@@ -15,9 +15,11 @@ const ChildPickerPage = lazy(() => import('@/features/family/pages/ChildPickerPa
 const OnboardingPage = lazy(() => import('@/features/auth/pages/OnboardingPage').then((module) => ({ default: module.OnboardingPage })))
 const StudentConceptTestPage = lazy(() => import('@/features/concept/pages/StudentConceptTestPage').then((module) => ({ default: module.StudentConceptTestPage })))
 const AiKidCourseDemoPage = lazy(() => import('@/features/concept/pages/AiKidCourseDemoPage').then((module) => ({ default: module.AiKidCourseDemoPage })))
+const PreviewWireframePage = lazy(() => import('@/features/concept/pages/PreviewWireframePage').then((module) => ({ default: module.PreviewWireframePage })))
 
 export function createPublicRoutes() {
   return [
+    <Route key="preview-wireframe" path="/preview-wireframe" element={<PreviewWireframePage />} />,
     <Route key="course-demo" path="/course-demo" element={<AiKidCourseDemoPage />} />,
     <Route key="demo" path="/demo" element={<AiKidCourseDemoPage />} />,
     <Route key="concept-test" path="/concept-test" element={<StudentConceptTestPage />} />,

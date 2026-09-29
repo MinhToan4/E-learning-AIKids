@@ -1,4 +1,4 @@
-import { clearAccessToken, setAccessToken, type AccountAccess, type User } from '../api'
+import { clearAccessToken, markSessionTransition, type AccountAccess, type User } from '../api'
 import { createUuid } from '../uuid'
 import {
   type GatewayRequest,
@@ -343,8 +343,7 @@ export function normalizeAuthGatewayResponse(
   }
 
   if (path === '/api/auth/login/child-profile') {
-    const token = String(payload.token ?? payload.accessToken ?? '')
-    if (token) setAccessToken(token)
+    markSessionTransition()
     const child = recordValue(payload.child)
     const consent = (child.parentalConsent && typeof child.parentalConsent === 'object'
       ? child.parentalConsent
@@ -368,8 +367,7 @@ export function normalizeAuthGatewayResponse(
   }
 
   if (path.startsWith('/api/auth/login/') || path === '/api/auth/register/adult') {
-    const token = String(payload.token ?? payload.accessToken ?? body.token ?? body.accessToken ?? '')
-    if (token) setAccessToken(token)
+    markSessionTransition()
     const rawUser = (payload.user ?? body.user ?? payload) as Record<string, unknown>
     const baseUser = mapUser(rawUser)
     const childPayload = (payload.child && typeof payload.child === 'object' ? payload.child : null) as Record<string, unknown> | null
@@ -397,7 +395,12 @@ export function normalizeAuthGatewayResponse(
   }
 
   if (path === '/api/auth/me' && (payload.user || payload.id)) {
-    return { user: mapUser((payload.user ?? payload) as Record<string, unknown>) }
+    return {
+      user: mapUser((payload.user ?? payload) as Record<string, unknown>),
+      ...(payload.access && typeof payload.access === 'object'
+        ? { access: payload.access as AccountAccess }
+        : {}),
+    }
   }
 
   if (path === '/api/auth/logout') {
@@ -406,14 +409,12 @@ export function normalizeAuthGatewayResponse(
   }
 
   if (path === '/api/auth/context') {
-    const token = String(payload.accessToken ?? payload.token ?? '')
-    if (token) setAccessToken(token)
+    markSessionTransition()
     return payload
   }
 
   if (path === '/api/parent/gate/verify') {
-    const token = String(payload.token ?? payload.accessToken ?? '')
-    if (token) setAccessToken(token)
+    markSessionTransition()
     return {
       user: mapUser(recordValue(payload.user)),
       message: String(payload.message ?? 'Parent password verified'),

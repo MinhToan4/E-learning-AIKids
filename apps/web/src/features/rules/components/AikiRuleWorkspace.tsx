@@ -182,15 +182,15 @@ export function AikiRuleWorkspace({
   return (
     <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden bg-[#f3f0ff] text-text flex flex-col selection:bg-brand-500 selection:text-white">
       {/* ── Top Header ────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-4 py-2.5 backdrop-blur-md sm:px-8 shadow-xs">
-        <div className="mx-auto flex w-full items-center justify-between gap-3 max-w-7xl">
+      <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-3 py-2 sm:px-6 sm:py-2.5 backdrop-blur-md shadow-xs">
+        <div className="mx-auto flex w-full items-center justify-between gap-2 sm:gap-3 max-w-[1024px]">
           {/* Left: Back & Rule Step info */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             {onBack ? (
               <button
                 type="button"
                 onClick={onBack}
-                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer"
+                className="inline-flex min-h-[36px] sm:min-h-10 items-center gap-1 sm:gap-1.5 rounded-full border-2 border-border bg-white px-2.5 sm:px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 cursor-pointer shrink-0"
               >
                 <ArrowLeft size={14} />
                 <span className="hidden sm:inline">Mười quy tắc</span>
@@ -199,7 +199,7 @@ export function AikiRuleWorkspace({
             ) : (
               <Link
                 to={defaultBackUrl}
-                className="inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 border-border bg-white px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50"
+                className="inline-flex min-h-[36px] sm:min-h-10 items-center gap-1 sm:gap-1.5 rounded-full border-2 border-border bg-white px-2.5 sm:px-3.5 text-xs font-bold text-slate-700 shadow-2xs transition-colors hover:border-brand-300 hover:bg-slate-50 shrink-0"
               >
                 <ArrowLeft size={14} />
                 <span className="hidden sm:inline">Mười quy tắc</span>
@@ -207,9 +207,10 @@ export function AikiRuleWorkspace({
               </Link>
             )}
 
-            <div className="flex items-center gap-2">
-              <span className="rounded-full border border-brand-200 bg-brand-100 px-2.5 py-0.5 text-xs font-black text-brand-800">
-                QUY TẮC {rule.id} / 10
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <span className="rounded-full border border-brand-200 bg-brand-100 px-2 py-0.5 text-[11px] sm:text-xs font-black text-brand-800">
+                <span className="sm:hidden">QT {rule.id}</span>
+                <span className="hidden sm:inline">QUY TẮC {rule.id} / 10</span>
               </span>
               <span className="hidden rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600 sm:inline-block">
                 8 - 11 tuổi
@@ -218,17 +219,18 @@ export function AikiRuleWorkspace({
           </div>
 
           {/* Center / Right: Question Counter, Stars & Avatar */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-bold text-brand-800 shadow-2xs">
-              {questionState === 'completed' ? 'Hoàn thành' : `Câu ${currentQuestionIndex + 1}/2`}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="rounded-full border border-brand-200 bg-brand-50 px-2 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold text-brand-800 shadow-2xs">
+              {questionState === 'completed' ? 'Xong' : `Câu ${currentQuestionIndex + 1}/2`}
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-100 px-3 py-1 text-xs font-black text-amber-800 shadow-xs">
-              <Star size={15} className="fill-amber-500 text-amber-500" />
-              <span>{progress.totalStars} sao</span>
+            <div className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-amber-200 bg-amber-100 px-2 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-black text-amber-800 shadow-xs">
+              <Star size={13} className="fill-amber-500 text-amber-500" />
+              <span>{progress.totalStars}</span>
+              <span className="hidden sm:inline"> sao</span>
             </div>
 
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border-2 border-brand-200 bg-brand-50 shadow-xs">
+            <div className="relative h-8 w-8 sm:h-9 sm:w-9 shrink-0 overflow-hidden rounded-full border-2 border-brand-200 bg-brand-50 shadow-xs">
               <AikidCatCharacter pose="welcome" className="h-full w-full object-cover scale-125 translate-y-1" />
             </div>
           </div>
@@ -236,29 +238,29 @@ export function AikiRuleWorkspace({
       </header>
 
       {/* ── Main Full-Width Split Screen ──────────────────────────── */}
-      <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+      <main className="flex-1 w-full p-3 sm:p-5 lg:p-6 flex flex-col justify-start sm:justify-center">
         {/* Big Rule Title at Top */}
-        <div className="mb-5 max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-brand-600">
+        <div className="mb-2 sm:mb-4 max-w-[1024px] mx-auto w-full">
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider text-brand-600">
             <span>Bí quyết vàng số {rule.id}</span>
             <span>·</span>
-            <span className="text-muted normal-case font-bold">{rule.goal}</span>
+            <span className="text-muted normal-case font-bold truncate">{rule.goal}</span>
           </div>
-          <h1 className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-black text-text leading-tight">
+          <h1 className="mt-0.5 font-display text-base sm:text-xl lg:text-2xl font-black text-text leading-snug">
             {rule.title}
           </h1>
         </div>
 
         {/* 2 Columns Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 max-w-7xl mx-auto w-full items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 max-w-[1024px] mx-auto w-full items-start">
           {/* ══════════════════════════════════════════════════════════
               CỘT TRÁI (~62%): VIDEO BÀI GIẢNG QUY TẮC
              ══════════════════════════════════════════════════════════ */}
           <div className="lg:col-span-7 xl:col-span-7 space-y-4">
             {/* Video Player Box */}
-            <div className="relative overflow-hidden rounded-3xl border-2 border-border bg-slate-900 shadow-clay">
-              {/* Media Display Area (16:9) */}
-              <div className="relative aspect-video w-full overflow-hidden bg-black flex items-center justify-center">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-border bg-slate-900 shadow-clay">
+              {/* Media Display Area (16:9) - HOÀN TOÀN KHÔNG BỊ TEXT CHE & TỐI ƯU CHIỀU CAO THẤP */}
+              <div className="relative aspect-video w-full max-h-[38dvh] overflow-hidden bg-black flex items-center justify-center">
                 {currentSlide.image ? (
                   <img
                     src={currentSlide.image}
@@ -273,43 +275,43 @@ export function AikiRuleWorkspace({
                   />
                 )}
 
-                {/* Subtitle / Dialogue Bar */}
-                <div className="absolute inset-x-0 bottom-0 bg-black/80 backdrop-blur-xs p-4 sm:p-5 text-center">
-                  <span className="inline-block rounded-full bg-brand-500/30 border border-brand-400/40 px-2.5 py-0.5 text-[11px] font-black text-white mb-1">
-                    {currentSlide.stage} · {currentSlide.speaker}
-                  </span>
-                  <p className="font-display text-sm sm:text-base font-bold text-white drop-shadow-md">
-                    "{currentSlide.dialogue}"
-                  </p>
-                </div>
-
                 {/* Big Center Play/Pause button overlay if paused */}
                 {!isPlaying && (
                   <button
                     type="button"
                     onClick={() => setIsPlaying(true)}
-                    className="absolute inset-0 m-auto h-16 w-16 flex items-center justify-center rounded-full bg-brand-500 text-white shadow-xl hover:scale-110 transition-transform cursor-pointer"
+                    className="absolute inset-0 m-auto h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center rounded-full bg-brand-500 text-white shadow-xl hover:scale-110 transition-transform cursor-pointer"
                   >
-                    <Play size={28} className="translate-x-0.5" />
+                    <Play size={26} className="translate-x-0.5" />
                   </button>
                 )}
               </div>
 
+              {/* Subtitle / Dialogue Bar - NẰM DƯỚI VIDEO, KHÔNG CHE KHUNG HÌNH */}
+              <div className="border-t border-slate-100 bg-amber-50/80 px-3 py-2 sm:px-4 sm:py-2.5 flex items-start gap-2 text-left">
+                <span className="shrink-0 rounded-full bg-brand-500 text-white px-2 py-0.5 text-[10px] font-black mt-0.5 shadow-2xs">
+                  {currentSlide.speaker}
+                </span>
+                <p className="font-display text-xs sm:text-sm font-bold text-slate-800 leading-snug line-clamp-2">
+                  "{currentSlide.dialogue}"
+                </p>
+              </div>
+
               {/* Video Timeline & Controls */}
-              <div className="border-t border-slate-100 bg-white px-4 py-3 sm:px-5">
+              <div className="border-t border-slate-100 bg-white px-3.5 py-2.5 sm:px-5 sm:py-3">
                 {/* Progress Bar */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="text-slate-600 hover:text-brand-600 transition-colors cursor-pointer"
+                    className="text-slate-600 hover:text-brand-600 transition-colors cursor-pointer shrink-0"
                     aria-label={isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
                   >
                     {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                   </button>
 
                   <div
-                    className="relative h-2.5 flex-1 rounded-full bg-slate-100 border border-slate-200 cursor-pointer overflow-hidden"
+                    className="relative h-2 sm:h-2.5 flex-1 rounded-full bg-slate-100 border border-slate-200 cursor-pointer overflow-hidden"
                     onClick={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect()
                       const clickPos = (e.clientX - rect.left) / rect.width
@@ -323,7 +325,7 @@ export function AikiRuleWorkspace({
                     />
                   </div>
 
-                  <span className="text-xs font-mono font-bold text-slate-500">
+                  <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-500 shrink-0">
                     {formatTime(elapsedSec)} / {formatTime(rule.durationSec)}
                   </span>
                 </div>
@@ -608,13 +610,6 @@ export function AikiRuleWorkspace({
                     </div>
                   )}
 
-                  {/* Hộp AIKI mách nhỏ (khi chưa trả lời) */}
-                  {questionState === 'answering' && (
-                    <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
-                      <span className="font-extrabold text-amber-800">🐱 AIKI mách nhỏ: </span>
-                      <span className="font-medium text-amber-900">{currentQuestion.hint}</span>
-                    </div>
-                  )}
 
                   {/* Bottom Action Controls */}
                   <div className="pt-2">

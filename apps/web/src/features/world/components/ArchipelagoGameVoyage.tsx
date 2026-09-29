@@ -4,32 +4,12 @@ import { Button } from '@/shared/components/ui/Button'
 import { Star, Lock, Play, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { AIKID_SIX_ISLANDS_CONFIG, getCourseStationCount, type PathwayCourse } from '../pages/WorldPage'
-import { STATIONS_BY_ISLAND, type StationItem } from '@/features/concept/components/ConceptIslandStationScreen'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 
 export interface ArchipelagoGameVoyageProps {
   courses?: PathwayCourse[]
   onLockedClick?: (course: PathwayCourse) => void
-}
-
-const getDynamicIslandPositions = (count: number) => {
-  const positions = []
-  for (let i = 0; i < count; i++) {
-    const blockIndex = Math.floor(i / 6)
-    const posInBlock = i % 6
-    let localX = 0
-    let localY = 0
-    if (posInBlock === 0) { localX = 18; localY = 34 }
-    else if (posInBlock === 1) { localX = 50; localY = 24 }
-    else if (posInBlock === 2) { localX = 82; localY = 34 }
-    else if (posInBlock === 3) { localX = 82; localY = 72 }
-    else if (posInBlock === 4) { localX = 50; localY = 80 }
-    else if (posInBlock === 5) { localX = 18; localY = 72 }
-    
-    const numBlocks = Math.max(1, Math.ceil(count / 6))
-    const globalX = (blockIndex * 100 + localX) / numBlocks
-    positions.push({ x: globalX, y: localY })
-  }
-  return positions
 }
 
 export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGameVoyageProps) {
@@ -45,9 +25,6 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
   }
 
   const numIslands = Math.max(courses?.length || 6, 2)
-  const numBlocks = Math.max(1, Math.ceil(numIslands / 6))
-  const islandPositions = getDynamicIslandPositions(numIslands)
-
   const selectedIslandConfig = AIKID_SIX_ISLANDS_CONFIG[selectedIdx % AIKID_SIX_ISLANDS_CONFIG.length]
   const selectedCourse = courses?.[selectedIdx]
   const targetSlug = selectedCourse?.slug || selectedCourse?.id || `dao-${selectedIdx + 1}`
@@ -69,33 +46,39 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
     slug?: string
   }
 
-  const islandKey = selectedIslandConfig.slug || `dao-${selectedIdx + 1}`
-  const serverStations = selectedCourse?.stations ?? []
-  const fallbackStations = STATIONS_BY_ISLAND[islandKey] || STATIONS_BY_ISLAND['dao-1'] || []
-  const rawStations: VoyageStationItem[] = serverStations.length > 0
-    ? serverStations.map((station, index) => ({
-        id: station.id,
-        number: station.order || index + 1,
-        code: `TRẠM ${station.order || index + 1}`,
-        title: station.title,
-        subtitle: station.hook || station.skill || 'Nhiệm vụ sáng tạo',
-        stars: 3,
-        xp: station.xpEarned || 50,
-        status: station.status === 'completed'
-          ? 'completed'
-          : station.status === 'in_progress' || station.status === 'available'
-            ? 'current'
-            : 'locked',
-        slug: station.slug,
-        isBossArena: false,
-      }))
-    : fallbackStations.map((st) => ({
-        ...st,
-        slug: undefined,
-      }))
+  let rawStations: VoyageStationItem[] = []
+  if (selectedIdx === 0) {
+    rawStations = AIKI_RULES_DATA.slice(0, 10).map((rule, index) => ({
+      id: `rule-${rule.id}`,
+      number: index + 1,
+      code: `TRẠM ${index + 1}`,
+      title: rule.shortTitle || rule.title,
+      subtitle: rule.skill || rule.goal || 'Nhiệm vụ sáng tạo',
+      stars: 3,
+      xp: 50,
+      status: 'locked',
+      slug: `rule-${rule.id}`,
+      isBossArena: false,
+    }))
+  } else {
+    const prefix = `${selectedIdx}.`
+    const lessons = ISLAND_CURRICULUM_LESSONS.filter(l => l.lessonNumber.startsWith(prefix))
+    rawStations = lessons.map((lesson, index) => ({
+      id: lesson.id,
+      number: index + 1,
+      code: `TRẠM ${index + 1}`,
+      title: lesson.title.includes('—') ? lesson.title.split('—')[1].trim() : lesson.title,
+      subtitle: lesson.skillLearned || lesson.subtitle || 'Nhiệm vụ sáng tạo',
+      stars: 3,
+      xp: 50,
+      status: 'locked',
+      slug: lesson.slug,
+      isBossArena: false,
+    }))
+  }
   
   const stationsList = rawStations.map((st, index) => {
-    let status: 'locked' | 'completed' | 'current' = st.status
+    let status: 'locked' | 'completed' | 'current' = 'locked'
     if (selectedStatus === 'completed') {
       status = 'completed'
     } else if (selectedStatus === 'active') {
@@ -105,12 +88,10 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
     }
 
     let stationUrl = '#'
-    if (st.slug) {
-      stationUrl = `/world/${selectedIslandConfig.canonicalSlug || targetSlug}/lesson/${st.slug}`
-    } else if ((islandKey as string) === 'muoi-quy-tac-xuong-sang-tao' || islandKey === 'dao-1') {
+    if (selectedIdx === 0) {
       stationUrl = `/world/muoi-quy-tac-xuong-sang-tao/lesson/rule-${st.number}`
     } else {
-      stationUrl = `/world/${selectedIslandConfig.canonicalSlug || targetSlug}/lesson/bai-${selectedIdx}-${st.number}`
+      stationUrl = `/world/${selectedIslandConfig.canonicalSlug || targetSlug}/lesson/${st.slug}`
     }
 
     return { ...st, status, stationUrl }
@@ -118,7 +99,7 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
 
   const completedStationCount = stationsList.filter(s => s.status === 'completed').length
   const progressPercent = stationsList.length > 0 ? Math.round((completedStationCount / stationsList.length) * 100) : 0
-  const islandMaxStars = Math.max(0, (selectedCourse ? getCourseStationCount(selectedCourse) : stationsList.length) * 3)
+  const islandMaxStars = stationsList.length * 3
   const displayStars = selectedCourse?.totalStars ?? (selectedStatus === 'completed' ? islandMaxStars : completedStationCount * 3)
 
   const activeStation = stationsList.find(s => s.status === 'current') || stationsList[0]
@@ -153,180 +134,156 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
         </div>
       </div>
 
-      {/* Canvas Bản Đồ Hải Trình Biển */}
-      <div
-        className="relative w-full rounded-[2rem] border-[6px] border-sky-100/50 bg-gradient-to-b from-sky-200 via-teal-100 to-cyan-200 shadow-inner mt-2 overflow-x-auto overflow-y-hidden scrollbar-none"
-        style={{ height: 530 }}
-      >
-        <div 
-          className="relative h-full"
-          style={{ width: `${Math.max(100, numBlocks * 100)}%`, minWidth: '700px' }}
-        >
-          {/* Lớp sóng ngầm tự nhiên */}
-          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none" />
-          
-          {/* Danh sách 6 Đảo */}
-          {islandPositions.map((pos, idx) => {
-            const course = courses?.[idx]
-            const status = course ? course.status : (idx === 0 ? 'completed' : (idx === 1 ? 'active' : 'locked'))
-            const islandConfig = AIKID_SIX_ISLANDS_CONFIG[idx % AIKID_SIX_ISLANDS_CONFIG.length]
-            const isSelected = selectedIdx === idx
-            const isActiveBoat = idx === primaryActiveIdx
+      {/* Băng Chuyền Các Thẻ Đảo To Vuốt Ngang (Horizontal Carousel) - Không viền box, không background */}
+      <div className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 pb-4 scrollbar-none w-full">
+        {Array.from({ length: numIslands }).map((_, idx) => {
+          const course = courses?.[idx]
+          const status = course ? course.status : (idx === 0 ? 'completed' : (idx === 1 ? 'active' : 'locked'))
+          const islandConfig = AIKID_SIX_ISLANDS_CONFIG[idx % AIKID_SIX_ISLANDS_CONFIG.length]
+          const isSelected = selectedIdx === idx
+          const isActiveBoat = idx === primaryActiveIdx
 
-            return (
-              <button
-                key={`island-${idx}`}
-                id={`island-${idx + 1}`}
-                onClick={() => setSelectedIdx(idx)}
-                className="absolute w-32 h-32 -translate-x-1/2 -translate-y-1/2 group transition-all duration-500 hover:scale-105 hover:z-30 cursor-pointer"
-                style={{
-                  left: `${pos.x}%`,
-                  top: `${pos.y}%`,
-                  zIndex: isSelected ? 40 : (isActiveBoat ? 35 : (30 - idx)),
-                }}
-              >
-                {/* Hiệu ứng chọn đảo */}
-                {isSelected && (
-                  <span className="absolute inset-0 rounded-full bg-white/40 animate-ping opacity-75 scale-125 z-0" />
+          const islandStationsCount = idx === 0 ? 10 : ISLAND_CURRICULUM_LESSONS.filter(l => l.lessonNumber.startsWith(`${idx}.`)).length
+          const islandMaxStarsLocal = islandStationsCount * 3
+          const completedLocal = course?.completedCount || 0
+          const displayStarsLocal = course?.totalStars ?? (status === 'completed' ? islandMaxStarsLocal : completedLocal * 3)
+
+          return (
+            <button
+              key={`island-${idx}`}
+              id={`island-${idx + 1}`}
+              onClick={() => setSelectedIdx(idx)}
+              className="relative flex flex-col w-[280px] sm:w-[340px] md:w-[380px] shrink-0 snap-center transition-all duration-300 text-left bg-transparent border-0 group cursor-pointer"
+            >
+              {/* Khung Đảo Nổi Tự Do */}
+              <div className="relative w-full h-34 sm:h-38 flex items-end justify-center pb-0 transition-all duration-300">
+                <img
+                  src={islandConfig.scene || (islandConfig as any).artwork}
+                  alt={islandConfig.title}
+                  className={cn(
+                    "w-full h-full object-contain filter transition-all duration-500 select-none",
+                    isSelected
+                      ? "scale-105 drop-shadow-[0_16px_28px_rgba(253,125,46,0.35)] -translate-y-1 z-10"
+                      : "drop-shadow-md group-hover:scale-102 group-hover:drop-shadow-xl group-hover:-translate-y-1",
+                    status === 'locked' && "opacity-75 grayscale contrast-75 brightness-95"
+                  )}
+                />
+
+                {/* Badges trên đảo */}
+                <div className="absolute top-0 left-1 flex items-center gap-1.5 z-20">
+                  <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl font-black text-xs shadow-xs text-slate-800 border border-slate-200/60">
+                    {islandConfig.badge}
+                  </div>
+                  {isSelected && (
+                    <div className="bg-[#FD7D2E] text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-xs">
+                      Đang Khám Phá
+                    </div>
+                  )}
+                </div>
+
+                {status === 'completed' && !isActiveBoat && (
+                  <div className="absolute top-0 right-1 bg-emerald-500 text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-xs flex items-center gap-1 z-20">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Đã Xong</span>
+                  </div>
                 )}
-                
-                {/* Artwork Đảo */}
-                <div className={cn(
-                  "relative w-full h-full z-10 transition-transform duration-500 rounded-full overflow-hidden border-4 bg-white shadow-clay", 
-                  isSelected ? 'scale-110 drop-shadow-2xl border-orange-400 ring-4 ring-orange-200' : 'drop-shadow-lg border-white'
-                )}>
-                  <img
-                    src={islandConfig.scene || (islandConfig as any).artwork}
-                    alt={islandConfig.title}
-                    className={cn(
-                      "w-full h-full object-cover transition-all duration-500",
-                      status === 'locked' && "opacity-60 grayscale hover:grayscale-0 hover:opacity-100",
-                      isSelected && "brightness-110"
-                    )}
-                  />
-                  
-                  {status === 'completed' && (
-                    <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border-2 border-emerald-200 z-20 scale-90">
-                      <CheckCircle2 size={24} className="text-emerald-500" />
-                    </div>
-                  )}
-                  {status === 'locked' && (
-                    <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border-2 border-slate-200 z-20 scale-90">
-                      <Lock size={20} className="text-slate-400" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Nhãn tên Đảo */}
-                <div className={cn(
-                  "absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1.5 rounded-2xl text-[11px] font-black shadow-sm border transition-all z-20",
-                  isSelected 
-                    ? "bg-white text-orange-500 border-orange-200 scale-110 shadow-md" 
-                    : (status === 'locked' ? "bg-slate-50/80 text-slate-500 border-slate-200/50 backdrop-blur-sm" : "bg-white/95 text-slate-700 border-slate-200 backdrop-blur-sm")
-                )}>
-                  Đảo {idx + 1}: {islandConfig.title.replace('Đảo ', '')}
-                </div>
+                {status === 'locked' && (
+                  <div className="absolute top-0 right-1 bg-slate-800/80 backdrop-blur-md text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-xs flex items-center gap-1 z-20">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Khóa</span>
+                  </div>
+                )}
 
                 {/* Thuyền Mèo Mee neo đậu */}
                 {isActiveBoat && (
-                  <div className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 animate-bounce" style={{ animationDuration: '3s' }}>
-                    <div className="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full mb-0.5 whitespace-nowrap shadow-md">
+                  <div className="absolute -top-1 right-2 z-30 animate-bounce flex flex-col items-center" style={{ animationDuration: '3s' }}>
+                    <div className="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full mb-0.5 whitespace-nowrap shadow-xs text-center">
                       Thuyền Mèo Mee
                     </div>
-                    <img 
-                      src="/assets/aikid-ui/mascot-original/course-wave.webp" 
-                      alt="Thuyền Mèo Mee" 
-                      className="w-14 h-14 drop-shadow-md object-contain" 
+                    <img
+                      src="/assets/aikid-ui/mascot-original/course-wave.webp"
+                      alt="Thuyền Mèo Mee"
+                      className="w-13 h-13 drop-shadow-md object-contain mx-auto"
                     />
                   </div>
                 )}
-                
-                {/* Ổ khóa Đảo */}
+
+                {/* Ổ khóa 3D nhỏ tinh tế ở tâm đảo */}
                 {status === 'locked' && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 opacity-90 drop-shadow-md">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-300 to-amber-500 flex items-center justify-center border-[3px] border-amber-200/50">
-                      <Lock size={20} className="text-white" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-slate-200 to-slate-300 flex items-center justify-center border-2 border-white/50 shadow-sm opacity-90">
+                      <Lock size={24} className="text-slate-500" />
                     </div>
                   </div>
                 )}
-                
-                {status === 'locked' && (
-                  <div className="absolute inset-0 bg-white/20 rounded-full z-10 backdrop-blur-xs" />
+              </div>
+
+              {/* Khối chữ hộp nổi thay vì trong suốt */}
+              <div className={cn(
+                "w-full rounded-2xl p-4 transition-all duration-300 flex flex-col gap-2 text-left -mt-3 sm:-mt-5 relative z-10",
+                isSelected
+                  ? "bg-white border-2 border-orange-400 shadow-clay ring-2 ring-orange-200/50"
+                  : "bg-white/90 border border-slate-200/80 shadow-xs hover:border-slate-300 hover:bg-white"
+              )}>
+                <h3 className={cn(
+                  "font-display font-black text-base sm:text-lg leading-snug transition-colors",
+                  isSelected ? "text-[#FD7D2E]" : "text-slate-900"
+                )}>
+                  {islandConfig.title} — {islandConfig.subtitle}
+                </h3>
+                <p className="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed">
+                  {islandConfig.description}
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-amber-700 bg-amber-50/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-amber-200/50 shadow-sm">
+                    <Star className="w-3.5 h-3.5 fill-amber-500" />
+                    <span>{displayStarsLocal}/{islandMaxStarsLocal} Sao</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-slate-600 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-slate-200/50 shadow-sm">
+                    <span>{islandStationsCount} Trạm</span>
+                  </div>
+                </div>
+
+                {/* Cầu nối thị giác bên trong thẻ đảo */}
+                {isSelected && (
+                  <div className="pt-2 border-t border-orange-100 flex items-center justify-between text-[11px] font-black text-[#FD7D2E]">
+                    <span>Lộ trình chi tiết</span>
+                    <span className="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px]">
+                      Đang hiển thị bên dưới
+                    </span>
+                  </div>
                 )}
-              </button>
-            )
-          })}
-        </div>
+              </div>
+            </button>
+          )
+        })}
       </div>
 
-      {/* Sân Khấu Lớn Của Đảo Được Chọn (Diorama Stage) */}
-      <div className="w-full ui-card p-5 sm:p-7 rounded-[2rem] shadow-clay flex flex-col gap-6 bg-white border-2 border-slate-100 mt-2">
-        <div className="flex flex-col md:flex-row items-stretch gap-5 sm:gap-6 bg-gradient-to-br from-slate-50/90 via-indigo-50/30 to-amber-50/20 p-4 sm:p-5 rounded-[2rem] border border-slate-200/80 shadow-soft">
-          {/* Ảnh cảnh quan đảo */}
-          <div className="relative w-full sm:w-64 md:w-72 aspect-[16/10] shrink-0 rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-100 shadow-md border-2 border-white">
-            <img
-              src={selectedIslandConfig.scene}
-              alt={selectedIslandConfig.title}
-              className={cn(
-                "w-full h-full object-cover transition-transform duration-500 hover:scale-105",
-                selectedStatus === 'locked' && 'opacity-80 grayscale'
-              )}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+      {/* Lộ trình các trạm học của đảo - Journey Road Pathway */}
+      <div className="w-full rounded-[2rem] bg-white/95 backdrop-blur-md p-5 sm:p-7 shadow-clay border-0 flex flex-col gap-6 mt-2">
 
-            <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl font-black text-xs shadow-soft text-slate-800 border border-slate-100/80 flex items-center gap-1.5">
-              <span>{selectedIslandConfig.badge}</span>
-            </div>
-            
-            {selectedStatus === 'active' && (
-              <div className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-soft flex items-center gap-1">
-                <span>Đang Neo Đậu</span>
-              </div>
-            )}
-            {selectedStatus === 'completed' && (
-              <div className="absolute top-3 right-3 bg-emerald-500 text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-soft flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Đã Xong</span>
-              </div>
-            )}
-            {selectedStatus === 'locked' && (
-              <div className="absolute top-3 right-3 bg-slate-800/80 backdrop-blur-md text-white px-2.5 py-1 rounded-xl font-black text-xs shadow-soft flex items-center gap-1">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Khóa</span>
-              </div>
-            )}
-            
-            <div className="absolute bottom-3 right-3 bg-amber-400 text-amber-950 px-2.5 py-1 rounded-xl font-black text-xs shadow-soft flex items-center gap-1">
-              <Star size={14} className="fill-amber-950" />
-              <span>{displayStars}/{islandMaxStars} Sao</span>
-            </div>
-          </div>
-
-          {/* Chi tiết nội dung hòn đảo */}
-          <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-black tracking-wide">
-                  <span>{selectedIslandConfig.badge}: {selectedIslandConfig.title}</span>
+        {/* Lộ Trình Header */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 bg-gradient-to-br from-slate-50/90 via-indigo-50/30 to-amber-50/20 p-4 sm:p-6 rounded-[2rem] border border-slate-200/80 shadow-soft">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-black tracking-wide">
+                <span>{selectedIslandConfig.badge}: {selectedIslandConfig.title}</span>
+              </span>
+              {selectedStatus === 'active' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-black animate-pulse">
+                  <span>Hành trình hiện tại</span>
                 </span>
-                {selectedStatus === 'active' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-black animate-pulse">
-                    <span>Hành trình hiện tại</span>
-                  </span>
-                )}
-              </div>
-
-              <h3 className="font-display font-black text-xl sm:text-2xl text-slate-900 leading-snug">
-                {selectedIslandConfig.title} — {selectedIslandConfig.subtitle}
-              </h3>
-
-              <p className="font-semibold text-slate-600 mt-1.5 text-xs sm:text-sm leading-relaxed line-clamp-2">
-                {selectedIslandConfig.description}
-              </p>
+              )}
             </div>
+            <h3 className="font-display font-black text-xl sm:text-2xl text-slate-900 leading-snug">
+              Lộ Trình Trạm Học: {selectedIslandConfig.title}
+            </h3>
+            <p className="font-semibold text-slate-600 mt-1.5 text-sm">
+              Khám phá và chinh phục từng trạm thực hành của {selectedIslandConfig.title} cùng Mèo Mee
+            </p>
 
             {/* Thanh tiến độ */}
-            <div className="mt-3 pt-3 border-t border-slate-200/60">
+            <div className="mt-4 max-w-md">
               <div className="flex items-center justify-between text-xs font-black text-slate-700 mb-1.5">
                 <span className="flex items-center gap-1.5">
                   <span>Tiến độ: {completedStationCount}/{stationsList.length} trạm xong</span>
@@ -387,169 +344,109 @@ export function ArchipelagoGameVoyage({ courses, onLockedClick }: ArchipelagoGam
           </div>
         </div>
 
-        {/* Lộ trình các trạm học của đảo */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-            <div className="flex items-center gap-2.5">
-              <div>
-                <h4 className="font-display font-black text-lg sm:text-xl text-slate-900 leading-tight">
-                  Lộ Trình Trạm Học: {selectedIslandConfig.title}
-                </h4>
-                <p className="text-xs font-semibold text-slate-500">
-                  Chinh phục từng trạm thực hành để tích lũy XP
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-black border border-slate-200/60">
-                {stationsList.length} trạm
-              </span>
-              {completedStationCount > 0 && (
-                <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-black border border-emerald-200/60">
-                  {completedStationCount} hoàn thành
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Bản Đồ Con Đường Lộ Trình Lõi */}
+        <div className="relative mt-6 pt-4 pb-4 w-full max-w-4xl mx-auto">
+          {/* Road Spine (Dải đường kết nối) */}
+          <div className="absolute left-[20px] sm:left-1/2 sm:-translate-x-1/2 top-4 bottom-4 w-2 bg-slate-100 rounded-full border border-slate-200/50 shadow-inner z-0"></div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {stationsList.map((station) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 sm:gap-x-16 gap-y-8 relative z-10">
+            {stationsList.map((station, index) => {
               const isCompleted = station.status === 'completed'
               const isCurrent = station.status === 'current'
               const isLocked = station.status === 'locked'
+              const isLeftCol = index % 2 === 0
 
               return (
-                <div
-                  key={station.id}
-                  className={cn(
-                    "relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl transition-all bg-white border-2",
-                    isCurrent
-                      ? "border-orange-400 ring-2 ring-orange-100 shadow-md bg-gradient-to-b from-orange-50/20 to-white"
-                      : isCompleted
-                        ? "border-slate-100 hover:border-slate-200 hover:shadow-md shadow-sm"
-                        : "border-slate-100 opacity-75 hover:opacity-90"
-                  )}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div
-                          className={cn(
-                            "w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black shrink-0 transition-transform shadow-sm",
-                            isCompleted
-                              ? "bg-emerald-500 text-white"
-                              : isCurrent
-                                ? "bg-orange-500 text-white ring-4 ring-orange-100"
-                                : "bg-slate-100 text-slate-400 border border-slate-200"
-                          )}
-                        >
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-5 h-5" />
-                          ) : isCurrent ? (
-                            <span>{station.number}</span>
-                          ) : (
-                            <Lock className="w-4 h-4 text-slate-400" />
-                          )}
-                        </div>
+                <div key={station.id} className="relative">
+                  <div className={cn(
+                    "ml-[60px] sm:ml-0 bg-white p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between h-full relative",
+                    isCurrent ? "border-orange-400 shadow-clay ring-2 ring-orange-100 bg-gradient-to-br from-white to-orange-50/30" : isCompleted ? "border-slate-200 shadow-xs hover:shadow-md" : "border-slate-100 bg-slate-50/50"
+                  )}>
 
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                            {(station.code || `TRẠM ${station.number}`).toUpperCase()}
-                          </span>
-                          <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
-                            {isCompleted && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>ĐÃ XONG</span>
-                              </span>
-                            )}
-                            {isCurrent && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-black shadow-sm animate-pulse">
-                                <span>ĐANG HỌC</span>
-                              </span>
-                            )}
-                            {isLocked && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">
-                                <Lock className="w-2.5 h-2.5" />
-                                <span>KHÓA</span>
-                              </span>
-                            )}
-                            {station.isBossArena && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black">
-                                <span>ĐẤU TRƯỜNG</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {isCompleted && (
-                          <div className="flex items-center gap-0.5 text-amber-400">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          </div>
-                        )}
-                        <span className="px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 text-xs font-black border border-orange-100">
-                          +{station.xp} XP
-                        </span>
-                      </div>
+                    {/* Milestone Circle Node */}
+                    <div className={cn(
+                      "absolute top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full shadow-sm",
+                      "w-12 h-12 text-[15px] font-black transition-all",
+                      "-left-[60px]", // Mobile: always relative left off the card
+                      isLeftCol ? "sm:left-auto sm:-right-[48px]" : "sm:left-auto sm:-left-[48px]", // Desktop alignment to spine
+                      isCompleted ? "bg-emerald-500 text-white" : isCurrent ? "bg-orange-500 text-white ring-4 ring-orange-200 animate-pulse" : "bg-slate-100 text-slate-400 border border-slate-200"
+                    )}>
+                      {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : isLocked ? <Lock className="w-5 h-5" /> : station.number}
                     </div>
 
-                    <div className="mb-4">
-                      <h5 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                    {/* Lesson Card Detail (Soft Clay Text) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                            {station.code}
+                          </span>
+                          {isCurrent && (
+                            <span className="text-[10px] font-black text-white bg-orange-500 px-2 py-0.5 rounded-md shadow-xs animate-pulse">
+                              ĐANG HỌC
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 flex items-center gap-0.5">
+                            <Star className="w-3 h-3 fill-amber-500" /> {station.stars || 3}
+                          </span>
+                          <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+                            +{station.xp} XP
+                          </span>
+                        </div>
+                      </div>
+
+                      <h5 className="text-base font-bold text-slate-900 leading-snug mb-1.5">
                         {station.title}
                       </h5>
-                      <p className="text-xs sm:text-[13px] font-medium text-slate-600 leading-relaxed mt-1 line-clamp-2">
+                      {/* Sư phạm 100% không truncate */}
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed">
                         {station.subtitle}
                       </p>
                     </div>
-                  </div>
 
-                  <div className="pt-2 border-t border-slate-100/80">
-                    {isCurrent && (
-                      <Link to={station.stationUrl} className="block w-full">
-                        <button
-                          type="button"
-                          className="w-full min-h-[40px] px-4 py-2 rounded-xl bg-gradient-to-r from-[#FD7D2E] to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs sm:text-sm font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-white" />
-                          <span>Vào Học Ngay</span>
-                        </button>
-                      </Link>
-                    )}
-                    {isCompleted && (
-                      <Link to={station.stationUrl} className="block w-full">
-                        <button
-                          type="button"
-                          className="w-full min-h-[40px] px-3 py-1.5 rounded-xl text-xs sm:text-[13px] font-black text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50/80 border border-indigo-200/60 inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 bg-indigo-50/30"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Ôn lại trạm này</span>
-                        </button>
-                      </Link>
-                    )}
-                    {isLocked && (
-                      <button
-                        type="button"
-                        disabled={!onLockedClick || !selectedCourse}
-                        onClick={() => {
-                          if (onLockedClick && selectedCourse) onLockedClick(selectedCourse)
-                        }}
-                        className={cn(
-                          "w-full min-h-[40px] px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 bg-slate-100/80 border border-slate-200 inline-flex items-center justify-center gap-1.5 transition-all",
-                          onLockedClick && selectedCourse ? "cursor-pointer hover:bg-slate-200/80 hover:text-slate-600" : "cursor-not-allowed opacity-80"
-                        )}
-                      >
-                        <Lock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Chưa mở khóa</span>
-                      </button>
-                    )}
+                    {/* Card Actions */}
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end">
+                      {isCurrent ? (
+                        <Link to={station.stationUrl}>
+                          <Button className="h-9 px-4 rounded-xl bg-[#FD7D2E] hover:bg-orange-600 text-white font-black text-xs shadow-md border-0 gap-1.5 cursor-pointer">
+                            <Play className="w-3.5 h-3.5 fill-white" /> Vào Học Ngay
+                          </Button>
+                        </Link>
+                      ) : isCompleted ? (
+                        <Link to={station.stationUrl}>
+                          <Button variant="secondary" className="h-9 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-black text-xs gap-1.5 shadow-none cursor-pointer">
+                            Ôn Lại
+                          </Button>
+                        </Link>
+                      ) : (
+                        <span className="text-xs font-bold text-slate-400 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5" /> Chưa mở
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
             })}
+          </div>
+
+          {/* Đích Đến / Trophy Landmark */}
+          <div className="relative mt-8 pt-4 pb-2 w-full flex sm:justify-center">
+            {/* Cột nối đích */}
+            <div className="absolute top-0 bottom-1/2 left-[20px] sm:left-1/2 sm:-translate-x-1/2 w-2 bg-gradient-to-b from-slate-200 to-amber-200 z-0"></div>
+
+            <div className="relative z-10 w-full sm:w-[400px] bg-gradient-to-br from-amber-100 to-orange-100 border-2 border-amber-300 rounded-[2rem] p-4 sm:p-5 shadow-clay ml-[60px] sm:ml-0 flex items-center sm:flex-col sm:text-center gap-4 sm:gap-2">
+               <div className="absolute top-1/2 sm:top-0 -translate-y-1/2 -left-[60px] sm:left-1/2 sm:-translate-x-1/2 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center border-4 border-white shadow-md z-20">
+                 <Star className="w-5 h-5 text-white fill-white" />
+               </div>
+
+               <div className="flex-1 sm:mt-6">
+                 <h4 className="font-black text-amber-900 text-lg sm:text-xl leading-none">Đích Đến Hoàn Thành</h4>
+                 <p className="text-sm font-semibold text-amber-700/80 mt-1.5 leading-snug">Chinh phục tất cả các trạm để nhận rương báu và cúp vàng!</p>
+               </div>
+            </div>
           </div>
         </div>
       </div>

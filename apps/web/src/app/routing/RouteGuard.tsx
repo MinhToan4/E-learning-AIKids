@@ -1,5 +1,4 @@
 import { Navigate } from 'react-router'
-import { getAccessToken } from '@/shared/lib/api'
 import { hasAnyPermission } from '@/shared/lib/rbac'
 import { useAuth } from '@/shared/store/auth'
 import type { User } from '@/shared/lib/api'
@@ -45,7 +44,7 @@ export function RouteGuard({
   const bootstrap = useAuth((state) => state.bootstrap)
 
   if (loading) return <RouteFallback />
-  if (!user && getAccessToken() && error) {
+  if (!user && error) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-page px-4 py-10">
         <section className="ui-card w-full max-w-lg p-7 text-center" role="alert">

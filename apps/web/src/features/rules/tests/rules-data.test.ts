@@ -76,7 +76,7 @@ describe('AIKI 10 Golden Rules Data Integrity', () => {
     const rule9 = AIKI_RULES_DATA.find((rule) => rule.id === 9)
     const rule10 = AIKI_RULES_DATA.find((rule) => rule.id === 10)
 
-    expect(rule9?.questions[0]?.visualUrl).toBe('/assets/aiki-rules/rule9_read_aloud.webp')
-    expect(rule10?.questions[0]?.visualUrl).toBe('/assets/aiki-rules/rule10_opt_a.webp')
+    expect(rule9?.questions[0]?.visualUrl).toBe('/assets/aiki-rules/rule9_q1_sheet.webp')
+    expect(rule10?.questions[0]?.visualUrl).toBe('/assets/aiki-rules/rule10_q1_sheet.webp')
   })
 })

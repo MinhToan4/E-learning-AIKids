@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, ZoomIn } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, GoalStageConfig } from '../../types/stage-schema'
@@ -45,12 +45,9 @@ export function GoalStageBlock({
     >
       {/* Phần 1 - Tiêu đề & Header */}
       <div className="flex flex-col gap-2 shrink-0">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs sm:text-sm font-bold w-fit border border-purple-200/60">
-          <Sparkles size={13} className="text-purple-500" />
-          <span>Chặng 1: Mục tiêu bài học</span>
-        </div>
-        <h2 className="min-w-0 break-words text-xl sm:text-2xl font-black text-slate-800 leading-tight">
-          {config.title}
+        <span className="sr-only">Chặng 1: Mục tiêu bài học</span>
+        <h2 className="min-w-0 break-words text-lg sm:text-xl font-black text-slate-800 leading-tight">
+          {config.title.replace(/^Mục tiêu bài học:\s*/i, '').trim() || config.title}
         </h2>
       </div>
 
@@ -87,7 +84,8 @@ export function GoalStageBlock({
               className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
               title="Xem ảnh phóng to"
             >
-              <span>🔍 Phóng to</span>
+              <ZoomIn size={13} className="text-white" />
+              <span>Phóng to</span>
             </button>
           </div>
         </div>
@@ -201,7 +199,10 @@ export function GoalStageBlock({
           className="w-full sm:w-auto min-h-[48px] px-8 py-3.5 text-sm sm:text-base font-black rounded-2xl bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-2 cursor-pointer shadow-clay transition-all active:scale-95"
           onClick={onContinue}
         >
-          <span>Đã hiểu mục tiêu! Tiếp Tục Sang Bước 2: Xác Nhận Nhanh</span>
+          <span>
+            Tiếp Tục Sang Bước 2
+            <span className="sr-only"> (Đã hiểu mục tiêu)</span>
+          </span>
         </button>
       </div>
     </section>

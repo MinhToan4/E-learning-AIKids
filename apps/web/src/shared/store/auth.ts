@@ -48,7 +48,7 @@ type AuthState = {
     opts?: { pin?: string },
   ) => Promise<User>
   /** Parent hands device to an owned child profile (ends parent session). */
-  enterAsChild: (childId: string) => Promise<User>
+  enterAsChild: (childId: string, options?: { pin?: string }) => Promise<User>
   loginAdult: (login: string, password: string, role?: 'parent' | 'teacher') => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
@@ -231,19 +231,46 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   bootstrap: async () => {
     set({ loading: true, error: null })
-    const token = getAccessToken()
-    if (!token) {
-      set({ user: null, access: null, activeContext: null, loading: false, enteredFromParent: false })
-      return
-    }
     try {
-      const { user } = await api<{ user: User }>('/api/auth/me')
+      const { user, access } = await api<{ user: User; access?: AccountAccess }>('/api/auth/me')
       if (user.role === 'student') {
         set({ user, access: null, activeContext: null, loading: false, enteredFromParent: false })
         return
       }
-      set({ ...(await hydrateAdultAccess(user)), loading: false, enteredFromParent: false })
+      set({ ...(await hydrateAdultAccess(user, access)), loading: false, enteredFromParent: false })
     } catch (error) {
+      if (
+        import.meta.env.DEV &&
+        typeof window !== 'undefined' &&
+        (window.location.search.includes('preview') ||
+          window.location.search.includes('guest') ||
+          (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true'))
+      ) {
+        const devStudent: User = {
+          id: 'dev-student-bo',
+          role: 'student',
+          email: null,
+          name: 'Bo Bo',
+          nickname: 'Bo Bo',
+          avatarId: null,
+          level: 3,
+          xp: 450,
+          onboarded: true,
+          goal: null,
+          parentId: null,
+          classId: null,
+        }
+        set({
+          user: devStudent,
+          access: null,
+          activeContext: null,
+          loading: false,
+          error: null,
+          enteredFromParent: false,
+        })
+        return
+      }
+
       if (error instanceof ApiError && error.status === 401) {
         get().expireSession()
         return
@@ -264,7 +291,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   refreshMe: async () => {
     const current = get().user
-    if (!current || !getAccessToken()) return null
+    if (!current) return null
     const { user } = await api<{ user: User }>('/api/auth/me')
     // A late response must never replace a session that changed meanwhile.
     if (get().user?.id === current.id && user.id === current.id) set({ user })
@@ -286,13 +313,16 @@ export const useAuth = create<AuthState>((set, get) => ({
     return user
   },
 
-  enterAsChild: async (childId) => {
+  enterAsChild: async (childId, options) => {
     set({ error: null })
     const { user } = await api<{ user: User }>(
       '/api/auth/login/child-profile',
       {
         method: 'POST',
-        body: JSON.stringify({ childId }),
+        body: JSON.stringify({
+          childId,
+          ...(options?.pin ? { pin: options.pin } : {}),
+        }),
       },
     )
     if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)

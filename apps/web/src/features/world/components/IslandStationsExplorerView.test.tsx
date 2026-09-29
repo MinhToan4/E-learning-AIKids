@@ -220,4 +220,84 @@ describe('IslandStationsExplorerView', () => {
     expect(html).toContain('Xuất sắc!')
     expect(html).toContain('Con đã hoàn thành toàn bộ hành trình tại Đảo Khám Phá!')
   })
+
+  it('renders interactive island hero with left/right 3D buttons and 6 pagination dots', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(IslandStationsExplorerView, {
+          courseId: 'dao-1-nha-tham-hiem-ai',
+          courseTitle: 'Nhà Thám Hiểm AI',
+          quests: mockQuests,
+          courses: mockCourses,
+          meta: { totalStars: 3, completedCount: 1 },
+          getStationSlugFn: (q: QuestProgress) => q.slug || q.id,
+        }),
+      ),
+    )
+
+    // Tactile 3D Left and Right buttons
+    expect(html).toContain('aria-label="Đảo trước đó"')
+    expect(html).toContain('aria-label="Đảo kế tiếp"')
+
+    // 6 Island Pagination Dots
+    expect(html).toContain('aria-label="Danh sách 6 đảo hải trình"')
+    expect(html).toContain('aria-current="page"')
+    expect(html).toContain('ĐẢO 2: Khám Phá')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 1: Đảo Tiên Quyết"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 3: Đảo Họa Sĩ"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 4: Đảo Nhân Vật"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 5: Đảo Truyện Tranh"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 6: Đảo Trò Chơi"')
+  })
+
+  it('renders hero container with cursor-grab active:cursor-grabbing and smooth fadeIn animation', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(IslandStationsExplorerView, {
+          courseId: 'dao-1-nha-tham-hiem-ai',
+          courseTitle: 'Nhà Thám Hiểm AI',
+          quests: mockQuests,
+          courses: mockCourses,
+          meta: { totalStars: 3, completedCount: 1 },
+          getStationSlugFn: (q: QuestProgress) => q.slug || q.id,
+        }),
+      ),
+    )
+
+    // Gesture grab indicator
+    expect(html).toContain('cursor-grab')
+    expect(html).toContain('active:cursor-grabbing')
+
+    // Smooth transition & fadeIn animation wrapper
+    expect(html).toContain('animate-fadeIn')
+    expect(html).toContain('transition-all duration-300 ease-out')
+  })
+
+  it('contains AIKID_SIX_ISLAND_PRESETS with all 6 islands configured for slider navigation', async () => {
+    const { AIKID_SIX_ISLAND_PRESETS } = await import('./IslandStationsExplorerView')
+    expect(AIKID_SIX_ISLAND_PRESETS).toHaveLength(6)
+
+    expect(AIKID_SIX_ISLAND_PRESETS[0].targetSlug).toBe('dao-1')
+    expect(AIKID_SIX_ISLAND_PRESETS[0].canonicalSlug).toBe('muoi-quy-tac-xuong-sang-tao')
+
+    expect(AIKID_SIX_ISLAND_PRESETS[1].targetSlug).toBe('dao-2')
+    expect(AIKID_SIX_ISLAND_PRESETS[1].canonicalSlug).toBe('dao-1-nha-tham-hiem-ai')
+
+    expect(AIKID_SIX_ISLAND_PRESETS[2].targetSlug).toBe('dao-3')
+    expect(AIKID_SIX_ISLAND_PRESETS[2].canonicalSlug).toBe('dao-2-hoa-si-ai')
+
+    expect(AIKID_SIX_ISLAND_PRESETS[3].targetSlug).toBe('dao-4')
+    expect(AIKID_SIX_ISLAND_PRESETS[3].canonicalSlug).toBe('dao-3-biet-doi-nhan-vat-ai')
+
+    expect(AIKID_SIX_ISLAND_PRESETS[4].targetSlug).toBe('dao-5')
+    expect(AIKID_SIX_ISLAND_PRESETS[4].canonicalSlug).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+
+    expect(AIKID_SIX_ISLAND_PRESETS[5].targetSlug).toBe('dao-6')
+    expect(AIKID_SIX_ISLAND_PRESETS[5].canonicalSlug).toBe('dao-5-nha-phat-minh-tro-choi-ai')
+  })
 })
+

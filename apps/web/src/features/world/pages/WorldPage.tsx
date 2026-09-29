@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router'
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router'
 import { CheckCircle2, Star, Trophy, Zap, Lock } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
@@ -14,7 +14,7 @@ import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallMo
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { useAuth } from '@/shared/store/auth'
 import { type CourseSummary, type QuestProgress } from '@/shared/lib/api'
-import { learningApi } from '@/shared/lib/learning-api'
+import { learningApi, type LearningPathway } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { getCanonicalAikidCourseSlug, getCourseStationCount } from '@/shared/lib/course-station-count'
 import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
@@ -62,7 +62,115 @@ export function getStationSlug(station: any, isRuleCourse?: boolean): string {
 export const FORCE_UNLOCK_ALL_ISLANDS = false
 
 export function isUserTestingUnlocked(): boolean {
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.search.includes('preview') ||
+      window.location.search.includes('guest') ||
+      (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true'))
+  ) {
+    return true
+  }
   return false
+}
+
+export function createFallbackPathway(): Pathway {
+  return {
+    student: { nickname: 'Bo Bo', ageBand: '8-11' },
+    policy: { label: 'Chương trình chính thức' },
+    recommendedCourseId: 'muoi-quy-tac-xuong-sang-tao',
+    courses: [
+      {
+        id: 'muoi-quy-tac-xuong-sang-tao',
+        slug: 'muoi-quy-tac-xuong-sang-tao',
+        title: 'Mười quy tắc Xưởng',
+        shortTitle: '10 Quy tắc vàng',
+        status: 'active',
+        reasonCode: 'official',
+        completionPercent: 30,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.aiValley,
+        enrolled: true,
+        questCount: 10,
+        completedCount: 3,
+        totalStars: 9,
+      },
+      {
+        id: 'dao-1-nha-tham-hiem-ai',
+        slug: 'dao-1-nha-tham-hiem-ai',
+        title: 'Nhà thám hiểm AI',
+        shortTitle: 'Bốn chìa khóa vàng',
+        status: 'available',
+        reasonCode: 'official',
+        completionPercent: 25,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.promptKeys,
+        enrolled: true,
+        questCount: 4,
+        completedCount: 1,
+        totalStars: 3,
+      },
+      {
+        id: 'dao-2-hoa-si-ai',
+        slug: 'dao-2-hoa-si-ai',
+        title: 'Tớ là hoạ sĩ AI!',
+        shortTitle: 'Sắc màu & Kể chuyện',
+        status: 'available',
+        reasonCode: 'official',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.creativeMountain,
+        enrolled: true,
+        questCount: 4,
+        completedCount: 0,
+        totalStars: 0,
+      },
+      {
+        id: 'dao-3-biet-doi-nhan-vat-ai',
+        slug: 'dao-3-biet-doi-nhan-vat-ai',
+        title: 'Biệt đội nhân vật AI',
+        shortTitle: 'Hồ sơ 3 điểm',
+        status: 'available',
+        reasonCode: 'official',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.characterLab,
+        enrolled: true,
+        questCount: 4,
+        completedCount: 0,
+        totalStars: 0,
+      },
+      {
+        id: 'dao-4-vuong-quoc-truyen-tranh-ai',
+        slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
+        title: 'Vương quốc truyện tranh',
+        shortTitle: 'Storyboard 8 ô',
+        status: 'available',
+        reasonCode: 'official',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.storyIsland,
+        enrolled: true,
+        questCount: 4,
+        completedCount: 0,
+        totalStars: 0,
+      },
+      {
+        id: 'dao-5-nha-phat-minh-tro-choi-ai',
+        slug: 'dao-5-nha-phat-minh-tro-choi-ai',
+        title: 'Nhà phát minh trò chơi',
+        shortTitle: 'Đấu trường thẻ bài',
+        status: 'available',
+        reasonCode: 'official',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: designerAssets.worldScenes.gameArena,
+        enrolled: true,
+        questCount: 4,
+        completedCount: 0,
+        totalStars: 0,
+      },
+    ],
+  }
 }
 
 export const AIKID_CANONICAL_SLUGS = [
@@ -429,6 +537,13 @@ export interface WorldPageProps {
 export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const { courseId, programId, trackId } = useParams<{ courseId?: string; programId?: string; trackId?: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const islandQuery = searchParams.get('island')
+  const [selectedIsland, setSelectedIsland] = useState<string | null>(() => islandQuery)
+  const [activeCourseId, setActiveCourseId] = useState<string>(courseId || islandQuery || '')
+
+  const isOfficialProgramView = !courseId && (!programId || programId === 'aikid_official')
+
   const [refreshTick, setRefreshTick] = useState(0)
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
@@ -439,6 +554,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   const [enrollmentRequired, setEnrollmentRequired] = useState(false)
   const [regionIndex, setRegionIndex] = useState(0)
   const [viewMode, setViewMode] = useState<'game' | 'list'>('game')
+
+  useEffect(() => {
+    if (islandQuery && islandQuery !== selectedIsland) {
+      setSelectedIsland(islandQuery)
+      setActiveCourseId(islandQuery)
+    }
+  }, [islandQuery, selectedIsland])
 
   // Lắng nghe sự kiện hoàn thành bài học để xóa cache và tự động re-render bản đồ
   useEffect(() => {
@@ -456,15 +578,42 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   useEffect(() => {
     void (async () => {
       setLoading(true)
-      if (courseId) {
+      if (courseId || isOfficialProgramView) {
         setQuests([])
         setMeta({ totalStars: 0, completedCount: 0 })
       }
       setError(null)
       setEnrollmentRequired(false)
       try {
-        if (!courseId) {
-          const journey = await learningApi.getPathway()
+        const fetchPathwaySafely = async (): Promise<{
+          student: { nickname: string | null; ageBand: string }
+          policy: { label: string } | null
+          recommendedCourseId: string | null
+          courses: unknown[]
+        }> => {
+          try {
+            return await learningApi.getPathway()
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err)
+            if (
+              msg.includes('JWT') ||
+              msg.includes('Unauthorized') ||
+              msg.includes('401') ||
+              msg.includes('404') ||
+              (typeof window !== 'undefined' &&
+                (window.location.search.includes('preview') ||
+                  window.location.search.includes('guest') ||
+                  (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true')))
+            ) {
+              return createFallbackPathway()
+            }
+            throw err
+          }
+        }
+
+        // Trường hợp không phải Official view và không có courseId (ví dụ: /world/program/workspace hoặc spaces selector)
+        if (!courseId && !isOfficialProgramView) {
+          const journey = await fetchPathwaySafely()
           const rawCourses = journey.courses as PathwayCourse[]
           const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
 
@@ -496,17 +645,29 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           return
         }
 
-        // Khi có courseId trong URL (slug như 'dao-1', 'dao-2', 'muoi-quy-tac-xuong-sang-tao', hoặc UUID)
-        const journey = await learningApi.getPathway()
+        // Có courseId hoặc đang ở giao diện Official Bản Đồ (/world/program/aikid_official)
+        const journey = await fetchPathwaySafely()
         const rawCourses = journey.courses as PathwayCourse[]
         const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
         const processedCourses = applyGatekeeperRules(enrichedCourses)
         const finalPathway = { ...journey, courses: processedCourses }
 
+        // Xác định Đảo đang chọn:
+        // 1. Từ courseId (nếu route là /world/:courseId)
+        // 2. Từ query param ?island=... hoặc state selectedIsland
+        // 3. Fallback: Lấy đảo kế tiếp của học sinh (hoặc đảo 1 'muoi-quy-tac-xuong-sang-tao' / 'dao-1-nha-tham-hiem-ai')
+        const targetIslandParam = islandQuery || selectedIsland
+        const nextTarget = selectNextLearningTarget(processedCourses, journey.recommendedCourseId)
+        const defaultIsland =
+          nextTarget?.course.slug || nextTarget?.course.id || 'muoi-quy-tac-xuong-sang-tao'
+        const activeIslandIdentifier = courseId || targetIslandParam || defaultIsland
+
         const pathRow =
-          findCourseByIdentifier(processedCourses, courseId) ||
-          processedCourses.find((row) => row.id === courseId)
-        const actualCourseId = pathRow?.id || courseId
+          findCourseByIdentifier(processedCourses, activeIslandIdentifier) ||
+          processedCourses.find((row) => row.id === activeIslandIdentifier) ||
+          processedCourses[0]
+        const actualCourseId = pathRow?.id || activeIslandIdentifier
+        setActiveCourseId(pathRow?.slug || pathRow?.id || activeIslandIdentifier)
 
         // Prefer the compact pathway projection. Older deployments may expose
         // only aggregate counts there, while a new learner has no rows yet in
@@ -542,7 +703,9 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           pathRow?.programUnlockMode === 'parallel' ||
           pathRow?.reasonCode === 'manual_override'
 
-        if (!pathRow || (!forceUnlock && pathRow.status === 'locked')) {
+        // Chỉ chặn lỗi toàn màn hình khi truy cập trực tiếp route /world/:courseId mà bị khóa.
+        // Trên giao diện chính thức aikid_official, vẫn hiển thị Đảo ở trạng thái khóa để học sinh có thể vuốt/chuyển đảo.
+        if (courseId && !isOfficialProgramView && (!pathRow || (!forceUnlock && pathRow.status === 'locked'))) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
         }
         setPathway(finalPathway)
@@ -563,7 +726,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         ))
 
         if (rawQuests.length === 0 && !isRuleCourse) {
-          rawQuests = mapPublishedCurriculumStations(pathRow, courseId)
+          rawQuests = mapPublishedCurriculumStations(pathRow, activeIslandIdentifier)
         }
 
         if (rawQuests.length === 0 && isRuleCourse) {
@@ -585,9 +748,13 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           }))
         }
 
+        const isCourseLocked = !forceUnlock && pathRow?.status === 'locked'
+
         if (rawQuests.length > 0) {
           const mergedQuests = mergeQuestsWithLocalProgress(rawQuests, isRuleCourse)
-          const sequentialQuests = applySequentialQuestRules(mergedQuests, forceUnlock)
+          const sequentialQuests = isCourseLocked
+            ? mergedQuests.map((q) => ({ ...q, status: 'locked' as const }))
+            : applySequentialQuestRules(mergedQuests, forceUnlock)
           const calculatedCompletedCount = sequentialQuests.filter((q) => q.status === 'completed').length
           const starSummary = calculateCourseStars(
             sequentialQuests,
@@ -611,16 +778,31 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         setLoading(false)
       }
     })()
-  }, [courseId, refreshTick])
+  }, [courseId, programId, isOfficialProgramView, islandQuery, selectedIsland, refreshTick])
 
+  const effectiveCourseId =
+    courseId || activeCourseId || selectedIsland || islandQuery || 'muoi-quy-tac-xuong-sang-tao'
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',
   ) ?? (quests.length > 0 ? quests[0] : undefined)
   const progressPct = quests.length > 0 ? Math.round((meta.completedCount / quests.length) * 100) : 0
   const currentRegion = WORLD_REGIONS[regionIndex % WORLD_REGIONS.length]
-  const isCurrentCourseRule = Boolean(courseId && (isAikiRuleJourney(courseId) || pathway?.courses.some((c) => (c.id === courseId || c.slug === courseId) && isAikiRuleCourse(c))))
+  const isCurrentCourseRule = Boolean(
+    effectiveCourseId &&
+      (isAikiRuleJourney(effectiveCourseId) ||
+        isAikiRuleJourney(ISLAND_ALIAS_MAP[effectiveCourseId]) ||
+        pathway?.courses.some(
+          (c) =>
+            (c.id === effectiveCourseId ||
+              c.slug === effectiveCourseId ||
+              c.slug === ISLAND_ALIAS_MAP[effectiveCourseId] ||
+              c.id === ISLAND_ALIAS_MAP[effectiveCourseId]) &&
+            isAikiRuleCourse(c),
+        )),
+  )
 
-  if (!courseId) {
+  // Nếu không có courseId và không phải giao diện Official: Render PathwayOverview
+  if (!courseId && !isOfficialProgramView) {
     if (loading) {
       return (
         <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 space-y-4 py-4 sm:py-6">
@@ -651,7 +833,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     )
   }
 
-  if (courseId && error) {
+  if (courseId && !isOfficialProgramView && error) {
     const ruleCourse = pathway?.courses.find((c, i) => isAikiRuleCourse(c, i))
     const ruleCourseHref = `/world/${ruleCourse?.slug || 'dao-1'}`
     return (
@@ -696,8 +878,18 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     )
   }
 
+  if (error || !pathway) {
+    return (
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-4 sm:py-6">
+        <p className="ui-card p-4 sm:p-6 text-danger rounded-2xl" role="alert">
+          {error ?? 'Chưa tải được lộ trình học.'}
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 flex flex-col gap-4 sm:gap-6 page-enter py-4 sm:py-6">
+    <div className="max-w-[1024px] mx-auto w-full px-2 sm:px-6 flex flex-col gap-4 sm:gap-6 page-enter py-2 sm:py-6">
       {enrollmentRequired && !loading ? (
         <section className="ui-card mx-auto w-full max-w-xl p-6 text-center rounded-3xl shadow-clay">
           <CourseBookIcon size={42} className="mx-auto text-brand-500" aria-hidden="true" />
@@ -707,10 +899,10 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           </p>
           <Link
             className="mt-4 inline-block"
-            to={`/course/${courseId}`}
-            onPointerEnter={() => prefetchRoute(`/course/${courseId}`)}
-            onPointerDown={() => prefetchRouteImmediately(`/course/${courseId}`)}
-            onFocus={() => prefetchRoute(`/course/${courseId}`)}
+            to={`/course/${effectiveCourseId}`}
+            onPointerEnter={() => prefetchRoute(`/course/${effectiveCourseId}`)}
+            onPointerDown={() => prefetchRouteImmediately(`/course/${effectiveCourseId}`)}
+            onFocus={() => prefetchRoute(`/course/${effectiveCourseId}`)}
           >
             <Button className="rounded-2xl font-black">Bắt đầu hành trình</Button>
           </Link>
@@ -718,7 +910,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
       ) : (
         <Suspense fallback={<div className="ui-skeleton h-96 rounded-3xl" />}>
           <IslandStationsExplorerView
-            courseId={courseId}
+            courseId={effectiveCourseId}
             courseTitle={courseTitle}
             quests={quests}
             courses={sortAikiCourses(selectCanonicalAikidCourses(
@@ -731,8 +923,22 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             currentRegion={currentRegion}
             isCurrentCourseRule={isCurrentCourseRule}
             getStationSlugFn={getStationSlug}
-            onBackToMap={() => navigate('/world/program/aikid_official')}
-            onSelectIsland={(islandSlug) => navigate(`/world/${islandSlug}`)}
+            onBackToMap={() => {
+              if (isOfficialProgramView || programId === 'aikid_official') {
+                navigate('/home')
+              } else {
+                navigate('/world/program/aikid_official')
+              }
+            }}
+            onSelectIsland={(islandSlug) => {
+              if (isOfficialProgramView || programId === 'aikid_official') {
+                setSearchParams({ island: islandSlug }, { replace: true })
+                setSelectedIsland(islandSlug)
+                setActiveCourseId(islandSlug)
+              } else {
+                navigate(`/world/${islandSlug}`)
+              }
+            }}
           />
         </Suspense>
       )}
@@ -1850,75 +2056,6 @@ function PathwayOverview({
     return (
       <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 page-enter flex flex-col gap-6 py-4 sm:py-6">
         <ArchipelagoGameVoyage courses={selectedCourses} onLockedClick={handleLockedCourseClick} />
-        <div className="w-full h-px bg-slate-200 my-4" />
-        <div className="max-w-[1024px] mx-auto w-full flex flex-col gap-4 sm:gap-6">
-        {/* ── Chuẩn hóa Tiêu đề 3 tầng ── */}
-        <header className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4EC] text-[#FD7D2E] text-xs font-black uppercase tracking-wider border border-amber-200/60 shadow-2xs">
-              Thư Viện Các Khóa Học AIKids
-            </span>
-          </div>
-          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-            Hành Trình Khám Phá 6 Đảo Sáng Tạo
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-2xl">
-            Cùng Mèo Mee khám phá 6 hòn đảo kỳ thú, rèn luyện tư duy prompt, mỹ thuật, truyện tranh và làm chủ AI an toàn.
-          </p>
-
-          {/* Tóm tắt tiến độ tổng thể */}
-          {selectedCourses.length > 0 && (
-            <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <span>{completedStations}/{totalStations} trạm đã hoàn thành</span>
-              </span>
-              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <span>{totalProgress}% tiến độ tổng</span>
-              </span>
-              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/95 text-xs font-black text-slate-800 shadow-soft border border-slate-200/90">
-                <span>{totalStars} Sao tích lũy</span>
-              </span>
-            </div>
-          )}
-
-          {selectedCourses.length > 0 && (
-            <div className="pt-1">
-              <CuteProgress
-                value={totalProgress}
-                label="Tiến độ toàn bộ 6 đảo"
-                tone="mint"
-              />
-            </div>
-          )}
-
-          {nextTicket}
-        </header>
-
-        {/* ── Bộ Sưu Tập 6 Đảo Học Tập Soft Clay Hiện Đại (Responsive Island Cards Grid) ── */}
-        <section aria-labelledby="programs-heading" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-extrabold uppercase tracking-widest text-[#FD7D2E]">
-                Hải trình rèn luyện
-              </p>
-              <h2 id="programs-heading" className="mt-0.5 font-display text-2xl text-slate-900 sm:text-3xl font-black">
-                Bộ Sưu Tập 6 Đảo Học Tập
-              </h2>
-            </div>
-            <Link
-              to="/world/spaces"
-              className="text-xs sm:text-sm font-extrabold text-[#FD7D2E] hover:text-amber-800 transition-colors"
-            >
-              Xem không gian khác
-            </Link>
-          </div>
-
-          <ConnectedIslandJourney
-            courses={selectedCourses}
-            recommendedCourseId={sourceRecommended?.id}
-            onLockedClick={handleLockedCourseClick}
-          />
-        </section>
 
         {/* Soft Clay Modal khi bấm vào đảo đang bị khóa */}
         <AdventureModal
@@ -1984,7 +2121,6 @@ function PathwayOverview({
             redirectTo="/parent/learning?upgrade=aikids_official_129k"
           />
         )}
-      </div>
       </div>
     )
   }

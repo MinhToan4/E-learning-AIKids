@@ -1004,6 +1004,15 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
       {/* ── 6. BLOCK: Mèo AIKI & Lipsync (voice) ── */}
       {block.type === 'voice' && (
         <div className="mt-3.5 rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50/80 via-sky-50/50 to-white p-4 shadow-sm">
+          <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50/90 border border-amber-200/80 p-2.5 text-xs text-amber-900">
+            <span className="text-base select-none shrink-0">💡</span>
+            <div>
+              <p className="font-bold">Trợ lý âm thanh đồng hành (Voice Companion):</p>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Lời thoại và giọng đọc của Mèo AIKI được phát ngầm hoặc thu gọn dưới dạng trợ lý âm thanh, tối ưu 100% diện tích màn hình để các bé tập trung vào bài học chính.
+              </p>
+            </div>
+          </div>
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] items-stretch">
             <div className="flex flex-col justify-between gap-3">
               <div>
@@ -1151,6 +1160,15 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
       {/* ── 7. BLOCK: Video Bài Giảng (video) ── */}
       {block.type === 'video' && (
         <div className="mt-3.5 rounded-2xl border-2 border-indigo-200 bg-indigo-50/60 p-4 shadow-xs">
+          <div className="mb-3 flex items-start gap-2 rounded-xl bg-indigo-100/70 border border-indigo-200/80 p-2.5 text-xs text-indigo-950">
+            <span className="text-base select-none shrink-0">💡</span>
+            <div>
+              <p className="font-bold">Quy chuẩn hiển thị Video 16:9 sạch bóng:</p>
+              <p className="text-[11px] text-indigo-800 leading-relaxed">
+                Phụ đề và thuyết minh sẽ được đưa vào dải chuyên dụng dưới chân video, không đè lên hình ảnh giúp các bé quan sát toàn vẹn nội dung bài giảng.
+              </p>
+            </div>
+          </div>
           <div className="grid gap-3">
             <label className="text-[11px] font-extrabold text-muted">
               Đường dẫn Video URL (MP4 hoặc YouTube)

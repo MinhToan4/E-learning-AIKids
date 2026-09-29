@@ -23,6 +23,7 @@ import {
   selectCanonicalAikidCourses,
   AIKID_SIX_ISLANDS_CONFIG,
   ModernIslandCard,
+  ISLAND_ALIAS_MAP,
 } from './WorldPage'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -853,3 +854,25 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
     expect(html).not.toContain('←')
   })
 })
+
+describe('WorldPage official program and island selection', () => {
+  it('correctly maps all 6 islands across canonical and numerical aliases', () => {
+    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-1-nha-tham-hiem-ai')
+    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-2-hoa-si-ai')
+    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-3-biet-doi-nhan-vat-ai')
+    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-6']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
+  })
+
+  it('selects active or recommended next course for student default island', () => {
+    const courses: PathwayCourse[] = [
+      course({ id: 'c1', slug: 'muoi-quy-tac-xuong-sang-tao', status: 'completed', completedCount: 10, questCount: 10 }),
+      course({ id: 'c2', slug: 'dao-1-nha-tham-hiem-ai', status: 'active', completedCount: 1, questCount: 4 }),
+      course({ id: 'c3', slug: 'dao-2-hoa-si-ai', status: 'locked' }),
+    ]
+    const target = selectNextLearningTarget(courses, null)
+    expect(target?.course.slug).toBe('dao-1-nha-tham-hiem-ai')
+  })
+})
+

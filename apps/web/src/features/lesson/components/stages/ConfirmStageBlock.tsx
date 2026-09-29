@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, ZoomIn, Video, Palette } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { playInstantSound } from '../LessonInteractiveSidebar'
@@ -71,10 +71,7 @@ export function ConfirmStageBlock({
       className="rounded-3xl bg-white p-4 sm:p-6 shadow-xs border border-slate-200/80 flex flex-col gap-4 animate-fade-up"
     >
       <div className="flex flex-col gap-2 shrink-0">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold w-fit border border-amber-200/60">
-          <HelpCircle size={13} className="text-amber-600" />
-          <span>Chặng 2: Xác nhận mục tiêu</span>
-        </div>
+        <span className="sr-only">Chặng 2: Xác nhận mục tiêu</span>
 
         <div className="text-center sm:text-left">
           <h2 className="text-lg sm:text-xl font-black text-slate-800">
@@ -357,13 +354,14 @@ export function ConfirmStageBlock({
                       className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold px-2 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs z-10 cursor-pointer"
                       title="Xem ảnh phóng to"
                     >
-                      <span>🔍 Phóng to</span>
+                      <ZoomIn size={12} className="text-white" />
+                      <span>Phóng to</span>
                     </span>
                   </div>
                 ) : (
                   <div className="aspect-[16/10] max-h-[220px] w-full rounded-2xl overflow-hidden bg-amber-50/60 border border-amber-200/60 relative flex flex-col items-center justify-center p-4 text-center gap-2">
-                    <div className="w-12 h-12 rounded-2xl bg-white shadow-clay-sm flex items-center justify-center text-2xl border border-amber-200">
-                      🎨
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-clay-sm flex items-center justify-center border border-amber-200">
+                      <Palette className="w-6 h-6 text-purple-600" />
                     </div>
                     <span className="text-xs font-bold text-slate-500">Minh họa phương án</span>
                   </div>
@@ -511,7 +509,8 @@ export function ConfirmStageBlock({
               className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 min-h-[48px] text-sm sm:text-base font-black rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-clay transition-all active:scale-95"
               onClick={onContinue}
             >
-              <span>🎬 Xem video bài học thôi nào • Tiếp Tục Sang Bài Test P4 (+1 Sao)</span>
+              <span>Xem video</span>
+              <span className="sr-only">🎬 Xem video bài học thôi nào</span>
             </button>
           </div>
         ) : (

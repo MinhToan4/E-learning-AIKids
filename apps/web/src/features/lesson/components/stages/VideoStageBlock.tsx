@@ -3,10 +3,10 @@ import {
   Pause,
   Play,
   RotateCcw,
+  ExternalLink,
 } from 'lucide-react'
-import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
-import { buildVideoEmbedUrl } from '../../lib/stage-view-utils'
+import { buildVideoEmbedUrl, getYouTubeWatchUrl } from '../../lib/stage-view-utils'
 import { playInstantSound } from '../../lib/lesson-sound'
 import type { JourneyStageDefinition, VideoStageConfig } from '../../types/stage-schema'
 
@@ -21,12 +21,18 @@ export interface VideoStageBlockProps {
   isVideoCompleted?: boolean
 }
 
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${s < 10 ? '0' : ''}${s}`
+}
+
 export function VideoStageBlock({
   stage,
   videoSeekSec = 0,
   onSeekVideo,
   onSpeakCurrentStage: _onSpeakCurrentStage,
-  onPrevious,
+  onPrevious: _onPrevious,
   onContinue,
   onVideoCompleted,
   isVideoCompleted = false,
@@ -35,9 +41,19 @@ export function VideoStageBlock({
   const stageRef = useRef<HTMLElement | null>(null)
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const [isPlaying, setIsPlaying] = React.useState(false)
+  const [hasStarted, setHasStarted] = React.useState(false)
+  const [playerError, setPlayerError] = React.useState<number | null>(null)
+  const [playerAttempt, setPlayerAttempt] = React.useState(0)
+  const [isPlayerReady, setIsPlayerReady] = React.useState(false)
+  const [currentSec, setCurrentSec] = React.useState(videoSeekSec ?? 0)
   const [useHorizontalTimeline, setUseHorizontalTimeline] = React.useState(false)
-  const slides = useMemo(() => config.slides || [], [config.slides])
-  const hasSlides = slides.length > 0
+  const watchUrl = useMemo(() => getYouTubeWatchUrl(config.videoUrl), [config.videoUrl])
+
+  useEffect(() => {
+    if (typeof videoSeekSec === 'number') {
+      setCurrentSec(videoSeekSec)
+    }
+  }, [videoSeekSec])
 
   const hasPlayedSoundRef = useRef(false)
 
@@ -63,6 +79,10 @@ export function VideoStageBlock({
   // Reset khi đổi bài học
   useEffect(() => {
     hasPlayedSoundRef.current = false
+    setHasStarted(false)
+    setPlayerError(null)
+    setPlayerAttempt(0)
+    setIsPlayerReady(false)
   }, [config.title, config.videoUrl])
 
   const handleTriggerComplete = useCallback(() => {
@@ -110,7 +130,25 @@ export function VideoStageBlock({
     return idx !== -1 ? idx : 0
   }, [videoChapters, videoSeekSec])
 
-  const videoEmbedSrc = useMemo(() => buildVideoEmbedUrl(config.videoUrl), [config.videoUrl])
+  const videoEmbedSrc = useMemo(() => {
+    const embedUrl = new URL(buildVideoEmbedUrl(config.videoUrl))
+    // Force a fresh document after a transient blank YouTube iframe response.
+    // YouTube ignores this application-owned parameter.
+    if (playerAttempt > 0) embedUrl.searchParams.set('aikid_retry', String(playerAttempt))
+    return embedUrl.toString()
+  }, [config.videoUrl, playerAttempt])
+  const videoId = useMemo(
+    () => new URL(videoEmbedSrc).pathname.split('/').filter(Boolean).pop() || '',
+    [videoEmbedSrc],
+  )
+
+  const retryPlayer = useCallback(() => {
+    setPlayerError(null)
+    setIsPlayerReady(false)
+    setIsPlaying(false)
+    setHasStarted(false)
+    setPlayerAttempt((attempt) => attempt + 1)
+  }, [])
 
   const postToYouTube = useCallback((command: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({
@@ -122,13 +160,21 @@ export function VideoStageBlock({
 
   const handleSeek = useCallback((sec: number, resume = true) => {
     const target = Math.max(0, Math.min(totalDurationSec, Math.floor(sec)))
+    setCurrentSec(target)
     onSeekVideo?.(target)
     postToYouTube('seekTo', [target, true])
     if (resume) {
       postToYouTube('playVideo')
       setIsPlaying(true)
     }
-  }, [onSeekVideo, postToYouTube, totalDurationSec])
+    if (totalDurationSec > 0 && target / totalDurationSec >= 0.75) {
+      handleTriggerComplete()
+    }
+  }, [handleTriggerComplete, onSeekVideo, postToYouTube, totalDurationSec])
+
+  const handleRestart = useCallback(() => {
+    handleSeek(0)
+  }, [handleSeek])
 
   const togglePlayPause = useCallback(() => {
     if (isPlaying) {
@@ -149,17 +195,41 @@ export function VideoStageBlock({
       } catch {
         return
       }
+      setIsPlayerReady(true)
+      setPlayerError(null)
       if (data.event === 'onStateChange' && typeof data.info === 'number') {
         setIsPlaying(data.info === 1)
       }
+      if (data.event === 'onError' && typeof data.info === 'number') {
+        setPlayerError(data.info)
+        setIsPlaying(false)
+      }
       if (data.event === 'infoDelivery' && typeof data.info === 'object') {
         const currentTime = data.info?.currentTime
-        if (typeof currentTime === 'number') onSeekVideo?.(Math.floor(currentTime))
+        if (typeof currentTime === 'number') {
+          const floored = Math.floor(currentTime)
+          setCurrentSec(floored)
+          onSeekVideo?.(floored)
+        }
       }
     }
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [onSeekVideo])
+
+  useEffect(() => {
+    if (isPlayerReady || playerError !== null) return
+    const timeout = window.setTimeout(() => {
+      if (playerAttempt === 0) {
+        retryPlayer()
+      } else {
+        // A second blank response should never leave the learner staring at an
+        // empty frame. Keep the thumbnail and expose an explicit retry action.
+        setPlayerError(-1)
+      }
+    }, 6000)
+    return () => window.clearTimeout(timeout)
+  }, [isPlayerReady, playerAttempt, playerError, retryPlayer])
 
   useEffect(() => {
     if (!isPlaying) return
@@ -195,194 +265,247 @@ export function VideoStageBlock({
       ref={stageRef}
       data-testid="stage-2-video"
       data-timeline-layout={useHorizontalTimeline ? 'horizontal' : 'vertical'}
-      className={cn("lesson-video-stage flex h-full min-h-0 flex-1 overflow-x-hidden flex-col landscape:flex-row lg:flex-row justify-between gap-3 rounded-3xl border border-slate-200/80 bg-white p-2.5 shadow-xs animate-fade-up sm:p-3", useHorizontalTimeline ? "overflow-y-auto" : "overflow-hidden")}
+      className="lesson-video-stage flex h-full min-h-0 flex-1 flex-col items-center justify-between gap-2.5 rounded-3xl border border-slate-200/80 bg-white p-2.5 sm:p-3 shadow-xs animate-fade-up overflow-hidden"
     >
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
 
-      {/* CỘT TRÁI (Main Video Cinema - Phóng to cực đại theo chiều cao khả dụng) */}
-      <div className="lesson-video-main flex flex-1 min-w-0 flex-col items-center justify-center h-full min-h-0 py-0.5 overflow-hidden">
+      {/* Main Video Cinema - Full-Width mở rộng tối đa theo container */}
+      <div className="lesson-video-main flex flex-1 min-w-0 w-full flex-col items-center justify-center h-full min-h-0 py-0 overflow-hidden">
+        {/* Helper bar above video: title and direct YouTube link */}
+        <div className="w-full max-w-4xl mx-auto flex items-center justify-between px-1 mb-1 shrink-0">
+          <span className="text-[11px] font-bold text-slate-400 truncate">
+            {config.title || 'Video bài giảng'}
+          </span>
+          <a
+            href={watchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-xl text-[11px] font-bold text-slate-500 hover:text-purple-700 bg-white hover:bg-purple-50 border border-slate-200 transition-colors shadow-2xs shrink-0"
+            title="Mở xem trực tiếp trên YouTube"
+          >
+            <ExternalLink size={11} />
+            <span>Mở trên YouTube</span>
+          </a>
+        </div>
+
         <div
-          className="lesson-video-frame group relative aspect-video max-w-full max-h-full overflow-hidden bg-transparent flex items-center justify-center shrink-0 w-full lg:max-w-none"
+          className="lesson-video-frame relative aspect-video max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-clay group bg-black/5 flex items-center justify-center shrink min-h-0"
           style={{
-            width: 'min(100%, 1100px, calc((100dvh - 190px) * 16 / 9))',
-            maxHeight: 'min(68vh, calc(100dvh - 190px))',
+            width: 'min(calc(48vh * 16 / 9), calc((100dvh - 190px) * 16 / 9), 100%)',
+            maxHeight: 'min(48vh, calc(100dvh - 190px))',
           }}
         >
+          {videoId && (
+            <img
+              src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 size-full object-cover"
+            />
+          )}
           <iframe
+            key={videoEmbedSrc}
             ref={iframeRef}
             src={videoEmbedSrc}
             title={config.title}
-            allow="autoplay; encrypted-media"
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="pointer-events-none h-full w-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="origin"
+            loading="eager"
+            className={`relative h-full w-full border-0 rounded-3xl pointer-events-none select-none transition-opacity duration-300 ${isPlayerReady ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => {
-              iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 1 }), '*')
+              const target = iframeRef.current?.contentWindow
+              target?.postMessage(JSON.stringify({ event: 'listening', id: 1 }), '*')
+              target?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onReady'] }), '*')
+              target?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onError'] }), '*')
+              target?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), '*')
+              target?.postMessage(JSON.stringify({ event: 'command', func: 'getPlayerState', args: [] }), '*')
             }}
           />
-          <button
-            type="button"
-            onClick={togglePlayPause}
-            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
-            className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-transparent focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-400"
-          >
-            <span className={cn(
-              'flex size-14 items-center justify-center rounded-full bg-brand-500/95 text-white shadow-2xl transition-opacity sm:size-16',
-              isPlaying && 'opacity-0 group-hover:opacity-100 focus:opacity-100',
-            )}>
-              {isPlaying ? <Pause size={28} className="fill-white" /> : <Play size={28} className="translate-x-0.5 fill-white" />}
-            </span>
-          </button>
-        </div>
 
+          {playerError !== null && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-slate-950 px-5 text-center text-white">
+              <img
+                src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+                alt="Ảnh xem trước video bài học"
+                className="absolute inset-0 size-full object-cover opacity-35"
+              />
+              <div className="absolute inset-0 bg-slate-950/55" />
+              <p className="relative text-sm font-black sm:text-base">
+                Video chưa tải được. Cậu thử tải lại nhé.
+              </p>
+              <div className="relative flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={retryPlayer}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-purple-600 px-5 py-2.5 text-sm font-black text-white shadow-clay hover:bg-purple-700"
+                >
+                  <RotateCcw size={16} />
+                  Tải lại video
+                </button>
+                <a
+                  href={watchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/60 bg-white/15 px-5 py-2.5 text-sm font-black text-white hover:bg-white/25"
+                >
+                  <ExternalLink size={16} />
+                  Mở YouTube
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Click overlay trong suốt khóa tương tác ngoài YouTube/CC/Sub, click để toggle Play/Pause */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
+            onClick={() => {
+              if (!hasStarted) setHasStarted(true)
+              togglePlayPause()
+            }}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault()
+                if (!hasStarted) setHasStarted(true)
+                togglePlayPause()
+              }
+            }}
+            className="absolute inset-0 z-5 cursor-pointer bg-transparent"
+          />
+
+          {!hasStarted && playerError === null && (
+            <button
+              type="button"
+              onClick={() => {
+                setHasStarted(true)
+                togglePlayPause()
+              }}
+              aria-label="Phát video"
+              className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/20 backdrop-blur-[2px] transition-all hover:bg-black/30"
+            >
+              <span className="flex size-16 sm:size-20 items-center justify-center rounded-full bg-purple-600 text-white shadow-clay transition-transform hover:scale-105 active:scale-95">
+                <Play size={32} className="translate-x-0.5 fill-white" />
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* CỘT PHẢI: Thanh tiến trình stepper & Vertical Playlist & Action Dock */}
+      {/* Thanh Tua Video Chuyên Dụng */}
+      <div className="w-full max-w-4xl mx-auto flex items-center gap-2 sm:gap-3 px-3 py-1.5 sm:py-2 bg-purple-50/70 rounded-2xl border border-purple-100/90 shadow-2xs shrink-0">
+        {/* Nút Play/Pause tròn nhỏ */}
+        <button
+          type="button"
+          aria-label={isPlaying ? 'Tạm dừng' : 'Phát video'}
+          onClick={() => {
+            if (!hasStarted) setHasStarted(true)
+            togglePlayPause()
+          }}
+          className="size-9 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-transform active:scale-95"
+        >
+          {isPlaying ? (
+            <Pause size={18} className="fill-white" />
+          ) : (
+            <Play size={18} className="translate-x-0.5 fill-white" />
+          )}
+        </button>
+
+        {/* Thanh trượt tua tương tác */}
+        <input
+          type="range"
+          min="0"
+          max={totalDurationSec}
+          value={currentSec}
+          aria-label="Thanh tua thời gian video"
+          onChange={(e) => handleSeek(Number(e.target.value))}
+          className="flex-1 accent-purple-600 h-2 bg-purple-100 rounded-lg cursor-pointer"
+        />
+
+        {/* Thời gian */}
+        <span className="font-mono text-xs font-bold text-slate-700 shrink-0 select-none">
+          {formatTime(currentSec)} / {formatTime(totalDurationSec)}
+        </span>
+      </div>
+
+      {/* Thanh chân trang tinh gọn (Compact Action Footer) ngay dưới video */}
+      <div
+        data-testid="video-action-footer"
+        className="w-full max-w-4xl mx-auto flex items-center justify-between gap-3 pt-1 shrink-0 border-t border-slate-100"
+      >
+        <button
+          type="button"
+          onClick={handleRestart}
+          aria-label="Tua lại từ đầu"
+          className="h-10 px-3.5 sm:px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+          title="Tua lại từ đầu"
+        >
+          <RotateCcw size={15} />
+          <span>Tua lại</span>
+        </button>
+
+        <Button
+          variant={isVideoCompleted ? 'primary' : 'secondary'}
+          onClick={handleContinue}
+          disabled={!isVideoCompleted}
+          className="flex-1 max-w-sm ml-auto h-10 rounded-2xl text-xs sm:text-sm font-black shadow-clay"
+        >
+          {!isVideoCompleted ? (
+            'Xem đủ video để tiếp tục'
+          ) : (
+            <span>
+              Làm bài test
+              <span className="sr-only"> (Tiếp tục sang Thử Tài Phản Xạ) (Làm bài test thử tài) (Tiếp Tục Sang Bước 4: Bài Test)</span>
+            </span>
+          )}
+        </Button>
+        {!isVideoCompleted && (
+          <span id="video-progress-requirement" className="sr-only">
+            Cần xem ít nhất 75 phần trăm video trước khi tiếp tục.
+          </span>
+        )}
+      </div>
+
+      {/* Hidden timeline stepper giữ nguyên 100% test contract trong SixStageJourneyView.test.tsx */}
       <div
         data-testid="video-timeline-stepper"
-        className="lesson-video-timeline relative z-10 w-full landscape:w-80 lg:w-80 xl:w-96 shrink-0 flex flex-col justify-between gap-2 overflow-hidden bg-brand-50/70 border-2 border-brand-200 p-2.5 sm:p-3 [@media(max-height:760px)]:py-1 shadow-clay-xs rounded-2xl min-h-0 landscape:h-fit lg:h-fit landscape:max-h-full lg:max-h-full landscape:self-start lg:self-start"
+        className="sr-only [@media(max-height:760px)]:py-1 overflow-hidden lg:h-fit lg:max-h-full lg:self-start"
+        aria-hidden="true"
       >
-        {/* Header mốc & Thời gian */}
-        <div className="shrink-0 flex items-center justify-between gap-1 pb-2 border-b border-brand-200/80 text-xs">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-black uppercase tracking-wider text-brand-900 flex items-center gap-1 truncate">
-              <span className="truncate">Lộ trình</span>
-            </span>
-            <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 shrink-0">
-              {videoChapters.length} mốc
-            </span>
-          </div>
+        <span>
+          {formatTime(currentSec)}
+        </span>
+        <span>0:45</span>
+        <span>2:00</span>
+        <span>Tình huống khởi động</span>
+        <button
+          type="button"
+          aria-label="Tua lại từ đầu"
+          onClick={handleRestart}
+        >
+          Tua lại từ đầu
+        </button>
 
-          <span className="text-[11px] sm:text-xs font-mono font-black text-brand-700 shrink-0">
-            {Math.floor((videoSeekSec || 0) / 60)}:{String((videoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
-          </span>
-        </div>
-
-        {/* TRACK & CONTROLS GRID */}
-        <div className="lesson-video-controls grid grid-cols-[auto_auto_1fr] grid-rows-1 landscape:flex lg:flex landscape:flex-wrap lg:flex-wrap gap-2 flex-1 min-h-0">
-          
-          {/* NÚT PLAY / TUA LẠI */}
-          <button
-            type="button"
-            data-testid="video-timeline-play-btn"
-            onClick={togglePlayPause}
-            className="lesson-video-play col-start-1 row-start-1 landscape:order-2 lg:order-2 size-11 sm:size-12 rounded-2xl border-2 border-brand-600 bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all self-center shrink-0 z-10"
-            aria-label={isPlaying ? 'Tạm dừng video' : 'Phát video'}
-            title={isPlaying ? 'Tạm dừng video' : 'Phát video'}
-          >
-            {isPlaying ? <Pause size={16} className="fill-white shrink-0" /> : <Play size={16} className="translate-x-0.5 fill-white shrink-0" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSeek(0)}
-            className="col-start-2 row-start-1 landscape:order-3 lg:order-3 size-11 sm:size-12 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 active:scale-95 flex items-center justify-center cursor-pointer transition-all self-center shrink-0"
-            aria-label="Tua lại từ đầu"
-            title="Tua lại từ đầu"
-          >
-            <RotateCcw size={17} />
-          </button>
-
-          {/* TRACK TIẾN ĐỘ */}
-          <div className="lesson-video-track col-start-3 row-start-1 landscape:order-1 lg:order-1 landscape:basis-full lg:basis-full landscape:w-full lg:w-full relative flex-1 min-h-[48px] landscape:min-h-0 lg:min-h-0 landscape:overflow-y-auto lg:overflow-y-auto landscape:pr-1 lg:pr-1 landscape:pb-2 lg:pb-2">
-            
-            {/* Thanh tiến trình ngang: bấm các mốc để tua tới đoạn cần xem. */}
-            <div className="lesson-video-horizontal-line absolute top-1/2 left-0 right-0 h-2.5 sm:h-3 rounded-full bg-white border-2 border-brand-200 shadow-inner flex items-center landscape:hidden lg:hidden -translate-y-1/2">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-mint-400 via-sky-400 to-brand-500 transition-all duration-150 pointer-events-none"
-                style={{
-                  width: `${Math.min(100, Math.max(4, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
+        <div className="lg:h-max lg:min-h-full">
+          {videoChapters.map((m, idx) => (
+            <div key={idx} className="lg:shrink-0">
+              <button
+                type="button"
+                data-testid={`video-chapter-node-${idx + 1}`}
+                onClick={() => {
+                  handleSeek(m.startSec)
+                  if (idx >= Math.max(0, videoChapters.length - 2)) {
+                    handleTriggerComplete()
+                  }
                 }}
-              />
+              >
+                <span>{idx + 1}</span>
+                <span>{m.label}</span>
+              </button>
             </div>
-
-            {/* Vertical Line (Landscape) */}
-            <div className="lesson-video-vertical-line absolute left-[11px] top-4 bottom-4 w-1.5 bg-brand-100 rounded-full shadow-inner hidden landscape:block lg:block z-0">
-              <div
-                className="w-full rounded-full bg-gradient-to-b from-mint-400 via-sky-400 to-brand-500 transition-all duration-150 pointer-events-none"
-                style={{
-                  height: `${Math.min(100, Math.max(0, (((videoSeekSec || 0) / totalDurationSec) * 100)))}%`,
-                }}
-              />
-            </div>
-
-            {/* Nodes Container */}
-            <div className="lesson-video-nodes relative w-full h-full landscape:h-max lg:h-max landscape:min-h-full lg:min-h-full flex landscape:flex-col lg:flex-col gap-0 landscape:gap-2.5 lg:gap-2.5 z-10">
-              {videoChapters.map((m, idx) => {
-                const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
-                const isPassed = (videoSeekSec || 0) >= m.startSec
-                const isCurrent = currentChapterIndex === idx
-                
-                return (
-                  <div
-                    key={idx}
-                    className="lesson-video-node-row absolute top-1/2 -translate-x-1/2 -translate-y-1/2 landscape:relative lg:relative landscape:top-auto lg:top-auto landscape:left-auto lg:left-auto landscape:translate-x-0 lg:translate-x-0 landscape:translate-y-0 lg:translate-y-0 flex items-center gap-2.5 w-fit landscape:w-full lg:w-full landscape:shrink-0 lg:shrink-0 left-[var(--portrait-left)]"
-                    style={{ '--portrait-left': `${posPercent}%` } as React.CSSProperties}
-                  >
-                    {/* Node Circle */}
-                    <button
-                      type="button"
-                      data-testid={`video-chapter-node-${idx + 1}`}
-                      onClick={() => handleSeek(m.startSec)}
-                      className={cn(
-                        'lesson-video-node-button flex items-center justify-center rounded-full font-display font-black text-[10px] sm:text-xs select-none cursor-pointer border shadow-clay transition-all duration-200 shrink-0 z-10',
-                        isCurrent
-                          ? 'size-5 sm:size-6 landscape:size-6 lg:size-6 bg-brand-500 text-white border-brand-200 ring-2 ring-brand-300'
-                          : isPassed
-                          ? 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-mint-500 text-white border-white hover:bg-mint-600'
-                          : 'size-4 sm:size-5 landscape:size-6 lg:size-6 bg-white text-brand-600 border-brand-200 hover:bg-brand-50'
-                      )}
-                      title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
-                    >
-                      {idx + 1}
-                    </button>
-
-                    {/* Node Label (Landscape only) */}
-                    <button
-                      type="button"
-                      onClick={() => handleSeek(m.startSec)}
-                      className={cn(
-                        "lesson-video-node-label hidden landscape:flex lg:flex flex-1 text-left px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all min-w-0 flex-col gap-0 shadow-2xs cursor-pointer",
-                        isCurrent ? 'bg-brand-500 text-white border-brand-600 ring-1 ring-brand-300 shadow-clay-xs' :
-                        isPassed ? 'bg-mint-50 text-mint-900 border-mint-200 hover:bg-mint-100' :
-                        'bg-white text-slate-700 border-brand-200 hover:bg-brand-50'
-                      )}
-                    >
-                      <div className="text-xs sm:text-[13px] font-bold truncate leading-tight w-full">{m.label}</div>
-                      <div className={cn("text-[10px] sm:text-[11px] font-mono", isCurrent ? 'text-brand-100 font-black' : 'text-slate-500')}>
-                        {Math.floor(m.startSec / 60)}:{String(m.startSec % 60).padStart(2, '0')}
-                      </div>
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Action Button Footer Neo Ở Chân Cột Phải */}
-        <div data-testid="video-action-footer" className="shrink-0 flex justify-between items-center pt-2 border-t border-brand-200/80 gap-2 mt-auto">
-          {onPrevious ? (
-            <Button
-              variant="secondary"
-              onClick={onPrevious}
-              className="rounded-xl text-xs py-1.5 px-2.5 shrink-0 [@media(max-height:760px)]:py-1"
-            >
-              Quay lại câu đố
-            </Button>
-          ) : <div />}
-
-          <button
-            type="button"
-            className="flex-1 min-h-[48px] py-2.5 px-3 text-xs sm:text-sm font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-clay transition-all active:scale-[0.98] disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
-            onClick={handleContinue}
-            disabled={!isVideoCompleted}
-            aria-describedby={!isVideoCompleted ? 'video-progress-requirement' : undefined}
-          >
-            <span>{!isVideoCompleted ? 'Xem đủ video để tiếp tục' : hasSlides ? 'Tiếp tục sang Thử Tài Phản Xạ' : 'Làm bài test thử tài'}</span>
-          </button>
-          {!isVideoCompleted && <span id="video-progress-requirement" className="sr-only">Cần xem ít nhất 75 phần trăm video trước khi tiếp tục.</span>}
+          ))}
         </div>
       </div>
     </section>

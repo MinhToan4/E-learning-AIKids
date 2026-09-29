@@ -62,7 +62,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
             {/* Mèo AIKI chính thức đứng trên đảo */}
             <div className="absolute -bottom-1 right-2 sm:right-6 flex flex-col items-center z-10 select-none">
               {/* Bóng thoại Mèo AIKI */}
-              <div className="bg-white/95 text-slate-900 px-3 py-1.5 rounded-2xl rounded-br-xs text-[11px] sm:text-xs font-black shadow-md border-2 border-amber-300 max-w-[210px] text-center mb-1 animate-in fade-in zoom-in-95">
+              <div className="bg-white/95 text-slate-900 px-3 py-1.5 rounded-2xl rounded-br-xs text-[11px] sm:text-xs font-black shadow-md border-2 border-amber-300 max-w-[190px] sm:max-w-[210px] break-words text-center mb-1 animate-in fade-in zoom-in-95">
                 “{userName} ơi! Chìa khóa vàng đã sẵn sàng rồi, vào săn cùng tớ nhé!”
               </div>
 
@@ -83,11 +83,11 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
             <span className="text-[11px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full inline-block mb-1 border border-orange-200">
               Chặng Tiếp Theo • Cấp {explorerLevel}
             </span>
-            <h2 className="font-black text-slate-900 leading-tight text-xl sm:text-2xl md:text-3xl">
+            <h2 className="font-black text-slate-900 leading-tight text-xl sm:text-2xl md:text-3xl break-words">
               Săn Bốn Chiếc Chìa Khóa Vàng!
             </h2>
-            <p className="font-semibold text-slate-500 text-xs sm:text-sm mt-1 leading-relaxed">
-              Cùng Mèo Mee khám phá bí kíp giúp cọ vẽ AI tạo tranh đúng 100% ý con.
+            <p className="font-semibold text-slate-500 text-xs sm:text-sm mt-1 leading-relaxed break-words">
+              Cùng AI Copilot Mèo Mee khám phá bí kíp điều khiển cọ vẽ AI tạo tranh chuẩn xác.
             </p>
           </div>
 
@@ -106,11 +106,11 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
           </div>
 
           {/* Cụm Nút Hành Động Lớn (Thuần Text, Không Dính Bất Kỳ Icon Nào) */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 min-w-0">
             <button
               type="button"
               onClick={onStartLesson}
-              className="w-full sm:flex-1 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-black text-sm sm:text-base shadow-clay transition-all flex items-center justify-center cursor-pointer"
+              className="w-full sm:flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-base border border-orange-400 shadow-[0_5px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center cursor-pointer min-w-0 break-words"
             >
               Vào Học {activeStationLabel} Ngay (+3 Sao)
             </button>
@@ -119,7 +119,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
               <button
                 type="button"
                 onClick={onOpenMap}
-                className="w-full sm:w-auto py-3.5 px-5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-800 font-bold text-sm border border-slate-200 transition-all flex items-center justify-center cursor-pointer shadow-2xs"
+                className="w-full sm:w-auto py-3.5 px-4 sm:px-5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm border border-slate-200 shadow-[0_4px_0_#cbd5e1] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center cursor-pointer min-w-0 break-words"
               >
                 Xem Bản Đồ Đảo
               </button>

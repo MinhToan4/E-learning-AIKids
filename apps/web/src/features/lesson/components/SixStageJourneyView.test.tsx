@@ -378,7 +378,7 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
     expect(container.textContent).toContain('Chúc mừng Nhà Sáng Tạo Tí Hon!')
     expect(container.textContent).toContain('+50 XP')
-    expect(container.textContent).toContain('Huy hiệu Mèo Mướp Béo')
+    expect(container.querySelector('img[alt="Mèo AIKI vui nhảy và tặng cúp hoàn thành bài học"]')).toBeTruthy()
     expect(container.textContent).toContain('Khám phá bài tiếp theo')
 
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
@@ -456,16 +456,15 @@ describe('SixStageJourneyView', () => {
     expect(gridContainer?.className).toContain('grid-cols-1')
     expect(gridContainer?.className).toContain('lg:grid-cols-12')
 
-    // 3. Left column (Artwork display)
-    expect(stage5Section?.textContent).toContain('Tác phẩm kiệt xuất vừa cất vào Balo')
-    expect(stage5Section?.textContent).toContain('Huy hiệu Mèo Mướp Béo')
+    // 3. Left column (reusable completion illustration)
+    expect(stage5Section?.querySelector('img[alt="Mèo AIKI vui nhảy và tặng cúp hoàn thành bài học"]')).toBeTruthy()
     const zoomBtn = Array.from(stage5Section?.querySelectorAll('button') || []).find((b) =>
       b.textContent?.includes('Phóng to')
     )
     expect(zoomBtn).toBeDefined()
 
     // 4. Right column (Trophy clay image, stars, title, congrats, action buttons)
-    expect(stage5Section?.textContent).toContain('Chặng 6: Hoàn thành bài học')
+    expect(stage5Section?.textContent).toContain('Hoàn thành bài học')
     const trophyImg = stage5Section?.querySelector('img[alt="Cúp Vàng Sáng Tạo"]') as HTMLImageElement | null
     expect(trophyImg).not.toBeNull()
     expect(trophyImg?.src).toContain('/assets/trophy-clay-gold.png')
@@ -792,9 +791,7 @@ describe('SixStageJourneyView', () => {
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe).not.toBeNull()
     expect(iframe?.getAttribute('src')).toContain('https://www.youtube.com/embed/NMdHhsLY5jc')
-    expect(iframe?.getAttribute('src')).toContain('controls=0')
-    expect(iframe?.getAttribute('src')).toContain('disablekb=1')
-    expect(iframe?.className).toContain('pointer-events-none')
+    expect(iframe?.getAttribute('src')).toContain('controls=1')
 
     // Sidebar is omitted; timestamps are built into video timeline stepper in main canvas
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
@@ -850,7 +847,7 @@ describe('SixStageJourneyView', () => {
     // Question visualUrl rendered with object-contain
     const quizImg = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_opt_a.jpg"]')
     expect(quizImg).not.toBeNull()
-    expect(quizImg?.className).toContain('object-cover')
+    expect(quizImg?.className).toContain('object-contain')
 
     // Main canvas is full width, sidebar is omitted
     const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
@@ -1893,6 +1890,28 @@ describe('SixStageJourneyView', () => {
     })
   })
 
+  it('does not advertise new XP when replaying a completed lesson', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialStageIndex={5}
+          isCompleted
+          previousStars={3}
+        />
+      )
+    })
+
+    const header = container.querySelector('[data-testid="star-badge-header"]')
+    const trophy = container.querySelector('[data-testid="stage6-trophy-xp-badge"]')
+    expect(header?.textContent).toContain('+0 XP')
+    expect(header?.textContent).not.toContain('+50 XP')
+    expect(trophy?.textContent).toContain('+0 XP')
+  })
+
   it('falls back to lesson poster image instead of hiding image column when quiz image fails or is missing', () => {
     const journeyWithQuizImages: any = {
       ...mockJourney,
@@ -2395,7 +2414,7 @@ describe('SixStageJourneyView', () => {
         )
       })
 
-      // Must start at Stage 0 (Chặng 1/3: Video bài giảng) and NOT jump to Stage 2 (Vinh danh Hiệp Sĩ)
+      // Must start at Stage 0 and not jump to Stage 2 (Hoàn thành bài học)
       expect(container.textContent).toContain('Chặng 1/3')
       expect(container.textContent).not.toContain('Vinh danh Hiệp Sĩ Sáng Tạo')
       // Corrupted final stage cache must NOT remain
@@ -2448,7 +2467,7 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           lessonId="rule-1"
           lessonTitle="Quy tắc 1: AI không tự nghĩ được"
-          initialStageIndex={2} // Chặng 3/3: REWARD (Vinh danh Hiệp Sĩ)
+          initialStageIndex={2} // Chặng 3/3: REWARD (Hoàn thành bài học)
           onFinishLesson={onFinishSpy}
         />
       )
@@ -2506,6 +2525,9 @@ describe('SixStageJourneyView', () => {
     // Progress is represented once in the compact header pill.
     expect(headerPill?.textContent).toContain('1/3')
     expect(container.querySelector('[data-testid="video-completed-badge"]')).toBeNull()
+    expect(document.body.querySelector('[data-testid="star-earned-celebration"]')).not.toBeNull()
+    expect(document.body.textContent).toContain('Con nhận được một ngôi sao!')
+    expect(container.textContent).not.toContain('+1 Sao')
 
     // Click next to reach the final slide
     const nextSlideBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -2571,7 +2593,7 @@ describe('SixStageJourneyView', () => {
 
     // Advance to Stage 2 (Reward)
     const rewardBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Vinh danh Hiệp sĩ') || b.textContent?.includes('Tiếp tục')
+      b.textContent?.includes('Hoàn thành bài học') || b.textContent?.includes('Tiếp tục')
     )
     expect(rewardBtn).toBeDefined()
     act(() => {
@@ -2799,8 +2821,8 @@ describe('SixStageJourneyView', () => {
 
     // Verify stage REWARD / completion section rendered without crashing
     expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
-    expect(container.textContent).toContain('Chúc mừng Hiệp Sĩ Quy Tắc 1!')
-    expect(container.textContent).toContain('Huy hiệu QT1: Nghĩ ý tưởng trước khi hỏi AI')
+    expect(container.textContent).toContain('Con đã hoàn thành Quy tắc 1!')
+    expect(container.querySelector('img[alt="Mèo AIKI vui nhảy và tặng cúp hoàn thành bài học"]')).toBeTruthy()
     expect(container.textContent).toContain('Khám phá bài tiếp theo')
 
     // Verify sidebar is omitted in favor of full-width completion canvas

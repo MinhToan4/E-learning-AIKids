@@ -437,7 +437,7 @@ export function adaptSixStageJourneyToStages(
  * Universal Block 3 Chặng cho 10 Quy Tắc Vàng:
  * 1. VIDEO (VideoStageBlock): Rạp chiếu Slide Cinema 16:9 với config.slides = rule.slides
  * 2. QUIZ (QuizStageBlock): Thử tài phản xạ với questions có visualUrl từ quiz options
- * 3. REWARD (RewardStageBlock): Vinh danh với posterImage của rule, nextLessonId: rule.id < 10 ? 'rule-' + (rule.id + 1) : undefined
+ * 3. REWARD (RewardStageBlock): Hoàn thành bài học với hình chúc mừng dùng chung.
  */
 export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
   const nextLessonId = rule.id < 10 ? `rule-${rule.id + 1}` : undefined
@@ -503,7 +503,7 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
 
   // Chặng 3: RewardStageBlock
   const rewardConfig: RewardStageConfig = {
-    title: `Chúc mừng Hiệp Sĩ Quy Tắc ${rule.id}!`,
+    title: `Con đã hoàn thành Quy tắc ${rule.id}!`,
     congratsMessage: `Tuyệt vời! Con đã làm chủ "${rule.shortTitle}" và sẵn sàng sáng tạo cùng AIKI!`,
     rewardBadge: {
       name: `Huy hiệu ${rule.code}: ${rule.shortTitle}`,
@@ -519,11 +519,11 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
   const stageReward: JourneyStageDefinition<RewardStageConfig> = {
     id: `rule-${rule.id}-stage-reward`,
     type: 'REWARD',
-    title: 'Vinh danh Hiệp Sĩ',
+    title: 'Hoàn thành bài học',
     stepNumber: 3,
     icon: '🏆',
-    mascotRole: 'Thần Đèn AIKI',
-    instruction: 'Chiêm ngưỡng Huy Hiệu Poster vàng và sẵn sàng cho bài tiếp theo nhé!',
+    mascotRole: 'Mèo AIKI',
+    instruction: 'Xem kết quả, nhận phần thưởng và tiếp tục hành trình học tập.',
     speech: rewardConfig.speech,
     config: rewardConfig,
   }

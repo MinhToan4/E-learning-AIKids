@@ -41,6 +41,7 @@ import { useProgression } from '@/shared/lib/progression-query'
 import { CourseCertificateModal } from '@/features/lesson/components/CourseCertificateModal'
 import {
   getBackpackCertificates,
+  syncBackpackCertificatesWithBackend,
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
 import {
@@ -467,6 +468,9 @@ export function BackpackPage() {
 
   useEffect(() => {
     setBackpackCertificates(getBackpackCertificates(user?.id))
+    void syncBackpackCertificatesWithBackend(user?.id).then((certs) => {
+      setBackpackCertificates(certs)
+    })
     const handleClaimed = () => {
       setBackpackCertificates(getBackpackCertificates(user?.id))
     }
@@ -604,12 +608,15 @@ export function BackpackPage() {
   useEffect(() => {
     const handleXpUpdate = () => {
       loadedSections.current.delete('treasures')
+      loadedSections.current.delete('achievements')
       delete backpackCacheRef.current.treasures
+      delete backpackCacheRef.current.achievements
       if (section === 'treasures') void loadTreasures(true)
+      if (section === 'achievements') void loadAchievements(true)
     }
     window.addEventListener('aikids:xp-updated', handleXpUpdate)
     return () => window.removeEventListener('aikids:xp-updated', handleXpUpdate)
-  }, [loadTreasures, section])
+  }, [loadAchievements, loadTreasures, section])
 
   const visibleProjects = useMemo(() => {
     return projects.filter((p) => {

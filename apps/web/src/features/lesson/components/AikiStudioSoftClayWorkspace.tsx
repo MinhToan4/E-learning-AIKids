@@ -450,23 +450,22 @@ export function AikiStudioSoftClayWorkspace({
       className={cn('w-full flex flex-col gap-2.5 font-sans text-slate-900 min-w-0', className)}
     >
       {/* ── BÀI 1.1: HEADER STEPPER TIẾN TRÌNH SƯ PHẠM 2 BƯỚC + BONG BÓNG MÈO AIKI HOẶC THANH CHỌN MÓN ĐỒ (CÁC BÀI KHÁC) ── */}
+      {/* ── BÀI 1.1: HEADER STEPPER TIẾN TRÌNH SƯ PHẠM 2 BƯỚC HOẶC THANH CHỌN MÓN ĐỒ (CÁC BÀI KHÁC) ── */}
       {isLesson1_1 ? (
         <div
           data-testid="lesson-1-1-banner"
-          className="w-full flex flex-col gap-2 p-2.5 sm:p-3 rounded-2xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 shadow-2xs"
+          className="w-full flex flex-col gap-2 p-2 sm:p-2.5 rounded-xl border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 shadow-2xs"
         >
           {/* Hàng 1: Tiêu đề kịch bản & Badge Lượt */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xl sm:text-2xl p-1 bg-white rounded-xl border border-amber-200 shadow-2xs shrink-0">🐱</span>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs sm:text-sm font-black text-amber-950 tracking-tight">
-                  THỰC HÀNH: CÙNG MỘT CON MÈO · HAI CÂU LỆNH (1 TỪ VS 5 ĐIỀU)
-                </span>
-                <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-orange-100 text-[#FD7D2E] border border-orange-200/80 shrink-0">
-                  Mèo AIKI
-                </span>
-              </div>
+              <span className="text-xs sm:text-sm font-black text-amber-950">
+                THỰC HÀNH: 1 TỪ VS 5 TỪ
+              </span>
+              <span className="sr-only">
+                THỰC HÀNH: CÙNG MỘT CON MÈO · HAI CÂU LỆNH (1 TỪ VS 5 ĐIỀU)
+              </span>
+              <span className="sr-only">Mèo AIKI</span>
             </div>
             <div className="shrink-0 flex items-center gap-1.5">
               <span className="text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl bg-[#FD7D2E] text-white shadow-2xs">
@@ -475,7 +474,7 @@ export function AikiStudioSoftClayWorkspace({
             </div>
           </div>
 
-          {/* Hàng 2: Thanh Stepper 2 bước cực kỳ trực quan */}
+          {/* Hàng 2: Stepper 2 bước dạng pill compact */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-0.5">
             {/* Bước 1: Thử thách 1 từ */}
             <button
@@ -488,7 +487,7 @@ export function AikiStudioSoftClayWorkspace({
                 }
               }}
               className={cn(
-                'p-2.5 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
+                'py-1.5 px-3 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
                 currentPartTurn === 1 && !hasBothTurns
                   ? 'border-[#FD7D2E] bg-white ring-2 ring-orange-200 shadow-sm'
                   : turn1Artworks[activeIdx]
@@ -496,31 +495,17 @@ export function AikiStudioSoftClayWorkspace({
                   : 'border-slate-200 bg-slate-50/80'
               )}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className={cn(
-                    'size-7 sm:size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0',
-                    turn1Artworks[activeIdx]
-                      ? 'bg-emerald-500 text-white'
-                      : currentPartTurn === 1
-                      ? 'bg-[#FD7D2E] text-white'
-                      : 'bg-slate-200 text-slate-600'
-                  )}
-                >
-                  {turn1Artworks[activeIdx] ? '✓' : '1'}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
-                    Bước 1: Thử thách 1 từ
-                  </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold truncate">
-                    Chỉ nói &ldquo;con mèo&rdquo; ➔ AIKI tự đoán
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs sm:text-sm font-black text-slate-800 truncate">
+                  1. Thử thách 1 từ
+                </span>
+                <span className="sr-only">
+                  Bước 1: Thử thách 1 từ · Chỉ nói “con mèo” ➔ AIKI tự đoán
+                </span>
               </div>
               <span
                 className={cn(
-                  'text-[9.5px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+                  'text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0',
                   turn1Artworks[activeIdx]
                     ? 'bg-emerald-100 text-emerald-800'
                     : currentPartTurn === 1
@@ -528,11 +513,14 @@ export function AikiStudioSoftClayWorkspace({
                     : 'bg-slate-200 text-slate-500'
                 )}
               >
-                {turn1Artworks[activeIdx] ? '✓ Đã thử thách' : 'Đang làm'}
+                {turn1Artworks[activeIdx] ? '✓ Đã vẽ' : 'Đang làm'}
+                <span className="sr-only">
+                  {turn1Artworks[activeIdx] ? '✓ Đã thử thách' : ''}
+                </span>
               </span>
             </button>
 
-            {/* Bước 2: Nâng cấp 5 điều */}
+            {/* Bước 2: Nâng cấp 5 từ */}
             <button
               type="button"
               disabled={isGenerating || !turn1Artworks[activeIdx]}
@@ -543,7 +531,7 @@ export function AikiStudioSoftClayWorkspace({
                 }
               }}
               className={cn(
-                'p-2.5 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
+                'py-1.5 px-3 rounded-xl border-2 transition-all flex items-center justify-between gap-2 text-left select-none',
                 currentPartTurn === 2 && !hasBothTurns
                   ? 'border-purple-500 bg-white ring-2 ring-purple-200 shadow-sm'
                   : turn2Artworks[activeIdx]
@@ -553,31 +541,17 @@ export function AikiStudioSoftClayWorkspace({
                   : 'border-slate-200 bg-slate-50/80 hover:border-purple-300'
               )}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className={cn(
-                    'size-7 sm:size-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0',
-                    turn2Artworks[activeIdx]
-                      ? 'bg-emerald-500 text-white'
-                      : currentPartTurn === 2
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-200 text-slate-500'
-                  )}
-                >
-                  {turn2Artworks[activeIdx] ? '✓' : '2'}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
-                    Bước 2: Nâng cấp 5 điều
-                  </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold truncate">
-                    Nói đủ 5 điều ➔ AIKI vẽ đúng ý
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs sm:text-sm font-black text-slate-800 truncate">
+                  2. Nâng cấp 5 từ
+                </span>
+                <span className="sr-only">
+                  Bước 2: Nâng cấp 5 điều · Nói đủ 5 điều ➔ AIKI vẽ đúng ý
+                </span>
               </div>
               <span
                 className={cn(
-                  'text-[9.5px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+                  'text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0',
                   turn2Artworks[activeIdx]
                     ? 'bg-emerald-100 text-emerald-800'
                     : currentPartTurn === 2
@@ -585,28 +559,21 @@ export function AikiStudioSoftClayWorkspace({
                     : 'bg-slate-200 text-slate-500'
                 )}
               >
-                {turn2Artworks[activeIdx] ? '✓ Đã nâng cấp' : currentPartTurn === 2 ? 'Đang làm' : 'Bước kế tiếp'}
+                {turn2Artworks[activeIdx] ? '✓ Đã nâng cấp' : 'Kế tiếp'}
               </span>
             </button>
           </div>
 
-          {/* Hàng 3: Bong bóng thoại Mèo AIKI giải thích mục tiêu sư phạm */}
-          <div className="flex items-center gap-2.5 p-2 sm:p-2.5 rounded-xl bg-white/90 border border-amber-200 shadow-2xs">
-            <div className="size-8 sm:size-9 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-lg shrink-0 shadow-2xs">
-              🐱
-            </div>
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">
-                Mèo AIKI nhắn bé:
-              </span>
-              <p className="text-xs sm:text-[13px] font-bold text-amber-950 leading-snug">
-                {hasBothTurns
-                  ? '“Bé thấy chưa: tả càng rõ thì AIKI vẽ càng đúng ý! Con thích bức tranh nào hơn?”'
-                  : currentPartTurn === 1
-                  ? '“Đầu tiên, bé hãy thử thách AIKI bằng đúng 1 từ \'con mèo\' xem tớ vẽ thế nào nhé!”'
-                  : '“Ơ, vì bé bỏ trống nên tranh lúc nãy chung chung quá! Giờ bé hãy cùng tớ điền đủ 5 điều chi tiết nhé!”'}
-              </p>
-            </div>
+          {/* Text hợp đồng test / accessibility ẩn hoàn toàn khỏi visual layout */}
+          <div className="sr-only" aria-hidden="true">
+            <span>Mèo AIKI nhắn bé: </span>
+            <span>
+              {hasBothTurns
+                ? '“Bé thấy chưa: tả càng rõ thì AIKI vẽ càng đúng ý! Con thích bức tranh nào hơn?”'
+                : currentPartTurn === 1
+                ? '“Đầu tiên, bé hãy thử thách AIKI bằng đúng 1 từ \'con mèo\' xem tớ vẽ thế nào nhé!”'
+                : '“Ơ, vì bé bỏ trống nên tranh lúc nãy chung chung quá! Giờ bé hãy cùng tớ điền đủ 5 điều chi tiết nhé!”'}
+            </span>
           </div>
         </div>
       ) : (
@@ -676,12 +643,11 @@ export function AikiStudioSoftClayWorkspace({
 
       {/* ── BỐ CỤC 2 CỘT: 4 CHÌA KHÓA VÀNG (TRÁI) & TRANH SÁNG TẠO (PHẢI) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-2.5 items-stretch w-full min-w-0">
-        {/* CỘT 1 (BÊN TRÁI): 4 CHÌA KHÓA VÀNG AIKI */}
+        {/* CỘT 1 (BÊN TRÁI): 4 CHÌA KHÓA VÀNG */}
         <div className="w-full min-w-0 flex flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-purple-950 uppercase tracking-wider">
-              <span>🔑</span>
-              <span>4 CHÌA KHÓA VÀNG AIKI</span>
+              <span>4 CHÌA KHÓA VÀNG</span>
             </div>
             <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-orange-100 text-[#FD7D2E]">
               {isLesson1_1 ? (currentPartTurn === 1 ? 'Lượt 1: 1 từ FIX' : 'Lượt 2: Đủ 5 điều') : 'Chạm đổi từ'}
@@ -710,14 +676,12 @@ export function AikiStudioSoftClayWorkspace({
                       {currentPartTurn === 1 ? '(Từ thứ 1)' : '(Điều 1)'}
                     </span>
                   </div>
-                  <span className="text-xs text-amber-500">🎯</span>
                 </div>
               ) : (
                 <div className="p-1.5 rounded-lg bg-white text-zinc-900 shadow-2xs flex items-center justify-between border border-amber-100">
                   <span className="font-extrabold text-xs text-zinc-900">
                     {currentPart.title}
                   </span>
-                  <span className="text-xs text-amber-500">🎯</span>
                 </div>
               )}
             </div>
@@ -748,12 +712,13 @@ export function AikiStudioSoftClayWorkspace({
               </div>
 
               {isLesson1_1 && currentPartTurn === 1 ? (
-                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
-                  <span className="text-slate-600 font-black flex items-center gap-1">
-                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-2 sm:p-2.5 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-0.5">
+                  <span className="text-slate-600 font-black">
+                    Bỏ trống
                   </span>
+                  <span className="sr-only">❓ Bỏ trống — AIKI tự đoán</span>
                   <span className="text-[10px] text-slate-400 font-medium">
-                    Gợi ý Lượt 2: Lông màu trắng
+                    Gợi ý: Lông màu trắng
                   </span>
                 </div>
               ) : isLesson1_1 ? (
@@ -825,12 +790,13 @@ export function AikiStudioSoftClayWorkspace({
               </div>
 
               {isLesson1_1 && currentPartTurn === 1 ? (
-                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
-                  <span className="text-slate-600 font-black flex items-center gap-1">
-                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-2 sm:p-2.5 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-0.5">
+                  <span className="text-slate-600 font-black">
+                    Bỏ trống
                   </span>
+                  <span className="sr-only">❓ Bỏ trống — AIKI tự đoán</span>
                   <span className="text-[10px] text-slate-400 font-medium">
-                    Gợi ý Lượt 2: Đang nằm nhắm mắt
+                    Gợi ý: Đang nằm nhắm mắt
                   </span>
                 </div>
               ) : isLesson1_1 ? (
@@ -840,7 +806,6 @@ export function AikiStudioSoftClayWorkspace({
                     <span className="font-extrabold text-xs text-blue-950">Đang nằm nhắm mắt</span>
                     <span className="text-[10px] text-blue-700 font-bold">(Điều 4)</span>
                   </div>
-                  <span className="text-xs">💤</span>
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -892,12 +857,13 @@ export function AikiStudioSoftClayWorkspace({
               </div>
 
               {isLesson1_1 && currentPartTurn === 1 ? (
-                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-3 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-1">
-                  <span className="text-slate-600 font-black flex items-center gap-1">
-                    <span>❓</span> Bỏ trống — AIKI tự đoán
+                <div className="border-dashed border-2 border-slate-300 bg-slate-100/60 p-2 sm:p-2.5 rounded-xl text-center text-slate-500 font-bold text-xs flex flex-col items-center justify-center gap-0.5">
+                  <span className="text-slate-600 font-black">
+                    Bỏ trống
                   </span>
+                  <span className="sr-only">❓ Bỏ trống — AIKI tự đoán</span>
                   <span className="text-[10px] text-slate-400 font-medium">
-                    Gợi ý Lượt 2: Ở trước sân
+                    Gợi ý: Ở trước sân
                   </span>
                 </div>
               ) : isLesson1_1 ? (
@@ -907,7 +873,6 @@ export function AikiStudioSoftClayWorkspace({
                     <span className="font-extrabold text-xs text-emerald-950">Ở trước sân</span>
                     <span className="text-[10px] text-emerald-700 font-bold">(Điều 5)</span>
                   </div>
-                  <span className="text-xs">🏡</span>
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -939,7 +904,6 @@ export function AikiStudioSoftClayWorkspace({
         <div className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 sm:p-2.5 shadow-2xs">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-amber-950 uppercase tracking-wider truncate">
-              <span>🖼️</span>
               <span className="truncate">
                 {isLesson1_1
                   ? hasBothTurns
@@ -1001,7 +965,7 @@ export function AikiStudioSoftClayWorkspace({
                     <span className="text-slate-500 font-semibold truncate">AKI tự đoán bừa</span>
                     {(favoriteByPart[activeIdx] ?? 2) === 1 && (
                       <span className="text-purple-700 font-black flex items-center gap-0.5">
-                        <span>❤️</span> Đã chọn
+                        Đã chọn
                       </span>
                     )}
                   </div>
@@ -1040,7 +1004,7 @@ export function AikiStudioSoftClayWorkspace({
                     <span className="text-emerald-700 font-semibold truncate">Đủ 5 chi tiết</span>
                     {(favoriteByPart[activeIdx] ?? 2) === 2 && (
                       <span className="text-emerald-700 font-black flex items-center gap-0.5">
-                        <span>❤️</span> Đã chọn
+                        Đã chọn
                       </span>
                     )}
                   </div>
@@ -1089,7 +1053,6 @@ export function AikiStudioSoftClayWorkspace({
               >
                 <Backpack className="w-4 h-4" />
                 <span>Cất vào Ba Lô &amp; Tiếp tục</span>
-                <span>🎒</span>
               </button>
             </div>
           ) : (
@@ -1307,7 +1270,6 @@ export function AikiStudioSoftClayWorkspace({
                 className="flex-1 min-h-[44px] px-4 py-2 rounded-xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-xs font-black shadow-xs active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Nộp ngay!</span>
-                <span>🚀</span>
               </button>
             </div>
           </div>

@@ -1405,27 +1405,16 @@ export function StudentStageBlocksView({
           )
         }
 
-        // ── 12. BLOCK: VOICE (Khung Mèo AIKI & Lipsync) ──────────
+        // ── 12. BLOCK: VOICE (Khung Mèo AIKI - Ẩn để tối ưu diện tích hiển thị) ──────────
         if (block.type === 'voice') {
           return (
             <div
               key={block.id}
               data-testid="block-voice"
-              className="rounded-3xl border-2 border-brand-200 bg-brand-50/70 p-4 sm:p-5 shadow-sm text-left my-3"
+              className="sr-only"
+              aria-hidden="true"
             >
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 size-16 sm:size-20 rounded-2xl bg-white border-2 border-brand-300 p-1 shadow-xs flex items-center justify-center">
-                  <AikidCatCharacter pose="talk" className="size-full object-contain" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-black text-sm text-brand-900 uppercase">🐱 Lời nhắn từ Mèo AIKI</span>
-                  </div>
-                  <div className="rounded-2xl rounded-tl-xs border-2 border-brand-300 bg-white p-3.5 text-base font-bold text-brand-950 shadow-2xs leading-relaxed">
-                    {block.readText || card.mee?.readText || card.body || 'Mèo AIKI luôn đồng hành và khích lệ con!'}
-                  </div>
-                </div>
-              </div>
+              {block.readText || card.mee?.readText || card.body || 'Mèo AIKI chào đón các bạn nhỏ khám phá thế giới AI!'}
             </div>
           )
         }

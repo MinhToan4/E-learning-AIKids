@@ -109,4 +109,23 @@ describe('ArchipelagoGameVoyage', () => {
     expect(html).toContain('Hải Trình 6 Đảo Sáng Tạo')
     expect(html).toContain('1 Đảo Quy Tắc + 5 Đảo Học AI')
   })
+
+  it('resolves exactly 10 Golden Rules for Island 1 and uses compact layout without oversized buttons', () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(ArchipelagoGameVoyage)
+      )
+    )
+
+    // Island 1 must have exactly 10 stations (TRẠM 10 present, TRẠM 11 NOT present, and NOT 20 trạm)
+    expect(html).toContain('TRẠM 10')
+    expect(html).not.toContain('TRẠM 11')
+    expect(html).not.toContain('/20 trạm')
+    expect(html).toContain('Nghĩ ý tưởng trước khi hỏi AI')
+
+    // Must NOT have oversized "Chưa mở khóa" buttons
+    expect(html).not.toContain('>Chưa mở khóa<')
+  })
 })

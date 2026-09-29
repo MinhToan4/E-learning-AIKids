@@ -59,3 +59,50 @@ export function isCertificateClaimed(courseId: string, studentId?: string): bool
   const current = getBackpackCertificates(studentId)
   return current.some((c) => c.courseId === courseId || c.id === courseId)
 }
+
+export async function syncBackpackCertificatesWithBackend(
+  studentId?: string,
+): Promise<BackpackCertificate[]> {
+  const local = getBackpackCertificates(studentId)
+  if (typeof window === 'undefined') return local
+  try {
+    const { api } = await import('@/shared/lib/api')
+    const res = await api<{
+      credentials: Array<{
+        id: string
+        kind: string
+        courseId?: string | null
+        verificationCode?: string
+        issuedAt?: string
+        payload?: any
+        template?: { name?: string }
+      }>
+    }>('/api/credentials')
+
+    if (!Array.isArray(res?.credentials)) return local
+
+    const authoritative = res.credentials.map((cred) => {
+      const cId = cred.courseId || cred.id
+      const payload = cred.payload || {}
+      return {
+        id: cred.id,
+        courseId: cId,
+        courseTitle: payload.courseTitle || cred.template?.name || 'Khóa Học AI Kids',
+        islandTitle: payload.islandTitle || 'Học Viện Sáng Tạo AI',
+        studentName: payload.studentName || 'Học viên AIKI',
+        issuedDate: cred.issuedAt ? new Date(cred.issuedAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
+        stars: Number(payload.stars) || 3,
+        xp: Number(payload.xp) || 100,
+        claimedAt: cred.issuedAt ? new Date(cred.issuedAt).getTime() : Date.now(),
+      } satisfies BackpackCertificate
+    })
+
+    if (window.localStorage) {
+      const key = studentId ? `${STORAGE_KEY}_${studentId}` : STORAGE_KEY
+      localStorage.setItem(key, JSON.stringify(authoritative))
+    }
+    return authoritative
+  } catch {
+    return local
+  }
+}

@@ -55,6 +55,7 @@ import {
 } from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
+import { queryClient } from '@/shared/lib/query-client'
 import { clearWorldPageCache, findCourseByIdentifier, isUserTestingUnlocked } from '@/features/world/pages/WorldPage'
 import { learningApi, lessonStageIndexFromProgress } from '@/shared/lib/learning-api'
 import { clampStationStars } from '@/shared/lib/star-progress'
@@ -956,7 +957,16 @@ export function LessonPage() {
     const finishPromise = (async () => {
       setBusy(true)
       try {
-      const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
+        await api(`/api/learning/quests/${quest.id}/resume`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            percent: 99,
+            positionSeconds: 0,
+            sectionId: 'check-ready',
+            occurredAt: new Date().toISOString(),
+          }),
+        })
+        const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
       const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
         ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
@@ -973,8 +983,17 @@ export function LessonPage() {
         nextQuestId: checkRes.nextQuestId || nextRuleTarget,
       })
       setPhase('done')
+      // The completion transaction may update progression, achievements,
+      // inventory and profile projections together. Drop stale GET data before
+      // the learner opens the next lesson, island map, profile or backpack.
+      clearApiCache()
       clearWorldPageCache()
       window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+      window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
+        detail: { stars: confirmedStars }
+      }))
+      void queryClient.invalidateQueries({ queryKey: ['progression'] })
+      void queryClient.invalidateQueries({ queryKey: ['pathway'] })
       return true
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Chưa xác nhận được kết quả. Con thử lại nhé!')

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { ArrowLeft, Lock, LogOut, Plus, Sparkles } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
@@ -10,6 +11,7 @@ import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 
 type ChildCard = {
   id: string
@@ -17,6 +19,8 @@ type ChildCard = {
   avatarId: string | null
   level: number
   xp: number
+  totalStars?: number
+  completedQuests?: number
   active?: boolean
   hasPin?: boolean
 }
@@ -24,7 +28,7 @@ type ChildCard = {
 /**
  * Full-screen kid picker for shared tablets.
  * Requires parent session → picks child → switches to student session.
- * Friendly copy only; no technical jargon.
+ * Soft-Clay Hallmark UI design with AIKI Cat Mascot, PIN guard modal, and easy child selection.
  */
 export function ChildPickerPage() {
   const user = useAuth((s) => s.user)
@@ -35,9 +39,14 @@ export function ChildPickerPage() {
 
   const [kids, setKids] = useState<ChildCard[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
+
+  // PIN modal state
+  const [selectedChildForPin, setSelectedChildForPin] = useState<ChildCard | null>(null)
+  const [pin, setPin] = useState('')
+  const [pinError, setPinError] = useState<string | null>(null)
+  const [pinBusy, setPinBusy] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -54,7 +63,7 @@ export function ChildPickerPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [showToast])
 
   useEffect(() => {
     if (loadingAuth) return
@@ -73,10 +82,10 @@ export function ChildPickerPage() {
     void load()
   }, [user, loadingAuth, navigate, load])
 
-  async function confirmEnter(child: ChildCard) {
+  async function confirmEnter(child: ChildCard, childPin?: string) {
     setBusy(true)
     try {
-      const next = await enterAsChild(child.id)
+      const next = await enterAsChild(child.id, childPin ? { pin: childPin } : undefined)
       navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
     } catch (e) {
       showToast(
@@ -85,6 +94,34 @@ export function ChildPickerPage() {
       )
     } finally {
       setBusy(false)
+    }
+  }
+
+  function handleChildClick(child: ChildCard) {
+    if (child.hasPin) {
+      setSelectedChildForPin(child)
+      setPin('')
+      setPinError(null)
+      return
+    }
+    void confirmEnter(child)
+  }
+
+  async function handlePinSubmit(enteredPin: string) {
+    if (!selectedChildForPin) return
+    setPinBusy(true)
+    setPinError(null)
+    try {
+      const next = await enterAsChild(selectedChildForPin.id, { pin: enteredPin })
+      setSelectedChildForPin(null)
+      setPin('')
+      navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
+    } catch (e) {
+      setPinError(
+        e instanceof Error ? e.message : 'Mã PIN chưa chính xác. Bé thử lại nhé!',
+      )
+    } finally {
+      setPinBusy(false)
     }
   }
 
@@ -106,13 +143,16 @@ export function ChildPickerPage() {
         backgroundPosition: 'center',
       }}
     >
-      <div className="absolute inset-0 bg-[#f7f5ff]/88" />
+      <div className="absolute inset-0 bg-[#f7f5ff]/90 backdrop-blur-2xs" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1024px] flex-1 flex-col px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+        {/* Header */}
         <header className="mb-6 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="min-w-0">
             <BrandLogo size="md" className="max-w-[140px]" />
-            <p className="mt-3 text-xs font-extrabold uppercase tracking-widest text-brand-600">Chuyển chế độ thiết bị</p>
+            <p className="mt-3 text-xs font-extrabold uppercase tracking-widest text-brand-600">
+              Chuyển chế độ thiết bị
+            </p>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight mt-1">
               Chọn hồ sơ để vào học
             </h1>
@@ -122,15 +162,31 @@ export function ChildPickerPage() {
           </div>
           <Link
             to="/parent"
-            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft self-start"
+            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft self-start gap-1.5 rounded-2xl"
             title="Quay lại khu vực Ba / Mẹ"
           >
-            Quay lại quản lý
+            <ArrowLeft size={16} /> Quay lại quản lý
           </Link>
         </header>
 
+        {/* AIKI Cat Mascot Greeting Banner with Speech Bubble */}
+        <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/90 via-purple-50/70 to-pink-50/60 p-4 sm:p-5 shadow-clay">
+          <div className="shrink-0 flex items-center justify-center">
+            <AikidCatCharacter pose="welcome" className="h-20 w-20 sm:h-24 sm:w-24 drop-shadow-md" />
+          </div>
+          <div className="relative rounded-2xl bg-white/95 px-4 py-3 shadow-soft border border-brand-100 flex-1 text-center sm:text-left">
+            <p className="font-display text-base sm:text-lg font-bold text-slate-800">
+              Chào bé yêu! Hôm nay ai sẽ cùng AIKI khám phá thế giới nào? 🚀
+            </p>
+            <p className="text-xs text-muted mt-0.5">
+              Chạm vào hình đại diện hoặc tên của mình để bắt đầu hành trình học tập vui vẻ nhé!
+            </p>
+          </div>
+        </div>
+
+        {/* Kids Grid or Empty State */}
         {kids.length === 0 && !loading ? (
-          <div className="ui-card mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
+          <div className="ui-card mx-auto flex max-w-md flex-col items-center gap-4 rounded-3xl border-2 border-brand-100 bg-white/95 p-8 text-center shadow-clay">
             <AikidCatCharacter
               pose="welcome"
               className="h-28 w-28 shrink-0 drop-shadow-md"
@@ -140,67 +196,157 @@ export function ChildPickerPage() {
               Ba / Mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
             </p>
             <Link to="/parent/kids?action=new">
-              <Button>Thêm hồ sơ con</Button>
+              <Button className="rounded-2xl shadow-clay">Thêm hồ sơ con</Button>
             </Link>
           </div>
         ) : (
           <ul
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
             aria-label="Chọn hồ sơ con để chuyển sang chế độ học"
           >
             {kids.map((k) => {
               const av = getAvatar(k.avatarId)
               const img = avatarImage(k.avatarId)
               return (
-                <li key={k.id}>
+                <li key={k.id} className="h-full">
                   <button
                     type="button"
-                    disabled={busy}
-                    onClick={() => void confirmEnter(k)}
+                    disabled={busy || pinBusy}
+                    onClick={() => handleChildClick(k)}
                     className={cn(
-                      'ui-card flex w-full flex-col items-center gap-2 p-4 transition',
-                      'min-h-[9.5rem] active:translate-y-0.5 sm:min-h-[11rem]',
-                      'hover:-translate-y-0.5 hover:shadow-clay focus-visible:outline focus-visible:outline-3 focus-visible:outline-focus',
-                      busy && 'opacity-60',
+                      'group relative flex w-full h-full flex-col items-center justify-between rounded-3xl border-2 border-brand-100/80 bg-white/95 p-6 text-center shadow-clay transition-all duration-300',
+                      'hover:-translate-y-1 hover:border-brand-400 hover:shadow-soft-xl active:scale-95 focus-visible:outline focus-visible:outline-3 focus-visible:outline-focus',
+                      (busy || pinBusy) && 'opacity-60 pointer-events-none',
                     )}
                   >
-                    <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-brand-50 text-4xl shadow-clay sm:h-24 sm:w-24">
-                      {img ? (
-                        <img
-                          src={img}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
+                    {/* Top Status Indicators */}
+                    <div className="flex w-full items-center justify-between">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-black text-brand-700">
+                        <Sparkles size={11} className="text-brand-500" />
+                        <span>Học sinh</span>
+                      </span>
+                      {k.hasPin ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-black text-emerald-700 border border-emerald-200"
+                          title="Có mã PIN bảo vệ"
+                        >
+                          <Lock size={11} /> Có PIN
+                        </span>
                       ) : (
-                        av.emoji
+                        <span className="text-[11px] font-bold text-slate-400">Vào thẳng</span>
                       )}
-                    </span>
-                    <span className="font-display text-xl leading-tight text-text">
-                      {k.nickname ?? 'Bạn nhỏ'}
-                    </span>
-                    <span className="text-xs font-bold text-muted">
-                      Cấp {k.level} · Chạm để vào học
-                    </span>
+                    </div>
+
+                    {/* Avatar with Level Badge */}
+                    <div className="relative my-3">
+                      <div className="flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-gradient-to-tr from-brand-100 to-purple-50 text-5xl shadow-clay group-hover:scale-105 transition-transform duration-300">
+                        {img ? (
+                          <img
+                            src={img}
+                            alt={k.nickname ?? 'Avatar'}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          av.emoji
+                        )}
+                      </div>
+                      <span className="absolute -bottom-1 right-0 rounded-full bg-gradient-to-r from-brand-600 to-purple-600 px-2.5 py-0.5 text-xs font-black text-white shadow-md border-2 border-white">
+                        Lv.{k.level || 1}
+                      </span>
+                    </div>
+
+                    {/* Child Name & Details */}
+                    <div className="w-full">
+                      <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 group-hover:text-brand-600 transition-colors">
+                        {k.nickname ?? 'Bạn nhỏ'}
+                      </h3>
+
+                      {/* Achievement Mini Badges */}
+                      <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700 border border-amber-200/60 shadow-2xs">
+                          ⭐ {k.totalStars ?? 0} sao
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700 border border-emerald-200/60 shadow-2xs">
+                          🚀 {k.completedQuests ?? 0} trạm
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-xs font-bold text-brand-600 group-hover:underline">
+                        {k.hasPin ? '🔒 Nhập PIN để vào học' : '👉 Chạm để vào học ngay'}
+                      </p>
+                    </div>
                   </button>
                 </li>
               )
             })}
+
+            {/* Card "+ Thêm bé mới" */}
+            <li className="h-full">
+              <Link
+                to="/parent/kids?action=new"
+                className={cn(
+                  'group flex h-full min-h-[220px] flex-col items-center justify-center rounded-3xl border-3 border-dashed border-brand-200 bg-white/70 backdrop-blur-xs p-6 text-center transition-all duration-300',
+                  'hover:-translate-y-1 hover:border-brand-400 hover:bg-brand-50/70 hover:shadow-clay active:scale-95 shadow-xs',
+                )}
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100/80 text-brand-600 shadow-soft group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all duration-300">
+                  <Plus size={32} strokeWidth={2.5} />
+                </div>
+                <span className="mt-3 font-display text-lg font-black text-slate-800 group-hover:text-brand-700 transition-colors">
+                  + Thêm bé mới
+                </span>
+                <span className="mt-1 text-xs text-muted max-w-[180px]">
+                  Tạo thêm hồ sơ và cá nhân hóa trải nghiệm học tập
+                </span>
+              </Link>
+            </li>
           </ul>
         )}
 
-        <footer className="mt-auto flex flex-wrap items-center justify-center gap-3 pt-8">
+        {/* Footer */}
+        <footer className="mt-auto flex flex-wrap items-center justify-center gap-3 pt-8 pb-4">
           <button
             type="button"
-            className="ui-btn ui-btn-secondary !min-h-11 !px-5 text-sm shadow-soft"
+            className="ui-btn ui-btn-secondary !min-h-11 !px-5 text-sm shadow-soft rounded-2xl gap-2 text-slate-600 hover:text-slate-900"
             onClick={async () => {
               await logout()
               navigate('/login?mode=adult', { replace: true })
             }}
           >
-            Đăng xuất Ba / Mẹ
+            <LogOut size={16} /> Đăng xuất Ba / Mẹ
           </button>
         </footer>
       </div>
+
+      {/* PIN Pad Modal */}
+      <PinPadModal
+        isOpen={Boolean(selectedChildForPin)}
+        onClose={() => {
+          setSelectedChildForPin(null)
+          setPin('')
+          setPinError(null)
+        }}
+        onSubmit={handlePinSubmit}
+        title={selectedChildForPin?.nickname ? `Nhập PIN của ${selectedChildForPin.nickname}` : 'Nhập mã PIN'}
+        subtitle="Mã PIN 6 số do Ba / Mẹ thiết lập để vào học"
+        avatarContent={
+          selectedChildForPin ? (
+            avatarImage(selectedChildForPin.avatarId) ? (
+              <img
+                src={avatarImage(selectedChildForPin.avatarId)!}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              getAvatar(selectedChildForPin.avatarId).emoji
+            )
+          ) : undefined
+        }
+        busy={pinBusy}
+        error={pinError}
+        pin={pin}
+        setPin={setPin}
+      />
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

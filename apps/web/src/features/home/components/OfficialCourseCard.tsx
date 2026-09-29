@@ -43,20 +43,21 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
       aria-label="Khóa học chính 2026 Học Viện AIKid"
     >
       {/* ── TOP HEADER OF SHOWCASE ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-3">
-        <div className="space-y-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-3 min-w-0">
+        <div className="space-y-1 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[10px] sm:text-[11px] uppercase tracking-wider shadow-xs whitespace-nowrap">
-              KHÓA HỌC CHÍNH 2026 · HỌC VIỆN SÁNG TẠO AIKID
+            <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[10px] sm:text-[11px] uppercase tracking-wider shadow-xs">
+              <span className="sm:hidden">KHÓA CHÍNH 2026</span>
+              <span className="hidden sm:inline">KHÓA HỌC CHÍNH 2026 · HỌC VIỆN SÁNG TẠO AIKID</span>
             </span>
             <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300">
               Đang Học
             </span>
           </div>
-          <h3 className="text-base sm:text-2xl font-black text-slate-900 leading-tight">
+          <h3 className="text-base sm:text-2xl font-black text-slate-900 leading-tight break-words min-w-0">
             Hải Trình 5 Đảo: Từ Chìa Khóa Vàng Đến Đạo Diễn Hoạt Hình
           </h3>
-          <p className="text-[11px] sm:text-sm text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-[11px] sm:text-sm text-slate-600 font-medium max-w-2xl leading-relaxed break-words min-w-0">
             Chương trình AI chuẩn mực dành riêng cho trẻ em Việt Nam, giúp con kích hoạt tư duy đạo diễn, mỹ thuật kỹ thuật số và sáng tạo an toàn 100%.
           </p>
         </div>
@@ -192,11 +193,11 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
           </div>
 
           {/* Cụm Nút Hành Động Cho Con (Nằm Gọn Ngay Dưới Video & Tiến Độ) */}
-          <div className="grid gap-2 pt-0.5 grid-cols-1 sm:grid-cols-2">
+          <div className="grid gap-2 pt-0.5 grid-cols-1 sm:grid-cols-2 min-w-0">
             <button
               type="button"
               onClick={onExploreTrack}
-              className="w-full py-3 px-4 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+              className="w-full py-3 px-3 sm:px-4 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm border border-purple-500 shadow-[0_4px_0_#581c87] active:translate-y-1 active:shadow-none transition-all text-center flex items-center justify-center cursor-pointer min-w-0 break-words"
             >
               Mở Bản Đồ Hải Trình 5 Đảo
             </button>
@@ -204,7 +205,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
             <button
               type="button"
               onClick={onExploreTrack}
-              className="w-full py-3 px-4 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+              className="w-full py-3 px-3 sm:px-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs sm:text-sm border border-orange-400 shadow-[0_4px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all text-center flex items-center justify-center cursor-pointer min-w-0 break-words"
             >
               Học Tiếp Bài 1.2 Ngay
             </button>
@@ -214,38 +215,38 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
         {/* CỘT PHẢI (lg:col-span-5): Lợi Ích Cốt Lõi, Hộp Gói Mua & Nút Phụ Huynh */}
         <div className={cn('flex flex-col justify-between gap-3 min-w-0', !isMobileFrame && 'lg:col-span-5')}>
           {/* 3 Lợi ích vàng của khóa */}
-          <div className="space-y-2">
-            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+          <div className="space-y-2 min-w-0">
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5 min-w-0">
               <span className="w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
                 1
               </span>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900">Lộ Trình 5 Đảo Trực Quan</div>
-                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+              <div className="min-w-0 flex-1">
+                <div className="font-extrabold text-xs text-slate-900 break-words">Lộ Trình 5 Đảo Trực Quan</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight break-words">
                   Từ câu lệnh chìa khóa, góc máy, cọ vẽ tới làm phim hoạt hình.
                 </div>
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5 min-w-0">
               <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
                 2
               </span>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900">32 Trạm Học Montessori</div>
-                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+              <div className="min-w-0 flex-1">
+                <div className="font-extrabold text-xs text-slate-900 break-words">32 Trạm Học Montessori</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight break-words">
                   Vừa xem video, làm thử thách hiểu bài, vừa tạo tranh thật 100%.
                 </div>
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5">
+            <div className="p-2.5 rounded-xl bg-white/90 border border-slate-200 flex items-start gap-2.5 min-w-0">
               <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
                 3
               </span>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900">Không Gian An Toàn Cho Trẻ</div>
-                <div className="text-[11px] text-slate-500 font-medium leading-tight">
+              <div className="min-w-0 flex-1">
+                <div className="font-extrabold text-xs text-slate-900 break-words">Không Gian An Toàn Cho Trẻ</div>
+                <div className="text-[11px] text-slate-500 font-medium leading-tight break-words">
                   Phụ huynh kiểm soát tiến độ, không cần email riêng của con.
                 </div>
               </div>
@@ -254,17 +255,17 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
 
           {/* Hộp Gói Mua Bản Quyền Phụ Huynh */}
           {!isPurchased ? (
-            <div className="rounded-2xl bg-gradient-to-r from-orange-100/90 to-amber-100/90 border border-orange-300 p-3.5 space-y-1.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="font-black text-xs text-purple-950 uppercase tracking-wide">
+            <div className="rounded-2xl bg-gradient-to-r from-orange-100/90 to-amber-100/90 border border-orange-300 p-3.5 space-y-1.5 shadow-2xs min-w-0">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="font-black text-xs text-purple-950 uppercase tracking-wide break-words min-w-0">
                   GÓI THÁM HIỂM TOÀN DIỆN
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black">
+                <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black shrink-0">
                   Tiết kiệm 40%
                 </span>
               </div>
 
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 flex-wrap min-w-0">
                 <span className="text-xl sm:text-2xl font-black text-orange-600">479.000đ</span>
                 <span className="text-xs text-slate-400 line-through">799.000đ</span>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -272,17 +273,17 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
                 </span>
               </div>
 
-              <p className="text-[11px] text-slate-600 leading-snug font-medium">
+              <p className="text-[11px] text-slate-600 leading-snug font-medium break-words min-w-0">
                 Mở khóa toàn bộ 5 Đảo, 32 trạm thực hành và phân xưởng sáng tạo AI không giới hạn.
               </p>
             </div>
           ) : (
-            <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-3.5 border border-emerald-200 shadow-xs flex items-center justify-between gap-3">
-              <div>
-                <span className="text-xs font-black text-emerald-950 uppercase tracking-wider block">
+            <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-3.5 border border-emerald-200 shadow-xs flex items-center justify-between gap-3 min-w-0">
+              <div className="min-w-0 flex-1">
+                <span className="text-xs font-black text-emerald-950 uppercase tracking-wider block break-words">
                   GÓI VIP 5 ĐẢO SÁNG TẠO
                 </span>
-                <p className="text-[11px] text-slate-600 font-medium">
+                <p className="text-[11px] text-slate-600 font-medium break-words">
                   Đã kích hoạt trọn đời 32 trạm học &amp; phân xưởng AI
                 </p>
               </div>
@@ -293,12 +294,12 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
           )}
 
           {/* Cụm Nút Phụ Huynh Mở Khóa */}
-          <div className="space-y-1.5 pt-0.5">
+          <div className="space-y-1.5 pt-0.5 min-w-0">
             {!isPurchased ? (
               <button
                 type="button"
                 onClick={onUnlockCourse}
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer min-w-0 break-words"
               >
                 Phụ Huynh Mở Khóa Trọn Gói (479.000đ)
               </button>
@@ -306,7 +307,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
               <button
                 type="button"
                 onClick={onExploreTrack}
-                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer"
+                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-clay transition-all text-center flex items-center justify-center cursor-pointer min-w-0 break-words"
               >
                 Vào Khám Phá Toàn Bộ 5 Đảo
               </button>

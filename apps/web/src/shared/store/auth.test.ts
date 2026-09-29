@@ -302,6 +302,60 @@ describe('auth store', () => {
     expect(mocks.clearAccessToken).not.toHaveBeenCalled()
   })
 
+  it('falls back to dev student session on bootstrap failure when preview query is present in DEV', async () => {
+    window.history.pushState({}, '', '/home?preview=true')
+    try {
+      mocks.api.mockRejectedValueOnce(new ApiError(401, 'Unauthorized'))
+
+      await useAuth.getState().bootstrap()
+
+      expect(useAuth.getState().user).toEqual(
+        expect.objectContaining({
+          id: 'dev-student-bo',
+          role: 'student',
+          nickname: 'Bo Bo',
+          name: 'Bo Bo',
+          level: 3,
+          xp: 450,
+          onboarded: true,
+          avatarId: null,
+        }),
+      )
+      expect(useAuth.getState().loading).toBe(false)
+      expect(useAuth.getState().error).toBeNull()
+    } finally {
+      window.history.pushState({}, '', '/')
+    }
+  })
+
+  it('falls back to dev student session when localStorage dev_preview flag is true', async () => {
+    const storage = new Map<string, string>([['aikids.dev_preview', 'true']])
+    const originalLocalStorage = window.localStorage
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, val: string) => storage.set(key, val),
+        removeItem: (key: string) => storage.delete(key),
+      },
+      configurable: true,
+      writable: true,
+    })
+    try {
+      mocks.api.mockRejectedValueOnce(new ApiError(500, 'Server Error'))
+
+      await useAuth.getState().bootstrap()
+
+      expect(useAuth.getState().user?.id).toBe('dev-student-bo')
+      expect(useAuth.getState().loading).toBe(false)
+    } finally {
+      Object.defineProperty(window, 'localStorage', {
+        value: originalLocalStorage,
+        configurable: true,
+        writable: true,
+      })
+    }
+  })
+
   it('refreshes the server-owned avatar without browser storage', async () => {
     useAuth.setState({
       user: {
@@ -455,5 +509,61 @@ describe('auth store', () => {
     if (typeof window !== 'undefined' && import.meta.env.DEV) {
       expect((window as unknown as { __AUTH_STORE__: typeof useAuth }).__AUTH_STORE__).toBe(useAuth)
     }
+  })
+
+  it('enters as child without PIN and sets enteredFromParent flag', async () => {
+    mocks.api.mockResolvedValueOnce({
+      user: {
+        id: 'child-1',
+        role: 'student',
+        email: null,
+        nickname: 'Bé Mây',
+        avatarId: 'cat',
+        level: 3,
+        xp: 120,
+        onboarded: true,
+        goal: null,
+        parentId: 'parent-1',
+        classId: null,
+      },
+    })
+
+    const child = await useAuth.getState().enterAsChild('child-1')
+
+    expect(child.id).toBe('child-1')
+    expect(mocks.api).toHaveBeenCalledWith('/api/auth/login/child-profile', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1' }),
+    })
+    expect(useAuth.getState().enteredFromParent).toBe(true)
+    expect(useAuth.getState().user?.nickname).toBe('Bé Mây')
+  })
+
+  it('enters as child with PIN verification and passes pin in payload', async () => {
+    mocks.api.mockResolvedValueOnce({
+      user: {
+        id: 'child-2',
+        role: 'student',
+        email: null,
+        nickname: 'Bé Sóc',
+        avatarId: 'squirrel',
+        level: 2,
+        xp: 60,
+        onboarded: true,
+        goal: null,
+        parentId: 'parent-1',
+        classId: null,
+      },
+    })
+
+    const child = await useAuth.getState().enterAsChild('child-2', { pin: '654321' })
+
+    expect(child.id).toBe('child-2')
+    expect(mocks.api).toHaveBeenCalledWith('/api/auth/login/child-profile', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-2', pin: '654321' }),
+    })
+    expect(useAuth.getState().enteredFromParent).toBe(true)
+    expect(useAuth.getState().user?.id).toBe('child-2')
   })
 })

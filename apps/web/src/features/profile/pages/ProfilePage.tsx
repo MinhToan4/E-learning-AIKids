@@ -1,25 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
+import {
+  Flame,
+  Clock,
+  Compass,
+  Star,
+  Trophy,
+  Award,
+  TrendingUp,
+  Sparkles,
+  BookOpen,
+  Palette,
+  GraduationCap,
+  ShieldCheck,
+  Image,
+} from 'lucide-react'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
-import {
-  NavCreativeIcon,
-  NavLevelIcon,
-} from '@/shared/components/icons/KidNavIcons'
 
-import {
-  SoftClayStarIcon,
-  SoftClayFlagIcon,
-  SoftClayFireIcon,
-  SoftClayClockIcon,
-  SoftClayTrophyIcon,
-  SoftClaySproutIcon,
-  SoftClayPlantIcon,
-  SoftClayFlowerIcon,
-  SoftClayCheckIcon,
-  SoftClayLockIcon,
-} from '@/features/leaderboard/components/ProgressPassportIcons'
 import { BookSpread } from '@/features/storybook/components/BookSpread'
 import { STORYBOOK_PAGES, type StorybookPage } from '@/features/storybook/storybook-data'
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '@/features/storybook/storybook-contract'
@@ -152,8 +151,8 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 
   if (!project.thumbnail || failed) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-brand-50/80 text-brand-600">
-        <NavCreativeIcon size={44} aria-hidden="true" />
+      <div className="flex h-full w-full items-center justify-center bg-brand-50/80 text-brand-700 font-display font-black text-xs uppercase tracking-wider select-none">
+        Tranh của con
       </div>
     )
   }
@@ -764,7 +763,8 @@ export function ProfilePage() {
             : 'Nắm vững 4 chiếc chìa khóa & tả chi tiết',
         description:
           'Biết cách diễn đạt ý tưởng rõ ràng, miêu tả bối cảnh chi tiết và cùng bạn đồng hành hoàn thiện tác phẩm.',
-        icon: SoftClayPlantIcon,
+        tag: 'TƯ DUY',
+        icon: Sparkles,
         cardBg: 'border-sky-200/80 bg-linear-to-br from-sky-50/70 via-white to-blue-50/30',
         iconBg: 'border-sky-200 bg-sky-100 text-sky-700',
         badgeBg: 'border-sky-200 bg-sky-100 text-sky-800',
@@ -781,7 +781,8 @@ export function ProfilePage() {
         statusLabel: 'Làm chủ màu sắc & phong cách thị giác',
         description:
           'Hiểu cách phối hợp ánh sáng, góc nhìn camera và phong cách hội họa để tạo tranh minh họa đẹp.',
-        icon: SoftClayFlowerIcon,
+        tag: 'MỸ THUẬT',
+        icon: Palette,
         cardBg: 'border-pink-200/80 bg-linear-to-br from-pink-50/70 via-white to-rose-50/30',
         iconBg: 'border-pink-200 bg-pink-100 text-pink-700',
         badgeBg: 'border-pink-200 bg-pink-100 text-pink-800',
@@ -798,7 +799,8 @@ export function ProfilePage() {
         statusLabel: 'Xây dựng nhân vật & kịch bản phân khung',
         description:
           'Phát triển tuyến nhân vật, kết nối các khung truyện tranh và tạo kịch bản hấp dẫn.',
-        icon: SoftClayPlantIcon,
+        tag: 'KỂ CHUYỆN',
+        icon: BookOpen,
         cardBg: 'border-amber-200/80 bg-linear-to-br from-amber-50/70 via-white to-yellow-50/30',
         iconBg: 'border-amber-200 bg-amber-100 text-amber-700',
         badgeBg: 'border-amber-200 bg-amber-100 text-amber-800',
@@ -815,7 +817,8 @@ export function ProfilePage() {
         statusLabel: 'Đạt Chuẩn Hiệp Sĩ An Toàn Số',
         description:
           'Thuộc lòng 10 quy tắc xưởng sáng tạo, bảo vệ thông tin riêng tư và sử dụng công nghệ an toàn, văn minh.',
-        icon: SoftClayFlowerIcon,
+        tag: 'AN TOÀN',
+        icon: ShieldCheck,
         cardBg: 'border-emerald-200/80 bg-linear-to-br from-emerald-50/70 via-white to-teal-50/30',
         iconBg: 'border-emerald-200 bg-emerald-100 text-emerald-700',
         badgeBg: 'border-emerald-200 bg-emerald-100 text-emerald-800',
@@ -906,42 +909,49 @@ export function ProfilePage() {
       {/* 3. Thanh Tab Điều Hướng Soft Clay (Floating Pill Tabs) */}
       <nav
         aria-label="Các mục hồ sơ cá nhân"
-        className="flex items-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-soft"
+        className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden p-1.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/80 shadow-soft"
         role="tablist"
       >
         {[
           {
             id: 'progress' as const,
             label: 'Tiến độ',
+            icon: TrendingUp,
             badge: `${displayStations}/32`,
           },
           {
             id: 'certificates' as const,
             label: 'Bằng khen',
+            icon: Award,
             badge: backpackCertificates.length > 0 ? backpackCertificates.length : undefined,
           },
           {
             id: 'competencies' as const,
             label: 'Kỹ năng',
+            icon: Sparkles,
             badge: 4,
           },
           {
             id: 'storybook' as const,
             label: 'Sổ kỷ niệm',
+            icon: BookOpen,
             badge: storybookPublishedEarnedCount > 0 ? storybookPublishedEarnedCount : undefined,
           },
           {
             id: 'memories' as const,
             label: 'Thành tích',
+            icon: Trophy,
             badge: achievements.length > 0 ? achievements.length : undefined,
           },
           {
             id: 'customize' as const,
             label: 'Trang trí',
+            icon: Palette,
             badge: undefined,
           },
         ].map((tab) => {
           const isActive = activeTab === tab.id
+          const TabIcon = tab.icon
           return (
             <button
               key={tab.id}
@@ -951,12 +961,13 @@ export function ProfilePage() {
               aria-controls={`tabpanel-${tab.id}`}
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
-              className={`min-h-[48px] shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer select-none ${
+              className={`min-h-[48px] shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer select-none ${
                 isActive
                   ? 'bg-gradient-to-r from-[#FD7D2E] to-[#F97316] text-white shadow-clay font-black rounded-xl'
                   : 'text-slate-600 hover:text-brand-700 hover:bg-white/60'
               }`}
             >
+              <TabIcon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
               {tab.badge !== undefined && tab.badge !== null && (
                 <span
@@ -984,18 +995,18 @@ export function ProfilePage() {
         {activeTab === 'progress' && (
           <>
             {/* 2. Bộ Tứ Chỉ Số Học Tập Cốt Lõi (4 Core Progress Cards - Zero Truncation) */}
-          <section aria-label="Bộ tứ chỉ số học tập cốt lõi" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <section aria-label="Bộ tứ chỉ số học tập cốt lõi" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0">
             {/* Card 1: Daily Streak */}
             <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-orange-200/80 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl border border-orange-200 bg-orange-100/70 shadow-xs">
-                  <SoftClayFireIcon size={26} />
+                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-orange-300 bg-gradient-to-br from-orange-100 to-amber-100 shadow-[0_3px_0_#fdba74] select-none">
+                  <Flame className="w-6 h-6 text-[#FD7D2E] fill-orange-400 drop-shadow-xs" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none">
+                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
                     {streak} ngày
                   </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700">
+                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
                     Chuỗi học tập
                   </span>
                 </div>
@@ -1008,14 +1019,14 @@ export function ProfilePage() {
             {/* Card 2: Study Hours */}
             <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-sky-200/80 bg-gradient-to-br from-sky-50/80 via-white to-blue-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-200 bg-sky-100/70 shadow-xs">
-                  <SoftClayClockIcon size={26} />
+                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-sky-300 bg-gradient-to-br from-sky-100 to-blue-100 shadow-[0_3px_0_#7dd3fc] select-none">
+                  <Clock className="w-6 h-6 text-sky-600 drop-shadow-xs" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none">
+                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
                     {studyHoursFormatted}
                   </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700">
+                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
                     Thời lượng rèn luyện
                   </span>
                 </div>
@@ -1028,14 +1039,14 @@ export function ProfilePage() {
             {/* Card 3: Station Progress (6 Islands & Stations) */}
             <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-100/70 shadow-xs">
-                  <SoftClayFlagIcon size={26} />
+                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-100 to-teal-100 shadow-[0_3px_0_#6ee7b7] select-none">
+                  <Compass className="w-6 h-6 text-emerald-600 drop-shadow-xs" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none">
+                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
                     {displayStations} / 32 Trạm
                   </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700">
+                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
                     Hành trình 6 Đảo
                   </span>
                 </div>
@@ -1056,14 +1067,14 @@ export function ProfilePage() {
             {/* Card 4: Stars Collected */}
             <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100/70 shadow-xs">
-                  <SoftClayStarIcon size={26} />
+                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-[0_3px_0_#fcd34d] select-none">
+                  <Star className="w-6 h-6 text-amber-500 fill-amber-400 drop-shadow-xs" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none">
+                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
                     {displayStars}
                   </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700">
+                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
                     Ngôi sao tri thức
                   </span>
                 </div>
@@ -1089,42 +1100,59 @@ export function ProfilePage() {
                 </p>
               </div>
               <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-200/80 px-3.5 py-2 text-xs font-extrabold text-emerald-800 self-start sm:self-auto shadow-xs">
-                <SoftClayCheckIcon size={20} />
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
                 <span>Nhịp học đều đặn: {activeDaysCount}/7 ngày</span>
               </div>
             </div>
 
             <div className="mt-6 rounded-3xl border border-slate-100 bg-linear-to-b from-slate-50/60 via-white to-brand-50/20 p-4 sm:p-6">
-              <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end h-44 sm:h-52 pt-8 pb-2">
+              <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end pt-4 pb-2">
                 {weeklyDays.map((d) => {
-                  const heightPercent = Math.max(16, Math.min(100, Math.round((d.minutes / maxDayMinutes) * 100)))
+                  const heightPercent = d.active
+                    ? Math.max(20, Math.min(100, Math.round((d.minutes / maxDayMinutes) * 100)))
+                    : 0
                   return (
-                    <div key={d.label} className="flex flex-col items-center h-full justify-end group">
-                      {d.showPill && (
-                        <div className="mb-2 -translate-y-1 transform animate-bounce rounded-full bg-slate-900 px-2 py-0.5 text-[10px] sm:text-xs font-black text-white shadow-soft">
-                          {d.pillText}
-                        </div>
-                      )}
-                      <div className="relative w-full max-w-[44px] flex items-end justify-center">
-                        <div
-                          className={`w-full rounded-2xl transition-all duration-500 shadow-xs ${
-                            d.active
-                              ? d.isToday
-                                ? 'bg-gradient-to-t from-coral-500 to-coral-400 ring-2 ring-coral-300 ring-offset-2'
-                                : 'bg-gradient-to-t from-brand-600 via-brand-500 to-indigo-400 group-hover:brightness-110'
-                              : 'bg-slate-200/70'
-                          }`}
-                          style={{ height: `${heightPercent}%` }}
-                        />
+                    <div key={d.label} className="flex flex-col items-center justify-end group">
+                      {/* Tooltip Pill */}
+                      <div className="h-7 mb-2 flex items-center justify-center">
+                        {d.showPill ? (
+                          <div className="transform animate-bounce rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] sm:text-xs font-black text-white shadow-soft whitespace-nowrap">
+                            {d.pillText}
+                          </div>
+                        ) : (
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-black text-white shadow-soft whitespace-nowrap">
+                            {d.minutes > 0 ? `${d.minutes}m` : 'Nghỉ'}
+                          </div>
+                        )}
                       </div>
-                      <div className="mt-2 text-center">
-                        <span className={`block font-display text-xs sm:text-sm font-black ${
+
+                      {/* Pillar Track with explicit height */}
+                      <div className="relative w-full max-w-[36px] sm:max-w-[44px] h-28 sm:h-36 rounded-2xl bg-slate-100/90 border-2 border-slate-200/60 shadow-inner flex flex-col justify-end p-1 overflow-hidden">
+                        {d.active ? (
+                          <div
+                            className={`w-full rounded-xl transition-all duration-700 ease-out shadow-xs ${
+                              d.isToday
+                                ? 'bg-gradient-to-t from-coral-500 to-coral-400 ring-2 ring-coral-300/80 shadow-[0_2px_8px_rgba(244,63,94,0.35)]'
+                                : 'bg-gradient-to-t from-brand-600 via-brand-500 to-indigo-400 group-hover:brightness-105'
+                            }`}
+                            style={{ height: `${heightPercent}%` }}
+                          />
+                        ) : (
+                          <div className="w-full h-1.5 rounded-full bg-slate-200/80 mx-auto" />
+                        )}
+                      </div>
+
+                      {/* Day Label & Indicator */}
+                      <div className="mt-2.5 text-center">
+                        <span className={`block font-display text-xs sm:text-sm font-black transition-colors ${
                           d.isToday ? 'text-coral-600' : d.active ? 'text-slate-800' : 'text-slate-400'
                         }`}>
                           {d.label}
                         </span>
-                        {d.isToday && (
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-coral-500 mt-0.5" />
+                        {d.isToday ? (
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-coral-500 mt-1 shadow-xs" />
+                        ) : (
+                          <span className="inline-block h-1.5 w-1.5 mt-1" />
                         )}
                       </div>
                     </div>
@@ -1157,9 +1185,9 @@ export function ProfilePage() {
             className="aikid-flat-panel group grid min-h-32 gap-4 p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6 rounded-3xl shadow-clay"
             aria-label={`Xem hành trình Cấp ${explorerLevel}`}
           >
-            <span className="student-nav-icon !h-14 !w-14 !rounded-2xl" aria-hidden="true">
-              <NavLevelIcon size={32} />
-            </span>
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-100 to-brand-200/60 shadow-soft select-none" aria-hidden="true">
+              <Trophy className="w-7 h-7 text-brand-600 fill-brand-300 drop-shadow-xs" />
+            </div>
             <span>
               <span className="block text-sm font-extrabold text-brand-600">Hành trình cấp độ thám hiểm</span>
               <span className="mt-1 block font-display text-2xl font-black text-slate-900 tracking-tight">
@@ -1190,7 +1218,7 @@ export function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
-                  <SoftClayTrophyIcon size={18} /> Bằng Khen Trong Ba Lô
+                  Bằng Khen Trong Ba Lô
                 </div>
                 <h2
                   id="course-certificates-title"
@@ -1208,7 +1236,7 @@ export function ProfilePage() {
                   {backpackCertificates.length} Bằng khen trong Ba lô
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-xs font-extrabold text-amber-800 shadow-2xs">
-                  <SoftClayStarIcon size={14} /> {displayStars} Sao gặt hái
+                  {displayStars} Sao gặt hái
                 </span>
               </div>
             </div>
@@ -1222,8 +1250,8 @@ export function ProfilePage() {
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3.5 sm:gap-4">
-                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-b from-amber-200 to-amber-400 p-2 shadow-inner ring-4 ring-amber-100/80">
-                      <SoftClayTrophyIcon size={36} />
+                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-b from-amber-200 to-amber-400 p-2 shadow-inner ring-4 ring-amber-100/80 select-none">
+                      <Award className="w-8 h-8 sm:w-9 sm:h-9 text-amber-950 fill-amber-300 drop-shadow-xs" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-2.5 py-0.5 text-xs font-black text-amber-900 mb-1">
@@ -1237,7 +1265,7 @@ export function ProfilePage() {
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
-                          <SoftClayStarIcon size={14} /> {displayStars} Sao
+                          {displayStars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
                           +{explorerXp} EXP
@@ -1287,10 +1315,10 @@ export function ProfilePage() {
                     className="relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/90 via-white to-amber-100/40 p-5 sm:p-6 shadow-clay transition-all hover:-translate-y-0.5"
                   >
                     <div>
-                      {/* Top bar with Trophy Icon & Status Badge */}
+                      {/* Top bar with Status Badge */}
                       <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-2 ring-amber-200/60 shadow-xs">
-                          <SoftClayTrophyIcon size={26} />
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-2 ring-amber-200/60 shadow-xs select-none">
+                          <Award className="w-6 h-6 text-amber-900 fill-amber-300 drop-shadow-xs" />
                         </div>
 
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-xs font-black text-emerald-900 shadow-2xs">
@@ -1312,7 +1340,7 @@ export function ProfilePage() {
                       {/* Stats Details */}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100/80 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
-                          <SoftClayStarIcon size={14} /> {cert.stars || courseCertificate.stars} Sao
+                          {cert.stars || courseCertificate.stars} Sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100/80 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
                           +{cert.xp || courseCertificate.xp} EXP
@@ -1352,8 +1380,8 @@ export function ProfilePage() {
             {!isGraduated && !hasClaimedCertificate && (
               <div className="relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-amber-50/60 via-white to-amber-100/30 p-5 sm:p-6 shadow-soft">
                 <div className="flex flex-col sm:flex-row items-center gap-5">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-4 ring-amber-100/80 shadow-xs">
-                    <SoftClayTrophyIcon size={36} />
+                  <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-4 ring-amber-100/80 shadow-xs select-none">
+                    <GraduationCap className="w-8 h-8 sm:w-9 sm:h-9 text-amber-900 drop-shadow-xs" />
                   </div>
                   <div className="min-w-0 flex-1 text-center sm:text-left">
                     <h3 className="font-display text-lg sm:text-xl font-black text-slate-900 tracking-tight">
@@ -1394,7 +1422,7 @@ export function ProfilePage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-800">
-                  <SoftClaySproutIcon size={18} /> Vườn Kỹ Năng Sáng Tạo Của Con
+                  Vườn Kỹ Năng Sáng Tạo Của Con
                 </div>
                 <h2 id="ai-garden-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
                   4 Kỹ Năng Sáng Tạo Cốt Lõi
@@ -1407,7 +1435,6 @@ export function ProfilePage() {
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {competencies.map((comp) => {
-                const Icon = comp.icon
                 return (
                   <div
                     key={comp.title}
@@ -1416,13 +1443,18 @@ export function ProfilePage() {
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-xs ${comp.iconBg}`}>
-                            <Icon size={24} />
+                          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-xs select-none ${comp.iconBg}`}>
+                            <comp.icon className="w-6 h-6 drop-shadow-xs" />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="font-display text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
-                              {comp.title}
-                            </h3>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-display text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
+                                {comp.title}
+                              </h3>
+                              <span className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-600 border border-slate-200/60 shadow-2xs">
+                                {comp.tag}
+                              </span>
+                            </div>
                             <span className="text-[11px] font-extrabold text-muted">
                               {comp.englishTitle}
                             </span>
@@ -1437,7 +1469,7 @@ export function ProfilePage() {
                       </p>
                       {/* Minh chứng thực tế Pill */}
                       <div className="mt-3 flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-700 shadow-2xs">
-                        <SoftClayCheckIcon size={14} />
+                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                         <span>
                           Minh chứng: <strong className="font-black text-slate-900">{comp.evidenceText}</strong>
                         </span>
@@ -1481,8 +1513,10 @@ export function ProfilePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
-                  <div className="flex items-center gap-2.5 rounded-2xl border-2 border-indigo-200/80 bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-2.5 shadow-soft">
-                    <SoftClayStarIcon size={24} />
+                  <div className="flex items-center gap-3 rounded-2xl border-2 border-indigo-200/80 bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-2.5 shadow-soft select-none">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 border border-indigo-200 text-indigo-700 shadow-2xs">
+                      <Sparkles className="w-5 h-5 text-indigo-700 fill-indigo-300 drop-shadow-xs" />
+                    </div>
                     <div>
                       <strong className="block font-display text-lg font-black text-indigo-950 leading-tight">
                         {storybookPublishedEarnedCount} / {storybookPublishedStickerIds.size}
@@ -1522,7 +1556,7 @@ export function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
-                  <SoftClayTrophyIcon size={18} /> Bục Vinh Danh Thành Tích
+                  Bục Vinh Danh Thành Tích
                 </div>
                 <h2 id="featured-badges-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
                   Huy Hiệu &amp; Cúp Danh Dự
@@ -1534,7 +1568,7 @@ export function ProfilePage() {
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-100/80 border border-amber-200 px-3.5 py-2 text-xs font-black text-amber-900 shadow-2xs">
-                  <SoftClayTrophyIcon size={14} /> {achievements.length} / 45 Huy hiệu đã mở
+                  {achievements.length} / 45 Huy hiệu đã mở
                 </span>
                 <Link
                   to="/achievements"
@@ -1552,7 +1586,7 @@ export function ProfilePage() {
                   className="flex flex-col items-center justify-between rounded-3xl border-2 border-amber-200/80 bg-gradient-to-b from-amber-50/60 via-white to-amber-50/20 p-4 text-center shadow-soft transition-all hover:scale-[1.02] hover:shadow-clay"
                 >
                   <div className="flex flex-col items-center">
-                    <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100/70 p-2 shadow-inner">
+                    <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100/70 p-2 shadow-inner select-none">
                       {badge.image ? (
                         <img
                           src={badge.image}
@@ -1562,7 +1596,7 @@ export function ProfilePage() {
                           className="h-16 w-16 object-contain drop-shadow-md"
                         />
                       ) : (
-                        <SoftClayTrophyIcon size={44} />
+                        <Trophy className="w-10 h-10 text-amber-600 fill-amber-300 drop-shadow-xs" />
                       )}
                     </div>
                     <h4 className="font-display text-base font-black text-slate-900 tracking-tight">
@@ -1573,7 +1607,7 @@ export function ProfilePage() {
                     </p>
                   </div>
                   <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-black text-emerald-800">
-                    <SoftClayCheckIcon size={12} /> Đã đạt được
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" /> Đã đạt được
                   </span>
                 </div>
               ))}
@@ -1597,10 +1631,10 @@ export function ProfilePage() {
             </div>
 
             {displayableProjects.length === 0 ? (
-              <div className="mt-5 flex min-h-48 flex-col items-center justify-center rounded-3xl bg-brand-50 px-5 text-center">
-                <span className="student-nav-icon !h-16 !w-16" aria-hidden="true">
-                  <NavCreativeIcon size={36} />
-                </span>
+              <div className="mt-5 flex min-h-48 flex-col items-center justify-center rounded-3xl bg-brand-50/70 border-2 border-dashed border-brand-200 px-5 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100 border border-brand-200 text-brand-600 shadow-soft select-none" aria-hidden="true">
+                  <Image className="w-8 h-8 text-brand-600" />
+                </div>
                 <p className="mt-3 font-display text-xl font-black text-slate-900 tracking-tight">
                   Chưa có tác phẩm nào
                 </p>

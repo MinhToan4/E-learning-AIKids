@@ -13,31 +13,6 @@ export interface ProfileHeaderCardProps {
   profileSlug?: string | null
 }
 
-function SoftClayBrushIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M18.8 3.2a2.8 2.8 0 0 0-3.9 0l-8.2 8.2c-.4.4-.7 1-.8 1.6l-.9 4.3a1 1 0 0 0 1.2 1.2l4.3-.9c.6-.1 1.2-.4 1.6-.8l8.2-8.2a2.8 2.8 0 0 0 0-3.9l-1.5-1.5z"
-        fill="#FD7D2E"
-      />
-      <path
-        d="M14.9 7.1l2 2"
-        stroke="#FFFFFF"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <circle cx="5" cy="19" r="2" fill="#C0392B" />
-    </svg>
-  )
-}
-
 export function ProfileHeaderCard({
   user,
   explorerLevel,
@@ -59,16 +34,16 @@ export function ProfileHeaderCard({
   return (
     <section
       aria-label="Thẻ hồ sơ thám hiểm"
-      className="bg-gradient-to-r from-[#9F2642] via-[#C0392B] to-[#FD7D2E] rounded-[2rem] p-4 sm:p-6 shadow-clay border border-white/25 text-white relative overflow-hidden"
+      className="bg-gradient-to-r from-[#E05A1B] via-[#FD7D2E] to-[#F97316] rounded-[2.2rem] p-4 sm:p-6 shadow-clay border-2 border-white/40 text-white relative overflow-hidden"
     >
       {/* Soft Clay Glaze decorative background highlights */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10 blur-xl" />
-      <div className="pointer-events-none absolute left-1/3 -bottom-10 h-32 w-32 rounded-full bg-amber-400/15 blur-lg" />
+      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/15 blur-xl" />
+      <div className="pointer-events-none absolute left-1/3 -bottom-10 h-32 w-32 rounded-full bg-yellow-300/20 blur-lg" />
 
       <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full min-w-0">
         {/* Avatar to rõ với vòng bo tròn viền gốm trắng và nút bấm đổi avatar */}
         <div className="relative shrink-0">
-          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 border-white/90 shadow-clay overflow-hidden bg-white/20 backdrop-blur-xs flex items-center justify-center">
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 border-white shadow-clay overflow-hidden bg-white/20 backdrop-blur-xs flex items-center justify-center">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -86,9 +61,9 @@ export function ProfileHeaderCard({
             onClick={onOpenAvatarPicker}
             aria-label="Đổi hình đại diện"
             title="Đổi hình đại diện"
-            className="absolute -bottom-1 -right-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white text-[#C0392B] shadow-clay hover:scale-105 active:scale-95 transition-transform border-2 border-white/90 cursor-pointer text-sm"
+            className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white px-2.5 py-1 text-[#EA580C] shadow-soft hover:scale-105 active:scale-95 transition-transform border-2 border-orange-200 cursor-pointer text-[11px] font-black tracking-wide"
           >
-            <span>✏️</span>
+            Đổi ảnh
           </button>
         </div>
 
@@ -99,7 +74,7 @@ export function ProfileHeaderCard({
               <p className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white/80">
                 Hồ sơ của con
               </p>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight truncate">
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words">
                 {displayName}
               </h1>
             </div>
