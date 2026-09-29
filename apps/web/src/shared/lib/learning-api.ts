@@ -22,7 +22,6 @@ export type LearningPathwayCourse = {
   totalStars?: number
   stations?: QuestProgress[]
 }
-
 export type LearningPathway = {
   student: { nickname: string | null; ageBand: string }
   policy: { label: string } | null
@@ -79,7 +78,7 @@ const LESSON_START_DEDUPE_MS = 5_000
 const lessonStartRequests = new Map<string, { expiresAt: number; request: Promise<{ progress: LessonProgress }> }>()
 
 function cachedLessonDetail(lessonId: string) {
-  return api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
+  return api<{ quest: QuestDetail }>(`/api/v1/lms/compat/quests/${encodeURIComponent(lessonId)}`)
 }
 
 function dedupedLessonStart(lessonId: string) {
@@ -87,7 +86,7 @@ function dedupedLessonStart(lessonId: string) {
   const cached = lessonStartRequests.get(lessonId)
   if (cached && cached.expiresAt > now) return cached.request
   const request = api<{ progress: LessonProgress }>(
-    `/api/progress/${encodeURIComponent(lessonId)}/start`,
+    `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/start`,
     { method: 'POST' },
   )
   lessonStartRequests.set(lessonId, { expiresAt: now + LESSON_START_DEDUPE_MS, request })
@@ -102,19 +101,21 @@ function dedupedLessonStart(lessonId: string) {
  * Learning is the public frontend boundary. Route compatibility and future
  * canonical migration stay inside this adapter, so child-facing components
  * only depend on learning contracts rather than service paths.
+ *
+ * Hub routing: /api/v1/lms/* → /internal/v1/lms/* → core-lms-api:4509
  */
 export const learningApi = {
   getPathway(studentId?: string) {
     const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : ''
-    return api<LearningPathway>(`/api/learning/pathway${query}`)
+    return api<LearningPathway>(`/api/v1/lms/compat/pathway${query}`)
   },
 
   getCourse<T = { course: CourseSummary }>(courseId: string) {
-    return api<T>(`/api/courses/${encodeURIComponent(courseId)}`)
+    return api<T>(`/api/v1/lms/courses/${encodeURIComponent(courseId)}`)
   },
 
   getCourseProgress(courseId: string) {
-    return api<CourseProgress>(`/api/progress/${encodeURIComponent(courseId)}`)
+    return api<CourseProgress>(`/api/v1/lms/compat/courses/${encodeURIComponent(courseId)}/progress`)
   },
 
   getChildTeacherFeedback<T>(childId: string) {
@@ -134,7 +135,7 @@ export const learningApi = {
   async openLesson(lessonId: string) {
     try {
       return await api<{ quest: QuestDetail; progress: LessonProgress }>(
-        `/api/progress/${encodeURIComponent(lessonId)}/open`,
+        `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/open`,
         { method: 'POST' },
       )
     } catch (error) {
@@ -151,14 +152,14 @@ export const learningApi = {
 
   advanceLesson(lessonId: string, input: LessonAdvanceInput) {
     return api<{ progress: LessonProgress }>(
-      `/api/progress/${encodeURIComponent(lessonId)}/advance`,
+      `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/advance`,
       { method: 'POST', body: JSON.stringify(input) },
     )
   },
 
   savePractice<T = { result: unknown }>(lessonId: string, input: LessonPracticeInput) {
     return api<T>(
-      `/api/progress/${encodeURIComponent(lessonId)}/practice`,
+      `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/practice`,
       { method: 'POST', body: JSON.stringify(input) },
     )
   },
@@ -174,7 +175,7 @@ export const learningApi = {
       /** Nếu server trả về XP mới sau completion, client có thể optimistic-update ngay */
       totalXp?: number
       level?: number
-    }>(`/api/progress/${encodeURIComponent(lessonId)}/check`, {
+    }>(`/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/check`, {
       method: 'POST',
       body: JSON.stringify(input),
     })
@@ -188,7 +189,7 @@ export const learningApi = {
       questionId: string
       correct: boolean
       explanation: string
-    }>(`/api/progress/${encodeURIComponent(lessonId)}/check-answer`, {
+    }>(`/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/check-answer`, {
       method: 'POST',
       body: JSON.stringify(input),
     })

@@ -35,6 +35,7 @@ import { programArtworkHint } from '@/shared/config/assets'
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
+import { parentFriendlyError } from '../lib/parent-error'
 
 
 type Child = {
@@ -162,25 +163,7 @@ const levelLabels = {
 
 /** Trả về thông báo lỗi thân thiện — không bao giờ lộ tên kỹ thuật */
 function friendlyError(cause: unknown): string {
-  if (cause instanceof Error) {
-    const msg = cause.message
-    // Che các lỗi kỹ thuật: ZodError, validation schema, stack trace
-    if (
-      msg.includes('ZodError') ||
-      msg.includes('validation') ||
-      msg.includes('schema') ||
-      msg.includes('Expected') ||
-      msg.includes('Received')
-    ) {
-      return 'Dữ liệu phản hồi không đúng định dạng. Vui lòng thử lại.'
-    }
-    // Che lỗi mạng/kết nối
-    if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
-      return 'Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại.'
-    }
-    return msg
-  }
-  return 'Đã xảy ra sự cố. Vui lòng thử lại.'
+  return parentFriendlyError(cause)
 }
 
 function friendlyEnrollmentError(cause: unknown): string {
@@ -285,7 +268,7 @@ export function ParentLearningPage() {
         api<{
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null
-        }>(`/api/learning/age-policy?${query}`),
+        }>(`/api/v1/lms/me/age-policy?${query}`),
         api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`),
         api<ChildProgress>(`/api/parent/children/${studentId}/progress`),
         api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription'),

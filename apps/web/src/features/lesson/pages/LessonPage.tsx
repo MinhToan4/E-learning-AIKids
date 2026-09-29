@@ -746,7 +746,7 @@ export function LessonPage() {
     }
     const timer = window.setTimeout(() => {
       const occurredAt = new Date().toISOString()
-      void api(`/api/learning/quests/${questId}/resume`, {
+      void api(`/api/v1/lms/lessons/${questId}/resume`, {
         method: 'PUT',
         body: JSON.stringify({
           percent: percentByPhase[phase],
@@ -999,7 +999,7 @@ export function LessonPage() {
         const lessonIdForSubmit = (isAikiRuleJourney && authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
           ? authoritativeLessonId
           : quest.id
-        await api(`/api/learning/quests/${lessonIdForSubmit}/resume`, {
+        await api(`/api/v1/lms/lessons/${lessonIdForSubmit}/resume`, {
           method: 'PUT',
           body: JSON.stringify({
             percent: 99,
@@ -1086,7 +1086,7 @@ export function LessonPage() {
     setResumeStageIndex(stageIndex)
     if (!navigator.onLine || !progressId || isLocalId) return
     const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
-    void api(`/api/learning/quests/${progressId}/resume`, {
+    void api(`/api/v1/lms/lessons/${progressId}/resume`, {
       method: 'PUT',
       keepalive: true,
       body: JSON.stringify({

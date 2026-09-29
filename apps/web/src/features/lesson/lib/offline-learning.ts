@@ -122,7 +122,7 @@ export async function syncOfflineProgress(questId: string) {
   const events = JSON.parse(eventsRaw) as OfflineProgressEvent[]
   if (events.length === 0) return { accepted: 0, duplicate: 0 }
   const result = await api<{ sync: OfflineSyncResult }>(
-    `/api/learning/quests/${questId}/offline-sync`,
+    `/api/v1/lms/lessons/${questId}/offline-sync`,
     {
       method: 'POST',
       body: JSON.stringify({

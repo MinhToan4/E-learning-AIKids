@@ -52,11 +52,11 @@ export function LearningToolsPanel({
 
   const load = useCallback(async (signal?: AbortSignal) => {
     const [noteData, bookmarkData] = await Promise.all([
-      api<{ notes: Note[] }>(`/api/learning/quests/${questId}/notes`, {
+      api<{ notes: Note[] }>(`/api/v1/lms/lessons/${questId}/notes`, {
         signal,
       }),
       api<{ bookmarks: BookmarkRow[] }>(
-        `/api/learning/quests/${questId}/bookmarks`,
+        `/api/v1/lms/lessons/${questId}/bookmarks`,
         { signal },
       ),
     ])
@@ -89,7 +89,7 @@ export function LearningToolsPanel({
     event.preventDefault()
     setBusy('note')
     try {
-      await api(`/api/learning/quests/${questId}/notes`, {
+      await api(`/api/v1/lms/lessons/${questId}/notes`, {
         method: 'POST',
         body: JSON.stringify({
           anchorType: 'section',
@@ -110,7 +110,7 @@ export function LearningToolsPanel({
   async function removeNote(noteId: string) {
     setBusy(noteId)
     try {
-      await api(`/api/learning/notes/${noteId}`, { method: 'DELETE' })
+      await api(`/api/v1/lms/notes/${noteId}`, { method: 'DELETE' })
       await load()
       setMessage('Đã xóa ghi chú.')
     } catch (cause) {
@@ -125,7 +125,7 @@ export function LearningToolsPanel({
   async function addBookmark() {
     setBusy('bookmark')
     try {
-      await api(`/api/learning/quests/${questId}/bookmarks`, {
+      await api(`/api/v1/lms/lessons/${questId}/bookmarks`, {
         method: 'POST',
         body: JSON.stringify({
           anchorType: 'section',
@@ -145,7 +145,7 @@ export function LearningToolsPanel({
   async function removeBookmark(bookmarkId: string) {
     setBusy(bookmarkId)
     try {
-      await api(`/api/learning/bookmarks/${bookmarkId}`, {
+      await api(`/api/v1/lms/bookmarks/${bookmarkId}`, {
         method: 'DELETE',
       })
       await load()
@@ -208,7 +208,7 @@ export function LearningToolsPanel({
     setBusy('offline')
     try {
       const data = await api<{ manifest: OfflineManifest }>(
-        `/api/learning/quests/${questId}/offline-manifest`,
+        `/api/v1/lms/lessons/${questId}/offline-manifest`,
         {
           method: 'POST',
           body: JSON.stringify({ deviceId: learningDeviceId() }),
