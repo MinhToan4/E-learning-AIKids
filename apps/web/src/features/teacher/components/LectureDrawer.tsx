@@ -33,9 +33,10 @@ import { useToast } from '@/shared/hooks/useToast'
 import {
   GAME_OPTIONS, PRACTICE_OPTIONS, GAME_DIFFICULTIES,
   buildLectureGameConfig, lectureDraftReadiness,
-  serializeLectureGameConfig, serializeLearnCardsForHub, slugifyAuthoringId, createAikiRuleLearnCards, AIKI_RULE_META_LABEL,
+  serializeLectureGameConfig, serializeLearnCardsForHub, slugifyAuthoringId, createAikiRuleLearnCards, createAikiRule3StepsCards, AIKI_RULE_META_LABEL,
   AIKI_RULE_STAGE_KINDS,
   detectLessonFormat, isAikiRuleLesson, type LessonFormat,
+  STANDARD_RULE_3_STAGES,
   type LectureDraft,
   type LessonAccessMode,
   type LessonAccessConfig,
@@ -51,9 +52,22 @@ import {
   getActiveModules,
   getStageBlocks,
   createFourKeysBlock,
+  normalizeLectureDraft,
+  ISLAND_6_STAGE_NAMES,
+  COURSE_GOAL_BLOCK_PREFIX,
+  COURSE_CONFIRM_BLOCK_PREFIX,
+  defaultLearnCards,
+  goalKeyItems,
 } from '../lib/authoring'
 
-export { getActiveModules }
+export {
+  getActiveModules,
+  normalizeLectureDraft,
+  ISLAND_6_STAGE_NAMES,
+  defaultLearnCards,
+  COURSE_GOAL_BLOCK_PREFIX,
+  COURSE_CONFIRM_BLOCK_PREFIX,
+}
 import { StageBlockItemCard } from './StageBlockItemCard'
 import { GameSelector } from './GameSelector'
 import { QuizQuestionBuilder, type EditableQuestion } from './QuizQuestionBuilder'
@@ -64,11 +78,33 @@ import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { SixStageGoalStage } from '@/features/lesson/components/SixStageGoalStage'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
+import {
+  VideoStageBlock,
+  QuizStageBlock,
+  RewardStageBlock,
+  GoalStageBlock,
+  ConfirmStageBlock,
+  PracticeStageBlock,
+} from '@/features/lesson/components/stages'
+import { adaptSixStageJourneyToStages } from '@/features/lesson/lib/stage-adapter'
+import { buildVideoEmbedUrl } from '@/features/lesson/lib/stage-view-utils'
+import type {
+  GoalStageConfig,
+  ConfirmStageConfig,
+  VideoStageConfig,
+  QuizStageConfig,
+  PracticeStageConfig,
+  RewardStageConfig,
+  QuizQuestionItem,
+  JourneyStageDefinition as StageSchemaDefinition,
+} from '@/features/lesson/types/stage-schema'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 import type { CurriculumGameConfig } from '@/features/lesson/lib/curriculum-game'
 import { CreativeNotebookEngine } from '@/features/lesson/components/creative-engine/engines/CreativeNotebookEngine'
 import { DEFAULT_NOTEBOOK_CONFIGS, findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { extractRuleNumber, isAikiRuleJourney } from '@/features/lesson/lib/rule-journey-identifiers'
 import {
   LectureDrawerHeader,
   LectureDrawerGameTab,
@@ -120,15 +156,6 @@ const AIKI_STAGE_NAMES = [
   '3. Quy tắc',
   '4. Giải thích',
   '5. Chốt',
-] as const
-
-export const ISLAND_6_STAGE_NAMES = [
-  '1. 🎯 Mục tiêu (Ảnh)',
-  '2. ❓ Xác nhận (1 câu hỏi)',
-  '3. 🎬 Video bài học',
-  '4. 📝 Bài test thử tài',
-  '5. 🎨 Thực hành (AI Studio)',
-  '6. 🏆 Màn kết thúc',
 ] as const
 
 import {
@@ -279,150 +306,9 @@ function speakTextPreview(text: string) {
 const SELF_CONTAINED_QUIZ_GAMES = ['math-kids']
 const CATALOG_GAMES = ['data-runner', 'truth-patrol']
 
-function goalLines(value: string) {
+function goalLines(value?: string | null) {
+  if (!value || typeof value !== 'string') return []
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean)
-}
-
-const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
-const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
-
-const FOUR_KEYS_METADATA = [
-  { label: 'CÁI GÌ', sub: 'Ai, đồ vật gì', tone: 'sky' as const, keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
-  { label: 'TRÔNG THẾ NÀO', sub: 'Màu sắc, hình dáng', tone: 'sun' as const, keyImage: '/assets/aiki-keys/key_how_yellow.jpg' },
-  { label: 'ĐANG LÀM GÌ', sub: 'Hành động', tone: 'coral' as const, keyImage: '/assets/aiki-keys/key_action_orange.jpg' },
-  { label: 'Ở ĐÂU', sub: 'Bối cảnh, nơi chốn', tone: 'rose' as const, keyImage: '/assets/aiki-keys/key_where_pink.jpg' },
-] as const
-
-function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
-  const COLOR_NAME_MAP: Record<string, { tone: 'sky' | 'sun' | 'coral' | 'rose'; image: string }> = {
-    'xanh sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
-    'sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
-    'vàng sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
-    'sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
-    'cam mango': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
-    'coral': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
-    'hồng gum': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
-    'rose': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
-  }
-
-  return Array.from({ length: 4 }, (_, index) => {
-    const defaultMeta = FOUR_KEYS_METADATA[index] || FOUR_KEYS_METADATA[0]
-    const value = keyPoints[index] || ''
-    const separator = value.indexOf(':')
-
-    let rawPrefix = separator > 0 ? value.slice(0, separator).trim() : value.trim()
-    const rawText = separator > 0 ? value.slice(separator + 1).trim() : ''
-
-    // Bóc tách nếu có màu sắc cũ trong ngoặc: VD "(Xanh Sky)"
-    let detectedTone: 'sky' | 'sun' | 'coral' | 'rose' = defaultMeta.tone
-    let detectedImage: string = defaultMeta.keyImage
-
-    const colorMatch = rawPrefix.match(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i)
-    if (colorMatch) {
-      const colorKey = colorMatch[1].toLowerCase()
-      if (COLOR_NAME_MAP[colorKey]) {
-        detectedTone = COLOR_NAME_MAP[colorKey].tone
-        detectedImage = COLOR_NAME_MAP[colorKey].image
-      }
-      rawPrefix = rawPrefix.replace(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i, '').trim()
-    }
-
-    // Bóc tách tên và phụ đề gợi ý: VD "CÁI GÌ (Ai, đồ vật gì)"
-    const subMatch = rawPrefix.match(/^(.*?)(?:\s*\((.*?)\))?$/)
-    let parsedLabel = subMatch && subMatch[1] ? subMatch[1].trim() : (rawPrefix || defaultMeta.label)
-    let parsedSub = subMatch && subMatch[2] ? subMatch[2].trim() : defaultMeta.sub
-
-    // Nếu parsedSub là tên màu sắc sót lại
-    if (parsedSub && COLOR_NAME_MAP[parsedSub.toLowerCase()]) {
-      const matched = COLOR_NAME_MAP[parsedSub.toLowerCase()]
-      detectedTone = matched.tone
-      detectedImage = matched.image
-      parsedSub = defaultMeta.sub
-    }
-
-    if (parsedLabel.toUpperCase() === 'TRÔNG NHƯ THẾ NÀO') {
-      parsedLabel = 'TRÔNG THẾ NÀO'
-    } else if (parsedLabel === 'Cái gì?') {
-      parsedLabel = defaultMeta.label
-    }
-
-    return {
-      label: parsedLabel || defaultMeta.label,
-      sub: parsedSub || defaultMeta.sub,
-      text: rawText,
-      tone: detectedTone,
-      keyImage: detectedImage,
-    }
-  })
-}
-
-function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
-  if (journey.stageBlockEditorVersion === 2) return existing.filter((block) => block.type !== 'voice')
-  const existingFourKeys = existing.find((block) => block.type === 'layout-four-keys')
-  const authoredExtras = existing.filter((block) =>
-    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys && block.type !== 'voice'
-  )
-  return [
-    { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: journey.stage1_goal.title, body: journey.stage1_goal.goalText },
-    {
-      ...createFourKeysBlock(`${COURSE_GOAL_BLOCK_PREFIX}four-keys`),
-      ...(existingFourKeys || {}),
-      id: `${COURSE_GOAL_BLOCK_PREFIX}four-keys`,
-      visualItems: existingFourKeys?.visualItems?.length ? existingFourKeys.visualItems.slice(0, 4) : goalKeyItems(journey.stage1_goal.keyPoints),
-    },
-    { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
-    ...authoredExtras,
-  ]
-}
-
-function confirmKeyItems(option: LessonSixStageJourney['stage2_confirmGoal']['options'][number]): LearnVisualItemDraft[] {
-  if (option.keyItems?.length) return option.keyItems.slice(0, 4).map((item, index) => ({
-    label: item.label,
-    text: item.label,
-    tone: (['sky', 'sun', 'coral', 'brand'] as const)[index],
-  }))
-  const [, values = ''] = option.text.split(':')
-  return goalKeyItems(values.split('·').map((item) => item.trim()).filter(Boolean))
-}
-
-function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
-  if (journey.stageBlockEditorVersion === 3 && existing.length > 0) {
-    return existing.map((block) => {
-      if (block.type === 'layout-four-keys' && (block.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX) || block.id.includes('option'))) {
-        return {
-          ...block,
-          type: 'layout-confirm-option' as const,
-          visualItems: [],
-        }
-      }
-      return block
-    })
-  }
-  return [
-    {
-      id: `${COURSE_CONFIRM_BLOCK_PREFIX}question`,
-      type: 'text',
-      title: 'Câu hỏi xác nhận',
-      body: journey.stage2_confirmGoal.question,
-      tip: journey.stage2_confirmGoal.explanation,
-    },
-    ...journey.stage2_confirmGoal.options.map((option, index) => ({
-      id: `${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`,
-      type: 'layout-confirm-option' as const,
-      title: option.text.split(':')[0]?.trim() || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
-      body: option.text.includes(':') ? option.text.split(':')[1]?.trim() : (option.text || `Phương án ${String.fromCharCode(65 + index)}`),
-      imageUrl: option.imageUrl || '',
-      isCorrect: journey.stage2_confirmGoal.correctIndex === index,
-      visualItems: [],
-    })),
-  ]
-}
-
-function isLegacyAikiCourseResidue(card: LearnCardDraft, encodedItem?: LearnVisualItemDraft) {
-  return Boolean(encodedItem) ||
-    card.id.startsWith('aiki-rule-') ||
-    ['situation', 'aiki-riddle', 'rule', 'explanation', 'closing'].includes(card.kind) ||
-    /câu đố của aiki|mèo aiki|quy tắc vàng/i.test(card.title)
 }
 
 const LEARN_KIND_OPTIONS: Array<{ id: LearnCardDraft['kind']; label: string }> = [
@@ -468,171 +354,6 @@ const LEARN_KIND_PRESENTATION = {
   explanation: { label: 'Giải thích', icon: BrainCircuit, tone: 'border-mint-200 bg-mint-50 text-mint-800' },
   closing: { label: 'Chốt', icon: Flag, tone: 'border-sun-200 bg-sun-50 text-sun-800' },
 } satisfies Record<LearnCardDraft['kind'], { label: string; icon: typeof Lightbulb; tone: string }>
-
-function defaultLearnCards(concept = '', example = ''): LearnCardDraft[] {
-  return [
-    { id: 'concept', title: 'Khám phá ý chính', body: concept, tip: '', kind: 'concept', layout: 'text', visualItems: [], mee: { readText: '', gesture: 'presentation', autoRead: false } },
-    { id: 'example', title: 'Ví dụ để hiểu rõ', body: example, tip: '', kind: 'example', layout: 'split', visualItems: [], mee: { readText: '', gesture: 'point-left', autoRead: false } },
-  ]
-}
-
-function normalizeLearnKind(value: unknown, index: number, id = '', isAiki = false): LearnCardDraft['kind'] {
-  const encodedKind = ({
-    'aiki-rule-situation': 'situation',
-    'aiki-rule-riddle': 'aiki-riddle',
-    'aiki-rule-rule': 'rule',
-    'aiki-rule-explanation': 'explanation',
-    'aiki-rule-closing': 'closing',
-  } as const)[id as 'aiki-rule-situation']
-  if (encodedKind) return encodedKind
-  if (value === 'situation' || value === 'aiki-riddle' || value === 'rule' || value === 'explanation' || value === 'closing') return value
-  // Khôi phục theo vị trí 5 chặng nếu nhận được Hub kind
-  if (isAiki || id.startsWith('aiki-rule-')) {
-    if (index === 0 && value === 'concept') return 'situation'
-    if (index === 1 && value === 'example') return 'aiki-riddle'
-    if (index === 2 && value === 'steps') return 'rule'
-    if (index === 3 && value === 'compare') return 'explanation'
-    if (index === 4 && value === 'remember') return 'closing'
-  }
-  if (value === 'concept' || value === 'example' || value === 'compare' || value === 'steps' || value === 'storyboard' || value === 'remember') return value
-  if (value === 'guided-practice') return 'steps'
-  if (value === 'artifact') return 'remember'
-  return index === 0 ? 'concept' : 'example'
-}
-
-function normalizeLearnLayout(value: unknown, hasVisualItems: boolean, kind: LearnCardDraft['kind']): LearnCardDraft['layout'] {
-  if (value === 'text' || value === 'split' || value === 'visual-grid' || value === 'storyboard') return value
-  if (kind === 'storyboard') return 'storyboard'
-  return hasVisualItems ? 'split' : 'text'
-}
-
-export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): LectureDraft {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const explicitFormat = (draft as any).lessonFormat || (draft as any).gameConfig?.lessonFormat
-  const hasIslandContract =
-    explicitFormat === 'aiki-island-6steps' ||
-    courseId.startsWith('dao-') ||
-    Boolean(draft.metadata?.sixStageJourney) ||
-    Boolean(draft.sixStageJourney) ||
-    (/^bai-\d+-\d+/i.test(draft.id || '') && explicitFormat !== 'standard')
-  // The explicit six-stage course contract wins over legacy five-card data.
-  // Several migrated course lessons still carry exactly five generic cards;
-  // treating card count/order as authoritative turned them into AIKI Rules.
-  const isAiki = !hasIslandContract && (explicitFormat === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards || []))
-  const isIsland = hasIslandContract
-  const format: LessonFormat = isAiki ? 'aiki-rule-5steps' : (isIsland ? 'aiki-island-6steps' : (explicitFormat === 'standard' ? 'standard' : (draft.lessonFormat ?? 'standard')))
-
-  let sixStageJourney = draft.sixStageJourney || ((draft as any).metadata?.sixStageJourney as LessonSixStageJourney | undefined)
-  if (isIsland) {
-    try {
-      // The editor must use the same SSOT resolver as the learner screen.
-      sixStageJourney = resolveIslandSixStageJourney({ ...draft, sixStageJourney } as any)
-    } catch {
-      // ignore
-    }
-  }
-
-  const sourceCards = draft.learnCards?.length ? [...draft.learnCards] : defaultLearnCards(draft.concept, draft.example)
-  if (isIsland) {
-    while (sourceCards.length < 6) {
-      const index = sourceCards.length
-      sourceCards.push({
-        id: `island-stage-${index + 1}`,
-        title: ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`,
-        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
-      })
-    }
-  } else if (draft.customJourneyStages && draft.customJourneyStages.length >= 3) {
-    const totalCustom = Math.min(7, draft.customJourneyStages.length)
-    while (sourceCards.length < totalCustom) {
-      const index = sourceCards.length
-      sourceCards.push({
-        id: draft.customJourneyStages[index]?.id || `custom-stage-${index + 1}`,
-        title: draft.customJourneyStages[index]?.title || `Chặng ${index + 1}`,
-        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
-      })
-    }
-  }
-  let initialSlug = draft.slug || (draft as any).metadata?.slug || ''
-  if (!initialSlug && draft.id) {
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(draft.id)
-    if (!isUUID) {
-      initialSlug = draft.id
-    } else {
-      const curriculum = findIslandCurriculum(draft as any)
-      initialSlug = curriculum?.slug || slugifyAuthoringId(draft.title || '')
-    }
-  } else if (!initialSlug && draft.title) {
-    initialSlug = slugifyAuthoringId(draft.title)
-  }
-
-  const rawAccess = (draft as any).access ?? (draft as any).metadata?.access
-  const access: LessonAccessConfig = {
-    mode: rawAccess?.mode ?? 'inherit',
-    minPlanTier: rawAccess?.minPlanTier ?? 0,
-    trialBadge: rawAccess?.trialBadge ?? 'Học thử',
-    lockedReason: rawAccess?.lockedReason ?? '',
-  }
-
-  return {
-    ...draft,
-    access,
-    slug: initialSlug,
-    lessonFormat: format,
-    sixStageJourney,
-    customJourneyStages: draft.customJourneyStages,
-    practiceConfigText: draft.practiceConfigText ?? '',
-    learnCards: sourceCards.map((card, index) => {
-      const sourceVisualItems = Array.isArray(card.visualItems) ? card.visualItems : []
-      const encodedItem = sourceVisualItems.find((item) => item.label === AIKI_RULE_META_LABEL)
-      let encoded: Partial<LearnCardDraft> = {}
-      // AIKI Rule metadata must never reshape a six-stage course lesson.
-      // It is legacy residue on some migrated lessons and is discarded here.
-      if (isAiki) {
-        try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
-      }
-      const visualItems = sourceVisualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL)
-      const legacyAikiCourseResidue = isIsland && isLegacyAikiCourseResidue(card, encodedItem)
-      const islandStageBlocks: StageBlockItem[] = isIsland
-        ? (sixStageJourney?.stageContentBlocks?.[`stage-${index}`] ?? card.contentBlocks ?? []) as StageBlockItem[]
-        : []
-      const kind = isAiki && index < AIKI_RULE_STAGE_KINDS.length
-        ? AIKI_RULE_STAGE_KINDS[index]
-        : normalizeLearnKind(encoded.kind ?? card.kind, index, isAiki ? card.id : '', isAiki)
-      return {
-        ...card,
-        id: isIsland ? `island-stage-${index + 1}` : (card.id || (isAiki && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`)),
-        title: isIsland ? (ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`) : (card.title || `Khối khám phá ${index + 1}`),
-        body: card.body || '',
-        tip: card.tip ?? '',
-        kind: isIsland ? (index === 0 ? 'concept' : 'example') : kind,
-        layout: normalizeLearnLayout(card.layout, visualItems.length > 0, kind),
-        visualItems,
-        imageUrl: isIsland && index === 0 && sixStageJourney ? sixStageJourney.stage1_goal.imageUrl : encoded.imageUrl ?? card.imageUrl ?? '',
-        imageAlt: encoded.imageAlt ?? card.imageAlt ?? '',
-        videoUrl: encoded.videoUrl ?? card.videoUrl ?? '',
-        optionImages: encoded.optionImages ?? card.optionImages ?? (kind === 'aiki-riddle' ? ['', ''] : undefined),
-        optionLabels: encoded.optionLabels ?? card.optionLabels,
-        optionDescs: encoded.optionDescs ?? card.optionDescs,
-        dialogueLines: encoded.dialogueLines ?? card.dialogueLines,
-        additionalImages: encoded.additionalImages ?? card.additionalImages,
-        compareData: encoded.compareData ?? card.compareData,
-        enabledModules: encoded.enabledModules ?? card.enabledModules,
-        contentBlocks: isIsland && index === 0 && sixStageJourney
-          ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
-          : (isIsland && index === 1 && sixStageJourney
-            ? buildCourseConfirmBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
-          : (isIsland
-              ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
-              : encoded.contentBlocks ?? card.contentBlocks)),
-        compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
-        mee: isIsland && index === 0 && sixStageJourney
-          ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
-          : encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
-      }
-    }),
-  }
-}
 
 export function CollapsedPreviewRail({
   onExpand,
@@ -916,6 +637,149 @@ export const PracticeWorkflowStepsAccordion = React.memo(function PracticeWorkfl
 
 export type PreviewViewportMode = 'mobile' | 'tablet' | 'pc' | 'full'
 
+export function buildRuleSyntheticJourney(draft: LectureDraft): LessonSixStageJourney {
+  const ruleNum = extractRuleNumber(draft)
+  const matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum) || AIKI_RULES_DATA[0]
+  const cardImg = draft.learnCards?.[0]?.imageUrl || matchedRule.posterImage || ''
+  const cardVideo = draft.learnCards?.[0]?.videoUrl || draft.videoUrl || matchedRule.videoUrl || ''
+
+  const ruleTimestamps = matchedRule.slides?.map((slide, index) => ({
+    label: slide.stage,
+    startSec: index * 12,
+    endSec: (index + 1) * 12,
+    speech: slide.dialogue,
+  })) || [
+    { label: 'Mở đầu & Tình huống', startSec: 0, endSec: 20 },
+    { label: 'Quy tắc trọng tâm', startSec: 20, endSec: 40 },
+    { label: 'Tổng kết & Ghi nhớ', startSec: 40, endSec: 60 },
+  ]
+
+  const ruleQuestions = matchedRule.questions && matchedRule.questions.length > 0
+    ? matchedRule.questions.map((q, idx) => ({
+        id: q.id || `rule-${matchedRule.id}-q-${idx + 1}`,
+        prompt: q.prompt,
+        options: [...q.options],
+        correctIndex: q.correctIndex,
+        explanation: q.successFeedback || q.hint || '',
+        visualUrl: q.visualUrl,
+      }))
+    : []
+
+  const ruleBadgeName = `Huy hiệu ${matchedRule.code}: ${matchedRule.shortTitle}`
+
+  if (draft.sixStageJourney) {
+    const existingVideo = draft.sixStageJourney.stage3_video
+    const existingQuiz = draft.sixStageJourney.stage4_quiz
+    const existingCompletion = draft.sixStageJourney.stage6_completion
+
+    return {
+      ...draft.sixStageJourney,
+      stage3_video: {
+        ...existingVideo,
+        title: existingVideo?.title || draft.title || matchedRule.title,
+        videoUrl: existingVideo?.videoUrl || cardVideo || matchedRule.videoUrl || '',
+        durationSec: existingVideo?.durationSec || matchedRule.durationSec || 60,
+        posterUrl: existingVideo?.posterUrl || cardImg || matchedRule.posterImage,
+        timestamps: (existingVideo?.timestamps && existingVideo.timestamps.length > 0)
+          ? existingVideo.timestamps
+          : ruleTimestamps,
+      },
+      stage4_quiz: {
+        ...existingQuiz,
+        title: existingQuiz?.title || `Thử tài phản xạ: ${draft.title || matchedRule.shortTitle}`,
+        passScore: existingQuiz?.passScore ?? 1,
+        questions: (existingQuiz?.questions && existingQuiz.questions.length > 0)
+          ? existingQuiz.questions
+          : (draft.checkQuestions && draft.checkQuestions.length > 0
+              ? draft.checkQuestions.map((q, idx) => ({
+                  id: q.id || `rule-${matchedRule.id}-q-${idx + 1}`,
+                  prompt: q.prompt,
+                  options: [...q.options],
+                  correctIndex: q.answer,
+                  explanation: q.explain,
+                  visualUrl: matchedRule.questions?.[idx]?.visualUrl,
+                }))
+              : ruleQuestions),
+      },
+      stage6_completion: {
+        ...existingCompletion,
+        title: existingCompletion?.title || `Hoàn thành bài học: ${draft.title || matchedRule.shortTitle}!`,
+        congratsMessage: existingCompletion?.congratsMessage || `Tuyệt vời! Bé đã làm chủ bài học "${draft.title || matchedRule.shortTitle}"!`,
+        rewardBadge: {
+          name: existingCompletion?.rewardBadge?.name?.trim() || draft.reward?.trim() || ruleBadgeName,
+          iconUrl: existingCompletion?.rewardBadge?.iconUrl || matchedRule.posterImage || cardImg,
+          stars: existingCompletion?.rewardBadge?.stars ?? 3,
+          xp: existingCompletion?.rewardBadge?.xp ?? 50,
+        },
+      },
+    }
+  }
+
+  return {
+    stage1_goal: {
+      id: `${draft.id}-goal`,
+      title: draft.title || matchedRule.title,
+      goalText: draft.hook || matchedRule.goal || '',
+      imageUrl: cardImg || matchedRule.posterImage,
+      speech: draft.skill || matchedRule.akiTip || '',
+      keyPoints: [draft.skill || matchedRule.shortTitle || 'Ghi nhớ quy tắc'],
+    },
+    stage2_confirmGoal: {
+      id: `${draft.id}-confirm`,
+      question: draft.hook || matchedRule.goal || 'Bé hãy chọn phương án chính xác nhất nhé!',
+      options: [{ id: 'opt-1', text: 'Hiểu rõ' }, { id: 'opt-2', text: 'Chưa hiểu' }],
+      correctIndex: 0,
+      explanation: 'Tuyệt vời!',
+      speech: 'Bé hãy chọn phương án chính xác nhất nhé!',
+    },
+    stage3_video: {
+      id: `${draft.id}-video`,
+      title: draft.title || matchedRule.title,
+      videoUrl: cardVideo || matchedRule.videoUrl || '',
+      durationSec: matchedRule.durationSec || 60,
+      posterUrl: cardImg || matchedRule.posterImage,
+      timestamps: ruleTimestamps,
+    },
+    stage4_quiz: {
+      id: `${draft.id}-quiz`,
+      title: `Thử tài phản xạ: ${draft.title || matchedRule.shortTitle}`,
+      questions: (draft.checkQuestions && draft.checkQuestions.length > 0
+        ? draft.checkQuestions.map((q, idx) => ({
+            id: q.id || `rule-${matchedRule.id}-q-${idx + 1}`,
+            prompt: q.prompt,
+            options: [...q.options],
+            correctIndex: q.answer,
+            explanation: q.explain,
+            visualUrl: matchedRule.questions?.[idx]?.visualUrl,
+          }))
+        : ruleQuestions),
+      passScore: 1,
+    },
+    stage5_practice: {
+      id: `${draft.id}-practice`,
+      title: 'Thực hành',
+      subjectName: draft.title || matchedRule.shortTitle,
+      badge: matchedRule.code || 'QT',
+      illustrationType: 'rule-practice',
+      lockedFeatures: [matchedRule.shortTitle || draft.title],
+      akiMotto: matchedRule.akiTip || 'Ghi nhớ quy tắc vàng!',
+      maxAttempts: 3,
+      workflowSteps: [],
+    },
+    stage6_completion: {
+      id: `${draft.id}-complete`,
+      title: `Hoàn thành bài học: ${draft.title || matchedRule.shortTitle}!`,
+      congratsMessage: `Tuyệt vời! Bé đã làm chủ bài học "${draft.title || matchedRule.shortTitle}"!`,
+      rewardBadge: {
+        name: draft.reward?.trim() || ruleBadgeName,
+        iconUrl: matchedRule.posterImage || cardImg,
+        stars: 3,
+        xp: 50,
+      },
+    },
+  }
+}
+
 export const StudentStagePreview = React.memo(function StudentStagePreview({
   card,
   stageIndex,
@@ -925,6 +789,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
   viewport: propViewport,
   hideHeaderToolbar,
   onCollapse,
+  lessonFormat,
 }: {
   card?: LearnCardDraft
   stageIndex: number
@@ -934,6 +799,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
   viewport?: PreviewViewportMode
   hideHeaderToolbar?: boolean
   onCollapse?: () => void
+  lessonFormat?: LessonFormat
 }) {
   const [zoomedImage, setZoomedImage] = useState<{ url: string; title?: string } | null>(null)
   const [internalViewport, setInternalViewport] = useState<PreviewViewportMode>('mobile')
@@ -942,20 +808,19 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const { showToast } = useToast()
 
-  // State tương tác cho Chặng 2 (Video bài học preview)
+  // State tương tác cho Video Stage
   const [previewVideoSeekSec, setPreviewVideoSeekSec] = useState(0)
-  const [isPlayingPreviewVideo, setIsPlayingPreviewVideo] = useState(false)
 
-  // State tương tác cho Chặng 5 (Thực hành AI Studio)
-  const [selectedPartIndex, setSelectedPartIndex] = useState(0)
-  const [activeWhat, setActiveWhat] = useState<string | null>(null)
-  const [activeHow, setActiveHow] = useState<string | null>(null)
-  const [activeAction, setActiveAction] = useState<string | null>(null)
-  const [activeWhere, setActiveWhere] = useState<string | null>(null)
-  const [activeStylePrism, setActiveStylePrism] = useState<string | null>(null)
-  const [activeCure, setActiveCure] = useState<string | null>(null)
-  const [activeExpression, setActiveExpression] = useState<string | null>(null)
-  const [activeCardElement, setActiveCardElement] = useState<string | null>(null)
+  // State tương tác cho Quiz Stage
+  const [previewQuizQuestionIdx, setPreviewQuizQuestionIdx] = useState(0)
+  const [previewQuizAnswers, setPreviewQuizAnswers] = useState<Record<number, number>>({})
+  const [previewCheckedQuestions, setPreviewCheckedQuestions] = useState<Record<number, boolean>>({})
+
+  // State tương tác cho Confirm Stage
+  const [previewConfirmOption, setPreviewConfirmOption] = useState<number | null>(null)
+
+  // State tương tác cho Practice Stage
+  const [previewPracticePartIndex, setPreviewPracticePartIndex] = useState(0)
 
   // Lắng nghe phím Escape để đóng toàn màn hình
   useEffect(() => {
@@ -969,1240 +834,164 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isFullscreen])
 
-  if (isIsland && sixStageJourney) {
-    const stageName = ISLAND_6_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
+  const isRule3Steps = lessonFormat === 'aiki-rule-3steps'
+
+  if ((isIsland || isRule3Steps) && sixStageJourney) {
+    const stageName = isRule3Steps
+      ? (STANDARD_RULE_3_STAGES[stageIndex]?.title ?? `Bước ${stageIndex + 1}`)
+      : (ISLAND_6_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`)
 
     const renderIslandStageContent = (isFs: boolean, vp: PreviewViewportMode) => {
       const isMobile = vp === 'mobile'
       const isWide = !isMobile && (vp === 'tablet' || vp === 'pc' || vp === 'full')
 
+      const stages = adaptSixStageJourneyToStages(sixStageJourney, {
+        lessonId: card?.id,
+        lessonTitle: card?.title,
+      })
+
       return (
         <div className="space-y-4">
-          {/* Chặng 0: Mục tiêu */}
-          {stageIndex === 0 && (
-            <SixStageGoalStage
-              goal={sixStageJourney.stage1_goal}
-              fourKeys={sixStageJourney.stage1_goal.keyPoints.length >= 4 || sixStageJourney.stage1_goal.title.toLowerCase().includes('chìa khoá')}
-              compact={isMobile}
-              showContinue={false}
-              onImageClick={(image) => setZoomedImage(image)}
-            />
+          {isRule3Steps ? (
+            <>
+              {stageIndex === 0 && stages[2] && (
+                <VideoStageBlock
+                  stage={stages[2] as StageSchemaDefinition<VideoStageConfig>}
+                  isVideoCompleted={true}
+                  videoSeekSec={previewVideoSeekSec}
+                  onSeekVideo={setPreviewVideoSeekSec}
+                />
+              )}
+
+              {stageIndex === 1 && stages[3] && (
+                <QuizStageBlock
+                  stage={stages[3] as StageSchemaDefinition<QuizStageConfig>}
+                  activeQuizQuestionIdx={previewQuizQuestionIdx}
+                  quizAnswers={previewQuizAnswers}
+                  checkedQuestions={previewCheckedQuestions}
+                  onSelectQuizAnswer={(qIdx, optIdx) => {
+                    setPreviewQuizAnswers((prev) => ({ ...prev, [qIdx]: optIdx }))
+                    setPreviewCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                  }}
+                  onCheckAnswer={(qIdx) => {
+                    setPreviewCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                  }}
+                  onRetryQuestion={(qIdx) => {
+                    setPreviewQuizAnswers((prev) => {
+                      const next = { ...prev }
+                      delete next[qIdx]
+                      return next
+                    })
+                    setPreviewCheckedQuestions((prev) => {
+                      const next = { ...prev }
+                      delete next[qIdx]
+                      return next
+                    })
+                  }}
+                  onSetActiveQuizQuestion={setPreviewQuizQuestionIdx}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+
+              {stageIndex === 2 && stages[5] && (
+                <RewardStageBlock
+                  stage={stages[5] as StageSchemaDefinition<RewardStageConfig>}
+                  effectiveStars={sixStageJourney.stage6_completion?.rewardBadge?.stars ?? 3}
+                  effectiveRewardXp={sixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {stageIndex === 0 && stages[0] && (
+                <GoalStageBlock
+                  stage={stages[0] as StageSchemaDefinition<GoalStageConfig>}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+
+              {stageIndex === 1 && stages[1] && (
+                <ConfirmStageBlock
+                  stage={stages[1] as StageSchemaDefinition<ConfirmStageConfig>}
+                  selectedOption={previewConfirmOption}
+                  isCorrect={previewConfirmOption === (stages[1]?.config as ConfirmStageConfig)?.correctIndex}
+                  onSelectOption={(idx) => setPreviewConfirmOption(idx)}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+
+              {stageIndex === 2 && stages[2] && (
+                <VideoStageBlock
+                  stage={stages[2] as StageSchemaDefinition<VideoStageConfig>}
+                  isVideoCompleted={true}
+                  videoSeekSec={previewVideoSeekSec}
+                  onSeekVideo={setPreviewVideoSeekSec}
+                />
+              )}
+
+              {stageIndex === 3 && stages[3] && (
+                <QuizStageBlock
+                  stage={stages[3] as StageSchemaDefinition<QuizStageConfig>}
+                  activeQuizQuestionIdx={previewQuizQuestionIdx}
+                  quizAnswers={previewQuizAnswers}
+                  checkedQuestions={previewCheckedQuestions}
+                  onSelectQuizAnswer={(qIdx, optIdx) => {
+                    setPreviewQuizAnswers((prev) => ({ ...prev, [qIdx]: optIdx }))
+                    setPreviewCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                  }}
+                  onCheckAnswer={(qIdx) => {
+                    setPreviewCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                  }}
+                  onRetryQuestion={(qIdx) => {
+                    setPreviewQuizAnswers((prev) => {
+                      const next = { ...prev }
+                      delete next[qIdx]
+                      return next
+                    })
+                    setPreviewCheckedQuestions((prev) => {
+                      const next = { ...prev }
+                      delete next[qIdx]
+                      return next
+                    })
+                  }}
+                  onSetActiveQuizQuestion={setPreviewQuizQuestionIdx}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+
+              {stageIndex === 4 && stages[4] && (
+                <PracticeStageBlock
+                  stage={stages[4] as StageSchemaDefinition<PracticeStageConfig>}
+                  lessonId={card?.id}
+                  lessonTitle={card?.title}
+                  activePracticePartIndex={previewPracticePartIndex}
+                  onPartChange={setPreviewPracticePartIndex}
+                />
+              )}
+
+              {stageIndex === 5 && stages[5] && (
+                <RewardStageBlock
+                  stage={stages[5] as StageSchemaDefinition<RewardStageConfig>}
+                  effectiveStars={sixStageJourney.stage6_completion?.rewardBadge?.stars ?? 3}
+                  effectiveRewardXp={sixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
+                  onImageClick={(image) => setZoomedImage(image)}
+                />
+              )}
+            </>
           )}
 
-          {/* Chặng 1: Xác nhận */}
-          {stageIndex === 1 && (() => {
-            const rawOptions = (sixStageJourney.stage2_confirmGoal.options && sixStageJourney.stage2_confirmGoal.options.length >= 2)
-              ? sixStageJourney.stage2_confirmGoal.options
-              : [
-                  { id: 'opt-a', text: 'Bộ chìa khoá A: Ai vẽ · Vẽ lúc nào · Vẽ ở đâu · Vẽ bằng gì' },
-                  { id: 'opt-b', text: 'Bộ chìa khoá B: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu' },
-                  { id: 'opt-c', text: 'Bộ chìa khoá C: Cái gì · Màu gì · To hay nhỏ · Của ai' },
-                ]
-
-            const confirmCards = rawOptions.map((opt, idx) => {
-              let title = opt.text
-              let keys: string[] = []
-              if (opt.keyItems && opt.keyItems.length > 0) {
-                keys = opt.keyItems.map((k) => k.label)
-              } else if (opt.text.includes('·')) {
-                const parts = opt.text.split(':')
-                title = parts[0]?.trim() || opt.text
-                keys = (parts[1] || '').split('·').map((k) => k.trim()).filter(Boolean)
-              }
-              if (keys.length === 0) {
-                if (idx === sixStageJourney.stage2_confirmGoal.correctIndex) {
-                  keys = ['Cái gì?', 'Trông thế nào?', 'Đang làm gì?', 'Ở đâu?']
-                } else if (idx === 0) {
-                  keys = ['Ai vẽ?', 'Vẽ lúc nào?', 'Vẽ ở đâu?', 'Vẽ bằng gì?']
-                } else {
-                  keys = ['Cái gì?', 'Màu gì?', 'To hay nhỏ?', 'Của ai?']
-                }
-              }
-              return {
-                ...opt,
-                displayTitle: title,
-                keys,
-              }
-            })
-
-            return (
-              <div className="space-y-3">
-                <div className="rounded-2xl border-2 border-sky-200 bg-sky-50/70 p-3.5 shadow-sm">
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[10px] font-black uppercase text-sky-700 flex items-center gap-1">
-                      ❓ Chặng 2: Xác nhận mục tiêu
-                    </span>
-                    <span className="text-[9px] font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full">
-                      3 Ổ Khóa Thần Kỳ
-                    </span>
-                  </div>
-                  <h4 className="font-display text-sm sm:text-base font-black text-sky-950">
-                    {sixStageJourney.stage2_confirmGoal.question || 'Bộ chìa khoá nào mở được một câu lệnh tốt?'}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-sky-800/80 font-medium mt-0.5">
-                    Chiếc Rương Thần Kỳ có 3 ổ khóa (A, B, C). Bé dùng đúng 4 Chiếc Chìa Khóa Vàng để mở Ổ Khóa B nhé!
-                  </p>
-                </div>
-
-                {/* 3 Bộ chìa khóa A, B, C dàn hàng ngang rộng rãi ở chế độ PC / Tablet */}
-                <div className={cn(
-                  "grid gap-3.5",
-                  isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
-                )}>
-                  {confirmCards.map((option, idx) => {
-                    const isCorrect = idx === sixStageJourney.stage2_confirmGoal.correctIndex
-                    const letter = String.fromCharCode(65 + idx)
-                    return (
-                      <div
-                        key={option.id || idx}
-                        className={cn(
-                          "relative flex flex-col justify-between rounded-2xl p-3 sm:p-3.5 border-2 transition-all min-w-0 shadow-clay-xs",
-                          isCorrect
-                            ? "border-emerald-400 bg-emerald-50/90 ring-2 ring-emerald-300/60"
-                            : "border-slate-200 bg-white"
-                        )}
-                      >
-                        {/* Header: Badge A, B, C & Status */}
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={cn(
-                            "size-7 rounded-lg flex items-center justify-center font-black text-xs border shrink-0 shadow-2xs",
-                            isCorrect ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-100 text-slate-700 border-slate-200"
-                          )}>
-                            {letter}
-                          </span>
-                          {isCorrect ? (
-                            <span className="rounded-full bg-emerald-600 text-white text-[9.5px] font-black px-2 py-0.5 shadow-2xs flex items-center gap-1">
-                              <Check size={11} /> ĐÚNG
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-slate-100 text-slate-500 text-[9.5px] font-bold px-2 py-0.5">
-                              Khóa
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Ổ Khóa thần kỳ Card Header */}
-                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
-                          <div className={cn(
-                            "size-9 sm:size-10 rounded-xl flex items-center justify-center text-lg border shrink-0 shadow-2xs",
-                            isCorrect ? "bg-emerald-100 border-emerald-300" : "bg-amber-50 border-amber-200"
-                          )}>
-                            {isCorrect ? '🔑' : '🔒'}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h5 className={cn("text-xs sm:text-sm font-black truncate leading-tight", isCorrect ? "text-emerald-950" : "text-slate-800")}>
-                              {isCorrect ? `🔑 Ổ Khóa ${letter} [ĐÚNG]` : `🔒 Ổ Khóa ${letter}`}
-                            </h5>
-                            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 block truncate mt-0.5">
-                              {isCorrect ? '✨ 4 Chìa Khóa Vàng' : 'Bộ 4 Chìa Khóa'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Hiển thị 1 ảnh đại diện của 4 chìa khóa nếu có imageUrl, hoặc fallback về lưới 2x2 */}
-                        {option.imageUrl ? (
-                          <div className="my-1.5 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70 flex-1 flex items-center justify-center p-1 min-h-[120px]">
-                            <img
-                              src={option.imageUrl}
-                              alt={option.displayTitle || option.text}
-                              className="w-full h-auto max-h-[160px] object-contain rounded-lg"
-                            />
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-1.5 my-1.5 p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex-1">
-                            {option.keys.slice(0, 4).map((kLabel, kIdx) => {
-                              const keyColorStyles = [
-                                { bg: 'bg-sky-50', text: 'text-sky-900', border: 'border-sky-200', tag: 'bg-sky-500' },
-                                { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200', tag: 'bg-amber-500' },
-                                { bg: 'bg-emerald-50', text: 'text-emerald-900', border: 'border-emerald-200', tag: 'bg-emerald-500' },
-                                { bg: 'bg-rose-50', text: 'text-rose-900', border: 'border-rose-200', tag: 'bg-rose-500' },
-                              ][kIdx % 4]
-
-                              return (
-                                <div
-                                  key={kIdx}
-                                  className={cn(
-                                    "flex flex-col items-center text-center p-1.5 rounded-lg border shadow-2xs gap-0.5",
-                                    keyColorStyles.bg, keyColorStyles.border
-                                  )}
-                                >
-                                  <span className={cn("text-[7.5px] font-black uppercase px-1 rounded text-white tracking-wider", keyColorStyles.tag)}>
-                                    CHÌA {kIdx + 1}
-                                  </span>
-                                  <span className={cn("text-[10px] sm:text-[11px] font-extrabold leading-snug line-clamp-3 break-words", keyColorStyles.text)}>
-                                    {kLabel}
-                                  </span>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )}
-
-                        {/* Nhãn trạng thái dưới đáy */}
-                        <div className={cn(
-                          "mt-2 py-1.5 px-2.5 rounded-xl text-center text-[10px] sm:text-[11px] font-black border",
-                          isCorrect ? "bg-emerald-100/90 text-emerald-800 border-emerald-300" : "bg-slate-100 text-slate-500 border-slate-200"
-                        )}>
-                          {isCorrect ? '✓ Mở Rương Thần Kỳ' : 'Ổ khóa đang khóa'}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {sixStageJourney.stage2_confirmGoal.explanation && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs font-semibold text-emerald-900">
-                    💡 <strong>Giải thích:</strong> {sixStageJourney.stage2_confirmGoal.explanation}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {/* Chặng 2: Video bài học */}
-          {stageIndex === 2 && (() => {
-            const videoChapters = (sixStageJourney.stage3_video.timestamps && sixStageJourney.stage3_video.timestamps.length > 0)
-              ? sixStageJourney.stage3_video.timestamps
-              : [
-                  { label: 'Tình huống mở đầu', startSec: 0, endSec: 30 },
-                  { label: 'Khám phá bí kíp', startSec: 30, endSec: 75 },
-                  { label: 'Quy tắc 4 chìa khóa', startSec: 75, endSec: 120 },
-                  { label: 'Thực hành cùng AIKI', startSec: 120, endSec: 150 },
-                  { label: 'Mẹo tránh lỗi đoán mò', startSec: 150, endSec: 175 },
-                  { label: 'Tổng kết bài học', startSec: 175, endSec: 180 },
-                ]
-
-            const totalDurationSec = (sixStageJourney.stage3_video.durationSec && sixStageJourney.stage3_video.durationSec > 0)
-              ? sixStageJourney.stage3_video.durationSec
-              : (videoChapters.length > 0 ? (videoChapters[videoChapters.length - 1].endSec || 180) : 180)
-
-            const currentChapterIndex = Math.max(0, videoChapters.findIndex(
-              (c) => previewVideoSeekSec >= c.startSec && previewVideoSeekSec < (c.endSec || totalDurationSec)
-            ))
-            const currentChapter = videoChapters[currentChapterIndex] || videoChapters[0]
-
-            const handleSeekPreviewVideo = (sec: number) => {
-              setPreviewVideoSeekSec(sec)
-            }
-
-            const isDesktopVideoLayout = vp === 'pc' || vp === 'full'
-
-            return (
-              <div className={cn("w-full", isDesktopVideoLayout ? "grid grid-cols-1 lg:grid-cols-12 gap-5 items-start" : "space-y-3")}>
-                {/* Cột trái: Header Banner, Video Canvas Player, Stepper */}
-                <div className={isDesktopVideoLayout ? "lg:col-span-8 space-y-3" : "space-y-3"}>
-                  {/* Header Banner */}
-                  <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 sm:p-3.5 shadow-sm">
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-[10px] font-black uppercase text-purple-700 flex items-center gap-1">
-                        🎬 Chặng 3: Video bài giảng
-                      </span>
-                      <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
-                        {videoChapters.length} Mốc kiến thức
-                      </span>
-                    </div>
-                    <h4 className="font-display text-sm sm:text-base font-black text-purple-950">
-                      {sixStageJourney.stage3_video.title || 'Video bài giảng 4 Chìa Khóa'}
-                    </h4>
-                  </div>
-
-                  {/* Khung Video Canvas Player */}
-                  <div className="aspect-video w-full rounded-2xl bg-slate-900 grid place-items-center text-white relative overflow-hidden shadow-md max-h-[460px] border-2 border-slate-800">
-                    {sixStageJourney.stage3_video.posterUrl && (
-                      <img
-                        src={sixStageJourney.stage3_video.posterUrl}
-                        alt="Poster"
-                        className="absolute inset-0 w-full h-full object-cover opacity-60"
-                      />
-                    )}
-                    <div className="relative z-10 flex flex-col items-center gap-2.5 text-center p-3">
-                      <button
-                        type="button"
-                        onClick={() => setIsPlayingPreviewVideo(!isPlayingPreviewVideo)}
-                        className="size-14 sm:size-16 rounded-full bg-brand-500/90 text-white hover:bg-brand-500 hover:scale-105 active:scale-95 transition-all shadow-clay grid place-items-center border-2 border-white/50 cursor-pointer"
-                        title={isPlayingPreviewVideo ? "Tạm dừng preview" : "Phát video preview"}
-                      >
-                        {isPlayingPreviewVideo ? (
-                          <Pause size={28} className="fill-white" />
-                        ) : (
-                          <Play size={28} className="fill-white ml-1" />
-                        )}
-                      </button>
-                      <div className="flex items-center gap-2 bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold tracking-wide text-white border border-white/20">
-                        <span>Thời lượng: {totalDurationSec}s</span>
-                        <span>•</span>
-                        <span className="text-amber-400 font-mono">
-                          Đang ở: {Math.floor(previewVideoSeekSec / 60)}:{String(previewVideoSeekSec % 60).padStart(2, '0')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN (Golden Milestone Stepper Bar) */}
-                  <div
-                    data-testid="video-timeline-stepper"
-                    className="w-full rounded-2xl bg-amber-50/90 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
-                  >
-                    <div className="flex items-center gap-2.5 sm:gap-3">
-                      {/* Nút Play / tua đầu */}
-                      <button
-                        type="button"
-                        data-testid="video-timeline-play-btn"
-                        onClick={() => handleSeekPreviewVideo((previewVideoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
-                        className="size-8 sm:size-9 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
-                        aria-label="Tua lại từ đầu hoặc sang mốc tiếp theo"
-                        title="Tua lại từ đầu"
-                      >
-                        <Play size={18} className="translate-x-0.5 fill-white" />
-                      </button>
-
-                      {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
-                      <div className="relative flex-1 py-1">
-                        <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
-                            style={{
-                              width: `${Math.min(100, Math.max(4, (((previewVideoSeekSec || 0) / totalDurationSec) * 100)))}%`,
-                            }}
-                          />
-
-                          {/* Numbered Chapter Markers */}
-                          {videoChapters.map((m, idx) => {
-                            const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
-                            const isPassed = (previewVideoSeekSec || 0) >= m.startSec
-                            const isCurrent = currentChapterIndex === idx
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                data-testid={`video-chapter-node-${idx + 1}`}
-                                onClick={() => handleSeekPreviewVideo(m.startSec)}
-                                className={cn(
-                                  'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs sm:text-sm select-none transition-all duration-200 cursor-pointer',
-                                  isCurrent
-                                    ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
-                                    : isPassed
-                                      ? 'bg-amber-400 text-amber-950 font-black'
-                                      : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
-                                )}
-                                style={{ left: `${posPercent}%` }}
-                                title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
-                              >
-                                {idx + 1}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
-                        {Math.floor((previewVideoSeekSec || 0) / 60)}:{String((previewVideoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
-                      </span>
-                    </div>
-
-                    {/* Hàng nút phụ & tên mốc đang xem */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-amber-200/60 text-xs sm:text-sm">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleSeekPreviewVideo(0)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                          title="Xem lại từ đầu"
-                        >
-                          <RotateCcw size={13} className="text-amber-700" />
-                          <span>Xem lại video</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => showToast(`🔊 AIKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
-                          title="Nghe AIKI giảng bài"
-                        >
-                          <Volume2 size={13} className="text-brand-600" />
-                          <span>Nghe AIKI giảng</span>
-                        </button>
-                      </div>
-
-                      {currentChapter && (
-                        <div className="sr-only">
-                          <span>🎯 Mốc {currentChapterIndex + 1}: {currentChapter.label}</span>
-                          <span>Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cột phải: Danh sách phân đoạn chi tiết bài học & Cụm nút điều hướng */}
-                <div className={isDesktopVideoLayout ? "lg:col-span-4 space-y-3" : "space-y-3"}>
-                  {/* Danh sách phân đoạn chi tiết */}
-                  {videoChapters.length > 0 && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-3 space-y-1.5 shadow-2xs">
-                      <p className="text-[10px] font-black uppercase text-slate-600 flex items-center justify-between">
-                        <span>Phân đoạn mốc bài học ({videoChapters.length}):</span>
-                        <span className="text-[9px] font-medium text-slate-400">Bấm mốc để tua</span>
-                      </p>
-                      {videoChapters.map((ts, idx) => {
-                        const isActive = currentChapterIndex === idx
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => handleSeekPreviewVideo(ts.startSec)}
-                            className={cn(
-                              "w-full flex items-center justify-between text-xs font-semibold py-1.5 px-2 rounded-xl transition cursor-pointer text-left",
-                              isActive
-                                ? "bg-amber-100/70 text-amber-950 font-bold border border-amber-300/80"
-                                : "text-slate-700 hover:bg-slate-50 border border-transparent"
-                            )}
-                          >
-                            <span className="flex items-center gap-1.5 truncate">
-                              <span className={cn(
-                                "size-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
-                                isActive ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-600"
-                              )}>
-                                {idx + 1}
-                              </span>
-                              <span className="truncate">{ts.label}</span>
-                            </span>
-                            <span className="text-slate-400 font-mono text-[10px] shrink-0 ml-2">
-                              {Math.floor(ts.startSec / 60)}:{String(ts.startSec % 60).padStart(2, '0')} - {Math.floor((ts.endSec || totalDurationSec) / 60)}:{String((ts.endSec || totalDurationSec) % 60).padStart(2, '0')}
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Footer chuyển chặng */}
-                  <div className="shrink-0 flex justify-between items-center pt-1">
-                    <button
-                      type="button"
-                      onClick={() => showToast('Học sinh bấm: Quay lại câu đố (Chặng 2)', 'info')}
-                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                    >
-                      Quay lại câu đố
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => showToast('Học sinh bấm: Làm bài test thử tài (Chặng 4)', 'info')}
-                      className="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white cursor-pointer transition-all"
-                    >
-                      <span>📝 Làm bài test thử tài →</span>
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-
-          {/* Chặng 3: Quiz */}
-          {stageIndex === 3 && (
-            <div className="space-y-3">
-              <div className="rounded-2xl border-2 border-indigo-200 bg-indigo-50/60 p-3 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-indigo-700">📝 Bài test thử tài</span>
-                <p className="font-display text-sm sm:text-base font-black text-indigo-950 mt-0.5">{sixStageJourney.stage4_quiz.title}</p>
-                <span className="text-[10px] font-bold text-indigo-600">Đạt yêu cầu: {sixStageJourney.stage4_quiz.passScore} câu</span>
-              </div>
-              <div className="space-y-2.5">
-                {sixStageJourney.stage4_quiz.questions.map((q, idx) => (
-                  <div key={q.id || idx} className="rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-2xs">
-                    <p className="font-bold text-slate-900 mb-2">{idx + 1}. {q.prompt}</p>
-                    <div className="space-y-1.5">
-                      {q.options.map((opt, optIdx) => (
-                        <div
-                          key={optIdx}
-                          className={cn(
-                            "px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between",
-                            optIdx === q.correctIndex ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-slate-50 text-slate-600"
-                          )}
-                        >
-                          <span>{opt}</span>
-                          {optIdx === q.correctIndex && <Check size={13} className="text-emerald-600 shrink-0" />}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Chặng 4: Practice (Thực hành AI Studio) */}
-          {stageIndex === 4 && (() => {
-            const parts = (sixStageJourney.stage5_practice.practiceParts && sixStageJourney.stage5_practice.practiceParts.length > 0)
-              ? sixStageJourney.stage5_practice.practiceParts
-              : DEFAULT_PRACTICE_PARTS
-
-            const fourKeys = sixStageJourney.stage5_practice.fourKeysOptions || DEFAULT_FOUR_KEYS_OPTIONS
-
-            const currentEngineMode = sixStageJourney.stage5_practice.creativeEngineMode || 'magic-keys'
-            const currentWhat = activeWhat || fourKeys.what?.[0] || 'Cái cốc sứ trắng'
-            const currentHow = activeHow || fourKeys.how?.[0] || 'men bóng mẻ miệng'
-            const currentAction = activeAction || fourKeys.action?.[0] || 'đang bốc khói nghi ngút'
-            const currentWhere = activeWhere || fourKeys.where?.[0] || 'trên bàn gỗ mộc'
-
-            return (
-              <div className="space-y-3">
-                <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-3 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-black uppercase text-brand-700 flex items-center gap-1">
-                      {currentEngineMode === 'creative-notebook' ? '🎒 Sổ Tay Sáng Tạo Ba Lô (Text Engine)' :
-                       currentEngineMode === 'style-prism' ? '🔮 Lăng Kính Phù Thủy' :
-                       currentEngineMode === 'prompt-doctor' ? '🩺 Bác Sĩ AIKI' :
-                       currentEngineMode === 'layer-stacking' ? '🎭 3 Tầng Sân Khấu' :
-                       currentEngineMode === 'identity-lock' ? '🔒 Khóa Mật Mã & Biểu Cảm' :
-                       currentEngineMode === 'card-forge' ? '🃏 Xưởng Đúc Thẻ Bài TCG' :
-                       '🎨 Xưởng Sáng Tạo AI Kids'}
-                    </span>
-                    <h4 className="font-display text-sm sm:text-base font-black text-brand-950 mt-0.5">
-                      {sixStageJourney.stage5_practice.subjectName || 'Chủ thể bài thực hành'}
-                    </h4>
-                  </div>
-                  <span className="rounded-full bg-brand-200 text-brand-900 px-2.5 py-1 text-[10px] font-black shadow-2xs">
-                    {sixStageJourney.stage5_practice.badge || 'Bài thực hành'}
-                  </span>
-                </div>
-
-                {currentEngineMode === 'creative-notebook' ? (
-                  <div className="w-full">
-                    <CreativeNotebookEngine
-                      className={!isWide ? "!flex !flex-col" : undefined}
-                      characterName={sixStageJourney.stage5_practice.subjectName || 'Hồ sơ nhân vật'}
-                      selectedSubject={sixStageJourney.stage5_practice.subjectName}
-                      lessonId={stageCard?.id || card?.id || '3.1'}
-                      currentPrompt=""
-                      notebookConfig={
-                        sixStageJourney.stage5_practice.notebookConfig ||
-                        findIslandCurriculum({
-                          id: stageCard?.id || card?.id,
-                          slug: stageCard?.id || card?.id,
-                          title: sixStageJourney.stage5_practice.subjectName,
-                        })?.journey?.stage5_practice?.notebookConfig ||
-                        DEFAULT_NOTEBOOK_CONFIGS['3.1']
-                      }
-                      onPromptChange={() => {}}
-                      onSubmitNotebook={() => {
-                        showToast('🎒 Đã cất tác phẩm vào Ba Lô Sáng Tạo!', 'success')
-                      }}
-                      onSaveDraft={() => {
-                        showToast('Đã lưu bản nháp Sổ Tay Ba Lô!', 'info')
-                      }}
-                    />
-                  </div>
-                ) : (
-                  /* 3 Cột của Xưởng Sáng Tạo AI Kids - Dàn ngang chuẩn Desktop khi xem PC/Tablet */
-                  <div className={cn(
-                    "grid gap-3.5",
-                    isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
-                  )}>
-                  {/* Cột 1: Danh sách các thẻ món đồ bé vẽ */}
-                  <div className="flex flex-col gap-2 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
-                    <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        🎒 Món đồ bé vẽ ({parts.length})
-                      </span>
-                      <span className="text-[9px] font-bold text-slate-400">Click chọn</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {parts.map((part, pIdx) => {
-                        const isSelected = pIdx === selectedPartIndex
-                        return (
-                          <div
-                            key={part.partNumber || pIdx}
-                            onClick={() => setSelectedPartIndex(pIdx)}
-                            className={cn(
-                              "rounded-xl p-2.5 border transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer hover:border-brand-300",
-                              isSelected ? "border-brand-500 bg-brand-50/95 ring-2 ring-brand-300/80" : "border-border bg-white hover:bg-slate-50"
-                            )}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <span className="size-8 rounded-lg bg-white border border-border/80 grid place-items-center text-sm shadow-2xs shrink-0">
-                                {part.icon || part.emoji || '🎨'}
-                              </span>
-                              <div className="min-w-0">
-                                <span className="text-[8px] font-black uppercase tracking-wider text-brand-700 block whitespace-nowrap">
-                                  THỰC HÀNH 0{part.partNumber || pIdx + 1}
-                                </span>
-                                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate block">
-                                  {part.title}
-                                </span>
-                              </div>
-                            </div>
-                            {isSelected ? (
-                              <span className="rounded bg-brand-600 text-white text-[8px] font-black px-1.5 py-0.5 shrink-0 whitespace-nowrap">
-                                ĐANG VẼ
-                              </span>
-                            ) : (
-                              <span className="text-[9px] font-bold text-slate-400 shrink-0">
-                                Chọn
-                              </span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Cột 2: Bàn phím Thực hành Tương ứng Engine đang chọn */}
-                  {currentEngineMode === 'style-prism' ? (() => {
-                    const styles = (sixStageJourney.stage5_practice.stylePrismOptions && sixStageJourney.stage5_practice.stylePrismOptions.length > 0)
-                      ? sixStageJourney.stage5_practice.stylePrismOptions
-                      : DEFAULT_STYLE_PRISM_OPTIONS
-                    const currentActiveStyle = activeStylePrism || styles[0]?.name || 'Đất nặn Claymation'
-
-                    return (
-                      <div className="flex flex-col gap-2.5 rounded-2xl border border-purple-200 bg-purple-50/70 p-3 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-purple-200/60 pb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-900 flex items-center gap-1">
-                            🔮 Lăng Kính Phong Cách
-                          </span>
-                          <span className="text-[9px] font-black text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded-full">
-                            {styles.length === 4 ? '4 Phong Cách' : `${styles.length} Phong Cách`}
-                          </span>
-                        </div>
-
-                        <div className="space-y-2">
-                          {styles.map((style) => {
-                            const isSelected = currentActiveStyle === style.name
-                            return (
-                              <div
-                                key={style.id}
-                                onClick={() => setActiveStylePrism(style.name)}
-                                className={cn(
-                                  "rounded-xl p-2.5 border transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer",
-                                  isSelected
-                                    ? "border-purple-500 bg-white ring-2 ring-purple-300"
-                                    : "border-purple-200 bg-white/80 hover:bg-white"
-                                )}
-                              >
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <span className="size-8 rounded-lg bg-purple-100 border border-purple-200 grid place-items-center text-sm shrink-0">
-                                    {style.icon || '🎨'}
-                                  </span>
-                                  <div className="min-w-0">
-                                    <span className="text-[11px] font-black text-purple-950 block truncate">
-                                      {style.name}
-                                    </span>
-                                    <span className="text-[9px] font-medium text-slate-500 block truncate">
-                                      {style.desc}
-                                    </span>
-                                  </div>
-                                </div>
-                                {isSelected && (
-                                  <span className="rounded bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 shrink-0">
-                                    ĐANG CHỌN
-                                  </span>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-
-                        <div className="rounded-xl border border-purple-200 bg-white p-2.5 shadow-2xs">
-                          <span className="text-[8px] font-black uppercase text-purple-600 block mb-1">✨ Câu lệnh biến hóa:</span>
-                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                            ✨ <span className="text-purple-700 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chủ thể'}</span>, phong cách <span className="text-purple-900 font-black">{currentActiveStyle}</span>
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })() : currentEngineMode === 'prompt-doctor' ? (() => {
-                    const doctorCase = sixStageJourney.stage5_practice.promptDoctorCase || DEFAULT_PROMPT_DOCTOR_CASE
-                    const cures = (doctorCase.cureCards && doctorCase.cureCards.length > 0)
-                      ? doctorCase.cureCards
-                      : DEFAULT_PROMPT_DOCTOR_CASE.cureCards
-                    const currentActiveCure = activeCure || cures[0] || 'Kê đơn 5 ngón tay đầy đủ chuẩn xác'
-
-                    return (
-                      <div className="flex flex-col gap-2.5 rounded-2xl border border-rose-200 bg-rose-50/70 p-3 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-rose-200/60 pb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-rose-900 flex items-center gap-1">
-                            🩺 Bác Sĩ AIKI Bắt Bệnh
-                          </span>
-                          <span className="text-[9px] font-black text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded-full">
-                            Kê Đơn Thuốc
-                          </span>
-                        </div>
-
-                        <div className="rounded-xl border border-rose-200 bg-white p-2.5 shadow-2xs">
-                          <div className="flex items-center gap-1 text-[9px] font-black text-rose-700 mb-0.5">
-                            <AlertTriangle size={12} />
-                            <span>HỒ SƠ BỆNH ÁN TRANH HỎNG{doctorCase.caseTitle ? `: ${doctorCase.caseTitle}` : ''}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-700 font-bold leading-relaxed">
-                            {doctorCase.symptom || 'Tranh vẽ chú mèo thiếu mất tai và bàn tay bị biến dạng chỉ có 3 ngón tay! Bé hãy kê đơn thuốc chữa lành nhé!'}
-                          </p>
-                          {doctorCase.originalPrompt && (
-                            <p className="text-[9px] font-mono text-rose-800 bg-rose-50 rounded px-1.5 py-0.5 mt-1 truncate">
-                              Câu lệnh lỗi: {doctorCase.originalPrompt}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <span className="text-[9px] font-black uppercase text-rose-900 block">💊 Tủ thuốc thẻ chữ chữa lành:</span>
-                          {cures.map((cure, cIdx) => {
-                            const isSelected = currentActiveCure === cure
-                            return (
-                              <button
-                                key={cIdx}
-                                type="button"
-                                onClick={() => setActiveCure(cure)}
-                                className={cn(
-                                  "w-full rounded-xl p-2 border text-left transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer",
-                                  isSelected
-                                    ? "border-rose-500 bg-rose-500 text-white font-bold"
-                                    : "border-rose-200 bg-white text-rose-950 hover:bg-rose-50 font-semibold"
-                                )}
-                              >
-                                <span className="text-[10px]">{cure}</span>
-                                {isSelected && <Check size={12} className="shrink-0" />}
-                              </button>
-                            )
-                          })}
-                        </div>
-
-                        <div className="rounded-xl border border-rose-200 bg-white p-2.5 shadow-2xs">
-                          <span className="text-[8px] font-black uppercase text-rose-600 block mb-1">✨ Đơn thuốc đã kê:</span>
-                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                            ✨ <span className="text-rose-700 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chủ thể'}</span> + <span className="text-emerald-700 font-black">{currentActiveCure}</span>
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })() : currentEngineMode === 'layer-stacking' ? (() => {
-                    const layers = sixStageJourney.stage5_practice.layerStackingOptions || DEFAULT_LAYER_STACKING_OPTIONS
-                    const bgList = (layers.background && layers.background.length > 0) ? layers.background : DEFAULT_LAYER_STACKING_OPTIONS.background
-                    const heroList = (layers.hero && layers.hero.length > 0) ? layers.hero : DEFAULT_LAYER_STACKING_OPTIONS.hero
-                    const fgList = (layers.foreground && layers.foreground.length > 0) ? layers.foreground : DEFAULT_LAYER_STACKING_OPTIONS.foreground
-
-                    return (
-                      <div className="flex flex-col gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-900 flex items-center gap-1">
-                            🎭 3 Tầng Sân Khấu
-                          </span>
-                          <span className="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-full">
-                            Bố Cục 1/3
-                          </span>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="rounded-xl border border-emerald-200 bg-white p-2">
-                            <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🌄 Tầng 1: Hậu cảnh (Background)</span>
-                            <div className="text-[10px] font-bold text-slate-700 bg-emerald-50/60 rounded-md p-1.5">
-                              {bgList[0]}
-                            </div>
-                          </div>
-
-                          <div className="rounded-xl border border-emerald-400 bg-emerald-100/60 p-2 ring-1 ring-emerald-300">
-                            <span className="text-[9px] font-black text-emerald-950 uppercase block mb-1">⭐ Tầng 2: Ngôi sao 1/3 (Center)</span>
-                            <div className="text-[10px] font-black text-emerald-900 bg-white rounded-md p-1.5">
-                              {heroList[0] || `${sixStageJourney.stage5_practice.subjectName || 'Nhân vật chính'} ở vị trí điểm vàng 1/3`}
-                            </div>
-                          </div>
-
-                          <div className="rounded-xl border border-emerald-200 bg-white p-2">
-                            <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🌿 Tầng 3: Tiền cảnh (Foreground)</span>
-                            <div className="text-[10px] font-bold text-slate-700 bg-emerald-50/60 rounded-md p-1.5">
-                              {fgList[0]}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-emerald-200 bg-white p-2.5 shadow-2xs">
-                          <span className="text-[8px] font-black uppercase text-emerald-700 block mb-1">✨ Bố cục không gian ghép:</span>
-                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                            ✨ <span className="text-emerald-800 font-extrabold">{heroList[0] || (sixStageJourney.stage5_practice.subjectName || 'Nhân vật')}</span>, hậu cảnh {bgList[0]}, tiền cảnh {fgList[0]}
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })() : currentEngineMode === 'identity-lock' ? (() => {
-                    const lockedFeats = (sixStageJourney.stage5_practice.lockedFeatures && sixStageJourney.stage5_practice.lockedFeatures.length > 0)
-                      ? sixStageJourney.stage5_practice.lockedFeatures
-                      : DEFAULT_LOCKED_FEATURES
-                    const expressions = (sixStageJourney.stage5_practice.expressionOptions && sixStageJourney.stage5_practice.expressionOptions.length > 0)
-                      ? sixStageJourney.stage5_practice.expressionOptions
-                      : DEFAULT_EXPRESSIONS
-                    const currentActiveExpr = activeExpression || expressions[0] || '😊 Cười tít mắt vui vẻ'
-
-                    return (
-                      <div className="flex flex-col gap-2.5 rounded-2xl border border-cyan-200 bg-cyan-50/70 p-3 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-cyan-200/60 pb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-cyan-900 flex items-center gap-1">
-                            🔒 Khóa Mật Mã & Biểu Cảm
-                          </span>
-                          <span className="text-[9px] font-black text-cyan-700 bg-cyan-100 px-1.5 py-0.2 rounded-full">
-                            ADN Nhân Vật
-                          </span>
-                        </div>
-
-                        <div className="rounded-xl border border-cyan-200 bg-white p-2">
-                          <span className="text-[9px] font-black text-cyan-900 uppercase block mb-1">🔒 3 Mật mã ADN bất biến:</span>
-                          <div className="space-y-1">
-                            {lockedFeats.slice(0, 3).map((feat, fIdx) => (
-                              <div key={fIdx} className="text-[9.5px] font-bold text-cyan-950 bg-cyan-50/80 rounded px-2 py-0.5 border border-cyan-100 flex items-center gap-1">
-                                <span>🔒</span>
-                                <span>{feat}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-cyan-200 bg-white p-2">
-                          <span className="text-[9px] font-black text-cyan-900 uppercase block mb-1">🎡 Bánh xe {expressions.length} biểu cảm:</span>
-                          <div className="grid grid-cols-2 gap-1">
-                            {expressions.map((expr, idx) => {
-                              const isSelected = currentActiveExpr === expr
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setActiveExpression(expr)}
-                                  className={cn(
-                                    "text-[9.5px] font-bold px-2 py-1 rounded-md border transition cursor-pointer text-left truncate",
-                                    isSelected
-                                      ? "bg-cyan-500 text-white border-cyan-600 shadow-2xs"
-                                      : "bg-white text-cyan-950 border-cyan-200 hover:bg-cyan-50"
-                                  )}
-                                >
-                                  {expr}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-cyan-200 bg-white p-2.5 shadow-2xs">
-                          <span className="text-[8px] font-black uppercase text-cyan-600 block mb-1">✨ Câu lệnh khóa ADN:</span>
-                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                            ✨ <span className="text-cyan-800 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Nhân vật'}</span> (Khóa 3 ADN), biểu cảm <span className="text-cyan-950 font-black">{currentActiveExpr}</span>
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })() : currentEngineMode === 'card-forge' ? (() => {
-                    const cardForge = sixStageJourney.stage5_practice.cardForgeOptions || DEFAULT_CARD_FORGE_OPTIONS
-                    const elements = (cardForge.elements && cardForge.elements.length > 0) ? cardForge.elements : DEFAULT_CARD_FORGE_OPTIONS.elements
-                    const stats = cardForge.stats || DEFAULT_CARD_FORGE_OPTIONS.stats
-                    const cardBorder = cardForge.cardBorder || DEFAULT_CARD_FORGE_OPTIONS.cardBorder
-                    const currentActiveElement = activeCardElement || elements[0]?.name || 'Hệ Hỏa (Lửa Đỏ)'
-
-                    return (
-                      <div className="flex flex-col gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/70 p-3 shadow-2xs">
-                        <div className="flex items-center justify-between border-b border-amber-200/60 pb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 flex items-center gap-1">
-                            🃏 Xưởng Đúc Thẻ Bài TCG
-                          </span>
-                          <span className="text-[9px] font-black text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded-full">
-                            Chiến Tướng
-                          </span>
-                        </div>
-
-                        <div className="rounded-xl border border-amber-200 bg-white p-2">
-                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">⚡ Hệ Nguyên Tố:</span>
-                          <div className="grid grid-cols-2 gap-1">
-                            {elements.map((elem, idx) => {
-                              const isSelected = currentActiveElement === elem.name
-                              return (
-                                <button
-                                  key={elem.id || idx}
-                                  type="button"
-                                  onClick={() => setActiveCardElement(elem.name)}
-                                  className={cn(
-                                    "text-[9.5px] font-bold px-2 py-1 rounded-md border transition cursor-pointer text-left flex items-center gap-1",
-                                    isSelected
-                                      ? "bg-amber-500 text-white border-amber-600 shadow-2xs"
-                                      : "bg-white text-amber-950 border-amber-200 hover:bg-amber-50"
-                                  )}
-                                >
-                                  <span>{elem.icon}</span>
-                                  <span className="truncate">{elem.name}</span>
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-amber-200 bg-white p-2">
-                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">📊 Chỉ số chiến đấu & Khung thẻ:</span>
-                          <div className="flex items-center justify-around gap-1 text-[10px] font-black py-1 bg-amber-50 rounded-lg">
-                            <span className="text-rose-600">⚔️ ATK: {stats.atk}</span>
-                            <span className="text-sky-600">🛡️ DEF: 6</span>
-                            <span className="text-purple-600">🔮 MP: 6</span>
-                          </div>
-                          <div className="mt-1 text-[9px] text-center font-bold text-amber-800 bg-amber-100/60 rounded px-1.5 py-0.5">
-                            ✨ Khung {cardBorder} ma thuật lấp lánh
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-amber-200 bg-white p-2.5 shadow-2xs">
-                          <span className="text-[8px] font-black uppercase text-amber-700 block mb-1">✨ Thẻ bài TCG đúc hoàn thành:</span>
-                          <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                            ✨ Thẻ bài TCG <span className="text-amber-900 font-extrabold">{sixStageJourney.stage5_practice.subjectName || 'Chiến Tướng'}</span>, <span className="text-amber-800 font-black">{currentActiveElement}</span>, ATK {stats.atk} DEF 6 MP 6
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })() : (
-                    /* Mặc định: Bàn phím 4 Chìa Khóa Ma Thuật */
-                    <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
-                      <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          🎹 Bàn phím 4 Chìa Khóa
-                        </span>
-                        <span className="text-[9px] font-black text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full">
-                          SSOT
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {/* 1. Cái gì */}
-                        <div className="rounded-xl border border-sky-200 bg-sky-50/80 p-2">
-                          <span className="text-[9px] font-black text-sky-900 uppercase block mb-1">🔑 1. Cái gì?</span>
-                          <div className="flex flex-wrap gap-1">
-                            {(fourKeys.what || []).map((t, idx) => {
-                              const isSelected = currentWhat === t
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setActiveWhat(t)}
-                                  className={cn(
-                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                    isSelected
-                                      ? "bg-sky-500 text-white border-sky-600 shadow-2xs ring-1 ring-sky-300"
-                                      : "bg-white text-sky-900 border-sky-200 hover:bg-sky-100/70"
-                                  )}
-                                >
-                                  {t}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* 2. Trông thế nào */}
-                        <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-2">
-                          <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">🔑 2. Trông thế nào?</span>
-                          <div className="flex flex-wrap gap-1">
-                            {(fourKeys.how || []).map((t, idx) => {
-                              const isSelected = currentHow === t
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setActiveHow(t)}
-                                  className={cn(
-                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                    isSelected
-                                      ? "bg-amber-500 text-white border-amber-600 shadow-2xs ring-1 ring-amber-300"
-                                      : "bg-white text-amber-900 border-amber-200 hover:bg-amber-100/70"
-                                  )}
-                                >
-                                  {t}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* 3. Đang làm gì */}
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2">
-                          <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🔑 3. Đang làm gì?</span>
-                          <div className="flex flex-wrap gap-1">
-                            {(fourKeys.action || []).map((t, idx) => {
-                              const isSelected = currentAction === t
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setActiveAction(t)}
-                                  className={cn(
-                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                    isSelected
-                                      ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs ring-1 ring-emerald-300"
-                                      : "bg-white text-emerald-900 border-emerald-200 hover:bg-emerald-100/70"
-                                  )}
-                                >
-                                  {t}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* 4. Ở đâu */}
-                        <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-2">
-                          <span className="text-[9px] font-black text-rose-900 uppercase block mb-1">🔑 4. Ở đâu?</span>
-                          <div className="flex flex-wrap gap-1">
-                            {(fourKeys.where || []).map((t, idx) => {
-                              const isSelected = currentWhere === t
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setActiveWhere(t)}
-                                  className={cn(
-                                    "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
-                                    isSelected
-                                      ? "bg-rose-500 text-white border-rose-600 shadow-2xs ring-1 ring-rose-300"
-                                      : "bg-white text-rose-900 border-rose-200 hover:bg-rose-100/70"
-                                  )}
-                                >
-                                  {t}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Câu lệnh đang ghép thời gian thực */}
-                      <div className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-2xs">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[8px] font-black uppercase text-slate-500 block">✨ Câu lệnh đang ghép:</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveWhat(null)
-                              setActiveHow(null)
-                              setActiveAction(null)
-                              setActiveWhere(null)
-                            }}
-                            className="flex items-center gap-0.5 text-[9px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
-                            title="Đặt lại câu lệnh"
-                          >
-                            <RotateCcw size={9} />
-                            <span>Đặt lại</span>
-                          </button>
-                        </div>
-                        <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
-                          ✨ <span className="text-sky-700 font-extrabold">{currentWhat}</span> +{' '}
-                          <span className="text-amber-700 font-extrabold">{currentHow}</span> +{' '}
-                          <span className="text-emerald-700 font-extrabold">{currentAction}</span> +{' '}
-                          <span className="text-rose-700 font-extrabold">{currentWhere}</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cột 3: Khung tranh AI Canvas & Thông tin AIKI */}
-                  <div className="flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
-                    <div>
-                      <div className="flex items-center justify-between border-b border-border/60 pb-1.5 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                          🖼️ Khung Tranh AI Canvas
-                        </span>
-                        <span className="rounded-full bg-brand-100 text-brand-900 px-2 py-0.2 text-[9px] font-black">
-                          {sixStageJourney.stage5_practice.badge || 'Bài thực hành'}
-                        </span>
-                      </div>
-
-                      <div className="aspect-video w-full rounded-xl bg-slate-900 border border-slate-200 overflow-hidden relative shadow-clay-xs grid place-items-center">
-                        {parts[selectedPartIndex]?.iconImage || sixStageJourney.stage5_practice.sampleUrl ? (
-                          <img
-                            src={parts[selectedPartIndex]?.iconImage || sixStageJourney.stage5_practice.sampleUrl}
-                            alt="Tranh mẫu"
-                            className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.style.display = 'none' }}
-                          />
-                        ) : (
-                          <div className="text-center p-2">
-                            <span className="text-2xl block mb-1">🎨</span>
-                            <span className="text-[10px] text-slate-400 font-bold">Khung tranh bé sáng tạo</span>
-                          </div>
-                        )}
-                        <div className="absolute top-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-xs">
-                          Còn 4/4 lượt vẽ
-                        </div>
-                      </div>
-
-                      {sixStageJourney.stage5_practice.lockedFeatures?.length > 0 && (
-                        <div className="mt-2.5 flex flex-wrap gap-1">
-                          {sixStageJourney.stage5_practice.lockedFeatures.slice(0, 4).map((f, fIdx) => (
-                            <span key={fIdx} className="text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded">
-                              🔒 {f}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {sixStageJourney.stage5_practice.akiMotto && (
-                        <div className="mt-2.5 rounded-xl bg-white/90 p-2.5 border border-brand-100 shadow-2xs">
-                          <p className="text-[10.5px] text-brand-900 font-semibold italic">
-                            &ldquo;{sixStageJourney.stage5_practice.akiMotto}&rdquo;
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        showToast(`🎨 AIKI nhận câu thần chú: "${currentWhat} ${currentHow} ${currentAction} ${currentWhere}"!`, 'success')
-                      }}
-                      className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-600 to-sky-600 text-white font-black text-xs shadow-clay-sm flex items-center justify-center gap-1.5 cursor-pointer hover:brightness-105 active:scale-98 transition mt-2"
-                    >
-                      <Sparkles size={14} />
-                      <span>✨ AIKI Vẽ Tranh (Còn 4/4 lượt)</span>
-                    </button>
-                  </div>
-                </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {/* Chặng 6: Completion (Màn kết thúc chuẩn 100% giao diện học sinh) */}
-          {stageIndex === 5 && (
-            <div data-testid="stage-5-complete" className="w-full max-w-full flex flex-col gap-4 text-left">
-              <div className={cn("grid gap-4 sm:gap-5 items-stretch w-full max-w-full", isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12")}>
-                {/* Cột 1 (lg:col-span-6): Balo Sáng Tạo & Tác phẩm kiệt xuất */}
-                <div className={cn("flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3.5 sm:p-4 min-w-0 max-w-full overflow-hidden", !isMobile && "lg:col-span-6")}>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-black text-amber-900 uppercase tracking-wider mb-2 min-w-0">
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <Award size={16} className="text-amber-600 shrink-0" />
-                      <span>Tác phẩm kiệt xuất vừa cất vào Balo</span>
-                    </span>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black shrink-0">
-                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
-                      <span>{sixStageJourney.stage6_completion.rewardBadge.name || 'Huy hiệu bài học'}</span>
-                    </div>
-                  </div>
-
-                  <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
-                    <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
-                      <img
-                        src={
-                          sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
-                          sixStageJourney.stage1_goal.imageUrl ||
-                          '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                        }
-                        alt="Kiệt tác của bé"
-                        className="size-full object-cover cursor-pointer group-hover:scale-102 transition-transform duration-300"
-                        onClick={() => {
-                          const url =
-                            sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
-                            sixStageJourney.stage1_goal.imageUrl ||
-                            '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                          if (url) setZoomedImage({ url, title: 'Tác phẩm kiệt xuất của bé' })
-                        }}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const url =
-                            sixStageJourney.stage6_completion.rewardBadge.iconUrl ||
-                            sixStageJourney.stage1_goal.imageUrl ||
-                            '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                          if (url) setZoomedImage({ url, title: 'Tác phẩm kiệt xuất của bé' })
-                        }}
-                        className="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
-                        title="Xem ảnh phóng to"
-                      >
-                        <span>🔍 Phóng to</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-600 font-medium italic bg-white/80 px-3 py-1.5 rounded-lg border border-amber-200/60 w-full text-center mt-2 truncate">
-                    &ldquo;{sixStageJourney.stage1_goal.title || 'Tác phẩm sáng tạo AI Kids'}&rdquo;
-                  </p>
-                </div>
-
-                {/* Cột 2 (lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Nút điều hướng */}
-                <div className={cn("flex flex-col justify-center gap-3 text-center sm:gap-3.5 min-w-0 max-w-full", !isMobile && "lg:col-span-6 lg:text-left")}>
-                  <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start">
-                    <Trophy size={13} className="text-amber-600" />
-                    <span>Chặng 6: Hoàn thành bài học</span>
-                  </div>
-
-                  {/* Vinh danh: Cúp vàng đất nặn 3D Hallmark Soft Clay + 3 Sao vàng */}
-                  <div className="flex items-center justify-center gap-3.5 lg:justify-start">
-                    <div className="relative shrink-0">
-                      <img
-                        src="/assets/trophy-clay-gold.png"
-                        alt="Cúp Vàng Sáng Tạo"
-                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-clay select-none hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none'
-                        }}
-                      />
-                      <div
-                        data-testid="stage6-trophy-xp-badge"
-                        className="absolute -top-1.5 -right-2 bg-brand-500 text-white text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full shadow-clay-xs flex items-center gap-0.5 z-10"
-                      >
-                        <Sparkles size={11} />
-                        +{sixStageJourney.stage6_completion.rewardBadge.xp || 50} XP
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: sixStageJourney.stage6_completion.rewardBadge.stars || 3 }).map((_, starIdx) => (
-                        <Star
-                          key={starIdx}
-                          size={22}
-                          className="fill-amber-400 text-amber-500 drop-shadow-md animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Tiêu đề & Lời chúc mừng */}
-                  <div className="space-y-1">
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
-                      {sixStageJourney.stage6_completion.title}
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                      {sixStageJourney.stage6_completion.congratsMessage}
-                    </p>
-                  </div>
-
-                  {/* Cụm Nút điều hướng kết thúc */}
-                  <div className="flex flex-col gap-2 w-full pt-1">
-                    {sixStageJourney.stage6_completion.nextLessonSlug ? (
-                      <Button
-                        variant="primary"
-                        className="w-full py-2.5 text-xs sm:text-sm font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <span>👉 Khám Phá Bài Tiếp Theo 🚀</span>
-                      </Button>
-                    ) : null}
-
-                    <Button
-                      variant="secondary"
-                      className="w-full py-2 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Compass size={15} />
-                      <span>🗺️ Trở Về Bản Đồ Đảo</span>
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      className="w-full py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <RotateCcw size={13} />
-                      <span>🔄 Học Lại Bài Này</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {stageCard && getStageBlocks(stageCard, stageIndex).some((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) && (
+          {(stageCard || card) && getStageBlocks(stageCard || card!, stageIndex).some((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-') && (!isRule3Steps || stageIndex !== 0 || block.type !== 'video')) && (
             <div className="mt-4 border-t border-sky-100 pt-4">
               <StudentStageBlocksView
-                card={{ ...stageCard, contentBlocks: getStageBlocks(stageCard, stageIndex).filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) }}
+                card={{
+                  ...(stageCard || card!),
+                  contentBlocks: getStageBlocks(stageCard || card!, stageIndex).filter((block) => {
+                    if (block.id.startsWith('course-goal-') || block.id.startsWith('course-confirm-')) return false
+                    if (isRule3Steps && stageIndex === 0 && block.type === 'video') return false
+                    return true
+                  }),
+                }}
                 stageIndex={stageIndex}
                 isMobile={isMobile}
               />
@@ -2219,10 +1008,10 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
           <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
             <div className="flex items-center justify-between gap-2">
               <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-                <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
+                <Eye size={15} /> {isRule3Steps ? 'Xem trước học sinh (Quy tắc AIKI · 3 bước)' : 'Xem trước học sinh (Đảo AIKids)'}
               </p>
               <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
-                Chặng {stageIndex + 1}/6
+                Chặng {stageIndex + 1}/{isRule3Steps ? 3 : 6}
               </span>
             </div>
 
@@ -2326,7 +1115,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                     <span className="text-brand-600 truncate">{stageName}</span>
                   </h2>
                   <span className="text-[11px] font-medium text-slate-500 block truncate">
-                    Đảo AIKids · Chặng {stageIndex + 1}/6
+                    {isRule3Steps ? `Quy tắc AIKI · 3 bước · Bước ${stageIndex + 1}/3` : `Đảo AIKids · Chặng ${stageIndex + 1}/6`}
                   </span>
                 </div>
               </div>
@@ -3157,9 +1946,15 @@ function FullStationPreview({
   isIslandCourse?: boolean
 }) {
   const deferredDraft = useDeferredValue(draft)
-  const isAiki = detectLessonFormat(deferredDraft.learnCards) === 'aiki-rule-5steps' || isAikiRuleLesson(deferredDraft.learnCards)
+  const isAiki =
+    deferredDraft.lessonFormat === 'aiki-rule-3steps' ||
+    deferredDraft.lessonFormat === 'aiki-rule-5steps' ||
+    detectLessonFormat(deferredDraft.learnCards) === 'aiki-rule-5steps' ||
+    detectLessonFormat(deferredDraft.learnCards) === 'aiki-rule-3steps' ||
+    isAikiRuleLesson(deferredDraft.learnCards) ||
+    isAikiRuleJourney(deferredDraft)
   const isCustomJourney = Boolean(deferredDraft.customJourneyStages && deferredDraft.customJourneyStages.length >= 3)
-  const isIsland = Boolean(isIslandCourse || detectLessonFormat(deferredDraft.learnCards) === 'aiki-island-6steps' || deferredDraft.sixStageJourney)
+  const isIsland = !isAiki && Boolean(isIslandCourse || detectLessonFormat(deferredDraft.learnCards) === 'aiki-island-6steps' || deferredDraft.sixStageJourney)
   const [activeStage, setActiveStage] = useState<number>(0)
   const [previewSection, setPreviewSection] = useState<Section>('basics')
   const [viewport, setViewport] = useState<PreviewViewportMode>('pc')
@@ -3349,7 +2144,7 @@ function FullStationPreview({
   if (isAiki || isCustomJourney) {
     const customStages = resolveCourseJourneyStages(undefined, deferredDraft.lessonFormat, deferredDraft.customJourneyStages)
     const totalStages = customStages.length
-    const defaultCards = createAikiRuleLearnCards()
+    const defaultCards = deferredDraft.lessonFormat === 'aiki-rule-3steps' ? createAikiRule3StepsCards() : createAikiRuleLearnCards()
     const card = deferredDraft.learnCards[activeStage] ?? defaultCards[activeStage]
     const stageIcons = ['🎬', '🖼️', '📜', '⚖️', '🏆', '🎨', '🌟']
     return (
@@ -3382,7 +2177,16 @@ function FullStationPreview({
 
         {wrapInViewport(
           <div>
-            {card && <StudentStagePreview card={card} stageIndex={activeStage} viewport={viewport} hideHeaderToolbar={true} />}
+            {card && (
+              <StudentStagePreview
+                card={card}
+                stageIndex={activeStage}
+                viewport={viewport}
+                hideHeaderToolbar={true}
+                lessonFormat={deferredDraft.lessonFormat}
+                sixStageJourney={buildRuleSyntheticJourney(deferredDraft)}
+              />
+            )}
 
             {/* Điều hướng chuyển chặng */}
             <div className="mt-4 flex items-center justify-between border-t border-border/80 pt-3">
@@ -3538,8 +2342,19 @@ export function emptyDraft(): LectureDraft {
 export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = false, archived = false, onArchive, onRestore, readOnly = false, onDirtyChange }: Props) {
   const uid = useId()
   const { showToast } = useToast()
-  const hasIslandContract = (lecture as any)?.lessonFormat === 'aiki-island-6steps' || Boolean((lecture as any)?.metadata?.sixStageJourney) || Boolean(lecture?.sixStageJourney)
-  const isAikiRule = !hasIslandContract && ((lecture as any)?.lessonFormat === 'aiki-rule-5steps' || (lecture?.learnCards ? isAikiRuleLesson(lecture.learnCards) : false))
+  const isAikiRule = Boolean(
+    (lecture as any)?.lessonFormat === 'aiki-rule-3steps' ||
+    (lecture as any)?.lessonFormat === 'aiki-rule-5steps' ||
+    (lecture?.learnCards ? isAikiRuleLesson(lecture.learnCards) : false) ||
+    (courseId && (courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule'))) ||
+    isAikiRuleJourney(lecture) ||
+    isAikiRuleJourney(courseId)
+  )
+  const hasIslandContract = !isAikiRule && Boolean(
+    (lecture as any)?.lessonFormat === 'aiki-island-6steps' ||
+    (lecture as any)?.metadata?.sixStageJourney ||
+    lecture?.sixStageJourney
+  )
   const isIslandCourse = !isAikiRule && Boolean(
     courseId.startsWith('dao-') ||
     (lecture as any)?.lessonFormat === 'aiki-island-6steps' ||
@@ -3565,13 +2380,40 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         explicit = parsed.lessonFormat
       } catch {}
     }
+    if (explicit === 'aiki-rule-3steps' || explicit === 'aiki-rule-5steps' || explicit === 'aiki-island-6steps' || explicit === 'standard') {
+      return explicit
+    }
+    if (isAikiRule) return 'aiki-rule-3steps'
     return detectLessonFormat(initialDraftRef.current.learnCards, explicit, isIslandCourse)
   })
 
   const updateSixStage = useCallback((updater: (prev: LessonSixStageJourney) => LessonSixStageJourney) => {
     setDraft((d) => {
-      const current = d.sixStageJourney || resolveIslandSixStageJourney(d as any)
+      const current = d.sixStageJourney || (d.lessonFormat === 'aiki-rule-3steps' ? buildRuleSyntheticJourney(d) : resolveIslandSixStageJourney(d as any))
       const next = updater(current)
+      const nextLearnCards = [...d.learnCards]
+      if (d.lessonFormat === 'aiki-rule-3steps') {
+        if (nextLearnCards[0]) {
+          nextLearnCards[0] = {
+            ...nextLearnCards[0],
+            title: next.stage3_video?.title || nextLearnCards[0].title,
+            videoUrl: next.stage3_video?.videoUrl || nextLearnCards[0].videoUrl,
+            imageUrl: next.stage3_video?.posterUrl || nextLearnCards[0].imageUrl,
+          }
+        }
+        if (nextLearnCards[1]) {
+          nextLearnCards[1] = {
+            ...nextLearnCards[1],
+            title: next.stage4_quiz?.title || nextLearnCards[1].title,
+          }
+        }
+        if (nextLearnCards[2]) {
+          nextLearnCards[2] = {
+            ...nextLearnCards[2],
+            title: next.stage6_completion?.title || nextLearnCards[2].title,
+          }
+        }
+      }
       return {
         ...d,
         sixStageJourney: next,
@@ -3579,9 +2421,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           ...d.metadata,
           sixStageJourney: next,
         },
-        title: next.stage1_goal.title || d.title,
+        title: (d.lessonFormat === 'aiki-rule-3steps' ? d.title : (next.stage1_goal.title || d.title)),
         goalsText: next.stage1_goal.keyPoints?.length ? next.stage1_goal.keyPoints.join('\n') : d.goalsText,
         videoUrl: next.stage3_video.videoUrl || d.videoUrl,
+        reward: next.stage6_completion?.rewardBadge?.name || d.reward,
+        learnCards: nextLearnCards,
+        checkQuestions: next.stage4_quiz.questions?.map((q, idx) => ({
+          id: q.id || `q-${idx}`,
+          prompt: q.prompt,
+          options: q.options,
+          answer: q.correctIndex,
+          explain: q.explanation || '',
+        })) ?? d.checkQuestions,
       }
     })
   }, [])
@@ -3649,14 +2500,15 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   const dirty = !readOnly && JSON.stringify(draft) !== JSON.stringify(initialDraftRef.current)
 
   // Đồng bộ draft khi lecture prop thay đổi (hỗ trợ chuyển trạm tức thì mà không cần remount drawer)
-  const currentLectureId = lecture?.id
-  const prevLectureIdRef = useRef(currentLectureId)
+  const lectureKey = lecture ? `${lecture.id || ''}:${lecture.slug || ''}:${lecture.title || ''}` : null
+  const prevLectureKeyRef = useRef(lectureKey)
   useEffect(() => {
-    if (currentLectureId !== prevLectureIdRef.current) {
-      prevLectureIdRef.current = currentLectureId
+    if (lectureKey !== prevLectureKeyRef.current) {
+      prevLectureKeyRef.current = lectureKey
       const nextDraft = normalizeLectureDraft(lecture ?? emptyDraft(), courseId)
       initialDraftRef.current = nextDraft
       setDraft(nextDraft)
+      setLessonFormat(nextDraft.lessonFormat ?? 'standard')
       setActiveSection('basics')
       if (nextDraft.checkQuestions && nextDraft.checkQuestions.length > 0) {
         setQuizQuestions(nextDraft.checkQuestions.map((q, idx) => ({
@@ -3675,7 +2527,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         setQuizQuestions([])
       }
     }
-  }, [currentLectureId, lecture, courseId])
+  }, [lectureKey, lecture, courseId])
 
   useEffect(() => {
     onDirtyChange?.(dirty)
@@ -3701,7 +2553,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
   useEffect(() => {
     const isCustom = Boolean(draft.customJourneyStages && draft.customJourneyStages.length >= 3)
-    if ((isIslandCourse || lessonFormat === 'aiki-island-6steps' || lessonFormat === 'aiki-rule-5steps' || isCustom) && (activeSection === 'content' || activeSection === 'game' || activeSection === 'practice' || activeSection === 'check')) {
+    if ((isIslandCourse || lessonFormat === 'aiki-island-6steps' || lessonFormat === 'aiki-rule-3steps' || lessonFormat === 'aiki-rule-5steps' || isCustom) && (activeSection === 'content' || activeSection === 'game' || activeSection === 'practice' || activeSection === 'check')) {
       setActiveSection('stage-0')
     }
   }, [isIslandCourse, lessonFormat, activeSection, draft.customJourneyStages])
@@ -3751,7 +2603,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     setDraft((previous) => {
       let cards = previous.learnCards
       if (cards.length <= index) {
-        const defaults = createAikiRuleLearnCards()
+        const defaults = lessonFormat === 'aiki-rule-3steps' ? createAikiRule3StepsCards() : createAikiRuleLearnCards()
         cards = defaults.map((d, i) => cards[i] ?? d)
       }
       const learnCards = cards.map((card, cardIndex) => cardIndex === index ? { ...card, ...patch } : card)
@@ -4391,6 +3243,22 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           p.badge = getAutoBadge()
         }
       }
+
+      // ── Synchronize station reward badge ──
+      const currentJourney = finalJourney || draft.sixStageJourney
+      const rewardName = currentJourney?.stage6_completion?.rewardBadge?.name?.trim() || draft.reward?.trim() || ('Huy hiệu ' + draft.title).trim()
+      if (finalJourney?.stage6_completion) {
+        if (!finalJourney.stage6_completion.rewardBadge?.name?.trim()) {
+          finalJourney.stage6_completion = {
+            ...finalJourney.stage6_completion,
+            rewardBadge: {
+              ...(finalJourney.stage6_completion.rewardBadge || { iconUrl: '', stars: 3, xp: 50 }),
+              name: rewardName,
+            },
+          }
+        }
+      }
+
       const payload = {
         courseId,
         id: draft.id,
@@ -4404,13 +3272,14 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         example: draft.example,
         learnCards: serializeLearnCardsForHub(draft.learnCards),
         videoUrl: isIslandCourse ? (finalJourney?.stage3_video?.videoUrl || draft.videoUrl || null) : (draft.videoUrl || null),
-        reward: draft.reward,
+        reward: rewardName,
         duration: draft.duration,
         practiceKind: draft.practiceKind,
         lessonFormat: isIslandCourse ? 'aiki-island-6steps' : lessonFormat,
         sixStageJourney: finalJourney,
         metadata: {
           ...(draft as any).metadata,
+          reward: rewardName,
           slug: (draft as any).slug || draft.id,
           sixStageJourney: finalJourney,
           access: draft.access,
@@ -4606,6 +3475,13 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 setDraft((d) => ({ ...d, lessonFormat: format }))
               }
               setActiveSection('stage-0')
+            } else if (format === 'aiki-rule-3steps') {
+              if (!Array.isArray(draft.learnCards) || draft.learnCards.length !== 3 || !draft.learnCards.some((c) => c.id?.startsWith('rule-3step-'))) {
+                setDraft((d) => ({ ...d, lessonFormat: format, learnCards: createAikiRule3StepsCards() }))
+              } else {
+                setDraft((d) => ({ ...d, lessonFormat: format }))
+              }
+              setActiveSection('stage-0')
             } else {
               setDraft((d) => ({ ...d, lessonFormat: format }))
               if (draft.customJourneyStages && draft.customJourneyStages.length >= 3 && activeSection.startsWith('stage-')) {
@@ -4728,11 +3604,50 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     <FormRow label="Thời lượng">
                       <input type="text" readOnly={readOnly} value={draft.duration} onChange={(e) => set('duration', e.target.value)} placeholder="VD: 30 phút" style={inputStyle} />
                     </FormRow>
-                    <FormRow label="Phần thưởng trạm học">
-                      <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 font-medium leading-relaxed">
-                        <span className="text-base shrink-0">⭐</span>
-                        <span>Đánh giá 1–3 Sao (tương ứng 30/60/100 XP) tự động theo 6 bước học tập (Lý thuyết, Bài test, AI Studio).</span>
-                      </div>
+                    <FormRow label="Phần thưởng trạm học" hint="Huy hiệu & thành tích học sinh đạt được khi hoàn thành trạm">
+                      {(() => {
+                        const stationBadge = isIslandCourse
+                          ? (draft.sixStageJourney?.stage6_completion?.rewardBadge || { name: draft.reward || ('Huy hiệu ' + draft.title), stars: 3, xp: 50, iconUrl: '' })
+                          : { name: draft.reward || ('Huy hiệu ' + draft.title), stars: 3, xp: 50, iconUrl: '' }
+                        const badgeName = stationBadge.name || draft.reward || ('Huy hiệu ' + draft.title)
+                        const starsCount = stationBadge.stars || 3
+                        const xpReward = stationBadge.xp || 50
+                        const iconUrl = stationBadge.iconUrl || draft.sixStageJourney?.stage1_goal?.imageUrl || ''
+
+                        return (
+                          <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/90 to-orange-50/60 p-3 shadow-clay-xs flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="relative size-12 shrink-0 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center overflow-hidden shadow-xs">
+                                {iconUrl ? (
+                                  <img src={iconUrl} alt={badgeName} className="size-full object-cover" />
+                                ) : (
+                                  <Award size={24} className="text-amber-600" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-bold text-amber-900 truncate" title={badgeName}>
+                                    {badgeName}
+                                  </span>
+                                </div>
+                                <div className="mt-0.5 flex items-center gap-2">
+                                  <div className="flex items-center gap-0.5">
+                                    {Array.from({ length: starsCount }).map((_, i) => (
+                                      <Star key={i} size={13} className="text-amber-500 fill-amber-400" />
+                                    ))}
+                                  </div>
+                                  <span className="rounded-full bg-amber-200/70 px-2 py-0.5 text-[10px] font-black text-amber-950">
+                                    +{xpReward} XP
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="shrink-0 text-[11px] font-semibold text-amber-700 bg-white/80 px-2 py-1 rounded-lg border border-amber-200/80">
+                              🏆 Hoàn thành trạm
+                            </span>
+                          </div>
+                        )
+                      })()}
                     </FormRow>
                   </div>
                   {isIslandCourse ? (
@@ -4910,7 +3825,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           )}
 
           {/* ── ĐẢO AIKIDS 6 CHẶNG SƯ PHẠM ── */}
-          {isIslandCourse && activeSection.startsWith('stage-') && (() => {
+          {isIslandCourse && lessonFormat !== 'aiki-rule-3steps' && activeSection.startsWith('stage-') && (() => {
             const stageIndex = parseInt(activeSection.replace('stage-', ''), 10)
             const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
             const islandCard = draft.learnCards[stageIndex]
@@ -5937,29 +4852,43 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           })()}
 
           {/* ── AIKI RULE / CUSTOM STAGES (3 to 7) ── */}
-          {!isIslandCourse && (lessonFormat === 'aiki-rule-5steps' || activeSection.startsWith('stage-')) && (() => {
+          {(!isIslandCourse || lessonFormat === 'aiki-rule-3steps') && (lessonFormat === 'aiki-rule-3steps' || lessonFormat === 'aiki-rule-5steps' || activeSection.startsWith('stage-')) && (() => {
             const stageIndex = parseInt(activeSection.replace('stage-', ''), 10)
             const customStages = resolveCourseJourneyStages(courseId, lessonFormat, draft.customJourneyStages)
             const totalStages = customStages.length
-            const defaultCards = createAikiRuleLearnCards()
+            const defaultCards = lessonFormat === 'aiki-rule-3steps' ? createAikiRule3StepsCards() : createAikiRuleLearnCards()
             const card = draft.learnCards[stageIndex] ?? defaultCards[stageIndex]
             if (!card) return null
             const stageBlocks = getStageBlocks(card, stageIndex)
 
-            const fallbackIcons = [Clapperboard, BrainCircuit, Lightbulb, ScanSearch, Trophy, Sparkles, Award]
-            const ruleStageInfo = [
-              { title: '1. Tình huống', icon: Clapperboard, desc: 'Mở đầu bằng câu chuyện/tình huống gần gũi kích thích sự tò mò.' },
-              { title: '2. Câu đố AIKI', icon: BrainCircuit, desc: 'Thử thách trực giác: Trẻ quan sát 2 tranh vẽ A và B để chọn ra tranh độc nhất.' },
-              { title: '3. Quy tắc', icon: Lightbulb, desc: 'Đúc kết bài học thành 1 quy tắc cốt lõi, dễ nhớ cho trẻ.' },
-              { title: '4. Giải thích', icon: ScanSearch, desc: 'So sánh trực quan 2 mặt: Kho dữ liệu sao chép của AI vs Não sáng tạo của con.' },
-              { title: '5. Chốt', icon: Trophy, desc: 'Tổng kết và trao huy hiệu/lời động viên tự hào cho bé.' },
-            ]
+            const fallbackIcons = [Film, MessageCircleQuestion, Trophy, Clapperboard, BrainCircuit, Lightbulb, ScanSearch]
+            const ruleStageInfo = lessonFormat === 'aiki-rule-3steps'
+              ? [
+                  { title: '1. Bài học', icon: Film, desc: '1. 🎬 Rạp chiếu video bài học & kiến thức trọng tâm' },
+                  { title: '2. Kiểm tra', icon: MessageCircleQuestion, desc: '2. ⚡ Thử tài phản xạ (Trắc nghiệm củng cố quy tắc)' },
+                  { title: '3. Hoàn thành', icon: Trophy, desc: '3. 🏆 Vinh danh, trao huy hiệu & nhận sao hoàn thành' },
+                ]
+              : [
+                  { title: '1. Tình huống', icon: Clapperboard, desc: 'Mở đầu bằng câu chuyện/tình huống gần gũi kích thích sự tò mò.' },
+                  { title: '2. Câu đố AIKI', icon: BrainCircuit, desc: 'Thử thách trực giác: Trẻ quan sát 2 tranh vẽ A và B để chọn ra tranh độc nhất.' },
+                  { title: '3. Quy tắc', icon: Lightbulb, desc: 'Đúc kết bài học thành 1 quy tắc cốt lõi, dễ nhớ cho trẻ.' },
+                  { title: '4. Giải thích', icon: ScanSearch, desc: 'So sánh trực quan 2 mặt: Kho dữ liệu sao chép của AI vs Não sáng tạo của con.' },
+                  { title: '5. Chốt', icon: Trophy, desc: 'Tổng kết và trao huy hiệu/lời động viên tự hào cho bé.' },
+                ]
             const stageDef = customStages[stageIndex]
             const stageInfo = stageDef
               ? {
-                  title: `${stageDef.index + 1}. ${stageDef.shortTitle || stageDef.title}`,
-                  icon: fallbackIcons[stageIndex % fallbackIcons.length] ?? Lightbulb,
-                  desc: stageDef.desc || card.tip || '',
+                  title: stageDef.title || `${stageDef.index + 1}. ${stageDef.shortTitle || stageDef.title}`,
+                  icon: (stageDef.iconName === 'Film'
+                    ? Film
+                    : stageDef.iconName === 'MessageCircleQuestion'
+                    ? MessageCircleQuestion
+                    : stageDef.iconName === 'Trophy'
+                    ? Trophy
+                    : (lessonFormat === 'aiki-rule-3steps' && ruleStageInfo[stageIndex])
+                    ? ruleStageInfo[stageIndex]!.icon
+                    : fallbackIcons[stageIndex % fallbackIcons.length]) ?? Lightbulb,
+                  desc: stageDef.desc || (lessonFormat === 'aiki-rule-3steps' && ruleStageInfo[stageIndex]?.desc) || card.tip || '',
                 }
               : (ruleStageInfo[stageIndex] ?? { title: card.title, icon: Lightbulb, desc: '' })
             const StageIcon = stageInfo.icon
@@ -5989,6 +4918,694 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       </span>
                     </div>
                   </div>
+
+                  {/* ── FORM SOẠN THẢO QUY TẮC AIKI 3 BƯỚC (CHUẨN FRONTEND) ── */}
+                  {lessonFormat === 'aiki-rule-3steps' && stageIndex === 0 && (() => {
+                    const videoConfig = (draft.sixStageJourney || buildRuleSyntheticJourney(draft)).stage3_video || {
+                      title: draft.title || card.title || 'Video bài học',
+                      videoUrl: draft.videoUrl || card.videoUrl || '',
+                      durationSec: 60,
+                      posterUrl: card.imageUrl || '',
+                      timestamps: [],
+                    }
+
+                    return (
+                      <div className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-white p-5 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+                          <h4 className="flex items-center gap-2 text-sm font-black uppercase text-indigo-950">
+                            <Film size={18} className="text-indigo-600" />
+                            🎬 Cấu hình Video Bài Học (Chuẩn Frontend)
+                          </h4>
+                          <span className="rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700">
+                            Chặng 1: Bài học
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black uppercase text-slate-700">Tiêu đề video bài học</label>
+                          <input
+                            type="text"
+                            value={videoConfig.title}
+                            disabled={readOnly}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, title: val } }))
+                            }}
+                            placeholder="VD: 10 Quy tắc Vàng giúp con không bị AI bắt nạt"
+                            className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-bold text-text"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black uppercase text-slate-700">Đường dẫn video (YouTube URL hoặc MP4)</label>
+                          <div className="mt-1.5 flex gap-2">
+                            <input
+                              type="text"
+                              value={videoConfig.videoUrl}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, videoUrl: val } }))
+                              }}
+                              placeholder="https://www.youtube.com/watch?v=... hoặc URL MP4"
+                              className="flex-1 rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
+                            />
+                            <label className="flex items-center gap-1 rounded-xl bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer shrink-0">
+                              <span>📹 Tải video</span>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                disabled={readOnly}
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0]
+                                  if (!file) return
+                                  try {
+                                    const res = await uploadCmsCourseMedia({ file, purpose: 'aiki_rule_video', questId: lecture?.id })
+                                    if (res?.url) {
+                                      updateSixStage((j) => ({
+                                        ...j,
+                                        stage3_video: { ...j.stage3_video, videoUrl: res.url },
+                                      }))
+                                      showToast('Đã tải video bài học lên thành công!', 'success')
+                                    }
+                                  } catch (err) {
+                                    showToast(`Lỗi tải video: ${err instanceof Error ? err.message : 'Không xác định'}`, 'error')
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Thời lượng (giây)</label>
+                            <input
+                              type="number"
+                              value={videoConfig.durationSec || 60}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 60
+                                updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, durationSec: val } }))
+                              }}
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Ảnh bìa video (Poster URL)</label>
+                            <div className="mt-1.5 flex gap-2">
+                              <input
+                                type="text"
+                                value={videoConfig.posterUrl || ''}
+                                disabled={readOnly}
+                                onChange={(e) => {
+                                  const val = e.target.value
+                                  updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, posterUrl: val } }))
+                                }}
+                                placeholder="https://... hoặc tải ảnh"
+                                className="flex-1 rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
+                              />
+                              <label className="flex items-center gap-1 rounded-xl bg-slate-100 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 cursor-pointer shrink-0">
+                                <span>🖼️ Tải ảnh</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  disabled={readOnly}
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0]
+                                    if (!file) return
+                                    try {
+                                      const res = await uploadCmsCourseMedia({ file, purpose: 'aiki_rule_poster', questId: lecture?.id })
+                                      if (res?.url) {
+                                        updateSixStage((j) => ({
+                                          ...j,
+                                          stage3_video: { ...j.stage3_video, posterUrl: res.url },
+                                        }))
+                                        showToast('Đã tải ảnh poster lên thành công!', 'success')
+                                      }
+                                    } catch (err) {
+                                      showToast(`Lỗi tải ảnh poster: ${err instanceof Error ? err.message : 'Không xác định'}`, 'error')
+                                    }
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="block text-xs font-black uppercase text-slate-700">Mốc phân đoạn video (Timestamps)</label>
+                            <button
+                              type="button"
+                              disabled={readOnly}
+                              onClick={() => {
+                                updateSixStage((j) => {
+                                  const ts = j.stage3_video.timestamps ? [...j.stage3_video.timestamps] : []
+                                  ts.push({ label: `Phân đoạn ${ts.length + 1}`, startSec: 0, endSec: 60 })
+                                  return { ...j, stage3_video: { ...j.stage3_video, timestamps: ts } }
+                                })
+                              }}
+                              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+                            >
+                              + Thêm mốc thời gian
+                            </button>
+                          </div>
+                          <div className="space-y-2">
+                            {(videoConfig.timestamps || []).map((ts, tsIdx) => (
+                              <div key={tsIdx} className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <input
+                                  type="text"
+                                  value={ts.label}
+                                  disabled={readOnly}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    updateSixStage((j) => {
+                                      const items = [...(j.stage3_video.timestamps || [])]
+                                      items[tsIdx] = { ...items[tsIdx], label: val }
+                                      return { ...j, stage3_video: { ...j.stage3_video, timestamps: items } }
+                                    })
+                                  }}
+                                  placeholder="Tên phân đoạn..."
+                                  className="flex-1 rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold"
+                                />
+                                <input
+                                  type="number"
+                                  value={ts.startSec}
+                                  disabled={readOnly}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10) || 0
+                                    updateSixStage((j) => {
+                                      const items = [...(j.stage3_video.timestamps || [])]
+                                      items[tsIdx] = { ...items[tsIdx], startSec: val }
+                                      return { ...j, stage3_video: { ...j.stage3_video, timestamps: items } }
+                                    })
+                                  }}
+                                  className="w-16 rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold text-center"
+                                  title="Giây bắt đầu"
+                                />
+                                <span className="text-xs text-muted">➔</span>
+                                <input
+                                  type="number"
+                                  value={ts.endSec}
+                                  disabled={readOnly}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10) || 0
+                                    updateSixStage((j) => {
+                                      const items = [...(j.stage3_video.timestamps || [])]
+                                      items[tsIdx] = { ...items[tsIdx], endSec: val }
+                                      return { ...j, stage3_video: { ...j.stage3_video, timestamps: items } }
+                                    })
+                                  }}
+                                  className="w-16 rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold text-center"
+                                  title="Giây kết thúc"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={readOnly}
+                                  onClick={() => {
+                                    updateSixStage((j) => {
+                                      const items = (j.stage3_video.timestamps || []).filter((_, i) => i !== tsIdx)
+                                      return { ...j, stage3_video: { ...j.stage3_video, timestamps: items } }
+                                    })
+                                  }}
+                                  className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {lessonFormat === 'aiki-rule-3steps' && stageIndex === 1 && (() => {
+                    const quizConfig = (draft.sixStageJourney || buildRuleSyntheticJourney(draft)).stage4_quiz || {
+                      title: `Thử tài phản xạ: ${draft.title || 'Quy tắc AIKI'}`,
+                      passScore: 1,
+                      questions: [],
+                    }
+
+                    return (
+                      <div className="space-y-4 rounded-2xl border-2 border-amber-200 bg-white p-5 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-amber-100 pb-3">
+                          <h4 className="flex items-center gap-2 text-sm font-black uppercase text-amber-950">
+                            <MessageCircleQuestion size={18} className="text-amber-600" />
+                            ⚡ Soạn Câu Hỏi Thử Tài Phản Xạ (Reflex Quiz)
+                          </h4>
+                          <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
+                            Chặng 2: Kiểm tra
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Tiêu đề thử tài phản xạ</label>
+                            <input
+                              type="text"
+                              value={quizConfig.title}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                updateSixStage((j) => ({ ...j, stage4_quiz: { ...j.stage4_quiz, title: val } }))
+                              }}
+                              placeholder="VD: Thử tài phản xạ: Bức tranh nào là độc nhất?"
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-bold text-text"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Điểm đạt tối thiểu (số câu)</label>
+                            <input
+                              type="number"
+                              value={quizConfig.passScore || 1}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 1
+                                updateSixStage((j) => ({ ...j, stage4_quiz: { ...j.stage4_quiz, passScore: val } }))
+                              }}
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-black uppercase text-slate-700">
+                              Danh sách câu hỏi trắc nghiệm ({quizConfig.questions.length})
+                            </label>
+                            <button
+                              type="button"
+                              disabled={readOnly}
+                              onClick={() => {
+                                updateSixStage((j) => {
+                                  const qs = [...(j.stage4_quiz.questions || [])]
+                                  qs.push({
+                                    id: `q-${Date.now().toString(36)}`,
+                                    prompt: 'Bức tranh nào thể hiện đúng quy tắc sáng tạo?',
+                                    options: ['Phương án A: Sao chép ý tưởng', 'Phương án B: Sáng tạo cảm xúc riêng'],
+                                    correctIndex: 1,
+                                    explanation: 'Chính xác! Tranh sáng tạo từ cảm xúc riêng luôn là độc nhất!',
+                                  })
+                                  return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                })
+                              }}
+                              className="text-xs font-bold text-amber-700 hover:text-amber-900 cursor-pointer"
+                            >
+                              + Thêm câu hỏi
+                            </button>
+                          </div>
+
+                          {quizConfig.questions.map((q, qIdx) => (
+                            <div key={q.id || qIdx} className="rounded-xl border border-amber-200 bg-amber-50/40 p-3.5 space-y-3">
+                              <div className="flex items-center justify-between gap-2 border-b border-amber-100 pb-2">
+                                <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                                  <span>❓ Câu hỏi #{qIdx + 1}</span>
+                                </span>
+                                {quizConfig.questions.length > 1 && (
+                                  <button
+                                    type="button"
+                                    disabled={readOnly}
+                                    onClick={() => {
+                                      updateSixStage((j) => {
+                                        const qs = j.stage4_quiz.questions.filter((_, i) => i !== qIdx)
+                                        return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                      })
+                                    }}
+                                    className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                                    title="Xóa câu hỏi này"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">Nội dung câu hỏi / Câu lệnh</label>
+                                <input
+                                  type="text"
+                                  value={q.prompt}
+                                  disabled={readOnly}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    updateSixStage((j) => {
+                                      const qs = [...j.stage4_quiz.questions]
+                                      qs[qIdx] = { ...qs[qIdx], prompt: val }
+                                      return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                    })
+                                  }}
+                                  placeholder="Nội dung câu hỏi trắc nghiệm..."
+                                  className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">Ảnh minh họa câu hỏi (visualUrl - tùy chọn)</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={q.visualUrl || ''}
+                                    disabled={readOnly}
+                                    onChange={(e) => {
+                                      const val = e.target.value
+                                      updateSixStage((j) => {
+                                        const qs = [...j.stage4_quiz.questions]
+                                        qs[qIdx] = { ...qs[qIdx], visualUrl: val }
+                                        return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                      })
+                                    }}
+                                    placeholder="https://... hoặc tải ảnh"
+                                    className="flex-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-mono"
+                                  />
+                                  <label className="flex items-center gap-1 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-800 hover:bg-amber-200 cursor-pointer shrink-0">
+                                    <span>🖼️ Tải ảnh</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      disabled={readOnly}
+                                      className="hidden"
+                                      onChange={async (e) => {
+                                        const file = e.target.files?.[0]
+                                        if (!file) return
+                                        try {
+                                          const res = await uploadCmsCourseMedia({ file, purpose: 'aiki_quiz_visual', questId: lecture?.id })
+                                          if (res?.url) {
+                                            updateSixStage((j) => {
+                                              const qs = [...j.stage4_quiz.questions]
+                                              qs[qIdx] = { ...qs[qIdx], visualUrl: res.url }
+                                              return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                            })
+                                            showToast('Đã tải ảnh câu hỏi lên!', 'success')
+                                          }
+                                        } catch (err) {
+                                          showToast(`Lỗi tải ảnh: ${err instanceof Error ? err.message : 'Không xác định'}`, 'error')
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[11px] font-bold text-slate-700">Các phương án lựa chọn (Chọn tròn để đặt đáp án đúng):</p>
+                                  <button
+                                    type="button"
+                                    disabled={readOnly}
+                                    onClick={() => {
+                                      updateSixStage((j) => {
+                                        const qs = [...j.stage4_quiz.questions]
+                                        const opts = [...qs[qIdx].options, `Phương án mới`]
+                                        qs[qIdx] = { ...qs[qIdx], options: opts }
+                                        return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                      })
+                                    }}
+                                    className="text-[10px] font-bold text-amber-700 hover:text-amber-900 cursor-pointer"
+                                  >
+                                    + Thêm phương án
+                                  </button>
+                                </div>
+
+                                {q.options.map((opt, optIdx) => (
+                                  <div key={optIdx} className="flex items-center gap-2">
+                                    <input
+                                      type="radio"
+                                      name={`rule-quiz-correct-${qIdx}`}
+                                      checked={q.correctIndex === optIdx}
+                                      disabled={readOnly}
+                                      onChange={() => {
+                                        updateSixStage((j) => {
+                                          const qs = [...j.stage4_quiz.questions]
+                                          qs[qIdx] = { ...qs[qIdx], correctIndex: optIdx }
+                                          return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                        })
+                                      }}
+                                      title="Chọn làm đáp án đúng"
+                                      className="size-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={opt}
+                                      disabled={readOnly}
+                                      onChange={(e) => {
+                                        const val = e.target.value
+                                        updateSixStage((j) => {
+                                          const qs = [...j.stage4_quiz.questions]
+                                          const opts = [...qs[qIdx].options]
+                                          opts[optIdx] = val
+                                          qs[qIdx] = { ...qs[qIdx], options: opts }
+                                          return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                        })
+                                      }}
+                                      className={cn(
+                                        "flex-1 rounded-lg border bg-white px-2.5 py-1 text-xs font-semibold",
+                                        q.correctIndex === optIdx ? "border-emerald-400 bg-emerald-50/50 text-emerald-950 font-bold" : "border-border text-text"
+                                      )}
+                                    />
+                                    {q.options.length > 2 && (
+                                      <button
+                                        type="button"
+                                        disabled={readOnly}
+                                        onClick={() => {
+                                          updateSixStage((j) => {
+                                            const qs = [...j.stage4_quiz.questions]
+                                            const opts = qs[qIdx].options.filter((_, i) => i !== optIdx)
+                                            let corr = qs[qIdx].correctIndex
+                                            if (corr === optIdx) corr = 0
+                                            else if (corr > optIdx) corr -= 1
+                                            qs[qIdx] = { ...qs[qIdx], options: opts, correctIndex: corr }
+                                            return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                          })
+                                        }}
+                                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                                        title="Xóa phương án này"
+                                      >
+                                        <Trash2 size={13} />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">Giải thích / Lời khuyên của AIKI khi trả lời</label>
+                                <input
+                                  type="text"
+                                  value={q.explanation || ''}
+                                  disabled={readOnly}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    updateSixStage((j) => {
+                                      const qs = [...j.stage4_quiz.questions]
+                                      qs[qIdx] = { ...qs[qIdx], explanation: val }
+                                      return { ...j, stage4_quiz: { ...j.stage4_quiz, questions: qs } }
+                                    })
+                                  }}
+                                  placeholder="VD: Chính xác! Tranh sáng tạo từ cảm xúc riêng luôn là độc nhất!"
+                                  className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-slate-700"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {lessonFormat === 'aiki-rule-3steps' && stageIndex === 2 && (() => {
+                    const completionConfig = (draft.sixStageJourney || buildRuleSyntheticJourney(draft)).stage6_completion || {
+                      title: `Chúc mừng con đã hoàn thành bài học!`,
+                      congratsMessage: `Con đã nắm vững quy tắc sáng tạo này! Hãy tiếp tục phát huy nhé!`,
+                      rewardBadge: {
+                        name: draft.reward || 'Huy hiệu Sáng Tạo AIKI',
+                        iconUrl: card.imageUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                        stars: 3,
+                        xp: 50,
+                      },
+                      nextLessonSlug: '',
+                    }
+
+                    return (
+                      <div className="space-y-4 rounded-2xl border-2 border-emerald-200 bg-white p-5 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-emerald-100 pb-3">
+                          <h4 className="flex items-center gap-2 text-sm font-black uppercase text-emerald-950">
+                            <Trophy size={18} className="text-emerald-600" />
+                            🏆 Cấu hình Màn Hoàn Thành & Trao Thưởng
+                          </h4>
+                          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                            Chặng 3: Hoàn thành
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black uppercase text-slate-700">Tiêu đề màn kết thúc</label>
+                          <input
+                            type="text"
+                            value={completionConfig.title}
+                            disabled={readOnly}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              updateSixStage((j) => ({ ...j, stage6_completion: { ...j.stage6_completion, title: val } }))
+                            }}
+                            placeholder="VD: Chúc Mừng Con Đã Chinh Phục Quy Tắc!"
+                            className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-bold text-text"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-black uppercase text-slate-700">Thông điệp chúc mừng của AIKI</label>
+                          <textarea
+                            rows={3}
+                            value={completionConfig.congratsMessage}
+                            disabled={readOnly}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              updateSixStage((j) => ({ ...j, stage6_completion: { ...j.stage6_completion, congratsMessage: val } }))
+                            }}
+                            placeholder="Lời khen ngợi và động viên từ Mèo AIKI..."
+                            className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Tên huy hiệu nhận được</label>
+                            <input
+                              type="text"
+                              value={completionConfig.rewardBadge?.name || ''}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                updateSixStage((j) => ({
+                                  ...j,
+                                  stage6_completion: {
+                                    ...j.stage6_completion,
+                                    rewardBadge: { ...j.stage6_completion.rewardBadge, name: val },
+                                  },
+                                }))
+                              }}
+                              placeholder="VD: Huy hiệu Bút Vẽ Thần Kỳ"
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Ảnh huy hiệu (iconUrl)</label>
+                            <div className="mt-1.5 flex gap-2">
+                              <input
+                                type="text"
+                                value={completionConfig.rewardBadge?.iconUrl || ''}
+                                disabled={readOnly}
+                                onChange={(e) => {
+                                  const val = e.target.value
+                                  updateSixStage((j) => ({
+                                    ...j,
+                                    stage6_completion: {
+                                      ...j.stage6_completion,
+                                      rewardBadge: { ...j.stage6_completion.rewardBadge, iconUrl: val },
+                                    },
+                                  }))
+                                }}
+                                placeholder="https://... hoặc tải ảnh"
+                                className="flex-1 rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
+                              />
+                              <label className="flex items-center gap-1 rounded-xl bg-emerald-100 border border-emerald-300 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-200 cursor-pointer shrink-0">
+                                <span>🖼️ Tải ảnh</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  disabled={readOnly}
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0]
+                                    if (!file) return
+                                    try {
+                                      const res = await uploadCmsCourseMedia({ file, purpose: 'aiki_rule_badge', questId: lecture?.id })
+                                      if (res?.url) {
+                                        updateSixStage((j) => ({
+                                          ...j,
+                                          stage6_completion: {
+                                            ...j.stage6_completion,
+                                            rewardBadge: { ...j.stage6_completion.rewardBadge, iconUrl: res.url },
+                                          },
+                                        }))
+                                        showToast('Đã tải ảnh huy hiệu lên!', 'success')
+                                      }
+                                    } catch (err) {
+                                      showToast(`Lỗi tải ảnh: ${err instanceof Error ? err.message : 'Không xác định'}`, 'error')
+                                    }
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Số sao thưởng (Stars)</label>
+                            <input
+                              type="number"
+                              value={completionConfig.rewardBadge?.stars ?? 3}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 3
+                                updateSixStage((j) => ({
+                                  ...j,
+                                  stage6_completion: {
+                                    ...j.stage6_completion,
+                                    rewardBadge: { ...j.stage6_completion.rewardBadge, stars: val },
+                                  },
+                                }))
+                              }}
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Điểm kinh nghiệm (XP)</label>
+                            <input
+                              type="number"
+                              value={completionConfig.rewardBadge?.xp ?? 50}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 50
+                                updateSixStage((j) => ({
+                                  ...j,
+                                  stage6_completion: {
+                                    ...j.stage6_completion,
+                                    rewardBadge: { ...j.stage6_completion.rewardBadge, xp: val },
+                                  },
+                                }))
+                              }}
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black uppercase text-slate-700">Slug bài tiếp theo (Tùy chọn)</label>
+                            <input
+                              type="text"
+                              value={completionConfig.nextLessonSlug || ''}
+                              disabled={readOnly}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                updateSixStage((j) => ({
+                                  ...j,
+                                  stage6_completion: {
+                                    ...j.stage6_completion,
+                                    nextLessonSlug: val,
+                                  },
+                                }))
+                              }}
+                              placeholder="VD: quy-tac-2-buc-tranh-doc-nhat"
+                              className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   {/* ── CANVAS CHẶNG (PURE BLOCK-BASED) ── */}
                   {stageBlocks.length === 0 ? (
@@ -6231,6 +5848,8 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       card={deferredCard}
                       stageIndex={stageIndex}
                       onCollapse={() => setShowInlinePreview(false)}
+                      lessonFormat={lessonFormat}
+                      sixStageJourney={buildRuleSyntheticJourney(deferredDraft)}
                     />
                   )
                 })() : (
@@ -7011,7 +6630,13 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         tone="guidance"
         eyebrow="Xem trước như học sinh"
         title={draft.title || 'Trạm học chưa có tên'}
-        description={lessonFormat === 'aiki-rule-5steps' ? 'Toàn bộ hành trình 5 chặng Quy tắc AIKI: Tình huống → Câu đố AIKI → Quy tắc → Giải thích → Chốt.' : 'Toàn bộ hành trình trong một trạm: mở bài → khám phá → chơi → thực hành → thử thách.'}
+        description={
+          lessonFormat === 'aiki-rule-3steps'
+            ? 'Toàn bộ hành trình 3 bước Quy tắc AIKI: Bài học (Video) → Kiểm tra (Quiz) → Hoàn thành.'
+            : lessonFormat === 'aiki-rule-5steps'
+            ? 'Toàn bộ hành trình 5 chặng Quy tắc AIKI: Tình huống → Câu đố AIKI → Quy tắc → Giải thích → Chốt.'
+            : 'Toàn bộ hành trình trong một trạm: mở bài → khám phá → chơi → thực hành → thử thách.'
+        }
         showMascot={false}
         className="station-preview-modal"
         onClose={() => setShowFullPreview(false)}

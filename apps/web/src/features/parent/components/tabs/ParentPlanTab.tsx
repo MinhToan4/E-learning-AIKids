@@ -12,6 +12,7 @@ import {
   type CheckoutProductMode,
 } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 import type { Child, ChildPlanUsage, HouseholdSub, PlanRow } from '@/features/parent/types/parent.types'
+import { parentFriendlyError } from '@/features/parent/lib/parent-error'
 
 export function ParentPlanTab({
   onOpenCheckout,
@@ -60,7 +61,7 @@ export function ParentPlanTab({
       )
       setUsage(childUsage)
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Không tải được gói', 'error')
+      showToast(parentFriendlyError(e, 'Chưa tải được thông tin gói học. Ba / Mẹ vui lòng thử lại.'), 'error')
     } finally {
       setLoading(false)
     }
@@ -108,7 +109,7 @@ export function ParentPlanTab({
       showToast(data.message || (data.checkout ? 'Đã tạo yêu cầu nâng gói.' : 'Đã cập nhật gói học.'), 'success')
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Không đổi được gói', 'error')
+      showToast(parentFriendlyError(e, 'Chưa thể cập nhật gói học. Ba / Mẹ vui lòng thử lại.'), 'error')
     } finally {
       setBusy(null)
     }

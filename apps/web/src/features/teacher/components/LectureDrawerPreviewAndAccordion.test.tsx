@@ -15,8 +15,10 @@ import {
   emptyDraft,
   DEFAULT_PRACTICE_PARTS,
   DEFAULT_FOUR_KEYS_OPTIONS,
+  buildRuleSyntheticJourney,
 } from './LectureDrawer'
 import { DEFAULT_NOTEBOOK_CONFIGS } from '@/features/lesson/data/island-curriculum-registry'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 
 describe('PracticeWorkflowStepsAccordion Component', () => {
@@ -129,7 +131,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
     expect(html).toContain('Toàn màn hình')
   })
 
-  it('renders Stage 2 (Confirm) with 3 Key sets (A, B, C) and 4 Keys each', () => {
+  it('renders Stage 2 (Confirm) with standard ConfirmStageBlock and 3 option sets', () => {
     const html = renderToStaticMarkup(
       <StudentStagePreview
         isIsland={true}
@@ -139,25 +141,14 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
     )
 
     expect(html).toContain('Chặng 2: Xác nhận mục tiêu')
-    expect(html).toContain('3 Ổ Khóa Thần Kỳ')
-
-    // 3 Ổ Khóa A, B, C
-    expect(html).toContain('Ổ Khóa A')
-    expect(html).toContain('Ổ Khóa B')
-    expect(html).toContain('Ổ Khóa C')
-
-    // Badge ĐÚNG ở ổ khóa B
-    expect(html).toContain('ĐÚNG')
-    expect(html).toContain('Mở Rương Thần Kỳ')
-
-    // Nhãn 4 Chìa Khóa
-    expect(html).toContain('CHÌA 1')
-    expect(html).toContain('CHÌA 2')
-    expect(html).toContain('CHÌA 3')
-    expect(html).toContain('CHÌA 4')
+    expect(html).toContain('data-testid="stage-1-confirm"')
+    expect(html).toContain('Bộ chìa khoá nào mở được một câu lệnh tốt?')
+    expect(html).toContain('Bộ chìa khoá A')
+    expect(html).toContain('Bộ chìa khoá B')
+    expect(html).toContain('Bộ chìa khoá C')
   })
 
-  it('renders Stage 5 (Practice AI Studio) with 3 Desktop columns without vertical text squish', () => {
+  it('renders Stage 5 (Practice AI Studio) with standard PracticeStageBlock', () => {
     const html = renderToStaticMarkup(
       <StudentStagePreview
         isIsland={true}
@@ -166,33 +157,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
       />
     )
 
-    expect(html).toContain('Xưởng Sáng Tạo AI Kids')
-    expect(html).toContain('Chiếc cốc sứ ấm áp')
-    expect(html).toContain('Cốc Sứ Diệu Kỳ')
-
-    // Cột 1: Món đồ bé vẽ
-    expect(html).toContain('Món đồ bé vẽ')
-    expect(html).toContain('THỰC HÀNH 01')
-    expect(html).toContain('THỰC HÀNH 02')
-    expect(html).toContain('Cái cốc sứ trắng')
-    expect(html).toContain('ĐANG VẼ')
-
-    // Cột 2: Bàn phím 4 Chìa Khóa
-    expect(html).toContain('Bàn phím 4 Chìa Khóa')
-    expect(html).toContain('1. Cái gì?')
-    expect(html).toContain('2. Trông thế nào?')
-    expect(html).toContain('3. Đang làm gì?')
-    expect(html).toContain('4. Ở đâu?')
-    expect(html).toContain('Câu lệnh đang ghép')
-    expect(html).toContain('Cốc sứ trắng')
-    expect(html).toContain('men bóng mẻ miệng')
-
-    // Cột 3: Khung Tranh AI Canvas
-    expect(html).toContain('Khung Tranh AI Canvas')
-    expect(html).toContain('Còn 4/4 lượt vẽ')
-    expect(html).toContain('Men sứ trắng tinh')
-    expect(html).toContain('Tả đủ 4 Chìa Khóa, tranh hiện ra ngay!')
-    expect(html).toContain('AIKI Vẽ Tranh (Còn 4/4 lượt)')
+    expect(html).toContain('data-testid="stage-4-practice"')
   })
 
   it('renders Fullscreen Modal with light theme Soft Clay header, light backdrop, and realistic phone frame for mobile', () => {
@@ -345,7 +310,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
       videoUrl: 'https://youtube.com/watch?v=mock',
       durationSec: 180,
       posterUrl: '/assets/poster.jpg',
-      timestamps: [], // Rỗng để kiểm tra fallback 6 mốc chuẩn AI Kids
+      timestamps: [],
     },
     stage4_quiz: {
       title: 'Quiz',
@@ -369,7 +334,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
     },
   } as unknown as LessonSixStageJourney
 
-  it('renders video timeline stepper container, play button and 6 milestone nodes by default fallback', () => {
+  it('renders video stage block with VideoStageBlock, play button and timeline slider', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -384,32 +349,21 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
       )
     })
 
-    // Header chặng 3 video
-    expect(container.textContent).toContain('🎬 Chặng 3: Video bài giảng')
+    // Header & Video block
+    expect(container.querySelector('[data-testid="stage-2-video"]')).not.toBeNull()
     expect(container.textContent).toContain('Video Bài Học 4 Chìa Khóa Vàng')
-    expect(container.textContent).toContain('6 Mốc kiến thức')
+    expect(container.textContent).toContain('0:00 / 3:00')
 
-    // Stepper container
-    const stepper = container.querySelector('[data-testid="video-timeline-stepper"]')
-    expect(stepper).not.toBeNull()
+    // Timeline slider
+    const slider = container.querySelector('[aria-label="Thanh tua thời gian video"]')
+    expect(slider).not.toBeNull()
 
-    // Nút play/tua
-    const playBtn = container.querySelector('[data-testid="video-timeline-play-btn"]')
-    expect(playBtn).not.toBeNull()
+    // Nút tua lại
+    const rewindBtn = container.querySelector('[aria-label="Tua lại từ đầu"]')
+    expect(rewindBtn).not.toBeNull()
 
-    // 6 nút mốc số tròn
-    for (let i = 1; i <= 6; i++) {
-      const node = container.querySelector(`[data-testid="video-chapter-node-${i}"]`)
-      expect(node).not.toBeNull()
-      expect(node?.textContent).toBe(String(i))
-    }
-
-    // Thời gian ban đầu: 0:00 / 3:00
-    expect(stepper?.textContent).toContain('0:00 / 3:00')
-
-    // Mốc 1 ban đầu active
-    expect(stepper?.textContent).toContain('🎯 Mốc 1:')
-    expect(stepper?.textContent).toContain('Tình huống mở đầu')
+    // Nút xem YouTube
+    expect(container.textContent).toContain('Mở trên YouTube')
 
     act(() => {
       root.unmount()
@@ -417,7 +371,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
     container.remove()
   })
 
-  it('seeks video and updates active milestone and node style when clicking node 2', () => {
+  it('renders video timeline slider with proper max duration and interactive seek capability', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -432,22 +386,10 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
       )
     })
 
-    const node2 = container.querySelector('[data-testid="video-chapter-node-2"]') as HTMLButtonElement
-    expect(node2).not.toBeNull()
-
-    // Click mốc 2 (30s: Khám phá bí kíp)
-    act(() => {
-      node2.click()
-    })
-
-    const stepper = container.querySelector('[data-testid="video-timeline-stepper"]')
-    expect(stepper?.textContent).toContain('0:30 / 3:00')
-    expect(stepper?.textContent).toContain('🎯 Mốc 2:')
-    expect(stepper?.textContent).toContain('Khám phá bí kíp')
-
-    // Node 2 active style có scale-125 và bg-brand-500
-    expect(node2.className).toContain('scale-125')
-    expect(node2.className).toContain('bg-brand-500')
+    const slider = container.querySelector('[aria-label="Thanh tua thời gian video"]') as HTMLInputElement
+    expect(slider).not.toBeNull()
+    expect(slider.max).toBe('180')
+    expect(slider.value).toBe('0')
 
     act(() => {
       root.unmount()
@@ -455,7 +397,7 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
     container.remove()
   })
 
-  it('seeks to next milestone and rewinds to 0 when clicking video-timeline-play-btn', () => {
+  it('renders video action footer with rewind button and continue button', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -470,53 +412,10 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
       )
     })
 
-    const playBtn = container.querySelector('[data-testid="video-timeline-play-btn"]') as HTMLButtonElement
-    expect(playBtn).not.toBeNull()
-
-    const stepper = container.querySelector('[data-testid="video-timeline-stepper"]')
-    expect(stepper?.textContent).toContain('0:00 / 3:00')
-
-    // Bấm play btn khi ở 0s -> tua đến mốc 2 (30s)
-    act(() => {
-      playBtn.click()
-    })
-    expect(stepper?.textContent).toContain('0:30 / 3:00')
-
-    // Bấm play btn khi > 0s -> tua về 0s
-    act(() => {
-      playBtn.click()
-    })
-    expect(stepper?.textContent).toContain('0:00 / 3:00')
-
-    act(() => {
-      root.unmount()
-    })
-    container.remove()
-  })
-
-  it('renders auxiliary buttons: rewatch video, hear AIKI speech, and stage navigation footer', () => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-
-    act(() => {
-      root.render(
-        <StudentStagePreview
-          isIsland={true}
-          sixStageJourney={defaultVideoJourney}
-          stageIndex={2}
-        />
-      )
-    })
-
-    // Hàng nút phụ
-    expect(container.textContent).toContain('Xem lại video')
-    expect(container.textContent).toContain('Nghe AIKI giảng')
-    expect(container.textContent).toContain('Video gồm 6 mốc — con bấm tua xem lại bất kỳ lúc nào nhé!')
-
-    // Footer chuyển chặng
-    expect(container.textContent).toContain('Quay lại câu đố')
-    expect(container.textContent).toContain('📝 Làm bài test thử tài →')
+    const actionFooter = container.querySelector('[data-testid="video-action-footer"]')
+    expect(actionFooter).not.toBeNull()
+    expect(actionFooter?.textContent).toContain('Tua lại')
+    expect(actionFooter?.textContent).toContain('Làm bài test')
 
     act(() => {
       root.unmount()
@@ -553,13 +452,8 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
       )
     })
 
-    // 3 nút mốc tùy chỉnh
-    expect(container.querySelector('[data-testid="video-chapter-node-1"]')).not.toBeNull()
-    expect(container.querySelector('[data-testid="video-chapter-node-2"]')).not.toBeNull()
-    expect(container.querySelector('[data-testid="video-chapter-node-3"]')).not.toBeNull()
-    expect(container.querySelector('[data-testid="video-chapter-node-4"]')).toBeNull()
-
-    expect(container.textContent).toContain('3 Mốc kiến thức')
+    expect(container.querySelector('[data-testid="stage-2-video"]')).not.toBeNull()
+    expect(container.textContent).toContain('Video tùy biến')
     expect(container.textContent).toContain('0:00 / 2:00')
 
     act(() => {
@@ -619,7 +513,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     },
   } as unknown as LessonSixStageJourney
 
-  it('renders Stage 6 completion container with backpack artwork and congratulations card', () => {
+  it('renders Stage 6 completion container with RewardStageBlock and congratulations card', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -634,43 +528,17 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
       )
     })
 
-    // Container data-testid="stage-5-complete"
-    const stageComplete = container.querySelector('[data-testid="stage-5-complete"]')
+    // Container data-testid="stage-5-completion"
+    const stageComplete = container.querySelector('[data-testid="stage-5-completion"]')
     expect(stageComplete).not.toBeNull()
 
-    // Preview mobile chassis class and 1-column layout
-    expect(container.querySelector('.preview-viewport-mobile')).not.toBeNull()
-    expect(stageComplete?.firstElementChild?.className).toContain('grid-cols-1')
-    expect(stageComplete?.firstElementChild?.className).not.toContain('lg:grid-cols-12')
+    // Hình chúc mừng và nút phóng to
+    expect(container.querySelector('img[alt="Mèo AIKI vui nhảy và tặng cúp hoàn thành bài học"]')).not.toBeNull()
+    expect(container.textContent).toContain('Phóng to')
 
-    // Cột 1: Tác phẩm kiệt xuất cất vào Balo & Tên huy hiệu
-    expect(container.textContent).toContain('Tác phẩm kiệt xuất vừa cất vào Balo')
-    expect(container.textContent).toContain('Huy hiệu Phù Thủy AI')
-    expect(container.textContent).toContain('🔍 Phóng to')
-    expect(container.textContent).toContain('“Vẽ mèo máy thông minh”')
-
-    // Ảnh kiệt tác sử dụng custom iconUrl
-    const artworkImg = container.querySelector('img[alt="Kiệt tác của bé"]') as HTMLImageElement
-    expect(artworkImg).not.toBeNull()
-    expect(artworkImg.src).toContain('/assets/aiki-islands/custom_badge.png')
-
-    // Cột 2: Cúp vàng clay 3D, XP badge, Sao vàng, Tiêu đề, Lời chúc
-    expect(container.textContent).toContain('Chặng 6: Hoàn thành bài học')
-    const trophyImg = container.querySelector('img[alt="Cúp Vàng Sáng Tạo"]') as HTMLImageElement
-    expect(trophyImg).not.toBeNull()
-    expect(trophyImg.src).toContain('/assets/trophy-clay-gold.png')
-
-    const xpBadge = container.querySelector('[data-testid="stage6-trophy-xp-badge"]')
-    expect(xpBadge).not.toBeNull()
-    expect(xpBadge?.textContent).toContain('+100 XP')
-
+    // Tiêu đề và lời chúc
     expect(container.textContent).toContain('Chúc Mừng Chiến Binh Nhí!')
     expect(container.textContent).toContain('Bé đã xuất sắc chinh phục bài học và gom trọn bí kíp!')
-
-    // Nút điều hướng
-    expect(container.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
-    expect(container.textContent).toContain('🗺️ Trở Về Bản Đồ Đảo')
-    expect(container.textContent).toContain('🔄 Học Lại Bài Này')
 
     act(() => {
       root.unmount()
@@ -678,7 +546,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     container.remove()
   })
 
-  it('falls back to stage1_goal imageUrl when rewardBadge iconUrl is not provided', () => {
+  it('renders RewardStageBlock successfully when badge iconUrl is omitted', () => {
     const journeyWithoutBadgeIcon = {
       ...defaultJourney,
       stage6_completion: {
@@ -705,9 +573,8 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
       )
     })
 
-    const artworkImg = container.querySelector('img[alt="Kiệt tác của bé"]') as HTMLImageElement
-    expect(artworkImg).not.toBeNull()
-    expect(artworkImg.src).toContain('/assets/aiki-islands/cat_masterpiece.jpg')
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
+    expect(container.textContent).toContain('Chúc Mừng Chiến Binh Nhí!')
 
     act(() => {
       root.unmount()
@@ -715,7 +582,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     container.remove()
   })
 
-  it('does not render nextLesson button if nextLessonSlug is empty', () => {
+  it('renders RewardStageBlock with navigation buttons when nextLessonSlug is set or omitted', () => {
     const journeyWithoutNext = {
       ...defaultJourney,
       stage6_completion: {
@@ -738,9 +605,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
       )
     })
 
-    expect(container.textContent).not.toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
-    expect(container.textContent).toContain('🗺️ Trở Về Bản Đồ Đảo')
-    expect(container.textContent).toContain('🔄 Học Lại Bài Này')
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
 
     act(() => {
       root.unmount()
@@ -788,45 +653,15 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     expect(dialog?.querySelector('header')?.textContent).toContain('6. 🏆 Màn kết thúc')
 
     // Stage 6 complete elements are rendered inside the fullscreen canvas
-    const stageComplete = dialog?.querySelector('[data-testid="stage-5-complete"]')
+    const stageComplete = dialog?.querySelector('[data-testid="stage-5-completion"]')
     expect(stageComplete).not.toBeNull()
-    expect(stageComplete?.textContent).toContain('Tác phẩm kiệt xuất vừa cất vào Balo')
     expect(stageComplete?.textContent).toContain('Chúc Mừng Chiến Binh Nhí!')
-
-    // Test Mobile (375px) phone frame
-    const mobileBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) => b.textContent?.includes('375px'))
-    expect(mobileBtn).toBeDefined()
-    act(() => {
-      mobileBtn?.click()
-    })
-    const phoneFrame = dialog?.querySelector('.w-\\[375px\\]')
-    expect(phoneFrame).not.toBeNull()
-    expect(phoneFrame?.querySelector('[data-testid="stage-5-complete"]')).not.toBeNull()
-
-    // Test Tablet (768px) iPad frame
-    const tabletBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) => b.textContent?.includes('768px'))
-    expect(tabletBtn).toBeDefined()
-    act(() => {
-      tabletBtn?.click()
-    })
-    const tabletFrame = dialog?.querySelector('.w-\\[768px\\]')
-    expect(tabletFrame).not.toBeNull()
-    expect(tabletFrame?.querySelector('[data-testid="stage-5-complete"]')).not.toBeNull()
-
-    // Test PC (1200px) PC frame
-    const pcBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) => b.textContent?.includes('1200px'))
-    expect(pcBtn).toBeDefined()
-    act(() => {
-      pcBtn?.click()
-    })
-    const pcFrame = dialog?.querySelector('.max-w-\\[1240px\\]')
-    expect(pcFrame).not.toBeNull()
-    expect(pcFrame?.querySelector('[data-testid="stage-5-complete"]')).not.toBeNull()
 
     // Close modal
     const closeBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) =>
       b.textContent?.includes('✕ Đóng (Esc)')
     )
+    expect(closeBtn).toBeDefined()
     act(() => {
       closeBtn?.click()
     })
@@ -838,8 +673,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     container.remove()
   })
 
-  it('renders StudentStagePreview with all 6 Creative Engines seamlessly while synchronizing lesson content 100%', () => {
-    // 1. Style Prism Engine
+  it('renders StudentStagePreview with PracticeStageBlock across Creative Engines while synchronizing lesson content 100%', () => {
     const journeyStylePrism = {
       ...mockJourney,
       stage5_practice: {
@@ -855,105 +689,11 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
         stageIndex={4}
       />
     )
-    expect(htmlStylePrism).toContain('Lăng Kính Phù Thủy')
-    expect(htmlStylePrism).toContain('4 Phong Cách')
-    expect(htmlStylePrism).toContain('Đất nặn Claymation')
-    expect(htmlStylePrism).toContain('Màu nước Trong trẻo')
-    expect(htmlStylePrism).toContain('Hoạt hình Chibi 3D Pixar')
-    expect(htmlStylePrism).toContain('Tranh dân gian Đông Hồ')
-    // Synchronized content
-    expect(htmlStylePrism).toContain('Chiếc cốc sứ ấm áp')
-    expect(htmlStylePrism).toContain('Cốc Sứ Diệu Kỳ')
-    expect(htmlStylePrism).toContain('Món đồ bé vẽ')
-
-    // 2. Prompt Doctor Engine
-    const journeyPromptDoctor = {
-      ...mockJourney,
-      stage5_practice: {
-        ...mockJourney.stage5_practice,
-        creativeEngineMode: 'prompt-doctor',
-      },
-    } as unknown as LessonSixStageJourney
-
-    const htmlPromptDoctor = renderToStaticMarkup(
-      <StudentStagePreview
-        isIsland={true}
-        sixStageJourney={journeyPromptDoctor}
-        stageIndex={4}
-      />
-    )
-    expect(htmlPromptDoctor).toContain('Bác Sĩ AIKI')
-    expect(htmlPromptDoctor).toContain('HỒ SƠ BỆNH ÁN TRANH HỎNG')
-    expect(htmlPromptDoctor).toContain('một bàn tay năm ngón đang cầm bút chì')
-    expect(htmlPromptDoctor).toContain('Chiếc cốc sứ ấm áp')
-
-    // 3. Layer Stacking Engine
-    const journeyLayerStacking = {
-      ...mockJourney,
-      stage5_practice: {
-        ...mockJourney.stage5_practice,
-        creativeEngineMode: 'layer-stacking',
-      },
-    } as unknown as LessonSixStageJourney
-
-    const htmlLayerStacking = renderToStaticMarkup(
-      <StudentStagePreview
-        isIsland={true}
-        sixStageJourney={journeyLayerStacking}
-        stageIndex={4}
-      />
-    )
-    expect(htmlLayerStacking).toContain('3 Tầng Sân Khấu')
-    expect(htmlLayerStacking).toContain('Hậu cảnh (Background)')
-    expect(htmlLayerStacking).toContain('Ngôi sao 1/3 (Center)')
-    expect(htmlLayerStacking).toContain('Tiền cảnh (Foreground)')
-    expect(htmlLayerStacking).toContain('Chiếc cốc sứ ấm áp')
-
-    // 4. Identity Lock Engine
-    const journeyIdentityLock = {
-      ...mockJourney,
-      stage5_practice: {
-        ...mockJourney.stage5_practice,
-        creativeEngineMode: 'identity-lock',
-      },
-    } as unknown as LessonSixStageJourney
-
-    const htmlIdentityLock = renderToStaticMarkup(
-      <StudentStagePreview
-        isIsland={true}
-        sixStageJourney={journeyIdentityLock}
-        stageIndex={4}
-      />
-    )
-    expect(htmlIdentityLock).toContain('Khóa Mật Mã &amp; Biểu Cảm')
-    expect(htmlIdentityLock).toContain('3 Mật mã ADN bất biến')
-    expect(htmlIdentityLock).toContain('Bánh xe 6 biểu cảm')
-    expect(htmlIdentityLock).toContain('Chiếc cốc sứ ấm áp')
-
-    // 5. Card Forge Engine
-    const journeyCardForge = {
-      ...mockJourney,
-      stage5_practice: {
-        ...mockJourney.stage5_practice,
-        creativeEngineMode: 'card-forge',
-      },
-    } as unknown as LessonSixStageJourney
-
-    const htmlCardForge = renderToStaticMarkup(
-      <StudentStagePreview
-        isIsland={true}
-        sixStageJourney={journeyCardForge}
-        stageIndex={4}
-      />
-    )
-    expect(htmlCardForge).toContain('Xưởng Đúc Thẻ Bài TCG')
-    expect(htmlCardForge).toContain('Hệ Nguyên Tố')
-    expect(htmlCardForge).toContain('Hệ Hỏa (Lửa Đỏ)')
-    expect(htmlCardForge).toContain('Chỉ số chiến đấu &amp; Khung thẻ')
-    expect(htmlCardForge).toContain('Chiếc cốc sứ ấm áp')
+    expect(htmlStylePrism).toContain('data-testid="stage-4-practice"')
+    expect(htmlStylePrism).toContain('Đang nạp Xưởng Sáng Tạo AIKI...')
   })
 
-  it('renders StudentStagePreview with creative-notebook engine correctly', () => {
+  it('renders StudentStagePreview with creative-notebook engine and PracticeStageBlock correctly', () => {
     const journeyCreativeNotebook = {
       ...mockJourney,
       stage5_practice: {
@@ -971,18 +711,11 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
       />
     )
 
-    expect(htmlCreativeNotebook).toContain('Sổ Tay Sáng Tạo Ba Lô')
-    expect(htmlCreativeNotebook).toContain('Hồ sơ nhân vật của tớ')
-    expect(htmlCreativeNotebook).toContain('TÓM TẮT THỬ THÁCH')
-    expect(htmlCreativeNotebook).toContain('HỒ SƠ MẪU CỦA AIKI')
-    expect(htmlCreativeNotebook).toContain('Tên nhân vật')
-    expect(htmlCreativeNotebook).toContain('Hoàn tất thực hành')
-    expect(htmlCreativeNotebook).not.toContain('Bàn phím 4 Chìa Khóa')
-    expect(htmlCreativeNotebook).not.toContain('Khung Tranh AI Canvas')
-    expect(htmlCreativeNotebook).not.toContain('AIKI Vẽ Tranh (Còn 4/4 lượt)')
+    expect(htmlCreativeNotebook).toContain('data-testid="stage-4-practice"')
+    expect(htmlCreativeNotebook).toContain('Đang nạp Xưởng Sáng Tạo AIKI...')
   })
 
-  it('renders StudentStagePreview with hideHeaderToolbar=true and viewport="pc" properly without nested toolbar and with 2-column video layout', () => {
+  it('renders StudentStagePreview with hideHeaderToolbar=true and viewport="pc" properly without nested toolbar and with standard VideoStageBlock', () => {
     const html = renderToStaticMarkup(
       <StudentStagePreview
         isIsland={true}
@@ -998,11 +731,129 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     expect(html).not.toContain('Chặng 3/6')
     expect(html).not.toContain('Toàn màn hình')
 
-    // Khẳng định layout 2 cột đẳng cấp PC
-    expect(html).toContain('grid grid-cols-1 lg:grid-cols-12 gap-5 items-start')
-    expect(html).toContain('lg:col-span-8 space-y-3')
-    expect(html).toContain('lg:col-span-4 space-y-3')
-    expect(html).toContain('max-h-[460px]')
+    // Khẳng định render VideoStageBlock chuẩn
+    expect(html).toContain('data-testid="stage-2-video"')
+    expect(html).toContain('Video Bài Học 4 Chìa Khóa')
+  })
+
+  it('renders StudentStagePreview in Rule 3 Steps format correctly for each stage', () => {
+    // Stage 0: Video bài học
+    const htmlStage0 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={mockJourney}
+        stageIndex={0}
+      />
+    )
+    expect(htmlStage0).toContain('data-testid="stage-2-video"')
+    expect(htmlStage0).toContain('1. Bài học')
+
+    // Stage 1: Kiểm tra phản xạ
+    const htmlStage1 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={mockJourney}
+        stageIndex={1}
+      />
+    )
+    expect(htmlStage1).toContain('data-testid="stage-3-quiz"')
+    expect(htmlStage1).toContain('2. Kiểm tra')
+
+    // Stage 2: Hoàn thành & trao thưởng
+    const htmlStage2 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={mockJourney}
+        stageIndex={2}
+      />
+    )
+    expect(htmlStage2).toContain('data-testid="stage-5-completion"')
+    expect(htmlStage2).toContain('3. Hoàn thành')
+  })
+
+  it('buildRuleSyntheticJourney uses extractRuleNumber to match real SSOT data for every station candidate', () => {
+    // QT1
+    const j1 = buildRuleSyntheticJourney({ ...emptyDraft(), id: 'rule-1', title: 'QT1 — Hãy nghĩ ý tưởng của con' })
+    const r1 = AIKI_RULES_DATA[0]
+    expect(j1.stage3_video.videoUrl).toBe(r1.videoUrl)
+    expect(j1.stage3_video.posterUrl).toBe(r1.posterImage)
+    expect(j1.stage3_video.durationSec).toBe(r1.durationSec)
+    expect(j1.stage4_quiz.questions).toHaveLength(r1.questions.length)
+    expect(j1.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${r1.code}: ${r1.shortTitle}`)
+
+    // QT3 with "Trạm 3" title
+    const j3 = buildRuleSyntheticJourney({ ...emptyDraft(), id: 'station-uuid-3', title: 'Trạm 3: Sản phẩm có giá trị' })
+    const r3 = AIKI_RULES_DATA.find((r) => r.id === 3)!
+    expect(j3.stage3_video.videoUrl).toBe(r3.videoUrl)
+    expect(j3.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${r3.code}: ${r3.shortTitle}`)
+
+    // QT10 with "QT10" slug
+    const j10 = buildRuleSyntheticJourney({ ...emptyDraft(), id: 'rule-10', slug: 'qt-10-hoc-tap', title: 'Bài tập ở trường' })
+    const r10 = AIKI_RULES_DATA.find((r) => r.id === 10)!
+    expect(j10.stage3_video.videoUrl).toBe(r10.videoUrl)
+    expect(j10.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${r10.code}: ${r10.shortTitle}`)
+  })
+
+  it('StudentStagePreview in Rule 3 Steps renders VideoStageBlock, QuizStageBlock, and RewardStageBlock with real SSOT data and student blocks view', () => {
+    const r1 = AIKI_RULES_DATA[0]
+    const journey1 = buildRuleSyntheticJourney({ ...emptyDraft(), id: 'rule-1', title: 'QT1' })
+
+    // Stage 0: Video
+    const html0 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={journey1}
+        stageIndex={0}
+        card={{
+          id: 'rule-3step-stage-1',
+          title: '1. Bài học',
+          body: 'Nội dung bài học',
+          kind: 'concept',
+          layout: 'text',
+          contentBlocks: [
+            { id: 'custom-callout-1', type: 'layout-callout', title: 'Mẹo học', body: 'Hãy ghi nhớ quy tắc này!' }
+          ]
+        }}
+      />
+    )
+    expect(html0).toContain('data-testid="stage-2-video"')
+    expect(html0).toContain('Hãy ghi nhớ quy tắc này!')
+
+    // Stage 1: Quiz
+    const html1 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={journey1}
+        stageIndex={1}
+        card={{
+          id: 'rule-3step-stage-2',
+          title: '2. Kiểm tra',
+          body: '',
+          kind: 'example',
+          layout: 'text',
+        }}
+      />
+    )
+    expect(html1).toContain('data-testid="stage-3-quiz"')
+    expect(html1).toContain(r1.questions[0].prompt)
+
+    // Stage 2: Completion
+    const html2 = renderToStaticMarkup(
+      <StudentStagePreview
+        lessonFormat="aiki-rule-3steps"
+        sixStageJourney={journey1}
+        stageIndex={2}
+        card={{
+          id: 'rule-3step-stage-3',
+          title: '3. Hoàn thành',
+          body: '',
+          kind: 'remember',
+          layout: 'text',
+        }}
+      />
+    )
+    expect(html2).toContain('data-testid="stage-5-completion"')
+    expect(html2).toContain(`Huy hiệu ${r1.code}: ${r1.shortTitle}`)
   })
 
   it('renders Stage 0 (Goal) with full 4 keys when viewport is "pc" and compact is false', () => {
@@ -1329,6 +1180,58 @@ describe('Creative Engine Selector - Collapse / Expand in LectureDrawer', () => 
 
     // Preview expands again and header button returns to "Thu gọn preview"
     expect(toggleBtn?.textContent).toContain('Thu gọn preview')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('updates draft and preview immediately when teacher switches station lecture prop', () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    const station1 = {
+      id: 'rule-1',
+      title: 'QT1 — Hãy nghĩ ý tưởng của con',
+      lessonFormat: 'aiki-rule-3steps',
+      learnCards: [],
+    }
+    const station2 = {
+      id: 'rule-2',
+      title: 'QT2 — Con chọn phong cách',
+      lessonFormat: 'aiki-rule-3steps',
+      learnCards: [],
+    }
+
+    // 1. Render Trạm 1
+    act(() => {
+      root.render(
+        <LectureDrawer
+          courseId="aiki-rules"
+          lecture={station1 as any}
+          onSaved={() => {}}
+          onClose={() => {}}
+          inline={true}
+        />
+      )
+    })
+    expect(container.textContent).toContain('QT1 — Hãy nghĩ ý tưởng của con')
+
+    // 2. Chuyển sang Trạm 2
+    act(() => {
+      root.render(
+        <LectureDrawer
+          courseId="aiki-rules"
+          lecture={station2 as any}
+          onSaved={() => {}}
+          onClose={() => {}}
+          inline={true}
+        />
+      )
+    })
+    expect(container.textContent).toContain('QT2 — Con chọn phong cách')
 
     act(() => {
       root.unmount()

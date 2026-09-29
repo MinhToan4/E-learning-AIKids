@@ -92,7 +92,7 @@ describe('ProfileHeaderCard Component', () => {
 })
 
 describe('ProfileStatsGrid Component', () => {
-  it('renders 3 compact Soft Clay cards with Streak, Stars, and Stations', async () => {
+  it('renders 4 compact Soft Clay cards with Streak, Hours, Stations, and Stars', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -112,15 +112,19 @@ describe('ProfileStatsGrid Component', () => {
     expect(container.textContent).toContain('Chuỗi học tập')
     expect(container.textContent).toContain('Giữ chuỗi ngày học chăm chỉ')
 
-    // Card 2: Stars
+    // Card 2: Hours
+    expect(container.textContent).toContain('Thời lượng rèn luyện')
+    expect(container.textContent).toContain('Tích lũy học & sáng tạo')
+
+    // Card 3: Stations
+    expect(container.textContent).toContain('16 / 30 Trạm')
+    expect(container.textContent).toContain('Trạm hoàn thành')
+    expect(container.textContent).toContain('Hành trình 6 Đảo')
+
+    // Card 4: Stars
     expect(container.textContent).toContain('48')
     expect(container.textContent).toContain('Sao tích lũy')
     expect(container.textContent).toContain('Ngôi sao tri thức')
-
-    // Card 3: Stations
-    expect(container.textContent).toContain('16 / 32 Trạm')
-    expect(container.textContent).toContain('Trạm hoàn thành')
-    expect(container.textContent).toContain('Hành trình 6 Đảo')
 
     act(() => root.unmount())
     container.remove()

@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'node:path'
+import { rewriteDevSessionCookie } from './src/shared/lib/dev-session-cookie'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -27,6 +28,14 @@ export default defineConfig(({ mode }) => {
           target: apiProxyTarget,
           changeOrigin: true,
           secure: apiProxyTarget.startsWith('https:'),
+          configure(proxy) {
+            if (!apiProxyTarget.startsWith('https:')) return
+            proxy.on('proxyRes', (proxyResponse) => {
+              const cookies = proxyResponse.headers['set-cookie']
+              if (!cookies) return
+              proxyResponse.headers['set-cookie'] = cookies.map(rewriteDevSessionCookie)
+            })
+          },
         },
       },
     },

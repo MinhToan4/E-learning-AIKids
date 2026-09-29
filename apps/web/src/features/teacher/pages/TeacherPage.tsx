@@ -99,7 +99,7 @@ import {
 } from '@/shared/components/icons/CmsIcons'
 
 export function courseLessonFormat(isRuleCourse: boolean) {
-  return isRuleCourse ? 'aiki-rule-5steps' as const : 'aiki-island-6steps' as const
+  return isRuleCourse ? 'aiki-rule-3steps' as const : 'aiki-island-6steps' as const
 }
 
 export function isAikiRulesCourse(course?: { id: string; title: string; isGatekeeper?: boolean } | null) {

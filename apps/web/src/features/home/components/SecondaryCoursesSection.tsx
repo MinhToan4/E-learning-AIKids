@@ -18,31 +18,6 @@ export type CourseFilterTab = 'all' | 'purchased' | 'available'
 
 export const DEFAULT_SECONDARY_COURSES: CourseSummary[] = [
   {
-    id: 'course-comic-ai',
-    title: 'Sáng Tạo Truyện Tranh AI',
-    shortTitle: 'Truyện Tranh AI',
-    tagline: 'Vẽ truyện tranh phân khung đa dạng cùng AI',
-    description: 'Xây dựng kịch bản, thiết kế nhân vật truyện tranh và xuất bản tập truyện của riêng con.',
-    coverFrom: '#ffedd5',
-    coverTo: '#fef3c7',
-    accent: '#f59e0b',
-    coverImage: designerAssets.course.comic,
-    ageLabel: '7–12 tuổi',
-    ageTrack: 'L2',
-    courseKey: 'comic-ai',
-    durationLabel: '16 trạm',
-    productLabel: 'Truyện Tranh',
-    status: 'open',
-    recommended: true,
-    skills: ['Storyboarding', 'Nhân vật AI', 'Lời thoại'],
-    questCount: 16,
-    enrolled: true,
-    completedCount: 6,
-    totalStars: 18,
-    progressPct: 38,
-    quests: [],
-  },
-  {
     id: 'course-math-asmo',
     title: 'Toán Tư Duy Montessori & ASMO',
     shortTitle: 'Toán ASMO',
@@ -58,7 +33,7 @@ export const DEFAULT_SECONDARY_COURSES: CourseSummary[] = [
     durationLabel: '20 trạm',
     productLabel: 'Toán Olympic',
     status: 'open',
-    recommended: false,
+    recommended: true,
     skills: ['Tư duy logic', 'Cân thăng bằng', 'Mô hình khối'],
     questCount: 20,
     enrolled: false,
@@ -68,23 +43,48 @@ export const DEFAULT_SECONDARY_COURSES: CourseSummary[] = [
     quests: [],
   },
   {
-    id: 'course-game-kids',
-    title: 'Lập Trình Game Nhí',
-    shortTitle: 'Game Nhí',
-    tagline: 'Tự tay làm game 2D tương tác và đấu trường trí tuệ',
-    description: 'Khám phá thế giới lập trình khối lệnh, thiết kế màn chơi và thử thách tư duy giải thuật.',
-    coverFrom: '#f3e8ff',
-    coverTo: '#ede9fe',
-    accent: '#8b5cf6',
-    coverImage: designerAssets.worldScenes.gameArena,
-    ageLabel: '8–14 tuổi',
-    ageTrack: 'L2',
-    courseKey: 'game-kids',
-    durationLabel: '12 trạm',
-    productLabel: 'Lập Trình Game',
+    id: 'course-english-ai',
+    title: 'Tiếng Anh Sáng Tạo Cùng AI',
+    shortTitle: 'Tiếng Anh AI',
+    tagline: 'Luyện giao tiếp và kể chuyện song ngữ cùng AI',
+    description: 'Bé tương tác với người bạn AI bản xứ, phát triển phản xạ giao tiếp và tự tin sáng tạo câu chuyện bằng tiếng Anh.',
+    coverFrom: '#ecfdf5',
+    coverTo: '#d1fae5',
+    accent: '#10b981',
+    coverImage: designerAssets.course.voice,
+    ageLabel: '7–12 tuổi',
+    ageTrack: 'L1-L2',
+    courseKey: 'english-ai',
+    durationLabel: '16 trạm',
+    productLabel: 'Tiếng Anh AI',
     status: 'open',
     recommended: false,
-    skills: ['Logic khối lệnh', 'Game Design', 'Giải quyết vấn đề'],
+    skills: ['Giao tiếp AI', 'Kể chuyện song ngữ'],
+    questCount: 16,
+    enrolled: false,
+    completedCount: 0,
+    totalStars: 0,
+    progressPct: 0,
+    quests: [],
+  },
+  {
+    id: 'course-robotics-ai',
+    title: 'Xưởng Sáng Chế Robot Nhí',
+    shortTitle: 'Robot Nhí',
+    tagline: 'Chế tạo robot thông minh và tư duy kỹ thuật thực chiến',
+    description: 'Lắp ráp mô hình, tích hợp cảm biến thông minh và làm quen với nguyên lý điều khiển tự động hóa vui nhộn.',
+    coverFrom: '#fef2f2',
+    coverTo: '#fee2e2',
+    accent: '#ef4444',
+    coverImage: designerAssets.course.robot,
+    ageLabel: '8–14 tuổi',
+    ageTrack: 'L2',
+    courseKey: 'robotics-ai',
+    durationLabel: '12 trạm',
+    productLabel: 'Robot Nhí',
+    status: 'open',
+    recommended: false,
+    skills: ['Tư duy kỹ thuật', 'Lắp ráp mô hình', 'Cảm biến thông minh'],
     questCount: 12,
     enrolled: false,
     completedCount: 0,
@@ -96,7 +96,7 @@ export const DEFAULT_SECONDARY_COURSES: CourseSummary[] = [
 
 export function isMainIslandCourse(course: CourseSummary): boolean {
   if (getCanonicalAikidCourseSlug(course) !== null) return true
-  const key = `${course.courseKey ?? ''} ${course.id ?? ''}`.toLowerCase()
+  const key = `${course.courseKey ?? ''} ${course.id ?? ''} ${(course as any).slug ?? ''}`.toLowerCase()
   const title = `${course.title ?? ''} ${course.shortTitle ?? ''}`.toLowerCase()
   return (
     key.includes('dao-') ||
@@ -105,8 +105,39 @@ export function isMainIslandCourse(course: CourseSummary): boolean {
     key.includes('aiki-rules') ||
     key.includes('rule-gold') ||
     key.includes('scratch') ||
+    key.includes('comic') ||
+    key.includes('truyen-tranh') ||
+    key.includes('truyentranh') ||
+    key.includes('game') ||
+    key.includes('tro-choi') ||
+    key.includes('trochoi') ||
+    key.includes('hoa-si') ||
+    key.includes('hoasi') ||
+    key.includes('tham-hiem') ||
+    key.includes('thamhiem') ||
+    key.includes('nhan-vat') ||
+    key.includes('nhanvat') ||
+    key.includes('quy-tac') ||
+    key.includes('quytac') ||
+    title.includes('comic') ||
+    title.includes('truyện tranh') ||
+    title.includes('truyen tranh') ||
+    title.includes('game') ||
+    title.includes('trò chơi') ||
+    title.includes('tro choi') ||
+    title.includes('họa sĩ') ||
+    title.includes('hoạ sĩ') ||
+    title.includes('hoa si') ||
+    title.includes('thám hiểm') ||
+    title.includes('tham hiem') ||
+    title.includes('nhân vật') ||
+    title.includes('nhan vat') ||
+    title.includes('quy tắc') ||
+    title.includes('quy tac') ||
     title.includes('hải trình 6 đảo') ||
-    title.includes('chương trình chính')
+    title.includes('hai trinh 6 dao') ||
+    title.includes('chương trình chính') ||
+    title.includes('chuong trinh chinh')
   )
 }
 

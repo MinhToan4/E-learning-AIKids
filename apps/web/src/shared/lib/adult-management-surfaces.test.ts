@@ -66,6 +66,9 @@ describe('adult management surfaces', () => {
     expect(picker).toContain('Chuyển chế độ thiết bị')
     expect(picker).toContain('Chọn hồ sơ để vào học')
     expect(picker).toContain('Phần quản lý của Ba / Mẹ sẽ được ẩn')
+    expect(picker).not.toContain('PinPadModal')
+    expect(picker).not.toContain('Nhập PIN để vào học')
+    expect(picker).toContain('enterAsChild(child.id)')
   })
 
   it('keeps implemented admin configuration surfaces reachable and consolidates learning configuration', () => {

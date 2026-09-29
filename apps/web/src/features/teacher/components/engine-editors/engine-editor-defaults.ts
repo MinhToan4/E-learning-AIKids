@@ -21,8 +21,8 @@ export const DEFAULT_STYLE_PRISM_PARTS: SixStagePracticePartDef[] = [
 ]
 
 export const DEFAULT_PROMPT_DOCTOR_PARTS: SixStagePracticePartDef[] = [
-  { partNumber: 1, title: 'Ca 1: Tay sáu ngón', icon: '✋', emoji: '✋', iconImage: '/assets/aiki-doctor/doctor_hand_broken_v1.webp' },
-  { partNumber: 2, title: 'Ca 2: Mất cái mũ', icon: '🧢', emoji: '🧢', iconImage: '/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp' },
+  { partNumber: 1, title: 'Ca 1: Tay sáu ngón', icon: '✋', emoji: '✋', iconImage: '/assets/aiki-doctor/doctor_hand_broken_6fingers.webp' },
+  { partNumber: 2, title: 'Ca 2: Mất cái mũ', icon: '🧢', emoji: '🧢', iconImage: '/assets/aiki-doctor/doctor_kid_broken_nohat.webp' },
   { partNumber: 3, title: 'Ca 3: Thừa ba con chim', icon: '🌳', emoji: '🌳', iconImage: '/assets/aiki-doctor/doctor_cat_floating_v1.webp' },
   { partNumber: 4, title: 'Ca 4: Nhìn sai hướng', icon: '🎂', emoji: '🎂', iconImage: '/assets/aiki-doctor/doctor_clutter_broken_v1.webp' },
 ]

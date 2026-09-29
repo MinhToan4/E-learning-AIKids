@@ -25,11 +25,6 @@ function resolveEnvironment(): AppEnvironment {
   return import.meta.env.PROD ? 'production' : 'development'
 }
 
-function isLocalBrowser(): boolean {
-  if (typeof window === 'undefined') return false
-  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
-}
-
 const runtimeConfig = typeof window === 'undefined'
   ? undefined
   : window.__AIKIDS_RUNTIME_CONFIG__
@@ -37,12 +32,17 @@ const configuredApiUrl = runtimeConfig?.apiBaseUrl?.trim()
   || import.meta.env.VITE_API_URL?.trim()
 const configuredStorageUrl = runtimeConfig?.storagePublicUrl?.trim()
   || import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim()
-// A production bundle served locally must stay inside the local gateway even if
-// a developer machine still has an old VITE_API_URL in an ignored .env file.
-const useSameOriginApi = import.meta.env.PROD && isLocalBrowser()
+const appEnvironment = resolveEnvironment()
+// Browser sessions are HttpOnly, Secure and SameSite=Lax. Browser runtimes must
+// use their same-origin /api proxy so the cookie belongs to the app host;
+// calling dev-hub directly authenticates successfully but loses the session on
+// following requests from app.aikid.vn or localhost because they are cross-site.
+const useSameOriginApi =
+  appEnvironment === 'production' ||
+  (typeof window !== 'undefined' && import.meta.env.MODE !== 'test')
 
 export const environment = Object.freeze({
-  name: resolveEnvironment(),
+  name: appEnvironment,
   // Empty means same-origin. Vite/nginx proxy /api/* to StoryMee Hub.
   apiBaseUrl: configuredApiUrl && !useSameOriginApi
     ? normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
@@ -52,4 +52,3 @@ export const environment = Object.freeze({
     : '',
   affiliateApiUrl: (import.meta.env.VITE_AFFILIATE_API_URL as string | undefined) || '',
 })
-

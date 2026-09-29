@@ -550,23 +550,23 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "workflowSteps": [
           {
             "step": 1,
-            "title": "Thử câu lệnh ban đầu (1-2 từ)",
-            "akiSpeech": "Chào bé! Đầu tiên hãy thử gõ từ khóa ngắn \"Bảng 4\" xem tớ vẽ thế nào nhé!",
-            "quickPrompt": "Bảng 4",
-            "instruction": "Gõ từ khóa ngắn khởi đầu để thử thách AIKI"
+            "title": "Thực hành 01 — Con trâu (4 kiểu vẽ)",
+            "akiSpeech": "Cậu hãy giữ nguyên câu tả 'Con trâu' và lần lượt thử 4 kiểu vẽ: Màu nước, Truyện tranh, Đất nặn, và Tranh Đông Hồ nhé!",
+            "quickPrompt": "Con trâu",
+            "instruction": "Thử 4 kiểu vẽ với câu lệnh con trâu"
           },
           {
             "step": 2,
-            "title": "Thêm hình dáng & màu sắc",
-            "akiSpeech": "Giỏi lắm! Giờ hãy thêm chi tiết màu sắc và hình dáng để tớ không phải đoán bừa!",
-            "quickPrompt": "Bảng 4 đất nặn Clay 3D tròn trịa",
-            "instruction": "Bổ sung màu sắc, hình dáng đặc trưng"
+            "title": "Thực hành 02 — Con chuột (4 kiểu vẽ)",
+            "akiSpeech": "Bây giờ chuyển sang 'Con chuột', cũng thử 4 kiểu vẽ để xem bức tranh biến hóa thế nào nhé!",
+            "quickPrompt": "Con chuột",
+            "instruction": "Thử 4 kiểu vẽ với câu lệnh con chuột"
           },
           {
             "step": 3,
-            "title": "Hoàn thiện 5 chi tiết vàng",
-            "akiSpeech": "Bây giờ hãy bổ sung hành động và bối cảnh để bức tranh thật sinh động nhé!",
-            "quickPrompt": "Chú trâu đất nặn Clay 3D tròn trịa đáng yêu với sừng uốn cong trên đồng cỏ xanh",
+            "title": "Thêm ánh sáng ma thuật",
+            "akiSpeech": "Bây giờ hãy thêm ánh sáng ma thuật để bức tranh lung linh hơn nữa nhé!",
+            "quickPrompt": "Chú trâu đất nặn Clay 3D dưới ánh trăng tròn phát sáng kỳ ảo",
             "instruction": "Hoàn thiện câu lệnh đầy đủ chi tiết"
           },
           {
@@ -582,31 +582,17 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Phong cách Màu nước",
-            "icon": "🎨",
-            "emoji": "🎨",
-            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_watercolor_v1.webp"
-          },
-          {
-            "partNumber": 2,
-            "title": "Phong cách Truyện tranh",
-            "icon": "✨",
-            "emoji": "✨",
-            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_chibi_v1.webp"
-          },
-          {
-            "partNumber": 3,
-            "title": "Phong cách Đất nặn",
-            "icon": "🧸",
-            "emoji": "🧸",
+            "title": "Con trâu",
+            "icon": "🐃",
+            "emoji": "🐃",
             "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp"
           },
           {
-            "partNumber": 4,
-            "title": "Phong cách Tranh Đông Hồ",
-            "icon": "🏮",
-            "emoji": "🏮",
-            "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_dongho_v1.webp"
+            "partNumber": 2,
+            "title": "Con chuột",
+            "icon": "🐭",
+            "emoji": "🐭",
+            "iconImage": "/assets/pregenerated-fallback/style-prism/mouse_clay_v1.webp"
           }
         ]
       },
@@ -794,14 +780,14 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Ca 1: Tay sáu ngón",
             "icon": "✋",
             "emoji": "✋",
-            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_v1.webp"
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp"
           },
           {
             "partNumber": 2,
             "title": "Ca 2: Mất cái mũ",
             "icon": "🧢",
             "emoji": "🧢",
-            "iconImage": "/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp"
+            "iconImage": "/assets/aiki-doctor/doctor_kid_broken_nohat.webp"
           },
           {
             "partNumber": 3,

@@ -21,7 +21,7 @@ describe('TeacherPage subsystems and learning space specifications', () => {
 
   it('keeps course lessons separate from the AIKI Rules subsystem', () => {
     expect(courseLessonFormat(false)).toBe('aiki-island-6steps')
-    expect(courseLessonFormat(true)).toBe('aiki-rule-5steps')
+    expect(courseLessonFormat(true)).toBe('aiki-rule-3steps')
     expect(isAikiRulesCourse({ id: 'de66602b-c9a0-4589-a04b-226ce3b31120', title: 'Nhà thám hiểm AI' })).toBe(false)
     expect(isAikiRulesCourse({ id: 'aiki-rules', title: 'Mười quy tắc Xưởng' })).toBe(true)
   })

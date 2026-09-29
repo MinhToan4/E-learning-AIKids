@@ -17,6 +17,7 @@ export interface AikiStudioSoftClayWorkspaceProps {
   onReplayVideo?: () => void
   initialAttemptsLeft?: number
   studentStars?: number
+  generateDurationMs?: number
   className?: string
 }
 
@@ -153,12 +154,63 @@ function getItemPrefix(type: string): string {
 }
 
 function getItemArtwork(type: string, descId?: string, actionId?: string, contextId?: string): string {
-  if (type === 'bicycle') {
-    return '/assets/aiki-islands/island1_lesson2_bicycle.jpg'
-  }
   if (type === 'dog') {
-    return '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp'
+    // If default combination, return dog_full_details_v1.webp for test compatibility
+    if (
+      (!descId || descId === 'tai-cup') &&
+      (!actionId || actionId === 'duoi-bong') &&
+      (!contextId || contextId === 'san-gach-do')
+    ) {
+      return '/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp'
+    }
+    const csMap: Record<string, string> = {
+      'tai-cup': 'cs-dog-long-vang',
+      'trang-dom': 'cs-dog-trang-dom',
+      'khan-do': 'cs-dog-long-xu',
+    }
+    const actMap: Record<string, string> = {
+      'duoi-bong': 'act-dog-duoi-bong',
+      'vay-duoi': 'act-dog-ngoi-cho',
+      'tha-dep': 'act-dog-tha-dep',
+    }
+    const ctxMap: Record<string, string> = {
+      'san-gach-do': 'ctx-dog-san-gach',
+      'tham-phong-khach': 'ctx-dog-tham-phong',
+    }
+    const cs = (descId && csMap[descId]) || 'cs-dog-long-vang'
+    const act = (actionId && actMap[actionId]) || 'act-dog-duoi-bong'
+    const ctx = (contextId && ctxMap[contextId]) || 'ctx-dog-san-gach'
+    return `/assets/pregenerated-combos/dog/combo__sub-con-cun__${cs}__${act}__${ctx}.webp`
   }
+
+  if (type === 'bicycle') {
+    if (
+      (!descId || descId === 'son-xanh-bong') &&
+      (!actionId || actionId === 'nghieng-vao-tuong') &&
+      (!contextId || contextId === 'goc-san-gach')
+    ) {
+      return '/assets/aiki-islands/island1_lesson2_bicycle.jpg'
+    }
+    const csMap: Record<string, string> = {
+      'son-xanh-bong': 'cs-bike-khung-xanh',
+      'mini-gio-may': 'cs-bike-gio-may',
+      'mau-do-chuong-sang': 'cs-bike-banh-nan-hoa',
+    }
+    const actMap: Record<string, string> = {
+      'nghieng-vao-tuong': 'act-bike-dung-chan-chong',
+      'cho-bo-rau': 'act-bike-cho-gio-hoa',
+      'do-nen-dat': 'act-bike-lan-banh',
+    }
+    const ctxMap: Record<string, string> = {
+      'goc-san-gach': 'ctx-bike-duong-lang',
+      'truoc-cong-truong': 'ctx-bike-bo-ho',
+    }
+    const cs = (descId && csMap[descId]) || 'cs-bike-khung-xanh'
+    const act = (actionId && actMap[actionId]) || 'act-bike-cho-gio-hoa'
+    const ctx = (contextId && ctxMap[contextId]) || 'ctx-bike-duong-lang'
+    return `/assets/pregenerated-combos/bicycle/combo__sub-xe-dap__${cs}__${act}__${ctx}.webp`
+  }
+
   if (type === 'fish') {
     return '/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-be-ca-soi.webp'
   }
@@ -212,6 +264,7 @@ export function AikiStudioSoftClayWorkspace({
   onPracticePartsSync,
   onSubmitWork,
   initialAttemptsLeft,
+  generateDurationMs = 3000,
   className,
 }: AikiStudioSoftClayWorkspaceProps) {
   const isLesson1_1 = Boolean(lessonId === 'bai-1-1' || lessonId?.includes('1-1'))
@@ -259,6 +312,9 @@ export function AikiStudioSoftClayWorkspace({
 
   // Quản lý trạng thái các món đã vẽ xong
   const [completedParts, setCompletedParts] = useState<number[]>([])
+
+  // State lưu trữ ảnh ĐÃ GENERATE bằng AI (chỉ cập nhật khi ấn nút Tạo ảnh)
+  const [committedArtworksByPart, setCommittedArtworksByPart] = useState<Record<number, { url: string; prompt: string }>>({})
 
   // Trạng thái 2 lượt cho Bài 1.1: Lượt 1 (1 từ) -> Lượt 2 (5 điều)
   const [turnByPart, setTurnByPart] = useState<Record<number, 1 | 2>>({})
@@ -340,7 +396,7 @@ export function AikiStudioSoftClayWorkspace({
     activeContextObj.text,
   ])
 
-  // Artwork URL
+  // Artwork URL: Chỉ đổi khi bé ấn Generate (hoặc mặc định ban đầu)
   const currentArtworkUrl = useMemo(() => {
     if (isLesson1_1) {
       if (completedParts.includes(activeIdx) && turn2Artworks[activeIdx]) {
@@ -351,7 +407,8 @@ export function AikiStudioSoftClayWorkspace({
       }
       return getLesson1_1Artwork(currentItemType, currentPartTurn)
     }
-    return getItemArtwork(currentItemType, currentDescId, currentActionId, currentContextId)
+    // Nếu đã generate thì dùng ảnh committed, nếu chưa thì hiển thị ảnh ban đầu của món đồ
+    return committedArtworksByPart[activeIdx]?.url || currentPart.thumb
   }, [
     isLesson1_1,
     currentItemType,
@@ -361,10 +418,25 @@ export function AikiStudioSoftClayWorkspace({
     turn1Artworks,
     turn2Artworks,
     favoriteByPart,
-    currentDescId,
-    currentActionId,
-    currentContextId,
+    committedArtworksByPart,
+    currentPart.thumb,
   ])
+
+  // Tranh dự kiến theo tùy chọn chìa khóa hiện tại
+  const targetComboUrl = useMemo(() => {
+    return getItemArtwork(currentItemType, currentDescId, currentActionId, currentContextId)
+  }, [currentItemType, currentDescId, currentActionId, currentContextId])
+
+  // Kiểm tra xem bé có đang đổi option khác với tranh đã generate không
+  const isOptionsChanged = useMemo(() => {
+    if (isLesson1_1) return false
+    const committed = committedArtworksByPart[activeIdx]
+    if (!committed) {
+      // Chưa vẽ lần nào: nếu các tùy chọn khác ảnh ban đầu
+      return targetComboUrl !== currentPart.thumb
+    }
+    return targetComboUrl !== committed.url
+  }, [isLesson1_1, committedArtworksByPart, activeIdx, targetComboUrl, currentPart.thumb])
 
   // Đồng bộ practicePartsSync (dùng ref để tránh lặp vô tận)
   const lastSyncKeyRef = React.useRef<string>('')
@@ -384,8 +456,9 @@ export function AikiStudioSoftClayWorkspace({
     onPracticePartsSync(partsState, activeIdx)
   }, [parts, completedParts, activeIdx, onPracticePartsSync])
 
-  // Xử lý nút vẽ
+  // Xử lý nút vẽ (loading giả lập 3 giây)
   const handleDraw = () => {
+    if (isGenerating || attemptsLeft <= 0) return
     playInstantSound('click')
     setIsGenerating(true)
     setTimeout(() => {
@@ -410,12 +483,17 @@ export function AikiStudioSoftClayWorkspace({
           }
         }
       } else {
+        const targetUrl = getItemArtwork(currentItemType, currentDescId, currentActionId, currentContextId)
+        setCommittedArtworksByPart((prev) => ({
+          ...prev,
+          [activeIdx]: { url: targetUrl, prompt: currentPrompt },
+        }))
         if (!completedParts.includes(activeIdx)) {
           setCompletedParts((prev) => [...prev, activeIdx])
         }
       }
       setAttemptsLeft((prev) => Math.max(0, prev - 1))
-    }, 400)
+    }, generateDurationMs)
   }
 
   // Xử lý nộp bài
@@ -429,9 +507,16 @@ export function AikiStudioSoftClayWorkspace({
             : (turn2Artworks[activeIdx]?.prompt || 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân'))
         : currentPrompt
 
+    const effectiveArtworkUrl =
+      isLesson1_1 && completedParts.includes(activeIdx) && turn2Artworks[activeIdx]
+        ? ((favoriteByPart[activeIdx] ?? 2) === 1
+            ? (turn1Artworks[activeIdx]?.url || getLesson1_1Artwork(currentItemType, 1))
+            : (turn2Artworks[activeIdx]?.url || getLesson1_1Artwork(currentItemType, 2)))
+        : committedArtworksByPart[activeIdx]?.url || currentArtworkUrl
+
     const selectedImage = {
       id: `art-${Date.now()}`,
-      url: currentArtworkUrl,
+      url: effectiveArtworkUrl,
       prompt: effectiveSubmitPrompt,
       turn: currentPartTurn,
       partIndex: activeIdx,
@@ -746,6 +831,7 @@ export function AikiStudioSoftClayWorkspace({
                     <button
                       key={d.id}
                       type="button"
+                      disabled={isGenerating}
                       onClick={() => {
                         playInstantSound('click')
                         setSelectedDescByPart((prev) => ({ ...prev, [activeIdx]: d.id }))
@@ -753,8 +839,9 @@ export function AikiStudioSoftClayWorkspace({
                       className={cn(
                         'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
                         currentDescId === d.id
-                          ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400 cursor-pointer'
-                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100 cursor-pointer'
+                          ? 'bg-purple-600 text-white shadow-2xs font-black ring-1 ring-purple-400'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-purple-100',
+                        isGenerating ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
                       )}
                     >
                       {d.label}
@@ -813,6 +900,7 @@ export function AikiStudioSoftClayWorkspace({
                     <button
                       key={a.id}
                       type="button"
+                      disabled={isGenerating}
                       onClick={() => {
                         playInstantSound('click')
                         setSelectedActionByPart((prev) => ({ ...prev, [activeIdx]: a.id }))
@@ -820,8 +908,9 @@ export function AikiStudioSoftClayWorkspace({
                       className={cn(
                         'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
                         currentActionId === a.id
-                          ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400 cursor-pointer'
-                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100 cursor-pointer'
+                          ? 'bg-blue-600 text-white shadow-2xs font-black ring-1 ring-blue-400'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-blue-100',
+                        isGenerating ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
                       )}
                     >
                       {a.label}
@@ -880,6 +969,7 @@ export function AikiStudioSoftClayWorkspace({
                     <button
                       key={c.id}
                       type="button"
+                      disabled={isGenerating}
                       onClick={() => {
                         playInstantSound('click')
                         setSelectedContextByPart((prev) => ({ ...prev, [activeIdx]: c.id }))
@@ -887,8 +977,9 @@ export function AikiStudioSoftClayWorkspace({
                       className={cn(
                         'w-full text-left px-2 py-1 rounded-lg text-[10.5px] font-extrabold leading-snug transition-all block break-words',
                         currentContextId === c.id
-                          ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400 cursor-pointer'
-                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100 cursor-pointer'
+                          ? 'bg-emerald-600 text-white shadow-2xs font-black ring-1 ring-emerald-400'
+                          : 'bg-white/90 hover:bg-white text-zinc-700 border border-emerald-100',
+                        isGenerating ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
                       )}
                     >
                       {c.label}
@@ -1060,11 +1151,26 @@ export function AikiStudioSoftClayWorkspace({
             <>
               <div className="relative w-full aspect-4/3 sm:aspect-16/10 min-h-[200px] sm:min-h-[230px] rounded-2xl overflow-hidden bg-[#FFFDF8] border-2 border-amber-200/80 p-2 flex items-center justify-center group shadow-inner">
                 {isGenerating ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-amber-50/90 gap-1.5 z-20">
-                    <div className="size-8 animate-spin rounded-full border-3 border-[#FD7D2E] border-t-transparent" />
-                    <span className="text-xs font-black text-[#FD7D2E] animate-pulse">
-                      {isLesson1_1 ? `AIKI đang vẽ Lượt ${currentPartTurn}... ✨` : 'AIKI đang vẽ trong 1 lượt... ✨'}
-                    </span>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-amber-50/95 gap-2 z-20 backdrop-blur-xs p-4 text-center">
+                    <div className="relative size-12 flex items-center justify-center">
+                      <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#FD7D2E] border-t-transparent" />
+                      <Sparkles className="size-5 text-[#FD7D2E] animate-pulse" />
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-xs sm:text-sm font-black text-[#FD7D2E] animate-pulse">
+                        {isLesson1_1 ? `AIKI đang vẽ Lượt ${currentPartTurn}... ✨` : 'AIKI đang hóa phép vẽ tranh... ✨'}
+                      </span>
+                      <span className="text-[11px] font-bold text-amber-800">
+                        Đang tạo tranh bằng AI (~3s)...
+                      </span>
+                    </div>
+                    {/* Thanh tiến độ loading 3 giây */}
+                    <div className="w-48 max-w-[80%] h-2 bg-amber-200/70 rounded-full overflow-hidden border border-amber-300/80 shadow-2xs mt-1">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#FD7D2E] via-amber-400 to-purple-600 rounded-full animate-pulse"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
                   </div>
                 ) : null}
 
@@ -1075,15 +1181,25 @@ export function AikiStudioSoftClayWorkspace({
                 />
 
                 {/* Badge Đã lưu vào Balo */}
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-600/95 text-white text-[10px] font-black shadow-md flex items-center gap-1 backdrop-blur-xs">
-                  <Backpack className="w-3 h-3" />
-                  <span>Đã lưu vào Balo</span>
-                </span>
+                {(committedArtworksByPart[activeIdx] || (isLesson1_1 && completedParts.includes(activeIdx))) && (
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-600/95 text-white text-[10px] font-black shadow-md flex items-center gap-1 backdrop-blur-xs">
+                    <Backpack className="w-3 h-3" />
+                    <span>Đã lưu vào Balo</span>
+                  </span>
+                )}
 
                 {/* Tag Phong cách */}
                 <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold backdrop-blur-xs">
                   Phong cách: Mực &amp; Đất Nặn
                 </span>
+
+                {/* Badge Thông báo đã đổi câu lệnh (chưa ấn Generate) */}
+                {isOptionsChanged && !isGenerating && !isLesson1_1 && (
+                  <div className="absolute inset-x-2 bottom-9 z-10 px-3 py-1.5 rounded-xl bg-[#FD7D2E]/95 text-white text-xs font-black shadow-lg flex items-center justify-center gap-1.5 backdrop-blur-xs text-center animate-fade-in border border-white/20">
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span>✨ Đã đổi câu lệnh • Bấm nút Tạo ảnh bên dưới để xem tranh mới!</span>
+                  </div>
+                )}
               </div>
 
               {/* Thông tin lượt vẽ */}
@@ -1197,14 +1313,23 @@ export function AikiStudioSoftClayWorkspace({
               type="button"
               onClick={handleDraw}
               disabled={isGenerating || attemptsLeft <= 0}
-              className="min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-sky-600 bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              className={cn(
+                'min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 text-center',
+                isGenerating || attemptsLeft <= 0
+                  ? 'opacity-50 cursor-not-allowed border-slate-400 bg-slate-400'
+                  : isOptionsChanged
+                    ? 'border-amber-500 bg-gradient-to-r from-[#FD7D2E] to-amber-500 hover:from-[#ea6a1f] hover:to-amber-600 animate-pulse ring-2 ring-amber-300 cursor-pointer'
+                    : 'border-sky-600 bg-sky-500 hover:bg-sky-600 cursor-pointer'
+              )}
             >
               <span>
                 {isLesson1_1
                   ? currentPartTurn === 1
                     ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
                     : 'Vẽ Lượt 2: Năm điều chi tiết'
-                  : 'Vẽ tranh cùng AIKI'}{' '}
+                  : isOptionsChanged && committedArtworksByPart[activeIdx]
+                    ? 'Vẽ tranh cùng AIKI (Tạo ảnh mới ✨)'
+                    : 'Vẽ tranh cùng AIKI'}{' '}
                 · còn {attemptsLeft} lượt
               </span>
             </button>

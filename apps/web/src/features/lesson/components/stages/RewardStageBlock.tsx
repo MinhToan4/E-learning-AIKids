@@ -112,8 +112,25 @@ export function RewardStageBlock({
 
         {/* CỘT PHẢI: Kết quả, lời chúc và các nút điều hướng */}
         <div className="flex flex-col justify-center gap-2.5 sm:gap-3.5 text-center md:col-span-1 lg:col-span-6 lg:h-full lg:text-left min-w-0 max-w-full">
-          <div className="inline-flex items-center self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start shrink-0 max-w-full">
-            <span>Hoàn thành bài học</span>
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+            <div className="inline-flex items-center self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start shrink-0 max-w-full">
+              <span>Hoàn thành bài học</span>
+            </div>
+            {config?.rewardBadge?.name && (
+              <div
+                data-testid="stage6-reward-badge"
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100/90 px-3 py-1 text-xs font-black text-amber-950 shadow-2xs shrink-0 max-w-full"
+              >
+                {config.rewardBadge.iconUrl && (
+                  <img
+                    src={config.rewardBadge.iconUrl}
+                    alt={config.rewardBadge.name}
+                    className="size-4 rounded-full object-cover border border-amber-300 shadow-2xs"
+                  />
+                )}
+                <span>{config.rewardBadge.name}</span>
+              </div>
+            )}
           </div>
 
           {/* Phần thưởng hoàn thành: cúp và 3 sao */}

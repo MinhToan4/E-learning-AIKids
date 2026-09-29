@@ -139,12 +139,18 @@ describe('SixStageJourneyView', () => {
 
   beforeEach(() => {
     mockStorage = {}
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear()
+    }
     container = document.createElement('div')
     document.body.appendChild(container)
   })
 
   afterEach(() => {
     mockStorage = {}
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear()
+    }
     act(() => {
       while (activeRoots.length > 0) {
         try {
@@ -2560,8 +2566,8 @@ describe('SixStageJourneyView', () => {
       ;(sonetOption as HTMLButtonElement)?.click()
     })
 
-    // Now quiz is correct: 2 stars earned!
-    expect(headerPill?.textContent).toContain('2/3')
+    // Question 1 answered: still 1/3 stars (must complete both questions to earn 2nd star)
+    expect(headerPill?.textContent).toContain('1/3')
 
     // Click "Câu tiếp theo" to go to Question 2
     const nextQBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -2581,6 +2587,9 @@ describe('SixStageJourneyView', () => {
     act(() => {
       ;(q2CorrectOpt as HTMLButtonElement)?.click()
     })
+
+    // Both questions completed: 2/3 stars earned!
+    expect(headerPill?.textContent).toContain('2/3')
 
     // Click "Nộp bài kiểm tra"
     const submitBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -2925,5 +2934,34 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
     const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
     expect(mainCanvas?.className).toContain('w-full')
+  })
+
+  it('preserves answered quiz question and does not reset to video when returning to lesson', () => {
+    const testLessonId = 'rule-1-persistence-test'
+    // Giả lập học sinh đã trả lời đúng câu 1 trong Quiz
+    sessionStorage.setItem(`aikids_quiz_ans_${testLessonId}`, JSON.stringify({ 0: 1 }))
+    sessionStorage.setItem(`aikids_quiz_chk_${testLessonId}`, JSON.stringify({ 0: true }))
+    sessionStorage.setItem(`aikids_quiz_active_${testLessonId}`, '0')
+    sessionStorage.setItem(`aikids_video_done_${testLessonId}`, 'true')
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId={testLessonId}
+          lessonTitle="Quy tắc 1"
+          initialStageIndex={1}
+        />
+      )
+    })
+
+    // 1. Phải ở đúng chặng Quiz (Chặng 2/3), không bị về lại video (Chặng 1/3)
+    expect(container.textContent).toContain('Chặng 2/3')
+
+    // 2. Câu 1 đã được trả lời xong
+    const quizSection = container.querySelector('[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+    expect(quizSection?.textContent).toContain('Đúng rồi!')
+    act(() => root.unmount())
   })
 })

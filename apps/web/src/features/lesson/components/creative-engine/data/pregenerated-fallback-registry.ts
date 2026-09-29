@@ -22,17 +22,77 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
       '/assets/aiki-doctor/doctor_hand_cured_v1.webp',
       '/assets/aiki-doctor/doctor_hand_cured_v2.webp',
     ],
-    description: 'Bàn tay hiệp sĩ 5 ngón giáp bạc chuẩn chỉnh (chữa dị tật thừa ngón)',
+    description: 'Bàn tay 5 ngón chuẩn chỉnh (chữa dị tật thừa ngón)',
+  },
+  {
+    id: 'doctor-hand-cured-side-desk',
+    engineMode: 'prompt-doctor',
+    keywords: ['nhìn nghiêng', 'bàn gỗ', 'tì lên mặt bàn', 'side desk', 'cổ tay tì'],
+    variants: [
+      '/assets/aiki-doctor/doctor_hand_cured_side_desk.webp',
+      '/assets/aiki-doctor/doctor_hand_cured_v1.webp',
+    ],
+    description: 'Bàn tay 5 ngón nhìn nghiêng cổ tay tì lên mặt bàn gỗ',
+  },
+  {
+    id: 'doctor-hand-cured-paper-down',
+    engineMode: 'prompt-doctor',
+    keywords: ['tách rời', 'trang giấy', 'giấy trắng', 'đầu nhọn', 'paper down'],
+    variants: [
+      '/assets/aiki-doctor/doctor_hand_cured_paper_down.webp',
+      '/assets/aiki-doctor/doctor_hand_cured_v1.webp',
+    ],
+    description: 'Bàn tay 5 ngón tách rời rõ cầm bút chì đầu nhọn hướng xuống trang giấy trắng',
+  },
+  {
+    id: 'doctor-hand-cured-raised-up',
+    engineMode: 'prompt-doctor',
+    keywords: ['giơ bút', 'giơ lên', 'nhìn ngang', 'nền trơn', 'raised up'],
+    variants: [
+      '/assets/aiki-doctor/doctor_hand_cured_raised_up.webp',
+      '/assets/aiki-doctor/doctor_hand_cured_v1.webp',
+    ],
+    description: 'Bàn tay 5 ngón đang giơ bút chì lên nhìn ngang trên nền trơn',
   },
   {
     id: 'doctor-squirrel-cured',
     engineMode: 'prompt-doctor',
-    keywords: ['sóc', 'mũ len', 'quả bông', 'sóc bông', 'mũ đỏ', 'squirrel', 'đội mũ'],
+    keywords: ['sóc', 'sóc bông', 'squirrel', 'mũ len đỏ', 'quả bông', 'mũ đỏ'],
     variants: [
       '/assets/aiki-doctor/doctor_squirrel_cured_v1.webp',
       '/assets/aiki-doctor/doctor_squirrel_cured_v2.webp',
     ],
     description: 'Sóc Bông đội mũ len đỏ quả bông ấm áp trong rừng thông',
+  },
+  {
+    id: 'doctor-kid-cured-red-beanie',
+    engineMode: 'prompt-doctor',
+    keywords: ['bạn nhỏ', 'bạn nhỏ đội mũ len', 'bạn nhỏ mũ len', 'sân gạch', 'red beanie'],
+    variants: [
+      '/assets/aiki-doctor/doctor_kid_cured_red_beanie.webp',
+      '/assets/aiki-doctor/doctor_kid_cured_blue_cap.webp',
+    ],
+    description: 'Bạn nhỏ đội mũ len đỏ có quả bông trắng đang đứng trong sân gạch nhìn thẳng',
+  },
+  {
+    id: 'doctor-kid-cured-blue-cap',
+    engineMode: 'prompt-doctor',
+    keywords: ['lưỡi trai', 'lưỡi trai xanh', 'mũ xanh', 'tay vẫy', 'sân trường', 'blue cap'],
+    variants: [
+      '/assets/aiki-doctor/doctor_kid_cured_blue_cap.webp',
+      '/assets/aiki-doctor/doctor_kid_cured_red_beanie.webp',
+    ],
+    description: 'Bạn nhỏ đội mũ lưỡi trai xanh đang đứng trong sân trường một tay vẫy',
+  },
+  {
+    id: 'doctor-kid-cured-straw-hat',
+    engineMode: 'prompt-doctor',
+    keywords: ['mũ rơm', 'vành rộng', 'sân nắng', 'che mắt', 'straw hat'],
+    variants: [
+      '/assets/aiki-doctor/doctor_kid_cured_straw_hat.webp',
+      '/assets/aiki-doctor/doctor_kid_cured_red_beanie.webp',
+    ],
+    description: 'Bạn nhỏ đội mũ rơm vành rộng đang đứng giữa sân nắng tay che mắt',
   },
   {
     id: 'doctor-cat-cured',
@@ -228,6 +288,46 @@ export const PREGENERATED_FALLBACK_REGISTRY: FallbackImageEntry[] = [
       '/assets/pregenerated-fallback/style-prism/buffalo_dongho_v2.webp',
     ],
     description: 'Tranh khắc gỗ dân gian Đông Hồ chú trâu gặm cỏ trên giấy điệp',
+  },
+  {
+    id: 'style-mouse-clay',
+    engineMode: 'style-prism',
+    keywords: ['chuột', 'con chuột', 'đất nặn', 'soft clay', 'phô mai', 'mouse clay'],
+    variants: [
+      '/assets/pregenerated-fallback/style-prism/mouse_clay_v1.webp',
+      '/assets/pregenerated-fallback/style-prism/mouse_clay_v2.webp',
+    ],
+    description: 'Chú chuột đất nặn Soft Clay ăn phô mai trên tủ gỗ',
+  },
+  {
+    id: 'style-mouse-watercolor',
+    engineMode: 'style-prism',
+    keywords: ['chuột', 'con chuột', 'màu nước', 'watercolor', 'loang', 'phô mai', 'mouse watercolor'],
+    variants: [
+      '/assets/pregenerated-fallback/style-prism/mouse_watercolor_v1.webp',
+      '/assets/pregenerated-fallback/style-prism/mouse_watercolor_v2.webp',
+    ],
+    description: 'Tranh màu nước chú chuột gặm phô mai trên tủ gỗ',
+  },
+  {
+    id: 'style-mouse-chibi',
+    engineMode: 'style-prism',
+    keywords: ['chuột', 'con chuột', 'chibi', 'truyện tranh', 'manga', 'anime', 'phô mai', 'mouse chibi'],
+    variants: [
+      '/assets/pregenerated-fallback/style-prism/mouse_chibi_v1.webp',
+      '/assets/pregenerated-fallback/style-prism/mouse_chibi_v2.webp',
+    ],
+    description: 'Chú chuột chibi truyện tranh gặm phô mai trên tủ gỗ',
+  },
+  {
+    id: 'style-mouse-dongho',
+    engineMode: 'style-prism',
+    keywords: ['chuột', 'con chuột', 'đông hồ', 'dân gian', 'giấy điệp', 'giấy dó', 'phô mai', 'mouse dong ho'],
+    variants: [
+      '/assets/pregenerated-fallback/style-prism/mouse_dongho_v1.webp',
+      '/assets/pregenerated-fallback/style-prism/mouse_dongho_v2.webp',
+    ],
+    description: 'Tranh dân gian Đông Hồ chú chuột ăn phô mai trên tủ gỗ',
   },
   {
     id: 'style-dog-clay',

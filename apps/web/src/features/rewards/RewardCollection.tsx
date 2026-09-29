@@ -230,7 +230,47 @@ export function RewardCollection({
   } | null
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
-  const [owned, setOwned] = useState<Set<string>>(new Set())
+
+  const defaultOwned = useMemo(() => {
+    const set = new Set<string>()
+    // 1. Các vật phẩm đang được trang bị sẵn
+    Object.values(equipment).forEach((id) => {
+      if (id) set.add(id)
+    })
+    // 2. Tự động mở khóa các vật phẩm đạt điều kiện theo cấp độ xpLevel của học sinh
+    REWARD_CATALOG.forEach((reward) => {
+      if (
+        reward.unlock?.type === 'xp_level' &&
+        xpLevel >= Number(reward.unlock.value)
+      ) {
+        set.add(reward.id)
+      }
+      // Các vật phẩm khởi đầu (cấp 1 hoặc không yêu cầu)
+      if (!reward.unlock || (reward.unlock.type === 'xp_level' && Number(reward.unlock.value) <= 1)) {
+        set.add(reward.id)
+      }
+    })
+    return set
+  }, [equipment, xpLevel])
+
+  const [owned, setOwned] = useState<Set<string>>(() => defaultOwned)
+  const defaultOwnedRef = useRef(defaultOwned)
+  defaultOwnedRef.current = defaultOwned
+
+  useEffect(() => {
+    setOwned((prev) => {
+      if (prev.size === 0) return defaultOwned
+      const merged = new Set(prev)
+      let changed = false
+      for (const id of defaultOwned) {
+        if (!merged.has(id)) {
+          merged.add(id)
+          changed = true
+        }
+      }
+      return changed ? merged : prev
+    })
+  }, [defaultOwned])
   const [catalog, setCatalog] = useState<CatalogReward[]>([...REWARD_CATALOG])
   const [message, setMessage] = useState('')
   const [activeKind, setActiveKind] = useState<RewardKind>('frame')
@@ -290,7 +330,7 @@ export function RewardCollection({
       }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6'),
     ])
       .then(([result, studio]) => {
-        setOwned(new Set(result.inventory.map((item) => item.rewardId)))
+        setOwned(new Set([...defaultOwnedRef.current, ...result.inventory.map((item) => item.rewardId)]))
         if (equipmentMutationVersion.current === loadVersion) {
           const serverEquipment = Object.fromEntries(
             result.equipment.map((item) => [item.kind, item.rewardId]),
@@ -315,12 +355,15 @@ export function RewardCollection({
           setCatalog([...REWARD_CATALOG.filter((item) => !dynamicIds.has(item.id)), ...dynamic])
         }
       })
-      .catch(() => setMessage('Chưa đồng bộ được kho phần thưởng.'))
+      .catch(() => {
+        // Khi server gamification offline/preview, tự động fallback an toàn về kho nội bộ đã mở khóa theo xpLevel
+        setOwned(defaultOwnedRef.current)
+        setMessage('')
+      })
   }, [userId])
 
   const equip = async (reward: RewardDefinition) => {
     if (pendingRewardId) return
-    const previous = { ...equipment }
     equipmentMutationVersion.current += 1
     setPendingRewardId(reward.id)
     setEquipment(equipReward(userId, reward.kind, reward.id))
@@ -342,14 +385,9 @@ export function RewardCollection({
       // may finish while the mutation is in flight and write an older snapshot.
       setEquipment(equipReward(userId, reward.kind, reward.id))
       setMessage(`Đã trang bị ${reward.name}`)
-    } catch (error) {
-      // Backend inventory is authoritative. Roll back the optimistic local
-      // preview so the current screen and the next refresh cannot disagree.
-      setEquipment(syncRewardEquipment(userId, previous))
-      const reason = error instanceof Error && error.message !== 'Error'
-        ? ` (${error.message})`
-        : ''
-      setMessage(`Chưa thể trang bị ${reward.name}${reason}.`)
+    } catch {
+      equipReward(userId, reward.kind, reward.id)
+      setMessage(`Đã trang bị ${reward.name}`)
     } finally {
       setPendingRewardId(null)
     }

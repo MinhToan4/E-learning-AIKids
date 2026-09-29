@@ -46,17 +46,22 @@ describe('SecondaryCoursesSection', () => {
     expect(isMainIslandCourse(makeCourse({ id: 'muoi-quy-tac-xuong-sang-tao' }))).toBe(true)
     expect(isMainIslandCourse(makeCourse({ title: 'Hải trình 6 đảo khám phá' }))).toBe(true)
 
-    // Secondary courses
-    expect(isMainIslandCourse(makeCourse({ id: 'course-comic-ai', title: 'Sáng Tạo Truyện Tranh AI' }))).toBe(false)
+    // Courses matching 6-island themes (comic, game, etc.) are filtered as main island courses to avoid duplication
+    expect(isMainIslandCourse(makeCourse({ id: 'course-comic-ai', title: 'Sáng Tạo Truyện Tranh AI' }))).toBe(true)
+    expect(isMainIslandCourse(makeCourse({ id: 'course-game-kids', title: 'Lập Trình Game Nhí' }))).toBe(true)
+
+    // Truly secondary courses
     expect(isMainIslandCourse(makeCourse({ id: 'course-math-asmo', title: 'Toán Tư Duy ASMO' }))).toBe(false)
+    expect(isMainIslandCourse(makeCourse({ id: 'course-english-ai', title: 'Tiếng Anh Sáng Tạo Cùng AI' }))).toBe(false)
+    expect(isMainIslandCourse(makeCourse({ id: 'course-robotics-ai', title: 'Xưởng Sáng Chế Robot Nhí' }))).toBe(false)
   })
 
   it('provides default sample catalog courses when given empty course list', () => {
     const list = resolveSecondaryCourses([])
     expect(list.length).toBeGreaterThanOrEqual(3)
-    expect(list.some((c) => c.title.includes('Sáng Tạo Truyện Tranh AI'))).toBe(true)
     expect(list.some((c) => c.title.includes('Toán Tư Duy Montessori & ASMO'))).toBe(true)
-    expect(list.some((c) => c.title.includes('Lập Trình Game Nhí'))).toBe(true)
+    expect(list.some((c) => c.title.includes('Tiếng Anh Sáng Tạo Cùng AI'))).toBe(true)
+    expect(list.some((c) => c.title.includes('Xưởng Sáng Chế Robot Nhí'))).toBe(true)
   })
 
   it('renders section title, 3 Soft Clay filter tabs, and course cards with clear status badges', () => {

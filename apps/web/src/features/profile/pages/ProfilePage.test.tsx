@@ -235,7 +235,7 @@ describe('ProfilePage Component', () => {
     expect(container.textContent).toContain('Thời lượng rèn luyện')
     expect(container.textContent).toContain('Tích lũy học & sáng tạo')
     expect(container.textContent).toContain('Hành trình 6 Đảo')
-    expect(container.textContent).toContain('32 Trạm')
+    expect(container.textContent).toContain('30 Trạm')
     expect(container.textContent).toContain('Tiến độ khám phá')
     expect(container.textContent).toContain('Ngôi sao tri thức')
     expect(container.textContent).toContain('Tích lũy qua bài học')
@@ -354,7 +354,7 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('switches to certificates tab and renders progress card when course is not yet completed (< 32 stations)', async () => {
+  it('switches to certificates tab and renders progress card when course is not yet completed (< 30 stations)', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -384,11 +384,11 @@ describe('ProfilePage Component', () => {
     expect(container.textContent).toContain('Bằng Khen Tốt Nghiệp Khóa Học')
     expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
-    // Trường hợp 3: Khi chưa xong 32 trạm, KHÔNG có banner chúc mừng nhận bằng nào, chỉ có thẻ tiến độ
+    // Trường hợp 3: Khi chưa xong 30 trạm, KHÔNG có banner chúc mừng nhận bằng nào, chỉ có thẻ tiến độ
     expect(container.textContent).not.toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP')
     expect(container.textContent).not.toContain('Chúc mừng con đã tốt nghiệp')
     expect(container.textContent).toContain(
-      'Hoàn thành trọn vẹn 32/32 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!'
+      'Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!'
     )
     expect(container.textContent).not.toContain('AIKids')
     expect(container.textContent).toContain('Tiến độ toàn khóa')
@@ -460,8 +460,8 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('renders Graduation Honors banner on certificates tab when student achieves 32/32 stations and opens CourseCertificateModal', async () => {
-    // Mock pathway with 32 completed stations
+  it('renders Graduation Honors banner on certificates tab when student achieves 30/30 stations and opens CourseCertificateModal', async () => {
+    // Mock pathway with 30+ completed stations
     vi.spyOn(learningApiModule.learningApi, 'getPathway').mockResolvedValue({
       student: { nickname: 'Minh Thám Hiểm', ageBand: '6-8' },
       policy: null,
@@ -571,7 +571,7 @@ describe('ProfilePage Component', () => {
 
     // Graduation banner & Claim to Backpack flow with non-AI text
     expect(container.textContent).toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!')
-    expect(container.textContent).toContain('Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.')
+    expect(container.textContent).toContain('Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.')
     expect(container.textContent).toContain('Nhận Bằng Khen & Cất Vào Ba Lô')
     expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
@@ -618,6 +618,7 @@ describe('ProfilePage Component', () => {
 
     await act(async () => {
       storybookTab.click()
+      await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
     // Storybook header

@@ -18,6 +18,26 @@ import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
 import { clearStudentProgressionCache } from '@/shared/lib/query-client'
 
+const PARENT_HANDOFF_SESSION_KEY = 'aikids.parent-handoff'
+
+function readParentHandoff(): boolean {
+  try {
+    return typeof sessionStorage !== 'undefined' && sessionStorage.getItem(PARENT_HANDOFF_SESSION_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeParentHandoff(active: boolean): void {
+  try {
+    if (typeof sessionStorage === 'undefined') return
+    if (active) sessionStorage.setItem(PARENT_HANDOFF_SESSION_KEY, '1')
+    else sessionStorage.removeItem(PARENT_HANDOFF_SESSION_KEY)
+  } catch {
+    // Session storage may be unavailable in hardened/private browser modes.
+  }
+}
+
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
 }
@@ -210,11 +230,18 @@ export const useAuth = create<AuthState>((set, get) => ({
   loading: true,
   error: null,
   // WHY: false theo mặc định — icon Ba / Mẹ sẽ ẩn cho mọi luồng login thông thường
-  enteredFromParent: false,
+  enteredFromParent: readParentHandoff(),
 
-  setUser: (u) => set({ user: u }),
+  setUser: (u) => {
+    if (!u || u.role !== 'student') writeParentHandoff(false)
+    set({
+      user: u,
+      ...(!u || u.role !== 'student' ? { enteredFromParent: false } : {}),
+    })
+  },
 
   expireSession: () => {
+    writeParentHandoff(false)
     clearStudentProgressionCache(get().user?.id)
     clearAccessToken()
     clearApiCache()
@@ -234,9 +261,10 @@ export const useAuth = create<AuthState>((set, get) => ({
     try {
       const { user, access } = await api<{ user: User; access?: AccountAccess }>('/api/auth/me')
       if (user.role === 'student') {
-        set({ user, access: null, activeContext: null, loading: false, enteredFromParent: false })
+        set({ user, access: null, activeContext: null, loading: false, enteredFromParent: readParentHandoff() })
         return
       }
+      writeParentHandoff(false)
       set({ ...(await hydrateAdultAccess(user, access)), loading: false, enteredFromParent: false })
     } catch (error) {
       if (
@@ -300,6 +328,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   loginStudent: async (nickname, _second, opts) => {
     set({ error: null })
+    writeParentHandoff(false)
     const { user } = await api<{ user: User }>('/api/auth/login/student', {
       method: 'POST',
       body: JSON.stringify({
@@ -328,6 +357,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
     // WHY: enteredFromParent = true là flag duy nhất phân biệt phiên này với loginStudent.
     // Không dùng parentId vì học sinh tự đăng nhập cũng có parentId.
+    writeParentHandoff(true)
     set({ user, access: null, activeContext: null, enteredFromParent: true })
     return user
   },
@@ -337,22 +367,23 @@ export const useAuth = create<AuthState>((set, get) => ({
     const trimmedLogin = login.trim()
     const resolvedEmail = resolveLoginAlias(trimmedLogin)
     try {
-      const idToken = await signInWithFirebasePassword(resolvedEmail, password)
       await clearPreviousLearnerData()
       let hydrated
       try {
-        hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
-      } catch (error) {
-        // Compatibility bridge while the Account service is rolling out
-        // Firebase token verification. Firebase has already verified the
-        // credential at this point; never use the legacy route when Firebase
-        // itself rejects the email/password pair.
-        if (!(error instanceof ApiError) || error.status !== 401) throw error
-        const { user } = await api<{ user: User }>('/api/auth/login/adult', {
+        // Password login is owned by Account Hub/Supabase and must create the
+        // HttpOnly server session directly. Requiring Firebase first locks out
+        // valid legacy/DB accounts that have not been mirrored to Firebase.
+        const { user, access } = await api<{ user: User; access?: AccountAccess }>('/api/auth/login/adult', {
           method: 'POST',
           body: JSON.stringify({ login: trimmedLogin, password }),
         })
-        hydrated = await hydrateAdultAccess(user)
+        hydrated = await hydrateAdultAccess(user, access)
+      } catch (error) {
+        // Firebase-only accounts remain supported during the account migration,
+        // but a network/5xx Hub failure must not be disguised as bad credentials.
+        if (!(error instanceof ApiError) || error.status !== 401) throw error
+        const idToken = await signInWithFirebasePassword(resolvedEmail, password)
+        hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
       }
       set(hydrated)
       return hydrated.user
@@ -373,7 +404,8 @@ export const useAuth = create<AuthState>((set, get) => ({
   setSessionUser: (user) => {
     if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
     void clearPreviousLearnerData()
-    set({ user, access: null, activeContext: null, error: null })
+    if (user.role !== 'student') writeParentHandoff(false)
+    set({ user, access: null, activeContext: null, error: null, enteredFromParent: false })
   },
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
@@ -412,6 +444,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
+      writeParentHandoff(false)
       clearStudentProgressionCache(get().user?.id)
       await clearPreviousLearnerData()
       clearAccessToken()

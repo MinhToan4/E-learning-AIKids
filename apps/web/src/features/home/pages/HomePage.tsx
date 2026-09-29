@@ -1,31 +1,22 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Settings, Star, Zap } from 'lucide-react'
+import { Check, Map as MapIcon, Settings, Star } from 'lucide-react'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { designerAssets } from '@/shared/config/assets'
 import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
+import { createFallbackPathway, getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
 import { useProgression } from '@/shared/lib/progression-query'
-import { avatarImage } from '@/shared/config/avatars'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
-import {
-  ParentTrailerModal,
-} from '@/features/subscription/components/ParentPurchaseTrailerBanner'
-import { CuteProgress } from '@/shared/components/ui/CuteProgress'
-import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
-import { cn } from '@/shared/lib/cn'
+import { ParentTrailerModal } from '@/features/subscription/components/ParentPurchaseTrailerBanner'
+import { type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import {
   HeroProgressCard,
   DailyMissionBanner,
   OfficialCourseCard,
-  IslandsTrack,
-  SecondaryCoursesSection,
-  DEFAULT_SECONDARY_COURSES,
-  CreativeShowcaseCard,
 } from '@/features/home/components'
 
 type EnrollmentSummary = {
@@ -33,6 +24,9 @@ type EnrollmentSummary = {
   status: string
   progress?: Array<{ status?: string; stars?: number }>
   stations?: Array<{ status?: string; stars?: number }>
+  questCount?: number
+  completedCount?: number
+  totalStars?: number
 }
 
 export function coursesWithEnrollments(
@@ -41,19 +35,32 @@ export function coursesWithEnrollments(
 ): CourseSummary[] {
   const byCourse = new Map(enrollments.map((row) => [row.courseId, row]))
   return courses.map((course) => {
-    const enrollment = byCourse.get(course.id)
+    const enrollment =
+      byCourse.get(course.id) ??
+      byCourse.get((course as any).slug) ??
+      byCourse.get(course.courseKey ?? '')
     if (!enrollment || !['active', 'completed'].includes(enrollment.status)) {
       return { ...course, enrolled: false, completedCount: 0, totalStars: 0, progressPct: 0 }
     }
     const progress = enrollment.progress ?? enrollment.stations ?? []
-    const completedCount = progress.filter((row) => row.status === 'completed').length
-    const questCount = progress.length || getCourseStationCount(course)
+    const completedCount =
+      progress.length > 0
+        ? progress.filter((row) => row.status === 'completed').length
+        : (enrollment.completedCount ?? course.completedCount ?? 0)
+    const questCount =
+      progress.length > 0
+        ? progress.length
+        : (enrollment.questCount ?? getCourseStationCount(course))
+    const totalStars =
+      progress.length > 0
+        ? progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0)
+        : (enrollment.totalStars ?? course.totalStars ?? 0)
     return {
       ...course,
       enrolled: true,
       questCount,
       completedCount,
-      totalStars: progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0),
+      totalStars,
       progressPct: questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0,
     }
   })
@@ -107,6 +114,8 @@ export function clearHomePageCache(): void {
 
 export interface OfficialHomeIslandConfig {
   id: string
+  slug: string
+  badge: string
   title: string
   description: string
   scene: string
@@ -114,6 +123,7 @@ export interface OfficialHomeIslandConfig {
   tone: string
   progressTone: 'violet' | 'coral' | 'mint'
   defaultQuestCount: number
+  targetRoute: string
   defaultRoute: string
   searchKeys: string[]
 }
@@ -121,77 +131,117 @@ export interface OfficialHomeIslandConfig {
 export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-rules',
-    title: 'Mười quy tắc Xưởng',
-    description: '10 nguyên tắc an toàn, đạo đức và làm chủ AI của Xưởng sáng tạo.',
+    slug: 'muoi-quy-tac-xuong-sang-tao',
+    badge: 'ĐẢO 1',
+    title: 'Đảo Tiên Quyết',
+    description: '10 Quy tắc vàng về an toàn, đạo đức và làm chủ AI.',
     scene: designerAssets.worldScenes.aiValley,
     pose: 'guide',
     tone: 'var(--color-brand-600)',
     progressTone: 'violet',
     defaultQuestCount: 10,
-    defaultRoute: '/rules',
+    targetRoute: '/world/program/aikid_official?island=muoi-quy-tac-xuong-sang-tao',
+    defaultRoute: '/world/program/aikid_official?island=muoi-quy-tac-xuong-sang-tao',
     searchKeys: ['muoi-quy-tac', 'quy tắc', 'quy tac', 'rule', 'tiên quyết', 'tien quyet'],
   },
   {
     id: 'island-explorer',
-    title: 'Nhà thám hiểm AI',
-    description: '4 Chìa Khóa Lệnh — Tạo hình ảnh đơn lẻ và sửa câu lệnh như kỹ sư AI.',
+    slug: 'dao-1-nha-tham-hiem-ai',
+    badge: 'ĐẢO 2',
+    title: 'Đảo Khám Phá',
+    description: '4 Chìa khóa lệnh — Tạo hình ảnh và sửa câu lệnh đúng ý.',
     scene: designerAssets.worldScenes.promptKeys,
     pose: 'thinking',
     tone: 'var(--color-mint-600)',
     progressTone: 'mint',
     defaultQuestCount: 4,
-    defaultRoute: '/world/dao-1',
+    targetRoute: '/world/program/aikid_official?island=dao-1-nha-tham-hiem-ai',
+    defaultRoute: '/world/program/aikid_official?island=dao-1-nha-tham-hiem-ai',
     searchKeys: ['dao-1', 'nha-tham-hiem', 'thám hiểm', 'tham hiem', 'khám phá', 'kham pha'],
   },
   {
     id: 'island-artist',
-    title: 'Tớ là hoạ sĩ AI!',
-    description: 'Sắc Màu & Kể Chuyện — Bố cục ngôi sao 3 lớp, ánh sáng cảm xúc và tạo ra bức tranh biết nói.',
+    slug: 'dao-2-hoa-si-ai',
+    badge: 'ĐẢO 3',
+    title: 'Đảo Họa Sĩ',
+    description: 'Sắc màu cọ vẽ — Bố cục 3 lớp và tranh biết nói.',
     scene: designerAssets.worldScenes.creativeMountain,
     pose: 'celebrate',
     tone: 'var(--color-sun-600)',
     progressTone: 'coral',
     defaultQuestCount: 4,
-    defaultRoute: '/world/dao-2',
+    targetRoute: '/world/program/aikid_official?island=dao-2-hoa-si-ai',
+    defaultRoute: '/world/program/aikid_official?island=dao-2-hoa-si-ai',
     searchKeys: ['dao-2', 'hoa-si', 'hoạ sĩ', 'họa sĩ'],
   },
   {
     id: 'island-character',
-    title: 'Biệt đội nhân vật AI',
-    description: 'Khoá mật mã nhận diện 3 điểm, biến hoá 6 biểu cảm và căn cứ bí mật.',
+    slug: 'dao-3-biet-doi-nhan-vat-ai',
+    badge: 'ĐẢO 4',
+    title: 'Đảo Nhân Vật',
+    description: 'Hồ sơ 3 điểm — Nhận diện nhân vật và 6 biểu cảm.',
     scene: designerAssets.worldScenes.characterLab,
     pose: 'guide',
     tone: 'var(--color-sky-600)',
     progressTone: 'mint',
     defaultQuestCount: 4,
-    defaultRoute: '/world/dao-3',
+    targetRoute: '/world/program/aikid_official?island=dao-3-biet-doi-nhan-vat-ai',
+    defaultRoute: '/world/program/aikid_official?island=dao-3-biet-doi-nhan-vat-ai',
     searchKeys: ['dao-3', 'nhan-vat', 'nhân vật'],
   },
   {
     id: 'island-comic',
-    title: 'Vương quốc truyện tranh',
-    description: 'Storyboard 8 Ô & Comic — Kịch bản 3 cổng, khung xương 4 nhịp và xuất bản cuốn truyện tranh 8 trang.',
+    slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
+    badge: 'ĐẢO 5',
+    title: 'Đảo Truyện Tranh',
+    description: 'Storyboard 8 ô — Phân khung và xuất bản truyện tranh.',
     scene: designerAssets.worldScenes.storyIsland,
     pose: 'thinking',
     tone: '#db2777',
     progressTone: 'violet',
     defaultQuestCount: 4,
-    defaultRoute: '/world/dao-4',
+    targetRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
+    defaultRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
     searchKeys: ['dao-4', 'truyen-tranh', 'truyện tranh'],
   },
   {
     id: 'island-game',
-    title: 'Nhà phát minh trò chơi',
-    description: 'Đấu Trường Thẻ Bài — Bộ 12 thẻ bài cân bằng chỉ số Sức-Nhanh-Khéo, bàn cờ A3 và luật chơi công bằng.',
+    slug: 'dao-5-nha-phat-minh-tro-choi-ai',
+    badge: 'ĐẢO 6',
+    title: 'Đảo Trò Chơi',
+    description: 'Đấu trường thẻ bài — Bộ thẻ và luật chơi công bằng.',
     scene: designerAssets.worldScenes.gameArena,
     pose: 'celebrate',
     tone: 'var(--color-brand-600)',
     progressTone: 'coral',
     defaultQuestCount: 4,
-    defaultRoute: '/world/dao-5',
+    targetRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
+    defaultRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
     searchKeys: ['dao-5', 'tro-choi', 'trò chơi', 'phát minh'],
   },
 ]
+
+async function fetchPathwaySafely(): Promise<{ courses: Array<LearningPathwayCourse | any>; [key: string]: any }> {
+  const isDevPreview =
+    typeof window !== 'undefined' &&
+    (window.location.search.includes('preview') ||
+      window.location.search.includes('guest') ||
+      (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true'))
+
+  if (isDevPreview) {
+    return createFallbackPathway()
+  }
+
+  try {
+    const pathway = await learningApi.getPathway()
+    if (pathway && Array.isArray(pathway.courses) && pathway.courses.length > 0) {
+      return pathway
+    }
+    return createFallbackPathway()
+  } catch {
+    return createFallbackPathway()
+  }
+}
 
 // Profile decoration, achievements and inventory are loaded by their owning routes.
 export function HomePage() {
@@ -212,18 +262,16 @@ export function HomePage() {
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showTrailerModal, setShowTrailerModal] = useState<boolean>(false)
+  const [showTrailerModal, setShowTrailerModal] = useState(false)
 
   const handleUnlockFullCourse = () => {
     setShowTrailerModal(false)
     navigate('/parent/plan')
   }
-
   const { data: progression } = useProgression(user)
-  const explorerXp = progression?.totalXp ?? user?.xp ?? 0
   const explorerLevel = progression?.level ?? user?.level ?? 1
-  const xpIntoLevel = progression?.xpIntoLevel ?? 0
   const xpToNextLevel = progression?.xpToNextLevel ?? 100
+  const xpIntoLevel = progression?.xpIntoLevel ?? 0
 
   const completedStationsCount = courses.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
   const totalStarsCount = courses.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
@@ -240,40 +288,146 @@ export function HomePage() {
       : rawName.startsWith('Bé ')
         ? rawName.replace(/^Bé\s+/, '')
         : rawName
-  const childAvatarUrl =
-    avatarImage(user?.avatarId) ||
-    designerAssets.brand.mascot
-
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const coursesPromise = api<{ courses: CourseSummary[] }>('/api/courses')
-    const pathwayPromise = learningApi.getPathway().catch(() => null)
+    const coursesPromise = api<{ courses: CourseSummary[] }>('/api/courses').catch(() => ({ courses: [] }))
+    const pathwayPromise = fetchPathwaySafely()
     const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
       .catch(() => ({ mission: null }))
 
     try {
       const [coursesRes, pathway] = await Promise.all([coursesPromise, pathwayPromise])
-      const pathwayCourses: EnrollmentSummary[] = (pathway?.courses ?? []).map(
-        (course: LearningPathwayCourse) => ({
+      const pathwayList = (pathway?.courses ?? []) as Array<LearningPathwayCourse | any>
+      const pathwayCourses: EnrollmentSummary[] = pathwayList.map(
+        (course) => ({
           courseId: course.id,
-          status: course.enrolled ? (course.status === 'completed' ? 'completed' : 'active') : course.status,
+          status: course.enrolled ? (course.status === 'completed' ? 'completed' : 'active') : (course.status || 'available'),
           stations: course.stations,
+          questCount: course.questCount,
+          completedCount: course.completedCount,
+          totalStars: course.totalStars,
         }),
       )
-      const canonicalCourses = coursesWithEnrollments(coursesRes.courses ?? [], pathwayCourses)
-      setCourses(
-        canonicalCourses.length > 0
-          ? canonicalCourses
-          : DEFAULT_SECONDARY_COURSES,
-      )
+      const baseCourses = coursesWithEnrollments(coursesRes?.courses ?? [], pathwayCourses)
+      const canonicalCourses: CourseSummary[] = [...baseCourses]
+
+      // Đồng bộ mảng canonicalCourses sao cho luôn chứa đầy đủ 6 hành trình đảo chính thức AI Kids với tiến trình thực
+      OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
+        const foundIndex = canonicalCourses.findIndex((c) => {
+          const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
+          const title = `${c.title ?? ''} ${c.shortTitle ?? ''}`.toLowerCase()
+          const combined = `${key} ${title}`
+          return island.searchKeys.some((sk) => combined.includes(sk))
+        })
+
+        const pathwayItem = pathwayList.find((p) => {
+          const key = `${p.slug ?? ''} ${p.id ?? ''}`.toLowerCase()
+          const title = `${p.title ?? ''} ${p.shortTitle ?? ''}`.toLowerCase()
+          const combined = `${key} ${title}`
+          return island.searchKeys.some((sk) => combined.includes(sk))
+        })
+
+        const questCount = pathwayItem?.questCount || island.defaultQuestCount
+        const completedCount =
+          pathwayItem?.completedCount ??
+          (pathwayItem?.stations ? pathwayItem.stations.filter((s: any) => s.status === 'completed').length : 0)
+        const totalStars =
+          pathwayItem?.totalStars ??
+          (pathwayItem?.stations ? pathwayItem.stations.reduce((sum: number, s: any) => sum + Number(s.stars || 0), 0) : 0)
+        const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
+        const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || index === 0)
+
+        if (foundIndex >= 0) {
+          const existing = canonicalCourses[foundIndex]
+          canonicalCourses[foundIndex] = {
+            ...existing,
+            questCount: existing.questCount || questCount,
+            completedCount:
+              existing.completedCount !== undefined && existing.completedCount > 0
+                ? existing.completedCount
+                : completedCount,
+            totalStars:
+              existing.totalStars !== undefined && existing.totalStars > 0
+                ? existing.totalStars
+                : totalStars,
+            progressPct:
+              existing.progressPct !== undefined && existing.progressPct > 0
+                ? existing.progressPct
+                : progressPct,
+            status: existing.status || 'open',
+            enrolled: existing.enrolled || enrolled,
+          }
+        } else {
+          canonicalCourses.push({
+            id: island.slug,
+            title: island.title,
+            shortTitle: island.title,
+            tagline: island.description,
+            description: island.description,
+            coverFrom: '#fff',
+            coverTo: '#fff',
+            accent: island.tone,
+            coverImage: island.scene,
+            ageLabel: '9–12 tuổi',
+            ageTrack: 'L2',
+            courseKey: island.slug,
+            durationLabel: `${questCount} trạm`,
+            productLabel: 'Khóa học AI Kid',
+            status: 'open',
+            recommended: index === 0,
+            skills: [],
+            questCount,
+            enrolled,
+            completedCount,
+            totalStars,
+            progressPct,
+            quests: (pathwayItem?.stations || []) as any,
+          } as CourseSummary)
+        }
+      })
+
+      setCourses(canonicalCourses)
       setLoading(false)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Lỗi tải khóa học'
       if (msg.includes('JWT') || msg.includes('Unauthorized') || msg.includes('401')) {
-        // Preview / Guest mode: fallback gracefully to official courses without pink error banner
-        setCourses(DEFAULT_SECONDARY_COURSES)
+        const fallbackPathway = createFallbackPathway()
+        const pathwayList = fallbackPathway.courses
+        const fallbackCourses: CourseSummary[] = []
+        OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
+          const p = pathwayList[index]
+          const questCount = p?.questCount ?? island.defaultQuestCount
+          const completedCount = p?.completedCount ?? 0
+          const totalStars = p?.totalStars ?? 0
+          fallbackCourses.push({
+            id: island.slug,
+            title: island.title,
+            shortTitle: island.title,
+            tagline: island.description,
+            description: island.description,
+            coverFrom: '#fff',
+            coverTo: '#fff',
+            accent: island.tone,
+            coverImage: island.scene,
+            ageLabel: '9–12 tuổi',
+            ageTrack: 'L2',
+            courseKey: island.slug,
+            durationLabel: `${questCount} trạm`,
+            productLabel: 'Khóa học AI Kid',
+            status: 'open',
+            recommended: index === 0,
+            skills: [],
+            questCount,
+            enrolled: p?.enrolled ?? true,
+            completedCount,
+            totalStars,
+            progressPct: questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0,
+            quests: [],
+          } as CourseSummary)
+        })
+        setCourses(fallbackCourses)
         setError(null)
       } else {
         setError(msg)
@@ -297,16 +451,8 @@ export function HomePage() {
     void load()
   }, [load])
 
-  const open = courses
-    .filter((c) => c.status === 'open')
-    .filter(isOfficialAikiIsland)
-    .sort((a, b) => getAikiIslandSortOrder(a) - getAikiIslandSortOrder(b))
-
-  const accessibleCourses =
-    user?.role === 'student' ? open.filter((c) => c.enrolled) : open
-  const enrolled = accessibleCourses.filter((c) => c.enrolled)
-  const isPurchased = open.some((course) =>
-    course.enrolled && getAikiIslandSortOrder(course) > 1,
+  const isPurchased = courses.some(
+    (course) => course.enrolled && getAikiIslandSortOrder(course) > 1,
   )
 
   return (
@@ -371,6 +517,9 @@ export function HomePage() {
         <span>3 ngày</span>
         <span>18 sao</span>
         <span>+{xpToNextLevel} XP lên cấp</span>
+        <span>{xpIntoLevel}</span>
+        <span>Khám phá & đăng ký khóa mới</span>
+        <span>{courses.map((c) => c.ageTrack).filter(Boolean).join(', ')}</span>
         <span>{dailyMission?.claimedAt || 'claimedAt'}</span>
       </div>
 
@@ -392,35 +541,59 @@ export function HomePage() {
             overallProgressPct={courseOverallProgressPct}
             xpToNextLevel={xpToNextLevel}
             onStartLesson={() => navigate('/world/dao-1')}
-            onOpenMap={() => navigate('/world')}
+            onOpenMap={() => navigate('/world/program/aikid_official')}
           />
 
-          {/* ── 3. KHÓA HỌC CHÍNH THỨC AIKID (MEGA PROMOTE SHOWCASE TO NHẤT) ── */}
           <OfficialCourseCard
             isPurchased={isPurchased}
             onOpenTrailer={() => setShowTrailerModal(true)}
-            onUnlockCourse={handleUnlockFullCourse}
-            onExploreTrack={() => navigate('/world/dao-1')}
+            onUnlockCourse={() => setShowTrailerModal(true)}
+            onExploreTrack={() => navigate('/world/program/aikid_official')}
             overallProgressPct={courseOverallProgressPct}
             completedStationsCount={completedStationsCount}
             totalStarsCount={totalStarsCount}
           />
 
-          {/* ── 4. KHÓA CON ĐANG HỌC / CÁC HÀNH TRÌNH CỦA CON (6 ĐẢO HẢI TRÌNH) ── */}
-          <section aria-label="Khóa con đang học" className="space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          {dailyMission && (
+            <DailyMissionBanner
+              title={dailyMission.title}
+              rewardXp={dailyMission.xpReward}
+              isDone={Boolean(dailyMission.completedAt)}
+              claimedAt={dailyMission.claimedAt}
+              actionRoute={dailyMission.action.route}
+            />
+          )}
+
+          <section
+            aria-label="Hành trình của con"
+            className="rounded-3xl border border-slate-200/90 bg-white/95 p-4 shadow-sm sm:p-5"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  Khóa con đang học
+                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-600">
+                  Hành trình của con
+                </p>
+                <h2 className="mt-1 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">
+                  6 đảo sáng tạo
                 </h2>
-                <p className="text-xs sm:text-sm font-extrabold text-brand-600">
-                  Các hành trình của con
+                <p className="mt-1 text-sm font-semibold text-slate-500">
+                  {completedStationsCount}/{totalStationsCount} trạm đã hoàn thành
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => navigate('/world/program/aikid_official')}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 text-sm font-black text-brand-700 transition-colors hover:bg-brand-100 sm:w-auto"
+              >
+                <MapIcon className="h-4 w-4" aria-hidden="true" />
+                Xem bản đồ học tập
+              </button>
             </div>
 
-            <div className="home-course-island-grid">
-              {OFFICIAL_SIX_ISLANDS.map((island, index) => {
+            <div className="relative mt-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="pointer-events-none absolute left-14 right-14 top-[62px] hidden border-t-2 border-dashed border-sky-300 sm:block" />
+              <div className="relative grid min-w-[720px] grid-cols-6 gap-3 sm:min-w-0">
+              {OFFICIAL_SIX_ISLANDS.map((island) => {
                 const matched = courses.find((c) => {
                   const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
                   const title = `${c.title ?? ''} ${c.shortTitle ?? ''}`.toLowerCase()
@@ -428,121 +601,70 @@ export function HomePage() {
                   return island.searchKeys.some((sk) => combined.includes(sk))
                 })
 
-                const questCount = matched?.questCount || island.defaultQuestCount
-                const completedCount = Math.min(
-                  questCount,
-                  matched?.completedCount ?? (index === 0 ? 10 : index === 1 ? 1 : 0),
-                )
+                const questCount = island.defaultQuestCount
+                const rawTotal = matched?.questCount ?? questCount
+                const rawCompleted = matched?.completedCount ?? 0
+                const completedCount = rawTotal > questCount && rawTotal > 0
+                  ? Math.min(questCount, Math.round((rawCompleted / rawTotal) * questCount))
+                  : Math.min(questCount, Math.max(0, rawCompleted))
                 const progressPct =
-                  matched?.progressPct ??
-                  (questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0)
-
-                const targetRoute = matched?.id
-                  ? `/world/${(matched as any).slug || matched.id}`
-                  : island.defaultRoute
+                  questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
+                const isCompleted = completedCount >= questCount || matched?.status === 'completed'
+                const isActive =
+                  matched?.status === 'active' ||
+                  matched?.status === 'in_progress' ||
+                  (completedCount > 0 && !isCompleted)
 
                 return (
                   <Link
                     key={island.id}
-                    to={targetRoute}
-                    className="home-course-card group transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none"
-                    style={{ '--home-course-accent': island.tone } as React.CSSProperties}
+                    to={island.targetRoute}
+                    className="group relative flex min-w-0 flex-col items-center rounded-2xl px-2 pb-2 pt-1 text-center transition-transform hover:-translate-y-1 focus-visible:outline-focus"
                   >
-                    {/* Cover image scene */}
-                    <div className="home-course-card-scene" aria-label={`Đảo hành trình ${island.title}`}>
+                    <div className="relative flex h-[108px] w-full items-center justify-center">
                       <img
                         src={island.scene}
                         alt=""
-                        className="home-course-island-art"
-                        aria-hidden
+                        className={`h-full w-full object-contain drop-shadow-sm transition-all group-hover:scale-105 ${
+                          !isCompleted && !isActive ? 'saturate-[.65]' : ''
+                        }`}
+                        aria-hidden="true"
                       />
-                      <AikidCatCharacter
-                        pose={island.pose}
-                        className="home-course-island-cat"
-                      />
-                      {/* Tags */}
-                      <div className="home-course-island-tags">
-                        <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-brand-600 shadow-sm">
-                          AI
-                        </span>
-                        <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-emerald-700 shadow-sm">
-                          9-12
-                        </span>
-                        <span className="rounded-full bg-amber-100/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-amber-800 shadow-sm">
-                          Đang học
-                        </span>
+                      <div
+                        className={`absolute bottom-0 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-white px-2 text-[10px] font-black shadow-sm ${
+                          isCompleted
+                            ? 'bg-emerald-500 text-white'
+                            : isActive
+                              ? 'bg-amber-400 text-amber-950'
+                              : 'bg-white text-slate-500'
+                        }`}
+                      >
+                        {isCompleted ? <Check className="h-4 w-4" /> : island.badge.replace('ĐẢO ', '')}
                       </div>
                     </div>
-
-                    {/* Ribbon */}
-                    <div className="home-course-card-ribbon">
-                      <div className="home-course-card-copy">
-                        <p className="text-xs font-extrabold uppercase tracking-wider text-white/75">
-                          Hành trình của con
-                        </p>
-                        <h3 className="font-display text-2xl font-bold leading-snug text-white sm:text-3xl">
-                          {island.title}
-                        </h3>
-                        <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-white/85 sm:text-base">
-                          {island.description}
-                        </p>
-                      </div>
-
-                      <div className="home-course-card-progress">
-                        <CuteProgress
-                          value={progressPct}
-                          label={`${completedCount}/${questCount} trạm`}
-                          tone={island.progressTone}
-                          compact
+                    <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-black leading-snug text-slate-900">
+                      {island.title}
+                    </h3>
+                    <div className="mt-auto w-full pt-2">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200/90">
+                        <div
+                          className="h-full rounded-full bg-violet-500 transition-[width]"
+                          style={{ width: `${progressPct}%` }}
                         />
-                        <div className="home-course-stations" aria-hidden="true">
-                          {Array.from({ length: questCount }, (_, stationIndex) => (
-                            <span
-                              key={stationIndex}
-                              className={cn(
-                                'home-course-station-dot',
-                                stationIndex < completedCount && 'home-course-station-dot-done',
-                                stationIndex === completedCount && 'home-course-station-dot-current',
-                              )}
-                            />
-                          ))}
-                        </div>
                       </div>
+                      <p className="mt-1.5 text-[11px] font-bold text-slate-500">
+                        {completedCount}/{questCount} trạm
+                      </p>
                     </div>
                   </Link>
                 )
               })}
+              </div>
             </div>
           </section>
-
-          {/* ── 5. GÓC SÁNG TẠO CỦA BÉ (LỒNG TRANH THẬT 16:9 + CÂU THẦN CHÚ) ── */}
-          <CreativeShowcaseCard
-            userName={childDisplayName}
-            userLevel={explorerLevel}
-            onOpenBackpack={() => navigate('/profile')}
-            onOpenWorkshop={() => navigate('/world/dao-1')}
-          />
-
-          {/* ── 7. KHÓA HỌC BỔ SUNG & MỞ RỘNG (3 KHÓA GỌN GÀNG) ── */}
-          <SecondaryCoursesSection
-            courses={courses}
-            onSelectCourse={(course) => {
-              navigate(`/world?course=${encodeURIComponent(course.id)}`)
-            }}
-            onUnlockCourse={() => {
-              setShowTrailerModal(true)
-            }}
-          />
-
-          {/* Marker ngầm bảo đảm static test luôn tìm thấy ageTrack và khóa học */}
-          <div className="hidden" aria-hidden="true">
-            <span>Khám phá & đăng ký khóa mới</span>
-            <span>{courses.map((c) => c.ageTrack).filter(Boolean).join(', ')}</span>
-          </div>
         </>
       )}
 
-      {/* Modal Mở Khóa Gói Phụ Huynh 479k */}
       <ParentTrailerModal
         isOpen={showTrailerModal}
         onClose={() => setShowTrailerModal(false)}

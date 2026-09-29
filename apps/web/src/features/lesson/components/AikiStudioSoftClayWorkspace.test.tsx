@@ -180,7 +180,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.2 Bốn chiếc chìa khoá', () 
     })
 
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(3100)
     })
 
     // Turn count decreased to 1
@@ -302,7 +302,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     })
 
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(3100)
     })
 
     // Now in Turn 2
@@ -324,7 +324,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     })
 
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(3100)
     })
 
     // Now side-by-side comparison is rendered!
@@ -396,7 +396,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
       drawBtn1?.click()
     })
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(3100)
     })
 
     // ── STEP 2 VERIFICATION ──
@@ -431,7 +431,7 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
       drawBtn2?.click()
     })
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(3100)
     })
 
     // ── COMPARISON CANVAS VERIFICATION ──

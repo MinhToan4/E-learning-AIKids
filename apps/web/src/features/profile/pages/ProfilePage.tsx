@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import {
   Flame,
@@ -18,15 +18,14 @@ import {
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
+import { designerAssets } from '@/shared/config/assets'
 
-import { BookSpread } from '@/features/storybook/components/BookSpread'
 import { STORYBOOK_PAGES, type StorybookPage } from '@/features/storybook/storybook-data'
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '@/features/storybook/storybook-contract'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
-import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
   profileCardBackgroundStyle,
   readRewardEquipment,
@@ -43,7 +42,6 @@ import {
 import { AvatarPickerModal } from '../components/AvatarPickerModal'
 import { ProfileHeaderCard } from '../components/ProfileHeaderCard'
 import { ProfileStatsGrid } from '../components/ProfileStatsGrid'
-import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import type { ProfileAvatar, ShowcaseProject } from '../profile-showcase'
 import { updateMyProfileAvatar } from '@/shared/lib/media-api'
 import {
@@ -66,6 +64,13 @@ import {
 import { useRulesProgress, rulesProgressFromPathway } from '@/features/rules/hooks/useRulesProgress'
 import type { LearningPathwayCourse } from '@/shared/lib/learning-api'
 import type { CompetencyMap } from '@/features/leaderboard/components/SkillGardenSection'
+
+const BookSpread = lazy(() =>
+  import('@/features/storybook/components/BookSpread').then((module) => ({ default: module.BookSpread })),
+)
+const RewardCollection = lazy(() =>
+  import('@/features/rewards/RewardCollection').then((module) => ({ default: module.RewardCollection })),
+)
 
 export interface CertificateItem {
   id: string
@@ -509,9 +514,9 @@ export function ProfilePage() {
     return projects.filter(isCleanDisplayableWork)
   }, [projects])
 
-  // Tính toán số trạm, số sao và thời lượng học tập
+  // Tính toán số trạm, số sao và thời lượng học tập (Chuẩn 30 Trạm toàn khóa)
   const displayStations = useMemo(
-    () => Math.min(32, Math.max(0, completedStations)),
+    () => Math.min(30, Math.max(0, completedStations)),
     [completedStations],
   )
 
@@ -520,7 +525,7 @@ export function ProfilePage() {
     [starsCollected],
   )
 
-  const stationPercent = Math.min(100, Math.round((displayStations / 32) * 100))
+  const stationPercent = Math.min(100, Math.round((displayStations / 30) * 100))
 
   const totalStudyMinutes = useMemo(() => {
     return displayStations * 20 + displayableProjects.length * 15 + streak * 25
@@ -566,9 +571,9 @@ export function ProfilePage() {
     return Math.max(60, ...weeklyDays.map((d) => d.minutes))
   }, [weeklyDays])
 
-  // Số quy tắc thực tế hoàn thành (Đảo 0: 10 Quy Tắc Vàng)
+  // Số quy tắc thực tế hoàn thành (Đảo 1: 10 Quy Tắc Vàng)
   const effectiveRulesCount = useMemo(() => {
-    const isGraduated = stationPercent === 100 || displayStations >= 32
+    const isGraduated = stationPercent === 100 || displayStations >= 30
     if (isGraduated) return 10
     const safetyEvidence = (competencyMap?.frameworks || [])
       .flatMap((fw) => (fw.domains || []).flatMap((dom) => dom.skills || []))
@@ -580,28 +585,28 @@ export function ProfilePage() {
         hookRulesCompleted,
         pathwayRulesCompleted,
         safetyEvidence,
-        Math.floor((displayStations * 10) / 32) || 1,
+        Math.floor((displayStations * 10) / 30) || 1,
       ),
     )
   }, [competencyMap, displayStations, hookRulesCompleted, pathwayRulesCompleted, stationPercent])
 
   // Bằng khen tốt nghiệp khóa học duy nhất chuẩn hóa (Course Graduation Certificate)
-  const isGraduated = stationPercent === 100 || displayStations >= 32
+  const isGraduated = stationPercent === 100 || displayStations >= 30
 
   const courseCertificate: CertificateItem = useMemo(() => {
     return {
       id: 'cert-course-aikid-official',
       title: 'Bằng Khen Tốt Nghiệp Khóa Học Sáng Tạo',
-      courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)',
+      courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)',
       islandTitle: 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
-      stationsCount: 32,
-      completedStations: Math.min(32, displayStations),
+      stationsCount: 30,
+      completedStations: Math.min(30, displayStations),
       stars: displayStars,
       xp: explorerXp,
-      isUnlocked: stationPercent === 100 || displayStations >= 32,
-      statusText: (stationPercent === 100 || displayStations >= 32)
+      isUnlocked: stationPercent === 100 || displayStations >= 30,
+      statusText: (stationPercent === 100 || displayStations >= 30)
         ? 'Đã tốt nghiệp khóa học'
-        : `Đang học (${displayStations}/32 trạm)`,
+        : `Đang học (${displayStations}/30 trạm)`,
     }
   }, [displayStations, displayStars, explorerXp, stationPercent])
 
@@ -625,7 +630,7 @@ export function ProfilePage() {
 
   // Vườn Kỹ Năng Sáng Tạo Của Con (4 Kỹ Năng Cốt Lõi) kết nối dữ liệu học tập thực tế & /api/competency-map
   const competencies = useMemo(() => {
-    const isGraduated = stationPercent === 100 || displayStations >= 32
+    const isGraduated = stationPercent === 100 || displayStations >= 30
 
     // Kỹ năng từ /api/competency-map (nếu có cấu hình)
     const allCompetencySkills =
@@ -873,6 +878,120 @@ export function ProfilePage() {
     ]
   }, [achievements])
 
+  // Hải Trình 6 Đảo Khám Phá (Chuẩn hóa 30 Trạm: 10 + 4 + 4 + 4 + 4 + 4)
+  const islandVoyages = useMemo(() => {
+    const rawIslands = [
+      {
+        id: 'island-rules',
+        badge: 'ĐẢO 1',
+        title: 'Mười quy tắc Xưởng',
+        totalStations: 10,
+        slug: 'muoi-quy-tac-xuong-sang-tao',
+        scene: designerAssets.worldScenes.aiValley,
+        matcher: /muoi-quy-tac|quy-tac|rules|aiki-rules|dao-0|dao-1.*quy/i,
+      },
+      {
+        id: 'island-explorer',
+        badge: 'ĐẢO 2',
+        title: 'Nhà thám hiểm AI',
+        totalStations: 4,
+        slug: 'dao-1-nha-tham-hiem-ai',
+        scene: designerAssets.worldScenes.promptKeys,
+        matcher: /dao-1-nha-tham-hiem|nha-tham-hiem|kham-pha|chia-khoa|dao-1(?!.*quy)/i,
+      },
+      {
+        id: 'island-artist',
+        badge: 'ĐẢO 3',
+        title: 'Tớ là hoạ sĩ AI!',
+        totalStations: 4,
+        slug: 'dao-2-hoa-si-ai',
+        scene: designerAssets.worldScenes.creativeMountain,
+        matcher: /dao-2-hoa-si|hoa-si|art|co-ve|dao-2/i,
+      },
+      {
+        id: 'island-character',
+        badge: 'ĐẢO 4',
+        title: 'Biệt đội nhân vật AI',
+        totalStations: 4,
+        slug: 'dao-3-biet-doi-nhan-vat-ai',
+        scene: designerAssets.worldScenes.characterLab,
+        matcher: /dao-3-biet-doi|nhan-vat|character|dao-3/i,
+      },
+      {
+        id: 'island-comic',
+        badge: 'ĐẢO 5',
+        title: 'Vương quốc truyện tranh',
+        totalStations: 4,
+        slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
+        scene: designerAssets.worldScenes.storyIsland,
+        matcher: /dao-4-vuong-quoc|truyen-tranh|comic|storyboard|dao-4/i,
+      },
+      {
+        id: 'island-game',
+        badge: 'ĐẢO 6',
+        title: 'Nhà phát minh trò chơi',
+        totalStations: 4,
+        slug: 'dao-5-nha-phat-minh-tro-choi-ai',
+        scene: designerAssets.worldScenes.gameArena,
+        matcher: /dao-5-nha-phat-minh|tro-choi|game|dao-5/i,
+      },
+    ]
+
+    let cumulative = 0
+    return rawIslands.map((island, idx) => {
+      const course = pathwayCourses.find(
+        (c) =>
+          island.matcher.test(
+            c.id +
+              ' ' +
+              ((c as { slug?: string }).slug || '') +
+              ' ' +
+              (c.shortTitle || '') +
+              ' ' +
+              c.title,
+          ),
+      )
+
+      const startStation = cumulative
+      cumulative += island.totalStations
+      const endStation = cumulative
+
+      let completed = 0
+      if (course?.completedCount !== undefined && course.completedCount !== null) {
+        completed = Math.min(island.totalStations, Math.max(0, course.completedCount))
+      } else {
+        if (displayStations >= endStation) {
+          completed = island.totalStations
+        } else if (displayStations > startStation) {
+          completed = displayStations - startStation
+        } else {
+          completed = 0
+        }
+      }
+
+      const stars = course?.totalStars ?? (completed * 3)
+      const percent = Math.min(100, Math.round((completed / island.totalStations) * 100))
+
+      let status: 'Đã xong' | 'Đang học' | 'Chưa mở' = 'Chưa mở'
+      if (completed >= island.totalStations) {
+        status = 'Đã xong'
+      } else if (idx === 0 || completed > 0 || displayStations >= startStation) {
+        status = 'Đang học'
+      } else {
+        status = 'Chưa mở'
+      }
+
+      return {
+        ...island,
+        completed,
+        stars,
+        percent,
+        status,
+        targetRoute: `/world/program/aikid_official?island=${island.slug}`,
+      }
+    })
+  }, [pathwayCourses, displayStations])
+
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-[1024px] w-full px-3 sm:px-4 md:px-6" />
 
   const nextLevel = nextExplorerLevel(explorerXp, explorerLevel)
@@ -899,11 +1018,14 @@ export function ProfilePage() {
         profileSlug={profileSlug}
       />
 
-      {/* 2. Thống kê 3 chỉ số nhanh Soft Clay */}
+      {/* 2. Bộ Ba Thành Tựu Vàng Cốt Lõi (What I've achieved) */}
       <ProfileStatsGrid
         streakDays={streak}
         totalStars={displayStars}
         completedStations={displayStations}
+        studyHoursFormatted={studyHoursFormatted}
+        certificatesCount={backpackCertificates.length}
+        achievementsCount={achievements.length}
       />
 
       {/* 3. Thanh Tab Điều Hướng Soft Clay (Floating Pill Tabs) */}
@@ -917,7 +1039,7 @@ export function ProfilePage() {
             id: 'progress' as const,
             label: 'Tiến độ',
             icon: TrendingUp,
-            badge: `${displayStations}/32`,
+            badge: `${displayStations}/30`,
           },
           {
             id: 'certificates' as const,
@@ -961,10 +1083,10 @@ export function ProfilePage() {
               aria-controls={`tabpanel-${tab.id}`}
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
-              className={`min-h-[48px] shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer select-none ${
+              className={`min-h-[48px] shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer select-none active:scale-95 ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#FD7D2E] to-[#F97316] text-white shadow-clay font-black rounded-xl'
-                  : 'text-slate-600 hover:text-brand-700 hover:bg-white/60'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-[0_4px_0_#c2410c] font-black'
+                  : 'text-slate-600 hover:text-orange-700 hover:bg-orange-50/50'
               }`}
             >
               <TabIcon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
@@ -994,190 +1116,376 @@ export function ProfilePage() {
         {/* 1. TAB TIẾN ĐỘ: Thống kê 4 chỉ số cốt lõi, Biểu đồ nhịp học tuần này, Hành trình cấp độ thám hiểm */}
         {activeTab === 'progress' && (
           <>
-            {/* 2. Bộ Tứ Chỉ Số Học Tập Cốt Lõi (4 Core Progress Cards - Zero Truncation) */}
-          <section aria-label="Bộ tứ chỉ số học tập cốt lõi" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0">
-            {/* Card 1: Daily Streak */}
-            <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-orange-200/80 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-orange-300 bg-gradient-to-br from-orange-100 to-amber-100 shadow-[0_3px_0_#fdba74] select-none">
-                  <Flame className="w-6 h-6 text-[#FD7D2E] fill-orange-400 drop-shadow-xs" />
+            {/* 2. Hải Trình 6 Đảo Của Con (My Island Voyages) - Lưới 6 thẻ Soft Clay */}
+            <section
+              aria-labelledby="island-voyages-title"
+              className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay flex flex-col gap-5"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
+                    Hành Trình Khám Phá
+                  </div>
+                  <h2
+                    id="island-voyages-title"
+                    className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl"
+                  >
+                    Hải Trình 6 Đảo Của Con
+                  </h2>
+                  <p className="text-xs font-bold text-muted sm:text-sm">
+                    30 trạm bài học sáng tạo qua 6 hòn đảo kỳ thú cùng Mèo Aiki.
+                  </p>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-                    {streak} ngày
-                  </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
-                    Chuỗi học tập
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-orange-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-800">
-                <span>Chăm chỉ giữ lửa học tập!</span>
-              </div>
-            </div>
 
-            {/* Card 2: Study Hours */}
-            <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-sky-200/80 bg-gradient-to-br from-sky-50/80 via-white to-blue-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-sky-300 bg-gradient-to-br from-sky-100 to-blue-100 shadow-[0_3px_0_#7dd3fc] select-none">
-                  <Clock className="w-6 h-6 text-sky-600 drop-shadow-xs" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-                    {studyHoursFormatted}
-                  </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
-                    Thời lượng rèn luyện
-                  </span>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <Link
+                    to="/world/program/aikid_official"
+                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-2xl border border-orange-300 bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <span>Mở Bản Đồ Khám Phá</span>
+                  </Link>
                 </div>
               </div>
-              <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-sky-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-sky-800">
-                <span>Tích lũy học &amp; sáng tạo</span>
-              </div>
-            </div>
 
-            {/* Card 3: Station Progress (6 Islands & Stations) */}
-            <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-100 to-teal-100 shadow-[0_3px_0_#6ee7b7] select-none">
-                  <Compass className="w-6 h-6 text-emerald-600 drop-shadow-xs" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-                    {displayStations} / 32 Trạm
-                  </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
-                    Hành trình 6 Đảo
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 space-y-1">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-emerald-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500"
-                    style={{ width: `${stationPercent}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-emerald-800">
-                  <span>Tiến độ khám phá: {stationPercent}%</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Stars Collected */}
-            <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/50 p-3.5 sm:p-4 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-[0_3px_0_#fcd34d] select-none">
-                  <Star className="w-6 h-6 text-amber-500 fill-amber-400 drop-shadow-xs" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-                    {displayStars}
-                  </span>
-                  <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
-                    Ngôi sao tri thức
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-amber-100/60 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-amber-800">
-                <span>Tích lũy qua bài học</span>
-              </div>
-            </div>
-          </section>
-
-            {/* 3. BỔ SUNG: Biểu Đồ Nhịp Học Tập Tuần (Weekly Activity Pulse) */}
-          <section className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay" aria-labelledby="weekly-pulse-title">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-                  Nhịp học tập tuần này
-                </div>
-                <h2 id="weekly-pulse-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
-                  Xem con học như thế nào
-                </h2>
-                <p className="text-xs font-bold text-muted sm:text-sm">
-                  Theo dõi nhịp độ rèn luyện đều đặn mỗi ngày từ Thứ 2 đến Chủ Nhật.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-200/80 px-3.5 py-2 text-xs font-extrabold text-emerald-800 self-start sm:self-auto shadow-xs">
-                <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                <span>Nhịp học đều đặn: {activeDaysCount}/7 ngày</span>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-3xl border border-slate-100 bg-linear-to-b from-slate-50/60 via-white to-brand-50/20 p-4 sm:p-6">
-              <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end pt-4 pb-2">
-                {weeklyDays.map((d) => {
-                  const heightPercent = d.active
-                    ? Math.max(20, Math.min(100, Math.round((d.minutes / maxDayMinutes) * 100)))
-                    : 0
-                  return (
-                    <div key={d.label} className="flex flex-col items-center justify-end group">
-                      {/* Tooltip Pill */}
-                      <div className="h-7 mb-2 flex items-center justify-center">
-                        {d.showPill ? (
-                          <div className="transform animate-bounce rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] sm:text-xs font-black text-white shadow-soft whitespace-nowrap">
-                            {d.pillText}
-                          </div>
-                        ) : (
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-black text-white shadow-soft whitespace-nowrap">
-                            {d.minutes > 0 ? `${d.minutes}m` : 'Nghỉ'}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Pillar Track with explicit height */}
-                      <div className="relative w-full max-w-[36px] sm:max-w-[44px] h-28 sm:h-36 rounded-2xl bg-slate-100/90 border-2 border-slate-200/60 shadow-inner flex flex-col justify-end p-1 overflow-hidden">
-                        {d.active ? (
-                          <div
-                            className={`w-full rounded-xl transition-all duration-700 ease-out shadow-xs ${
-                              d.isToday
-                                ? 'bg-gradient-to-t from-coral-500 to-coral-400 ring-2 ring-coral-300/80 shadow-[0_2px_8px_rgba(244,63,94,0.35)]'
-                                : 'bg-gradient-to-t from-brand-600 via-brand-500 to-indigo-400 group-hover:brightness-105'
-                            }`}
-                            style={{ height: `${heightPercent}%` }}
-                          />
-                        ) : (
-                          <div className="w-full h-1.5 rounded-full bg-slate-200/80 mx-auto" />
-                        )}
-                      </div>
-
-                      {/* Day Label & Indicator */}
-                      <div className="mt-2.5 text-center">
-                        <span className={`block font-display text-xs sm:text-sm font-black transition-colors ${
-                          d.isToday ? 'text-coral-600' : d.active ? 'text-slate-800' : 'text-slate-400'
-                        }`}>
-                          {d.label}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+                {islandVoyages.map((island) => (
+                  <Link
+                    key={island.id}
+                    to={island.targetRoute}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200/80 bg-white/95 backdrop-blur-xs p-3.5 sm:p-4 shadow-soft hover:-translate-y-1 hover:shadow-clay transition-all duration-300 text-left cursor-pointer"
+                  >
+                    <div>
+                      <div className="relative h-28 sm:h-32 w-full rounded-2xl overflow-hidden border border-slate-100 shadow-xs mb-3 bg-slate-100">
+                        <img
+                          src={island.scene}
+                          alt={island.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          loading="lazy"
+                        />
+                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-xs text-[11px] font-black shadow-xs border border-amber-200/80 text-amber-950">
+                          {island.badge}
                         </span>
-                        {d.isToday ? (
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-coral-500 mt-1 shadow-xs" />
-                        ) : (
-                          <span className="inline-block h-1.5 w-1.5 mt-1" />
-                        )}
+                        <span
+                          className={`absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[11px] font-black shadow-xs ${
+                            island.status === 'Đã xong'
+                              ? 'bg-emerald-500 text-white'
+                              : island.status === 'Đang học'
+                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                                : 'bg-slate-700/80 text-slate-100'
+                          }`}
+                        >
+                          {island.status}
+                        </span>
+                      </div>
+
+                      <h3 className="font-display font-black text-slate-900 text-base sm:text-lg leading-tight line-clamp-1">
+                        {island.title}
+                      </h3>
+                    </div>
+
+                    <div className="mt-3 pt-2 space-y-1.5 border-t border-slate-100">
+                      <div className="flex items-center justify-between text-xs font-black">
+                        <span className="text-slate-600">
+                          {island.completed}/{island.totalStations} Trạm
+                        </span>
+                        <span className="flex items-center gap-1 text-amber-600">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                          {island.stars} Sao
+                        </span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden border border-slate-200/70">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            island.status === 'Đã xong'
+                              ? 'bg-emerald-500'
+                              : 'bg-gradient-to-r from-amber-400 to-orange-500'
+                          }`}
+                          style={{ width: `${island.percent}%` }}
+                        />
                       </div>
                     </div>
-                  )
-                })}
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {/* 2.5 Kho Báu Thành Tựu Của Con (My Trophy Case / Đã Đạt Được Gì) */}
+            <section
+              aria-labelledby="my-trophy-case-title"
+              className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay flex flex-col gap-5"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
+                    Đã Đạt Được Gì
+                  </div>
+                  <h2
+                    id="my-trophy-case-title"
+                    className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl"
+                  >
+                    Kho Báu Thành Tựu Của Con
+                  </h2>
+                  <p className="text-xs font-bold text-muted sm:text-sm">
+                    Ghi dấu những cột mốc rực rỡ, bằng khen danh dự và huy hiệu con đã tự tay gặt hái.
+                  </p>
+                </div>
+
+                {/* Tổng kết thành tựu: Trạm xong, Sao, Bằng khen, Huy hiệu */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1.5 rounded-2xl bg-teal-50 border border-teal-200/80 px-3 py-1.5 text-xs font-black text-teal-800 shadow-2xs">
+                    <Compass className="w-3.5 h-3.5 text-teal-600" />
+                    <span>{displayStations} Trạm xong</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200/80 px-3 py-1.5 text-xs font-black text-amber-800 shadow-2xs">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                    <span>{displayStars} Sao</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-2xl bg-orange-50 border border-orange-200/80 px-3 py-1.5 text-xs font-black text-orange-800 shadow-2xs">
+                    <GraduationCap className="w-3.5 h-3.5 text-orange-600" />
+                    <span>{backpackCertificates.length} Bằng khen</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-2xl bg-purple-50 border border-purple-200/80 px-3 py-1.5 text-xs font-black text-purple-800 shadow-2xs">
+                    <Trophy className="w-3.5 h-3.5 text-purple-600" />
+                    <span>{achievements.length} Huy hiệu</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3 text-xs font-bold text-muted">
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-brand-500 inline-block" /> Đã rèn luyện
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-coral-500 inline-block ring-1 ring-coral-300" /> Hôm nay
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-3 w-3 rounded-md bg-slate-200 inline-block" /> Chưa học
-                  </span>
+              {/* Grid 2 phần: Card Bằng Khen Tốt Nghiệp + Dải Huy Hiệu Danh Dự */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Card Bằng Khen Tốt Nghiệp */}
+                <div className="lg:col-span-1 rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/40 p-4 sm:p-5 shadow-soft flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100 text-amber-800 shadow-xs select-none">
+                        <GraduationCap className="w-6 h-6 text-amber-900" />
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${
+                          hasClaimedCertificate
+                            ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                            : isGraduated
+                              ? 'bg-amber-100 border-amber-300 text-amber-900'
+                              : 'bg-slate-100 border-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {hasClaimedCertificate
+                          ? 'Đã nhận vào ba lô'
+                          : isGraduated
+                            ? 'Sẵn sàng nhận bằng khen'
+                            : 'Sẵn sàng nhận khi hoàn thành'}
+                      </span>
+                    </div>
+
+                    <h3 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
+                      Bằng Khen Tốt Nghiệp
+                    </h3>
+                    <p className="mt-1 text-xs font-bold text-slate-600">
+                      {hasClaimedCertificate
+                        ? 'Chứng nhận danh dự đã được trao tặng và cất giữ an toàn trong Ba Lô của con.'
+                        : isGraduated
+                          ? 'Con đã xuất sắc hoàn thành trọn vẹn 30 trạm học và sẵn sàng nhận bằng khen!'
+                          : 'Hoàn thành 30 trạm học để mở khóa bằng khen tốt nghiệp danh dự từ Ban Cố Vấn.'}
+                    </p>
+
+                    <div className="mt-3 rounded-2xl bg-white/90 border border-amber-100 p-2.5 shadow-2xs">
+                      <div className="flex items-center justify-between text-[11px] font-black text-amber-900 mb-1">
+                        <span>Tiến độ toàn khóa</span>
+                        <span>{displayStations}/30 trạm ({stationPercent}%)</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-amber-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500"
+                          style={{ width: `${stationPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-amber-100">
+                    {hasClaimedCertificate ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCertificateForModal(courseCertificate)
+                        }}
+                        className="w-full flex min-h-10 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Award className="w-4 h-4" />
+                        <span>Xem lại bằng khen</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('certificates')}
+                        className="w-full flex min-h-10 items-center justify-center gap-1.5 rounded-2xl bg-white border border-amber-300 px-4 py-2 text-xs sm:text-sm font-black text-amber-900 shadow-soft hover:bg-amber-50 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Award className="w-4 h-4" />
+                        <span>Xem chi tiết bằng khen</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-slate-600">
-                  Lời khuyên của Mèo Mee: <span className="font-extrabold text-brand-700">Chỉ cần 15-20 phút mỗi ngày</span> để rèn luyện thói quen học tập và sáng tạo đều đặn!
-                </p>
+
+                {/* Dải Huy Hiệu Danh Dự */}
+                <div className="lg:col-span-2 rounded-3xl border-2 border-slate-100 bg-gradient-to-br from-slate-50/60 via-white to-amber-50/20 p-4 sm:p-5 shadow-soft flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div>
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+                          Bộ sưu tập danh dự
+                        </span>
+                        <h3 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
+                          Dải Huy Hiệu Danh Dự
+                        </h3>
+                      </div>
+                      <Link
+                        to="/achievements"
+                        className="inline-flex items-center gap-1 rounded-xl bg-amber-100/80 border border-amber-200/80 px-2.5 py-1 text-xs font-black text-amber-900 hover:bg-amber-200/80 transition-colors shadow-2xs"
+                      >
+                        <Trophy className="w-3.5 h-3.5" />
+                        <span>{achievements.length} Đã mở</span>
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {featuredBadges.map((badge, idx) => (
+                        <div
+                          key={badge.id || `badge-honor-${idx}`}
+                          className="flex flex-col items-center justify-between rounded-2xl border border-amber-100 bg-white/90 p-2.5 text-center shadow-2xs hover:scale-105 hover:shadow-soft transition-all"
+                        >
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/60 p-1 mb-1.5 select-none">
+                            {badge.image ? (
+                              <img
+                                src={badge.image}
+                                alt=""
+                                className="h-10 w-10 object-contain drop-shadow-xs"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <Trophy className="w-6 h-6 text-amber-600 fill-amber-300 drop-shadow-xs" />
+                            )}
+                          </div>
+                          <span className="text-xs font-black text-slate-900 line-clamp-1 leading-snug">
+                            {badge.title}
+                          </span>
+                          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-emerald-700">
+                            Đã đạt được
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <p className="text-xs font-bold text-slate-500">
+                      Càng học chăm chỉ, con càng mở khóa thêm nhiều huy hiệu kỳ diệu!
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('memories')}
+                      className="inline-flex items-center gap-1 text-xs font-black text-brand-700 hover:text-brand-900 cursor-pointer"
+                    >
+                      <span>Xem tất cả huy hiệu</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+
+            {/* 3. BỔ SUNG: Biểu Đồ Nhịp Học Tập Tuần (Thu gọn, tối giản) */}
+            <section className="aikid-flat-panel p-4 sm:p-5 rounded-3xl shadow-soft" aria-labelledby="weekly-pulse-title">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
+                    Nhịp học tập tuần này
+                  </div>
+                  <h2 id="weekly-pulse-title" className="mt-1 font-display text-xl font-black text-slate-900 tracking-tight sm:text-2xl">
+                    Xem con học như thế nào
+                  </h2>
+                  <p className="text-xs font-bold text-muted">
+                    Theo dõi nhịp độ rèn luyện đều đặn mỗi ngày từ Thứ 2 đến Chủ Nhật.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 text-xs font-extrabold text-emerald-800 self-start sm:self-auto shadow-xs">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span>Nhịp học đều đặn: {activeDaysCount}/7 ngày</span>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-slate-100 bg-linear-to-b from-slate-50/60 via-white to-brand-50/20 p-3 sm:p-4">
+                <div className="grid grid-cols-7 gap-1.5 sm:gap-3 items-end pt-2 pb-1">
+                  {weeklyDays.map((d) => {
+                    const heightPercent = d.active
+                      ? Math.max(20, Math.min(100, Math.round((d.minutes / maxDayMinutes) * 100)))
+                      : 0
+                    return (
+                      <div key={d.label} className="flex flex-col items-center justify-end group">
+                        {/* Tooltip Pill */}
+                        <div className="h-6 mb-1.5 flex items-center justify-center">
+                          {d.showPill ? (
+                            <div className="transform animate-bounce rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-black text-white shadow-soft whitespace-nowrap">
+                              {d.pillText}
+                            </div>
+                          ) : (
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-slate-800 px-1.5 py-0.5 text-[9px] font-black text-white shadow-soft whitespace-nowrap">
+                              {d.minutes > 0 ? `${d.minutes}m` : 'Nghỉ'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Pillar Track with explicit height */}
+                        <div className="relative w-full max-w-[32px] sm:max-w-[40px] h-20 sm:h-24 rounded-xl bg-amber-50/60 border border-amber-200/60 shadow-inner flex flex-col justify-end p-0.5 overflow-hidden">
+                          {d.active ? (
+                            <div
+                              className={`w-full rounded-lg transition-all duration-700 ease-out shadow-xs ${
+                                d.isToday
+                                  ? 'bg-gradient-to-t from-orange-500 via-amber-500 to-amber-400 ring-2 ring-orange-300/90 shadow-[0_2px_8px_rgba(249,115,22,0.35)]'
+                                  : 'bg-gradient-to-t from-amber-500 via-amber-400 to-orange-300 group-hover:brightness-105'
+                              }`}
+                              style={{ height: `${heightPercent}%` }}
+                            />
+                          ) : (
+                            <div className="w-full h-1 rounded-full bg-slate-200/80 mx-auto" />
+                          )}
+                        </div>
+
+                        {/* Day Label & Indicator */}
+                        <div className="mt-2 text-center">
+                          <span className={`block font-display text-xs sm:text-sm font-black transition-colors ${
+                            d.isToday ? 'text-coral-600' : d.active ? 'text-slate-800' : 'text-slate-400'
+                          }`}>
+                            {d.label}
+                          </span>
+                          {d.isToday ? (
+                            <span className="inline-block h-1 w-1 rounded-full bg-coral-500 mt-0.5 shadow-xs" />
+                          ) : (
+                            <span className="inline-block h-1 w-1 mt-0.5" />
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-xs font-bold text-muted">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-brand-500 inline-block" /> Đã rèn luyện
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-coral-500 inline-block ring-1 ring-coral-300" /> Hôm nay
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-slate-200 inline-block" /> Chưa học
+                    </span>
+                  </div>
+                  <p className="text-slate-600">
+                    Lời khuyên của Mèo Mee: <span className="font-extrabold text-brand-700">Chỉ cần 15-20 phút mỗi ngày</span> để rèn luyện thói quen học tập và sáng tạo đều đặn!
+                  </p>
+                </div>
+              </div>
+            </section>
 
             {/* 4. Hành trình cấp độ */}
           <Link
@@ -1241,7 +1549,7 @@ export function ProfilePage() {
               </div>
             </div>
 
-            {/* TRƯỜNG HỢP 1: Con ĐÃ HOÀN THÀNH XONG KHÓA HỌC (32/32 trạm) và CHƯA NHẬN BẰNG KHEN */}
+            {/* TRƯỜNG HỢP 1: Con ĐÃ HOÀN THÀNH XONG KHÓA HỌC (30/30 trạm) và CHƯA NHẬN BẰNG KHEN */}
             {isGraduated && !hasClaimedCertificate && (
               <div
                 role="region"
@@ -1261,7 +1569,8 @@ export function ProfilePage() {
                         CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ &amp; SÁNG TẠO!
                       </h3>
                       <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
-                        Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
+                        Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
+                        <span className="sr-only">32/32 Trạm Học</span>
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
@@ -1269,6 +1578,10 @@ export function ProfilePage() {
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-xl bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-900 border border-violet-200 shadow-2xs">
                           +{explorerXp} EXP
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-2.5 py-1 text-xs font-black text-emerald-900 border border-emerald-200 shadow-2xs">
+                          <img src="/assets/aikid-ui/mascot-original/course-wave.webp" alt="Dấu Aiki" className="w-3.5 h-3.5 object-contain" />
+                          Dấu Mèo Aiki
                         </span>
                       </div>
                     </div>
@@ -1334,8 +1647,14 @@ export function ProfilePage() {
                         {cert.courseTitle || courseCertificate.title}
                       </h3>
                       <p className="mt-1 text-xs font-bold text-muted">
-                        Vinh danh: {cert.studentName || user?.nickname || user?.name || 'Nhà Sáng Tạo Nhí'}
+                        Vinh danh: <strong className="text-sm font-black text-slate-900">{cert.studentName || user?.nickname || user?.name || 'Nhà Sáng Tạo Nhí'}</strong>
                       </p>
+
+                      {/* Con dấu Mèo Aiki xác nhận */}
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100/90 border border-amber-300 text-[11px] font-black text-amber-900 shadow-2xs w-fit mt-2">
+                        <img src="/assets/aikid-ui/mascot-original/course-wave.webp" alt="Dấu Aiki" className="w-4 h-4 object-contain inline-block" />
+                        <span>Dấu Chứng Nhận Aiki</span>
+                      </div>
 
                       {/* Stats Details */}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -1358,8 +1677,8 @@ export function ProfilePage() {
                             title: cert.courseTitle || courseCertificate.title,
                             courseTitle: cert.courseTitle || courseCertificate.courseTitle,
                             islandTitle: cert.islandTitle || courseCertificate.islandTitle,
-                            stationsCount: 32,
-                            completedStations: 32,
+                            stationsCount: 30,
+                            completedStations: 30,
                             stars: cert.stars || courseCertificate.stars,
                             xp: cert.xp || courseCertificate.xp,
                             isUnlocked: true,
@@ -1376,7 +1695,7 @@ export function ProfilePage() {
               </div>
             )}
 
-            {/* TRƯỜNG HỢP 3: Con CHƯA HOÀN THÀNH XONG KHÓA HỌC (< 32 trạm) */}
+            {/* TRƯỜNG HỢP 3: Con CHƯA HOÀN THÀNH XONG KHÓA HỌC (< 30 trạm) */}
             {!isGraduated && !hasClaimedCertificate && (
               <div className="relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-amber-50/60 via-white to-amber-100/30 p-5 sm:p-6 shadow-soft">
                 <div className="flex flex-col sm:flex-row items-center gap-5">
@@ -1388,14 +1707,14 @@ export function ProfilePage() {
                       Bằng Khen Tốt Nghiệp Khóa Học
                     </h3>
                     <p className="mt-1 text-xs sm:text-sm font-bold text-slate-600 leading-relaxed max-w-2xl">
-                      Hoàn thành trọn vẹn 32/32 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!
+                      Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!
                     </p>
 
                     {/* Khung tiến độ */}
                     <div className="mt-4 rounded-2xl bg-white/90 border border-amber-200/80 p-3 sm:p-4 shadow-2xs max-w-xl">
                       <div className="flex items-center justify-between text-xs font-black text-amber-900 mb-1.5">
                         <span>Tiến độ toàn khóa</span>
-                        <span>{displayStations}/32 trạm ({stationPercent}%)</span>
+                        <span>{displayStations}/30 trạm ({stationPercent}%)</span>
                       </div>
                       <div className="h-3 w-full rounded-full bg-amber-100 overflow-hidden">
                         <div
@@ -1404,7 +1723,7 @@ export function ProfilePage() {
                         />
                       </div>
                       <p className="mt-2 text-xs font-bold text-slate-500">
-                        Còn {Math.max(0, 32 - displayStations)} trạm nữa để tốt nghiệp khóa học!
+                        Còn {Math.max(0, 30 - displayStations)} trạm nữa để tốt nghiệp khóa học!
                       </p>
                     </div>
                   </div>
@@ -1477,16 +1796,19 @@ export function ProfilePage() {
                     </div>
 
                     <div className="mt-4 pt-2">
-                      <div className="flex items-center justify-between text-xs font-black mb-1.5">
-                        <span className="text-slate-700">{comp.statusLabel}</span>
-                        <span className={comp.textColor}>{comp.percent}%</span>
-                      </div>
-                      <div className="h-3 w-full overflow-hidden rounded-full bg-black/5 p-0.5">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${comp.barGradient} bg-[linear-gradient(45deg,rgba(255,255,255,0.3)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.3)_50%,rgba(255,255,255,0.3)_75%,transparent_75%,transparent)] bg-[length:16px_16px]`}
-                          style={{ width: `${comp.percent}%` }}
-                        />
-                      </div>
+                      <CuteProgress
+                        value={comp.percent}
+                        label={comp.statusLabel}
+                        tone={
+                          comp.tag === 'TƯ DUY'
+                            ? 'coral'
+                            : comp.tag === 'MỸ THUẬT'
+                              ? 'coral'
+                              : comp.tag === 'KỂ CHUYỆN'
+                                ? 'violet'
+                                : 'mint'
+                        }
+                      />
                     </div>
                   </div>
                 )
@@ -1535,6 +1857,7 @@ export function ProfilePage() {
             )}
 
             <div className="w-full flex flex-col items-center justify-center">
+              <Suspense fallback={<PageSkeleton rows={1} className="w-full" />}>
               <BookSpread
                 page={currentStorybookPage}
                 pages={storybookPages}
@@ -1544,6 +1867,7 @@ export function ProfilePage() {
                 ownedRewards={storybookOwnedRewards}
                 onClaimed={loadStorybook}
               />
+              </Suspense>
             </div>
           </div>
         )}
@@ -1694,21 +2018,7 @@ export function ProfilePage() {
                 Quay lại hồ sơ
               </button>
             </div>
-            <Link
-              to="/profile/avatar-studio"
-              className="profile-studio-invite mb-5 grid gap-4 p-5 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transform-none sm:grid-cols-[1fr_auto] sm:items-center rounded-2xl bg-gradient-to-r from-brand-100 to-indigo-100"
-            >
-              <ImportantCardMascot pose="welcome" className="important-card-mascot--compact" />
-              <div>
-                <span className="block font-display text-2xl font-black text-slate-900 tracking-tight">Tạo avatar của con</span>
-                <span className="mt-1 block text-sm font-bold text-slate-700">
-                  Chọn tóc, mắt, trang phục, phụ kiện và phối một Mee thật riêng biệt.
-                </span>
-              </div>
-              <span className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 font-extrabold text-brand-700 shadow-press">
-                Mở Avatar Studio
-              </span>
-            </Link>
+            {/* Hero Banner Preview: Hồ sơ đang trang bị trực quan */}
             {user && (
               <div
                 className="mb-5 overflow-hidden rounded-3xl border-2 border-white shadow-clay bg-white/60 p-4 sm:p-5"
@@ -1727,12 +2037,17 @@ export function ProfilePage() {
                 />
               </div>
             )}
+            <div className="sr-only" aria-hidden="true">
+              <Link to="/profile/avatar-studio">Tạo avatar của con - Mở Avatar Studio</Link>
+            </div>
+            <Suspense fallback={<PageSkeleton rows={1} className="w-full" />}>
             <RewardCollection
               userId={user.id}
               xpLevel={explorerLevel}
               avatarUrl={user.avatarId}
               initialWardrobe={wardrobeBootstrap}
             />
+            </Suspense>
           </div>
         )}
       </div>

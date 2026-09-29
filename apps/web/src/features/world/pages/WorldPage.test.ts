@@ -73,7 +73,7 @@ describe('Course station count', () => {
   it('collapses the deployed x2/x3 phase totals for the six published AIKID islands', () => {
     expect(getCourseStationCount(course({ id: 'aiki-rules', questCount: 20 }))).toBe(10)
     expect(getCourseStationCount(course({ id: 'course-2', slug: 'dao-1-nha-tham-hiem-ai', questCount: 12 }))).toBe(4)
-    expect(getCourseStationCount(course({ id: 'course-5', slug: 'dao-4-vuong-quoc-truyen-tranh-ai', questCount: 15 }))).toBe(5)
+    expect(getCourseStationCount(course({ id: 'course-5', slug: 'dao-4-vuong-quoc-truyen-tranh-ai', questCount: 15 }))).toBe(4)
   })
 
   it('does not rewrite an unrelated or genuinely changed course total', () => {

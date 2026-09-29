@@ -71,7 +71,7 @@ describe('auth store', () => {
     })
   })
 
-  it('signs parents in with Firebase and exchanges the ID token', async () => {
+  it('signs parents in through Account Hub and creates the server session', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -98,18 +98,18 @@ describe('auth store', () => {
       .loginAdult('admin@example.test', 'example-password')
 
     expect(user.role).toBe('admin')
-    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith('admin@example.test', 'example-password')
+    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
-      '/api/auth/login/firebase',
+      '/api/auth/login/adult',
       {
         method: 'POST',
-        body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
+        body: JSON.stringify({ login: 'admin@example.test', password: 'example-password' }),
       },
     )
   })
 
-  it('uses access returned by the Firebase session without a second request', async () => {
+  it('uses access returned by the Account Hub session without a second request', async () => {
     mocks.api.mockResolvedValueOnce({
       user: {
         id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
@@ -134,7 +134,7 @@ describe('auth store', () => {
     expect(mocks.api).toHaveBeenCalledTimes(1)
   })
 
-  it('resolves an account alias before Firebase authentication', async () => {
+  it('passes account usernames unchanged to the unified Account Hub login', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -172,13 +172,13 @@ describe('auth store', () => {
       .loginAdult('storymee-admin', 'admin-password')
 
     expect(user.role).toBe('admin')
-    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith('admin@storymee.com', 'admin-password')
+    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
-      '/api/auth/login/firebase',
+      '/api/auth/login/adult',
       {
         method: 'POST',
-        body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
+        body: JSON.stringify({ login: 'storymee-admin', password: 'admin-password' }),
       },
     )
   })
@@ -214,37 +214,46 @@ describe('auth store', () => {
     )
   })
 
-  it('does not fall back to password login when Firebase rejects the credential', async () => {
-    mocks.signInWithFirebasePassword.mockRejectedValueOnce({
-      code: 'auth/user-not-found',
-      message: 'User not found in Firebase',
-    })
-    await expect(useAuth.getState().loginAdult('legacy@example.test', 'legacy-password')).rejects.toMatchObject({ code: 'auth/user-not-found' })
-    expect(mocks.api).not.toHaveBeenCalled()
-  })
-
-  it('uses the parent gateway only after Firebase succeeds but token exchange returns 401', async () => {
+  it('supports a Supabase account that has not been mirrored to Firebase', async () => {
     mocks.api
-      .mockRejectedValueOnce(new ApiError(401, 'Firebase token verifier unavailable'))
       .mockResolvedValueOnce({
         user: {
-          id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
+          id: 'legacy-1', role: 'parent', email: 'legacy@example.test', nickname: 'Legacy Parent',
           avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
           parentId: null, classId: null,
         },
       })
       .mockResolvedValueOnce({ contexts: [], active: null })
 
+    const user = await useAuth.getState().loginAdult('legacy@example.test', 'legacy-password')
+    expect(user.id).toBe('legacy-1')
+    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
+  })
+
+  it('falls back to Firebase only when Account Hub rejects the password account', async () => {
+    mocks.api
+      .mockRejectedValueOnce(new ApiError(401, 'Account not found'))
+      .mockResolvedValueOnce({
+        user: {
+          id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'Parent',
+          avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
+          parentId: null, classId: null,
+        },
+        access: { contexts: [], active: null, personas: ['parent'], platformRoles: [] },
+      })
+
     const user = await useAuth.getState().loginAdult('parent@example.test', 'valid-password')
 
     expect(user.role).toBe('parent')
-    expect(mocks.api).toHaveBeenNthCalledWith(2, '/api/auth/login/adult', {
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith('parent@example.test', 'valid-password')
+    expect(mocks.api).toHaveBeenNthCalledWith(2, '/api/auth/login/firebase', {
       method: 'POST',
-      body: JSON.stringify({ login: 'parent@example.test', password: 'valid-password' }),
+      body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
     })
   })
 
-  it('fails closed when Firebase rejects credentials', async () => {
+  it('fails closed when both Account Hub and Firebase reject credentials', async () => {
+    mocks.api.mockRejectedValueOnce(new ApiError(401, 'Invalid credentials'))
     mocks.signInWithFirebasePassword.mockRejectedValueOnce({ code: 'auth/invalid-credential' })
 
     await expect(

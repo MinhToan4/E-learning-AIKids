@@ -113,9 +113,14 @@ export function buildVideoEmbedUrl(url?: string, seekSec?: number | null): strin
     embed.searchParams.set('modestbranding', '1')
     embed.searchParams.set('playsinline', '1')
     embed.searchParams.set('rel', '0')
-    if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null') {
+    if (
+      typeof window !== 'undefined' &&
+      window.location?.origin &&
+      window.location.origin !== 'null' &&
+      (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+    ) {
       embed.searchParams.set('origin', window.location.origin)
-      embed.searchParams.set('widget_referrer', window.location.href)
+      embed.searchParams.set('widget_referrer', window.location.origin)
     }
     if (seekSec !== null && seekSec !== undefined) {
       embed.searchParams.set('start', String(Math.max(0, Math.floor(seekSec))))

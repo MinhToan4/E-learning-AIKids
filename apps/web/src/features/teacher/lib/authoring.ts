@@ -1,4 +1,8 @@
 import type { LessonSixStageJourney } from '@/shared/lib/api'
+import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
+import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { extractRuleNumber, isAikiRuleJourney } from '@/features/lesson/lib/rule-journey-identifiers'
 
 export type AuthoringStepId = 'basics' | 'content' | 'outcomes' | 'recognition' | 'learn' | 'game' | 'practice' | 'check'
 
@@ -210,7 +214,7 @@ export type LearnCardDraft = {
   }
 }
 
-export type LessonFormat = 'standard' | 'aiki-rule-5steps' | 'aiki-island-6steps'
+export type LessonFormat = 'standard' | 'aiki-rule-5steps' | 'aiki-rule-3steps' | 'aiki-island-6steps'
 
 export type JourneyStageDefinition = {
   id: string
@@ -220,6 +224,12 @@ export type JourneyStageDefinition = {
   iconName?: string
   desc?: string
 }
+
+export const STANDARD_RULE_3_STAGES: JourneyStageDefinition[] = [
+  { id: 'stage-0', index: 0, title: '1. Bài học', shortTitle: 'Bài học', iconName: 'Film', desc: '1. 🎬 Rạp chiếu video bài học & kiến thức trọng tâm' },
+  { id: 'stage-1', index: 1, title: '2. Kiểm tra', shortTitle: 'Kiểm tra', iconName: 'MessageCircleQuestion', desc: '2. ⚡ Thử tài phản xạ (Trắc nghiệm củng cố quy tắc)' },
+  { id: 'stage-2', index: 2, title: '3. Hoàn thành', shortTitle: 'Hoàn thành', iconName: 'Trophy', desc: '3. 🏆 Vinh danh, trao huy hiệu & nhận sao hoàn thành' },
+]
 
 export const STANDARD_ISLAND_6_STAGES: JourneyStageDefinition[] = [
   { id: 'stage-0', index: 0, title: '1. 🎯 Mục tiêu', shortTitle: 'Mục tiêu', iconName: 'Target', desc: '1. 🎯 Mục tiêu bài học (Ảnh minh họa)' },
@@ -250,7 +260,17 @@ export function resolveCourseJourneyStages(
   format?: LessonFormat,
   customStages?: JourneyStageDefinition[]
 ): JourneyStageDefinition[] {
-  // 1. Cho phép tùy biến tự do từ 3 đến 7 chặng nếu mảng customStages được cung cấp và có >= 3 phần tử
+  // 1. Khóa Quy Tắc (aiki-rule-3steps): 3 bước chuẩn
+  if (format === 'aiki-rule-3steps') {
+    return [...STANDARD_RULE_3_STAGES]
+  }
+
+  // 2. Khóa Quy Tắc (aiki-rule-5steps): giữ backward compatibility nếu explicit format là 5 bước
+  if (format === 'aiki-rule-5steps') {
+    return [...STANDARD_RULE_5_STAGES]
+  }
+
+  // 3. Cho phép tùy biến tự do từ 3 đến 7 chặng nếu mảng customStages được cung cấp và có >= 3 phần tử
   if (Array.isArray(customStages) && customStages.length >= 3) {
     const clampedStages = customStages.slice(0, 7)
     return clampedStages.map((st, idx) => ({
@@ -263,15 +283,13 @@ export function resolveCourseJourneyStages(
     }))
   }
 
-  // 2. Khóa Quy Tắc (aiki-rule-5steps): 5 chặng chuẩn
-  const isRule =
-    format === 'aiki-rule-5steps' ||
-    Boolean(courseId && (courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule')))
+  // 4. Khóa Quy Tắc (aiki-rule-3steps) mặc định nếu courseId chứa rule
+  const isRule = Boolean(courseId && (courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule')))
   if (isRule) {
-    return [...STANDARD_RULE_5_STAGES]
+    return [...STANDARD_RULE_3_STAGES]
   }
 
-  // 3. Khóa Đảo (aiki-island-6steps): 6 chặng chuẩn
+  // 5. Khóa Đảo (aiki-island-6steps): 6 chặng chuẩn
   const isIsland =
     format === 'aiki-island-6steps' ||
     !format ||
@@ -280,7 +298,7 @@ export function resolveCourseJourneyStages(
     return [...STANDARD_ISLAND_6_STAGES]
   }
 
-  // 4. Khóa chuẩn / tùy biến: fallback an toàn
+  // 6. Khóa chuẩn / tùy biến: fallback an toàn
   if (format === 'standard') {
     return [...STANDARD_COURSE_4_STAGES]
   }
@@ -318,11 +336,19 @@ export function isAikiRuleLesson(cards: LearnCardDraft[]): boolean {
   return false
 }
 
+export function isAikiRule3StepsLesson(cards: LearnCardDraft[]): boolean {
+  if (!Array.isArray(cards) || cards.length !== 3) return false
+  if (cards.every((c, idx) => c.id === `rule-3step-stage-${idx + 1}`)) return true
+  if (cards.some((c) => c.id?.startsWith('rule-3step-'))) return true
+  return cards.length === 3
+}
+
 export function detectLessonFormat(cards: LearnCardDraft[], explicitFormat?: string, isIsland?: boolean): LessonFormat {
-  if (explicitFormat === 'aiki-island-6steps' || explicitFormat === 'aiki-rule-5steps' || explicitFormat === 'standard') {
+  if (explicitFormat === 'aiki-island-6steps' || explicitFormat === 'aiki-rule-3steps' || explicitFormat === 'aiki-rule-5steps' || explicitFormat === 'standard') {
     return explicitFormat
   }
   if (isIsland) return 'aiki-island-6steps'
+  if (Array.isArray(cards) && (cards.length === 3 || isAikiRule3StepsLesson(cards))) return 'aiki-rule-3steps'
   if (isAikiRuleLesson(cards)) return 'aiki-rule-5steps'
   return 'standard'
 }
@@ -448,6 +474,74 @@ export function createAikiRuleLearnCards(): LearnCardDraft[] {
 }
 
 export const createAikiRuleDefaultCards = createAikiRuleLearnCards
+
+export function createAikiRule3StepsCards(): LearnCardDraft[] {
+  return [
+    {
+      id: 'rule-3step-stage-1',
+      title: '1. Bài học',
+      body: '',
+      tip: '',
+      kind: 'concept',
+      layout: 'text',
+      visualItems: [],
+      imageUrl: '',
+      imageAlt: '',
+      videoUrl: '',
+      enabledModules: ['video', 'layout-callout', 'voice'],
+      mee: {
+        readText: '',
+        audioUrl: '',
+        voiceProvider: 'vertex',
+        gesture: 'presentation',
+        autoRead: false,
+      },
+    },
+    {
+      id: 'rule-3step-stage-2',
+      title: '2. Kiểm tra',
+      body: '',
+      tip: '',
+      kind: 'example',
+      layout: 'text',
+      visualItems: [],
+      imageUrl: '',
+      imageAlt: '',
+      videoUrl: '',
+      optionImages: ['', ''],
+      optionLabels: ['Ảnh A: Bức tranh quen thuộc', 'Ảnh B: Bức tranh sáng tạo độc nhất của con'],
+      optionDescs: ['Phương án quen thuộc hoặc sao chép', 'Phương án sáng tạo độc đáo từ cảm xúc và câu chuyện riêng của con'],
+      enabledModules: ['versus-ab'],
+      mee: {
+        readText: '',
+        audioUrl: '',
+        voiceProvider: 'vertex',
+        gesture: 'think',
+        autoRead: false,
+      },
+    },
+    {
+      id: 'rule-3step-stage-3',
+      title: '3. Hoàn thành',
+      body: '',
+      tip: '',
+      kind: 'remember',
+      layout: 'text',
+      visualItems: [],
+      imageUrl: '',
+      imageAlt: '',
+      videoUrl: '',
+      enabledModules: ['poster'],
+      mee: {
+        readText: '',
+        audioUrl: '',
+        voiceProvider: 'vertex',
+        gesture: 'celebrate',
+        autoRead: false,
+      },
+    },
+  ]
+}
 
 export function getActiveModules(card: LearnCardDraft, stageIndex: number): string[] {
   if (Array.isArray(card.enabledModules)) {
@@ -659,8 +753,8 @@ function hasLength(value: string, minimum: number): boolean {
   return value.trim().length >= minimum
 }
 
-function parseGameContent(value: string): Record<string, unknown> | null {
-  if (!value.trim()) return null
+function parseGameContent(value?: string | null): Record<string, unknown> | null {
+  if (!value || typeof value !== 'string' || !value.trim()) return null
   try {
     const parsed: unknown = JSON.parse(value)
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
@@ -786,7 +880,7 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const isIsland =
     draft.lessonFormat === 'aiki-island-6steps' ||
     Boolean(draft.sixStageJourney) ||
-    (/^bai-\d+-\d+/i.test(draft.id) && draft.lessonFormat !== 'standard' && draft.lessonFormat !== 'aiki-rule-5steps')
+    (/^bai-\d+-\d+/i.test(draft.id) && draft.lessonFormat !== 'standard' && draft.lessonFormat !== 'aiki-rule-5steps' && draft.lessonFormat !== 'aiki-rule-3steps')
   const hasAikiRuleStage = !isIsland && (isAikiRuleLesson(draft.learnCards) || draft.learnCards.some((card) => AIKI_RULE_STAGE_KINDS.includes(card.kind as typeof AIKI_RULE_STAGE_KINDS[number])))
 
   const basicsStep = step('basics', 'Thông tin trạm', [
@@ -802,6 +896,17 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
       [videoIsValid, 'Liên kết video HTTPS'],
     ] as [boolean, string][])),
   ])
+
+  if (draft.lessonFormat === 'aiki-rule-3steps') {
+    return readiness([
+      basicsStep,
+      step('content', '3 bước Quy tắc AIKI', [
+        [hasLength(draft.title, 3), 'Tiêu đề quy tắc'],
+        [Boolean(draft.videoUrl || draft.sixStageJourney?.stage3_video?.videoUrl || draft.learnCards?.[0]?.videoUrl), 'Video bài học'],
+        [Boolean(draft.checkQuestions?.length > 0 || draft.checkQuestion || draft.sixStageJourney?.stage4_quiz?.questions?.length || draft.learnCards?.[1]), 'Câu hỏi kiểm tra phản xạ'],
+      ]),
+    ])
+  }
 
   if (isIsland) {
     const j = draft.sixStageJourney
@@ -1028,5 +1133,570 @@ export function newPatrolWave(index: number): PatrolWave {
     title: `Đợt ${index + 1}`,
     backgroundUrl: '/assets/game/idea-island-map.webp',
     targets: [],
+  }
+}
+
+// ─── Six-Stage Island Course Helpers & Draft Normalization ────────────────────
+
+export const ISLAND_6_STAGE_NAMES = [
+  '1. 🎯 Mục tiêu (Ảnh)',
+  '2. ❓ Xác nhận (1 câu hỏi)',
+  '3. 🎬 Video bài học',
+  '4. 📝 Bài test thử tài',
+  '5. 🎨 Thực hành (AI Studio)',
+  '6. 🏆 Màn kết thúc',
+] as const
+
+export const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
+export const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
+
+export const FOUR_KEYS_METADATA = [
+  { label: 'CÁI GÌ', sub: 'Ai, đồ vật gì', tone: 'sky' as const, keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
+  { label: 'TRÔNG THẾ NÀO', sub: 'Màu sắc, hình dáng', tone: 'sun' as const, keyImage: '/assets/aiki-keys/key_how_yellow.jpg' },
+  { label: 'ĐANG LÀM GÌ', sub: 'Hành động', tone: 'coral' as const, keyImage: '/assets/aiki-keys/key_action_orange.jpg' },
+  { label: 'Ở ĐÂU', sub: 'Bối cảnh, nơi chốn', tone: 'rose' as const, keyImage: '/assets/aiki-keys/key_where_pink.jpg' },
+] as const
+
+export function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
+  const COLOR_NAME_MAP: Record<string, { tone: 'sky' | 'sun' | 'coral' | 'rose'; image: string }> = {
+    'xanh sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
+    'sky': { tone: 'sky', image: '/assets/aiki-keys/key_what_blue.jpg' },
+    'vàng sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
+    'sun': { tone: 'sun', image: '/assets/aiki-keys/key_how_yellow.jpg' },
+    'cam mango': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
+    'coral': { tone: 'coral', image: '/assets/aiki-keys/key_action_orange.jpg' },
+    'hồng gum': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
+    'rose': { tone: 'rose', image: '/assets/aiki-keys/key_where_pink.jpg' },
+  }
+
+  return Array.from({ length: 4 }, (_, index) => {
+    const defaultMeta = FOUR_KEYS_METADATA[index] || FOUR_KEYS_METADATA[0]
+    const value = keyPoints[index] || ''
+    const separator = value.indexOf(':')
+
+    let rawPrefix = separator > 0 ? value.slice(0, separator).trim() : value.trim()
+    const rawText = separator > 0 ? value.slice(separator + 1).trim() : ''
+
+    let detectedTone: 'sky' | 'sun' | 'coral' | 'rose' = defaultMeta.tone
+    let detectedImage: string = defaultMeta.keyImage
+
+    const colorMatch = rawPrefix.match(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i)
+    if (colorMatch) {
+      const colorKey = colorMatch[1].toLowerCase()
+      if (COLOR_NAME_MAP[colorKey]) {
+        detectedTone = COLOR_NAME_MAP[colorKey].tone
+        detectedImage = COLOR_NAME_MAP[colorKey].image
+      }
+      rawPrefix = rawPrefix.replace(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose|brand)\)/i, '').trim()
+    }
+
+    const subMatch = rawPrefix.match(/^(.*?)(?:\s*\((.*?)\))?$/)
+    let parsedLabel = subMatch && subMatch[1] ? subMatch[1].trim() : (rawPrefix || defaultMeta.label)
+    let parsedSub = subMatch && subMatch[2] ? subMatch[2].trim() : defaultMeta.sub
+
+    if (parsedSub && COLOR_NAME_MAP[parsedSub.toLowerCase()]) {
+      const matched = COLOR_NAME_MAP[parsedSub.toLowerCase()]
+      detectedTone = matched.tone
+      detectedImage = matched.image
+      parsedSub = defaultMeta.sub
+    }
+
+    if (parsedLabel.toUpperCase() === 'TRÔNG NHƯ THẾ NÀO') {
+      parsedLabel = 'TRÔNG THẾ NÀO'
+    } else if (parsedLabel === 'Cái gì?') {
+      parsedLabel = defaultMeta.label
+    }
+
+    return {
+      label: parsedLabel || defaultMeta.label,
+      sub: parsedSub || defaultMeta.sub,
+      text: rawText,
+      tone: detectedTone,
+      keyImage: detectedImage,
+    }
+  })
+}
+
+export function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  if (journey.stageBlockEditorVersion === 2) return existing.filter((block) => block.type !== 'voice')
+  const existingFourKeys = existing.find((block) => block.type === 'layout-four-keys')
+  const authoredExtras = existing.filter((block) =>
+    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys && block.type !== 'voice'
+  )
+  return [
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: journey.stage1_goal.title, body: journey.stage1_goal.goalText },
+    {
+      ...createFourKeysBlock(`${COURSE_GOAL_BLOCK_PREFIX}four-keys`),
+      ...(existingFourKeys || {}),
+      id: `${COURSE_GOAL_BLOCK_PREFIX}four-keys`,
+      visualItems: existingFourKeys?.visualItems?.length ? existingFourKeys.visualItems.slice(0, 4) : goalKeyItems(journey.stage1_goal.keyPoints),
+    },
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
+    ...authoredExtras,
+  ]
+}
+
+export function confirmKeyItems(option: LessonSixStageJourney['stage2_confirmGoal']['options'][number]): LearnVisualItemDraft[] {
+  if (option.keyItems?.length) return option.keyItems.slice(0, 4).map((item, index) => ({
+    label: item.label,
+    text: item.label,
+    tone: (['sky', 'sun', 'coral', 'brand'] as const)[index],
+  }))
+  const [, values = ''] = option.text.split(':')
+  return goalKeyItems(values.split('·').map((item) => item.trim()).filter(Boolean))
+}
+
+export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  if (journey.stageBlockEditorVersion === 3 && existing.length > 0) {
+    return existing.map((block) => {
+      if (block.type === 'layout-four-keys' && (block.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX) || block.id.includes('option'))) {
+        return {
+          ...block,
+          type: 'layout-confirm-option' as const,
+          visualItems: [],
+        }
+      }
+      return block
+    })
+  }
+  return [
+    {
+      id: `${COURSE_CONFIRM_BLOCK_PREFIX}question`,
+      type: 'text',
+      title: 'Câu hỏi xác nhận',
+      body: journey.stage2_confirmGoal.question,
+      tip: journey.stage2_confirmGoal.explanation,
+    },
+    ...journey.stage2_confirmGoal.options.map((option, index) => ({
+      id: `${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`,
+      type: 'layout-confirm-option' as const,
+      title: option.text.split(':')[0]?.trim() || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
+      body: option.text.includes(':') ? option.text.split(':')[1]?.trim() : (option.text || `Phương án ${String.fromCharCode(65 + index)}`),
+      imageUrl: option.imageUrl || '',
+      isCorrect: journey.stage2_confirmGoal.correctIndex === index,
+      visualItems: [],
+    })),
+  ]
+}
+
+export function isLegacyAikiCourseResidue(card: LearnCardDraft, encodedItem?: LearnVisualItemDraft) {
+  return Boolean(encodedItem) ||
+    card.id.startsWith('aiki-rule-') ||
+    ['situation', 'aiki-riddle', 'rule', 'explanation', 'closing'].includes(card.kind) ||
+    /câu đố của aiki|mèo aiki|quy tắc vàng/i.test(card.title)
+}
+
+export function defaultLearnCards(concept = '', example = ''): LearnCardDraft[] {
+  return [
+    { id: 'concept', title: 'Khám phá ý chính', body: concept, tip: '', kind: 'concept', layout: 'text', visualItems: [], mee: { readText: '', gesture: 'presentation', autoRead: false } },
+    { id: 'example', title: 'Ví dụ để hiểu rõ', body: example, tip: '', kind: 'example', layout: 'split', visualItems: [], mee: { readText: '', gesture: 'point-left', autoRead: false } },
+  ]
+}
+
+export function normalizeLearnKind(value: unknown, index: number, id = '', isAiki = false): LearnCardDraft['kind'] {
+  const encodedKind = ({
+    'aiki-rule-situation': 'situation',
+    'aiki-rule-riddle': 'aiki-riddle',
+    'aiki-rule-rule': 'rule',
+    'aiki-rule-explanation': 'explanation',
+    'aiki-rule-closing': 'closing',
+  } as const)[id as 'aiki-rule-situation']
+  if (encodedKind) return encodedKind
+  if (value === 'situation' || value === 'aiki-riddle' || value === 'rule' || value === 'explanation' || value === 'closing') return value
+  if (isAiki || id.startsWith('aiki-rule-')) {
+    if (index === 0 && value === 'concept') return 'situation'
+    if (index === 1 && value === 'example') return 'aiki-riddle'
+    if (index === 2 && value === 'steps') return 'rule'
+    if (index === 3 && value === 'compare') return 'explanation'
+    if (index === 4 && value === 'remember') return 'closing'
+  }
+  if (value === 'concept' || value === 'example' || value === 'compare' || value === 'steps' || value === 'storyboard' || value === 'remember') return value
+  if (value === 'guided-practice') return 'steps'
+  if (value === 'artifact') return 'remember'
+  return index === 0 ? 'concept' : 'example'
+}
+
+export function normalizeLearnLayout(value: unknown, hasVisualItems: boolean, kind: LearnCardDraft['kind']): LearnCardDraft['layout'] {
+  if (value === 'text' || value === 'split' || value === 'visual-grid' || value === 'storyboard') return value
+  if (kind === 'storyboard') return 'storyboard'
+  return hasVisualItems ? 'split' : 'text'
+}
+
+export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): LectureDraft {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const explicitFormat = (draft as any).lessonFormat || (draft as any).gameConfig?.lessonFormat
+  const isRuleByCourse = courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule') || isAikiRuleJourney(courseId)
+  const isRuleCandidate = isAikiRuleJourney(draft) || isRuleByCourse
+  const hasIslandContract =
+    !isRuleCandidate &&
+    (explicitFormat === 'aiki-island-6steps' ||
+      courseId.startsWith('dao-') ||
+      Boolean(draft.metadata?.sixStageJourney) ||
+      Boolean(draft.sixStageJourney) ||
+      (/^bai-\d+-\d+/i.test(draft.id || '') && explicitFormat !== 'standard'))
+  const format: LessonFormat = explicitFormat === 'aiki-island-6steps'
+    ? 'aiki-island-6steps'
+    : explicitFormat === 'aiki-rule-3steps'
+    ? 'aiki-rule-3steps'
+    : explicitFormat === 'aiki-rule-5steps'
+    ? 'aiki-rule-5steps'
+    : explicitFormat === 'standard'
+    ? 'standard'
+    : isRuleCandidate
+    ? 'aiki-rule-3steps'
+    : hasIslandContract
+    ? 'aiki-island-6steps'
+    : isAikiRuleLesson(draft.learnCards || [])
+    ? 'aiki-rule-5steps'
+    : (Array.isArray(draft.learnCards) && draft.learnCards.length === 3)
+    ? 'aiki-rule-3steps'
+    : (draft.lessonFormat ?? 'standard')
+  const isIsland = format === 'aiki-island-6steps'
+  const isRule3Steps = format === 'aiki-rule-3steps'
+  const isAiki5Steps = format === 'aiki-rule-5steps'
+  const isAiki = isRule3Steps || isAiki5Steps
+
+  let sixStageJourney = draft.sixStageJourney || ((draft as any).metadata?.sixStageJourney as LessonSixStageJourney | undefined)
+  if (isIsland) {
+    try {
+      sixStageJourney = resolveIslandSixStageJourney({ ...draft, sixStageJourney } as any)
+    } catch {
+      // ignore
+    }
+  }
+
+  // ── AIKI Rules SSOT Data Injection ──
+  const isAikiRule = isRule3Steps || isAikiRuleJourney(draft) || isRuleByCourse
+  let matchedRule: (typeof AIKI_RULES_DATA)[number] | undefined
+  if (isAikiRule) {
+    const ruleNum = extractRuleNumber(draft)
+    matchedRule = AIKI_RULES_DATA.find((r) => r.id === ruleNum) || AIKI_RULES_DATA[0]
+
+    // Nạp dữ liệu THẬT của quy tắc vào draft nếu chưa có:
+    if (!draft.videoUrl) {
+      draft.videoUrl = matchedRule.videoUrl || ''
+    }
+    if (!draft.duration) {
+      draft.duration = `${matchedRule.durationSec}s`
+    }
+    if (!draft.hook) {
+      draft.hook = matchedRule.goal
+    }
+    if (!draft.skill) {
+      draft.skill = matchedRule.skill
+    }
+    if (!draft.checkQuestions || draft.checkQuestions.length === 0) {
+      draft.checkQuestions = (matchedRule.questions || []).map((q, idx) => ({
+        id: q.id || `rule-${matchedRule!.id}-q-${idx + 1}`,
+        prompt: q.prompt,
+        options: [...q.options],
+        answer: q.correctIndex,
+        explain: q.successFeedback || q.hint || '',
+      }))
+    }
+
+    const ruleTimestamps = matchedRule.slides?.map((slide, index) => ({
+      label: slide.stage,
+      startSec: index * 12,
+      endSec: (index + 1) * 12,
+      speech: slide.dialogue,
+    })) || []
+
+    const ruleQuizQuestions = (matchedRule.questions || []).map((q, idx) => ({
+      id: q.id || `rule-${matchedRule!.id}-q-${idx + 1}`,
+      prompt: q.prompt,
+      options: [...q.options],
+      correctIndex: q.correctIndex,
+      explanation: q.successFeedback || q.hint || '',
+      visualUrl: q.visualUrl,
+    }))
+
+    const ruleBadgeName = `Huy hiệu ${matchedRule.code}: ${matchedRule.shortTitle}`
+
+    if (!sixStageJourney) {
+      sixStageJourney = {
+        stage1_goal: {
+          id: `${draft.id || 'rule'}-goal`,
+          title: draft.title || matchedRule.title,
+          goalText: draft.hook || matchedRule.goal,
+          imageUrl: matchedRule.posterImage,
+          speech: matchedRule.akiTip || draft.skill || '',
+          keyPoints: [matchedRule.shortTitle || matchedRule.skill],
+        },
+        stage2_confirmGoal: {
+          id: `${draft.id || 'rule'}-confirm`,
+          question: draft.hook || matchedRule.goal || 'Bé hãy chọn phương án chính xác nhất nhé!',
+          options: [{ id: 'opt-1', text: 'Hiểu rõ' }, { id: 'opt-2', text: 'Chưa hiểu' }],
+          correctIndex: 0,
+          explanation: 'Tuyệt vời!',
+          speech: 'Bé hãy chọn phương án chính xác nhất nhé!',
+        },
+        stage3_video: {
+          id: `${draft.id || 'rule'}-video`,
+          title: draft.title || matchedRule.title,
+          videoUrl: draft.videoUrl || matchedRule.videoUrl || '',
+          posterUrl: matchedRule.posterImage,
+          durationSec: matchedRule.durationSec,
+          timestamps: ruleTimestamps,
+        },
+        stage4_quiz: {
+          id: `${draft.id || 'rule'}-quiz`,
+          title: `Thử tài phản xạ: ${matchedRule.shortTitle}`,
+          questions: ruleQuizQuestions,
+          passScore: 1,
+        },
+        stage5_practice: {
+          id: `${draft.id || 'rule'}-practice`,
+          title: 'Thực hành',
+          subjectName: draft.title || matchedRule.shortTitle,
+          badge: matchedRule.code,
+          illustrationType: 'rule-practice',
+          lockedFeatures: [matchedRule.shortTitle],
+          akiMotto: matchedRule.akiTip,
+          maxAttempts: 3,
+          workflowSteps: [],
+        },
+        stage6_completion: {
+          id: `${draft.id || 'rule'}-complete`,
+          title: `Hoàn thành bài học: ${matchedRule.shortTitle}!`,
+          congratsMessage: `Tuyệt vời! Bé đã làm chủ bài học "${matchedRule.shortTitle}"!`,
+          rewardBadge: {
+            name: ruleBadgeName,
+            iconUrl: matchedRule.posterImage,
+            stars: 3,
+            xp: 50,
+          },
+        },
+      }
+    } else {
+      sixStageJourney = {
+        ...sixStageJourney,
+        stage3_video: {
+          ...(sixStageJourney.stage3_video || {
+            id: `${draft.id || 'rule'}-video`,
+            title: draft.title || matchedRule.title,
+          }),
+          videoUrl: draft.videoUrl || matchedRule.videoUrl || sixStageJourney.stage3_video?.videoUrl || '',
+          posterUrl: matchedRule.posterImage,
+          durationSec: matchedRule.durationSec,
+          timestamps: (sixStageJourney.stage3_video?.timestamps && sixStageJourney.stage3_video.timestamps.length > 0)
+            ? sixStageJourney.stage3_video.timestamps
+            : ruleTimestamps,
+        },
+        stage4_quiz: {
+          ...(sixStageJourney.stage4_quiz || {
+            id: `${draft.id || 'rule'}-quiz`,
+            title: `Thử tài phản xạ: ${matchedRule.shortTitle}`,
+            passScore: 1,
+          }),
+          questions: (draft.checkQuestions && draft.checkQuestions.length > 0)
+            ? draft.checkQuestions.map((q, idx) => ({
+                id: q.id || `rule-${matchedRule!.id}-q-${idx + 1}`,
+                prompt: q.prompt,
+                options: [...q.options],
+                correctIndex: q.answer,
+                explanation: q.explain,
+                visualUrl: matchedRule!.questions?.[idx]?.visualUrl,
+              }))
+            : ruleQuizQuestions,
+        },
+        stage6_completion: {
+          ...(sixStageJourney.stage6_completion || {
+            id: `${draft.id || 'rule'}-complete`,
+            title: `Hoàn thành bài học: ${matchedRule.shortTitle}!`,
+            congratsMessage: `Tuyệt vời! Bé đã làm chủ bài học "${matchedRule.shortTitle}"!`,
+          }),
+          rewardBadge: {
+            name: ruleBadgeName,
+            iconUrl: matchedRule.posterImage,
+            stars: sixStageJourney.stage6_completion?.rewardBadge?.stars ?? 3,
+            xp: sixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50,
+          },
+        },
+      }
+    }
+  }
+
+  // ── Synchronize station reward badge ──
+  let rewardName = draft.reward?.trim() || ''
+  if (isAikiRule && matchedRule) {
+    if (!rewardName) {
+      rewardName = `Huy hiệu ${matchedRule.code}: ${matchedRule.shortTitle}`
+    }
+  }
+  if (isIsland || Boolean(sixStageJourney)) {
+    const fallbackBadgeName = rewardName || ('Huy hiệu ' + (draft.title || '')).trim()
+    if (sixStageJourney) {
+      const currentBadge = sixStageJourney.stage6_completion?.rewardBadge
+      if (!currentBadge || !currentBadge.name?.trim()) {
+        sixStageJourney = {
+          ...sixStageJourney,
+          stage6_completion: {
+            ...(sixStageJourney.stage6_completion || {
+              id: `${draft.id || 'lesson'}-complete`,
+              title: 'Chúc mừng bé hoàn thành bài học!',
+              congratsMessage: '',
+            }),
+            rewardBadge: {
+              name: currentBadge?.name?.trim() || fallbackBadgeName,
+              iconUrl: currentBadge?.iconUrl || '',
+              stars: currentBadge?.stars ?? 3,
+              xp: currentBadge?.xp ?? 50,
+            },
+          },
+        }
+      }
+      if (!rewardName) {
+        rewardName = sixStageJourney.stage6_completion.rewardBadge.name?.trim() || fallbackBadgeName
+      }
+    } else {
+      if (!rewardName) {
+        rewardName = fallbackBadgeName
+      }
+    }
+  }
+
+  if (!rewardName) {
+    rewardName = ('Huy hiệu ' + (draft.title || '')).trim()
+  }
+
+  const rule3Defaults = createAikiRule3StepsCards()
+  let sourceCards = draft.learnCards?.length
+    ? [...draft.learnCards]
+    : (isRule3Steps ? rule3Defaults : defaultLearnCards(draft.concept, draft.example))
+
+  if (isRule3Steps) {
+    if (sourceCards.length > 3) {
+      sourceCards = sourceCards.slice(0, 3)
+    }
+    while (sourceCards.length < 3) {
+      const index = sourceCards.length
+      sourceCards.push(rule3Defaults[index])
+    }
+  } else if (isIsland) {
+    while (sourceCards.length < 6) {
+      const index = sourceCards.length
+      sourceCards.push({
+        id: `island-stage-${index + 1}`,
+        title: ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`,
+        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
+      })
+    }
+  } else if (draft.customJourneyStages && draft.customJourneyStages.length >= 3) {
+    const totalCustom = Math.min(7, draft.customJourneyStages.length)
+    while (sourceCards.length < totalCustom) {
+      const index = sourceCards.length
+      sourceCards.push({
+        id: draft.customJourneyStages[index]?.id || `custom-stage-${index + 1}`,
+        title: draft.customJourneyStages[index]?.title || `Chặng ${index + 1}`,
+        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
+      })
+    }
+  }
+  let initialSlug = draft.slug || (draft as any).metadata?.slug || ''
+  if (!initialSlug && draft.id) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(draft.id)
+    if (!isUUID) {
+      initialSlug = draft.id
+    } else {
+      const curriculum = findIslandCurriculum(draft as any)
+      initialSlug = curriculum?.slug || slugifyAuthoringId(draft.title || '')
+    }
+  } else if (!initialSlug && draft.title) {
+    initialSlug = slugifyAuthoringId(draft.title)
+  }
+
+  const rawAccess = (draft as any).access ?? (draft as any).metadata?.access
+  const access: LessonAccessConfig = {
+    mode: rawAccess?.mode ?? 'inherit',
+    minPlanTier: rawAccess?.minPlanTier ?? 0,
+    trialBadge: rawAccess?.trialBadge ?? 'Học thử',
+    lockedReason: rawAccess?.lockedReason ?? '',
+  }
+
+  return {
+    ...draft,
+    reward: rewardName,
+    access,
+    slug: initialSlug,
+    lessonFormat: format,
+    sixStageJourney,
+    customJourneyStages: draft.customJourneyStages,
+    goalsText: draft.goalsText ?? '',
+    practiceStepsText: draft.practiceStepsText ?? '',
+    successCriteriaText: draft.successCriteriaText ?? '',
+    practiceConfigText: draft.practiceConfigText ?? '',
+    gameStructuredText: draft.gameStructuredText ?? '',
+    learnCards: sourceCards.map((card, index) => {
+      const sourceVisualItems = Array.isArray(card.visualItems) ? card.visualItems : []
+      const encodedItem = sourceVisualItems.find((item) => item.label === AIKI_RULE_META_LABEL)
+      let encoded: Partial<LearnCardDraft> = {}
+      if (isAiki) {
+        try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
+      }
+      const visualItems = sourceVisualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL)
+      const legacyAikiCourseResidue = isIsland && isLegacyAikiCourseResidue(card, encodedItem)
+      const islandStageBlocks: StageBlockItem[] = isIsland
+        ? (sixStageJourney?.stageContentBlocks?.[`stage-${index}`] ?? card.contentBlocks ?? []) as StageBlockItem[]
+        : []
+      const kind = isRule3Steps
+        ? (index === 0 ? 'concept' : index === 1 ? 'example' : 'remember')
+        : (isAiki5Steps && index < AIKI_RULE_STAGE_KINDS.length
+            ? AIKI_RULE_STAGE_KINDS[index]
+            : normalizeLearnKind(encoded.kind ?? card.kind, index, isAiki ? card.id : '', isAiki))
+      return {
+        ...card,
+        id: isIsland
+          ? `island-stage-${index + 1}`
+          : isRule3Steps
+            ? (card.id || `rule-3step-stage-${index + 1}`)
+            : (card.id || (isAiki5Steps && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`)),
+        title: isIsland
+          ? (ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`)
+          : isRule3Steps
+            ? (card.title || STANDARD_RULE_3_STAGES[index]?.title || `Chặng ${index + 1}`)
+            : (card.title || `Khối khám phá ${index + 1}`),
+        body: card.body || '',
+        tip: card.tip ?? '',
+        kind: isIsland ? (index === 0 ? 'concept' : 'example') : kind,
+        layout: normalizeLearnLayout(card.layout, visualItems.length > 0, kind),
+        visualItems,
+        imageUrl: isIsland && index === 0 && sixStageJourney
+          ? sixStageJourney.stage1_goal.imageUrl
+          : isRule3Steps
+            ? (card.imageUrl || matchedRule?.posterImage || encoded.imageUrl || '')
+            : (encoded.imageUrl ?? card.imageUrl ?? ''),
+        imageAlt: encoded.imageAlt ?? card.imageAlt ?? (isRule3Steps && matchedRule ? matchedRule.shortTitle : ''),
+        videoUrl: isRule3Steps && index === 0
+          ? (card.videoUrl || draft.videoUrl || matchedRule?.videoUrl || encoded.videoUrl || '')
+          : (encoded.videoUrl ?? card.videoUrl ?? ''),
+        optionImages: encoded.optionImages ?? card.optionImages ?? (isRule3Steps && index === 1 ? ['', ''] : kind === 'aiki-riddle' ? ['', ''] : undefined),
+        optionLabels: encoded.optionLabels ?? card.optionLabels ?? (isRule3Steps && index === 1 ? rule3Defaults[1].optionLabels : undefined),
+        optionDescs: encoded.optionDescs ?? card.optionDescs ?? (isRule3Steps && index === 1 ? rule3Defaults[1].optionDescs : undefined),
+        dialogueLines: encoded.dialogueLines ?? card.dialogueLines,
+        additionalImages: encoded.additionalImages ?? card.additionalImages,
+        compareData: encoded.compareData ?? card.compareData,
+        enabledModules: encoded.enabledModules ?? card.enabledModules ?? (isRule3Steps ? rule3Defaults[index]?.enabledModules : undefined),
+        contentBlocks: isIsland && index === 0 && sixStageJourney
+          ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 1 && sixStageJourney
+            ? buildCourseConfirmBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland
+              ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
+              : encoded.contentBlocks ?? card.contentBlocks)),
+        compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
+        mee: isIsland && index === 0 && sixStageJourney
+          ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
+          : isRule3Steps
+            ? {
+                readText: encoded.mee?.readText ?? card.mee?.readText ?? '',
+                audioUrl: encoded.mee?.audioUrl ?? card.mee?.audioUrl ?? '',
+                voiceProvider: 'vertex',
+                gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? rule3Defaults[index]?.mee?.gesture ?? 'presentation',
+                autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false,
+              }
+            : encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
+      }
+    }),
   }
 }

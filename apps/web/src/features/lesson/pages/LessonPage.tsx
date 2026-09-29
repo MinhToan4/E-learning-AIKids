@@ -545,6 +545,8 @@ export function LessonPage() {
           try {
             const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
               || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${questId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
             const num = raw != null ? parseInt(raw, 10) : 0
             if (Number.isFinite(num) && num > 0) cachedLocalStage = num
           } catch {
@@ -1068,25 +1070,34 @@ export function LessonPage() {
   }
 
   const persistJourneyStage = useCallback((stageIndex: number, stageCount: number) => {
-    const progressId = quest?.id || questId
+    const progressId = authoritativeLessonId || quest?.id || questId
     if (stageCount <= 0) return
-    // local curriculum IDs (rule-*, bai-*, aiki-rules) không có record trên Hub.
-    // sessionStorage vẫn ghi để restore stage khi reload; chỉ block API call.
-    const isLocalId = progressId.startsWith('rule-') || progressId.startsWith('bai-') || progressId === 'aiki-rules'
 
     try {
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem(`aikids_stage_${progressId}`, String(stageIndex))
-        sessionStorage.setItem(`aikids_stage_${questId}`, String(stageIndex))
+        const stageStr = String(stageIndex)
+        sessionStorage.setItem(`aikids_stage_${progressId}`, stageStr)
+        sessionStorage.setItem(`aikids_stage_${questId}`, stageStr)
+        localStorage.setItem(`aikids_lesson_stage_${progressId}`, stageStr)
+        localStorage.setItem(`aikids_lesson_stage_${questId}`, stageStr)
+        if (authoritativeLessonId) {
+          sessionStorage.setItem(`aikids_stage_${authoritativeLessonId}`, stageStr)
+          localStorage.setItem(`aikids_lesson_stage_${authoritativeLessonId}`, stageStr)
+        }
       }
     } catch {
       // Storage may be unavailable
     }
 
     setResumeStageIndex(stageIndex)
-    if (!navigator.onLine || !progressId || isLocalId) return
+
+    const effectiveLessonIdForResume = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
+      ? progressId
+      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-')) ? authoritativeLessonId : null
+
+    if (!navigator.onLine || !effectiveLessonIdForResume) return
     const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
-    void api(`/api/v1/lms/lessons/${progressId}/resume`, {
+    void api(`/api/v1/lms/lessons/${effectiveLessonIdForResume}/resume`, {
       method: 'PUT',
       keepalive: true,
       body: JSON.stringify({
@@ -1096,13 +1107,13 @@ export function LessonPage() {
         occurredAt: new Date().toISOString(),
       }),
     }).catch(() => {
-      queueOfflineProgress(progressId, {
+      queueOfflineProgress(effectiveLessonIdForResume, {
         percent,
         positionSeconds: 0,
         sectionId: `stage-${stageIndex + 1}`,
       })
     })
-  }, [quest?.id, questId])
+  }, [quest?.id, questId, authoritativeLessonId])
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
     (station) => station.kind === 'game',

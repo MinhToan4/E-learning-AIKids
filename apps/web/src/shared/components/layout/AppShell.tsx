@@ -705,7 +705,6 @@ function AdultChrome({
 export function AppShell() {
   const user = useAuth((s) => s.user)
   const activeContext = useAuth((s) => s.activeContext)
-  const enteredFromParent = useAuth((s) => s.enteredFromParent)
   const location = useLocation()
   const { handleLogout, loggingOut } = useLogoutAction()
   const showDesktopStudentNav = useMediaQuery('(min-width: 768px)')
@@ -844,9 +843,10 @@ export function AppShell() {
     )
   }
 
-  // WHY: Dùng enteredFromParent thay vì user?.parentId vì học sinh tự login cũng có parentId.
-  // Icon Ba / Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
-  const showParentButton = enteredFromParent
+  // A linked child must always be able to hand the device back to an adult.
+  // The adult password gate remains the authorization boundary; the
+  // session-scoped hand-off marker only improves continuity after switching.
+  const showParentButton = user?.role === 'student'
   const isCreative = location.pathname.startsWith('/creative')
   const isLessonOrRule =
     location.pathname.startsWith('/lesson') ||
@@ -885,11 +885,12 @@ export function AppShell() {
             <button
               type="button"
               onClick={() => setGateOpen(true)}
-              aria-label="Gọi ba mẹ"
-              title="Ba / Mẹ ơi!"
-              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100"
+              aria-label="Về quản lý của Ba / Mẹ"
+              title="Về quản lý của Ba / Mẹ"
+              className="flex h-10 items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 text-sm font-black text-amber-800 shadow-sm transition hover:bg-amber-100"
             >
               <ParentHomeIcon size={24} />
+              <span>Ba / Mẹ</span>
             </button>
           )}
           <NotificationBell />

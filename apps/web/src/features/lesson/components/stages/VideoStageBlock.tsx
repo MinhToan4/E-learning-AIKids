@@ -308,10 +308,10 @@ export function VideoStageBlock({
             key={videoEmbedSrc}
             ref={iframeRef}
             src={videoEmbedSrc}
-            title={config.title}
+            title={config.title || 'Video bài học'}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            referrerPolicy="origin"
+            referrerPolicy="strict-origin-when-cross-origin"
             loading="eager"
             className={`relative h-full w-full border-0 rounded-3xl pointer-events-none select-none transition-opacity duration-300 ${isPlayerReady ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => {

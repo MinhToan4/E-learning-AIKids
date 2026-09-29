@@ -86,13 +86,11 @@ export function getDefaultPracticeParts(
     ]
   }
 
-  // 3. Bài 1.3: Đúng 4 phong cách: Phong cách Màu nước, Phong cách Truyện tranh, Phong cách Đất nặn, Phong cách Tranh Đông Hồ
+  // 3. Bài 1.3: Đúng 2 thực hành theo kịch bản: Con trâu (🐃), Con chuột (🐭)
   if (lessonNum === '1.3' || normId.includes('1-3') || normId.includes('1.3')) {
     return [
-      { partNumber: 1, title: 'Phong cách Màu nước', icon: '🎨', emoji: '🎨', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_watercolor_v1.webp' },
-      { partNumber: 2, title: 'Phong cách Truyện tranh', icon: '✨', emoji: '✨', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_chibi_v1.webp' },
-      { partNumber: 3, title: 'Phong cách Đất nặn', icon: '🧸', emoji: '🧸', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp' },
-      { partNumber: 4, title: 'Phong cách Tranh Đông Hồ', icon: '🏮', emoji: '🏮', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_dongho_v1.webp' },
+      { partNumber: 1, title: 'Con trâu', icon: '🐃', emoji: '🐃', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp' },
+      { partNumber: 2, title: 'Con chuột', icon: '🐭', emoji: '🐭', iconImage: '/assets/pregenerated-fallback/style-prism/mouse_clay_v1.webp' },
     ]
   }
 
@@ -191,10 +189,8 @@ export function getDefaultPracticeParts(
 
   if (normMode === 'style-prism') {
     return [
-      { partNumber: 1, title: 'Phong cách Màu nước', icon: '🎨', emoji: '🎨', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_watercolor_v1.webp' },
-      { partNumber: 2, title: 'Phong cách Truyện tranh', icon: '✨', emoji: '✨', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_chibi_v1.webp' },
-      { partNumber: 3, title: 'Phong cách Đất nặn', icon: '🧸', emoji: '🧸', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp' },
-      { partNumber: 4, title: 'Phong cách Tranh Đông Hồ', icon: '🏮', emoji: '🏮', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_dongho_v1.webp' },
+      { partNumber: 1, title: 'Con trâu', icon: '🐃', emoji: '🐃', iconImage: '/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp' },
+      { partNumber: 2, title: 'Con chuột', icon: '🐭', emoji: '🐭', iconImage: '/assets/pregenerated-fallback/style-prism/mouse_clay_v1.webp' },
     ]
   }
 

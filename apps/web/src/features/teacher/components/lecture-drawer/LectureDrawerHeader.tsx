@@ -49,6 +49,13 @@ export interface SectionDefinition {
   icon: React.ReactNode
 }
 
+export const AIKI_3_STAGE_SECTIONS: SectionDefinition[] = [
+  { id: 'basics', label: 'Thông tin trạm', shortLabel: 'Trạm', fullTitle: 'Thông tin cơ bản của trạm học', icon: <BookOpen size={14} /> },
+  { id: 'stage-0', label: '1. Bài học', shortLabel: 'Bài học', fullTitle: '1. 🎬 Rạp chiếu video bài học & kiến thức trọng tâm', icon: <Film size={14} /> },
+  { id: 'stage-1', label: '2. Kiểm tra', shortLabel: 'Kiểm tra', fullTitle: '2. ⚡ Thử tài phản xạ (Trắc nghiệm củng cố quy tắc)', icon: <MessageCircleQuestion size={14} /> },
+  { id: 'stage-2', label: '3. Hoàn thành', shortLabel: 'Hoàn thành', fullTitle: '3. 🏆 Vinh danh, trao huy hiệu & nhận sao hoàn thành', icon: <Trophy size={14} /> },
+]
+
 export const AIKI_SECTIONS: SectionDefinition[] = [
   { id: 'basics', label: 'Thông tin trạm', shortLabel: 'Trạm', fullTitle: 'Thông tin cơ bản của trạm học', icon: <BookOpen size={14} /> },
   { id: 'stage-0', label: '1. Tình huống', shortLabel: 'Tình huống', fullTitle: '1. Tình huống câu chuyện mở đầu', icon: <Clapperboard size={14} /> },
@@ -281,7 +288,13 @@ export function LectureDrawerHeader({
   }
 
   const islandStages = ISLAND_6_STAGE_SECTIONS.filter((s) => s.id !== 'basics')
-  const generalSections = (lessonFormat === 'aiki-rule-5steps' ? AIKI_SECTIONS : STANDARD_SECTIONS).filter((s) => s.id !== 'basics')
+  const generalSections = (
+    lessonFormat === 'aiki-rule-3steps'
+      ? AIKI_3_STAGE_SECTIONS
+      : lessonFormat === 'aiki-rule-5steps'
+      ? AIKI_SECTIONS
+      : STANDARD_SECTIONS
+  ).filter((s) => s.id !== 'basics')
 
   const activeCustomStages = customJourneyStages || draft.customJourneyStages
   const hasCustomStages = Boolean(activeCustomStages && activeCustomStages.length >= 3)
@@ -392,13 +405,15 @@ export function LectureDrawerHeader({
                 disabled={readOnly || isIslandCourse}
                 value={lessonFormat}
                 onChange={(e) => onFormatChange(e.target.value as LessonFormat)}
-                className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[220px]"
+                className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[340px] sm:max-w-[480px]"
               >
                 {isIslandCourse ? (
-                  <option value="aiki-island-6steps">Khóa học · 6 chặng</option>
+                  <option value="aiki-island-6steps">Khóa học · 6 chặng (Mục tiêu ➔ Khởi động ➔ Video ➔ Trắc nghiệm ➔ Thực hành ➔ Kết thúc)</option>
                 ) : (
                   <>
-                    <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước</option>
+                    <option value="aiki-island-6steps">Khóa học · 6 chặng (Mục tiêu ➔ Khởi động ➔ Video ➔ Trắc nghiệm ➔ Thực hành ➔ Kết thúc)</option>
+                    <option value="aiki-rule-3steps">Quy tắc AIKI · 3 bước (1. Bài học ➔ 2. Kiểm tra ➔ 3. Hoàn thành)</option>
+                    <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
                     <option value="standard">Khám phá tiêu chuẩn</option>
                   </>
                 )}
@@ -443,7 +458,7 @@ export function LectureDrawerHeader({
           >
             <Eye size={14} className="shrink-0" /> Xem toàn bộ
           </button>
-          {(isIslandCourse || lessonFormat === 'aiki-rule-5steps' || activeSection === 'basics') && (
+          {(isIslandCourse || lessonFormat === 'aiki-rule-5steps' || lessonFormat === 'aiki-rule-3steps' || activeSection === 'basics') && (
             <button
               type="button"
               onClick={onToggleInlinePreview}

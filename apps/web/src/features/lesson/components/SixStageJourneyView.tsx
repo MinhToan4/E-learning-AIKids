@@ -102,6 +102,59 @@ export const STAGES = [
   { index: 5, title: 'Hoàn thành', icon: Trophy, stepNumber: 6 },
 ] as const
 
+export function readLessonStorage<T>(key: string, fallback: T): T {
+  try {
+    if (typeof window === 'undefined') return fallback
+    const raw = sessionStorage.getItem(key) ?? localStorage.getItem(key)
+    if (raw == null) return fallback
+    if (typeof fallback === 'number') {
+      const parsed = parseInt(raw, 10)
+      return (Number.isFinite(parsed) ? parsed : fallback) as T
+    }
+    if (typeof fallback === 'boolean') {
+      return (raw === 'true') as T
+    }
+    return JSON.parse(raw) as T
+  } catch {
+    return fallback
+  }
+}
+
+export function writeLessonStorage(key: string, value: unknown): void {
+  try {
+    if (typeof window === 'undefined') return
+    const str = typeof value === 'string' ? value : JSON.stringify(value)
+    sessionStorage.setItem(key, str)
+    localStorage.setItem(key, str)
+  } catch {
+    // Storage may be unavailable
+  }
+}
+
+export function clearLessonStageStorage(lessonId: string): void {
+  try {
+    if (typeof window === 'undefined') return
+    const keys = [
+      `aikids_lesson_stage_${lessonId}`,
+      `aikids_lesson_completed_stages_${lessonId}`,
+      `aikids_stage_${lessonId}`,
+      `aikids_quiz_ans_${lessonId}`,
+      `aikids_quiz_chk_${lessonId}`,
+      `aikids_quiz_active_${lessonId}`,
+      `aikids_quiz_sub_${lessonId}`,
+      `aikids_video_done_${lessonId}`,
+      `aikids_confirm_opt_${lessonId}`,
+      `aikids_confirm_cor_${lessonId}`,
+    ]
+    for (const k of keys) {
+      sessionStorage.removeItem(k)
+      localStorage.removeItem(k)
+    }
+  } catch {
+    // Storage may be unavailable
+  }
+}
+
 export function SixStageJourneyView({
   journey: rawJourney,
   stages: stagesProp,
@@ -215,22 +268,22 @@ export function SixStageJourneyView({
     Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1))),
   )
 
-  // Stage navigation is view state only. Authoritative completion, stars and XP
-  // are committed by the LMS; persisting these indexes in the browser could
-  // leak progress across child profiles on a shared parent device.
-  const [completedStages, setCompletedStages] = useState<Set<number>>(() => new Set())
+  const [completedStages, setCompletedStages] = useState<Set<number>>(() => {
+    const set = new Set<number>()
+    const init = Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1)))
+    for (let i = 0; i < init; i++) set.add(i)
+    return set
+  })
   const prevStageRef = useRef(currentStage)
   const prevLessonIdRef = useRef(lessonId)
   const hasAutoFinishedRef = useRef(false)
 
   useEffect(() => {
-    // Remove the former device-wide resume markers. They were not scoped by
-    // child profile and could unlock a sibling's stage on shared devices.
     try {
       localStorage.removeItem(`aikids_lesson_stage_${lessonId}`)
       localStorage.removeItem(`aikids_lesson_completed_stages_${lessonId}`)
     } catch {
-      // Storage may be unavailable; there is no browser fallback to restore.
+      // Storage may be unavailable
     }
   }, [lessonId])
 
@@ -248,31 +301,53 @@ export function SixStageJourneyView({
       0,
       Math.min(initialStageIndex, Math.max(0, stages.length - 1)),
     )
+    if (resumedStage > 0) {
+      setCompletedStages((prev) => {
+        const next = new Set(prev)
+        for (let i = 0; i < resumedStage; i++) {
+          next.add(i)
+        }
+        return next
+      })
+      if (stages.length === 3 ? resumedStage > 0 : resumedStage > 2) {
+        setIsVideoCompleted(true)
+      }
+    }
     setCurrentStage((current) => Math.max(current, resumedStage))
-  }, [initialStageIndex, stages.length])
+  }, [initialStageIndex, stages.length, lessonId])
 
   // Stage 1 (Confirm goal) state
-  const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(null)
-  const [isConfirmCorrect, setIsConfirmCorrect] = useState<boolean | null>(null)
+  const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(() =>
+    readLessonStorage<number | null>(`aikids_confirm_opt_${lessonId}`, null),
+  )
+  const [isConfirmCorrect, setIsConfirmCorrect] = useState<boolean | null>(() =>
+    readLessonStorage<boolean | null>(`aikids_confirm_cor_${lessonId}`, null),
+  )
   const [failedOptionImages, setFailedOptionImages] = useState<Record<string, boolean>>({})
 
   // Stage 2 (Video) seek & completion state
   const [videoSeekSec, setVideoSeekSec] = useState<number | null>(null)
-  const [isVideoCompleted, setIsVideoCompleted] = useState<boolean>(false)
+  const [isVideoCompleted, setIsVideoCompleted] = useState<boolean>(() => {
+    const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
+    const init = readLessonStorage<number>(`aikids_lesson_stage_${lessonId}`, initialStageIndex)
+    return isSavedDone || (stages.length === 3 ? init > 0 : init > 2)
+  })
 
-  // Stage 3 (Quiz) state
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({})
-  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false)
-  const [activeQuizQuestionIdx, setActiveQuizQuestionIdx] = useState(0)
-  const [checkedQuestions, setCheckedQuestions] = useState<Record<number, boolean>>({})
+  // Stage 3 (Quiz) state - khôi phục 100% khi thoát ra vào lại
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>(() =>
+    readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${lessonId}`, {}),
+  )
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(() =>
+    readLessonStorage<boolean>(`aikids_quiz_sub_${lessonId}`, false),
+  )
+  const [activeQuizQuestionIdx, setActiveQuizQuestionIdx] = useState<number>(() =>
+    readLessonStorage<number>(`aikids_quiz_active_${lessonId}`, 0),
+  )
+  const [checkedQuestions, setCheckedQuestions] = useState<Record<number, boolean>>(() =>
+    readLessonStorage<Record<number, boolean>>(`aikids_quiz_chk_${lessonId}`, {}),
+  )
   const [failedQuizImages, setFailedQuizImages] = useState<Record<number, boolean>>({})
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false)
-
-  useEffect(() => {
-    setActiveQuizQuestionIdx(0)
-    setCheckedQuestions({})
-    setFailedQuizImages({})
-  }, [currentStage, lessonId])
 
   // Stage 4 (Practice) submitted artwork state
   const [submittedArtwork, setSubmittedArtwork] = useState<{
@@ -359,20 +434,25 @@ export function SixStageJourneyView({
   const handleStageSelect = useCallback(
     (index: number) => {
       setCurrentStage(index)
+      writeLessonStorage(`aikids_stage_${lessonId}`, String(index))
+      writeLessonStorage(`aikids_lesson_stage_${lessonId}`, index)
       onStageChange?.(index)
     },
-    [onStageChange]
+    [lessonId, onStageChange]
   )
 
   const advanceToStage = useCallback(
     (nextStage: number) => {
       if (stages[currentStage]?.type === 'VIDEO' || (stages.length === 3 && currentStage === 0) || (stages.length > 3 && currentStage === 2)) {
         setIsVideoCompleted(true)
+        writeLessonStorage(`aikids_video_done_${lessonId}`, true)
       }
       setCompletedStages((prev) => {
         return new Set([...prev, currentStage])
       })
       setCurrentStage(nextStage)
+      writeLessonStorage(`aikids_stage_${lessonId}`, String(nextStage))
+      writeLessonStorage(`aikids_lesson_stage_${lessonId}`, nextStage)
       onStageChange?.(nextStage)
       try {
         playInstantSound('click')
@@ -380,18 +460,20 @@ export function SixStageJourneyView({
         // ignore audio failure
       }
     },
-    [currentStage, onStageChange, stages]
+    [currentStage, lessonId, onStageChange, stages]
   )
 
   const handleRetryQuestion = useCallback((qIdx: number) => {
     setCheckedQuestions((prev) => {
       const updated = { ...prev }
       delete updated[qIdx]
+      writeLessonStorage(`aikids_quiz_chk_${lessonId}`, updated)
       return updated
     })
     setQuizAnswers((prev) => {
       const updated = { ...prev }
       delete updated[qIdx]
+      writeLessonStorage(`aikids_quiz_ans_${lessonId}`, updated)
       return updated
     })
     try {
@@ -399,7 +481,7 @@ export function SixStageJourneyView({
     } catch {
       // ignore
     }
-  }, [])
+  }, [lessonId])
 
   const handleSeekVideo = useCallback((sec: number) => {
     setVideoSeekSec(sec)
@@ -432,22 +514,25 @@ export function SixStageJourneyView({
     }
   }, [currentStage, lessonId])
 
-  // Reset local journey state if lessonId changes on the same instance
+  // Reset local journey state or restore persisted state if lessonId changes on the same instance
   useEffect(() => {
     if (prevLessonIdRef.current !== lessonId) {
       prevLessonIdRef.current = lessonId
-      hasAutoFinishedRef.current = false
-      setCurrentStage(Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1))))
-      setCompletedStages(new Set<number>())
-      setIsVideoCompleted(false)
-      setSelectedConfirmOption(null)
-      setIsConfirmCorrect(null)
+      const resumed = Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1)))
+      setCurrentStage(resumed)
+      const set = new Set<number>()
+      for (let i = 0; i < resumed; i++) set.add(i)
+      setCompletedStages(set)
+      const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
+      setIsVideoCompleted(isSavedDone || (stages.length === 3 ? resumed > 0 : resumed > 2))
+      setSelectedConfirmOption(readLessonStorage<number | null>(`aikids_confirm_opt_${lessonId}`, null))
+      setIsConfirmCorrect(readLessonStorage<boolean | null>(`aikids_confirm_cor_${lessonId}`, null))
       setFailedOptionImages({})
       setVideoSeekSec(null)
-      setQuizAnswers({})
-      setQuizSubmitted(false)
-      setActiveQuizQuestionIdx(0)
-      setCheckedQuestions({})
+      setQuizAnswers(readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${lessonId}`, {}))
+      setQuizSubmitted(readLessonStorage<boolean>(`aikids_quiz_sub_${lessonId}`, false))
+      setActiveQuizQuestionIdx(readLessonStorage<number>(`aikids_quiz_active_${lessonId}`, 0))
+      setCheckedQuestions(readLessonStorage<Record<number, boolean>>(`aikids_quiz_chk_${lessonId}`, {}))
       setFailedQuizImages({})
       setIsCertificateModalOpen(false)
       setSubmittedArtwork(null)
@@ -462,7 +547,7 @@ export function SixStageJourneyView({
         }
       }
     }
-  }, [lessonId])
+  }, [lessonId, initialStageIndex, stages.length])
 
   const currentStageDef = stages[currentStage] || stages[0]
 
@@ -507,7 +592,11 @@ export function SixStageJourneyView({
     if (stages.length === 3) {
       let stars = 0
       const videoDone = completedStages.has(0) || isVideoCompleted || currentStage > 0
-      const quizDone = completedStages.has(1) || quizScore >= 1 || currentStage > 1
+      const quizTotal = effectiveQuizQuestions.length || 1
+      const quizDone =
+        completedStages.has(1) ||
+        currentStage > 1 ||
+        (quizScore >= quizTotal && quizTotal > 0)
       const rewardDone = currentStage === 2 || completedStages.has(2)
 
       if (videoDone) stars += 1
@@ -589,11 +678,17 @@ export function SixStageJourneyView({
       // Completion and rewards are persisted only after the owning LMS
       // endpoint verifies the submitted evidence. Browser storage must not
       // mint stars, XP or unlock the next lesson.
-      onFinishLesson?.({
-        stars: effectiveStars,
-        xp: effectiveRewardXp,
-        nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
-        answers: submittedQuizAnswers,
+      Promise.resolve(
+        onFinishLesson?.({
+          stars: effectiveStars,
+          xp: effectiveRewardXp,
+          nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
+          answers: submittedQuizAnswers,
+        })
+      ).then((res) => {
+        if (res !== false) {
+          clearLessonStageStorage(lessonId)
+        }
       })
     }
   }, [currentStageDef, effectiveStars, effectiveRewardXp, lessonId, lessonTitle, isRuleLesson, onFinishLesson, submittedQuizAnswers])
@@ -892,8 +987,10 @@ export function SixStageJourneyView({
               failedOptionImages={failedOptionImages}
               onSelectOption={(idx: number) => {
                 setSelectedConfirmOption(idx)
+                writeLessonStorage(`aikids_confirm_opt_${lessonId}`, idx)
                 const correct = idx === currentStageDef.config.correctIndex
                 setIsConfirmCorrect(correct)
+                writeLessonStorage(`aikids_confirm_cor_${lessonId}`, correct)
               }}
               onOptionImageError={(optKey: string) => {
                 setFailedOptionImages((prev) => ({ ...prev, [optKey]: true }))
@@ -903,8 +1000,11 @@ export function SixStageJourneyView({
               onSeekVideo={handleSeekVideo}
               onSpeakCurrentStage={speakCurrentStage}
               isVideoCompleted={isVideoCompleted}
-              onVideoCompleted={() => setIsVideoCompleted(true)}
-              // Quiz stage props
+              onVideoCompleted={() => {
+                setIsVideoCompleted(true)
+                writeLessonStorage(`aikids_video_done_${lessonId}`, true)
+              }}
+              // Quiz stage props - lưu tiến trình tức thì cho từng câu hỏi
               activeQuizQuestionIdx={activeQuizQuestionIdx}
               quizAnswers={quizAnswers}
               checkedQuestions={checkedQuestions}
@@ -913,23 +1013,41 @@ export function SixStageJourneyView({
               quizStars={quizStars}
               failedQuizImages={failedQuizImages}
               onSelectQuizAnswer={(qIdx: number, optIdx: number) => {
-                setQuizAnswers((prev) => ({ ...prev, [qIdx]: optIdx }))
-                setCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                setQuizAnswers((prev) => {
+                  const next = { ...prev, [qIdx]: optIdx }
+                  writeLessonStorage(`aikids_quiz_ans_${lessonId}`, next)
+                  return next
+                })
+                setCheckedQuestions((prev) => {
+                  const next = { ...prev, [qIdx]: true }
+                  writeLessonStorage(`aikids_quiz_chk_${lessonId}`, next)
+                  return next
+                })
               }}
               onCheckAnswer={(qIdx: number) => {
-                setCheckedQuestions((prev) => ({ ...prev, [qIdx]: true }))
+                setCheckedQuestions((prev) => {
+                  const next = { ...prev, [qIdx]: true }
+                  writeLessonStorage(`aikids_quiz_chk_${lessonId}`, next)
+                  return next
+                })
               }}
               onRetryQuestion={handleRetryQuestion}
               onSetActiveQuizQuestion={(action: number | ((prev: number) => number)) => {
-                setActiveQuizQuestionIdx(action)
+                setActiveQuizQuestionIdx((prev) => {
+                  const next = typeof action === 'function' ? action(prev) : action
+                  writeLessonStorage(`aikids_quiz_active_${lessonId}`, next)
+                  return next
+                })
               }}
               onSubmitQuiz={() => {
                 setQuizSubmitted(true)
+                writeLessonStorage(`aikids_quiz_sub_${lessonId}`, true)
                 const allChecked: Record<number, boolean> = {}
                 currentStageDef.config.questions.forEach((_: any, i: number) => {
                   allChecked[i] = true
                 })
                 setCheckedQuestions(allChecked)
+                writeLessonStorage(`aikids_quiz_chk_${lessonId}`, allChecked)
                 try {
                   playInstantSound('star')
                 } catch {

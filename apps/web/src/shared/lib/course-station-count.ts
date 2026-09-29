@@ -13,8 +13,8 @@ const PUBLISHED_AIKID_COURSES = [
   { slug: 'dao-1-nha-tham-hiem-ai', count: 4, hints: ['nhà thám hiểm', 'nha tham hiem'] },
   { slug: 'dao-2-hoa-si-ai', count: 4, hints: ['hoạ sĩ', 'họa sĩ', 'hoa si'] },
   { slug: 'dao-3-biet-doi-nhan-vat-ai', count: 4, hints: ['biệt đội nhân vật', 'biet doi nhan vat'] },
-  { slug: 'dao-4-vuong-quoc-truyen-tranh-ai', count: 5, hints: ['vương quốc truyện tranh', 'vuong quoc truyen tranh'] },
-  { slug: 'dao-5-nha-phat-minh-tro-choi-ai', count: 5, hints: ['nhà phát minh trò chơi', 'nha phat minh tro choi'] },
+  { slug: 'dao-4-vuong-quoc-truyen-tranh-ai', count: 4, hints: ['vương quốc truyện tranh', 'vuong quoc truyen tranh'] },
+  { slug: 'dao-5-nha-phat-minh-tro-choi-ai', count: 4, hints: ['nhà phát minh trò chơi', 'nha phat minh tro choi'] },
 ] as const
 
 export function getCanonicalAikidCourseSlug(course: CourseStationSummary): string | null {
@@ -47,7 +47,10 @@ export function getCourseStationCount(course: CourseStationSummary): number {
     published &&
     (measuredCount === published.count ||
       measuredCount === published.count * 2 ||
-      measuredCount === published.count * 3)
+      measuredCount === published.count * 3 ||
+      measuredCount === 12 ||
+      measuredCount === 15 ||
+      measuredCount === 20)
   ) return published.count
 
   return measuredCount

@@ -1211,8 +1211,8 @@ describe('AikiStudioWorkspace', () => {
     expect(bai33Parts[5].title).toBe('Biểu cảm Buồn ngủ 😴')
 
     // 5. style-prism
-    expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Phong cách Màu nước')
-    expect(getDefaultPracticeParts('bai-1-3')[0].title).toContain('Phong cách Màu nước')
+    expect(getDefaultPracticeParts(undefined, undefined, 'style-prism')[0].title).toContain('Con trâu')
+    expect(getDefaultPracticeParts('bai-1-3')[0].title).toContain('Con trâu')
 
     // 6. magic-keys / default
     expect(getDefaultPracticeParts(undefined, undefined, 'magic-keys')[0].title).toBe('Cái cốc sứ trắng')

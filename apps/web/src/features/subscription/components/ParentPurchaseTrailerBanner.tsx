@@ -40,10 +40,10 @@ export const ParentTrailerModal: React.FC<ParentTrailerModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black text-zinc-900 leading-snug">
-                Gói Bản Quyền Chương Trình Chính Thức AIKid
+                Khóa học Khám phá &amp; Sáng tạo AIKid
               </h3>
               <p className="text-[11px] font-medium text-zinc-500">
-                Mở khóa trọn bộ 6 Đảo Khám Phá &amp; Sáng Tạo AI • Đồng hành cùng bé 2026
+                10 Quy tắc vàng miễn phí · Thanh toán để mở 5 khóa học tiếp theo
               </p>
             </div>
           </div>
@@ -132,11 +132,11 @@ export const ParentTrailerModal: React.FC<ParentTrailerModalProps> = ({
             <div className="px-3.5 pb-3.5 pt-1 space-y-2 text-xs text-zinc-700 font-medium border-t border-purple-100/60 animate-in fade-in duration-200">
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>Đảo 1 (10 Quy Tắc Vàng):</strong> 🎁 Học thử Miễn Phí trọn đời cho mọi bé.</span>
+                <span><strong>Đảo Tiên Quyết:</strong> 10 Quy tắc vàng được học miễn phí cho mọi bé.</span>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>Đảo 2 đến Đảo 6 (32 Trạm học):</strong> 🔒 Mở khóa toàn diện chương trình chuẩn Montessori.</span>
+                <span><strong>5 khóa học tiếp theo:</strong> được mở khóa sau khi phụ huynh hoàn tất thanh toán.</span>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -193,11 +193,10 @@ export const ParentTrailerModal: React.FC<ParentTrailerModalProps> = ({
             onClick={onUnlock}
             className="w-full min-h-[48px] sm:min-h-[52px] px-6 py-3 rounded-full bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white text-sm sm:text-base font-bold shadow-xs active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Mở Khóa Toàn Diện 479.000đ</span>
-            <span className="text-base">🚀</span>
+            <span>Mở khóa 5 khóa học · 479.000đ</span>
           </button>
           <p className="text-[10px] text-center font-medium text-zinc-400">
-            🔒 Thanh toán bảo mật qua cổng VNPAY / Momo / Thẻ quốc tế
+            Thanh toán bảo mật qua VNPAY / MoMo / Thẻ quốc tế
           </p>
         </div>
       </div>

@@ -3,6 +3,9 @@ import {
   buildLectureGameConfig,
   courseDraftReadiness,
   createAikiRuleLearnCards,
+  createAikiRule3StepsCards,
+  resolveCourseJourneyStages,
+  STANDARD_RULE_3_STAGES,
   createFourKeysBlock,
   detectLessonFormat,
   isAikiRuleLesson,
@@ -17,6 +20,7 @@ import {
 import { normalizeLectureDraft, getActiveModules } from '../components/LectureDrawer'
 import { FEATURE_BLOCKS_CATEGORIES } from '../pages/TeacherPage'
 import { hydrateAikiRuleCard } from '../../lesson/pages/LessonPage'
+import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 
 const gameContent = {
   lobby: {
@@ -574,5 +578,139 @@ describe('authoring ids and readiness', () => {
     const fromMetaNormalized = normalizeLectureDraft(metadataAccessLecture as any, 'aikid-courses')
     expect(fromMetaNormalized.access?.mode).toBe('free_trial')
     expect(fromMetaNormalized.access?.trialBadge).toBe('Dùng thử 0 đồng')
+  })
+
+  it('correctly creates, resolves stages, detects format, and normalizes 3-step AIKI rule cards', () => {
+    // 1. createAikiRule3StepsCards
+    const rule3Cards = createAikiRule3StepsCards()
+    expect(rule3Cards).toHaveLength(3)
+
+    expect(rule3Cards[0].id).toBe('rule-3step-stage-1')
+    expect(rule3Cards[0].title).toBe('1. Bài học')
+    expect(rule3Cards[0].kind).toBe('concept')
+    expect(rule3Cards[0].layout).toBe('text')
+    expect(rule3Cards[0].videoUrl).toBe('')
+    expect(rule3Cards[0].enabledModules).toEqual(['video', 'layout-callout', 'voice'])
+    expect(rule3Cards[0].mee?.gesture).toBe('presentation')
+
+    expect(rule3Cards[1].id).toBe('rule-3step-stage-2')
+    expect(rule3Cards[1].title).toBe('2. Kiểm tra')
+    expect(rule3Cards[1].kind).toBe('example')
+    expect(rule3Cards[1].layout).toBe('text')
+    expect(rule3Cards[1].enabledModules).toEqual(['versus-ab'])
+    expect(rule3Cards[1].mee?.gesture).toBe('think')
+
+    expect(rule3Cards[2].id).toBe('rule-3step-stage-3')
+    expect(rule3Cards[2].title).toBe('3. Hoàn thành')
+    expect(rule3Cards[2].kind).toBe('remember')
+    expect(rule3Cards[2].layout).toBe('text')
+    expect(rule3Cards[2].enabledModules).toEqual(['poster'])
+    expect(rule3Cards[2].mee?.gesture).toBe('celebrate')
+
+    // 2. resolveCourseJourneyStages
+    const stages = resolveCourseJourneyStages(undefined, 'aiki-rule-3steps')
+    expect(stages).toHaveLength(3)
+    expect(stages[0].title).toBe('1. Bài học')
+    expect(stages[1].title).toBe('2. Kiểm tra')
+    expect(stages[2].title).toBe('3. Hoàn thành')
+
+    // Even if customStages is passed with 5 stages, format === 'aiki-rule-3steps' forces STANDARD_RULE_3_STAGES
+    const custom5Stages = Array.from({ length: 5 }, (_, i) => ({ id: `st-${i}`, index: i, title: `Custom ${i + 1}`, shortTitle: `C${i + 1}` }))
+    const forcedStages = resolveCourseJourneyStages(undefined, 'aiki-rule-3steps', custom5Stages)
+    expect(forcedStages).toEqual(STANDARD_RULE_3_STAGES)
+
+    // 3. detectLessonFormat
+    expect(detectLessonFormat(rule3Cards)).toBe('aiki-rule-3steps')
+    expect(detectLessonFormat([], 'aiki-rule-3steps')).toBe('aiki-rule-3steps')
+
+    // 4. normalizeLectureDraft
+    const rule3Draft: LectureDraft = {
+      ...completeLecture,
+      lessonFormat: 'aiki-rule-3steps',
+      learnCards: [],
+    }
+    const normalized = normalizeLectureDraft(rule3Draft, 'aiki-rules')
+    expect(normalized.lessonFormat).toBe('aiki-rule-3steps')
+    expect(normalized.learnCards).toHaveLength(3)
+    expect(normalized.learnCards[0].id).toBe('rule-3step-stage-1')
+    expect(normalized.learnCards[0].title).toBe('1. Bài học')
+    expect(normalized.learnCards[0].kind).toBe('concept')
+    expect(normalized.learnCards[1].id).toBe('rule-3step-stage-2')
+    expect(normalized.learnCards[1].title).toBe('2. Kiểm tra')
+    expect(normalized.learnCards[1].kind).toBe('example')
+    expect(normalized.learnCards[2].id).toBe('rule-3step-stage-3')
+    expect(normalized.learnCards[2].title).toBe('3. Hoàn thành')
+    expect(normalized.learnCards[2].kind).toBe('remember')
+  })
+
+  it('injects 100% real SSOT data into normalizeLectureDraft for AIKI Rules QT1 to QT10 (no mockup)', () => {
+    // Test Rule 1 (QT1)
+    const rule1Draft: LectureDraft = {
+      ...completeLecture,
+      id: 'rule-1',
+      title: 'QT1 — Hãy nghĩ ý tưởng của con',
+      lessonFormat: 'aiki-rule-3steps',
+      videoUrl: '',
+      duration: '',
+      hook: '',
+      skill: '',
+      checkQuestions: [],
+      sixStageJourney: undefined,
+    }
+    const norm1 = normalizeLectureDraft(rule1Draft, 'aiki-rules')
+    const rule1Data = AIKI_RULES_DATA[0]
+    expect(norm1.videoUrl).toBe(rule1Data.videoUrl)
+    expect(norm1.duration).toBe(`${rule1Data.durationSec}s`)
+    expect(norm1.hook).toBe(rule1Data.goal)
+    expect(norm1.skill).toBe(rule1Data.skill)
+    expect(norm1.checkQuestions).toHaveLength(rule1Data.questions.length)
+    expect(norm1.checkQuestions[0].prompt).toBe(rule1Data.questions[0].prompt)
+    expect(norm1.checkQuestions[0].answer).toBe(rule1Data.questions[0].correctIndex)
+    expect(norm1.sixStageJourney).toBeDefined()
+    expect(norm1.sixStageJourney?.stage3_video.videoUrl).toBe(rule1Data.videoUrl)
+    expect(norm1.sixStageJourney?.stage3_video.posterUrl).toBe(rule1Data.posterImage)
+    expect(norm1.sixStageJourney?.stage3_video.durationSec).toBe(rule1Data.durationSec)
+    expect(norm1.sixStageJourney?.stage3_video.timestamps).toHaveLength(rule1Data.slides.length)
+    expect(norm1.sixStageJourney?.stage4_quiz.questions).toHaveLength(rule1Data.questions.length)
+    expect(norm1.sixStageJourney?.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${rule1Data.code}: ${rule1Data.shortTitle}`)
+    expect(norm1.sixStageJourney?.stage6_completion.rewardBadge.iconUrl).toBe(rule1Data.posterImage)
+
+    // Test Rule 5 (QT5)
+    const rule5Draft: LectureDraft = {
+      ...completeLecture,
+      id: 'qt-5',
+      title: 'Trạm 5: Chia việc ra làm từng bước',
+      lessonFormat: 'aiki-rule-3steps',
+      videoUrl: '',
+      duration: '',
+      hook: '',
+      skill: '',
+      checkQuestions: [],
+      sixStageJourney: undefined,
+    }
+    const norm5 = normalizeLectureDraft(rule5Draft, 'aiki-rules')
+    const rule5Data = AIKI_RULES_DATA.find((r) => r.id === 5)!
+    expect(norm5.videoUrl).toBe(rule5Data.videoUrl)
+    expect(norm5.hook).toBe(rule5Data.goal)
+    expect(norm5.sixStageJourney?.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${rule5Data.code}: ${rule5Data.shortTitle}`)
+
+    // Test Rule 10 (QT10)
+    const rule10Draft: LectureDraft = {
+      ...completeLecture,
+      id: 'rule-10',
+      title: 'QT10 — Bài tập ở trường là của con',
+      lessonFormat: 'aiki-rule-3steps',
+      videoUrl: '',
+      duration: '',
+      hook: '',
+      skill: '',
+      checkQuestions: [],
+      sixStageJourney: undefined,
+    }
+    const norm10 = normalizeLectureDraft(rule10Draft, 'aiki-rules')
+    const rule10Data = AIKI_RULES_DATA.find((r) => r.id === 10)!
+    expect(norm10.videoUrl).toBe(rule10Data.videoUrl)
+    expect(norm10.hook).toBe(rule10Data.goal)
+    expect(norm10.sixStageJourney?.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${rule10Data.code}: ${rule10Data.shortTitle}`)
   })
 })

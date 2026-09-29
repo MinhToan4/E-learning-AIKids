@@ -80,7 +80,7 @@ export function QuizStageBlock({
     onSelectQuizAnswer?.(qIdx, optIdx)
     const isRight = optIdx === correctIndex
     try {
-      playInstantSound(isRight ? 'star' : 'wrong')
+      playInstantSound(isRight ? 'click' : 'wrong')
     } catch {
       // ignore
     }
@@ -371,7 +371,7 @@ export function QuizStageBlock({
                           onCheckAnswer?.(qIdx)
                           const isRight = selectedOpt === question.correctIndex
                           try {
-                            playInstantSound(isRight ? 'star' : 'wrong')
+                            playInstantSound(isRight ? 'click' : 'wrong')
                           } catch {
                             // ignore
                           }

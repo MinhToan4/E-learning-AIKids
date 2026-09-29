@@ -46,8 +46,8 @@ const CLINIC_CASES: ClinicCase[] = [
     expectedCureId: 'cure-mu-len',
     icon: '🧢',
     sampleIllustration: 'Mất cái mũ',
-    refImageUrl: '/assets/aiki-doctor/doctor_squirrel_shivering_v1.webp',
-    curedImageUrl: '/assets/aiki-doctor/doctor_squirrel_cured_v1.webp',
+    refImageUrl: '/assets/aiki-doctor/doctor_kid_broken_nohat.webp',
+    curedImageUrl: '/assets/aiki-doctor/doctor_kid_cured_red_beanie.webp',
   },
   {
     id: 'case-cat',

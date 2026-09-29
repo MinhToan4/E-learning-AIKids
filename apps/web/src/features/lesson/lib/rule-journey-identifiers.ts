@@ -11,7 +11,7 @@ type RuleCandidate =
 export function extractRuleNumber(candidate?: RuleCandidate): number {
   if (!candidate) return 1
   if (typeof candidate === 'string') {
-    const match = candidate.trim().match(/(?:rule|qt)[-_]?\s*(\d+)|(?:qt|quy\s*tắc|quy\s*tac)\s*[-_–—:]?\s*(\d+)/i)
+    const match = candidate.trim().match(/(?:rule|qt|tram|trạm)[-_]?\s*(\d+)|(?:qt|quy\s*tắc|quy\s*tac|trạm|tram)\s*[-_–—:]?\s*(\d+)/i)
     const number = Number(match?.[1] || match?.[2])
     return number >= 1 && number <= 10 ? number : 1
   }
@@ -21,11 +21,11 @@ export function extractRuleNumber(candidate?: RuleCandidate): number {
   for (const item of [value.slug, value.id, value.title, (value.stage1_goal as { title?: unknown } | undefined)?.title]) {
     if (typeof item !== 'string') continue
     const number = extractRuleNumber(item)
-    if (number !== 1 || /(?:rule|qt|quy\s*tắc|quy\s*tac).*1/i.test(item)) return number
+    if (number !== 1 || /(?:rule|qt|quy\s*tắc|quy\s*tac|trạm|tram).*1/i.test(item)) return number
   }
   const nextSlug = (value.stage6_completion as { nextLessonSlug?: unknown } | undefined)?.nextLessonSlug
   if (typeof nextSlug === 'string') {
-    const next = nextSlug.match(/(?:rule|qt)[-_]?(\d+)/i)
+    const next = nextSlug.match(/(?:rule|qt|tram|trạm)[-_]?(\d+)/i)
     const nextNumber = Number(next?.[1])
     if (nextNumber > 1 && nextNumber <= 11) return nextNumber - 1
   }

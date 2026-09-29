@@ -31,6 +31,8 @@ export function PreviewWireframePage() {
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
   const isEmbed = searchParams?.get('embed') === 'true'
   const initialTab = (searchParams?.get('tab') as 'home' | 'rule' | 'course' | 'blocks') || 'home'
+  const initialStage = searchParams?.get('stage') ? parseInt(searchParams.get('stage')!, 10) : undefined
+  const initialLesson = searchParams?.get('lesson') || 'bai-1-1'
   const [tab, setTab] = useState<'home' | 'rule' | 'course' | 'blocks'>(initialTab)
   const [viewportMode, setViewportMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
   const activeTab = tab
@@ -79,10 +81,10 @@ export function PreviewWireframePage() {
 
         {activeTab === 'course' && (
           <SixStageJourneyView
-            lessonId="bai-1-1"
-            lessonTitle="Bài 1: Khám Phá 4 Chiếc Chìa Khóa Vàng"
-            stages={resolveIslandLessonJourney('bai-1-1')}
-            initialStageIndex={2}
+            lessonId={initialLesson}
+            lessonTitle={initialLesson === 'bai-1-2' ? 'Bài 2: Bốn Chiếc Chìa Khóa Vàng' : 'Bài 1: Khám Phá 4 Chiếc Chìa Khóa Vàng'}
+            stages={resolveIslandLessonJourney(initialLesson)}
+            initialStageIndex={initialStage ?? 2}
             studentStars={3}
             rewardXp={100}
             isCompleted={false}
@@ -229,10 +231,10 @@ export function PreviewWireframePage() {
 
             {activeTab === 'course' && (
               <SixStageJourneyView
-                lessonId="bai-1-1"
-                lessonTitle="Bài 1: Khám Phá 4 Chiếc Chìa Khóa Vàng"
-                stages={resolveIslandLessonJourney('bai-1-1')}
-                initialStageIndex={2}
+                lessonId={initialLesson}
+                lessonTitle={initialLesson === 'bai-1-2' ? 'Bài 2: Bốn Chiếc Chìa Khóa Vàng' : 'Bài 1: Khám Phá 4 Chiếc Chìa Khóa Vàng'}
+                stages={resolveIslandLessonJourney(initialLesson)}
+                initialStageIndex={initialStage ?? 2}
                 studentStars={3}
                 rewardXp={100}
                 isCompleted={false}

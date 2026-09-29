@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, Lock, LogOut, Plus, Sparkles } from 'lucide-react'
+import { ArrowLeft, LogOut, Plus, Sparkles } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
@@ -11,7 +11,6 @@ import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 
 type ChildCard = {
   id: string
@@ -28,7 +27,7 @@ type ChildCard = {
 /**
  * Full-screen kid picker for shared tablets.
  * Requires parent session → picks child → switches to student session.
- * Soft-Clay Hallmark UI design with AIKI Cat Mascot, PIN guard modal, and easy child selection.
+ * Soft-Clay Hallmark UI design with AIKI Cat Mascot and easy child selection.
  */
 export function ChildPickerPage() {
   const user = useAuth((s) => s.user)
@@ -41,12 +40,6 @@ export function ChildPickerPage() {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
-
-  // PIN modal state
-  const [selectedChildForPin, setSelectedChildForPin] = useState<ChildCard | null>(null)
-  const [pin, setPin] = useState('')
-  const [pinError, setPinError] = useState<string | null>(null)
-  const [pinBusy, setPinBusy] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -82,10 +75,12 @@ export function ChildPickerPage() {
     void load()
   }, [user, loadingAuth, navigate, load])
 
-  async function confirmEnter(child: ChildCard, childPin?: string) {
+  async function confirmEnter(child: ChildCard) {
     setBusy(true)
     try {
-      const next = await enterAsChild(child.id, childPin ? { pin: childPin } : undefined)
+      // The authenticated parent already owns this child profile. Child PIN is
+      // reserved for a child signing in directly, not for a parent hand-off.
+      const next = await enterAsChild(child.id)
       navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
     } catch (e) {
       showToast(
@@ -94,34 +89,6 @@ export function ChildPickerPage() {
       )
     } finally {
       setBusy(false)
-    }
-  }
-
-  function handleChildClick(child: ChildCard) {
-    if (child.hasPin) {
-      setSelectedChildForPin(child)
-      setPin('')
-      setPinError(null)
-      return
-    }
-    void confirmEnter(child)
-  }
-
-  async function handlePinSubmit(enteredPin: string) {
-    if (!selectedChildForPin) return
-    setPinBusy(true)
-    setPinError(null)
-    try {
-      const next = await enterAsChild(selectedChildForPin.id, { pin: enteredPin })
-      setSelectedChildForPin(null)
-      setPin('')
-      navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
-    } catch (e) {
-      setPinError(
-        e instanceof Error ? e.message : 'Mã PIN chưa chính xác. Bé thử lại nhé!',
-      )
-    } finally {
-      setPinBusy(false)
     }
   }
 
@@ -211,12 +178,12 @@ export function ChildPickerPage() {
                 <li key={k.id} className="h-full">
                   <button
                     type="button"
-                    disabled={busy || pinBusy}
-                    onClick={() => handleChildClick(k)}
+                    disabled={busy}
+                    onClick={() => void confirmEnter(k)}
                     className={cn(
                       'group relative flex w-full h-full flex-col items-center justify-between rounded-3xl border-2 border-brand-100/80 bg-white/95 p-6 text-center shadow-clay transition-all duration-300',
                       'hover:-translate-y-1 hover:border-brand-400 hover:shadow-soft-xl active:scale-95 focus-visible:outline focus-visible:outline-3 focus-visible:outline-focus',
-                      (busy || pinBusy) && 'opacity-60 pointer-events-none',
+                      busy && 'opacity-60 pointer-events-none',
                     )}
                   >
                     {/* Top Status Indicators */}
@@ -225,16 +192,7 @@ export function ChildPickerPage() {
                         <Sparkles size={11} className="text-brand-500" />
                         <span>Học sinh</span>
                       </span>
-                      {k.hasPin ? (
-                        <span
-                          className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-black text-emerald-700 border border-emerald-200"
-                          title="Có mã PIN bảo vệ"
-                        >
-                          <Lock size={11} /> Có PIN
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-bold text-slate-400">Vào thẳng</span>
-                      )}
+                      <span className="text-[11px] font-bold text-slate-400">Vào học</span>
                     </div>
 
                     {/* Avatar with Level Badge */}
@@ -272,7 +230,7 @@ export function ChildPickerPage() {
                       </div>
 
                       <p className="mt-3 text-xs font-bold text-brand-600 group-hover:underline">
-                        {k.hasPin ? '🔒 Nhập PIN để vào học' : '👉 Chạm để vào học ngay'}
+                        Chạm để vào học ngay
                       </p>
                     </div>
                   </button>
@@ -317,36 +275,6 @@ export function ChildPickerPage() {
           </button>
         </footer>
       </div>
-
-      {/* PIN Pad Modal */}
-      <PinPadModal
-        isOpen={Boolean(selectedChildForPin)}
-        onClose={() => {
-          setSelectedChildForPin(null)
-          setPin('')
-          setPinError(null)
-        }}
-        onSubmit={handlePinSubmit}
-        title={selectedChildForPin?.nickname ? `Nhập PIN của ${selectedChildForPin.nickname}` : 'Nhập mã PIN'}
-        subtitle="Mã PIN 6 số do Ba / Mẹ thiết lập để vào học"
-        avatarContent={
-          selectedChildForPin ? (
-            avatarImage(selectedChildForPin.avatarId) ? (
-              <img
-                src={avatarImage(selectedChildForPin.avatarId)!}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              getAvatar(selectedChildForPin.avatarId).emoji
-            )
-          ) : undefined
-        }
-        busy={pinBusy}
-        error={pinError}
-        pin={pin}
-        setPin={setPin}
-      />
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

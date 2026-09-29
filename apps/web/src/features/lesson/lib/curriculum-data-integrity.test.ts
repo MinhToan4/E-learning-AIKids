@@ -119,15 +119,10 @@ describe('Curriculum Data Integrity Audit', () => {
     expect(p1_2).toHaveLength(2)
     expect(p1_2.map((p) => p.title)).toEqual(['Con cún', 'Cái xe đạp'])
 
-    // 1.3: đúng 4 phong cách
+    // 1.3: đúng 2 thực hành (Con trâu, Con chuột) theo kịch bản Google Sheet SSOT
     const p1_3 = getDefaultPracticeParts('bai-1-3')
-    expect(p1_3).toHaveLength(4)
-    expect(p1_3.map((p) => p.title)).toEqual([
-      'Phong cách Màu nước',
-      'Phong cách Truyện tranh',
-      'Phong cách Đất nặn',
-      'Phong cách Tranh Đông Hồ',
-    ])
+    expect(p1_3).toHaveLength(2)
+    expect(p1_3.map((p) => p.title)).toEqual(['Con trâu', 'Con chuột'])
 
     // 1.4: đúng 4 ca bệnh
     const p1_4 = getDefaultPracticeParts('bai-1-4')

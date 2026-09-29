@@ -81,13 +81,13 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
         <div className="w-full lg:w-[46%] flex flex-col justify-center space-y-3 min-w-0">
           <div>
             <span className="text-[11px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full inline-block mb-1 border border-orange-200">
-              Chặng Tiếp Theo • Cấp {explorerLevel}
+              Học tiếp • Cấp {explorerLevel}
             </span>
             <h2 className="font-black text-slate-900 leading-tight text-xl sm:text-2xl md:text-3xl break-words">
               Săn Bốn Chiếc Chìa Khóa Vàng!
             </h2>
             <p className="font-semibold text-slate-500 text-xs sm:text-sm mt-1 leading-relaxed break-words">
-              Cùng AI Copilot Mèo Mee khám phá bí kíp điều khiển cọ vẽ AI tạo tranh chuẩn xác.
+              Cùng Mèo Mee học cách dùng bốn chìa khóa để tạo bức tranh đúng ý.
             </p>
           </div>
 
@@ -105,23 +105,24 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
             </div>
           </div>
 
-          {/* Cụm Nút Hành Động Lớn (Thuần Text, Không Dính Bất Kỳ Icon Nào) */}
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 min-w-0">
-            <button
-              type="button"
-              onClick={onStartLesson}
-              className="w-full sm:flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-base border border-orange-400 shadow-[0_5px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center cursor-pointer min-w-0 break-words"
-            >
-              Vào Học {activeStationLabel} Ngay (+3 Sao)
-            </button>
+            {onStartLesson && (
+              <button
+                type="button"
+                onClick={onStartLesson}
+                className="flex min-h-12 w-full min-w-0 items-center justify-center rounded-2xl border border-orange-400 bg-gradient-to-r from-orange-500 to-amber-500 px-4 text-sm font-black text-white shadow-[0_5px_0_#c2410c] transition-all hover:from-orange-600 hover:to-amber-600 active:translate-y-1 active:shadow-none sm:flex-1 sm:text-base"
+              >
+                Học tiếp {activeStationLabel}
+              </button>
+            )}
 
             {onOpenMap && (
               <button
                 type="button"
                 onClick={onOpenMap}
-                className="w-full sm:w-auto py-3.5 px-4 sm:px-5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm border border-slate-200 shadow-[0_4px_0_#cbd5e1] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center cursor-pointer min-w-0 break-words"
+                className="flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm font-bold text-slate-800 shadow-[0_4px_0_#cbd5e1] transition-all hover:bg-slate-100 active:translate-y-0.5 active:shadow-none sm:w-auto"
               >
-                Xem Bản Đồ Đảo
+                Xem bản đồ
               </button>
             )}
           </div>

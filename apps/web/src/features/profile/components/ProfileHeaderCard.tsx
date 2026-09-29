@@ -34,16 +34,16 @@ export function ProfileHeaderCard({
   return (
     <section
       aria-label="Thẻ hồ sơ thám hiểm"
-      className="bg-gradient-to-r from-[#E05A1B] via-[#FD7D2E] to-[#F97316] rounded-[2.2rem] p-4 sm:p-6 shadow-clay border-2 border-white/40 text-white relative overflow-hidden"
+      className="relative overflow-hidden rounded-[2.2rem] bg-white/95 border-2 border-amber-200/90 p-4 sm:p-6 shadow-clay min-w-0"
     >
       {/* Soft Clay Glaze decorative background highlights */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/15 blur-xl" />
-      <div className="pointer-events-none absolute left-1/3 -bottom-10 h-32 w-32 rounded-full bg-yellow-300/20 blur-lg" />
+      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-100/60 blur-xl" />
+      <div className="pointer-events-none absolute left-1/3 -bottom-10 h-32 w-32 rounded-full bg-orange-100/50 blur-lg" />
 
       <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full min-w-0">
-        {/* Avatar to rõ với vòng bo tròn viền gốm trắng và nút bấm đổi avatar */}
+        {/* Avatar squircle bo góc tròn 3D với nút bấm đổi avatar */}
         <div className="relative shrink-0">
-          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 border-white shadow-clay overflow-hidden bg-white/20 backdrop-blur-xs flex items-center justify-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl border-4 border-white shadow-clay overflow-hidden bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -61,31 +61,43 @@ export function ProfileHeaderCard({
             onClick={onOpenAvatarPicker}
             aria-label="Đổi hình đại diện"
             title="Đổi hình đại diện"
-            className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white px-2.5 py-1 text-[#EA580C] shadow-soft hover:scale-105 active:scale-95 transition-transform border-2 border-orange-200 cursor-pointer text-[11px] font-black tracking-wide"
+            className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-white text-orange-600 font-black px-3 py-1 shadow-[0_3px_0_#cbd5e1] border border-orange-200 hover:scale-105 active:translate-y-0.5 active:shadow-none text-xs transition-transform cursor-pointer"
           >
             Đổi ảnh
           </button>
         </div>
 
-        {/* Thông tin học sinh: Tên, Cấp độ, Thanh tiến độ XP */}
-        <div className="flex-1 min-w-0 w-full flex flex-col gap-2 text-center sm:text-left">
+        {/* Thông tin học sinh: Tiêu đề, Tên, Cấp độ, Chip Online, Thanh tiến độ XP */}
+        <div className="flex-1 min-w-0 w-full flex flex-col gap-2.5 text-center sm:text-left">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white/80">
-                Hồ sơ của con
-              </p>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <p className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-orange-600">
+                  HỒ SƠ THÁM HIỂM
+                </p>
+                <span className="sr-only">Hồ sơ của con</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight break-words">
                 {displayName}
               </h1>
             </div>
+
             <div className="flex items-center gap-2 justify-center sm:justify-end flex-wrap">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/20 backdrop-blur-xs text-xs sm:text-sm font-black border border-white/20 text-white w-fit shrink-0">
+              {/* Huy hiệu cấp độ Soft Clay */}
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-black border border-amber-300 shadow-2xs shrink-0">
                 Cấp {explorerLevel} • Nhà Thám Hiểm Nhí
               </div>
+
+              {/* Chip Online màu ngọc lục bảo */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300 shadow-2xs shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Online</span>
+              </div>
+
               {profileSlug && (
                 <Link
                   to={`/u/${profileSlug}`}
-                  className="inline-flex min-h-8 items-center justify-center rounded-full border border-white/30 bg-white/20 backdrop-blur-xs px-3 py-1 text-xs font-black text-white shadow-soft hover:bg-white/30 transition-all cursor-pointer shrink-0"
+                  className="inline-flex min-h-8 items-center justify-center rounded-full border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1 text-xs font-black text-orange-700 shadow-soft transition-all cursor-pointer shrink-0"
                 >
                   Xem bản chia sẻ
                 </Link>
@@ -93,21 +105,31 @@ export function ProfileHeaderCard({
             </div>
           </div>
 
-          {/* Thanh tiến độ XP: Nền đen mờ, thanh vạch vàng hổ phách, chữ {xpIntoLevel}/{xpToNextLevel} XP */}
+          {/* Thanh tiến độ XP Soft Clay bo tròn vàng hổ phách */}
           <div className="mt-1 w-full flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-xs sm:text-sm font-black text-white/90">
+            <div className="flex items-center justify-between text-xs sm:text-sm font-black text-slate-700">
               <span>Tiến độ kinh nghiệm</span>
-              <span className="tabular-nums tracking-wide">
+              <span className="tabular-nums tracking-wide text-orange-600 font-black">
                 {xpIntoLevel}/{xpToNextLevel} XP
               </span>
             </div>
-            <div className="h-3 sm:h-3.5 w-full overflow-hidden rounded-full bg-black/35 backdrop-blur-xs p-0.5 border border-white/15">
+            <div className="h-3 sm:h-3.5 w-full overflow-hidden rounded-full bg-slate-100 p-0.5 border border-slate-200/80 shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-300 shadow-[0_0_10px_rgba(251,191,36,0.6)] transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 shadow-[0_0_8px_rgba(251,191,36,0.5)] transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
+        </div>
+
+        {/* Mascot Mèo Aiki đồng hành vẫy chào ở góc thẻ hồ sơ */}
+        <div className="hidden sm:flex shrink-0 items-center justify-center self-center pl-1 select-none pointer-events-none">
+          <img
+            src="/assets/aikid-ui/mascot-original/course-wave.webp"
+            alt="Mèo Aiki đồng hành"
+            className="w-20 h-20 md:w-24 md:h-24 lg:w-26 lg:h-26 object-contain drop-shadow-md hover:scale-105 transition-transform"
+            loading="eager"
+          />
         </div>
       </div>
     </section>
