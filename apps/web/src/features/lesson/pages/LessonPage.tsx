@@ -394,6 +394,8 @@ export function LessonPage() {
   const [sketchDataUrl, setSketchDataUrl] = useState<string | null>(null)
   const [reviewMode, setReviewMode] = useState(false)
   const [offlineManifest, setOfflineManifest] = useState<OfflineManifest | null>(null)
+  // UUID-resolved lesson ID for aiki-rule journeys (prevents 'rule-1' slug reaching Prisma)
+  const [authoritativeLessonId, setAuthoritativeLessonId] = useState<string>('')
 
   // Memoized callbacks for AikiRuleVideoPlayer & interactive controls
   const handleSlideChange = useCallback((index: number) => {
@@ -533,6 +535,7 @@ export function LessonPage() {
                 )
             : undefined
           authoritativeLessonId = station?.id?.trim() || fallbackStation?.id?.trim() || questId
+          setAuthoritativeLessonId(authoritativeLessonId)
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
@@ -794,7 +797,11 @@ export function LessonPage() {
     )
   }, [isAikiRuleJourney, questId, quest, routeCourseId])
 
-  const effectiveCourseId = routeCourseId || quest?.courseId || (isAikiRuleJourney ? AIKI_MODULE_0_COURSE_ID : '') || 'aiki-rules'
+  // For aiki-rule journeys, always use the UUID courseId (not 'aiki-rules' slug).
+  // navigate('/world/aiki-rules') has no route handler → buttons do nothing.
+  const effectiveCourseId = (isAikiRuleJourney && (!routeCourseId || routeCourseId === 'aiki-rules'))
+    ? AIKI_MODULE_0_COURSE_ID
+    : (routeCourseId || quest?.courseId || (isAikiRuleJourney ? AIKI_MODULE_0_COURSE_ID : '') || 'aiki-rules')
 
   // Chuẩn hóa URL sang friendly slug nếu questId trên URL là raw UUID
   useEffect(() => {
@@ -987,7 +994,12 @@ export function LessonPage() {
     const finishPromise = (async () => {
       setBusy(true)
       try {
-        await api(`/api/learning/quests/${quest.id}/resume`, {
+        // For aiki-rule journeys, use the UUID-resolved ID (not the 'rule-N' slug)
+        // to prevent Prisma P2023 "invalid UUID character" errors
+        const lessonIdForSubmit = (isAikiRuleJourney && authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
+          ? authoritativeLessonId
+          : quest.id
+        await api(`/api/learning/quests/${lessonIdForSubmit}/resume`, {
           method: 'PUT',
           body: JSON.stringify({
             percent: 99,
@@ -996,7 +1008,7 @@ export function LessonPage() {
             occurredAt: new Date().toISOString(),
           }),
         })
-        const checkRes = await learningApi.submitCheck(quest.id, { answers: answersPayload })
+        const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
       const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
         ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
