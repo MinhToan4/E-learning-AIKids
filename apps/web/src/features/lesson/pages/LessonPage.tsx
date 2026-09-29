@@ -1488,7 +1488,10 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-
+      // Advance phase learn → check before submitting (idempotent — ignore if already advanced)
+      await learningApi.advanceLesson(questId, { fromPhase: 'learn' }).catch(() => {
+        // 409 = already in check phase or completed — safe to continue
+      })
 
       const res = await learningApi.submitCheck(questId, {
         answers: quest.check.map((q) => ({
