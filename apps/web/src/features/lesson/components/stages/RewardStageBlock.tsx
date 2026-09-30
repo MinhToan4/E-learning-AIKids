@@ -196,7 +196,7 @@ export function RewardStageBlock({
                   }, () => onNavigateNextLesson(config?.nextLessonSlug ?? ''))
                 }}
               >
-                <span>{isSavingProgress ? 'Đang lưu tiến trình…' : 'Khám phá bài tiếp theo'}</span>
+                <span>{isSavingProgress ? 'Đang mở bài tiếp theo…' : 'Khám phá bài tiếp theo'}</span>
               </button>
             ) : null}
 
@@ -233,7 +233,7 @@ export function RewardStageBlock({
                   }, onBackToMap)
                 }}
               >
-                <span>{isSavingProgress ? 'Đang lưu tiến trình…' : 'Quay về bản đồ đảo'}</span>
+                <span>{isSavingProgress ? 'Đang về bản đồ…' : 'Quay về bản đồ đảo'}</span>
               </Button>
             )}
           </div>

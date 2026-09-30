@@ -1478,10 +1478,13 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-      // Advance phase learn → check before submitting (idempotent — ignore if already advanced)
-      await learningApi.advanceLesson(questId, { fromPhase: 'learn' }).catch(() => {
-        // 409 = already in check phase or completed — safe to continue
-      })
+      // Try to advance to check phase — attempt multiple fromPhase values
+      // because the DB phase may differ from what the UI expects (e.g. 'practice' after a previous partial attempt)
+      await learningApi
+        .advanceLesson(questId, { fromPhase: 'learn' })
+        .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'practice' }))
+        .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'game' }))
+        .catch(() => null) // Already at check/completed — safe to continue
 
       const res = await learningApi.submitCheck(questId, {
         answers: quest.check.map((q) => ({
@@ -1509,7 +1512,30 @@ export function LessonPage() {
         },
       }))
     } catch (e) {
-      if (!recoverCurrentPhase(e)) {
+      // 409 PHASE_MISMATCH with currentPhase=completed/check means lesson was already submitted
+      // before — treat as idempotent success so navigation buttons work
+      const isAlreadyCompleted =
+        e instanceof ApiError &&
+        e.status === 409 &&
+        typeof (e.body as any)?.currentPhase === 'string' &&
+        ['completed', 'check'].includes((e.body as any).currentPhase)
+
+      if (isAlreadyCompleted) {
+        const confirmedStars = liveStars > 0 ? liveStars : 2
+        setLiveStars(confirmedStars)
+        setStarBurst({ id: Date.now(), count: 1 })
+        setCheckResult({
+          stars: confirmedStars,
+          message: 'Con đã hoàn thành bài học này rồi!',
+          nextQuestId: null,
+        })
+        setPhase('done')
+        setGameHint(null)
+        clearApiCache()
+        window.dispatchEvent(new CustomEvent('aikids:xp-updated', { detail: { stars: confirmedStars } }))
+        void queryClient.invalidateQueries({ queryKey: ['progression'] })
+        void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+      } else if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa gửi được')
       }
     } finally {
