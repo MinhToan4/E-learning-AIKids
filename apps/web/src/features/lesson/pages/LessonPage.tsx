@@ -540,36 +540,39 @@ export function LessonPage() {
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
-          openedProgressStatus = opened.progress.status
-            const openedStars = clampStationStars(opened.progress.stars)
-            setLiveStars(openedStars)
-            let cachedLocalStage = 0
-            try {
-              const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
-                || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
-                || localStorage.getItem(`aikids_lesson_stage_${questId}`)
-                || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
-              const num = raw != null ? parseInt(raw, 10) : 0
-              if (Number.isFinite(num) && num > 0) cachedLocalStage = num
-            } catch {
-              // ignore storage failure
-            }
-            const serverStage = lessonStageIndexFromProgress(opened.progress)
-            setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
-            if (opened.progress.status === 'completed') {
-              setPhase('done')
-              setCheckResult({
-                stars: openedStars,
-                message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
-                nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
-              })
-            } else if (
-              opened.progress.phase === 'game' ||
-              opened.progress.phase === 'practice' ||
-              opened.progress.phase === 'check'
-            ) {
-              setPhase(opened.progress.phase)
-            }
+          const isLocallyCompleted =
+            localStorage.getItem(`aikids_lesson_completed_${authoritativeLessonId}`) === 'true' ||
+            localStorage.getItem(`aikids_lesson_completed_${questId}`) === 'true'
+          if (isLocallyCompleted) openedProgressStatus = 'completed'
+          const openedStars = isLocallyCompleted ? 3 : clampStationStars(opened.progress.stars)
+          setLiveStars(openedStars)
+          let cachedLocalStage = 0
+          try {
+            const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
+              || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${questId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
+            const num = raw != null ? parseInt(raw, 10) : 0
+            if (Number.isFinite(num) && num > 0) cachedLocalStage = num
+          } catch {
+            // ignore storage failure
+          }
+          const serverStage = lessonStageIndexFromProgress(opened.progress)
+          setResumeStageIndex(isLocallyCompleted ? 99 : Math.max(serverStage, cachedLocalStage))
+          if (opened.progress.status === 'completed' || isLocallyCompleted) {
+            setPhase('done')
+            setCheckResult({
+              stars: openedStars,
+              message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
+              nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
+            })
+          } else if (
+            opened.progress.phase === 'game' ||
+            opened.progress.phase === 'practice' ||
+            opened.progress.phase === 'check'
+          ) {
+            setPhase(opened.progress.phase)
+          }
           } catch (progressError) {
             if (!cancelled) {
               setError(
@@ -623,23 +626,29 @@ export function LessonPage() {
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
-          openedProgressStatus = opened.progress.status
-          setLiveStars(clampStationStars(opened.progress.stars))
+          const isLocallyCompleted =
+            localStorage.getItem(`aikids_lesson_completed_${authoritativeLessonId}`) === 'true' ||
+            localStorage.getItem(`aikids_lesson_completed_${questId}`) === 'true'
+          if (isLocallyCompleted) openedProgressStatus = 'completed'
+          const openedStars = isLocallyCompleted ? 3 : clampStationStars(opened.progress.stars)
+          setLiveStars(openedStars)
           let cachedLocalStage = 0
           try {
             const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
               || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${questId}`)
+              || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
             const num = raw != null ? parseInt(raw, 10) : 0
             if (Number.isFinite(num) && num > 0) cachedLocalStage = num
           } catch {
             // ignore storage failure
           }
           const serverStage = lessonStageIndexFromProgress(opened.progress)
-          setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
-          if (opened.progress.status === 'completed') {
+          setResumeStageIndex(isLocallyCompleted ? 99 : Math.max(serverStage, cachedLocalStage))
+          if (opened.progress.status === 'completed' || isLocallyCompleted) {
             setPhase('done')
             setCheckResult({
-              stars: clampStationStars(opened.progress.stars),
+              stars: openedStars,
               message: 'Con đã hoàn thành bài học này.',
               nextQuestId: null,
             })
@@ -682,16 +691,20 @@ export function LessonPage() {
       try {
         const opened = await learningApi.openLesson(questId)
         if (cancelled) return
+        const isLocallyCompleted =
+          localStorage.getItem(`aikids_lesson_completed_${questId}`) === 'true' ||
+          Boolean(authoritativeLessonId && localStorage.getItem(`aikids_lesson_completed_${authoritativeLessonId}`) === 'true')
+        const finalStatus = isLocallyCompleted ? 'completed' : opened.progress.status
         setQuest({
           ...opened.quest,
-          status: opened.progress.status,
+          status: finalStatus,
         })
-        const openedStars = clampStationStars(opened.progress.stars)
+        const openedStars = isLocallyCompleted ? 3 : clampStationStars(opened.progress.stars)
         setLiveStars(openedStars)
-        setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
+        setResumeStageIndex(isLocallyCompleted ? 99 : lessonStageIndexFromProgress(opened.progress))
 
         // Resume mid-quest; completed stations open on celebrate/review
-        if (opened.progress.status === 'completed') {
+        if (finalStatus === 'completed') {
           setPhase('done')
           setCheckResult({
             stars: openedStars,
@@ -1021,60 +1034,52 @@ export function LessonPage() {
         const lessonIdForSubmit = (isAikiRuleJourney && authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
           ? authoritativeLessonId
           : quest.id
-        await learningApi.saveResume(lessonIdForSubmit, {
-          percent: 99,
-          positionSeconds: 0,
-          sectionId: 'check-ready',
-          occurredAt: new Date().toISOString(),
-        })
-        // Advance sequentially through phases to reach 'check' phase:
-        // learn -> (game) -> practice -> check
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => null)
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
-        const confirmedStars = isAikiRuleJourney ? 3 : Math.max(0, Math.min(3, checkRes.stars))
-      const celebrationMsg = isIslandJourney
-        ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
-        : confirmedStars === 3
-          ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
-          : confirmedStars === 2
-            ? 'Rất tốt! Con đạt 2 Sao. Cùng tiến lên trạm tiếp theo nhé!'
-            : 'Hoan hô! Kết quả của con đã được hệ thống ghi nhận. Cùng cố gắng giành 3 Sao nhé!'
-      setLiveStars(confirmedStars)
-      setCheckResult({
-        ...checkRes,
-        stars: confirmedStars,
-        message: celebrationMsg,
-        nextQuestId: checkRes.nextQuestId || nextRuleTarget,
-      })
-      setPhase('done')
-      try {
-        sessionStorage.removeItem(`aikids_stage_${quest.id}`)
-        sessionStorage.removeItem(`aikids_stage_${questId}`)
-      } catch {
-        // ignore storage failure
-      }
-      // The completion transaction may update progression, achievements,
-      // inventory and profile projections together. Drop stale GET data before
-      // the learner opens the next lesson, island map, profile or backpack.
-      clearApiCache()
-      clearWorldPageCache()
-      window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
-      window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
-        detail: {
-          stars: confirmedStars,
-          // Nếu server trả về XP mới sau completion, optimistic-update ngay
-          // để thanh XP cập nhật tức thì, không phải đợi 2s reconcile.
-          ...(typeof checkRes.totalXp === 'number' && typeof checkRes.level === 'number'
-            ? { xp: checkRes.totalXp, level: checkRes.level }
-            : {}),
-        },
-      }))
-      void queryClient.invalidateQueries({ queryKey: ['progression'] })
-      void queryClient.invalidateQueries({ queryKey: ['pathway'] })
-      void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
-      return true
+        const confirmedStars = 3
+        const celebrationMsg = isIslandJourney
+          ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
+          : 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
+        const progressId = authoritativeLessonId || quest.id || questId
+
+        quest.status = 'completed'
+        setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
+        setLiveStars(3)
+        setPhase('done')
+        setCheckResult({
+          ...checkRes,
+          stars: 3,
+          message: celebrationMsg,
+          nextQuestId: checkRes.nextQuestId || nextRuleTarget,
+        })
+        try {
+          localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+          if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
+          if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
+          sessionStorage.removeItem(`aikids_stage_${quest.id}`)
+          sessionStorage.removeItem(`aikids_stage_${questId}`)
+        } catch {
+          // ignore storage failure
+        }
+        // The completion transaction may update progression, achievements,
+        // inventory and profile projections together. Drop stale GET data before
+        // the learner opens the next lesson, island map, profile or backpack.
+        clearApiCache()
+        clearWorldPageCache()
+        window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+        window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
+          detail: {
+            stars: 3,
+            // Nếu server trả về XP mới sau completion, optimistic-update ngay
+            // để thanh XP cập nhật tức thì, không phải đợi 2s reconcile.
+            ...(typeof checkRes?.totalXp === 'number' && typeof checkRes?.level === 'number'
+              ? { xp: checkRes.totalXp, level: checkRes.level }
+              : {}),
+          },
+        }))
+        void queryClient.invalidateQueries({ queryKey: ['progression'] })
+        void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+        void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
+        return true
       } catch (error: unknown) {
         // 409 = CHECKPOINT_REQUIRED: lesson đã được check trước đó (idempotent success)
         // 422 = INCOMPLETE_CHECK: payload thiếu câu, nhưng lesson vẫn coi là done
@@ -1090,19 +1095,23 @@ export function LessonPage() {
               error.message.includes('phase_mismatch')))
 
         if (isAlreadyDone) {
-          const confirmedStars = liveStars > 0 ? liveStars : 2
+          const progressId = authoritativeLessonId || quest.id || questId
+          quest.status = 'completed'
+          setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
+          setLiveStars(3)
+          setPhase('done')
           const celebrationMsg = isIslandJourney
-            ? `Con đã hoàn thành ${quest.title ?? 'bài học'} với ${confirmedStars} Sao!`
-            : confirmedStars >= 3
-              ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
-              : 'Hoan hô! Kết quả của con đã được ghi nhận!'
+            ? `Con đã hoàn thành ${quest.title ?? 'bài học'} với 3 Sao!`
+            : 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
           setCheckResult({
-            stars: confirmedStars,
+            stars: 3,
             message: celebrationMsg,
             nextQuestId: nextRuleTarget,
           })
-          setPhase('done')
           try {
+            localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+            if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
             sessionStorage.removeItem(`aikids_stage_${quest.id}`)
             sessionStorage.removeItem(`aikids_stage_${questId}`)
           } catch {

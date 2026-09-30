@@ -806,17 +806,21 @@ export function SixStageJourneyView({
             <button
               type="button"
               onClick={() => {
-                if (currentStageDef?.type === 'REWARD' || currentStage === stages.length - 1) {
+                if (quizSubmitted || currentStage >= 1 || currentStageDef?.type === 'REWARD' || currentStage === stages.length - 1) {
                   const completionSummary: LessonCompletionSummary = {
                     stars: 3,
                     xp: rewardXp || 50,
                     answers: submittedQuizAnswers,
-                    nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
+                    nextLessonSlug: (rewardStageDef?.config as any)?.nextLessonSlug || (currentStageDef?.config as any)?.nextLessonSlug,
                   }
-                  const res = onFinishLesson?.(completionSummary)
-                  if (res instanceof Promise) {
-                    void res.finally(() => onBackToMap())
-                    return
+                  try {
+                    const res = onFinishLesson?.(completionSummary)
+                    if (res instanceof Promise) {
+                      void res.finally(() => onBackToMap())
+                      return
+                    }
+                  } catch {
+                    // ignore error and proceed
                   }
                 }
                 onBackToMap()
@@ -1136,6 +1140,16 @@ export function SixStageJourneyView({
                 } catch {
                   // ignore
                 }
+
+                // LÀM ĐẾN ĐÂU LƯU ĐẾN ĐẤY: Lưu ngay hoàn thành bài học 3 sao lên server
+                hasAutoFinishedRef.current = true
+                const completionSummary: LessonCompletionSummary = {
+                  stars: 3,
+                  xp: rewardXp || 50,
+                  answers: submittedQuizAnswers,
+                  nextLessonSlug: (rewardStageDef?.config as any)?.nextLessonSlug,
+                }
+                void onFinishLesson?.(completionSummary)
               }}
               onQuizImageError={(qIdx: number) => {
                 setFailedQuizImages((prev) => ({ ...prev, [qIdx]: true }))

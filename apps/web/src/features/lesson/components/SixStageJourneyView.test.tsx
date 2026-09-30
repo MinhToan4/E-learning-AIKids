@@ -3043,4 +3043,38 @@ describe('SixStageJourneyView', () => {
     expect(onBackToMapSpy).toHaveBeenCalled()
     act(() => root.unmount())
   })
+
+  it('triggers onFinishLesson with 3 stars when clicking back to map from stage >= 1', () => {
+    const testLessonId = 'rule-1-stage1-back-test'
+    const onFinishLessonSpy = vi.fn()
+    const onBackToMapSpy = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId={testLessonId}
+          lessonTitle="Quy tắc 1"
+          initialStageIndex={1}
+          onFinishLesson={onFinishLessonSpy}
+          onBackToMap={onBackToMapSpy}
+        />
+      )
+    })
+
+    const backBtn = container.querySelector('button[title="Quay lại bản đồ"]') as HTMLButtonElement
+    expect(backBtn).not.toBeNull()
+    act(() => {
+      backBtn.click()
+    })
+
+    expect(onFinishLessonSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stars: 3,
+        xp: expect.any(Number),
+      })
+    )
+    expect(onBackToMapSpy).toHaveBeenCalled()
+    act(() => root.unmount())
+  })
 })

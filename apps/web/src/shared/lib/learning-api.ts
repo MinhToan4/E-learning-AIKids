@@ -161,7 +161,7 @@ export const learningApi = {
   advanceLesson(lessonId: string, input: LessonAdvanceInput) {
     return api<{ progress: LessonProgress }>(
       `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/advance`,
-      { method: 'POST', body: JSON.stringify(input) },
+      { method: 'POST', body: JSON.stringify(input), keepalive: true },
     )
   },
 
@@ -209,6 +209,7 @@ export const learningApi = {
         'Idempotency-Key': key,
       },
       body: JSON.stringify(input),
+      keepalive: true,
     })
   },
 
