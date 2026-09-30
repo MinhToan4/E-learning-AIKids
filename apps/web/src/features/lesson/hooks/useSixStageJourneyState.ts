@@ -802,14 +802,11 @@ export function useSixStageJourneyState({
       }
       void onFinishLesson?.(completionSummary)
     } else {
-      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu ngay lên hệ thống
+      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu local storage & dọn cờ
       writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
-      void onFinishLesson?.({
-        stars: 2,
-        xp: calculateStationXp(2),
-        answers: submittedQuizAnswers,
-        keepalive: true,
-      })
+      writeLessonStorage(`aikids_quiz_ans_${lessonId}`, submittedQuizAnswers)
+      writeLessonStorage(`aikids_quiz_sub_${lessonId}`, true)
+      // KHÔNG gọi onFinishLesson tại đây vì bài học còn chặng 5 Thực hành AIKI Studio!
     }
   }, [currentStageDef, indices.practiceIdx, lessonId, onFinishLesson, rewardStageDef, rewardXp, submittedQuizAnswers])
 

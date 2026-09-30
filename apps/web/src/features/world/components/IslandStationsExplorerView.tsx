@@ -68,79 +68,79 @@ export interface IslandPresetConfig {
 export const AIKID_SIX_ISLAND_PRESETS: IslandPresetConfig[] = [
   {
     index: 0,
-    badge: 'ĐẢO 1',
+    badge: 'TIÊN QUYẾT',
     title: 'Đảo Tiên Quyết',
     subtitle: '10 Quy tắc vàng',
     desc: '10 Quy tắc vàng Xưởng Sáng Tạo',
     pedagogicalDesc: 'Mười Quy Tắc Vàng Xưởng Sáng Tạo — Làm chủ AI an toàn, tôn trọng và thông minh',
     scene: designerAssets.worldScenes.aiValley,
     accentColor: '#7c3aed',
-    targetSlug: 'dao-1',
+    targetSlug: 'muoi-quy-tac-xuong-sang-tao',
     canonicalSlug: 'muoi-quy-tac-xuong-sang-tao',
     landmark: 'Xưởng AI & Khiên',
   },
   {
     index: 1,
-    badge: 'ĐẢO 2',
+    badge: 'ĐẢO 1',
     title: 'Đảo Khám Phá',
     subtitle: 'Nhà Thám Hiểm AI',
     desc: 'Bốn Chiếc Chìa Khóa Vàng',
     pedagogicalDesc: 'Bốn Chiếc Chìa Khóa Vàng (Cái gì? Trông thế nào? Đang làm gì? Ở đâu?)',
     scene: designerAssets.worldScenes.promptKeys,
     accentColor: '#059669',
-    targetSlug: 'dao-2',
+    targetSlug: 'dao-1',
     canonicalSlug: 'dao-1-nha-tham-hiem-ai',
     landmark: 'Hải đăng & Chìa khóa',
   },
   {
     index: 2,
-    badge: 'ĐẢO 3',
+    badge: 'ĐẢO 2',
     title: 'Đảo Họa Sĩ',
-    subtitle: 'Sắc màu cọ vẽ',
+    subtitle: 'Hoạ Sĩ AI',
     desc: 'Sắc Màu & Kể Chuyện',
     pedagogicalDesc: 'Sắc Màu & Kể Chuyện — Bố cục ngôi sao 3 lớp, ánh sáng cảm xúc và tạo ra bức tranh biết nói',
     scene: designerAssets.worldScenes.creativeMountain,
     accentColor: '#ea580c',
-    targetSlug: 'dao-3',
+    targetSlug: 'dao-2',
     canonicalSlug: 'dao-2-hoa-si-ai',
     landmark: 'Núi màu & Giá vẽ',
   },
   {
     index: 3,
-    badge: 'ĐẢO 4',
+    badge: 'ĐẢO 3',
     title: 'Đảo Nhân Vật',
-    subtitle: 'Hồ sơ 3 điểm',
+    subtitle: 'Biệt Đội Nhân Vật AI',
     desc: 'Hồ Sơ & 6 Biểu Cảm',
     pedagogicalDesc: 'Hồ Sơ & 6 Biểu Cảm — Khoá mật mã nhận diện 3 điểm, biến hoá 6 biểu cảm và căn cứ bí mật',
     scene: designerAssets.worldScenes.characterLab,
     accentColor: '#0284c7',
-    targetSlug: 'dao-4',
+    targetSlug: 'dao-3',
     canonicalSlug: 'dao-3-biet-doi-nhan-vat-ai',
     landmark: 'Gương thần 6 biểu cảm',
   },
   {
     index: 4,
-    badge: 'ĐẢO 5',
+    badge: 'ĐẢO 4',
     title: 'Đảo Truyện Tranh',
-    subtitle: 'Storyboard 8 ô',
+    subtitle: 'Vương Quốc Truyện Tranh AI',
     desc: 'Storyboard 8 Ô & Comic',
     pedagogicalDesc: 'Storyboard 8 Ô & Comic — Kịch bản 3 cổng, khung xương 4 nhịp và xuất bản cuốn truyện tranh 8 trang',
     scene: designerAssets.worldScenes.storyIsland,
     accentColor: '#db2777',
-    targetSlug: 'dao-5',
+    targetSlug: 'dao-4',
     canonicalSlug: 'dao-4-vuong-quoc-truyen-tranh-ai',
     landmark: 'Lâu đài truyện tranh',
   },
   {
     index: 5,
-    badge: 'ĐẢO 6',
+    badge: 'ĐẢO 5',
     title: 'Đảo Trò Chơi',
-    subtitle: 'Đấu trường thẻ bài',
+    subtitle: 'Nhà Phát Minh Trò Chơi AI',
     desc: 'Đấu Trường Thẻ Bài',
     pedagogicalDesc: 'Đấu Trường Thẻ Bài — Bộ 12 thẻ bài cân bằng chỉ số Sức-Nhanh-Khéo, bàn cờ A3 và luật chơi công bằng',
     scene: designerAssets.worldScenes.gameArena,
     accentColor: '#4f46e5',
-    targetSlug: 'dao-6',
+    targetSlug: 'dao-5',
     canonicalSlug: 'dao-5-nha-phat-minh-tro-choi-ai',
     landmark: 'Đấu trường AI',
   },
@@ -335,7 +335,7 @@ export function IslandStationsExplorerView({
   )
 
   const daoMatch = courseId.match(/dao-(\d+)/)
-  const daoNumberIndex = daoMatch ? parseInt(daoMatch[1], 10) - 1 : -1
+  const daoNumberIndex = daoMatch ? parseInt(daoMatch[1], 10) : -1
 
   const currentIslandIndex =
     currentCourseIndex >= 0
@@ -620,11 +620,14 @@ export function IslandStationsExplorerView({
                 key={preset.canonicalSlug}
                 type="button"
                 onClick={() => handleIslandClick(preset.targetSlug)}
-                className="size-7.5 sm:size-9 rounded-full bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-black shadow-[0_2.5px_0_#cbd5e1] hover:scale-110 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex items-center justify-center select-none shrink-0"
+                className={cn(
+                  'h-7.5 sm:h-9 rounded-full bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-black shadow-[0_2.5px_0_#cbd5e1] hover:scale-110 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex items-center justify-center select-none shrink-0',
+                  idx === 0 ? 'px-2 min-w-7.5 sm:min-w-9 text-[10px] sm:text-xs' : 'w-7.5 sm:w-9',
+                )}
                 aria-label={`Chuyển đến ${preset.badge}: ${preset.title}`}
                 title={`${preset.badge}: ${preset.title}`}
               >
-                <span>{idx + 1}</span>
+                <span>{idx === 0 ? 'Quy tắc' : idx}</span>
               </button>
             )
           })}

@@ -547,13 +547,17 @@ describe('Clean Slug Resolution and findCourseByIdentifier', () => {
     expect(AIKID_CANONICAL_SLUGS[0]).toBe('muoi-quy-tac-xuong-sang-tao')
     expect(AIKID_CANONICAL_SLUGS[1]).toBe('dao-1-nha-tham-hiem-ai')
 
-    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('muoi-quy-tac-xuong-sang-tao')
-    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-1-nha-tham-hiem-ai')
-    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-2-hoa-si-ai')
-    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-3-biet-doi-nhan-vat-ai')
-    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('dao-1-nha-tham-hiem-ai')
+    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-2-hoa-si-ai')
+    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-3-biet-doi-nhan-vat-ai')
+    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
     expect(ISLAND_ALIAS_MAP['dao-6']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
     expect(ISLAND_ALIAS_MAP['aiki-rules']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['muoi-quy-tac']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-0']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['tien-quyet']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-tien-quyet']).toBe('muoi-quy-tac-xuong-sang-tao')
 
     const sampleCourses: PathwayCourse[] = [
       course({ id: 'uuid-0', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo', slug: 'muoi-quy-tac-xuong-sang-tao' }),
@@ -564,13 +568,14 @@ describe('Clean Slug Resolution and findCourseByIdentifier', () => {
       course({ id: 'uuid-5', title: 'Module 5 — Nhà phát minh trò chơi AI', slug: 'dao-5-nha-phat-minh-tro-choi-ai' }),
     ]
 
-    // Match by dao-1 alias
-    expect(findCourseByIdentifier(sampleCourses, 'dao-1')?.id).toBe('uuid-0')
-    expect(findCourseByIdentifier(sampleCourses, 'dao-2')?.id).toBe('uuid-1')
-    expect(findCourseByIdentifier(sampleCourses, 'dao-3')?.id).toBe('uuid-2')
-    expect(findCourseByIdentifier(sampleCourses, 'dao-4')?.id).toBe('uuid-3')
-    expect(findCourseByIdentifier(sampleCourses, 'dao-5')?.id).toBe('uuid-4')
-    expect(findCourseByIdentifier(sampleCourses, 'dao-6')?.id).toBe('uuid-5')
+    // Match by dao-1 alias -> dao-1-nha-tham-hiem-ai
+    expect(findCourseByIdentifier(sampleCourses, 'dao-1')?.id).toBe('uuid-1')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-2')?.id).toBe('uuid-2')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-3')?.id).toBe('uuid-3')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-4')?.id).toBe('uuid-4')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-5')?.id).toBe('uuid-5')
+    expect(findCourseByIdentifier(sampleCourses, 'dao-0')?.id).toBe('uuid-0')
+    expect(findCourseByIdentifier(sampleCourses, 'aiki-rules')?.id).toBe('uuid-0')
 
     // Match by canonical slug
     expect(findCourseByIdentifier(sampleCourses, 'muoi-quy-tac-xuong-sang-tao')?.id).toBe('uuid-0')
@@ -777,40 +782,40 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
     expect(AIKID_SIX_ISLANDS_CONFIG).toHaveLength(6)
 
     expect(AIKID_SIX_ISLANDS_CONFIG[0]).toMatchObject({
-      badge: 'ĐẢO 1',
+      badge: 'TIÊN QUYẾT',
       title: 'Đảo Tiên Quyết',
       subtitle: '10 Quy tắc vàng',
-      slug: 'dao-1',
+      slug: 'muoi-quy-tac-xuong-sang-tao',
     })
     expect(AIKID_SIX_ISLANDS_CONFIG[1]).toMatchObject({
-      badge: 'ĐẢO 2',
+      badge: 'ĐẢO 1',
       title: 'Đảo Khám Phá',
-      subtitle: '4 Chìa khóa lệnh',
-      slug: 'dao-2',
+      subtitle: 'Nhà Thám Hiểm AI',
+      slug: 'dao-1',
     })
     expect(AIKID_SIX_ISLANDS_CONFIG[2]).toMatchObject({
-      badge: 'ĐẢO 3',
+      badge: 'ĐẢO 2',
       title: 'Đảo Họa Sĩ',
-      subtitle: 'Sắc màu cọ vẽ',
-      slug: 'dao-3',
+      subtitle: 'Hoạ Sĩ AI',
+      slug: 'dao-2',
     })
     expect(AIKID_SIX_ISLANDS_CONFIG[3]).toMatchObject({
-      badge: 'ĐẢO 4',
+      badge: 'ĐẢO 3',
       title: 'Đảo Nhân Vật',
-      subtitle: 'Hồ sơ 3 điểm',
-      slug: 'dao-4',
+      subtitle: 'Biệt Đội Nhân Vật AI',
+      slug: 'dao-3',
     })
     expect(AIKID_SIX_ISLANDS_CONFIG[4]).toMatchObject({
-      badge: 'ĐẢO 5',
+      badge: 'ĐẢO 4',
       title: 'Đảo Truyện Tranh',
-      subtitle: 'Storyboard 8 ô',
-      slug: 'dao-5',
+      subtitle: 'Vương Quốc Truyện Tranh AI',
+      slug: 'dao-4',
     })
     expect(AIKID_SIX_ISLANDS_CONFIG[5]).toMatchObject({
-      badge: 'ĐẢO 6',
+      badge: 'ĐẢO 5',
       title: 'Đảo Trò Chơi',
-      subtitle: 'Đấu trường thẻ bài',
-      slug: 'dao-6',
+      subtitle: 'Nhà Phát Minh Trò Chơi AI',
+      slug: 'dao-5',
     })
   })
 
@@ -832,7 +837,7 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
       )
     )
 
-    expect(html).toContain('ĐẢO 1')
+    expect(html).toContain('TIÊN QUYẾT')
     expect(html).toContain('Đảo Tiên Quyết')
     expect(html).toContain('10 Quy tắc vàng')
     expect(html).toContain('ĐÃ XONG')
@@ -866,9 +871,9 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
       )
     )
 
-    expect(html).toContain('ĐẢO 2')
+    expect(html).toContain('ĐẢO 1')
     expect(html).toContain('Đảo Khám Phá')
-    expect(html).toContain('4 Chìa khóa lệnh')
+    expect(html).toContain('Nhà Thám Hiểm AI')
     expect(html).toContain('ĐANG HỌC')
     expect(html).not.toContain('🚀')
     expect(html).toContain('Khám phá đảo')
@@ -898,9 +903,9 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
       )
     )
 
-    expect(html).toContain('ĐẢO 3')
+    expect(html).toContain('ĐẢO 2')
     expect(html).toContain('Đảo Họa Sĩ')
-    expect(html).toContain('Sắc màu cọ vẽ')
+    expect(html).toContain('Hoạ Sĩ AI')
     expect(html).toContain('CHƯA MỞ')
     expect(html).not.toContain('🔒')
     expect(html).toContain('lucide-lock')
@@ -917,12 +922,17 @@ describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {
 
 describe('WorldPage official program and island selection', () => {
   it('correctly maps all 6 islands across canonical and numerical aliases', () => {
-    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('muoi-quy-tac-xuong-sang-tao')
-    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-1-nha-tham-hiem-ai')
-    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-2-hoa-si-ai')
-    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-3-biet-doi-nhan-vat-ai')
-    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-1']).toBe('dao-1-nha-tham-hiem-ai')
+    expect(ISLAND_ALIAS_MAP['dao-2']).toBe('dao-2-hoa-si-ai')
+    expect(ISLAND_ALIAS_MAP['dao-3']).toBe('dao-3-biet-doi-nhan-vat-ai')
+    expect(ISLAND_ALIAS_MAP['dao-4']).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
+    expect(ISLAND_ALIAS_MAP['dao-5']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
     expect(ISLAND_ALIAS_MAP['dao-6']).toBe('dao-5-nha-phat-minh-tro-choi-ai')
+    expect(ISLAND_ALIAS_MAP['aiki-rules']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['muoi-quy-tac']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-0']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['tien-quyet']).toBe('muoi-quy-tac-xuong-sang-tao')
+    expect(ISLAND_ALIAS_MAP['dao-tien-quyet']).toBe('muoi-quy-tac-xuong-sang-tao')
   })
 
   it('selects active or recommended next course for student default island', () => {

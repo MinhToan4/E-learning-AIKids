@@ -353,12 +353,12 @@ describe('LessonPage prefetch', () => {
     vi.spyOn(learningApi, 'getPathway').mockResolvedValue({
       student: { nickname: 'Bo', ageBand: '8-10' },
       policy: null,
-      recommendedCourseId: 'dao-2',
+      recommendedCourseId: 'dao-1',
       courses: [{
         id: courseUuid,
         slug: 'dao-1-nha-tham-hiem-ai',
         title: 'Nhà thám hiểm AI',
-        shortTitle: 'Đảo 2',
+        shortTitle: 'Đảo 1',
         status: 'active',
         reasonCode: 'official',
         completionPercent: 0,
@@ -386,7 +386,7 @@ describe('LessonPage prefetch', () => {
       },
       quest: {
         id: 'lesson-1',
-        courseId: 'dao-2',
+        courseId: 'dao-1',
         order: 1,
         title: 'Lesson 1',
         duration: '10m',
@@ -405,7 +405,7 @@ describe('LessonPage prefetch', () => {
     root = activeRoot
     await act(async () => {
       activeRoot.render(
-        <MemoryRouter initialEntries={['/world/dao-2/lesson/lesson-1']}>
+        <MemoryRouter initialEntries={['/world/dao-1/lesson/lesson-1']}>
           <Routes>
             <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
           </Routes>

@@ -195,14 +195,17 @@ export const AIKID_CANONICAL_TITLE_HINTS: Record<(typeof AIKID_CANONICAL_SLUGS)[
 }
 
 export const ISLAND_ALIAS_MAP: Record<string, string> = {
-  'dao-1': 'muoi-quy-tac-xuong-sang-tao',
-  'dao-2': 'dao-1-nha-tham-hiem-ai',
-  'dao-3': 'dao-2-hoa-si-ai',
-  'dao-4': 'dao-3-biet-doi-nhan-vat-ai',
-  'dao-5': 'dao-4-vuong-quoc-truyen-tranh-ai',
+  'dao-1': 'dao-1-nha-tham-hiem-ai',
+  'dao-2': 'dao-2-hoa-si-ai',
+  'dao-3': 'dao-3-biet-doi-nhan-vat-ai',
+  'dao-4': 'dao-4-vuong-quoc-truyen-tranh-ai',
+  'dao-5': 'dao-5-nha-phat-minh-tro-choi-ai',
   'dao-6': 'dao-5-nha-phat-minh-tro-choi-ai',
   'aiki-rules': 'muoi-quy-tac-xuong-sang-tao',
   'muoi-quy-tac': 'muoi-quy-tac-xuong-sang-tao',
+  'dao-0': 'muoi-quy-tac-xuong-sang-tao',
+  'tien-quyet': 'muoi-quy-tac-xuong-sang-tao',
+  'dao-tien-quyet': 'muoi-quy-tac-xuong-sang-tao',
 }
 
 export function mapCourseCatalogStations(course?: CourseSummary | null): QuestProgress[] {
@@ -335,16 +338,20 @@ export function findCourseByIdentifier(
   if (found) return found
 
   // 2. Match canonical slug
-  found = courses.find((c) => c.slug && c.slug.toLowerCase() === canonicalSlug)
+  found = courses.find(
+    (c) =>
+      (c.slug && c.slug.toLowerCase() === canonicalSlug) ||
+      c.id.toLowerCase() === canonicalSlug,
+  )
   if (found) return found
 
-  // 3. Match by Island number: dao-1 -> index 0, dao-2 -> index 1...
+  // 3. Match by Island number: dao-0 -> index 0, dao-1 -> index 1...
   const daoMatch = idOrSlug.match(/^dao-(\d+)$/)
   if (daoMatch) {
-    const islandIndex = parseInt(daoMatch[1], 10) - 1
+    const num = parseInt(daoMatch[1], 10)
     const sorted = sortAikiCourses(courses)
-    if (islandIndex >= 0 && islandIndex < sorted.length) {
-      return sorted[islandIndex]
+    if (num >= 0 && num < sorted.length) {
+      return sorted[num]
     }
   }
 
@@ -382,7 +389,9 @@ export function mergeQuestsWithLocalProgress<
   void localGoldenRules
   return quests.map((quest) => {
     let effectiveStars = quest.stars || 0
-    if (quest.status !== 'locked' && typeof window !== 'undefined') {
+    let effectiveStatus = quest.status
+
+    if (typeof window !== 'undefined') {
       try {
         const localStars =
           Number(localStorage.getItem(`aikids_lesson_stars_${quest.id}`)) ||
@@ -399,19 +408,34 @@ export function mergeQuestsWithLocalProgress<
           (typeof quest.order === 'number' && localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true')
 
         let calculated = effectiveStars
+
         if (isCompleted) {
           calculated = Math.max(calculated, 3)
+          effectiveStatus = 'completed'
         } else if (localStars > 0) {
           calculated = Math.max(calculated, localStars)
+          if (effectiveStatus === 'locked') effectiveStatus = 'in_progress'
         } else if (isVideoDone) {
           calculated = Math.max(calculated, 1)
+          if (effectiveStatus === 'locked') effectiveStatus = 'in_progress'
         }
+
+        const hasLocalProgress =
+          sessionStorage.getItem(`aikids_stage_${quest.id}`) != null ||
+          (quest.slug && sessionStorage.getItem(`aikids_stage_${quest.slug}`) != null) ||
+          localStorage.getItem(`aikids_lesson_stage_${quest.id}`) != null ||
+          (quest.slug && localStorage.getItem(`aikids_lesson_stage_${quest.slug}`) != null)
+
+        if (hasLocalProgress && effectiveStatus === 'locked') {
+          effectiveStatus = 'in_progress'
+        }
+
         effectiveStars = calculated
       } catch {
         // ignore
       }
     }
-    return { ...quest, stars: effectiveStars }
+    return { ...quest, stars: effectiveStars, status: effectiveStatus }
   })
 }
 

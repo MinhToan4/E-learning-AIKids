@@ -67,8 +67,9 @@ export function applySequentialQuestRules<
       // Trạm i chỉ mở khi Trạm i-1 đã completed.
       const prevQuest = result[idx - 1]
       const isPrevCompleted = prevQuest.status === 'completed'
+      const hasSelfProgress = quest.status === 'completed' || quest.status === 'in_progress' || (quest.stars ?? 0) > 0
 
-      if (isPrevCompleted) {
+      if (isPrevCompleted || hasSelfProgress) {
         const status = (quest.status === 'locked' ? 'available' : quest.status) as T['status']
         result.push({
           ...quest,

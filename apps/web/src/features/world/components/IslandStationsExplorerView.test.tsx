@@ -133,7 +133,7 @@ describe('IslandStationsExplorerView', () => {
 
     // Khối 1: Header điều hướng
     expect(html).toContain('Quay lại Bản đồ Đảo')
-    expect(html).toContain('ĐẢO 2')
+    expect(html).toContain('ĐẢO 1')
     expect(html).toContain('3/12 Sao')
 
     // Khối 2: Sân khấu Đảo Lớn (Grand Island Diorama Stage)
@@ -244,12 +244,12 @@ describe('IslandStationsExplorerView', () => {
     // 6 Island Pagination Dots
     expect(html).toContain('aria-label="Danh sách 6 đảo hải trình"')
     expect(html).toContain('aria-current="page"')
-    expect(html).toContain('ĐẢO 2: Khám Phá')
-    expect(html).toContain('aria-label="Chuyển đến ĐẢO 1: Đảo Tiên Quyết"')
-    expect(html).toContain('aria-label="Chuyển đến ĐẢO 3: Đảo Họa Sĩ"')
-    expect(html).toContain('aria-label="Chuyển đến ĐẢO 4: Đảo Nhân Vật"')
-    expect(html).toContain('aria-label="Chuyển đến ĐẢO 5: Đảo Truyện Tranh"')
-    expect(html).toContain('aria-label="Chuyển đến ĐẢO 6: Đảo Trò Chơi"')
+    expect(html).toContain('ĐẢO 1: Khám Phá')
+    expect(html).toContain('aria-label="Chuyển đến TIÊN QUYẾT: Đảo Tiên Quyết"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 2: Đảo Họa Sĩ"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 3: Đảo Nhân Vật"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 4: Đảo Truyện Tranh"')
+    expect(html).toContain('aria-label="Chuyển đến ĐẢO 5: Đảo Trò Chơi"')
   })
 
   it('renders hero container with cursor-grab active:cursor-grabbing and smooth fadeIn animation', () => {
@@ -281,22 +281,22 @@ describe('IslandStationsExplorerView', () => {
     const { AIKID_SIX_ISLAND_PRESETS } = await import('./IslandStationsExplorerView')
     expect(AIKID_SIX_ISLAND_PRESETS).toHaveLength(6)
 
-    expect(AIKID_SIX_ISLAND_PRESETS[0].targetSlug).toBe('dao-1')
+    expect(AIKID_SIX_ISLAND_PRESETS[0].targetSlug).toBe('muoi-quy-tac-xuong-sang-tao')
     expect(AIKID_SIX_ISLAND_PRESETS[0].canonicalSlug).toBe('muoi-quy-tac-xuong-sang-tao')
 
-    expect(AIKID_SIX_ISLAND_PRESETS[1].targetSlug).toBe('dao-2')
+    expect(AIKID_SIX_ISLAND_PRESETS[1].targetSlug).toBe('dao-1')
     expect(AIKID_SIX_ISLAND_PRESETS[1].canonicalSlug).toBe('dao-1-nha-tham-hiem-ai')
 
-    expect(AIKID_SIX_ISLAND_PRESETS[2].targetSlug).toBe('dao-3')
+    expect(AIKID_SIX_ISLAND_PRESETS[2].targetSlug).toBe('dao-2')
     expect(AIKID_SIX_ISLAND_PRESETS[2].canonicalSlug).toBe('dao-2-hoa-si-ai')
 
-    expect(AIKID_SIX_ISLAND_PRESETS[3].targetSlug).toBe('dao-4')
+    expect(AIKID_SIX_ISLAND_PRESETS[3].targetSlug).toBe('dao-3')
     expect(AIKID_SIX_ISLAND_PRESETS[3].canonicalSlug).toBe('dao-3-biet-doi-nhan-vat-ai')
 
-    expect(AIKID_SIX_ISLAND_PRESETS[4].targetSlug).toBe('dao-5')
+    expect(AIKID_SIX_ISLAND_PRESETS[4].targetSlug).toBe('dao-4')
     expect(AIKID_SIX_ISLAND_PRESETS[4].canonicalSlug).toBe('dao-4-vuong-quoc-truyen-tranh-ai')
 
-    expect(AIKID_SIX_ISLAND_PRESETS[5].targetSlug).toBe('dao-6')
+    expect(AIKID_SIX_ISLAND_PRESETS[5].targetSlug).toBe('dao-5')
     expect(AIKID_SIX_ISLAND_PRESETS[5].canonicalSlug).toBe('dao-5-nha-phat-minh-tro-choi-ai')
   })
 })

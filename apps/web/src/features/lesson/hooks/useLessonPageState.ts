@@ -502,7 +502,13 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
 
   const finishLessonPromiseRef = useRef<Promise<boolean> | null>(null)
 
-  async function handleAikiFinish(customSummary?: { answers?: Array<{ questionId: string; optionIndex: number }> }) {
+  async function handleAikiFinish(customSummary?: {
+    answers?: Array<{ questionId: string; optionIndex: number }>
+    stars?: number
+    xp?: number
+    nextLessonSlug?: string
+    keepalive?: boolean
+  }) {
     if (checkResult) return true
     if (finishLessonPromiseRef.current) return finishLessonPromiseRef.current
     if (!quest) return false
@@ -533,37 +539,52 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
             ? authoritativeLessonId
             : quest.id
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
-        const confirmedStars = 3
+        const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
         const celebrationMsg = isIslandJourney
           ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
-          : 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
+          : (confirmedStars >= 3 ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!' : `Xuất sắc! Con đạt ${confirmedStars} Sao.`)
         const progressId = authoritativeLessonId || quest.id || questId
 
-        quest.status = 'completed'
-        setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
-        setLiveStars(3)
-        setPhase('done')
-        setCheckResult({
-          ...checkRes,
-          stars: 3,
-          message: celebrationMsg,
-          nextQuestId: checkRes.nextQuestId || nextRuleTarget,
-        })
-        try {
-          localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
-          if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
-          if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-          sessionStorage.removeItem(`aikids_stage_${quest.id}`)
-          sessionStorage.removeItem(`aikids_stage_${questId}`)
-        } catch {
-          // ignore storage failure
+        if (confirmedStars >= 3) {
+          quest.status = 'completed'
+          setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
+          setLiveStars(3)
+          setPhase('done')
+          setCheckResult({
+            ...checkRes,
+            stars: 3,
+            message: celebrationMsg,
+            nextQuestId: checkRes.nextQuestId || nextRuleTarget,
+          })
+          try {
+            localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+            if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
+            localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '3')
+            sessionStorage.removeItem(`aikids_stage_${quest.id}`)
+            sessionStorage.removeItem(`aikids_stage_${questId}`)
+          } catch {
+            // ignore storage failure
+          }
+          clearApiCache()
+          clearWorldPageCache()
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+        } else {
+          setLiveStars(confirmedStars)
+          try {
+            localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
+            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
+          } catch {
+            // ignore storage failure
+          }
         }
-        clearApiCache()
-        clearWorldPageCache()
-        window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+
         window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
           detail: {
-            stars: 3,
+            stars: confirmedStars,
             ...(typeof checkRes?.totalXp === 'number' && typeof checkRes?.level === 'number'
               ? { xp: checkRes.totalXp, level: checkRes.level }
               : {}),
@@ -576,32 +597,45 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       } catch (err: unknown) {
         console.warn('Submit check failed in handleAikiFinish, completing locally:', err)
         const progressId = authoritativeLessonId || quest.id || questId
-        quest.status = 'completed'
-        setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
-        setLiveStars(3)
-        setPhase('done')
-        const celebrationMsg = isIslandJourney
-          ? `Con đã hoàn thành ${quest.title ?? 'bài học'} với 3 Sao!`
-          : 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
-        setCheckResult({
-          stars: 3,
-          message: celebrationMsg,
-          nextQuestId: nextRuleTarget,
-        })
-        try {
-          localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
-          if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
-          if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-          localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
-          if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
-          sessionStorage.removeItem(`aikids_stage_${quest.id}`)
-          sessionStorage.removeItem(`aikids_stage_${questId}`)
-        } catch {
-          // ignore
+        const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
+
+        if (confirmedStars >= 3) {
+          quest.status = 'completed'
+          setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
+          setLiveStars(3)
+          setPhase('done')
+          const celebrationMsg = isIslandJourney
+            ? `Con đã hoàn thành ${quest.title ?? 'bài học'} với 3 Sao!`
+            : 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!'
+          setCheckResult({
+            stars: 3,
+            message: celebrationMsg,
+            nextQuestId: nextRuleTarget,
+          })
+          try {
+            localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+            if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
+            localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
+            sessionStorage.removeItem(`aikids_stage_${quest.id}`)
+            sessionStorage.removeItem(`aikids_stage_${questId}`)
+          } catch {
+            // ignore
+          }
+          clearApiCache()
+          clearWorldPageCache()
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+        } else {
+          setLiveStars(confirmedStars)
+          try {
+            localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
+            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
+          } catch {
+            // ignore
+          }
         }
-        clearApiCache()
-        clearWorldPageCache()
-        window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
         void queryClient.invalidateQueries({ queryKey: ['progression'] })
         void queryClient.invalidateQueries({ queryKey: ['pathway'] })
         void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
