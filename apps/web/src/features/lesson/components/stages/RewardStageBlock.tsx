@@ -49,17 +49,16 @@ export function RewardStageBlock({
     if (result instanceof Promise) {
       setIsSavingProgress(true)
       void result
-        .then(() => {
-          navigate()
+        .then((saved) => {
+          if (saved !== false) navigate()
         })
         .catch((err) => {
           console.warn('Finish lesson error:', err)
-          navigate()
         })
         .finally(() => setIsSavingProgress(false))
       return
     }
-    navigate()
+    if (result !== false) navigate()
   }
 
   React.useEffect(() => {
