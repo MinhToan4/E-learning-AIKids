@@ -21,11 +21,25 @@ export function LoginPage() {
   const sessionLoading = useAuth((state) => state.loading)
   const navigate = useNavigate()
 
+  const STUDENT_LOGIN_NOTICE =
+    'AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba' +
+    '/Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ của bé nhé!'
+
   function goAfterLogin(user: User) {
-    if (user.role === 'admin') navigate('/admin', { replace: true })
-    else if (user.role === 'teacher') navigate('/teacher', { replace: true })
-    else if (user.role === 'student') navigate('/home', { replace: true })
-    else navigate('/kids', { replace: true })
+    if (user.role === 'student') {
+      showToast(STUDENT_LOGIN_NOTICE, 'error')
+      void useAuth.getState().logout()
+      return
+    }
+    if (user.role === 'parent') {
+      navigate('/kids', { replace: true })
+    } else if (user.role === 'admin') {
+      navigate('/admin', { replace: true })
+    } else if (user.role === 'teacher') {
+      navigate('/teacher', { replace: true })
+    } else {
+      navigate('/kids', { replace: true })
+    }
   }
 
   useEffect(() => {
@@ -77,13 +91,13 @@ export function LoginPage() {
                 <h1 className="sr-only">Đăng nhập cổng phụ huynh AIKid</h1>
                 <form id="login-form" className="flex h-full flex-col justify-center gap-4 sm:gap-6" onSubmit={onSubmit}>
                   <label>
-                    <span className="sr-only">Email hoặc tên đăng nhập</span>
+                    <span className="sr-only">Email tài khoản phụ huynh</span>
                     <input
                       id="login-email"
-                      name="login"
+                      name="email"
                       type="text"
-                      autoComplete="username"
-                      placeholder="Email hoặc tên đăng nhập"
+                      autoComplete="email"
+                      placeholder="Email tài khoản phụ huynh"
                       className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
                       value={login}
                       onChange={(event) => setLogin(event.target.value)}

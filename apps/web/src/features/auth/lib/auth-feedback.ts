@@ -10,6 +10,13 @@ const fallbackByAction: Record<AuthAction, string> = {
 }
 
 export function authFeedback(error: unknown, action: AuthAction): string {
+  if (
+    (error && typeof error === 'object' && 'code' in error && (error as any).code === 'STUDENT_LOGIN_LOCKED') ||
+    (error instanceof ApiError && (error.code === 'STUDENT_LOGIN_LOCKED' || error.message?.includes('Học sinh không thể đăng nhập trực tiếp')))
+  ) {
+    return 'AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba/Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ con nhé!'
+  }
+
   const firebaseCode = error && typeof error === 'object' && 'code' in error
     ? String((error as { code?: unknown }).code ?? '')
     : ''

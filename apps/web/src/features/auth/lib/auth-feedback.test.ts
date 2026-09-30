@@ -26,6 +26,13 @@ describe('auth feedback', () => {
       .toBe('Email này đang dùng một phương thức đăng nhập khác. Hãy chọn đúng cách đã đăng ký.')
   })
 
+  it('handles STUDENT_LOGIN_LOCKED error code and message', () => {
+    expect(authFeedback({ code: 'STUDENT_LOGIN_LOCKED' }, 'login'))
+      .toBe('AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba/Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ con nhé!')
+    expect(authFeedback(new ApiError(403, 'Học sinh không thể đăng nhập trực tiếp', { code: 'STUDENT_LOGIN_LOCKED' }), 'login'))
+      .toBe('AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba/Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ con nhé!')
+  })
+
   it('keeps password reset responses private for unknown emails', () => {
     expect(shouldConfirmPasswordResetEmail(new ApiError(404, 'Not found'))).toBe(true)
     expect(shouldConfirmPasswordResetEmail(new ApiError(422, 'Unknown email'))).toBe(true)
