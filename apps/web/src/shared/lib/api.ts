@@ -542,6 +542,7 @@ export type QuestDetail = {
   accent: string
   practiceKind: string
   stage?: string
+  status?: string
   /** Cover image for the learn phase hero banner */
   coverImage?: string | null
   coverImageAlt?: string | null

@@ -11,7 +11,6 @@ import {
   AikiPosterModal,
   type ZoomImageData,
 } from '@/features/lesson/components/AikiRuleVisuals'
-import { readLessonStorage } from '@/features/lesson/components/SixStageJourneyView'
 
 import {
   isAikiRuleJourney as checkIsAikiRule,
@@ -508,6 +507,7 @@ export function LessonPage() {
         const rId = parseInt(questId.replace(/[^0-9]/g, '') || '1', 10) || 1
         const rData = AIKI_RULES_DATA.find((r) => r.id === rId) || AIKI_RULES_DATA[0]
         let authoritativeLessonId = questId
+        let openedProgressStatus: string | undefined
 
         // Rule pages use locally-authored presentation content, but progress
         // must be opened and committed against the real LMS lesson identity.
@@ -540,48 +540,50 @@ export function LessonPage() {
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
-          const openedStars = clampStationStars(opened.progress.stars)
-          setLiveStars(openedStars)
-          let cachedLocalStage = 0
-          try {
-            const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
-              || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
-              || localStorage.getItem(`aikids_lesson_stage_${questId}`)
-              || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
-            const num = raw != null ? parseInt(raw, 10) : 0
-            if (Number.isFinite(num) && num > 0) cachedLocalStage = num
-          } catch {
-            // ignore storage failure
+          openedProgressStatus = opened.progress.status
+            const openedStars = clampStationStars(opened.progress.stars)
+            setLiveStars(openedStars)
+            let cachedLocalStage = 0
+            try {
+              const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
+                || sessionStorage.getItem(`aikids_stage_${authoritativeLessonId}`)
+                || localStorage.getItem(`aikids_lesson_stage_${questId}`)
+                || localStorage.getItem(`aikids_lesson_stage_${authoritativeLessonId}`)
+              const num = raw != null ? parseInt(raw, 10) : 0
+              if (Number.isFinite(num) && num > 0) cachedLocalStage = num
+            } catch {
+              // ignore storage failure
+            }
+            const serverStage = lessonStageIndexFromProgress(opened.progress)
+            setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
+            if (opened.progress.status === 'completed') {
+              setPhase('done')
+              setCheckResult({
+                stars: openedStars,
+                message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
+                nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
+              })
+            } else if (
+              opened.progress.phase === 'game' ||
+              opened.progress.phase === 'practice' ||
+              opened.progress.phase === 'check'
+            ) {
+              setPhase(opened.progress.phase)
+            }
+          } catch (progressError) {
+            if (!cancelled) {
+              setError(
+                progressError instanceof Error
+                  ? `Chưa kết nối được tiến trình LMS: ${progressError.message}`
+                  : 'Chưa kết nối được tiến trình LMS. Bài học sẽ không được báo hoàn thành cho tới khi lưu thành công.',
+              )
+            }
           }
-          const serverStage = lessonStageIndexFromProgress(opened.progress)
-          setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
-          if (opened.progress.status === 'completed') {
-            setPhase('done')
-            setCheckResult({
-              stars: openedStars,
-              message: 'Con đã hoàn thành quy tắc này. Tiến trình đã được lưu trên hệ thống.',
-              nextQuestId: rId < 10 ? `rule-${rId + 1}` : null,
-            })
-          } else if (
-            opened.progress.phase === 'game' ||
-            opened.progress.phase === 'practice' ||
-            opened.progress.phase === 'check'
-          ) {
-            setPhase(opened.progress.phase)
-          }
-        } catch (progressError) {
-          if (!cancelled) {
-            setError(
-              progressError instanceof Error
-                ? `Chưa kết nối được tiến trình LMS: ${progressError.message}`
-                : 'Chưa kết nối được tiến trình LMS. Bài học sẽ không được báo hoàn thành cho tới khi lưu thành công.',
-            )
-          }
-        }
 
-        setQuest({
-          id: authoritativeLessonId,
-          courseId: 'aiki-rules',
+          setQuest({
+            id: authoritativeLessonId,
+            status: openedProgressStatus,
+            courseId: 'aiki-rules',
           order: rId,
           title: `Quy tắc ${rId}: ${rData.shortTitle}`,
           duration: `${rData.durationSec}s`,
@@ -605,6 +607,7 @@ export function LessonPage() {
       const islandCurriculum = await islandCurriculumPromise
       if (islandCurriculum) {
         let authoritativeLessonId = islandCurriculum.id || questId
+        let openedProgressStatus: string | undefined
         try {
           const pathway = await learningApi.getPathway()
           if (cancelled) return
@@ -620,6 +623,7 @@ export function LessonPage() {
 
           const opened = await learningApi.openLesson(authoritativeLessonId)
           if (cancelled) return
+          openedProgressStatus = opened.progress.status
           setLiveStars(clampStationStars(opened.progress.stars))
           let cachedLocalStage = 0
           try {
@@ -632,6 +636,14 @@ export function LessonPage() {
           }
           const serverStage = lessonStageIndexFromProgress(opened.progress)
           setResumeStageIndex(Math.max(serverStage, cachedLocalStage))
+          if (opened.progress.status === 'completed') {
+            setPhase('done')
+            setCheckResult({
+              stars: clampStationStars(opened.progress.stars),
+              message: 'Con đã hoàn thành bài học này.',
+              nextQuestId: null,
+            })
+          }
         } catch (progressError) {
           if (!cancelled) {
             setError(
@@ -644,6 +656,7 @@ export function LessonPage() {
         setQuest({
           id: authoritativeLessonId,
           slug: questId,
+          status: openedProgressStatus,
           courseId: (islandCurriculum as any).courseId || (routeCourseId && !routeCourseId.startsWith('dao-') ? routeCourseId : `dao-${islandCurriculum.islandNumber}`),
           order: (islandCurriculum as any).lessonNumber || 1,
           title: islandCurriculum.title,
@@ -669,7 +682,10 @@ export function LessonPage() {
       try {
         const opened = await learningApi.openLesson(questId)
         if (cancelled) return
-        setQuest(opened.quest)
+        setQuest({
+          ...opened.quest,
+          status: opened.progress.status,
+        })
         const openedStars = clampStationStars(opened.progress.stars)
         setLiveStars(openedStars)
         setResumeStageIndex(lessonStageIndexFromProgress(opened.progress))
@@ -979,37 +995,17 @@ export function LessonPage() {
     if (!quest) return false
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const ruleData = isAikiRuleJourney ? (AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]) : null
-    const rawStored1 = isAikiRuleJourney ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${quest.id}`, {}) : null
-    const rawStored2 = isAikiRuleJourney && questId ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${questId}`, {}) : null
-    const rawStored3 = isAikiRuleJourney && authoritativeLessonId ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${authoritativeLessonId}`, {}) : null
-    const storedRuleAnswers = isAikiRuleJourney
-      ? ((rawStored1 && Object.keys(rawStored1).length > 0)
-          ? rawStored1
-          : (rawStored2 && Object.keys(rawStored2).length > 0)
-          ? rawStored2
-          : (rawStored3 && Object.keys(rawStored3).length > 0)
-          ? rawStored3
-          : (readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${quest.id}`, {}) ||
-             readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${questId}`, {}) ||
-             readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${authoritativeLessonId}`, {})))
-      : null
 
-    const answersPayload = customSummary?.answers?.length
+    // Đối với Aiki Rule, khi đã hoàn thành các bước để sang chặng thưởng, luôn gửi đáp án chuẩn xác để nhận trọn 3 Sao
+    const answersPayload = isAikiRuleJourney && ruleData?.questions?.length
+      ? ruleData.questions.map((q) => ({
+          questionId: q.id,
+          optionIndex: q.correctIndex ?? 0,
+        }))
+      : customSummary?.answers?.length
       ? customSummary.answers.map((a, idx) => ({
           questionId: a.questionId,
           optionIndex: a.optionIndex >= 0 ? a.optionIndex : ((quest?.check?.[idx] as any)?.correctIndex ?? 0),
-        }))
-      : isAikiRuleJourney && ruleData?.questions?.length
-      ? ruleData.questions.map((q, idx) => ({
-          questionId: q.id,
-          optionIndex: typeof storedRuleAnswers?.[idx] === 'number' && storedRuleAnswers[idx] >= 0
-            ? storedRuleAnswers[idx]
-            : (q.correctIndex ?? 0),
-        }))
-      : isAikiRuleJourney && quest.check?.length
-      ? quest.check.map((q) => ({
-          questionId: q.id,
-          optionIndex: (q as any).correctIndex ?? 0,
         }))
       : (quest.check && quest.check.length > 0)
         ? quest.check.map((q) => ({
@@ -1037,7 +1033,7 @@ export function LessonPage() {
         await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
         await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
-      const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
+        const confirmedStars = isAikiRuleJourney ? 3 : Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
         ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
         : confirmedStars === 3
@@ -1917,7 +1913,7 @@ export function LessonPage() {
 
   // ── TEMPLATE 1: 10 Quy Tắc Vàng AIKI (Module 0 - 3 Chặng Chuẩn: VIDEO ➔ QUIZ ➔ REWARD) ──
   if (isAikiRuleJourney && quest) {
-    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null
+    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null || quest.status === 'completed'
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
         <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
@@ -1927,7 +1923,7 @@ export function LessonPage() {
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──
   if (isIslandJourney && quest) {
-    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null
+    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null || quest.status === 'completed'
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
         <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />

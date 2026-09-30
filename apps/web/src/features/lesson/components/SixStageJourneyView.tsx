@@ -482,6 +482,18 @@ export function SixStageJourneyView({
     [lessonId, onStageChange]
   )
 
+  const quizStageDef = stages.find((s) => s.type === 'QUIZ')
+  const rewardStageDef = stages.find((s) => s.type === 'REWARD')
+  const rewardXp = rewardXpProp || rewardStageDef?.config?.rewardBadge?.xp || journey?.stage6_completion?.rewardBadge?.xp || 50
+  const effectiveQuizQuestions = (quizStageDef?.config?.questions as any[]) || journey?.stage4_quiz?.questions || []
+  const submittedQuizAnswers = useMemo(
+    () => effectiveQuizQuestions.map((question, index) => ({
+      questionId: String(question.id || `${lessonId}-check-${index + 1}`),
+      optionIndex: typeof quizAnswers[index] === 'number' ? quizAnswers[index] : -1,
+    })),
+    [effectiveQuizQuestions, lessonId, quizAnswers],
+  )
+
   const advanceToStage = useCallback(
     (nextStage: number) => {
       if (stages[currentStage]?.type === 'VIDEO' || (stages.length === 3 && currentStage === 0) || (stages.length > 3 && currentStage === 2)) {
@@ -495,13 +507,26 @@ export function SixStageJourneyView({
       writeLessonStorage(`aikids_stage_${lessonId}`, String(nextStage))
       writeLessonStorage(`aikids_lesson_stage_${lessonId}`, nextStage)
       onStageChange?.(nextStage)
+
+      if (stages[nextStage]?.type === 'REWARD' || nextStage === stages.length - 1) {
+        hasAutoFinishedRef.current = true
+        // Tự động lưu hoàn thành bài học 3 sao ngay khi học sinh chạm tới chặng Thưởng
+        const completionSummary: LessonCompletionSummary = {
+          stars: 3,
+          xp: rewardXp || 50,
+          answers: submittedQuizAnswers,
+          nextLessonSlug: (stages[nextStage]?.config as any)?.nextLessonSlug,
+        }
+        void onFinishLesson?.(completionSummary)
+      }
+
       try {
         playInstantSound('click')
       } catch {
         // ignore audio failure
       }
     },
-    [currentStage, lessonId, onStageChange, stages]
+    [currentStage, lessonId, onFinishLesson, onStageChange, rewardXp, stages, submittedQuizAnswers]
   )
 
   const handleRetryQuestion = useCallback((qIdx: number) => {
@@ -598,17 +623,6 @@ export function SixStageJourneyView({
   }
 
   // Calculate Quiz Score
-  const quizStageDef = stages.find((s) => s.type === 'QUIZ')
-  const rewardStageDef = stages.find((s) => s.type === 'REWARD')
-  const effectiveQuizQuestions = (quizStageDef?.config?.questions as any[]) || journey?.stage4_quiz?.questions || []
-  const submittedQuizAnswers = useMemo(
-    () => effectiveQuizQuestions.map((question, index) => ({
-      questionId: String(question.id || `${lessonId}-check-${index + 1}`),
-      optionIndex: typeof quizAnswers[index] === 'number' ? quizAnswers[index] : -1,
-    })),
-    [effectiveQuizQuestions, lessonId, quizAnswers],
-  )
-
   const quizScore = useMemo(() => {
     let correct = 0
     effectiveQuizQuestions.forEach((q, idx) => {
@@ -721,15 +735,15 @@ export function SixStageJourneyView({
 
   // Tự động lưu tiến trình và thông báo mở khóa ngay khi tới bước hoàn thành (REWARD)
   useEffect(() => {
-    if (currentStageDef?.type === 'REWARD' && !hasAutoFinishedRef.current) {
+    if ((currentStageDef?.type === 'REWARD' || currentStage === stages.length - 1) && !hasAutoFinishedRef.current) {
       hasAutoFinishedRef.current = true
       // Completion and rewards are persisted only after the owning LMS
       // endpoint verifies the submitted evidence. Browser storage must not
       // mint stars, XP or unlock the next lesson.
       Promise.resolve(
         onFinishLesson?.({
-          stars: effectiveStars,
-          xp: effectiveRewardXp,
+          stars: 3,
+          xp: effectiveRewardXp || rewardXp || 50,
           nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
           answers: submittedQuizAnswers,
         })
@@ -739,7 +753,7 @@ export function SixStageJourneyView({
         }
       })
     }
-  }, [currentStageDef, effectiveStars, effectiveRewardXp, lessonId, lessonTitle, isRuleLesson, onFinishLesson, submittedQuizAnswers])
+  }, [currentStage, currentStageDef, effectiveRewardXp, isRuleLesson, lessonId, lessonTitle, onFinishLesson, rewardXp, stages.length, submittedQuizAnswers])
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
@@ -791,7 +805,22 @@ export function SixStageJourneyView({
           {onBackToMap ? (
             <button
               type="button"
-              onClick={onBackToMap}
+              onClick={() => {
+                if (currentStageDef?.type === 'REWARD' || currentStage === stages.length - 1) {
+                  const completionSummary: LessonCompletionSummary = {
+                    stars: 3,
+                    xp: rewardXp || 50,
+                    answers: submittedQuizAnswers,
+                    nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
+                  }
+                  const res = onFinishLesson?.(completionSummary)
+                  if (res instanceof Promise) {
+                    void res.finally(() => onBackToMap())
+                    return
+                  }
+                }
+                onBackToMap()
+              }}
               className="min-h-[38px] px-3 py-1.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs border border-slate-200/80 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
               title="Quay lại bản đồ"
             >

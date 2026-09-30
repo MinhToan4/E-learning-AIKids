@@ -2964,4 +2964,83 @@ describe('SixStageJourneyView', () => {
     expect(quizSection?.textContent).toContain('Đúng rồi!')
     act(() => root.unmount())
   })
+
+  it('auto-triggers onFinishLesson with 3 stars when advancing to reward stage', () => {
+    const testLessonId = 'rule-1-reward-auto-finish-test'
+    sessionStorage.setItem(`aikids_quiz_ans_${testLessonId}`, JSON.stringify({ 0: 0, 1: 0 }))
+    sessionStorage.setItem(`aikids_quiz_chk_${testLessonId}`, JSON.stringify({ 0: true, 1: true }))
+    sessionStorage.setItem(`aikids_quiz_sub_${testLessonId}`, 'true')
+    const onFinishLessonSpy = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId={testLessonId}
+          lessonTitle="Quy tắc 1"
+          initialStageIndex={1}
+          onFinishLesson={onFinishLessonSpy}
+        />
+      )
+    })
+
+    const submitBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Nộp bài kiểm tra')
+    )
+    if (submitBtn) {
+      act(() => {
+        submitBtn.click()
+      })
+    }
+
+    const rewardBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Hoàn thành bài học') || b.textContent?.includes('Tiếp tục')
+    )
+    expect(rewardBtn).toBeDefined()
+    act(() => {
+      rewardBtn?.click()
+    })
+
+    expect(onFinishLessonSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stars: 3,
+        xp: expect.any(Number),
+      })
+    )
+    act(() => root.unmount())
+  })
+
+  it('triggers onFinishLesson with 3 stars when clicking back to map from reward stage', () => {
+    const testLessonId = 'rule-1-topbar-back-test'
+    const onFinishLessonSpy = vi.fn()
+    const onBackToMapSpy = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId={testLessonId}
+          lessonTitle="Quy tắc 1"
+          initialStageIndex={2}
+          onFinishLesson={onFinishLessonSpy}
+          onBackToMap={onBackToMapSpy}
+        />
+      )
+    })
+
+    const backBtn = container.querySelector('button[title="Quay lại bản đồ"]') as HTMLButtonElement
+    expect(backBtn).not.toBeNull()
+    act(() => {
+      backBtn.click()
+    })
+
+    expect(onFinishLessonSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stars: 3,
+        xp: expect.any(Number),
+      })
+    )
+    expect(onBackToMapSpy).toHaveBeenCalled()
+    act(() => root.unmount())
+  })
 })
