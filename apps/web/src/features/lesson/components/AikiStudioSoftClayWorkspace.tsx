@@ -215,6 +215,9 @@ function getItemArtwork(type: string, descId?: string, actionId?: string, contex
     return '/assets/pregenerated-combos/goldfish/combo__sub-con-ca-vang__cs-fish-vay-anh-bac__act-fish-dop-bot__ctx-fish-be-ca-soi.webp'
   }
   // Cat combos
+  if (descId === 'beo-tron' && actionId === 'dao-buoc' && contextId === 'them-nha') {
+    return '/assets/pregenerated-fallback/magic-keys/cat_full_details_v2.webp'
+  }
   if (descId === 'beo-tron' && actionId === 'dao-buoc' && contextId === 'hien-nha') {
     return '/assets/pregenerated-combos/cat/combo__sub-meo-muop__cs-cat-beo-tron__act-cat-dao-buoc__ctx-cat-hien-nha.webp'
   }
@@ -250,13 +253,14 @@ const DEFAULT_PARTS_MAPPING_1_1 = [
     partNumber: 1,
     title: 'Con mèo',
     icon: '🐱',
-    thumb: '/assets/aiki-keys/key_subject_cat.jpg',
+    thumb: '/assets/pregenerated-combos/cat/combo__sub-meo-muop.webp',
   },
 ]
 
 
 export function AikiStudioSoftClayWorkspace({
   lessonId,
+  lessonTitle,
   practiceParts,
   defaultPracticeParts,
   activePartIndex: propActivePartIndex = 0,
@@ -267,7 +271,12 @@ export function AikiStudioSoftClayWorkspace({
   generateDurationMs = 3000,
   className,
 }: AikiStudioSoftClayWorkspaceProps) {
-  const isLesson1_1 = Boolean(lessonId === 'bai-1-1' || lessonId?.includes('1-1'))
+  const isLesson1_1 = Boolean(
+    lessonId === 'bai-1-1' ||
+    lessonId?.includes('1-1') ||
+    lessonTitle?.includes('1.1') ||
+    lessonTitle?.includes('Một từ hay năm từ')
+  )
 
   // Chuẩn hóa danh sách món đồ
   const parts = useMemo(() => {
@@ -1190,7 +1199,7 @@ export function AikiStudioSoftClayWorkspace({
 
                 {/* Tag Phong cách */}
                 <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold backdrop-blur-xs">
-                  Phong cách: Mực &amp; Đất Nặn
+                  Phong cách: Hoạt hình 2D
                 </span>
 
                 {/* Badge Thông báo đã đổi câu lệnh (chưa ấn Generate) */}

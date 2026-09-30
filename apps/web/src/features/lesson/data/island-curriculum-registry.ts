@@ -185,7 +185,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "title": "Con mèo",
             "icon": "🐱",
             "emoji": "🐱",
-            "iconImage": "/assets/aiki-keys/key_subject_cat.jpg"
+            "iconImage": "/assets/pregenerated-combos/cat/combo__sub-meo-muop.webp"
           }
         ]
       },

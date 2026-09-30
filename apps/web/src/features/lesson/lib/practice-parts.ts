@@ -74,7 +74,7 @@ export function getDefaultPracticeParts(
   // 1. Bài 1.1: Đúng 1 món đồ duy nhất: Con mèo (🐱) theo kịch bản Google Sheet SSOT (1 từ vs 5 điều)
   if (lessonNum === '1.1' || normId.includes('1-1') || normId.includes('1.1')) {
     return [
-      { partNumber: 1, title: 'Con mèo', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
+      { partNumber: 1, title: 'Con mèo', icon: '🐱', emoji: '🐱', iconImage: '/assets/pregenerated-combos/cat/combo__sub-meo-muop.webp' },
     ]
   }
 

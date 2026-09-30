@@ -480,7 +480,7 @@ export function suggestFourKeysForSubject(subjectName: string): {
   if (norm.includes('mèo') || norm.includes('cat')) {
     return {
       parts: [
-        { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
+        { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', emoji: '🐱', iconImage: '/assets/pregenerated-combos/cat/combo__sub-meo-muop.webp' },
         { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', emoji: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
         { partNumber: 3, title: 'Mèo Bắt Bướm Nắng Vàng', icon: '🦋', emoji: '🦋', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
         { partNumber: 4, title: 'Mèo Phi Hành Gia', icon: '🚀', emoji: '🚀', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
