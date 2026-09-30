@@ -5,13 +5,41 @@ import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'node:path'
 import { rewriteDevSessionCookie } from './src/shared/lib/dev-session-cookie'
 
+function versionGeneratorPlugin() {
+  const buildId = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)
+  return {
+    name: 'vite-plugin-version-generator',
+    generateBundle(this: any) {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'version.json',
+        source: JSON.stringify(
+          {
+            buildId,
+            buildTime: new Date().toISOString(),
+            timestamp: Date.now(),
+          },
+          null,
+          2,
+        ),
+      })
+    },
+    configureServer(server: any) {
+      server.middlewares.use('/version.json', (_req: any, res: any) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ buildId: 'dev', buildTime: new Date().toISOString() }))
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiProxyTarget =
     env.VITE_API_PROXY_TARGET?.trim() || 'http://127.0.0.1:5100'
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), versionGeneratorPlugin()],
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),

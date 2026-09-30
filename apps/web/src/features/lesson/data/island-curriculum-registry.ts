@@ -44,12 +44,13 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage1-goal",
         "title": "Mục tiêu bài học: Bài 1.1 — Một từ hay năm từ?",
         "goalText": "Trẻ biết cách viết câu lệnh đầu tiên cho AI.",
+        "skillLearned": "Biết thêm chi tiết để câu lệnh rõ ràng hơn.",
         "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "speech": "Mimi: Xong! Đây là con mèo. Đúng là con mèo rồi đấy... Nhưng mà con mèo trong đầu tớ không phải con này!\nAKI: Các cậu ơi, các cậu nghĩ Mimi làm sai ở chỗ nào nhỉ? Vì Mimi chỉ gõ đúng hai chữ 'con mèo' thôi đấy!",
         "keyPoints": [
-          "[1] MỘT TỪ: “Con mèo”",
-          "[2] NĂM Ý: “Con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ”",
-          "[3] CÂU THẦN CHÚ: “Chỗ nào mình không nói rõ, AI sẽ tự đoán.”"
+          "[1] MỘT TỪ: “Con mèo” (AKI phải tự đoán bốn phần còn lại)",
+          "[2] NĂM Ý: “Con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” (AKI chẳng phải đoán gì cả)",
+          "[3] CÂU THẦN CHÚ: “Chỗ nào mình không nói rõ, AI sẽ tự đoán.” (Nhớ suốt cả khoá)"
         ]
       },
       "stage2_confirmGoal": {
@@ -106,9 +107,9 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "id": "bai-1-1-q1",
             "prompt": "Câu thần chú của bài hôm nay là gì?",
             "options": [
-              "A. Chỗ nào mình không nói rõ, AI sẽ tự đoán",
-              "B. Cứ bấm nhiều lần là sẽ ra hình đẹp",
-              "C. Viết càng ngắn, AI càng hiểu đúng"
+              "A. Chỗ nào mình không nói rõ, AI sẽ tự đoán.",
+              "B. Viết càng dài, AI càng dễ đáp",
+              "C. Viết càng ngắn, AI càng hiểu"
             ],
             "correctIndex": 0,
             "explanation": "Đúng rồi! / Chưa đúng rồi!",
@@ -116,7 +117,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
           },
           {
             "id": "bai-1-1-q2",
-            "prompt": "Câu tả “con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” có mấy ý chính?",
+            "prompt": "Câu tả “con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” có mấy ý?",
             "options": [
               "A. Ba ý",
               "B. Năm ý",
@@ -131,7 +132,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "prompt": "Nếu con mèo chưa đúng ý, mình nên làm gì?",
             "options": [
               "A. Cứ bấm tạo lại nhiều lần",
-              "B. Thêm chi tiết vào câu tả rồi tạo lại",
+              "B. Thêm chi tiết miêu tả rõ hơn",
               "C. Đổi sang con vật khác cho dễ"
             ],
             "correctIndex": 1,

@@ -72,7 +72,7 @@ export function adaptSixStageJourneyToStages(
         (journey.stage1_goal?.title || '').toLowerCase().includes('bốn chiếc chìa khóa') ||
         (lessonId.includes('1-2') && !lessonId.includes('1-1'))))
 
-  const isFourKeysLesson = isLesson1_1 || isLesson1_2
+  const isFourKeysLesson = isLesson1_2
 
   // Stage 0: Goal
   const cleanPoint = (raw?: string, fallback = '') => {
@@ -143,6 +143,10 @@ export function adaptSixStageJourneyToStages(
     formulaCards,
     parsedCards,
     keyPoints: kp,
+    skillLearned:
+      (journey.stage1_goal as any)?.skillLearned ||
+      (info.matchedCurriculum as any)?.skillLearned ||
+      (isLesson1_1 ? 'Biết thêm chi tiết để câu lệnh rõ ràng hơn.' : ''),
   }
 
   // Stage 1: Confirm Goal

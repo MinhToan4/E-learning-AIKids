@@ -54,6 +54,7 @@ export interface GoalStageConfig {
   formulaCards?: FormulaCardItem[]
   parsedCards?: ParsedGoalCard[]
   keyPoints?: string[]
+  skillLearned?: string
 }
 
 export interface ConfirmOptionItem {

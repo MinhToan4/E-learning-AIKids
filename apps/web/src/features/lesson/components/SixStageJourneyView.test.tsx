@@ -732,8 +732,8 @@ describe('SixStageJourneyView', () => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
-          lessonId="bai-1-1"
-          lessonTitle="Đừng Để AIKI Đoán Mò"
+          lessonId="bai-1-2"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
           initialStageIndex={0}
         />
       )
@@ -797,7 +797,7 @@ describe('SixStageJourneyView', () => {
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe).not.toBeNull()
     expect(iframe?.getAttribute('src')).toContain('https://www.youtube.com/embed/NMdHhsLY5jc')
-    expect(iframe?.getAttribute('src')).toContain('controls=0')
+    expect(iframe?.getAttribute('src')).toContain('controls=1')
 
     // Sidebar is omitted; timestamps are built into video timeline stepper in main canvas
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
@@ -903,8 +903,8 @@ describe('SixStageJourneyView', () => {
         <SixStageJourneyView
           key="stage-0"
           journey={mockJourney}
-          lessonId="bai-1-1"
-          lessonTitle="Đừng Để AIKI Đoán Mò"
+          lessonId="bai-1-2"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
           initialStageIndex={0}
           initialSidebarCollapsed={false}
         />
@@ -1260,16 +1260,16 @@ describe('SixStageJourneyView', () => {
     expect(badge2?.textContent).not.toMatch(/[🔑🎨⭐]/u)
   })
 
-  it('renders 4-formula cards in Stage 0 for Lesson 1.1 to eliminate blank space', () => {
+  it('renders 3 focused cards and skillLearned in Stage 0 for Lesson 1.1 strictly matching curriculum SSOT', () => {
     const lesson1_1Journey: LessonSixStageJourney = {
       ...mockJourney,
       stage1_goal: {
         ...mockJourney.stage1_goal,
+        goalText: 'Trẻ biết cách viết câu lệnh đầu tiên cho AI.',
         keyPoints: [
-          "CÁI GÌ (Xanh Sky): 'một con mèo'",
-          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'mèo mướp vàng béo tròn'",
-          "ĐANG LÀM GÌ (Cam Mango): 'đang nằm ngủ cuộn tròn'",
-          "Ở ĐÂU (Hồng Gum): 'trên ghế mây cạnh cửa sổ'",
+          '[1] MỘT TỪ: “Con mèo” (AKI phải tự đoán bốn phần còn lại)',
+          '[2] NĂM Ý: “Con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” (AKI chẳng phải đoán gì cả)',
+          '[3] CÂU THẦN CHÚ: “Chỗ nào mình không nói rõ, AI sẽ tự đoán.” (Nhớ suốt cả khoá)',
         ],
       },
     }
@@ -1288,15 +1288,15 @@ describe('SixStageJourneyView', () => {
 
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
-    expect(stage0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
-    expect(stage0?.textContent).toContain('CÁI GÌ')
-    expect(stage0?.textContent).toContain('“một con mèo”')
-    expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')
-    expect(stage0?.textContent).toContain('“mèo mướp vàng béo tròn”')
-    expect(stage0?.textContent).toContain('ĐANG LÀM GÌ')
-    expect(stage0?.textContent).toContain('“đang nằm ngủ cuộn tròn”')
-    expect(stage0?.textContent).toContain('Ở ĐÂU')
-    expect(stage0?.textContent).toContain('“trên ghế mây cạnh cửa sổ”')
+    expect(stage0?.textContent).toContain('CÁC NỘI DUNG TRỌNG TÂM CỦA BÀI HỌC')
+    expect(stage0?.textContent).toContain('MỘT TỪ')
+    expect(stage0?.textContent).toContain('Con mèo')
+    expect(stage0?.textContent).toContain('NĂM Ý')
+    expect(stage0?.textContent).toContain('Con mèo mướp béo')
+    expect(stage0?.textContent).toContain('CÂU THẦN CHÚ')
+    expect(stage0?.textContent).toContain('Chỗ nào mình không nói rõ, AI sẽ tự đoán.')
+    expect(stage0?.textContent).toContain('KỸ NĂNG TRẺ HỌC ĐƯỢC')
+    expect(stage0?.textContent).toContain('Biết thêm chi tiết để câu lệnh rõ ràng hơn.')
   })
 
   it('verifies Lesson 1.2 visual linkage: exact 4 key images, chest pin badges, robust clay cards, and narrative connection to stage 1', () => {
@@ -2025,8 +2025,8 @@ describe('SixStageJourneyView', () => {
       root.render(
         <SixStageJourneyView
           journey={mockJourney}
-          lessonId="bai-1-1"
-          lessonTitle="Đừng Để AIKI Đoán Mò"
+          lessonId="bai-1-2"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
           initialSidebarCollapsed={false}
         />
       )

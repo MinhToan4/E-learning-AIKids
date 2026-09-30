@@ -134,6 +134,32 @@ describe('auth store', () => {
     expect(mocks.api).toHaveBeenCalledTimes(1)
   })
 
+  it('skips querying /api/auth/access when a student logs in via loginAdult', async () => {
+    mocks.api.mockResolvedValueOnce({
+      user: {
+        id: 'student-1',
+        role: 'student',
+        email: null,
+        nickname: 'Bé Bo',
+        avatarId: null,
+        level: 2,
+        xp: 150,
+        onboarded: true,
+        goal: null,
+        parentId: 'parent-1',
+        classId: null,
+      },
+    })
+
+    const user = await useAuth.getState().loginAdult('bebo', 'password123')
+
+    expect(user.role).toBe('student')
+    expect(useAuth.getState().access).toBeNull()
+    expect(useAuth.getState().activeContext).toBeNull()
+    expect(mocks.api).toHaveBeenCalledTimes(1)
+    expect(mocks.api).not.toHaveBeenCalledWith('/api/auth/access')
+  })
+
   it('passes account usernames unchanged to the unified Account Hub login', async () => {
     mocks.api
       .mockResolvedValueOnce({

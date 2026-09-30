@@ -1,0 +1,2605 @@
+[
+  {
+    "lessonNum": "1.1",
+    "title": "Bài 1.1 Một từ hay năm từ?",
+    "module": "M1",
+    "p1": {
+      "web_goalText": "Trẻ biết cách viết câu lệnh đầu tiên cho AI.",
+      "excel_objective": "Trẻ đưa ra được câu lệnh đầu tiên cho AKI.",
+      "web_skillLearned": "Biết thêm chi tiết để câu lệnh rõ ràng hơn.",
+      "excel_skillLearned": "Tạo câu lệnh chuẩn.",
+      "web_keyPoints_count": 3,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] MỘT TỪ: “Con mèo” (AKI phải tự đoán bốn phần còn lại)",
+        "[2] NĂM Ý: “Con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” (AKI chẳng phải đoán gì cả)",
+        "[3] CÂU THẦN CHÚ: “Chỗ nào mình không nói rõ, AI sẽ tự đoán.” (Nhớ suốt cả khoá)"
+      ]
+    },
+    "p2": {
+      "web_question": "Nếu các cậu chỉ viết “con mèo”, những chỗ chưa nói rõ thì AI sẽ làm gì?",
+      "excel_question": "Nếu con chỉ viết đúng hai chữ “con mèo”, AKI sẽ làm gì với những chỗ con chưa tả?",
+      "web_options_count": 2,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Dừng lại và hỏi các cậu từng chỗ",
+          "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Tự đoán những chỗ các cậu chưa nói rõ",
+          "imageUrl": "/assets/aiki-islands/island1_lesson1_opt_b.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "sRpHRsErlw8",
+      "web_videoId": "sRpHRsErlw8",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-1-1-q1",
+          "prompt": "Câu thần chú của bài hôm nay là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-1-q2",
+          "prompt": "Câu tả “con mèo mướp béo đang ngủ trên ghế mây cạnh cửa sổ” có mấy ý?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-1-q3",
+          "prompt": "Nếu con mèo chưa đúng ý, mình nên làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "magic-keys",
+      "subjectName": "Chú Mèo Mướp Béo",
+      "sampleUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
+      "sampleExists": true,
+      "workflowStepsCount": 2,
+      "practicePartsCount": 1,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Con mèo",
+          "iconImage": "/assets/aiki-keys/key_subject_cat.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "84 ảnh |  | 3 con × (1 ảnh MỘT TỪ + 3×3×3 = 27) = 84",
+      "challenge": "Đến lượt các cậu rồi. Việc hôm nay thế này nhé. Chọn một con vật các cậu thích, con nào cũng được. Lần một: viết đúng MỘT TỪ rồi tạo. Lần hai: viết cho đủ NĂM điều rồi tạo. Sau đó, hãy lưu cả 2 hình về. Rồi khoe với bố mẹ và chia sẻ được: các cậu thích bức nào hơn, và vì sao. Với lại mỗi dự án các cậu có sáu lượt tạo. Sáu thôi đấy. Ít thế thì phải tả cho khéo vào. Mà tả khéo thì đúng là cái mình vừa học rồi còn gì, đúng không nào? Hãy bấm dừng và cùng tạo luôn nhé!\n────────────────────────────────────────────────────────────\n3"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 1.1 — Một từ hay năm từ?",
+      "badgeIcon": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-1-2-bon-chiec-chia-khoa"
+    },
+    "blockEvaluation": "Chuẩn xác (Goal 3 cards + Magic Keys Contrast)",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "1.2",
+    "title": "Bài 1.2 Bốn chiếc chìa khoá",
+    "module": "M1",
+    "p1": {
+      "web_goalText": "Trẻ biết viết một câu lệnh rõ ràng với đủ bốn phần.",
+      "excel_objective": "Trẻ viết được một câu lệnh có đủ bốn phần.",
+      "web_skillLearned": "Biết dùng 4 chìa khóa: Cái gì? – Trông như thế nào? – Đang làm gì? – Ở đâu?",
+      "excel_skillLearned": "Công thức bốn ô: cái gì, trông như thế nào, đang làm gì, ở đâu",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] CÁI GÌ?: Con mèo, cái cốc, chiếc xe đạp...",
+        "[2] TRÔNG NHƯ THẾ NÀO?: Béo, gầy, cao, bóng, xù xì...",
+        "[3] ĐANG LÀM GÌ?: Ngủ, chạy, nhảy, bốc khói...",
+        "[4] Ở ĐÂU?: Trên bàn, dưới tủ, trên cây..."
+      ]
+    },
+    "p2": {
+      "web_question": "Đâu là bộ 4 chìa khóa giúp câu lệnh rõ ràng hơn?",
+      "excel_question": "Bộ chìa khoá nào mở được một câu lệnh tốt?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Ai làm? / Làm lúc nào? / Làm ở đâu? / Làm bằng gì?",
+          "exists": false
+        },
+        {
+          "text": "B. Cái gì? / Trông như thế nào? / Đang làm gì? / Ở đâu?",
+          "exists": false
+        },
+        {
+          "text": "C. Cái gì? / Màu gì? / To hay nhỏ? / Của ai?",
+          "exists": false
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "NMdHhsLY5jc",
+      "web_videoId": "NMdHhsLY5jc",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 6,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-1-2-q1",
+          "prompt": "“Một con chó xù màu nâu đang chạy” còn thiếu chìa khóa nào?",
+          "optionsCount": 3,
+          "correctIndex": 2,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-2-q2",
+          "prompt": "Vì sao câu của Zico rất dài mà vẫn chưa rõ?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-2-q3",
+          "prompt": "Khi tả một đồ vật, chìa khóa nào dễ bị quên nhất?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "magic-keys",
+      "subjectName": "Cốc Sứ Trắng Mẻ Miệng Bốc Khói",
+      "sampleUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 2,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Con cún",
+          "iconImage": "/assets/pregenerated-fallback/magic-keys/dog_full_details_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Cái xe đạp",
+          "iconImage": "/assets/aiki-islands/island1_lesson2_bicycle.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "72 ảnh |  | 4 món × 3×3×2 = 72",
+      "challenge": "Nhớ bốn món đồ các cậu đi chọn hôm trước không? Lấy ra dùng bây giờ nhé. Mỗi món đồ điền đủ bốn chìa khoá rồi tạo. Cầm món đồ đó lên. Xoay nó một vòng. Nhìn cho kỹ vào rồi mới tả. Vì mắt các cậu nhìn ra được nhiều thứ hơn trí nhớ của các cậu nhiều lắm đấy.\n────────────────────────────────────────────────────────────\n4"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 1.2 — Bốn chiếc chìa khoá",
+      "badgeIcon": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-1-3-um-ba-la-bien-hinh"
+    },
+    "blockEvaluation": "Chuẩn xác (Goal 4 keys formula 2x2 + Magic Keys 4 keys)",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "1.3",
+    "title": "Bài 1.3 Úm ba la... Biến hình",
+    "module": "M1",
+    "p1": {
+      "web_goalText": "Trẻ biết chọn kiểu vẽ phù hợp và nói được vì sao mình chọn.",
+      "excel_objective": "Trẻ chọn được kiểu vẽ hợp với ý mình và nói được lý do.",
+      "web_skillLearned": "Biết thêm kiểu vẽ vào câu lệnh và chọn phong cách phù hợp với mục đích của mình.",
+      "excel_skillLearned": "Thêm phong cách vào cuối câu lệnh, gọi tên được kiểu vẽ, kích thước,...",
+      "web_keyPoints_count": 6,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island1_lesson3_styles.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] GIỮ NGUYÊN CÂU TẢ: Không đổi phần nội dung đã viết.",
+        "[2] THÊM KIỂU VẼ: Màu nước · Truyện tranh · Đất nặn · Tranh Đông Hồ",
+        "→ Thêm vào cuối câu lệnh.",
+        "[3] CHỌN MỘT BỨC: Trong các kết quả, chọn một bức mình thích nhất.",
+        "[4] NÓI VÌ SAO: Ví dụ: “Tớ chọn bức này vì muốn treo ở đầu giường.”",
+        "[5] BẢN QUYỀN: Có thể gọi tên kiểu vẽ, nhưng không yêu cầu AI vẽ y hệt phong cách của một họa sĩ còn sống."
+      ]
+    },
+    "p2": {
+      "web_question": "Muốn thử một kiểu vẽ khác, mình nên làm gì?",
+      "excel_question": "Muốn đổi kiểu vẽ, con làm gì với câu tả bốn ô của mình?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Viết lại toàn bộ câu lệnh",
+          "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Giữ nguyên câu tả và thêm kiểu vẽ vào cuối",
+          "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Xóa bớt chi tiết trong câu tả",
+          "imageUrl": "/assets/aiki-islands/island1_lesson3_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "GCtez_WirtU",
+      "web_videoId": "GCtez_WirtU",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-1-3-q1",
+          "prompt": "Vì sao bốn bức con trâu của AKI trông khác nhau?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-3-q2",
+          "prompt": "Điều nào mình không nên làm?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-3-q3",
+          "prompt": "Vì sao AKI chọn bức màu nước?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "style-prism",
+      "subjectName": "Bảng 4 Phong Cách Nghệ Thuật",
+      "sampleUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 2,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Con trâu",
+          "iconImage": "/assets/pregenerated-fallback/style-prism/buffalo_clay_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Con chuột",
+          "iconImage": "/assets/pregenerated-fallback/style-prism/mouse_clay_v1.webp",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "16 ảnh |  | 4 con × 4 kiểu vẽ = 16",
+      "challenge": "Việc của các cậu hôm nay: chọn một con vật, tạo cùng một nội dung theo cả bốn kiểu vẽ. Xong rồi chọn lấy một bức. Rồi nói cho bố mẹ nghe một câu: vì sao các cậu chọn bức đó. Nói bằng miệng cũng được, viết cũng được. Nhưng phải có nhé\n────────────────────────────────────────────────────────────\n4"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 1.3 — Úm ba la... Biến hình",
+      "badgeIcon": "/assets/aiki-islands/island1_lesson3_styles.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-1-4-ky-su-tai-ba"
+    },
+    "blockEvaluation": "Chuẩn xác (Goal 4 cards kiểu vẽ + Style Prism 4 styles)",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "1.4",
+    "title": "Bài 1.4 Kỹ sư tài ba",
+    "module": "M1",
+    "p1": {
+      "web_goalText": "Trẻ biết sửa câu lệnh khi hình chưa đúng, thay vì cứ bấm tạo lại.",
+      "excel_objective": "Trẻ sửa được câu lệnh thay vì bấm lại.",
+      "web_skillLearned": "Biết sửa hình theo 3 bước: gọi tên lỗi – tìm chỗ thiếu – viết thêm rồi tạo lại.",
+      "excel_skillLearned": "Ba bước: gọi tên lỗi, tìm chỗ thiếu trong câu lệnh, viết thêm rồi mới tạo.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] GỌI TÊN LỖI: “Tay có sáu ngón” · “Mất cái mũ” · “Thừa ba con chim”",
+        "[2] TÌM CHỖ THIẾU: Xem lại câu lệnh: mình đã nói rõ chỗ đó chưa?",
+        "[3] VIẾT THÊM: Ví dụ: “Một bàn tay NĂM NGÓN đang cầm bút chì, NHÌN NGHIÊNG.”",
+        "[4] CÂU ĐỂ NHỚ: AI làm sai, sửa câu trước khi bấm lại."
+      ]
+    },
+    "p2": {
+      "web_question": "Hình tạo ra chưa đúng. Mình nên làm gì trước tiên?",
+      "excel_question": "Hình ra sai. Con làm gì trước tiên?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Bấm tạo lại ngay",
+          "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Gọi tên lỗi rồi tìm chỗ chưa rõ trong câu lệnh",
+          "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Đổi sang một đề tài khác",
+          "imageUrl": "/assets/aiki-islands/island1_lesson4_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "53OFMtjB0aM",
+      "web_videoId": "53OFMtjB0aM",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-1-4-q1",
+          "prompt": "Ba bước sửa hình theo đúng thứ tự là gì?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-4-q2",
+          "prompt": "Vì sao AKI vẫn lưu lại những bức tranh bị lỗi?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-1-4-q3",
+          "prompt": "Vì sao bàn tay lại có sáu ngón?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "prompt-doctor",
+      "subjectName": "Bác Sĩ Câu Lệnh Sửa Tay Hiệp Sĩ",
+      "sampleUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 4,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Ca 1: Tay sáu ngón",
+          "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Ca 2: Mất cái mũ",
+          "iconImage": "/assets/aiki-doctor/doctor_kid_broken_nohat.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 3,
+          "title": "Ca 3: Thừa ba con chim",
+          "iconImage": "/assets/aiki-doctor/doctor_cat_floating_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 4,
+          "title": "Ca 4: Nhìn sai hướng",
+          "iconImage": "/assets/aiki-doctor/doctor_clutter_broken_v1.webp",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "20 ảnh |  | 4 bức hỏng + 4 bức × 4 câu lệnh sửa = 20",
+      "challenge": "Việc hôm nay có hai phần nhé. Phần một: mở lại ba bài trước, tìm lấy một bức hỏng của các cậu. Chắc chắn có, ai chả có. Viết một câu chú thích hoặc chia sẻ với bố mẹ: bức này hỏng vì sao. Một bức hỏng mà có chú thích còn giá trị hơn một bức đẹp mà không hiểu vì sao nó đẹp đấy. Phần hai: sửa lời tả của bức đó rồi tạo lại một bản đúng. Như vậy là chúng ta đã xong 4 bài học đầu tiên, các cậu có thể gửi cho bố mẹ các hình mà cậu đã tạo được, nhờ bố mẹ in ra, và dán vào cuốn sổ tay nhé. Giống như Nhật ký học AI đầu đời vậy đó.\n────────────────────────────────────────────────────────────\n4"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 1.4 — Kỹ sư tài ba",
+      "badgeIcon": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-2-1-buc-tranh-biet-noi"
+    },
+    "blockEvaluation": "Chuẩn xác (Goal Prompt Doctor 3 bước sửa + 4 ca bệnh)",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "2.1",
+    "title": "Bài 2.1 Bức tranh biết nói",
+    "module": "M2",
+    "p1": {
+      "web_goalText": "Trẻ kể được câu chuyện ẩn trong một bức tranh.",
+      "excel_objective": "Trẻ kể được câu chuyện ẩn trong một bức tranh.",
+      "web_skillLearned": "Nhìn ra ba dấu hiệu của một bức tranh biết kể chuyện.",
+      "excel_skillLearned": "Nhìn ra ba dấu hiệu của một bức tranh biết kể chuyện.",
+      "web_keyPoints_count": 3,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island2_lesson1_story.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] ĐANG LÀM GÌ? — \"đang trèo lên ghế\" · \"đang giấu gì đó sau lưng\": (Không phải chỉ đứng cười hay nhìn máy ảnh)",
+        "[2] CÓ GÌ LẠ? — \"ghế bị đổ\" · \"dấu chân bùn\" · \"cửa mở mà chẳng thấy ai\": (Manh mối cho biết chuyện gì vừa xảy ra)",
+        "[3] RỒI SAO? — \"Ai vừa chạy ra khỏi cửa?\": (Nghĩ xem chuyện gì sẽ xảy ra tiếp theo)"
+      ]
+    },
+    "p2": {
+      "web_question": "Thế nào là một bức tranh “biết kể chuyện”?",
+      "excel_question": "Thế nào là một bức tranh “biết kể chuyện”?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Bức có nhiều đồ vật và nhiều màu",
+          "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Bức khiến người xem tự hỏi “chuyện gì đang xảy ra ở đây nhỉ?”",
+          "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Bức vẽ càng giống thật càng tốt",
+          "imageUrl": "/assets/aiki-islands/island2_lesson1_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "XeIBZyKmoDo",
+      "web_videoId": "XeIBZyKmoDo",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-2-1-q1",
+          "prompt": "Ba câu hỏi để tìm chuyện trong tranh là gì?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-1-q2",
+          "prompt": "Chi tiết nào sau đây là “CÓ GÌ LẠ”?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-1-q3",
+          "prompt": "Hôm nay con có tạo bức tranh nào không?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Bức Tranh Biết Nói",
+      "sampleUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Hôm nay chúng mình chưa cần tạo ra một bức tranh nào cả. Nhưng chúng mình đã học một việc rất quan trọng của Hoạ sĩ: biết nhìn ra câu chuyện trong tranh.\nNhớ ba câu hỏi nhé:\nĐANG LÀM GÌ? - CÓ GÌ LẠ? - RỒI SAO?\nMột bức tranh không chỉ cần đẹp. Một bức tranh hay còn phải khiến người xem muốn hỏi: “Chuyện gì đang xảy ra ở đây nhỉ?” Và từ bài sau, khi bắt đầu tạo tranh cùng tớ, trước khi bấm nút TẠO, các cậu hãy nghĩ xem: trong bức tranh của mình đang có chuyện gì xảy ra?\nNhiệm vụ cuối cùng hôm nay rất đơn giản. Hãy tìm trong nhà một tấm ảnh cũ của gia đình. Không cần đẹp đâu, ảnh hơi mờ hay cũ càng thú vị. Cầm tấm ảnh đến hỏi bố mẹ hoặc ông bà: “Hôm chụp tấm này có chuyện gì xảy ra thế ạ?”\nRồi ngồi nghe nhé. Có khi chỉ từ một tấm ảnh nhỏ thôi mà các cậu sẽ nghe được cả một câu chuyện rất dài đấy.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 2.1 — Bức tranh biết nói",
+      "badgeIcon": "/assets/aiki-islands/island2_lesson1_story.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-2-2-ai-la-ngoi-sao"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "2.2",
+    "title": "Bài 2.2 Ai là ngôi sao?",
+    "module": "M2",
+    "p1": {
+      "web_goalText": "Trẻ sắp xếp được nhân vật chính, nhân vật phụ và nền trong một bức.",
+      "excel_objective": "Trẻ sắp xếp được nhân vật chính, nhân vật phụ và nền trong một bức.",
+      "web_skillLearned": "Bốn từ chỉ bố cục: tiền cảnh, ở giữa, phía sau, góc trái góc phải.",
+      "excel_skillLearned": "Bốn từ chỉ bố cục: tiền cảnh, ở giữa, phía sau, góc trái góc phải.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island2_lesson2_star.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] PHÍA TRƯỚC — thứ gần người xem hơn: (Thường trông TO hơn)",
+        "[2] Ở GIỮA — chỗ của NGÔI SAO: (Thứ cậu muốn mọi người nhìn thấy đầu tiên)",
+        "[3] PHÍA SAU — thứ ở xa hơn: (Thường nhỏ hơn và bớt nổi bật hơn)",
+        "[4] LUẬT — Một bức tranh — một ngôi sao: (Không phải chỉ được có một nhân vật, mà là biết rõ muốn người xem nhìn vào ai trước)",
+        "[5] CÂU ĐỂ NHỚ — Xếp chỗ trước, miêu tả cho tớ sau"
+      ]
+    },
+    "p2": {
+      "web_question": "Một bức tranh nên có mấy “ngôi sao”?",
+      "excel_question": "Một bức tranh nên có mấy “ngôi sao”?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Càng nhiều càng vui",
+          "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Một ngôi sao chính",
+          "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Ít nhất ba thì bức mới đầy",
+          "imageUrl": "/assets/aiki-islands/island2_lesson2_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "wmn8pf6GUdo",
+      "web_videoId": "wmn8pf6GUdo",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-2-2-q1",
+          "prompt": "Bố cục nghĩa là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-2-q2",
+          "prompt": "Thứ ở PHÍA TRƯỚC thường trông thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-2-q3",
+          "prompt": "Tạo xong thấy đồ vật chạy nhầm chỗ, con nên làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "layer-stacking",
+      "subjectName": "Thuyền Buồm Ánh Dương Ngôi Sao 1/3",
+      "sampleUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 1,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Bức tranh ba lớp của bé (Hậu cảnh - Ngôi sao - Tiền cảnh)",
+          "iconImage": "/assets/aiki-islands/island2_lesson2_star.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "64 ảnh |  | 4 × 4 × 4 = 64",
+      "challenge": "Bây giờ đến lượt các cậu. Lấy một tờ giấy và vẽ nhanh ba thứ mình thích. Không cần đẹp. Vẽ xong, hãy tự hỏi: Ai là ngôi sao? Cái gì ở phía trước? Cái gì ở phía sau?\nSau đó miêu tả cho tớ thật đơn giản: “Ở phía trước có... Ở giữa là... Đây là ngôi sao. Ở phía sau có...” rồi để tớ tạo lại bức tranh của cậu.\nKhi tớ tạo xong, hãy soi thử. Ngôi sao có đúng không? Thứ phía trước có đúng không? Thứ phía sau có chạy nhầm chỗ không? Nếu sai, đừng vội tạo lại. Hãy xem câu miêu tả của mình còn thiếu gì rồi sửa trước.\nHôm nay chỉ cần nhớ hai điều: Một bức tranh — một ngôi sao. Xếp chỗ trước, miêu tả cho tớ sau.\nTrước khi tạo tranh, hãy tự hỏi ba câu: Ai là ngôi sao? Ai ở trước? Ai ở sau?\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 2.2 — Ai là ngôi sao?",
+      "badgeIcon": "/assets/aiki-islands/island2_lesson2_star.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-2-3-cam-xuc-cua-sac-mau"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "2.3",
+    "title": "Bài 2.3 Cảm xúc của Sắc màu",
+    "module": "M2",
+    "p1": {
+      "web_goalText": "Trẻ chọn được ánh sáng theo đúng cảm xúc mình muốn truyền.",
+      "excel_objective": "Trẻ chọn được ánh sáng theo đúng cảm xúc mình muốn truyền.",
+      "web_skillLearned": "Chọn cảm xúc trước, chọn tông ánh sáng sau.",
+      "excel_skillLearned": "Chọn cảm xúc trước, chọn tông ánh sáng sau.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] BUỔI SÁNG — nắng vàng nhạt: (Cảnh trông nhẹ nhàng)",
+        "[2] GIỮA TRƯA — ánh sáng mạnh, bóng đậm: (Thấy nóng, bức bối)",
+        "[3] CHIỀU MUỘN — nắng vàng cam, bóng dài: (Hơi buồn, hơi nhớ)",
+        "[4] BUỔI TỐI — xung quanh tối, chỉ còn một vùng sáng nhỏ: (Hơi đáng sợ, dù chẳng có con ma nào)",
+        "[5] CÂU ĐỂ NHỚ — Chọn cảm xúc trước, chọn ánh sáng sau: (Hỏi: mình muốn người xem thấy gì?)"
+      ]
+    },
+    "p2": {
+      "web_question": "Thứ tự đúng khi làm bài hôm nay là gì?",
+      "excel_question": "Thứ tự đúng khi làm bài hôm nay là gì?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Chọn ánh sáng đẹp trước, xem ra cảm xúc gì sau",
+          "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Chọn cảm xúc trước, chọn ánh sáng sau",
+          "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Tạo cả bốn kiểu ánh sáng rồi chọn bức đẹp nhất",
+          "imageUrl": "/assets/aiki-islands/island2_lesson3_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "voAsCD7THtI",
+      "web_videoId": "voAsCD7THtI",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-2-3-q1",
+          "prompt": "Cùng một cảnh, ánh sáng làm thay đổi cái gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-3-q2",
+          "prompt": "Ánh sáng nào khiến cảnh trông hơi buồn, hơi nhớ?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-3-q3",
+          "prompt": "Cuối bài con chọn bức nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "style-prism",
+      "subjectName": "Ngọn Hải Đăng Đêm Giông Tương Phản",
+      "sampleUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 4,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Buổi sáng (nắng vàng nhạt)",
+          "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Giữa trưa (ánh sáng mạnh, bóng đậm)",
+          "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 3,
+          "title": "Chiều muộn (nắng vàng cam, bóng dài)",
+          "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 4,
+          "title": "Buổi tối (xung quanh tối, một vùng sáng nhỏ)",
+          "iconImage": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "16 ảnh |  | 4 cảnh × 4 ánh sáng = 16  (cảm xúc là nhãn, không đổi ảnh)",
+      "challenge": "Bây giờ đến lượt các cậu. Chọn một cảnh đơn giản như bàn học, góc bếp, cái sân hay một con ngõ. Đầu tiên, chọn một cảm xúc. Sau đó thử tạo cùng cảnh ấy với vài kiểu ánh sáng khác nhau.\nNhìn từng bức và hỏi: “Bức này làm mình thấy gì?” Cuối cùng, chọn một bức đúng nhất với cảm xúc ban đầu, chứ đừng chỉ chọn bức đẹp nhất.\nNếu cậu muốn vui mà tranh lại buồn, hoặc muốn nhớ mà tranh lại quá rực rỡ, hãy thử đổi ánh sáng. Cứ nhìn, so sánh rồi sửa.\nVà nhớ nhé: Chọn cảm xúc trước, chọn ánh sáng sau.\nNgoài màn hình, các cậu thử nhìn cùng một góc trong nhà vào buổi chiều và buổi tối xem cảm giác có khác nhau không.\n────────────────────────────────────────────────────────────\n4"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 2.3 — Cảm xúc của Sắc màu",
+      "badgeIcon": "/assets/aiki-islands/island2_lesson3_colors.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-2-4-manh-ghep-hoan-hao"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "2.4",
+    "title": "Bài 2.4 Mảnh ghép hoàn hảo",
+    "module": "M2",
+    "p1": {
+      "web_goalText": "Trẻ hoàn thành một bức tranh, đặt tên và kể được nội dung.",
+      "excel_objective": "Trẻ hoàn thành một bức tranh, đặt tên và kể được nội dung.",
+      "web_skillLearned": "Gộp ba kỹ năng đã học là câu lệnh bốn ô, bố cục và ánh sáng. Cộng thêm kỹ năng đặt tên tranh.",
+      "excel_skillLearned": "Gộp ba kỹ năng đã học là câu lệnh bốn ô, bố cục và ánh sáng. Cộng thêm kỹ năng đặt tên tranh.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] CHUYỆN GÌ ĐANG XẢY RA? — \"cậu bé thả diều ngày cuối kỳ nghỉ hè\": (Mảnh thứ nhất)",
+        "[2] AI LÀ NGÔI SAO? — \"cậu bé — người mình nhìn thấy đầu tiên\": (Mảnh thứ hai)",
+        "[3] CẢM XÚC LÀ GÌ? — \"hơi buồn và tiếc → ánh sáng chiều muộn\": (Mảnh thứ ba)",
+        "[4] TÊN TRANH — ❌ \"Cậu bé thả diều\" → ✅ \"Chiếc diều cuối cùng của mùa hè\": (Mảnh cuối — tên nên kể thêm một chút chuyện)"
+      ]
+    },
+    "p2": {
+      "web_question": "Tên tranh nào tốt hơn cho bức vẽ một cậu bé thả diều cuối mùa hè?",
+      "excel_question": "Tên tranh nào tốt hơn cho bức vẽ một cậu bé thả diều cuối mùa hè?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Cậu bé thả diều",
+          "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Chiếc diều cuối cùng của mùa hè",
+          "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Bức tranh số 4",
+          "imageUrl": "/assets/aiki-islands/island2_lesson4_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "B_tbjS0Msnc",
+      "web_videoId": "B_tbjS0Msnc",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-2-4-q1",
+          "prompt": "Bốn mảnh ghép của một bức tranh hoàn chỉnh là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-4-q2",
+          "prompt": "Luật đặt tên tranh là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-2-4-q3",
+          "prompt": "Câu chốt của cả chương là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "magic-keys",
+      "subjectName": "Khung Tranh A3 Gia Đình Thú Hoàn Hảo",
+      "sampleUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 1,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Bức tranh của bé (Ghép 4 mảnh)",
+          "iconImage": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "16 ảnh |  | 4 chuyện × 4 cảm xúc+ánh sáng = 16  (ngôi sao và tên tranh là nhãn)",
+      "challenge": "Bây giờ đến lượt các cậu làm bức tranh cuối chương.\nHãy ghép đủ bốn mảnh: Chuyện gì đang xảy ra? Ai là ngôi sao? Cậu muốn người xem cảm thấy gì? Và bức tranh sẽ có tên gì?\nTạo xong, hãy nhìn lại xem ngôi sao đã rõ chưa, ánh sáng có đúng cảm xúc không, và tên tranh có kể thêm điều gì không.\nNếu cả bốn cùng nói về một câu chuyện, bức tranh của cậu đã hoàn chỉnh rồi.\nVà nhớ câu chốt của cả chương nhé: Bức tranh đẹp là bức tranh kể được một chuyện.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 2.4 — Mảnh ghép hoàn hảo",
+      "badgeIcon": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-3-1-ho-so-biet-doi"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "3.1",
+    "title": "Bài 3.1 Hồ sơ biệt đội",
+    "module": "M3",
+    "p1": {
+      "web_goalText": "Trẻ viết được hồ sơ tính cách trước khi có bất kỳ hình nào.",
+      "excel_objective": "Trẻ viết được hồ sơ tính cách trước khi có bất kỳ hình nào.",
+      "web_skillLearned": "Sáu câu hồ sơ: tên gì, thích gì, sợ gì, giỏi gì, dở gì, ước mơ gì.",
+      "excel_skillLearned": "Sáu câu hồ sơ: tên gì, thích gì, sợ gì, giỏi gì, dở gì, ước mơ gì.",
+      "web_keyPoints_count": 6,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island3_lesson1_profile.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] TÊN GÌ — \"Tép\": (Một chú chuột nhỏ, tai hơi lệch)",
+        "[2] THÍCH GÌ — \"nhặt nắp chai rồi xếp theo màu\": (Càng riêng càng dễ nhớ)",
+        "[3] SỢ GÌ ⭐ — \"sợ đi ngang cái cống\": (Đừng viết “sợ nhiều thứ” — thử “sợ tiếng máy sấy tóc”)",
+        "[4] GIỎI GÌ — \"rất giỏi nhớ đường\"",
+        "[5] DỞ GÌ ⭐ — \"cực dở buộc dây giày\": (Nhân vật cái gì cũng giỏi thì còn gì để kể)",
+        "[6] ƯỚC MƠ GÌ — \"đi hết một con đường chưa ai từng đi hết\""
+      ]
+    },
+    "p2": {
+      "web_question": "Trong sáu ô hồ sơ, hai ô nào không được bỏ trống?",
+      "excel_question": "Trong sáu ô hồ sơ, hai ô nào không được bỏ trống?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Ô TÊN GÌ và ô THÍCH GÌ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Ô SỢ GÌ và ô DỞ GÌ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Ô GIỎI GÌ và ô ƯỚC MƠ GÌ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson1_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "x2k-VyO-GTc",
+      "web_videoId": "x2k-VyO-GTc",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-3-1-q1",
+          "prompt": "Kỹ năng hôm nay là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-1-q2",
+          "prompt": "Vì sao Tép dễ nghĩ ra câu chuyện hơn siêu anh hùng áo choàng đỏ?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-1-q3",
+          "prompt": "Viết “sợ nhiều thứ” vào ô SỢ GÌ thì sao?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Hồ Sơ ADN Hiệp Sĩ Cáo Lửa",
+      "sampleUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Hãy tạo một nhân vật bất kỳ: người, con vật, đồ vật, thậm chí một cái thang máy cũng được.\nĐiền đủ sáu ô: Tên – Thích – Sợ – Giỏi – Dở – Ước mơ.\nSau đó đọc hồ sơ ấy cho bố hoặc mẹ nghe và hỏi: “Theo mẹ, bạn này trông như thế nào?”\nCác cậu sẽ thấy một điều rất hay: dù chưa vẽ gì, người nghe vẫn có thể tưởng tượng ra nhân vật trong đầu.\nVì nhân vật hay không phải vì đẹp, mà vì có tính cách.\nHãy giữ thật kỹ tờ hồ sơ này nhé.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 3.1 — Hồ sơ biệt đội",
+      "badgeIcon": "/assets/aiki-islands/island3_lesson1_profile.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-3-2-mat-ma-nhan-dien"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "3.2",
+    "title": "Bài 3.2 Mật mã nhận diện",
+    "module": "M3",
+    "p1": {
+      "web_goalText": "Trẻ chọn được ba đặc điểm nhận dạng cố định cho nhân vật.",
+      "excel_objective": "Trẻ chọn được ba đặc điểm nhận dạng cố định cho nhân vật.",
+      "web_skillLearned": "Khái niệm nhất quán nhân vật.",
+      "excel_skillLearned": "Khái niệm nhất quán nhân vật.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island3_lesson2_dna.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] ẢNH MẪU — một bức duy nhất để AKI biết “à, đúng bạn này”: (Không phải cứ chọn bức ngầu nhất)",
+        "[2] ẢNH MẪU TỐT — nền đơn giản · chỉ một nhân vật · đứng trực diện hoặc nghiêng nhẹ: (Rõ mặt, tóc, quần áo, toàn thân; không bị che; màu sáng rõ)",
+        "[3] BA ĐẶC ĐIỂM NHẬN DIỆN — \"mũ len đỏ có quả bông trắng · áo khoác xanh dương hai túi lớn · ủng cao su màu vàng\": (Ba thứ này không được đổi)",
+        "[4] ĐỪNG CHỌN — \"mắt đẹp\" · \"tóc dài\" · \"trông ngầu\" · kể cả \"mũ đỏ\": (Chưa đủ rõ để AKI biết phải giữ lại điều gì)"
+      ]
+    },
+    "p2": {
+      "web_question": "Để AKI vẽ đúng một nhân vật qua nhiều lần, con cần đưa cho AKI mấy thứ?",
+      "excel_question": "Để AKI vẽ đúng một nhân vật qua nhiều lần, con cần đưa cho AKI mấy thứ?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Chỉ cần tả bằng lời là đủ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Hai thứ: ảnh mẫu và ba đặc điểm nhận diện",
+          "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Chỉ cần ảnh mẫu là đủ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson2_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "LtRW4JX8HWE",
+      "web_videoId": "LtRW4JX8HWE",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-3-2-q1",
+          "prompt": "Một ảnh mẫu tốt trông thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-2-q2",
+          "prompt": "Đặc điểm nào dùng làm “mật mã nhận diện” được?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-2-q3",
+          "prompt": "Mẹo chọn ba đặc điểm cho chuẩn là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "identity-lock",
+      "subjectName": "Sóc Bông Khóa 3 Điểm",
+      "sampleUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 1,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Chọn nhân vật của bé & Nhận ảnh mẫu",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "12 ảnh |  | 4 nhân vật × 3 bức (1 ảnh mẫu đúng + 2 ảnh sai) = 12",
+      "challenge": "Bây giờ đến lượt các cậu. Hãy chọn một bức nhân vật làm ảnh mẫu chuẩn. Kiểm tra nhé: nền có đơn giản không? Có chỉ một nhân vật không? Mặt và toàn thân có nhìn rõ không? Có chi tiết nào bị che mất không? Những đặc điểm quan trọng có xuất hiện đầy đủ không? Qua hết rồi thì giữ bức đó làm ảnh mẫu.\nTiếp theo, tưởng tượng nhân vật đang đứng giữa một đám đông thật lớn. Nếu phải chỉ cho người khác biết: “Bạn của tớ là người kia kìa!”, các cậu sẽ nói ba điều gì? Hãy chọn ba đặc điểm dễ nhận ra nhất, viết thật rõ vào nhé.\nTừ những lần sau, mỗi khi muốn tạo nhân vật trong tư thế hay cảm xúc mới, hãy nhớ hai việc: đính kèm ảnh mẫu và nhắc lại ba đặc điểm nhận diện. Ảnh mẫu giúp tớ biết đúng bạn nào. Ba đặc điểm giúp tớ biết điều gì phải giữ nguyên.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 3.2 — Mật mã nhận diện",
+      "badgeIcon": "/assets/aiki-islands/island3_lesson2_dna.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-3-3-bien-hoa-bieu-cam"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "3.3",
+    "title": "Bài 3.3 Biến hoá biểu cảm",
+    "module": "M3",
+    "p1": {
+      "web_goalText": "Trẻ tạo được sáu biểu cảm mà nhân vật vẫn là một người.",
+      "excel_objective": "Trẻ tạo được sáu biểu cảm mà nhân vật vẫn là một người.",
+      "web_skillLearned": "Giữ nhất quán qua nhiều hình bằng cách khoá ba đặc điểm vào mọi câu lệnh.",
+      "excel_skillLearned": "Giữ nhất quán qua nhiều hình bằng cách khoá ba đặc điểm vào mọi câu lệnh.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] GỬI KÈM ẢNH MẪU — mỗi lần tạo đều đính kèm: (Để AKI biết đúng bạn nào)",
+        "[2] NHẮC LẠI ĐẶC ĐIỂM — \"vòng cổ đỏ, chuông vàng…\": (Những thứ trong Luật vẽ nhân vật)",
+        "[3] RỒI MỚI THÊM BIỂU CẢM — \"Bông đang giận, lông mày chụm lại, hai chân trước chống xuống đất\": (Đừng chỉ nói “Bông đang giận”)",
+        "[4] CÂU ĐỂ NHỚ — Đổi mặt, không đổi người: (Sáu cái mặt khác nhau, vừa nhìn là biết ngay vẫn là một bạn)"
+      ]
+    },
+    "p2": {
+      "web_question": "Muốn nhân vật đổi biểu cảm mà vẫn là một bạn, con phải làm gì mỗi lần tạo?",
+      "excel_question": "Muốn nhân vật đổi biểu cảm mà vẫn là một bạn, con phải làm gì mỗi lần tạo?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Chỉ cần viết “bạn ấy đang giận” là đủ",
+          "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Gửi kèm ảnh mẫu, nhắc lại đặc điểm nhận diện, rồi mới thêm biểu cảm",
+          "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Tạo lại nhân vật mới cho mỗi biểu cảm",
+          "imageUrl": "/assets/aiki-islands/island3_lesson3_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "Crrd59K_C2M",
+      "web_videoId": "Crrd59K_C2M",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-3-3-q1",
+          "prompt": "Câu để nhớ của bài này là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-3-q2",
+          "prompt": "Sau mỗi hình con phải làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-3-q3",
+          "prompt": "Thử thách thật sự của bài này là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "identity-lock",
+      "subjectName": "Lưới 6 Biểu Cảm Của Sóc Bông",
+      "sampleUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 6,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Biểu cảm Vui 😊",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Biểu cảm Buồn 😢",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 3,
+          "title": "Biểu cảm Sợ 😨",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 4,
+          "title": "Biểu cảm Giận 😠",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 5,
+          "title": "Biểu cảm Ngạc nhiên 😲",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 6,
+          "title": "Biểu cảm Buồn ngủ 😴",
+          "iconImage": "/assets/pregenerated-fallback/identity-lock/fox_zico_v1.webp",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "48 ảnh |  | 4 nhân vật × 6 biểu cảm × 2 hành động = 48  (nền là nhãn)",
+      "challenge": "Bây giờ đến lượt các cậu. Hãy tạo cho nhân vật của mình sáu biểu cảm: vui, buồn, sợ, giận, ngạc nhiên và buồn ngủ. Sau mỗi hình, đừng vội làm hình tiếp theo. Hãy nhìn lại ảnh mẫu và Luật vẽ nhân vật xem các đặc điểm quan trọng còn đủ không. Nếu thiếu một thứ, nghĩa là nhân vật đã bị trôi. Sửa câu lệnh rồi tạo lại nhé.\nThử thách hôm nay không phải là làm sáu cái mặt thật đẹp. Mà là: sáu biểu cảm khác nhau nhưng vẫn phải là cùng một nhân vật.\nVà nhớ nhé: Đổi mặt, không đổi người. Ngoài màn hình, các cậu thử soi gương và làm sáu biểu cảm này xem. Để ý đôi mắt, lông mày và miệng nhé, chỉ cần thay đổi một chút thôi là cảm xúc đã khác hẳn rồi.\n────────────────────────────────────────────────────────────\n6"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 3.3 — Biến hoá biểu cảm",
+      "badgeIcon": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-3-4-can-cu-bi-mat-cua-biet-doi"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "3.4",
+    "title": "Bài 3.4 Căn cứ bí mật của biệt đội",
+    "module": "M3",
+    "p1": {
+      "web_goalText": "Trẻ dựng được nơi ở và đồ vật riêng cho nhân vật.",
+      "excel_objective": "Trẻ dựng được nơi ở và đồ vật riêng cho nhân vật.",
+      "web_skillLearned": "Câu lệnh hai tầng: nhân vật đã khoá cộng bối cảnh dùng từ bố cục của Module 2.",
+      "excel_skillLearned": "Câu lệnh hai tầng: nhân vật đã khoá cộng bối cảnh dùng từ bố cục của Module 2.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island3_lesson4_lair.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] NƠI Ở KỂ TÍNH CÁCH — Tép ngồi ngai vàng thì chẳng giống Tép chút nào: (Căn cứ không cần to hay đẹp, nó cần ĐÚNG với người sống trong đó)",
+        "[2] CÂU HỎI TRƯỚC KHI THÊM ĐỒ — \"Thứ này liên quan đến điều gì của bạn ấy?\": (Thích gì? Giỏi gì? Sợ gì? Mơ ước gì?)",
+        "[3] VÍ DỤ CĂN CỨ CỦA TÉP — hộp thiếc đựng nắp chai · bản đồ vẽ tay · sợi dây giày cũ · ô cửa bé nhìn ra cái cống: (Mỗi món khớp một ô hồ sơ)",
+        "[4] VẪN PHẢI ĐÚNG MỘT BẠN — đính kèm ảnh mẫu, giữ đặc điểm trong Luật vẽ: (Phòng đổi, tư thế đổi — nhân vật thì không)"
+      ]
+    },
+    "p2": {
+      "web_question": "Trước khi thêm một món đồ vào căn cứ, con phải tự hỏi câu gì?",
+      "excel_question": "Trước khi thêm một món đồ vào căn cứ, con phải tự hỏi câu gì?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Món này có đẹp không?",
+          "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Thứ này liên quan đến điều gì của bạn ấy?",
+          "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Món này có đắt không?",
+          "imageUrl": "/assets/aiki-islands/island3_lesson4_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "Hxk4NmtL3IY",
+      "web_videoId": "Hxk4NmtL3IY",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-3-4-q1",
+          "prompt": "Vì sao lâu đài pha lê có ngai vàng lại không hợp với Tép?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-4-q2",
+          "prompt": "Kỹ năng hôm nay là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-3-4-q3",
+          "prompt": "Làm sao biết căn cứ của con đã đúng?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "layer-stacking",
+      "subjectName": "Căn Cứ Hốc Cây Của Sóc Bông",
+      "sampleUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 1,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Căn cứ bí mật của bạn ấy",
+          "iconImage": "/assets/aiki-keys/key_where_pink.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "32 ảnh |  | 4 nhân vật × 4 nơi ở × 2 đồ vật = 32  (tư thế là nhãn)",
+      "challenge": "Bây giờ đến lượt các cậu. Mở Hồ sơ nhân vật ra và chọn vài chi tiết quan trọng để biến thành đồ vật hoặc góc đặc biệt trong căn cứ. Sau đó đính kèm Ảnh mẫu, giữ đúng những đặc điểm trong Luật vẽ nhân vật, rồi tạo nhân vật ở trong chính nơi ở của mình. Nhớ nhé: căn phòng có thể thay đổi, tư thế có thể thay đổi, nhưng nhân vật vẫn phải là đúng một bạn.\nCuối cùng, hãy hoàn thiện bộ nhân vật của mình: chân dung, các biểu cảm, một vài tư thế và căn cứ riêng. Nhìn lại xem mọi thứ có cùng kể về một nhân vật không. Nếu chỉ nhìn căn phòng mà người khác đã đoán được bạn ấy thích gì, sợ gì hay thường làm gì — các cậu làm đúng rồi đấy.\nVà nhớ câu chốt của cả chương nhé: Nhân vật hay không phải vì đẹp, mà vì có tính cách. Hồ sơ cho mình biết bạn ấy là ai. Ảnh mẫu và Luật vẽ giúp giữ đúng bạn ấy. Còn căn cứ cho người xem thấy bạn ấy sống trong thế giới như thế nào.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 3.4 — Căn cứ bí mật của biệt đội",
+      "badgeIcon": "/assets/aiki-islands/island3_lesson4_lair.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-4-1-3-cong-cua-vuong-quoc"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "4.1",
+    "title": "Bài 4.1 3 Cổng của Vương Quốc",
+    "module": "M4",
+    "p1": {
+      "web_goalText": "Trẻ kể miệng được một chuyện có đủ ba phần.",
+      "excel_objective": "Trẻ kể miệng được một chuyện có đủ ba phần.",
+      "web_skillLearned": "Ba phần: bình thường, có chuyện, giải quyết.",
+      "excel_skillLearned": "Ba phần: bình thường, có chuyện, giải quyết.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] CỔNG 1 — BÌNH THƯỜNG — \"Chíp mang quả bóng yêu thích ra sân chơi như mọi hôm\": (Lúc đầu nhân vật đang làm gì?)",
+        "[2] CỔNG 2 — CÓ CHUYỆN — \"quả bóng lăn qua khe, mắc bên kia hàng rào\": (Điều gì bất ngờ xảy ra?)",
+        "[3] CỔNG 3 — GIẢI QUYẾT — \"Chíp tìm một cành cây dài, khều quả bóng trở lại\": (Nhân vật làm gì để xử lý, cuối cùng ra sao?)",
+        "[4] LUẬT CỦA AKI — AKI không nghĩ câu chuyện thay con: (Bí thì AKI chỉ hỏi: Rồi sao nữa? · Lúc ấy bạn ấy cảm thấy thế nào? · Cuối cùng thì sao?)"
+      ]
+    },
+    "p2": {
+      "web_question": "Chuyện nào sau đây là một CÂU CHUYỆN?",
+      "excel_question": "Chuyện nào sau đây là một CÂU CHUYỆN?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Chíp ngủ dậy, đánh răng, ăn sáng, đi học, về nhà",
+          "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Chíp ra sân chơi bóng, bóng mắc bên kia hàng rào, Chíp khều lại bằng cành cây",
+          "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Chíp có quả bóng đỏ, áo xanh, giày trắng",
+          "imageUrl": "/assets/aiki-islands/island4_lesson1_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "OGS7gaPTcc4",
+      "web_videoId": "OGS7gaPTcc4",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-4-1-q1",
+          "prompt": "Ba cổng của một câu chuyện là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-1-q2",
+          "prompt": "Cổng hai hỏi điều gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-1-q3",
+          "prompt": "Khi con bí, AKI được làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Cốt Truyện 3 Cổng Của Vương Quốc",
+      "sampleUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Lấy thẻ nhân vật ra, nhìn lại Hồ sơ rồi kể một câu chuyện bằng miệng. Nhớ đủ ba cổng: Bình thường – Có chuyện – Giải quyết. Ghi âm lại, nghe một lần và kiểm tra xem mình có bỏ quên cổng nào không. Nếu thiếu, kể lại lần nữa.\nVà nhớ nhé: Bình thường – Có chuyện – Giải quyết. Ba cổng này sẽ giúp những việc bình thường biến thành một câu chuyện có đầu, có giữa và có kết thúc.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 4.1 — 3 Cổng của Vương Quốc",
+      "badgeIcon": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-4-2-04-chang-thu-thach"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "4.2",
+    "title": "Bài 4.2 4 Chặng thử thách",
+    "module": "M4",
+    "p1": {
+      "web_goalText": "Trẻ viết được khung xương truyện bốn dòng.",
+      "excel_objective": "Trẻ viết được khung xương truyện bốn dòng.",
+      "web_skillLearned": "Bốn dòng: muốn gì, gì cản, làm cách nào, kết ra sao.",
+      "excel_skillLearned": "Bốn dòng: muốn gì, gì cản, làm cách nào, kết ra sao.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] MUỐN — nhân vật đang muốn làm gì hoặc tìm thứ gì?: (Chặng một)",
+        "[2] CẢN ⭐ — \"Bơ rất sợ tiếng sấm, mà huy hiệu lại ở ngoài sân lúc trời có sấm\": (Chặng hai — nhìn vào ô SỢ hoặc DỞ trong Hồ sơ)",
+        "[3] LÀM — nhân vật thử làm gì để vượt qua?: (Chặng ba)",
+        "[4] KẾT — cuối cùng chuyện thế nào?: (Chặng bốn)",
+        "[5] CÂU ĐỂ NHỚ — MUỐN — CẢN — LÀM — KẾT: (Bộ xương cho storyboard ở bài sau)"
+      ]
+    },
+    "p2": {
+      "web_question": "Chặng CẢN nên lấy ý từ đâu?",
+      "excel_question": "Chặng CẢN nên lấy ý từ đâu?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Từ thời tiết hay chuyện tình cờ",
+          "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Từ ô SỢ hoặc ô DỞ trong Hồ sơ nhân vật",
+          "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Từ gợi ý của AKI",
+          "imageUrl": "/assets/aiki-islands/island4_lesson2_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "35kC8Lw31C0",
+      "web_videoId": "35kC8Lw31C0",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-4-2-q1",
+          "prompt": "Bốn chặng theo đúng thứ tự là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-2-q2",
+          "prompt": "Vì sao chặng CẢN lại quan trọng nhất?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-2-q3",
+          "prompt": "Viết xong bốn dòng, việc bắt buộc tiếp theo là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Hành Trình 4 Chặng Thử Thách",
+      "sampleUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Mở Hồ sơ nhân vật và viết bốn dòng: Bạn ấy muốn gì? Điều gì cản lại? Bạn ấy làm cách nào? Cuối cùng ra sao? Nếu chưa nghĩ được “CẢN”, thử nhìn vào ô Sợ hoặc Dở xem có dùng được không. Viết xong, đọc to cả bốn dòng một lần. Nếu chỗ nào nghe quá dễ hoặc quá nhanh, hãy thử làm cho thử thách khó hơn một chút.\nVà nhớ câu hôm nay nhé: MUỐN - CẢN - LÀM - KẾT. Bốn chặng này chính là bộ xương để buổi sau chúng mình bắt đầu chia câu chuyện thành từng khung truyện.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 4.2 — 4 Chặng thử thách",
+      "badgeIcon": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-4-3-ban-do-8-o-p1-mo"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "4.3",
+    "title": "Bài 4.3 Bản đồ 8 Ô - Phần 1: Mở",
+    "module": "M4",
+    "p1": {
+      "web_goalText": "Trẻ chia được chuyện thành tám khung, mỗi khung một việc.",
+      "excel_objective": "Trẻ chia được chuyện thành tám khung, mỗi khung một việc.",
+      "web_skillLearned": "Storyboard vẽ tay bằng hình que.",
+      "excel_skillLearned": "Storyboard vẽ tay bằng hình que.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] STORYBOARD LÀ GÌ — bản nháp để nhìn được cả câu chuyện trước khi làm tranh thật: (Không cần đẹp, chỉ cần nhìn vào là hiểu)",
+        "[2] VẼ THẾ NÀO — chia tờ giấy thành tám ô, vẽ nhanh bằng hình que: (Đầu tròn, người một nét, tay chân vài nét)",
+        "[3] TỪ BỐN CHẶNG RA TÁM Ô — MUỐN – CẢN – LÀM – KẾT kéo ra thành tám ô: (Câu chuyện phải tiến lên từng bước)",
+        "[4] LUẬT — MỘT Ô – MỘT VIỆC: (Đừng nhét nhiều việc vào một ô, cũng đừng vẽ hai ô giống hệt nhau)"
+      ]
+    },
+    "p2": {
+      "web_question": "Mỗi ô trong storyboard chứa bao nhiêu việc?",
+      "excel_question": "Mỗi ô trong storyboard chứa bao nhiêu việc?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Càng nhiều càng đỡ tốn ô",
+          "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Một việc",
+          "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Hai việc cho nhanh",
+          "imageUrl": "/assets/aiki-islands/island4_lesson3_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "reY6-ZLR3eM",
+      "web_videoId": "reY6-ZLR3eM",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-4-3-q1",
+          "prompt": "Storyboard dùng để làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-3-q2",
+          "prompt": "Vẽ storyboard nên vẽ như thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-3-q3",
+          "prompt": "Soi lại tám ô, con kiểm tra những gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Bản Đồ Storyboard 8 Ô - Phần 1: Mở",
+      "sampleUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Lấy câu chuyện MUỐN – CẢN – LÀM – KẾT của buổi trước và chia nó thành tám ô. Vẽ hình que thật nhanh, rồi dưới mỗi ô viết một câu ngắn xem chuyện gì đang xảy ra. Xong xuôi, nhìn lại và kiểm tra: Có ô nào bị trùng không? Có đoạn nào đang nhảy quá nhanh không? Nhìn tám ô có hiểu được câu chuyện không? Nếu chưa, sửa ngay trên giấy. Gạch đi, vẽ lại thoải mái nhé — đây chính là lúc để sửa.\nVà nhớ câu hôm nay: Một ô – một việc. Storyboard càng rõ thì lúc tạo tranh thật càng dễ.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+      "badgeIcon": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-4-4-ban-do-8-o-p2-khoa"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "4.4",
+    "title": "Bài 4.4 Bản đồ 8 Ô - Phần 2: Khoá",
+    "module": "M4",
+    "p1": {
+      "web_goalText": "Trẻ tả được từng khung mà nhân vật vẫn giữ nguyên qua cả tám hình.",
+      "excel_objective": "Trẻ tả được từng khung mà nhân vật vẫn giữ nguyên qua cả tám hình.",
+      "web_skillLearned": "Câu lệnh theo storyboard, khoá ba đặc điểm nhân vật vào mọi khung.",
+      "excel_skillLearned": "Câu lệnh theo storyboard, khoá ba đặc điểm nhân vật vào mọi khung.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] ĐÚNG NGƯỜI — dùng ảnh mẫu và giữ các đặc điểm trong Luật vẽ: (Thứ nhất)",
+        "[2] ĐÚNG VIỆC — nhìn vào storyboard xem ô đó đang xảy ra chuyện gì: (Thứ hai)",
+        "[3] ĐÚNG KIỂU — khung đầu là truyện tranh nét rõ màu phẳng thì cả tám khung giữ như vậy: (Thứ ba)",
+        "[4] MẸO NHỎ — xong khung nào đặt ngay cạnh khung trước để soi: (Đừng chờ đủ tám khung mới kiểm tra)"
+      ]
+    },
+    "p2": {
+      "web_question": "Mỗi khung truyện cần giữ đúng ba thứ nào?",
+      "excel_question": "Mỗi khung truyện cần giữ đúng ba thứ nào?",
+      "web_options_count": 3,
+      "web_correctIndex": 0,
+      "web_options_images": [
+        {
+          "text": "A. Đúng người — Đúng việc — Đúng kiểu",
+          "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Đúng màu — Đúng nét — Đúng bóng",
+          "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Đúng tên — Đúng tuổi — Đúng nghề",
+          "imageUrl": "/assets/aiki-islands/island4_lesson4_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "UzvinFjseRE",
+      "web_videoId": "UzvinFjseRE",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-4-4-q1",
+          "prompt": "Trước mỗi khung con nên nhìn vào đâu?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-4-q2",
+          "prompt": "Mẹo để phát hiện lỗi sớm là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-4-q3",
+          "prompt": "Phát hiện nhân vật bị đổi ở một khung, con làm gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "identity-lock",
+      "subjectName": "Bản Đồ Storyboard 8 Ô - Phần 2: Khóa",
+      "sampleUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 8,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Khung 1",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Khung 2",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 3,
+          "title": "Khung 3",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 4,
+          "title": "Khung 4",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 5,
+          "title": "Khung 5",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 6,
+          "title": "Khung 6",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 7,
+          "title": "Khung 7",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        },
+        {
+          "partNumber": 8,
+          "title": "Khung 8",
+          "iconImage": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "96 ảnh |  | 4 nhân vật × 8 khung × 3 phong cách = 96  (bố cục là nhãn)",
+      "challenge": "Bây giờ đến lượt các cậu. Làm lần lượt từ ô một đến ô tám. Trước mỗi khung, hãy nhìn storyboard chứ đừng nghĩ lại câu chuyện từ đầu. Sau mỗi khung, kiểm tra ngay: nhân vật có bị đổi không? Việc có đúng ô không? Phong cách có giống các khung trước không? Nếu có gì sai, sửa câu lệnh rồi mới tạo lại.\nCó một mẹo nhỏ nhé: xong khung nào, đặt ngay cạnh khung trước để soi. Đừng chờ làm đủ tám khung mới kiểm tra. Nếu phát hiện sớm một chiếc áo đổi màu hay một khung vẽ sai kiểu, sửa sẽ nhanh hơn nhiều.\nCuối cùng, xếp cả tám khung theo đúng thứ tự và lướt từ đầu đến cuối. Nếu nhìn vào vẫn nhận ra Mít trong mọi khung và hiểu được chuyện chiếc máy bay giấy bị gió cuốn đi rồi được lấy lại, truyện của các cậu đã chạy được rồi.\nVà nhớ câu hôm nay: Đúng người – Đúng việc – Đúng kiểu. Storyboard chỉ đường cho câu chuyện, còn Ảnh mẫu và Luật vẽ giúp nhân vật đi hết câu chuyện mà vẫn là chính mình.\n────────────────────────────────────────────────────────────\n8"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+      "badgeIcon": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-4-5-vuong-mien-hoan-hao"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "4.5",
+    "title": "Bài 4.5 Vương miện hoàn hảo",
+    "module": "M4",
+    "p1": {
+      "web_goalText": "Trẻ viết được toàn bộ lời thoại và hoàn thành cuốn truyện.",
+      "excel_objective": "Trẻ viết được toàn bộ lời thoại và hoàn thành cuốn truyện.",
+      "web_skillLearned": "Đặt chữ lên hình. Đặt tên truyện.",
+      "excel_skillLearned": "Đặt chữ lên hình. Đặt tên truyện.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] HỎI TỪNG KHUNG — \"Lúc này nhân vật thật sự muốn nói gì?\": (Viết thật ngắn, giống cách mình nói ngoài đời)",
+        "[2] TỐI ĐA HAI BONG BÓNG — ❌ bốn câu che gần hết tranh → ✅ \"Kia rồi!\" và \"Nhưng... làm sao lấy xuống đây?\": (Để chữ không che mất hình)",
+        "[3] ĐỌC THÀNH TIẾNG — nghe dài hoặc không giống nhân vật thì rút lại: (Tranh đã kể được thì không cần chữ kể lại lần nữa)",
+        "[4] TÊN TRUYỆN — ❌ \"Truyện của Lumi\" → ✅ \"Có gì đó mắc lại trên cành cây!\": (Tên hay nên gợi thêm một chút chuyện)",
+        "[5] BÌA — tên truyện · nhân vật chính · tên tác giả là chính con"
+      ]
+    },
+    "p2": {
+      "web_question": "Mỗi khung nên có tối đa mấy bong bóng thoại?",
+      "excel_question": "Mỗi khung nên có tối đa mấy bong bóng thoại?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Một",
+          "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Hai",
+          "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Bao nhiêu cũng được",
+          "imageUrl": "/assets/aiki-islands/island4_lesson5_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "V4OodQ9gGC8",
+      "web_videoId": "V4OodQ9gGC8",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-4-5-q1",
+          "prompt": "Viết lời thoại thì nên viết thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-5-q2",
+          "prompt": "Tên truyện nào hấp dẫn hơn?",
+          "optionsCount": 3,
+          "correctIndex": 1,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-4-5-q3",
+          "prompt": "Câu quan trọng nhất của cả chương là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Vương Miện Hoàn Hảo - Bìa Comic Book",
+      "sampleUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu hoàn thiện cuốn truyện. Viết lời thoại cho tám khung, tối đa hai bong bóng mỗi khung. Đọc to toàn bộ một lượt rồi sửa những câu còn dài. Sau đó đặt tên truyện, làm bìa có tên truyện, nhân vật chính và tên tác giả là chính các cậu. Cuối cùng, ghép tám khung đúng thứ tự để thành cuốn truyện hoàn chỉnh.\nVà nhớ câu quan trọng nhất của cả chương nhé: Tớ có thể giúp các cậu vẽ truyện, nhưng các cậu mới là người nghĩ ra câu chuyện. Nhân vật, chuyện gì xảy ra, nhân vật nói gì và cuốn truyện có tên gì — những phần ấy mang ý tưởng của các cậu.\nKhi hoàn thành, hãy cầm cuốn truyện và đọc to cho một người trong nhà nghe. Đổi giọng cho từng nhân vật càng vui. Đó là lúc những khung hình của các cậu thật sự biến thành một câu chuyện.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 4.5 — Vương miện hoàn hảo",
+      "badgeIcon": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-5-1-san-lung-bo-suu-tap"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "5.1",
+    "title": "Bài 5.1 Săn lùng Bộ sưu tập",
+    "module": "M5",
+    "p1": {
+      "web_goalText": "Trẻ chọn được chủ đề và liệt kê đủ mười hai thứ.",
+      "excel_objective": "Trẻ chọn được chủ đề và liệt kê đủ mười hai thứ.",
+      "web_skillLearned": "Chọn chủ đề riêng, và gỡ bí bằng cách đi hỏi đi nhìn chứ không hỏi AI.",
+      "excel_skillLearned": "Chọn chủ đề riêng, và gỡ bí bằng cách đi hỏi đi nhìn chứ không hỏi AI.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] CHỦ ĐỀ CỦA RIÊNG MÌNH — \"12 món ở hàng tạp hoá gần nhà Nami\": (Người khác cũng làm được, nhưng khó có bộ nào giống hệt)",
+        "[2] BÍ THÌ ĐỨNG DẬY VÀ ĐI NHÌN — trong bếp · ngăn kéo của bà · góc bàn học · con ngõ trước nhà · trong cặp: (Đừng ngồi nhìn màn hình mãi)",
+        "[3] HOẶC ĐI HỎI — bố mẹ, ông bà, một người bạn: (Ý tưởng ở ngay quanh mình mà trước giờ chưa để ý)",
+        "[4] CÂU ĐỂ NHỚ — Bí thì đi nhìn, đi hỏi, rồi mới nhờ AKI giúp"
+      ]
+    },
+    "p2": {
+      "web_question": "Bí chưa nghĩ ra chủ đề, con nên làm gì?",
+      "excel_question": "Bí chưa nghĩ ra chủ đề, con nên làm gì?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Ngồi nhìn màn hình chờ ý tưởng",
+          "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Đứng dậy đi nhìn quanh nhà, hoặc đi hỏi một người",
+          "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Nhờ AKI nghĩ hộ một chủ đề",
+          "imageUrl": "/assets/aiki-islands/island5_lesson1_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "CC8qli9iBD0",
+      "web_videoId": "CC8qli9iBD0",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-5-1-q1",
+          "prompt": "Vì sao bộ thẻ “12 món ở hàng tạp hoá gần nhà” lại đặc biệt?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-1-q2",
+          "prompt": "Mười hai thứ trong bộ thẻ phải như thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-1-q3",
+          "prompt": "Đọc lại danh sách, con kiểm tra điều gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Bộ Sưu Tập 12 Thẻ Bài Nguyên Tố",
+      "sampleUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Đầu tiên, chọn một chủ đề thật gần với mình hoặc chủ đề cậu thích ơi là thích. Sau đó tìm đủ 12 thứ cùng một nhóm. Cuối cùng, đọc lại cả danh sách và kiểm tra: có món nào trùng không? Có món nào quá nhạt nhẽo không? Sửa xong thì giữ thật kỹ danh sách này nhé, vì những bài sau chúng mình sẽ biến từng món thành những chiếc thẻ thật sự.\nVà nhớ câu hôm nay: Bí thì đi nhìn, đi hỏi, rồi mới nhờ AKI giúp. Ý tưởng ở quanh các cậu nhiều hơn các cậu nghĩ đấy.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 5.1 — Săn lùng Bộ sưu tập",
+      "badgeIcon": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-5-2-phu-phep-mat-the"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "5.2",
+    "title": "Bài 5.2 Phù phép Mặt thẻ",
+    "module": "M5",
+    "p1": {
+      "web_goalText": "Trẻ thiết kế mặt thẻ và cho điểm sao cho công bằng.",
+      "excel_objective": "Trẻ thiết kế mặt thẻ và cho điểm sao cho công bằng.",
+      "web_skillLearned": "Cân bằng tổng điểm ba chỉ số.",
+      "excel_skillLearned": "Cân bằng tổng điểm ba chỉ số.",
+      "web_keyPoints_count": 4,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island5_lesson2_stats.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] MỖI LÁ MỘT TÚI 12 ĐIỂM — chia vào ba ô: SỨC – NHANH – KHÉO: (12 dễ cộng và chia được nhiều kiểu: 8–2–2, 6–4–2, 5–5–2, 4–4–4)",
+        "[2] LUẬT — Mạnh chỗ này thì phải bớt chỗ khác: (Không lá nào giỏi hết mọi thứ)",
+        "[3] VÍ DỤ — chảo gang: Sức 8 – Nhanh 2 – Khéo 2  ·  đôi đũa: Sức 2 – Nhanh 6 – Khéo 4: (Hai lá khác hẳn nhau, tổng vẫn bằng 12)",
+        "[4] MỖI LÁ GHI ĐỦ — Tên thẻ – Sức – Nhanh – Khéo – Tổng điểm – Kỹ năng riêng: (Lưu vào BẢNG THIẾT KẾ BỘ THẺ, nhớ chụp lại)"
+      ]
+    },
+    "p2": {
+      "web_question": "Mỗi lá thẻ được chia bao nhiêu điểm vào ba ô chỉ số?",
+      "excel_question": "Mỗi lá thẻ được chia bao nhiêu điểm vào ba ô chỉ số?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Mỗi lá một số khác nhau cho phong phú",
+          "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Tất cả các lá cùng một tổng điểm, ví dụ 12",
+          "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Càng nhiều càng mạnh",
+          "imageUrl": "/assets/aiki-islands/island5_lesson2_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "PijX4EBOmkU",
+      "web_videoId": "PijX4EBOmkU",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-5-2-q1",
+          "prompt": "Luật cân bằng của bài này là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-2-q2",
+          "prompt": "Mỗi lá thẻ cần ghi đủ những gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-2-q3",
+          "prompt": "Trò chơi hay là trò chơi như thế nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Phù Phép Mặt Thẻ Ngân Sách 20 Điểm",
+      "sampleUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Với từng lá, hãy ghi đủ: Tên thẻ – Sức – Nhanh – Khéo – Tổng điểm – Kỹ năng riêng. Nhớ kiểm tra: cả 12 lá đều phải có tổng bằng 12. Có lá nào mạnh hết ba ô không? Có lá nào yếu quá không? Nếu có thì chia lại điểm.\nXong rồi, hãy nhắc tớ lưu cả 12 lá vào BẢNG THIẾT KẾ BỘ THẺ. Trong bảng sẽ có tên thẻ, ba chỉ số, tổng điểm và kỹ năng riêng. Hãy chụp lại Bảng nhé, vì buổi sau chúng mình sẽ mở đúng bảng này ra để tạo hình cho từng lá.\nVà nhớ câu hôm nay: Mỗi lá có cùng một túi điểm. Mạnh chỗ này thì phải bớt chỗ khác. Trò chơi hay là trò chơi mà chưa lật thẻ lên, mình vẫn chưa biết chắc ai sẽ thắng.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 5.2 — Phù phép Mặt thẻ",
+      "badgeIcon": "/assets/aiki-islands/island5_lesson2_stats.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-5-3-khoa-the"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "5.3",
+    "title": "Bài 5.3 Khoá thẻ",
+    "module": "M5",
+    "p1": {
+      "web_goalText": "Trẻ tạo được mười hai hình cùng một phong cách.",
+      "excel_objective": "Trẻ tạo được mười hai hình cùng một phong cách.",
+      "web_skillLearned": "Công thức nền chung, app tự dán vào mọi câu lệnh, cậu chỉ gõ phần riêng.",
+      "excel_skillLearned": "Công thức nền chung, app tự dán vào mọi câu lệnh, cậu chỉ gõ phần riêng.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] LÀM MỘT LÁ MẪU — chọn một món, làm thật cẩn thận đến khi ưng: (Giữ bức ấy làm Ảnh mẫu của bộ thẻ)",
+        "[2] CÔNG THỨC NỀN — PHONG CÁCH – NỀN – GÓC NHÌN – KHUNG VIỀN: (Ví dụ: nét truyện tranh rõ màu phẳng – nền vàng nhạt – nhìn ngang vật ở giữa – khung bo tròn)",
+        "[3] PHẦN RIÊNG · CÁCH 1 — tả bằng chữ: \"một cái rổ nhựa màu xanh, có quai, đan thưa\"",
+        "[4] PHẦN RIÊNG · CÁCH 2 — chụp ảnh món đồ thật trong nhà rồi bảo AKI vẽ lại theo phong cách thẻ mẫu: (Chỉ chụp đồ vật, tránh để người hay thông tin riêng trong ảnh)",
+        "[5] CÂU ĐỂ NHỚ — Ảnh mẫu giữ cả bộ cùng kiểu · Công thức nền giữ thứ không đổi · Chỉ thay phần riêng"
+      ]
+    },
+    "p2": {
+      "web_question": "Để cả mười hai lá nhìn như một bộ, con cần những gì?",
+      "excel_question": "Để cả mười hai lá nhìn như một bộ, con cần những gì?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. Chỉ cần ảnh mẫu là đủ",
+          "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Ảnh mẫu VÀ công thức nền bốn thứ",
+          "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Chỉ cần tả thật dài cho mỗi lá",
+          "imageUrl": "/assets/aiki-islands/island5_lesson3_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "StQ4ICE15No",
+      "web_videoId": "StQ4ICE15No",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-5-3-q1",
+          "prompt": "Công thức nền gồm bốn thứ nào?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-3-q2",
+          "prompt": "Ngoài tả bằng chữ, con còn cách nào để làm phần riêng của một lá?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-3-q3",
+          "prompt": "“Lá lạc” là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "style-prism",
+      "subjectName": "Khóa Lưng Thẻ Bánh Răng Ma Thuật",
+      "sampleUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 12,
+      "practiceParts": [
+        {
+          "partNumber": 1,
+          "title": "Cái chảo gang",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 2,
+          "title": "Đôi đũa tre",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 3,
+          "title": "Cái rổ nhựa xanh",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 4,
+          "title": "Nồi cơm điện",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 5,
+          "title": "Chai nước mắm",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 6,
+          "title": "Lọ muối",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 7,
+          "title": "Cái thớt gỗ",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 8,
+          "title": "Muôi canh",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 9,
+          "title": "Hộp tăm",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 10,
+          "title": "Khăn lau bếp",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 11,
+          "title": "Bát sứ trắng",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        },
+        {
+          "partNumber": 12,
+          "title": "Ấm đun nước",
+          "iconImage": "/assets/pregenerated-fallback/card-forge/card_frost_dragon_v1.webp",
+          "iconExists": true
+        }
+      ],
+      "pregenCount": 0,
+      "excel_photoCount": "72 ảnh |  | 3 bộ × 12 món × 2 phong cách = 72  (nền/góc/khung gói trong phong cách)",
+      "challenge": "Bây giờ đến lượt các cậu. Đầu tiên, chọn một món và làm lá mẫu. Sau đó ghi lại Công thức nền. Với 11 lá còn lại, luôn gửi kèm ảnh mẫu, giữ nguyên công thức và chỉ thay phần riêng. Phần riêng có thể là câu mô tả của các cậu, hoặc một bức ảnh đồ vật thật để tớ vẽ lại.\nLàm được vài lá thì đặt cạnh nhau kiểm tra luôn. Có lá nào khác kiểu vẽ không? Nền khác không? Góc nhìn khác không? Khung khác không? Nếu có, đó là lá lạc. Sửa câu lệnh rồi mới tạo lại.\nKhi đủ 12 lá, xếp cả bộ ra một lượt. Các đồ vật có thể khác nhau hoàn toàn, nhưng vừa nhìn phải thấy ngay: “À, chúng thuộc cùng một bộ!”\nVà nhớ câu hôm nay nhé: Ảnh mẫu giữ cả bộ cùng kiểu. Công thức nền giữ những thứ không đổi. Chỉ thay phần riêng của từng lá.\n────────────────────────────────────────────────────────────\n12"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 5.3 — Khoá thẻ",
+      "badgeIcon": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-5-4-luat-choi"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "5.4",
+    "title": "Bài 5.4 Luật chơi",
+    "module": "M5",
+    "p1": {
+      "web_goalText": "Trẻ viết được bộ luật rõ ràng và biết sửa nó sau khi chơi thử.",
+      "excel_objective": "Trẻ viết được bộ luật rõ ràng và biết sửa nó sau khi chơi thử.",
+      "web_skillLearned": "Năm phần của một bộ luật: mấy người, ai đi trước, mỗi lượt làm gì, so thẻ thế nào, khi nào thắng.",
+      "excel_skillLearned": "Năm phần của một bộ luật: mấy người, ai đi trước, mỗi lượt làm gì, so thẻ thế nào, khi nào thắng.",
+      "web_keyPoints_count": 6,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island5_lesson4_rules.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] CÓ MẤY NGƯỜI CHƠI? — \"Hai đến bốn người\": (Câu hỏi 1)",
+        "[2] AI ĐI TRƯỚC? — \"Ai sinh nhật gần nhất đi trước\": (Câu hỏi 2)",
+        "[3] MỖI LƯỢT LÀM GÌ? — \"Mỗi người lật một lá, người đi trước chọn Sức, Nhanh hoặc Khéo\": (Câu hỏi 3)",
+        "[4] SO THẺ THẾ NÀO? — \"Ai điểm cao nhất thì lấy các lá. Nếu bằng nhau thì để giữa bàn\": (Câu hỏi 4 — chỗ hay phải bổ sung nhất)",
+        "[5] KHI NÀO KẾT THÚC? — \"Khi hết bài, ai có nhiều lá nhất thì thắng\": (Câu hỏi 5)",
+        "[6] CÂU ĐỂ NHỚ — Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử"
+      ]
+    },
+    "p2": {
+      "web_question": "Vai trò của AKI trong bài này là gì?",
+      "excel_question": "Vai trò của AKI trong bài này là gì?",
+      "web_options_count": 3,
+      "web_correctIndex": 1,
+      "web_options_images": [
+        {
+          "text": "A. AKI nghĩ ra luật chơi cho con",
+          "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. AKI chỉ sắp xếp và viết lại cho dễ đọc, không tự thêm luật mới",
+          "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. AKI chấm điểm bộ luật của con",
+          "imageUrl": "/assets/aiki-islands/island5_lesson4_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "VIGcrhPzr5Q",
+      "web_videoId": "VIGcrhPzr5Q",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-5-4-q1",
+          "prompt": "Một bộ luật cần trả lời mấy câu hỏi?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-4-q2",
+          "prompt": "Vì sao viết luật xong vẫn phải đem ra chơi thử?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-4-q3",
+          "prompt": "Câu để nhớ của bài này là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Bộ Đôi Thẻ Tương Khắc & Bộ Luật 5 Phần",
+      "sampleUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Hãy trả lời đủ 5 câu hỏi bằng lời của mình, rồi nhờ tớ viết lại thành một bộ luật ngắn, dễ hiểu. Sau đó rủ ít nhất một người trong nhà chơi thử. Chỗ nào họ phải dừng lại hỏi “Tiếp theo làm gì?” hoặc “Thế này tính sao?” thì đánh dấu lại, bổ sung câu trả lời rồi nhờ tớ sửa luật lần nữa.\nVà nhớ câu hôm nay: Nói luật của cậu trước – AKI giúp viết cho rõ – rồi phải chơi thử. Luật chưa chơi thử thì chưa phải luật hoàn chỉnh.\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 5.4 — Luật chơi",
+      "badgeIcon": "/assets/aiki-islands/island5_lesson4_rules.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50,
+      "nextLessonSlug": "bai-5-5-dau-truong-khai-mo"
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  },
+  {
+    "lessonNum": "5.5",
+    "title": "Bài 5.5 Đấu trường khai mở",
+    "module": "M5",
+    "p1": {
+      "web_goalText": "Trẻ hoàn thiện bộ game và chơi thật với gia đình.",
+      "excel_objective": "Trẻ hoàn thiện bộ game và chơi thật với gia đình.",
+      "web_skillLearned": "Thiết kế bàn cờ bốn thành phần và vỏ hộp gấp được.",
+      "excel_skillLearned": "Thiết kế bàn cờ bốn thành phần và vỏ hộp gấp được.",
+      "web_keyPoints_count": 5,
+      "web_image_exists": true,
+      "web_image_url": "/assets/aiki-islands/island5_lesson5_arena.jpg",
+      "match_objective": true,
+      "cards_detail": [
+        "[1] XUẤT PHÁT — nơi bắt đầu: (Thành phần 1)",
+        "[2] ĐƯỜNG ĐI — cho mình biết phải đi thế nào: (Thành phần 2)",
+        "[3] Ô ĐẶC BIỆT ⭐ — \"MÈO CƯỚP ĐỒ ĂN – bỏ một lượt để đuổi mèo\": (Chỗ vui nhất — tự nghĩ luật riêng, lấy từ một chuyện vui trong nhà mình)",
+        "[4] ĐÍCH — cho biết khi nào kết thúc: (Thành phần 4 — nhà Dori quên mất ô này, cả nhà cứ đi vòng vòng mãi)",
+        "[5] VỎ HỘP — cất 12 thẻ, bàn cờ và luật chơi: (Phần in, cắt, gấp khó thì nhờ người lớn giúp)"
+      ]
+    },
+    "p2": {
+      "web_question": "Một bàn cờ cần đủ bốn thứ nào?",
+      "excel_question": "Một bàn cờ cần đủ bốn thứ nào?",
+      "web_options_count": 3,
+      "web_correctIndex": 0,
+      "web_options_images": [
+        {
+          "text": "A. Xuất phát – Đường đi – Ô đặc biệt – Đích",
+          "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_a.jpg",
+          "exists": true
+        },
+        {
+          "text": "B. Tên – Hình – Màu – Viền",
+          "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_b.jpg",
+          "exists": true
+        },
+        {
+          "text": "C. Thẻ – Xúc xắc – Quân cờ – Hộp",
+          "imageUrl": "/assets/aiki-islands/island5_lesson5_opt_c.jpg",
+          "exists": true
+        }
+      ]
+    },
+    "p3": {
+      "excel_videoId": "6A1l9ybJu-Q",
+      "web_videoId": "6A1l9ybJu-Q",
+      "video_matches": true,
+      "web_durationSec": 180,
+      "web_timestamps_count": 3,
+      "web_poster_exists": true
+    },
+    "p4": {
+      "excel_q_count": 3,
+      "web_q_count": 3,
+      "passScore": 2,
+      "questions": [
+        {
+          "id": "bai-5-5-q1",
+          "prompt": "Ô đặc biệt nên lấy ý từ đâu?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-5-q2",
+          "prompt": "Bước quan trọng nhất của bài cuối là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        },
+        {
+          "id": "bai-5-5-q3",
+          "prompt": "Hai câu của chương cuối là gì?",
+          "optionsCount": 3,
+          "correctIndex": 0,
+          "hasVisual": false,
+          "visualExists": true
+        }
+      ]
+    },
+    "p5": {
+      "creativeEngineMode": "creative-notebook",
+      "subjectName": "Đấu Trường Bàn Cờ Thần Thoại & Cúp Vô Địch",
+      "sampleUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
+      "sampleExists": true,
+      "workflowStepsCount": 4,
+      "practicePartsCount": 0,
+      "practiceParts": [],
+      "pregenCount": 0,
+      "excel_photoCount": "0 ảnh |  | Bài viết vào Ba lô — không tạo ảnh",
+      "challenge": "Bây giờ đến lượt các cậu. Hãy làm bàn cờ đủ Xuất phát – Đường đi – Ô đặc biệt – Đích, rồi làm vỏ hộp để cất 12 thẻ, bàn cờ và luật chơi. Phần in, cắt hoặc gấp khó thì nhớ nhờ người lớn giúp.\nSau đó là bước quan trọng nhất: rủ cả nhà chơi một ván thật từ đầu đến cuối. Trong lúc chơi, nếu có chỗ nào mọi người chưa hiểu, chưa vui hoặc còn tranh luận, hãy sửa lại. Vì một trò chơi không phải để nằm đẹp trong hộp. Nó được làm ra để mọi người cùng chơi.\nVà nhớ hai câu của chương cuối nhé: Trò chơi hay là trò chơi công bằng. Trò chơi chỉ thật sự hoàn thành khi có người chơi nó\n────────────────────────────────────────────────────────────\n1"
+    },
+    "p6": {
+      "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
+      "badgeName": "Huy hiệu Bài 5.5 — Đấu trường khai mở",
+      "badgeIcon": "/assets/aiki-islands/island5_lesson5_arena.jpg",
+      "badgeIconExists": true,
+      "stars": 3,
+      "xp": 50
+    },
+    "blockEvaluation": "Phù hợp",
+    "blockSuggestions": []
+  }
+]

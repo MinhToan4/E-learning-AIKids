@@ -56,7 +56,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  it('renders modal with Soft-Clay UI, 129k package info, and AIKI cat mascot', () => {
+  it('renders modal with Soft-Clay UI, 129k package info, countdown timer, and AIKI cat mascot', () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -70,24 +70,25 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     const dialog = document.body.querySelector('[role="dialog"]')
     expect(dialog).not.toBeNull()
 
-    // Soft-clay styling classes
+    // Soft-clay styling classes & responsive max-w-xl
     expect(dialog?.className).toContain('rounded-3xl')
     expect(dialog?.className).toContain('border-cream-300')
     expect(dialog?.className).toContain('shadow-clay')
+    expect(dialog?.className).toContain('max-w-xl')
 
     // Header & Mascot
-    expect(document.body.textContent).toContain('Nâng Cấp Gói AI Kid Toàn Diện')
+    expect(document.body.textContent).toContain('Thanh Toán Gói AI Kid 129K')
     expect(document.body.textContent).toContain('Mèo AIKI Đồng Hành')
     const mascot = document.body.querySelector('[data-testid="aikid-modal-cat-character"]')
     expect(mascot).not.toBeNull()
 
-    // 129k package info & benefits
-    expect(document.body.textContent).toContain('129.000đ / tháng')
-    expect(document.body.textContent).toContain('Chưa tới 4.500đ/ngày')
-    expect(document.body.textContent).toContain('Trọn bộ Khóa học AI Kid chính thức (6 chặng)')
-    expect(document.body.textContent).toContain('50 lượt tạo ảnh AI/tháng (2.000đ/lượt)')
-    expect(document.body.textContent).toContain('2 trẻ em cùng học')
-    expect(document.body.textContent).toContain('500 MB lưu trữ đám mây')
+    // Countdown timer & Essential info
+    expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')
+    expect(document.body.textContent).toContain('129.000 đ')
+    expect(document.body.textContent).toContain('AK129K9999')
+    expect(document.body.textContent).toContain('0382228888')
+    expect(document.body.textContent).toContain('Đang chờ thanh toán tự động...')
+    expect(document.body.textContent).toContain('Kiểm tra ngay')
   })
 
   it('renders VietQR Hero with accurate bank information and QR code', () => {
@@ -285,9 +286,8 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       subTab?.click()
     })
 
-    expect(document.body.textContent).toContain('Gói Học Chuẩn Quốc Tế Cho Bé')
-    expect(document.body.textContent).toContain('129.000đ / tháng')
-    expect(document.body.textContent).toContain('50 lượt tạo ảnh AI/tháng')
+    expect(document.body.textContent).toContain('Thanh Toán Gói AI Kid 129K')
+    expect(document.body.textContent).toContain('129.000 đ')
     expect(qrImage25?.src).toContain('amount=129000')
   })
 
@@ -430,5 +430,46 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('AK129K9999'),
     )
+  })
+
+  it('handles countdown timer and refreshes payment code when expiring', async () => {
+    vi.useFakeTimers()
+    act(() => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+        }),
+      )
+    })
+
+    expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')
+
+    // Advance 1 second -> 14:59
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(document.body.textContent).toContain('14:59')
+
+    // Advance 891 seconds (total 892s -> 8s left)
+    act(() => {
+      vi.advanceTimersByTime(891000)
+    })
+    expect(document.body.textContent).toContain('00:08')
+    expect(document.body.textContent).toContain('Mã thanh toán sắp hết hạn')
+
+    // Click "Làm mới mã thanh toán"
+    const refreshBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Làm mới mã thanh toán'),
+    )
+    expect(refreshBtn).toBeDefined()
+
+    act(() => {
+      refreshBtn?.click()
+    })
+
+    // Resets to 15:00
+    expect(document.body.textContent).toContain('15:00')
+    expect(document.body.textContent).not.toContain('Mã thanh toán sắp hết hạn')
   })
 })

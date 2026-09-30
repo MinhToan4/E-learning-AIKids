@@ -150,11 +150,6 @@ export function VideoStageBlock({
 
   const videoEmbedSrc = useMemo(() => {
     const embedUrl = new URL(buildVideoEmbedUrl(config.videoUrl))
-    embedUrl.searchParams.set('controls', '0')
-    embedUrl.searchParams.set('fs', '0')
-    embedUrl.searchParams.set('disablekb', '1')
-    embedUrl.searchParams.set('modestbranding', '1')
-    embedUrl.searchParams.set('rel', '0')
     // Force a fresh document after a transient blank YouTube iframe response.
     // YouTube ignores this application-owned parameter.
     if (playerAttempt > 0) embedUrl.searchParams.set('aikid_retry', String(playerAttempt))

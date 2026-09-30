@@ -102,10 +102,15 @@ export function GoalStageBlock({
               <div className="min-w-0 break-words font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">
                 {config.goalText}
               </div>
+              {config.skillLearned && (
+                <div className="mt-2 text-xs sm:text-sm font-bold text-purple-700 bg-purple-100/70 px-3 py-1.5 rounded-xl border border-purple-200/80 w-fit">
+                  💡 KỸ NĂNG TRẺ HỌC ĐƯỢC: <span className="font-semibold text-purple-900">{config.skillLearned}</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Bốn Chiếc Chìa Khóa Vàng (1.1 & 1.2) HOẶC Nội Dung Trọng Tâm Bài Học */}
+          {/* Bốn Chiếc Chìa Khóa Vàng (Chỉ Bài 1.2) HOẶC Nội Dung Trọng Tâm Bài Học */}
           {config.isFourKeys && config.formulaCards && config.formulaCards.length > 0 ? (
             <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0 justify-center">
               <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-purple-900 min-w-0 break-words shrink-0">
@@ -155,26 +160,36 @@ export function GoalStageBlock({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {(config.parsedCards || []).map((card, idx) => {
                   const style = GOAL_CARD_STYLES[idx % GOAL_CARD_STYLES.length]
+                  const isSpecialSpan = (config.parsedCards?.length === 3 && idx === 2)
                   return (
                     <div
                       key={idx}
                       className={cn(
                         'p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 bg-white shadow-2xs hover:shadow-xs transition-all flex flex-col justify-center gap-1 min-h-[64px] h-auto',
-                        style.bg
+                        isSpecialSpan && 'sm:col-span-2 bg-gradient-to-r from-amber-50/90 to-purple-50/90 border-amber-300/80 shadow-xs',
+                        !isSpecialSpan && style.bg
                       )}
                     >
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span
                           className={cn(
                             'px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit',
-                            style.badge
+                            isSpecialSpan ? 'bg-amber-500 text-white shadow-xs' : style.badge
                           )}
                         >
                           [{card.index}] {card.title}
                         </span>
+                        {isSpecialSpan && (
+                          <span className="text-[10px] sm:text-[11px] font-black text-amber-700 uppercase tracking-wide">
+                            ⭐ Ghi nhớ vàng
+                          </span>
+                        )}
                       </div>
                       {card.content && (
-                        <p className="text-xs sm:text-[13px] font-black text-slate-900 leading-snug break-words">
+                        <p className={cn(
+                          'text-xs sm:text-[13px] font-black text-slate-900 leading-snug break-words',
+                          isSpecialSpan && 'text-xs sm:text-[13px] text-amber-950 font-black'
+                        )}>
                           {card.content}
                         </p>
                       )}

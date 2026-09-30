@@ -5,11 +5,13 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { App } from './App'
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary'
 import { initAffiliateTracker } from '@/shared/lib/affiliate-tracker'
+import { initVersionChecker } from '@/shared/lib/version-checker'
 import { queryClient } from '@/shared/lib/query-client'
 import '../shared/styles/fonts.css'
 import '../shared/styles/index.css'
 
 initAffiliateTracker()
+initVersionChecker()
 
 if (import.meta.env.DEV) {
   import('@/shared/store/auth').then(({ useAuth }) => {

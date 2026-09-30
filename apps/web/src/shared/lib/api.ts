@@ -661,6 +661,7 @@ export interface SixStageGoal {
   id: string
   title: string
   goalText: string
+  skillLearned?: string
   imageUrl: string
   speech: string
   keyPoints: string[]

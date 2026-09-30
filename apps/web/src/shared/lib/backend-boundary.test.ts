@@ -16,11 +16,13 @@ const sourceFiles = globSync('**/*.{ts,tsx}', {
 //                                             (api() only handles JSON; raw
 //                                              image downloads require blob pipeline)
 //   shared/lib/affiliate-tracker.ts — third-party affiliate tracking beacon
+//   shared/lib/version-checker.ts — static /version.json asset polling for auto-updates
 const FETCH_ALLOWLIST = new Set([
   'shared/lib/api.ts',
   'features/lesson/lib/offline-learning.ts',
   'features/parent/components/ParentSubscriptionCheckoutModal.tsx',
   'shared/lib/affiliate-tracker.ts',
+  'shared/lib/version-checker.ts',
 ])
 
 
