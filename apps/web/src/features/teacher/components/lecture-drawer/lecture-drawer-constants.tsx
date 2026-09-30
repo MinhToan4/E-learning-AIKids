@@ -17,7 +17,34 @@ import {
   Flag,
 } from 'lucide-react'
 import { type Section } from './LectureDrawerHeader'
-import { type LearnCardDraft, type ContentBlockType } from '../../lib/authoring'
+import {
+  type LearnCardDraft,
+  type ContentBlockType,
+  type LectureDraft,
+  defaultLearnCards,
+  ISLAND_6_STAGE_NAMES,
+} from '../../lib/authoring'
+export type { Section }
+export type { LectureDraft, LearnCardDraft, ContentBlockType }
+export { ISLAND_6_STAGE_NAMES }
+import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
+
+export function emptyDraft(): LectureDraft {
+  return {
+    id: '', slug: '', title: '', skill: '', hook: '',
+    practiceKind: 'journal', videoUrl: '',
+    access: { mode: 'inherit', minPlanTier: 0, trialBadge: 'Học thử' },
+    concept: '', example: '', learnCards: defaultLearnCards(),
+    reward: '', duration: '', goalsText: '',
+    gameType: 'math-kids', gameMode: 'required',
+    gameAllowedTypes: ['math-kids'], gameDifficulty: 'steady',
+    gameInstruction: '', gameOutcome: '', gameCardsText: '', gameStructuredText: '',
+    questionCount: 6, practiceInstruction: '', product: '',
+    practiceStepsText: '', successCriteriaText: '', reflectionPrompt: '', practiceConfigText: '',
+    checkQuestions: [], checkQuestion: '', checkOption1: '', checkOption2: '', checkOption3: '',
+    correctIndex: '0', checkExplain: '',
+  }
+}
 
 export const AIKI_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
@@ -298,7 +325,6 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { extractRuleNumber } from '@/features/lesson/lib/rule-journey-identifiers'
 import { type LessonSixStageJourney } from '@/shared/lib/api'
-import { type LectureDraft } from '../../lib/authoring'
 
 export function buildRuleSyntheticJourney(draft: LectureDraft): LessonSixStageJourney {
   const ruleNum = extractRuleNumber(draft)
@@ -441,4 +467,95 @@ export function buildRuleSyntheticJourney(draft: LectureDraft): LessonSixStageJo
       },
     },
   }
+}
+
+// ─── Shared Styles & Helper Components ──────────────────────────────────────────
+export const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '0.625rem 0.75rem', borderRadius: '0.625rem',
+  border: '1.5px solid #e2e8f0', background: '#fff',
+  color: '#0f172a', fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box',
+  fontFamily: 'inherit',
+}
+
+export const textareaStyle: React.CSSProperties = {
+  ...inputStyle, resize: 'vertical', lineHeight: 1.6,
+}
+
+export const sectionLabelStyle: React.CSSProperties = {
+  fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.75rem',
+}
+
+export function FormRow({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>{label}</span>
+        {hint && <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{hint}</span>}
+      </div>
+      {children}
+    </label>
+  )
+}
+
+export function resolveSectionStatus(
+  s: Section,
+  draft: LectureDraft,
+  isIslandCourse: boolean,
+  readiness: { complete: boolean; steps: Array<{ id: string; complete: boolean }> }
+): boolean {
+  if (s.startsWith('stage-')) {
+    const idx = parseInt(s.replace('stage-', ''), 10)
+    if (isIslandCourse) {
+      const j = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
+      if (idx === 0) return Boolean(j.stage1_goal.title && j.stage1_goal.goalText)
+      if (idx === 1) return Boolean(j.stage2_confirmGoal.question && j.stage2_confirmGoal.options.length >= 2)
+      if (idx === 2) return Boolean(j.stage3_video.videoUrl)
+      if (idx === 3) return Boolean(j.stage4_quiz.questions.length > 0)
+      if (idx === 4) return Boolean(j.stage5_practice.subjectName)
+      if (idx === 5) return Boolean(j.stage6_completion.title)
+      return false
+    }
+    const c = draft.learnCards[idx]
+    return Boolean(c && c.title.trim().length >= 2 && (c.body.trim().length >= 10 || (c.mee?.readText?.trim().length ?? 0) >= 10))
+  }
+  return readiness.steps.find((st) => st.id === s)?.complete ?? false
+}
+
+export function resolveSectionMissing(
+  s: Section,
+  draft: LectureDraft,
+  isIslandCourse: boolean,
+  readiness: { steps: Array<{ id: string; missing: string[] }> }
+): string[] {
+  if (s.startsWith('stage-')) {
+    const idx = parseInt(s.replace('stage-', ''), 10)
+    if (isIslandCourse) {
+      const j = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
+      const missing: string[] = []
+      if (idx === 0) {
+        if (!j.stage1_goal.title) missing.push('Tiêu đề mục tiêu')
+        if (!j.stage1_goal.goalText) missing.push('Nội dung mục tiêu')
+      } else if (idx === 1) {
+        if (!j.stage2_confirmGoal.question) missing.push('Câu hỏi xác nhận')
+      } else if (idx === 2) {
+        if (!j.stage3_video.videoUrl) missing.push('Link video bài học')
+      } else if (idx === 3) {
+        if (j.stage4_quiz.questions.length === 0) missing.push('Câu hỏi trắc nghiệm')
+      } else if (idx === 4) {
+        if (!j.stage5_practice.subjectName) missing.push('Tên chủ thể vẽ')
+      } else if (idx === 5) {
+        if (!j.stage6_completion.title) missing.push('Tiêu đề màn kết thúc')
+      }
+      return missing
+    }
+    const card = draft.learnCards[idx]
+    if (!card) return ['Chưa có dữ liệu chặng']
+    const missing: string[] = []
+    if (card.title.trim().length < 2) missing.push('Tiêu đề chặng')
+    if (card.body.trim().length < 10 && (card.mee?.readText?.trim().length ?? 0) < 10) {
+      missing.push('Nội dung hoặc Lời đọc cho bé (tối thiểu 10 ký tự)')
+    }
+    return missing
+  }
+  return readiness.steps.find((step) => step.id === s)?.missing ?? []
 }
