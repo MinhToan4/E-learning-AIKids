@@ -1131,6 +1131,7 @@ export function SixStageJourneyView({
               submittedArtwork={submittedArtwork}
               effectiveStars={effectiveStars}
               effectiveRewardXp={effectiveRewardXp}
+              answers={submittedQuizAnswers}
               onNavigateNextLesson={onNavigateNextLesson}
               onBackToMap={onBackToMap}
               onFinishLesson={onFinishLesson}

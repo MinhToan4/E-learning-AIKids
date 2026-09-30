@@ -11,6 +11,7 @@ import {
   AikiPosterModal,
   type ZoomImageData,
 } from '@/features/lesson/components/AikiRuleVisuals'
+import { readLessonStorage } from '@/features/lesson/components/SixStageJourneyView'
 
 import {
   isAikiRuleJourney as checkIsAikiRule,
@@ -977,10 +978,33 @@ export function LessonPage() {
     if (finishLessonPromiseRef.current) return finishLessonPromiseRef.current
     if (!quest) return false
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
+    const ruleData = isAikiRuleJourney ? (AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]) : null
+    const rawStored1 = isAikiRuleJourney ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${quest.id}`, {}) : null
+    const rawStored2 = isAikiRuleJourney && questId ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${questId}`, {}) : null
+    const rawStored3 = isAikiRuleJourney && authoritativeLessonId ? readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${authoritativeLessonId}`, {}) : null
+    const storedRuleAnswers = isAikiRuleJourney
+      ? ((rawStored1 && Object.keys(rawStored1).length > 0)
+          ? rawStored1
+          : (rawStored2 && Object.keys(rawStored2).length > 0)
+          ? rawStored2
+          : (rawStored3 && Object.keys(rawStored3).length > 0)
+          ? rawStored3
+          : (readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${quest.id}`, {}) ||
+             readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${questId}`, {}) ||
+             readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${authoritativeLessonId}`, {})))
+      : null
+
     const answersPayload = customSummary?.answers?.length
       ? customSummary.answers.map((a, idx) => ({
           questionId: a.questionId,
           optionIndex: a.optionIndex >= 0 ? a.optionIndex : ((quest?.check?.[idx] as any)?.correctIndex ?? 0),
+        }))
+      : isAikiRuleJourney && ruleData?.questions?.length
+      ? ruleData.questions.map((q, idx) => ({
+          questionId: q.id,
+          optionIndex: typeof storedRuleAnswers?.[idx] === 'number' && storedRuleAnswers[idx] >= 0
+            ? storedRuleAnswers[idx]
+            : (q.correctIndex ?? 0),
         }))
       : isAikiRuleJourney && quest.check?.length
       ? quest.check.map((q) => ({
@@ -1053,6 +1077,7 @@ export function LessonPage() {
       }))
       void queryClient.invalidateQueries({ queryKey: ['progression'] })
       void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+      void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
       return true
       } catch (error: unknown) {
         // 409 = CHECKPOINT_REQUIRED: lesson đã được check trước đó (idempotent success)
@@ -1092,6 +1117,7 @@ export function LessonPage() {
           window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
           void queryClient.invalidateQueries({ queryKey: ['progression'] })
           void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+          void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
           return true
         }
 
@@ -1569,6 +1595,7 @@ export function LessonPage() {
         window.dispatchEvent(new CustomEvent('aikids:xp-updated', { detail: { stars: confirmedStars } }))
         void queryClient.invalidateQueries({ queryKey: ['progression'] })
         void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+        void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
       } else if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa gửi được')
       }

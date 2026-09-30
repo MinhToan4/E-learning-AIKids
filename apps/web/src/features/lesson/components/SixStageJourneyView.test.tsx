@@ -396,11 +396,11 @@ describe('SixStageJourneyView', () => {
       nextLessonBtn?.click()
     })
 
-    expect(onFinishLesson).toHaveBeenCalledWith({
+    expect(onFinishLesson).toHaveBeenCalledWith(expect.objectContaining({
       stars: 3,
       xp: 50,
       nextLessonSlug: 'bai-1-2-bon-chiec-chia-khoa',
-    })
+    }))
     expect(onNavigateNextLesson).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
   })
 
@@ -1836,11 +1836,11 @@ describe('SixStageJourneyView', () => {
       nextBtn?.click()
     })
 
-    expect(onFinishLessonMock).toHaveBeenCalledWith({
+    expect(onFinishLessonMock).toHaveBeenCalledWith(expect.objectContaining({
       stars: 3,
       xp: 80,
       nextLessonSlug: 'bai-1-2-bon-chiec-chia-khoa',
-    })
+    }))
     expect(onNavigateNextLessonMock).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
 
     // Click "🗺️ Quay Về Bản Đồ Đảo"
@@ -1852,10 +1852,10 @@ describe('SixStageJourneyView', () => {
       backBtn?.click()
     })
 
-    expect(onFinishLessonMock).toHaveBeenCalledWith({
+    expect(onFinishLessonMock).toHaveBeenCalledWith(expect.objectContaining({
       stars: 3,
       xp: 80,
-    })
+    }))
     expect(onBackToMapMock).toHaveBeenCalled()
   })
 
@@ -1889,11 +1889,11 @@ describe('SixStageJourneyView', () => {
       nextBtn?.click()
     })
 
-    expect(onFinishLessonMock).toHaveBeenCalledWith({
+    expect(onFinishLessonMock).toHaveBeenCalledWith(expect.objectContaining({
       stars: 3,
       xp: 100,
       nextLessonSlug: mockJourney.stage6_completion.nextLessonSlug,
-    })
+    }))
   })
 
   it('does not advertise new XP when replaying a completed lesson', () => {

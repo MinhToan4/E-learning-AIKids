@@ -11,6 +11,7 @@ export interface RewardStageBlockProps {
   submittedArtwork?: { image: { url: string; title?: string }; prompt?: string } | null
   effectiveStars?: number
   effectiveRewardXp?: number
+  answers?: Array<{ questionId: string; optionIndex: number }>
   onNavigateNextLesson?: (nextSlug: string) => void
   onBackToMap?: () => void
   onFinishLesson?: (summary: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
@@ -24,6 +25,7 @@ export function RewardStageBlock({
   stage,
   effectiveStars = 3,
   effectiveRewardXp = 50,
+  answers,
   onNavigateNextLesson,
   onBackToMap,
   onFinishLesson,
@@ -193,6 +195,7 @@ export function RewardStageBlock({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
                     nextLessonSlug: config?.nextLessonSlug,
+                    answers,
                   }, () => onNavigateNextLesson(config?.nextLessonSlug ?? ''))
                 }}
               >
@@ -230,6 +233,7 @@ export function RewardStageBlock({
                   finishThenNavigate({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
+                    answers,
                   }, onBackToMap)
                 }}
               >
