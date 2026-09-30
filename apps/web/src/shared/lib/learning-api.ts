@@ -8,6 +8,7 @@ import {
 
 export type LearningPathwayCourse = {
   id: string
+  slug?: string
   title: string
   shortTitle: string
   status: 'completed' | 'active' | 'available' | 'locked'

@@ -3,10 +3,11 @@ import {
   Pause,
   Play,
   RotateCcw,
-  ExternalLink,
+  Maximize,
+  Minimize,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
-import { buildVideoEmbedUrl, getYouTubeWatchUrl } from '../../lib/stage-view-utils'
+import { buildVideoEmbedUrl } from '../../lib/stage-view-utils'
 import { playInstantSound } from '../../lib/lesson-sound'
 import type { JourneyStageDefinition, VideoStageConfig } from '../../types/stage-schema'
 
@@ -39,6 +40,7 @@ export function VideoStageBlock({
 }: VideoStageBlockProps) {
   const { config } = stage
   const stageRef = useRef<HTMLElement | null>(null)
+  const theaterContainerRef = useRef<HTMLDivElement | null>(null)
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const [isPlaying, setIsPlaying] = React.useState(false)
   const [hasStarted, setHasStarted] = React.useState(false)
@@ -47,7 +49,23 @@ export function VideoStageBlock({
   const [isPlayerReady, setIsPlayerReady] = React.useState(false)
   const [currentSec, setCurrentSec] = React.useState(videoSeekSec ?? 0)
   const [useHorizontalTimeline, setUseHorizontalTimeline] = React.useState(false)
-  const watchUrl = useMemo(() => getYouTubeWatchUrl(config.videoUrl), [config.videoUrl])
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!document.fullscreenElement) {
+      await theaterContainerRef.current?.requestFullscreen?.().catch(() => {})
+    } else {
+      await document.exitFullscreen?.().catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement))
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
 
   useEffect(() => {
     if (typeof videoSeekSec === 'number') {
@@ -132,6 +150,11 @@ export function VideoStageBlock({
 
   const videoEmbedSrc = useMemo(() => {
     const embedUrl = new URL(buildVideoEmbedUrl(config.videoUrl))
+    embedUrl.searchParams.set('controls', '0')
+    embedUrl.searchParams.set('fs', '0')
+    embedUrl.searchParams.set('disablekb', '1')
+    embedUrl.searchParams.set('modestbranding', '1')
+    embedUrl.searchParams.set('rel', '0')
     // Force a fresh document after a transient blank YouTube iframe response.
     // YouTube ignores this application-owned parameter.
     if (playerAttempt > 0) embedUrl.searchParams.set('aikid_retry', String(playerAttempt))
@@ -270,31 +293,25 @@ export function VideoStageBlock({
       {/* Header ẩn cho screen reader/a11y để tối ưu diện tích hiển thị */}
       <h2 className="sr-only">{config.title || 'Video bài giảng'}</h2>
 
-      {/* Main Video Cinema - Full-Width mở rộng tối đa theo container */}
-      <div className="lesson-video-main flex flex-1 min-w-0 w-full flex-col items-center justify-center h-full min-h-0 py-0 overflow-hidden">
-        {/* Helper bar above video: title and direct YouTube link */}
-        <div className="w-full max-w-4xl mx-auto flex items-center justify-between px-1 mb-1 shrink-0">
-          <span className="text-[11px] font-bold text-slate-400 truncate">
-            {config.title || 'Video bài giảng'}
-          </span>
-          <a
-            href={watchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-xl text-[11px] font-bold text-slate-500 hover:text-purple-700 bg-white hover:bg-purple-50 border border-slate-200 transition-colors shadow-2xs shrink-0"
-            title="Mở xem trực tiếp trên YouTube"
-          >
-            <ExternalLink size={11} />
-            <span>Mở trên YouTube</span>
-          </a>
-        </div>
-
+      {/* Main Video Cinema & Controls Container */}
+      <div
+        ref={theaterContainerRef}
+        className={`lesson-video-main flex flex-1 min-w-0 w-full flex-col items-center justify-center h-full min-h-0 py-0 overflow-hidden ${
+          isFullscreen ? 'bg-slate-950 p-4 gap-3' : 'gap-2'
+        }`}
+      >
         <div
-          className="lesson-video-frame relative aspect-video max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-clay group bg-black/5 flex items-center justify-center shrink min-h-0"
-          style={{
-            width: 'min(calc(48vh * 16 / 9), calc((100dvh - 190px) * 16 / 9), 100%)',
-            maxHeight: 'min(48vh, calc(100dvh - 190px))',
-          }}
+          className={`lesson-video-frame relative aspect-video w-full mx-auto rounded-3xl overflow-hidden shadow-clay group bg-black/5 flex items-center justify-center shrink min-h-0 ${
+            isFullscreen ? 'max-w-none h-full max-h-[calc(100vh-80px)]' : 'max-w-5xl'
+          }`}
+          style={
+            isFullscreen
+              ? undefined
+              : {
+                  width: 'min(calc(58vh * 16 / 9), calc((100dvh - 190px) * 16 / 9), 100%)',
+                  maxHeight: 'min(58vh, calc(100dvh - 190px))',
+                }
+          }
         >
           {videoId && (
             <img
@@ -325,7 +342,7 @@ export function VideoStageBlock({
           />
 
           {playerError !== null && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-slate-950 px-5 text-center text-white">
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-slate-950 px-5 text-center text-white">
               <img
                 src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
                 alt="Ảnh xem trước video bài học"
@@ -344,15 +361,6 @@ export function VideoStageBlock({
                   <RotateCcw size={16} />
                   Tải lại video
                 </button>
-                <a
-                  href={watchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/60 bg-white/15 px-5 py-2.5 text-sm font-black text-white hover:bg-white/25"
-                >
-                  <ExternalLink size={16} />
-                  Mở YouTube
-                </a>
               </div>
             </div>
           )}
@@ -373,7 +381,7 @@ export function VideoStageBlock({
                 togglePlayPause()
               }
             }}
-            className="absolute inset-0 z-5 cursor-pointer bg-transparent"
+            className="absolute inset-0 z-10 cursor-pointer bg-transparent"
           />
 
           {!hasStarted && playerError === null && (
@@ -384,7 +392,7 @@ export function VideoStageBlock({
                 togglePlayPause()
               }}
               aria-label="Phát video"
-              className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/20 backdrop-blur-[2px] transition-all hover:bg-black/30"
+              className="absolute inset-0 z-20 flex cursor-pointer items-center justify-center bg-black/20 backdrop-blur-[2px] transition-all hover:bg-black/30"
             >
               <span className="flex size-16 sm:size-20 items-center justify-center rounded-full bg-purple-600 text-white shadow-clay transition-transform hover:scale-105 active:scale-95">
                 <Play size={32} className="translate-x-0.5 fill-white" />
@@ -392,48 +400,81 @@ export function VideoStageBlock({
             </button>
           )}
         </div>
-      </div>
 
-      {/* Thanh Tua Video Chuyên Dụng */}
-      <div className="w-full max-w-4xl mx-auto flex items-center gap-2 sm:gap-3 px-3 py-1.5 sm:py-2 bg-purple-50/70 rounded-2xl border border-purple-100/90 shadow-2xs shrink-0">
-        {/* Nút Play/Pause tròn nhỏ */}
-        <button
-          type="button"
-          aria-label={isPlaying ? 'Tạm dừng' : 'Phát video'}
-          onClick={() => {
-            if (!hasStarted) setHasStarted(true)
-            togglePlayPause()
-          }}
-          className="size-9 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-transform active:scale-95"
+        {/* Thanh Tua Video Chuyên Dụng */}
+        <div
+          className={`w-full ${
+            isFullscreen
+              ? 'max-w-4xl bg-slate-900/90 border-slate-700/60 text-slate-200'
+              : 'max-w-5xl bg-purple-50/70 border-purple-100/90 shadow-2xs'
+          } mx-auto flex items-center gap-2 sm:gap-3 px-3 py-1.5 sm:py-2 rounded-2xl border shrink-0 transition-colors`}
         >
-          {isPlaying ? (
-            <Pause size={18} className="fill-white" />
-          ) : (
-            <Play size={18} className="translate-x-0.5 fill-white" />
-          )}
-        </button>
+          {/* Nút Play/Pause tròn nhỏ */}
+          <button
+            type="button"
+            aria-label={isPlaying ? 'Tạm dừng' : 'Phát video'}
+            onClick={() => {
+              if (!hasStarted) setHasStarted(true)
+              togglePlayPause()
+            }}
+            className={`size-9 rounded-full flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-transform active:scale-95 ${
+              isFullscreen
+                ? 'bg-purple-600 hover:bg-purple-500 text-white'
+                : 'bg-purple-600 hover:bg-purple-700 text-white'
+            }`}
+          >
+            {isPlaying ? (
+              <Pause size={18} className="fill-white" />
+            ) : (
+              <Play size={18} className="translate-x-0.5 fill-white" />
+            )}
+          </button>
 
-        {/* Thanh trượt tua tương tác */}
-        <input
-          type="range"
-          min="0"
-          max={totalDurationSec}
-          value={currentSec}
-          aria-label="Thanh tua thời gian video"
-          onChange={(e) => handleSeek(Number(e.target.value))}
-          className="flex-1 accent-purple-600 h-2 bg-purple-100 rounded-lg cursor-pointer"
-        />
+          {/* Thanh trượt tua tương tác */}
+          <input
+            type="range"
+            min="0"
+            max={totalDurationSec}
+            value={currentSec}
+            aria-label="Thanh tua thời gian video"
+            onChange={(e) => handleSeek(Number(e.target.value))}
+            className={`flex-1 h-2 rounded-lg cursor-pointer ${
+              isFullscreen
+                ? 'accent-purple-400 bg-slate-700'
+                : 'accent-purple-600 bg-purple-100'
+            }`}
+          />
 
-        {/* Thời gian */}
-        <span className="font-mono text-xs font-bold text-slate-700 shrink-0 select-none">
-          {formatTime(currentSec)} / {formatTime(totalDurationSec)}
-        </span>
+          {/* Thời gian */}
+          <span
+            className={`font-mono text-xs font-bold shrink-0 select-none ${
+              isFullscreen ? 'text-slate-300' : 'text-slate-700'
+            }`}
+          >
+            {formatTime(currentSec)} / {formatTime(totalDurationSec)}
+          </span>
+
+          {/* Nút Xem toàn màn hình (Fullscreen) nhỏ gọn, không tốn diện tích */}
+          <button
+            type="button"
+            aria-label={isFullscreen ? 'Thu nhỏ video' : 'Xem toàn màn hình'}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Thu nhỏ video' : 'Xem toàn màn hình'}
+            className={`size-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-transform active:scale-95 ${
+              isFullscreen
+                ? 'bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700'
+                : 'bg-white hover:bg-purple-100/70 text-purple-700 border border-purple-200/80'
+            }`}
+          >
+            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
+        </div>
       </div>
 
       {/* Thanh chân trang tinh gọn (Compact Action Footer) ngay dưới video */}
       <div
         data-testid="video-action-footer"
-        className="w-full max-w-4xl mx-auto flex items-center justify-between gap-3 pt-1 shrink-0 border-t border-slate-100"
+        className="w-full max-w-5xl mx-auto flex items-center justify-between gap-3 pt-1 shrink-0 border-t border-slate-100"
       >
         <button
           type="button"

@@ -29,7 +29,7 @@ import {
 } from '@/shared/lib/creation/types'
 import { ApiError, api, clearApiCache, type QuestDetail } from '@/shared/lib/api'
 import { queryClient } from '@/shared/lib/query-client'
-import { clearWorldPageCache } from '@/features/world/pages/WorldPage'
+import { clearWorldPageCache, findCourseByIdentifier } from '@/features/world/pages/WorldPage'
 import { learningApi, lessonStageIndexFromProgress } from '@/shared/lib/learning-api'
 import { clampStationStars } from '@/shared/lib/star-progress'
 import {
@@ -245,6 +245,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
   const [offlineManifest, setOfflineManifest] = useState<OfflineManifest | null>(null)
   // UUID-resolved lesson ID for aiki-rule journeys (prevents 'rule-1' slug reaching Prisma)
   const [authoritativeLessonId, setAuthoritativeLessonId] = useState<string>('')
+  const hasAdvancedFromLearnRef = useRef<Record<string, boolean>>({})
 
   // Memoized callbacks for AikiRuleVideoPlayer & interactive controls
   const handleSlideChange = useCallback((index: number) => {
@@ -256,6 +257,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
   }, [])
 
   const resetLocal = useCallback(() => {
+    hasAdvancedFromLearnRef.current = {}
     setPhase('learn')
     setMaxUnlockedPhase('learn')
     setError(null)
@@ -669,7 +671,8 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       ? quest.id
       : null
 
-    if (stageIndex >= 1 && effectiveLessonIdForResume) {
+    if (stageIndex >= 1 && effectiveLessonIdForResume && !hasAdvancedFromLearnRef.current[effectiveLessonIdForResume]) {
+      hasAdvancedFromLearnRef.current[effectiveLessonIdForResume] = true
       void learningApi.advanceLesson(effectiveLessonIdForResume, { fromPhase: 'learn' }).catch(() => {
         // Phase may have already advanced or already completed
       })
@@ -721,6 +724,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       : null
 
     if (effectiveId && navigator.onLine) {
+      hasAdvancedFromLearnRef.current[effectiveId] = true
       void learningApi.advanceLesson(effectiveId, { fromPhase: 'learn' }).then(() => {
         clearWorldPageCache()
         clearApiCache()
@@ -1103,8 +1107,20 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         let nextQuestId: string | null = null
         try {
           if (quest?.courseId) {
-            const p = await learningApi.getCourseProgress(quest.courseId)
-            const next = p.quests.find(
+            let targetCourseId = quest.courseId
+            if (targetCourseId.startsWith('dao-') || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetCourseId)) {
+              const pathway = await learningApi.getPathway().catch(() => null)
+              if (pathway?.courses) {
+                const matchedCourse =
+                  pathway.courses.find((c) => c.id === targetCourseId || c.slug === targetCourseId || (c.slug && c.slug.startsWith(`${targetCourseId}-`))) ||
+                  findCourseByIdentifier(pathway.courses, targetCourseId)
+                if (matchedCourse?.id) {
+                  targetCourseId = matchedCourse.id
+                }
+              }
+            }
+            const p = await learningApi.getCourseProgress(targetCourseId).catch(() => null)
+            const next = p?.quests?.find(
               (q) => q.order === quest.order + 1 &&
                 (q.status === 'available' || q.status === 'in_progress' || q.status === 'completed'),
             )

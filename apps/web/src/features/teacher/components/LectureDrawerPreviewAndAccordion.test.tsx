@@ -362,8 +362,9 @@ describe('StudentStagePreview Component — Stage 2 Video Milestone Stepper Bar'
     const rewindBtn = container.querySelector('[aria-label="Tua lại từ đầu"]')
     expect(rewindBtn).not.toBeNull()
 
-    // Nút xem YouTube
-    expect(container.textContent).toContain('Mở trên YouTube')
+    // Nút xem toàn màn hình
+    const fullscreenBtn = container.querySelector('[aria-label="Xem toàn màn hình"]')
+    expect(fullscreenBtn).not.toBeNull()
 
     act(() => {
       root.unmount()

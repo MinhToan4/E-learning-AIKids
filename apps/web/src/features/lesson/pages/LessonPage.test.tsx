@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { LessonPage, createAikiRuleCardsFromData } from './LessonPage'
+import { useLessonPageState } from '../hooks/useLessonPageState'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { learningApi } from '@/shared/lib/learning-api'
 
@@ -345,5 +346,169 @@ describe('LessonPage prefetch', () => {
     await vi.waitFor(() => {
       expect(currentLocation).toBe('/world/dao-1/lesson/rule-2')
     })
+  })
+
+  it('guards course progress query and resolves alias courseId to UUID', async () => {
+    const courseUuid = '55555555-5555-4555-8555-555555555555'
+    vi.spyOn(learningApi, 'getPathway').mockResolvedValue({
+      student: { nickname: 'Bo', ageBand: '8-10' },
+      policy: null,
+      recommendedCourseId: 'dao-2',
+      courses: [{
+        id: courseUuid,
+        slug: 'dao-1-nha-tham-hiem-ai',
+        title: 'Nhà thám hiểm AI',
+        shortTitle: 'Đảo 2',
+        status: 'active',
+        reasonCode: 'official',
+        completionPercent: 0,
+        missingPrerequisites: [],
+        coverImage: null,
+        enrolled: true,
+        enrollmentId: null,
+      }],
+    })
+
+    const getProgressSpy = vi.spyOn(learningApi, 'getCourseProgress').mockResolvedValue({
+      quests: [
+        { id: 'q-1', order: 1, status: 'completed', stars: 3, xpEarned: 50, phase: 'done' },
+        { id: 'q-2', order: 2, status: 'available', stars: 0, xpEarned: 0, phase: 'learn' },
+      ],
+      totalStars: 3,
+      completedCount: 1,
+    })
+
+    vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
+      progress: {
+        status: 'completed',
+        phase: 'done',
+        stars: 3,
+      },
+      quest: {
+        id: 'lesson-1',
+        courseId: 'dao-2',
+        order: 1,
+        title: 'Lesson 1',
+        duration: '10m',
+        hook: 'Hook',
+        accent: 'blue',
+        practiceKind: 'chips',
+        skill: 'Skill',
+        reward: 'Reward',
+        goals: [],
+        learnCards: [],
+        check: [],
+      } as unknown as import('@/shared/lib/api').QuestDetail,
+    })
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/dao-2/lesson/lesson-1']}>
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    await vi.waitFor(() => {
+      expect(getProgressSpy).toHaveBeenCalledWith(courseUuid)
+    })
+  })
+
+  it('handles getCourseProgress rejection gracefully without crashing', async () => {
+    vi.spyOn(learningApi, 'getPathway').mockResolvedValue({
+      student: { nickname: 'Bo', ageBand: '8-10' },
+      policy: null,
+      recommendedCourseId: 'dao-2',
+      courses: [],
+    })
+
+    const getProgressSpy = vi.spyOn(learningApi, 'getCourseProgress').mockRejectedValue(new Error('Network error'))
+
+    vi.spyOn(learningApi, 'openLesson').mockResolvedValue({
+      progress: {
+        status: 'completed',
+        phase: 'done',
+        stars: 3,
+      },
+      quest: {
+        id: 'lesson-fail',
+        courseId: 'dao-2',
+        order: 1,
+        title: 'Lesson Fail',
+        duration: '10m',
+        hook: 'Hook',
+        accent: 'blue',
+        practiceKind: 'chips',
+        skill: 'Skill',
+        reward: 'Reward',
+        goals: [],
+        learnCards: [],
+        check: [],
+      } as unknown as import('@/shared/lib/api').QuestDetail,
+    })
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(
+        <MemoryRouter initialEntries={['/world/dao-2/lesson/lesson-fail']}>
+          <Routes>
+            <Route path="/world/:courseId/lesson/:lessonId" element={<LessonPage />} />
+          </Routes>
+        </MemoryRouter>,
+      )
+    })
+
+    await vi.waitFor(() => {
+      expect(getProgressSpy).toHaveBeenCalled()
+    })
+    expect(container.textContent).toBeDefined()
+  })
+
+  it('deduplicates advanceLesson calls when persistJourneyStage is called multiple times for stageIndex >= 1', async () => {
+    const advanceSpy = vi.spyOn(learningApi, 'advanceLesson').mockResolvedValue({} as any)
+    vi.spyOn(learningApi, 'saveResume').mockResolvedValue({} as any)
+
+    let testState: ReturnType<typeof useLessonPageState> | null = null
+    function HookHarness() {
+      testState = useLessonPageState({
+        questId: '33333333-3333-4333-8333-333333333333',
+        routeCourseId: 'course-1',
+      })
+      return null
+    }
+
+    const activeRoot = createRoot(container)
+    root = activeRoot
+    await act(async () => {
+      activeRoot.render(<HookHarness />)
+    })
+
+    expect(testState).not.toBeNull()
+
+    // Stage 1 transition
+    await act(async () => {
+      testState!.persistJourneyStage(1, 6)
+    })
+    expect(advanceSpy).toHaveBeenCalledTimes(1)
+    expect(advanceSpy).toHaveBeenCalledWith('33333333-3333-4333-8333-333333333333', { fromPhase: 'learn' })
+
+    // Stage 2 transition
+    await act(async () => {
+      testState!.persistJourneyStage(2, 6)
+    })
+    // advanceLesson should NOT be called again
+    expect(advanceSpy).toHaveBeenCalledTimes(1)
+
+    // Stage 3 transition
+    await act(async () => {
+      testState!.persistJourneyStage(3, 6)
+    })
+    // advanceLesson should still NOT be called again
+    expect(advanceSpy).toHaveBeenCalledTimes(1)
   })
 })

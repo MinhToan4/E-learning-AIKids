@@ -295,8 +295,21 @@ export function LessonPage() {
     }
     void (async () => {
       try {
-        const p = await learningApi.getCourseProgress(quest.courseId)
-        const next = p.quests.find(
+        let targetCourseId = quest.courseId
+        if (targetCourseId && (targetCourseId.startsWith('dao-') || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetCourseId))) {
+          const pathway = await learningApi.getPathway().catch(() => null)
+          if (pathway?.courses) {
+            const matchedCourse =
+              pathway.courses.find((c) => c.id === targetCourseId || c.slug === targetCourseId || (c.slug && c.slug.startsWith(`${targetCourseId}-`))) ||
+              findCourseByIdentifier(pathway.courses, targetCourseId)
+            if (matchedCourse?.id) {
+              targetCourseId = matchedCourse.id
+            }
+          }
+        }
+        if (!targetCourseId) return
+        const p = await learningApi.getCourseProgress(targetCourseId).catch(() => null)
+        const next = p?.quests?.find(
           (q) =>
             q.order === quest.order + 1 &&
             (q.status === 'available' || q.status === 'in_progress' || q.status === 'completed'),

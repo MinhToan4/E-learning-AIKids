@@ -797,7 +797,7 @@ describe('SixStageJourneyView', () => {
     const iframe = stage2Section?.querySelector('iframe')
     expect(iframe).not.toBeNull()
     expect(iframe?.getAttribute('src')).toContain('https://www.youtube.com/embed/NMdHhsLY5jc')
-    expect(iframe?.getAttribute('src')).toContain('controls=1')
+    expect(iframe?.getAttribute('src')).toContain('controls=0')
 
     // Sidebar is omitted; timestamps are built into video timeline stepper in main canvas
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
