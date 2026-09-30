@@ -6,6 +6,40 @@
   "outputDirectory": "apps/web/dist",
   "headers": [
     {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "source": "/(login.*|kids.*|home.*|world.*|parent.*|teacher.*|admin.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
       "source": "/(.*\\.html|/|/login|/kids|/home|/world.*|/parent.*|/teacher.*|/admin.*)",
       "headers": [
         {
