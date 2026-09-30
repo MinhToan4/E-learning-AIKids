@@ -30,7 +30,10 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('Lesson ref picker is course-only (no free student photo upload)', () => {
-    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    const lesson =
+      read('features/lesson/pages/LessonPage.tsx') +
+      read('features/lesson/components/LegacyPhaseLessonView.tsx') +
+      read('features/lesson/hooks/useLessonPageState.ts')
     expect(lesson).toContain('RefMediaPicker')
     expect(lesson).toContain('assetIds')
     expect(lesson).toContain('SketchCanvas')
@@ -52,7 +55,10 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('completed lesson review is read-only and stale phase is recovered', () => {
-    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    const lesson =
+      read('features/lesson/pages/LessonPage.tsx') +
+      read('features/lesson/components/LegacyPhaseLessonView.tsx') +
+      read('features/lesson/hooks/useLessonPageState.ts')
     expect(lesson).toContain('reviewMode')
     expect(lesson).toContain('Quay lại kết quả')
     expect(lesson).toContain("detail.reason !== 'phase_mismatch'")
@@ -61,7 +67,11 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('lesson always tells the child the goal, product and four-step rhythm', () => {
-    const lesson = read('features/lesson/pages/LessonPage.tsx') + read('features/lesson/components/LessonNavigationHeader.tsx')
+    const lesson =
+      read('features/lesson/pages/LessonPage.tsx') +
+      read('features/lesson/components/LessonNavigationHeader.tsx') +
+      read('features/lesson/components/LegacyPhaseLessonView.tsx') +
+      read('features/lesson/hooks/useLessonPageState.ts')
     const sidebar = read('features/lesson/components/LeftPhaseSidebar.tsx')
     expect(lesson).toContain('Hôm nay con sẽ')
     expect(lesson).toContain('Sản phẩm của trạm')
@@ -73,7 +83,10 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('loads lessons through the learning boundary and supports visual quiz image options', () => {
-    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    const lesson =
+      read('features/lesson/pages/LessonPage.tsx') +
+      read('features/lesson/components/LegacyPhaseLessonView.tsx') +
+      read('features/lesson/hooks/useLessonPageState.ts')
     const learningApi = read('shared/lib/learning-api.ts')
     expect(lesson).toContain('learningApi.openLesson(questId)')
     expect(learningApi).toContain('`/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/open`')
