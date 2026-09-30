@@ -1477,14 +1477,16 @@ export function LessonPage() {
     }
     setBusy(true)
     setError(null)
+    let advanceSucceeded = false
     try {
       // Try to advance to check phase — attempt multiple fromPhase values
       // because the DB phase may differ from what the UI expects (e.g. 'practice' after a previous partial attempt)
-      await learningApi
+      const advanceResult = await learningApi
         .advanceLesson(questId, { fromPhase: 'learn' })
         .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'practice' }))
         .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'game' }))
         .catch(() => null) // Already at check/completed — safe to continue
+      advanceSucceeded = advanceResult !== null
 
       const res = await learningApi.submitCheck(questId, {
         answers: quest.check.map((q) => ({
@@ -1512,13 +1514,14 @@ export function LessonPage() {
         },
       }))
     } catch (e) {
-      // 409 PHASE_MISMATCH with currentPhase=completed/check means lesson was already submitted
-      // before — treat as idempotent success so navigation buttons work
+      // 409 PHASE_MISMATCH after a successful advance call means the backend
+      // already advanced the phase further (practice/check/completed) — treat as idempotent success.
+      // We never want to revert UI to a previous phase when navigation buttons have already appeared.
       const isAlreadyCompleted =
+        advanceSucceeded &&
         e instanceof ApiError &&
         e.status === 409 &&
-        typeof (e.body as any)?.currentPhase === 'string' &&
-        ['completed', 'check'].includes((e.body as any).currentPhase)
+        (e.body as any)?.reason === 'phase_mismatch'
 
       if (isAlreadyCompleted) {
         const confirmedStars = liveStars > 0 ? liveStars : 2
