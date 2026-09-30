@@ -12,6 +12,7 @@ type Props = {
   effectiveCourseId: string
   liveStars: number
   initialStageIndex?: number
+  isCompleted?: boolean
   onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onStageChange?: (stageIndex: number, stageCount: number) => void
 }
@@ -22,6 +23,7 @@ export default function RuleLessonJourneyRenderer({
   effectiveCourseId,
   liveStars,
   initialStageIndex = 0,
+  isCompleted = false,
   onFinish,
   onStageChange,
 }: Props) {
@@ -134,6 +136,8 @@ export default function RuleLessonJourneyRenderer({
         studentStars={liveStars || 42}
         rewardXp={50}
         initialStageIndex={initialStageIndex}
+        isCompleted={isCompleted || liveStars >= 3}
+        previousStars={liveStars}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => navigate(`/world/${effectiveCourseId}/lesson/${nextSlug}`)}
         onOpenCourse={() => navigate('/world/program/aikid_official')}

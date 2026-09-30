@@ -49,6 +49,9 @@ export type LessonProgress = {
 
 /** Convert the server-owned six-stage checkpoint into the zero-based UI index. */
 export function lessonStageIndexFromProgress(progress: LessonProgress): number {
+  if (progress.status === 'completed') {
+    return 99
+  }
   const sectionId = progress.sectionId
     ?? progress.lastSectionId
     ?? progress.anchor?.sectionId

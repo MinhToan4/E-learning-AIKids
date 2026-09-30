@@ -264,13 +264,24 @@ export function SixStageJourneyView({
     return !rewardConfig?.nextLessonSlug
   }, [isFinalStationProp, isRuleLesson, lessonId, lessonTitle, matchedCurriculum, stages, journey])
 
-  const [currentStage, setCurrentStage] = useState<number>(() =>
-    Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1))),
-  )
+  const isCompletedLesson = Boolean(isCompleted || (previousStars != null && previousStars >= 3))
+
+  const [currentStage, setCurrentStage] = useState<number>(() => {
+    const maxIdx = Math.max(0, stages.length - 1)
+    if (isCompletedLesson) {
+      return Math.max(0, Math.min(initialStageIndex > 0 ? initialStageIndex : maxIdx, maxIdx))
+    }
+    return Math.max(0, Math.min(initialStageIndex, maxIdx))
+  })
 
   const [completedStages, setCompletedStages] = useState<Set<number>>(() => {
     const set = new Set<number>()
-    const init = Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1)))
+    const maxIdx = Math.max(0, stages.length - 1)
+    if (isCompletedLesson) {
+      for (let i = 0; i <= maxIdx; i++) set.add(i)
+      return set
+    }
+    const init = Math.max(0, Math.min(initialStageIndex, maxIdx))
     for (let i = 0; i < init; i++) set.add(i)
     return set
   })
@@ -297,9 +308,21 @@ export function SixStageJourneyView({
   // response. Apply a newer server checkpoint without ever moving a learner
   // backwards if they already advanced while the request was in flight.
   useEffect(() => {
+    const maxIdx = Math.max(0, stages.length - 1)
+    if (isCompletedLesson) {
+      setCompletedStages((prev) => {
+        const next = new Set(prev)
+        for (let i = 0; i <= maxIdx; i++) next.add(i)
+        return next
+      })
+      setIsVideoCompleted(true)
+      const targetStage = Math.max(0, Math.min(initialStageIndex > 0 ? initialStageIndex : maxIdx, maxIdx))
+      setCurrentStage((current) => Math.max(current, targetStage))
+      return
+    }
     const resumedStage = Math.max(
       0,
-      Math.min(initialStageIndex, Math.max(0, stages.length - 1)),
+      Math.min(initialStageIndex, maxIdx),
     )
     if (resumedStage > 0) {
       setCompletedStages((prev) => {
@@ -314,7 +337,7 @@ export function SixStageJourneyView({
       }
     }
     setCurrentStage((current) => Math.max(current, resumedStage))
-  }, [initialStageIndex, stages.length, lessonId])
+  }, [initialStageIndex, stages.length, lessonId, isCompletedLesson])
 
   // Stage 1 (Confirm goal) state
   const [selectedConfirmOption, setSelectedConfirmOption] = useState<number | null>(() =>
@@ -589,6 +612,10 @@ export function SixStageJourneyView({
   const defaultStars = rewardStageDef?.config?.rewardBadge?.stars ?? journey?.stage6_completion?.rewardBadge?.stars ?? 3
 
   const earnedStars = useMemo(() => {
+    if (isCompletedLesson) {
+      return previousStars && previousStars >= 1 ? previousStars : 3
+    }
+
     if (stages.length === 3) {
       let stars = 0
       const videoDone = completedStages.has(0) || isVideoCompleted || currentStage > 0
@@ -638,6 +665,8 @@ export function SixStageJourneyView({
 
     return Math.min(3, stars)
   }, [
+    isCompletedLesson,
+    previousStars,
     stages.length,
     completedStages,
     isVideoCompleted,
@@ -813,14 +842,17 @@ export function SixStageJourneyView({
         >
           {stages.map((stageItem, idx) => {
             const isActive = currentStage === idx
-            const isDone = (
-              isRuleLesson || stages.length === 3
-                ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
-                  (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
-                  (idx === 2 && completedStages.has(2))
-                : completedStages.has(idx)
-            ) && currentStage > idx
+            const isDone = isCompletedLesson
+              ? !isActive
+              : (
+                  isRuleLesson || stages.length === 3
+                    ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
+                      (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
+                      (idx === 2 && completedStages.has(2))
+                    : completedStages.has(idx)
+                ) && currentStage > idx
             const isUnlocked =
+              isCompletedLesson ||
               idx <= currentStage ||
               completedStages.has(idx) ||
               completedStages.has(idx - 1) ||
@@ -886,14 +918,17 @@ export function SixStageJourneyView({
         <div className="flex sm:hidden items-center justify-between gap-1 w-full min-w-0 pt-0.5">
           {stages.map((stageItem, idx) => {
             const isActive = currentStage === idx
-            const isDone = (
-              isRuleLesson || stages.length === 3
-                ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
-                  (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
-                  (idx === 2 && completedStages.has(2))
-                : completedStages.has(idx)
-            ) && currentStage > idx
+            const isDone = isCompletedLesson
+              ? !isActive
+              : (
+                  isRuleLesson || stages.length === 3
+                    ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
+                      (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
+                      (idx === 2 && completedStages.has(2))
+                    : completedStages.has(idx)
+                ) && currentStage > idx
             const isUnlocked =
+              isCompletedLesson ||
               idx <= currentStage ||
               completedStages.has(idx) ||
               completedStages.has(idx - 1) ||

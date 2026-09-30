@@ -1874,18 +1874,20 @@ export function LessonPage() {
 
   // ── TEMPLATE 1: 10 Quy Tắc Vàng AIKI (Module 0 - 3 Chặng Chuẩn: VIDEO ➔ QUIZ ➔ REWARD) ──
   if (isAikiRuleJourney && quest) {
+    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──
   if (isIslandJourney && quest) {
+    const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
       </Suspense>
     )
   }
