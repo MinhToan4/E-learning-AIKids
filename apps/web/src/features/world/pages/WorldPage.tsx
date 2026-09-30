@@ -43,17 +43,16 @@ const isUuid = (val: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab
 
 export function getStationSlug(station: any, isRuleCourse?: boolean): string {
   if (!station) return ''
+  if (isRuleCourse || isAikiRuleJourney(station)) {
+    const ruleNum = extractRuleNumber(station)
+    if (ruleNum >= 1 && ruleNum <= 10) return `rule-${ruleNum}`
+  }
   if (station.slug && typeof station.slug === 'string' && !isUuid(station.slug)) {
     return station.slug
   }
-  if (isRuleCourse || isAikiRuleJourney(station)) {
-    const ruleNum = station.order || extractRuleNumber(station)
-    if (ruleNum >= 1 && ruleNum <= 10) return `rule-${ruleNum}`
-  }
   const matched = findIslandCurriculum({ id: station.id, title: station.title, slug: station.slug })
   if (matched?.slug) return matched.slug
-  if (matched?.id && !isUuid(matched.id)) return matched.id
-  return !isUuid(station.id) ? station.id : (station.slug || station.id)
+  return station.id || ''
 }
 
 // Client-side unlock switches are intentionally disabled. Test accounts such

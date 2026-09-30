@@ -710,6 +710,18 @@ describe('Server-owned World map progress', () => {
       expect(slug).toMatch(/^rule-[1-9]|rule-10$/)
     })
   })
+
+  it('standardizes rule station slugs to rule-N even when station has qtX slug and 0-indexed order', () => {
+    const stationWithSlugAndZeroIndexedOrder = {
+      id: '33333333-2148-4373-b41a-0d0be4a4e4be',
+      slug: 'qt4-chia-se-vi-sao-chon-y-tuong',
+      title: 'QT4 — Giải thích vì sao',
+      order: 3, // 0-indexed in database!
+    }
+    expect(getStationSlug(stationWithSlugAndZeroIndexedOrder, true)).toBe('rule-4')
+    // Also works when isRuleCourse is omitted because isAikiRuleJourney detects the slug
+    expect(getStationSlug(stationWithSlugAndZeroIndexedOrder)).toBe('rule-4')
+  })
 })
 
 describe('AIKID_SIX_ISLANDS_CONFIG & ModernIslandCard', () => {

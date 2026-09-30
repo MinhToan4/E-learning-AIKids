@@ -17,12 +17,18 @@ export function extractRuleNumber(candidate?: RuleCandidate): number {
   }
 
   const value = candidate as Record<string, unknown>
-  if (typeof value.order === 'number' && value.order >= 1 && value.order <= 10) return value.order
+
+  // 1. ƯU TIÊN SỐ HIỆU TỪ SLUG, TITLE, ID (Ví dụ: "qt4-...", "QT4 — ...", "rule-4")
   for (const item of [value.slug, value.id, value.title, (value.stage1_goal as { title?: unknown } | undefined)?.title]) {
     if (typeof item !== 'string') continue
-    const number = extractRuleNumber(item)
-    if (number !== 1 || /(?:rule|qt|quy\s*tắc|quy\s*tac|trạm|tram).*1/i.test(item)) return number
+    const match = item.trim().match(/(?:rule|qt|tram|trạm)[-_]?\s*(\d+)|(?:qt|quy\s*tắc|quy\s*tac|trạm|tram)\s*[-_–—:]?\s*(\d+)/i)
+    const number = Number(match?.[1] || match?.[2])
+    if (number >= 1 && number <= 10) return number
   }
+
+  // 2. Nếu không có slug/title mang số hiệu, mới dùng value.order
+  if (typeof value.order === 'number' && value.order >= 1 && value.order <= 10) return value.order
+
   const nextSlug = (value.stage6_completion as { nextLessonSlug?: unknown } | undefined)?.nextLessonSlug
   if (typeof nextSlug === 'string') {
     const next = nextSlug.match(/(?:rule|qt|tram|trạm)[-_]?(\d+)/i)

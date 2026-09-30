@@ -477,7 +477,7 @@ export function LessonPage() {
 
 
     void (async () => {
-      const localRuleLesson = questId.startsWith('rule-') || questId === 'aiki-rules'
+      const localRuleLesson = questId.startsWith('rule-') || questId === 'aiki-rules' || checkIsAikiRule(questId)
       const islandCurriculumPromise = questId.startsWith('bai-')
         ? import('@/features/lesson/data/island-curriculum-registry')
             .then((module) => module.findIslandCurriculum({ id: questId, slug: questId }))
@@ -503,8 +503,8 @@ export function LessonPage() {
         }
       }
 
-      if (questId.startsWith('rule-') || questId === 'aiki-rules') {
-        const rId = parseInt(questId.replace(/[^0-9]/g, '') || '1', 10) || 1
+      if (questId.startsWith('rule-') || questId === 'aiki-rules' || checkIsAikiRule(questId)) {
+        const rId = extractRuleNumber(questId)
         const rData = AIKI_RULES_DATA.find((r) => r.id === rId) || AIKI_RULES_DATA[0]
         let authoritativeLessonId = questId
         let openedProgressStatus: string | undefined
