@@ -1527,10 +1527,22 @@ export function LessonPage() {
         const confirmedStars = liveStars > 0 ? liveStars : 2
         setLiveStars(confirmedStars)
         setStarBurst({ id: Date.now(), count: 1 })
+        // Fetch next quest ID immediately so navigation button renders
+        let nextQuestId: string | null = null
+        try {
+          if (quest?.courseId) {
+            const p = await learningApi.getCourseProgress(quest.courseId)
+            const next = p.quests.find(
+              (q) => q.order === quest.order + 1 &&
+                (q.status === 'available' || q.status === 'in_progress' || q.status === 'completed'),
+            )
+            nextQuestId = next?.id ?? null
+          }
+        } catch { /* ignore — useEffect will retry */ }
         setCheckResult({
           stars: confirmedStars,
           message: 'Con đã hoàn thành bài học này rồi!',
-          nextQuestId: null,
+          nextQuestId,
         })
         setPhase('done')
         setGameHint(null)
