@@ -7,25 +7,16 @@ import {
   FileQuestion,
   Palette,
   Trophy,
-  CheckCircle2,
-  Star,
   X,
-  ChevronLeft,
-  ChevronRight,
   RotateCcw,
-  Lock,
   ZoomIn,
   ZoomOut,
   Maximize2,
   Minimize2,
-  Play,
-  Sparkles,
 } from 'lucide-react'
 import { CourseCertificateModal } from './CourseCertificateModal'
 import { FlatClayIcon } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/components/ui/Button'
-import { designerAssets } from '@/shared/config/assets'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import {
   type StudioImageItem,
@@ -38,6 +29,9 @@ import { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES, buildVideoEmbedUrl } 
 import { isAikiRuleJourney, extractRuleNumber } from '../lib/rule-journey-identifiers'
 import { STAGE_REGISTRY } from './stages'
 import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig, VideoStageConfig } from '../types/stage-schema'
+
+import { calculateUniversalStars } from '../lib/universal-stage-engine'
+import { StageStepperBar } from './StageStepperBar'
 
 const StudentStageBlocksView = React.lazy(() =>
   import('./StudentStageBlocksView').then((module) => ({ default: module.StudentStageBlocksView })),
@@ -79,6 +73,7 @@ export interface SixStageJourneyViewProps {
     journey?: Partial<LessonSixStageJourney>
   }
   onVideoCompleted?: () => void
+  isSavingProgress?: boolean
 }
 
 /**
@@ -176,6 +171,7 @@ export function SixStageJourneyView({
   isFinalStation: isFinalStationProp,
   matchedCurriculum: matchedCurriculumProp,
   onVideoCompleted: onVideoCompletedProp,
+  isSavingProgress = false,
 }: SixStageJourneyViewProps) {
   const journey = rawJourney as LessonSixStageJourney
 
@@ -295,7 +291,9 @@ export function SixStageJourneyView({
     const init = Math.max(0, Math.min(effectiveInitial, maxIdx))
     for (let i = 0; i < init; i++) set.add(i)
     const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
-    if (isSavedDone || (stages.length === 3 ? init > 0 : init > 2)) {
+    const videoIdx = stages.findIndex((s) => s.type === 'VIDEO')
+    const isVideoPassed = videoIdx >= 0 ? (init > videoIdx) : (init > 0)
+    if (isSavedDone || isVideoPassed) {
       set.add(0)
     }
     return set
@@ -351,7 +349,9 @@ export function SixStageJourneyView({
         }
         return next
       })
-      if (stages.length === 3 ? resumedStage > 0 : resumedStage > 2) {
+      const videoIdx = stages.findIndex((s) => s.type === 'VIDEO')
+      const isVideoPassed = videoIdx >= 0 ? (resumedStage > videoIdx) : (resumedStage > 0)
+      if (isVideoPassed) {
         setIsVideoCompleted(true)
       }
     }
@@ -374,7 +374,9 @@ export function SixStageJourneyView({
     const savedStage = readLessonStorage<number>(`aikids_lesson_stage_${lessonId}`, 0)
       || readLessonStorage<number>(`aikids_stage_${lessonId}`, 0)
     const init = Math.max(initialStageIndex, savedStage)
-    return isSavedDone || (stages.length === 3 ? init > 0 : init > 2)
+    const videoIdx = stages.findIndex((s) => s.type === 'VIDEO')
+    const isVideoPassed = videoIdx >= 0 ? (init > videoIdx) : (init > 0)
+    return isSavedDone || isVideoPassed
   })
 
   const hasNotifiedVideoDoneRef = useRef(false)
@@ -507,7 +509,8 @@ export function SixStageJourneyView({
 
   const advanceToStage = useCallback(
     (nextStage: number) => {
-      if (stages[currentStage]?.type === 'VIDEO' || (stages.length === 3 && currentStage === 0) || (stages.length > 3 && currentStage === 2)) {
+      const videoIdx = stages.findIndex((s) => s.type === 'VIDEO')
+      if (stages[currentStage]?.type === 'VIDEO' || (videoIdx >= 0 && currentStage === videoIdx)) {
         setIsVideoCompleted(true)
         writeLessonStorage(`aikids_video_done_${lessonId}`, true)
         writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 1)
@@ -604,7 +607,9 @@ export function SixStageJourneyView({
       for (let i = 0; i < resumed; i++) set.add(i)
       setCompletedStages(set)
       const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
-      setIsVideoCompleted(isSavedDone || (stages.length === 3 ? resumed > 0 : resumed > 2))
+      const videoIdx = stages.findIndex((s) => s.type === 'VIDEO')
+      const isVideoPassed = videoIdx >= 0 ? (resumed > videoIdx) : (resumed > 0)
+      setIsVideoCompleted(isSavedDone || isVideoPassed)
       setSelectedConfirmOption(readLessonStorage<number | null>(`aikids_confirm_opt_${lessonId}`, null))
       setIsConfirmCorrect(readLessonStorage<boolean | null>(`aikids_confirm_cor_${lessonId}`, null))
       setFailedOptionImages({})
@@ -658,69 +663,30 @@ export function SixStageJourneyView({
   const defaultStars = rewardStageDef?.config?.rewardBadge?.stars ?? journey?.stage6_completion?.rewardBadge?.stars ?? 3
 
   const earnedStars = useMemo(() => {
-    if (isCompletedLesson) {
-      return previousStars && previousStars >= 1 ? previousStars : 3
-    }
-
-    if (stages.length === 3) {
-      let stars = 0
-      const videoDone = completedStages.has(0) || isVideoCompleted || currentStage > 0
-      const quizTotal = effectiveQuizQuestions.length || 1
-      const quizDone =
-        completedStages.has(1) ||
-        currentStage > 1 ||
-        (quizScore >= quizTotal && quizTotal > 0)
-      const rewardDone = currentStage === 2 || completedStages.has(2)
-
-      if (videoDone) stars += 1
-      if (quizDone) stars += 1
-      if (rewardDone) stars += 1
-      return Math.min(3, stars)
-    }
-
-    // Khóa học chính các Đảo AIKids (6 chặng)
-    let stars = 0
-
-    // ⭐ Ngôi sao 1: Khám phá & Nắm vững bài giảng (Chặng 0, 1 & 2 Video)
-    const videoPhaseDone =
-      (completedStages.has(2) || isVideoCompleted || currentStage > 2) &&
-      (completedStages.has(0) || currentStage > 0)
-
-    // ⭐⭐ Ngôi sao 2: Thử tài kiến thức / Phản xạ (Chặng 3 Quiz)
-    const quizTotal = effectiveQuizQuestions.length || 1
-    const quizPhaseDone =
-      completedStages.has(3) ||
-      currentStage > 3 ||
-      (quizScore / quizTotal >= 0.7) ||
-      (quizSubmitted && quizScore >= 1)
-
-    // Ngôi sao 3: Thực hành sáng tạo và hoàn thành (Chặng 4 Practice -> Chặng 5 Reward)
-    const practiceRewardDone =
-      Boolean(submittedArtwork) ||
-      currentStage === 5 ||
-      completedStages.has(4) ||
-      completedStages.has(5)
-
-    if (videoPhaseDone) stars += 1
-    if (quizPhaseDone) stars += 1
-    if (practiceRewardDone) stars += 1
-
-    if (currentStage === 5 && stars < 3) {
-      return defaultStars
-    }
-
-    return Math.min(3, stars)
+    return calculateUniversalStars({
+      stages,
+      currentStage,
+      completedStages,
+      isVideoCompleted,
+      quizScore,
+      effectiveQuizQuestions,
+      quizSubmitted,
+      submittedArtwork,
+      isCompletedLesson,
+      previousStars,
+      defaultStars,
+    })
   }, [
-    isCompletedLesson,
-    previousStars,
-    stages.length,
+    stages,
+    currentStage,
     completedStages,
     isVideoCompleted,
     quizScore,
     effectiveQuizQuestions,
     quizSubmitted,
     submittedArtwork,
-    currentStage,
+    isCompletedLesson,
+    previousStars,
     defaultStars,
   ])
 
@@ -791,275 +757,31 @@ export function SixStageJourneyView({
     return ''
   }, [stationInfo.lessonNumber])
 
-  const currentStageTitle = useMemo(() => {
-    if (stages.length === 6) {
-      switch (currentStage) {
-        case 0: return 'Mục tiêu'
-        case 1: return 'Xác nhận'
-        case 2: return 'Video'
-        case 3: return 'Bài test'
-        case 4: return 'Thực hành'
-        case 5: return 'Hoàn thành'
-        default: return stages[currentStage]?.title || 'Khám phá'
-      }
-    }
-    return stages[currentStage]?.title || `Chặng ${currentStage + 1}`
-  }, [currentStage, stages])
-
   // Lookup Component from Schema Registry
   const StageComp = STAGE_REGISTRY[currentStageDef?.type]
 
   return (
     <div className="mx-auto flex h-full max-h-full min-h-0 w-full max-w-[1024px] min-w-0 flex-1 flex-col gap-2 overflow-y-auto md:overflow-hidden">
-      {/* ── HÀNG 1: TOP BAR ĐỒNG NHẤT (BẢN ĐỒ, TÊN TRẠM & SAO/XP GAME-LIKE) ── */}
-      <div className="shrink-0 flex items-center justify-between gap-2 w-full px-0.5 py-0.5">
-        {/* Nút Quay lại bản đồ & Tên bài học / Trạm ngắn gọn */}
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          {onBackToMap ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (quizSubmitted || currentStage >= 1 || currentStageDef?.type === 'REWARD' || currentStage === stages.length - 1) {
-                  const completionSummary: LessonCompletionSummary = {
-                    stars: 3,
-                    xp: rewardXp || 50,
-                    answers: submittedQuizAnswers,
-                    nextLessonSlug: (rewardStageDef?.config as any)?.nextLessonSlug || (currentStageDef?.config as any)?.nextLessonSlug,
-                  }
-                  try {
-                    const res = onFinishLesson?.(completionSummary)
-                    if (res instanceof Promise) {
-                      void res.finally(() => onBackToMap())
-                      return
-                    }
-                  } catch {
-                    // ignore error and proceed
-                  }
-                }
-                onBackToMap()
-              }}
-              className="min-h-[38px] px-3 py-1.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs border border-slate-200/80 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
-              title="Quay lại bản đồ"
-            >
-              <ChevronLeft size={16} aria-hidden="true" className="shrink-0" />
-              <span className="hidden sm:inline">Quay lại Bản đồ</span>
-              <span className="sm:hidden">Bản đồ</span>
-            </button>
-          ) : <div />}
-
-          {/* Tên trạm ngắn gọn (đưa lên đây theo yêu cầu của Sếp để bỏ dòng dư thừa) */}
-          <div data-testid="current-station-badge" className="min-w-0 flex items-center gap-1.5">
-            <span className="sr-only">{stationInfo.islandName || 'Đảo Khám Phá'}</span>
-            <h1 className="text-xs sm:text-sm md:text-base font-black text-slate-900 leading-snug truncate">
-              <span className="truncate">{stationInfo.stationLabel}</span>
-            </h1>
-            {legacyStationAlias && <span className="sr-only">{legacyStationAlias}</span>}
-          </div>
-        </div>
-
-        {/* Gamified Badges: Chặng + XP + Sao thiết kế cao cấp, thu hút trẻ */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Badge Chặng */}
-          <span className="px-2.5 py-1 rounded-xl bg-purple-50 border border-purple-200/90 text-purple-700 font-black text-[11px] sm:text-xs shadow-2xs shrink-0">
-            Chặng {currentStage + 1}/{stages.length}
-          </span>
-
-          {/* Badge XP & Sao Gamification Pill */}
-          <div
-            data-testid="star-badge-header"
-            className="flex items-center gap-1 sm:gap-1.5 shrink-0"
-            title={`Bé đã đạt ${earnedStars}/3 Sao trong bài học này`}
-          >
-            {/* Pill XP */}
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300/80 text-amber-950 font-black text-[11px] sm:text-xs shadow-clay-xs">
-              <Sparkles size={13} className="text-amber-500 fill-amber-400 shrink-0" />
-              <span>+{effectiveRewardXp} XP</span>
-            </div>
-
-            {/* Pill Sao */}
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-100 border border-amber-300 text-amber-950 font-black text-[11px] sm:text-xs shadow-clay-xs">
-              <Star size={13} className="text-amber-500 fill-amber-400 shrink-0" />
-              <span>{earnedStars}/3 Sao</span>
-            </div>
-
-            {/* Test marker sr-only để tương thích 100% test contract */}
-            <div className="sr-only" data-testid="star-badge-sr">
-              <span>+{effectiveRewardXp} XP • {earnedStars}/3 Sao</span>
-              <span>{earnedStars} Sao</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── NAVIGATION STEPPER: DÀNH CHO CẢ ISLAND VÀ RULE LESSONS (ĐÃ BỎ DÒNG TIÊU ĐỀ THỪA THEO YÊU CẦU CỦA SẾP) ── */}
-      <div className="rounded-2xl sm:rounded-3xl bg-white p-2 sm:p-2.5 shadow-xs border border-slate-200/80 space-y-1.5 w-full min-w-0 shrink-0">
-        <div className="w-full h-1 sm:h-1.5 rounded-full bg-purple-100 overflow-hidden p-0.5 shadow-inner">
-          <div
-            className="h-full rounded-full bg-purple-600 progress-hatched transition-all duration-300"
-            style={{ width: `${((currentStage + 1) / stages.length) * 100}%` }}
-          />
-        </div>
-
-        {/* Stepper trên Desktop (hidden sm:flex): Giữ nguyên Stepper 6 chặng mở rộng đầy đủ */}
-        <nav
-          aria-label="Tiến độ bài học 6 chặng"
-          className="hidden sm:flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-0.5 w-full min-w-0"
-        >
-          {stages.map((stageItem, idx) => {
-            const isActive = currentStage === idx
-            const isDone = isCompletedLesson
-              ? !isActive
-              : (
-                  isRuleLesson || stages.length === 3
-                    ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
-                      (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
-                      (idx === 2 && completedStages.has(2))
-                    : completedStages.has(idx)
-                ) && (currentStage > idx || completedStages.has(idx) || (idx === 0 && isVideoCompleted))
-            const isUnlocked =
-              isCompletedLesson ||
-              idx <= currentStage ||
-              completedStages.has(idx) ||
-              completedStages.has(idx - 1) ||
-              (idx === 1 && stages.length > 3) ||
-              (idx === 1 && isVideoCompleted)
-
-            const defaultTitle =
-              stages.length === 6
-                ? idx === 0
-                  ? '1. Mục tiêu'
-                  : idx === 1
-                  ? '2. Xác nhận'
-                  : idx === 2
-                  ? '3. Video'
-                  : idx === 3
-                  ? '4. Bài test'
-                  : idx === 4
-                  ? '5. Thực hành'
-                  : '6. Hoàn thành'
-                : isRuleLesson || stages.length === 3
-                ? idx === 0
-                  ? '1. Bài học'
-                  : idx === 1
-                  ? '2. Kiểm tra'
-                  : '3. Hoàn thành'
-                : `${idx + 1}. ${stageItem.title}`
-
-            return (
-              <React.Fragment key={stageItem.id || idx}>
-                {idx > 0 && (
-                  <ChevronRight
-                    size={12}
-                    className="lucide-chevron-right mx-0.5 size-3 shrink-0 text-slate-400"
-                    aria-hidden="true"
-                  />
-                )}
-                <button
-                  type="button"
-                  disabled={!isUnlocked}
-                  onClick={() => handleStageSelect(idx)}
-                  className={cn(
-                    'flex-1 min-w-0 shrink-0 min-h-[32px] sm:min-h-[34px] py-1 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer truncate',
-                    !isUnlocked && 'bg-zinc-100 text-zinc-400 font-bold opacity-40 cursor-not-allowed',
-                    isUnlocked && isDone && !isActive && 'bg-purple-50 text-purple-800 border border-purple-200 font-bold hover:bg-purple-100',
-                    isUnlocked && !isActive && !isDone && 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold',
-                    isUnlocked && isActive && 'bg-purple-700 text-white font-black shadow-2xs'
-                  )}
-                  title={`Chặng ${idx + 1}: ${stageItem.title}${!isUnlocked ? ' (Chưa mở)' : ''}`}
-                >
-                  {isDone && !isActive ? (
-                    <CheckCircle2 size={12} className="text-purple-600 shrink-0" />
-                  ) : !isUnlocked ? (
-                    <Lock size={12} className="text-zinc-400 shrink-0" />
-                  ) : null}
-                  <span className="truncate">{defaultTitle}</span>
-                </button>
-              </React.Fragment>
-            )
-          })}
-        </nav>
-
-        {/* Stepper trên Mobile (flex sm:hidden): Gộp 1 hàng ngang duy nhất vừa khít màn hình, bước đang chơi tự động mở rộng */}
-        <div className="flex sm:hidden items-center justify-between gap-1 w-full min-w-0 pt-0.5">
-          {stages.map((stageItem, idx) => {
-            const isActive = currentStage === idx
-            const isDone = isCompletedLesson
-              ? !isActive
-              : (
-                  isRuleLesson || stages.length === 3
-                    ? (idx === 0 && (isVideoCompleted || completedStages.has(0))) ||
-                      (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
-                      (idx === 2 && completedStages.has(2))
-                    : completedStages.has(idx)
-                ) && (currentStage > idx || completedStages.has(idx) || (idx === 0 && isVideoCompleted))
-            const isUnlocked =
-              isCompletedLesson ||
-              idx <= currentStage ||
-              completedStages.has(idx) ||
-              completedStages.has(idx - 1) ||
-              (idx === 1 && stages.length > 3) ||
-              (idx === 1 && isVideoCompleted)
-
-            const fullStageTitle =
-              stages.length === 6
-                ? idx === 0
-                  ? '1. Mục tiêu'
-                  : idx === 1
-                  ? '2. Xác nhận'
-                  : idx === 2
-                  ? '3. Video'
-                  : idx === 3
-                  ? '4. Bài test'
-                  : idx === 4
-                  ? '5. Thực hành'
-                  : '6. Hoàn thành'
-                : isRuleLesson || stages.length === 3
-                ? idx === 0
-                  ? '1. Bài học'
-                  : idx === 1
-                  ? '2. Kiểm tra'
-                  : '3. Hoàn thành'
-                : `${idx + 1}. ${stageItem.title}`
-
-            if (isActive) {
-              return (
-                <button
-                  key={`mobile-stage-${stageItem.id || idx}`}
-                  type="button"
-                  disabled={!isUnlocked}
-                  onClick={() => handleStageSelect(idx)}
-                  className="flex-1 min-w-0 px-2.5 py-1 rounded-full bg-purple-700 text-white font-black text-xs flex items-center justify-center gap-1 shadow-2xs truncate cursor-pointer"
-                  title={`Chặng ${idx + 1}: ${stageItem.title}`}
-                >
-                  <span className="truncate">{fullStageTitle}</span>
-                </button>
-              )
-            }
-
-            return (
-              <button
-                key={`mobile-stage-${stageItem.id || idx}`}
-                type="button"
-                disabled={!isUnlocked}
-                onClick={() => handleStageSelect(idx)}
-                className={cn(
-                  'size-7 shrink-0 text-xs font-black rounded-full flex items-center justify-center transition-all select-none',
-                  !isUnlocked && 'bg-zinc-100 text-zinc-400 opacity-40 cursor-not-allowed',
-                  isUnlocked && isDone && 'bg-purple-100 text-purple-800 border border-purple-200 cursor-pointer',
-                  isUnlocked && !isDone && 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700 cursor-pointer'
-                )}
-                title={`Chặng ${idx + 1}: ${stageItem.title}${!isUnlocked ? ' (Chưa mở)' : ''}`}
-              >
-                {isDone ? (
-                  <CheckCircle2 size={13} className="text-purple-700" />
-                ) : (
-                  <span>{idx + 1}</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <StageStepperBar
+        stages={stages}
+        currentStage={currentStage}
+        completedStages={completedStages}
+        isVideoCompleted={isVideoCompleted}
+        quizScore={quizScore}
+        isCompletedLesson={isCompletedLesson}
+        onSelectStage={handleStageSelect}
+        onBackToMap={onBackToMap}
+        onFinishLesson={onFinishLesson}
+        lessonTitle={lessonTitle}
+        effectiveStars={effectiveStars}
+        effectiveRewardXp={effectiveRewardXp}
+        submittedQuizAnswers={submittedQuizAnswers}
+        isSavingProgress={isSavingProgress}
+        stationInfo={stationInfo}
+        legacyStationAlias={legacyStationAlias}
+        isRuleLesson={isRuleLesson}
+        quizSubmitted={quizSubmitted}
+      />
 
       {/* ── KHÔNG GIAN BÀI HỌC CHÍNH (FULL WIDTH) ── */}
       <div className="flex flex-1 flex-col items-stretch gap-4 min-h-0 w-full max-w-full min-w-0 overflow-x-hidden md:overflow-hidden">
