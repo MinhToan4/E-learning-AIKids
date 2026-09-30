@@ -387,30 +387,34 @@ export function mergeQuestsWithLocalProgress<
   void isRuleCourse
   void localCompletedLessons
   void localGoldenRules
+
   return quests.map((quest) => {
     let effectiveStars = quest.stars || 0
     let effectiveStatus = quest.status
 
     if (typeof window !== 'undefined') {
       try {
-        const localStars =
-          Number(localStorage.getItem(`aikids_lesson_stars_${quest.id}`)) ||
-          (quest.slug ? Number(localStorage.getItem(`aikids_lesson_stars_${quest.slug}`)) : 0) ||
-          (typeof quest.order === 'number' ? Number(localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`)) : 0) ||
-          0
+        const idStars = Number(localStorage.getItem(`aikids_lesson_stars_${quest.id}`)) || 0
+        const slugStars = quest.slug ? Number(localStorage.getItem(`aikids_lesson_stars_${quest.slug}`)) || 0 : 0
+        const orderStars = typeof quest.order === 'number' ? Number(localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`)) || 0 : 0
+        const localStars = Math.max(idStars, slugStars, orderStars)
+
         const isCompleted =
+          quest.status === 'completed' ||
+          effectiveStars >= 3 ||
+          localStars >= 3 ||
           localStorage.getItem(`aikids_lesson_completed_${quest.id}`) === 'true' ||
           (quest.slug ? localStorage.getItem(`aikids_lesson_completed_${quest.slug}`) === 'true' : false) ||
           (typeof quest.order === 'number' && localStorage.getItem(`aikids_lesson_completed_rule-${quest.order}`) === 'true')
+
         const isVideoDone =
           localStorage.getItem(`aikids_video_done_${quest.id}`) === 'true' ||
           (quest.slug ? localStorage.getItem(`aikids_video_done_${quest.slug}`) === 'true' : false) ||
           (typeof quest.order === 'number' && localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true')
 
         let calculated = effectiveStars
-
-        if (isCompleted || calculated >= 3 || localStars >= 3) {
-          calculated = Math.max(calculated, 3)
+        if (isCompleted) {
+          calculated = Math.max(calculated, localStars, 3)
           effectiveStatus = 'completed'
         } else if (localStars > 0) {
           calculated = Math.max(calculated, localStars)
@@ -435,7 +439,12 @@ export function mergeQuestsWithLocalProgress<
         // ignore
       }
     }
-    return { ...quest, stars: effectiveStars, status: effectiveStatus }
+
+    return {
+      ...quest,
+      stars: effectiveStars,
+      status: effectiveStatus,
+    }
   })
 }
 

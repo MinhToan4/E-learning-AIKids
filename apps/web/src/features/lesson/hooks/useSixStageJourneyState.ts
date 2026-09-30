@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import {
   type StudioImageItem,
   type PracticePartState,
@@ -802,11 +803,13 @@ export function useSixStageJourneyState({
       }
       void onFinishLesson?.(completionSummary)
     } else {
-      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu local storage & dọn cờ
+      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu local storage & gửi advance lên backend DB
       writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
       writeLessonStorage(`aikids_quiz_ans_${lessonId}`, submittedQuizAnswers)
       writeLessonStorage(`aikids_quiz_sub_${lessonId}`, true)
-      // KHÔNG gọi onFinishLesson tại đây vì bài học còn chặng 5 Thực hành AIKI Studio!
+
+      // Gửi advance lên backend để DB ghi nhận 2 sao ngay lập tức
+      void learningApi.advanceLesson(lessonId, { fromPhase: 'practice' }).catch(() => null)
     }
   }, [currentStageDef, indices.practiceIdx, lessonId, onFinishLesson, rewardStageDef, rewardXp, submittedQuizAnswers])
 
@@ -822,6 +825,13 @@ export function useSixStageJourneyState({
     if (indices.practiceIdx >= 0) {
       setCompletedStages((prev) => new Set([...prev, indices.practiceIdx]))
     }
+    void learningApi.savePractice(lessonId, {
+      kind: 'studio',
+      payload: {
+        selectedImage: typeof selectedImage === 'string' ? selectedImage : (selectedImage?.url || ''),
+        prompt: prompt || '',
+      },
+    }).catch(() => null)
     void onFinishLesson?.({
       stars: 3,
       xp: effectiveRewardXp || 50,

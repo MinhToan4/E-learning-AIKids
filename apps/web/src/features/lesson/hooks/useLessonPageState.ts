@@ -535,9 +535,9 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       setBusy(true)
       try {
         const lessonIdForSubmit =
-          authoritativeLessonId && (!authoritativeLessonId.startsWith('rule-') && !authoritativeLessonId.startsWith('bai-'))
-            ? authoritativeLessonId
-            : quest.id
+          authoritativeLessonId ||
+          quest.id ||
+          questId
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
         const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
         const celebrationMsg = isIslandJourney
@@ -557,14 +557,19 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
             nextQuestId: checkRes.nextQuestId || nextRuleTarget,
           })
           try {
-            localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+            if (quest?.id) localStorage.setItem(`aikids_lesson_completed_${quest.id}`, 'true')
             if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
             if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-            localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+            if (progressId) localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+
+            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, '3')
             if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
             if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '3')
+            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+
             sessionStorage.removeItem(`aikids_stage_${quest.id}`)
             sessionStorage.removeItem(`aikids_stage_${questId}`)
+            if (authoritativeLessonId) sessionStorage.removeItem(`aikids_stage_${authoritativeLessonId}`)
           } catch {
             // ignore storage failure
           }
@@ -574,9 +579,10 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         } else {
           setLiveStars(confirmedStars)
           try {
-            localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
+            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, String(confirmedStars))
             if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
             if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
+            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
           } catch {
             // ignore storage failure
           }
@@ -613,13 +619,19 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
             nextQuestId: nextRuleTarget,
           })
           try {
-            localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+            if (quest?.id) localStorage.setItem(`aikids_lesson_completed_${quest.id}`, 'true')
             if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
             if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-            localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+            if (progressId) localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
+
+            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, '3')
             if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
+            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '3')
+            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+
             sessionStorage.removeItem(`aikids_stage_${quest.id}`)
             sessionStorage.removeItem(`aikids_stage_${questId}`)
+            if (authoritativeLessonId) sessionStorage.removeItem(`aikids_stage_${authoritativeLessonId}`)
           } catch {
             // ignore
           }
@@ -629,9 +641,10 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         } else {
           setLiveStars(confirmedStars)
           try {
-            localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
+            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, String(confirmedStars))
             if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
             if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
+            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
           } catch {
             // ignore
           }
@@ -686,13 +699,11 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
 
     setResumeStageIndex(stageIndex)
 
-    const effectiveLessonIdForResume = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
-      ? progressId
-      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
-      ? authoritativeLessonId
-      : (quest?.id && !quest.id.startsWith('rule-') && !quest.id.startsWith('bai-'))
-      ? quest.id
-      : null
+    const effectiveLessonIdForResume =
+      authoritativeLessonId ||
+      quest?.id ||
+      progressId ||
+      questId
 
     if (stageIndex >= 1 && effectiveLessonIdForResume && !hasAdvancedFromLearnRef.current[effectiveLessonIdForResume]) {
       hasAdvancedFromLearnRef.current[effectiveLessonIdForResume] = true
@@ -738,13 +749,11 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       // ignore
     }
 
-    const effectiveId = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
-      ? progressId
-      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
-      ? authoritativeLessonId
-      : (quest?.id && !quest.id.startsWith('rule-') && !quest.id.startsWith('bai-'))
-      ? quest.id
-      : null
+    const effectiveId =
+      authoritativeLessonId ||
+      quest?.id ||
+      progressId ||
+      questId
 
     if (effectiveId && navigator.onLine) {
       hasAdvancedFromLearnRef.current[effectiveId] = true
