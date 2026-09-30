@@ -1880,11 +1880,16 @@ export function LessonPage() {
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──
   if (isIslandJourney && quest) {
-    return (
-      <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
-      </Suspense>
-    )
+    // When phase=done, let LessonCelebrationModal (rendered below) handle everything.
+    // Don't render LessonJourneyRenderer in done state — its RewardStageBlock buttons
+    // would call handleAikiFinish again, causing a second submitCheck → 409 → phase revert.
+    if (phase !== 'done') {
+      return (
+        <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
+          <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        </Suspense>
+      )
+    }
   }
 
   const allCheckAnswersCorrect =
