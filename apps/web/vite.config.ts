@@ -97,7 +97,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('@rive-app/react-canvas')) {
               return 'vendor-rive'
             }
-            if (id.includes('island-curriculum-registry')) {
+            if (id.includes('island-curriculum-registry') || id.includes('features/lesson/data/islands')) {
               return 'data-island-curriculum'
             }
             if (id.includes('node_modules/zustand/')) {

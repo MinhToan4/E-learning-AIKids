@@ -143,7 +143,7 @@ describe('IslandStationsExplorerView', () => {
     expect(html).toContain('1/4 trạm xong')
 
     // Khối 3: Thẻ Thông Báo Thuyền Mèo Mee Navigator
-    expect(html).toContain('Đảo 2: Đảo Khám Phá')
+    expect(html).toContain('Đảo 1: Đảo Khám Phá')
     expect(html).toContain('Trạm 1.2')
     expect(html).toContain('Thuyền Mèo Mee neo bến • Học nhận ngay +3 sao')
     expect(html).toContain('Học Tiếp')

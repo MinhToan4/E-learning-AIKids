@@ -674,7 +674,7 @@ export function IslandStationsExplorerView({
         <div className="sr-only" aria-hidden="true">
           <div>{currentIsland.pedagogicalDesc}</div>
           <div>Thuyền Mèo Mee neo bến</div>
-          <div>Đảo {currentIsland.index + 1}: {currentIsland.title}</div>
+          <div>{currentIsland.index === 0 ? 'Đảo Tiên Quyết' : `Đảo ${currentIsland.index}: ${currentIsland.title}`}</div>
           <div>{activeStationBadgeText}</div>
           <div>Thuyền Mèo Mee neo bến • Học nhận ngay +3 sao</div>
           {activeLessonUrl ? <Link to={activeLessonUrl}>Học Tiếp</Link> : <span>Học Tiếp</span>}

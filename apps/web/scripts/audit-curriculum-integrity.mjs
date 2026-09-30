@@ -9,7 +9,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const ROOT_WEB = path.resolve(__dirname, '..')
-const ROOT_CORE = path.resolve(ROOT_WEB, '../../../../2-MCP-Core/core-lms-api')
+const ROOT_CORE = fs.existsSync(path.resolve(ROOT_WEB, '../../../2-MCP-Core/core-lms-api'))
+  ? path.resolve(ROOT_WEB, '../../../2-MCP-Core/core-lms-api')
+  : path.resolve(ROOT_WEB, '../../../../2-MCP-Core/core-lms-api')
 
 const PATH_WEB_REGISTRY = path.join(ROOT_WEB, 'src/features/lesson/data/island-curriculum-registry.ts')
 const PATH_LMS_CURRICULUM = path.join(ROOT_CORE, 'src/curricula/aiki-islands-curriculum.ts')
@@ -42,8 +44,26 @@ if (hasFailure) {
   process.exit(1)
 }
 
-const webContent = fs.readFileSync(PATH_WEB_REGISTRY, 'utf-8')
-const lmsContent = fs.readFileSync(PATH_LMS_CURRICULUM, 'utf-8')
+const PATH_WEB_ISLANDS_DIR = path.join(ROOT_WEB, 'src/features/lesson/data/islands')
+let webContent = fs.readFileSync(PATH_WEB_REGISTRY, 'utf-8')
+if (fs.existsSync(PATH_WEB_ISLANDS_DIR)) {
+  const islandFiles = ['island-1.ts', 'island-2.ts', 'island-3.ts', 'island-4.ts', 'island-5.ts', 'index.ts', 'notebook-configs.ts']
+  webContent += '\n' + islandFiles
+    .filter((f) => fs.existsSync(path.join(PATH_WEB_ISLANDS_DIR, f)))
+    .map((f) => fs.readFileSync(path.join(PATH_WEB_ISLANDS_DIR, f), 'utf-8'))
+    .join('\n')
+}
+
+const PATH_LMS_ISLANDS_DIR = path.join(ROOT_CORE, 'src/curricula/islands')
+let lmsContent = fs.readFileSync(PATH_LMS_CURRICULUM, 'utf-8')
+if (fs.existsSync(PATH_LMS_ISLANDS_DIR)) {
+  const lmsIslandFiles = ['island-1.ts', 'island-2.ts', 'island-3.ts', 'island-4.ts', 'island-5.ts']
+  lmsContent += '\n' + lmsIslandFiles
+    .filter((f) => fs.existsSync(path.join(PATH_LMS_ISLANDS_DIR, f)))
+    .map((f) => fs.readFileSync(path.join(PATH_LMS_ISLANDS_DIR, f), 'utf-8'))
+    .join('\n')
+}
+
 const identityContent = fs.readFileSync(PATH_IDENTITY_LOCK, 'utf-8')
 const creativeBlocksContent = fs.readFileSync(PATH_CREATIVE_BLOCKS, 'utf-8')
 const magicKeysContent = fs.readFileSync(PATH_MAGIC_KEYS, 'utf-8')
@@ -72,7 +92,9 @@ assert(webGenericCount === 0, `Không còn câu hỏi placeholder generic trong 
 
 // Kiểm tra trong các đối tượng bài học AIKI_ISLANDS_LESSONS của LMS
 const lmsLessonsBlockMatch = lmsContent.match(/export const AIKI_ISLANDS_LESSONS:\s*AikiIslandLessonSeed\[\]\s*=\s*\[([\s\S]*?)\];\n/m)
-const lmsLessonsBlock = lmsLessonsBlockMatch ? lmsLessonsBlockMatch[1] : ''
+const lmsLessonsBlock = lmsLessonsBlockMatch && !lmsLessonsBlockMatch[1].includes('...ISLAND_')
+  ? lmsLessonsBlockMatch[1]
+  : lmsContent
 let lmsGenericCount = 0
 for (const phrase of genericPhrases) {
   const matches = lmsLessonsBlock.match(new RegExp(phrase, 'g'))
