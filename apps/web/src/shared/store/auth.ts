@@ -143,6 +143,11 @@ function preferredContext(
 }
 
 async function hydrateAdultAccess(user: User, sessionAccess?: AccountAccess) {
+  // Học sinh / trẻ em đăng nhập bằng username không có staff/parent context.
+  // Không được gọi /api/auth/access (sẽ bị backend chặn lỗi 403 PARENT_ONLY).
+  if (user.role === 'student') {
+    return { user, access: null, activeContext: null }
+  }
   const access = sessionAccess ?? await api<AccountAccess>('/api/auth/access')
   const context = preferredContext(access, user.role)
   if (!context) return { user, access, activeContext: null }

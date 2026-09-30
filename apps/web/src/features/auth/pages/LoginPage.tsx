@@ -24,6 +24,7 @@ export function LoginPage() {
   function goAfterLogin(user: User) {
     if (user.role === 'admin') navigate('/admin', { replace: true })
     else if (user.role === 'teacher') navigate('/teacher', { replace: true })
+    else if (user.role === 'student') navigate('/home', { replace: true })
     else navigate('/kids', { replace: true })
   }
 
