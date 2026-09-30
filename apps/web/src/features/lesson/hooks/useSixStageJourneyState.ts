@@ -802,8 +802,14 @@ export function useSixStageJourneyState({
       }
       void onFinishLesson?.(completionSummary)
     } else {
-      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao
+      // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu ngay lên hệ thống
       writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
+      void onFinishLesson?.({
+        stars: 2,
+        xp: calculateStationXp(2),
+        answers: submittedQuizAnswers,
+        keepalive: true,
+      })
     }
   }, [currentStageDef, indices.practiceIdx, lessonId, onFinishLesson, rewardStageDef, rewardXp, submittedQuizAnswers])
 

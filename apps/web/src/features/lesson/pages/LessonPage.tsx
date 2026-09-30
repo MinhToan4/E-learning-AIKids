@@ -174,6 +174,7 @@ export function LessonPage() {
             row.title.trim().toLocaleLowerCase('vi') === islandCurriculum.title.trim().toLocaleLowerCase('vi'),
           )
           authLessonId = station?.id?.trim() || authLessonId
+          setAuthoritativeLessonId(authLessonId) // BỔ SUNG DÒNG NÀY ĐỂ ĐỒNG BỘ TIẾN TRÌNH ĐẢO
 
           const opened = await learningApi.openLesson(authLessonId)
           if (cancelled) return

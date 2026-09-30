@@ -382,17 +382,31 @@ export function mergeQuestsWithLocalProgress<
   void localGoldenRules
   return quests.map((quest) => {
     let effectiveStars = quest.stars || 0
-    if (effectiveStars === 0 && quest.status !== 'locked' && typeof window !== 'undefined') {
+    if (quest.status !== 'locked' && typeof window !== 'undefined') {
       try {
+        const localStars =
+          Number(localStorage.getItem(`aikids_lesson_stars_${quest.id}`)) ||
+          (quest.slug ? Number(localStorage.getItem(`aikids_lesson_stars_${quest.slug}`)) : 0) ||
+          (typeof quest.order === 'number' ? Number(localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`)) : 0) ||
+          0
+        const isCompleted =
+          localStorage.getItem(`aikids_lesson_completed_${quest.id}`) === 'true' ||
+          (quest.slug ? localStorage.getItem(`aikids_lesson_completed_${quest.slug}`) === 'true' : false) ||
+          (typeof quest.order === 'number' && localStorage.getItem(`aikids_lesson_completed_rule-${quest.order}`) === 'true')
         const isVideoDone =
           localStorage.getItem(`aikids_video_done_${quest.id}`) === 'true' ||
           (quest.slug ? localStorage.getItem(`aikids_video_done_${quest.slug}`) === 'true' : false) ||
-          localStorage.getItem(`aikids_lesson_stars_${quest.id}`) === '1' ||
-          (quest.slug ? localStorage.getItem(`aikids_lesson_stars_${quest.slug}`) === '1' : false) ||
-          (typeof quest.order === 'number' &&
-            (localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true' ||
-              localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`) === '1'))
-        if (isVideoDone) effectiveStars = 1
+          (typeof quest.order === 'number' && localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true')
+
+        let calculated = effectiveStars
+        if (isCompleted) {
+          calculated = Math.max(calculated, 3)
+        } else if (localStars > 0) {
+          calculated = Math.max(calculated, localStars)
+        } else if (isVideoDone) {
+          calculated = Math.max(calculated, 1)
+        }
+        effectiveStars = calculated
       } catch {
         // ignore
       }

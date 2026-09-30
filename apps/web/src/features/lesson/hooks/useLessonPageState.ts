@@ -663,7 +663,11 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
 
     const effectiveLessonIdForResume = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
       ? progressId
-      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-')) ? authoritativeLessonId : null
+      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
+      ? authoritativeLessonId
+      : (quest?.id && !quest.id.startsWith('rule-') && !quest.id.startsWith('bai-'))
+      ? quest.id
+      : null
 
     if (stageIndex >= 1 && effectiveLessonIdForResume) {
       void learningApi.advanceLesson(effectiveLessonIdForResume, { fromPhase: 'learn' }).catch(() => {
@@ -710,7 +714,11 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
 
     const effectiveId = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
       ? progressId
-      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-')) ? authoritativeLessonId : null
+      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-'))
+      ? authoritativeLessonId
+      : (quest?.id && !quest.id.startsWith('rule-') && !quest.id.startsWith('bai-'))
+      ? quest.id
+      : null
 
     if (effectiveId && navigator.onLine) {
       void learningApi.advanceLesson(effectiveId, { fromPhase: 'learn' }).then(() => {

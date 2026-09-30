@@ -118,41 +118,56 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
   const curriculumItem = findIslandCurriculum(quest)
   if (curriculumItem) {
     const journey = curriculumItem.journey
+    const authored = quest.sixStageJourney
     const customVideoUrl =
       (quest.videoUrl && quest.videoUrl.trim() !== '' ? quest.videoUrl : undefined) ||
-      (quest.sixStageJourney?.stage3_video?.videoUrl && quest.sixStageJourney.stage3_video.videoUrl.trim() !== ''
-        ? quest.sixStageJourney.stage3_video.videoUrl
+      (authored?.stage3_video?.videoUrl && authored.stage3_video.videoUrl.trim() !== ''
+        ? authored.stage3_video.videoUrl
         : undefined)
 
     const customNextSlug =
+      authored?.stage6_completion?.nextLessonSlug ||
       journey.stage6_completion?.nextLessonSlug ||
-      quest.sixStageJourney?.stage6_completion?.nextLessonSlug ||
       computeNextIslandLessonSlug(quest.id)
 
     return {
       ...journey,
-      stageContentBlocks: quest.sixStageJourney?.stageContentBlocks,
-      stageBlockEditorVersion: quest.sixStageJourney?.stageBlockEditorVersion,
+      stageContentBlocks: authored?.stageContentBlocks ?? journey.stageContentBlocks,
+      stageBlockEditorVersion: authored?.stageBlockEditorVersion ?? journey.stageBlockEditorVersion,
+      stage1_goal: {
+        ...journey.stage1_goal,
+        ...(authored?.stage1_goal || {}),
+        title: authored?.stage1_goal?.title || journey.stage1_goal.title,
+        goalText: authored?.stage1_goal?.goalText || journey.stage1_goal.goalText,
+        imageUrl: authored?.stage1_goal?.imageUrl || journey.stage1_goal.imageUrl,
+        speech: authored?.stage1_goal?.speech || journey.stage1_goal.speech,
+        keyPoints: authored?.stage1_goal?.keyPoints?.length ? authored.stage1_goal.keyPoints : journey.stage1_goal.keyPoints,
+      },
+      stage2_confirmGoal: {
+        ...journey.stage2_confirmGoal,
+        ...(authored?.stage2_confirmGoal || {}),
+      },
       stage3_video: {
         ...journey.stage3_video,
+        ...(authored?.stage3_video || {}),
         videoUrl: customVideoUrl || journey.stage3_video.videoUrl,
       },
+      stage4_quiz: authored?.stage4_quiz?.questions?.length
+        ? authored.stage4_quiz
+        : journey.stage4_quiz,
       stage5_practice: {
         ...journey.stage5_practice,
-        ...(quest.sixStageJourney?.stage5_practice || {}),
+        ...(authored?.stage5_practice || {}),
         creativeEngineMode:
-          quest.sixStageJourney?.stage5_practice?.creativeEngineMode ||
+          authored?.stage5_practice?.creativeEngineMode ||
           curriculumItem.journey.stage5_practice.creativeEngineMode,
         notebookConfig:
-          quest.sixStageJourney?.stage5_practice?.notebookConfig ||
+          authored?.stage5_practice?.notebookConfig ||
           curriculumItem.journey.stage5_practice.notebookConfig,
-        ...((quest.sixStageJourney?.stage5_practice?.creativeEngineMode ||
-          curriculumItem.journey.stage5_practice.creativeEngineMode) === 'creative-notebook'
-          ? { practiceParts: [] }
-          : {}),
       },
       stage6_completion: {
         ...journey.stage6_completion,
+        ...(authored?.stage6_completion || {}),
         nextLessonSlug: customNextSlug,
       },
     }

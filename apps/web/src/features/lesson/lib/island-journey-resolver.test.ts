@@ -118,28 +118,40 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage1_goal.title).toBe('Custom Goal')
     })
 
-    it('prioritizes SSOT registry over outdated DB sixStageJourney for island lessons while preserving custom videoUrl', () => {
-      const outdatedDbJourney: any = {
-        stage1_goal: { id: 'old-g1', title: 'Old Slide ASMO Title', imageUrl: '/old-asmo-slide.jpg' },
-        stage2_confirmGoal: { id: 'old-g2', question: 'Old ASMO question' },
-        stage3_video: { id: 'old-g3', videoUrl: 'https://cdn.example.com/custom-video.mp4' },
-        stage4_quiz: { id: 'old-g4' },
-        stage5_practice: { id: 'old-g5' },
-        stage6_completion: { id: 'old-g6', nextLessonSlug: 'custom-next-slug' },
+    it('deep merges CMS-authored sixStageJourney onto SSOT curriculumItem for all stages while preserving custom videoUrl', () => {
+      const authoredJourney: any = {
+        stage1_goal: { id: 'authored-g1', title: 'Tiêu đề do giáo viên chỉnh sửa', imageUrl: '/authored-slide.jpg' },
+        stage2_confirmGoal: { id: 'authored-g2', question: 'Câu hỏi xác nhận do giáo viên chỉnh' },
+        stage3_video: { id: 'authored-g3', videoUrl: 'https://cdn.example.com/custom-video.mp4' },
+        stage4_quiz: {
+          questions: [
+            {
+              id: 'cq-1',
+              prompt: 'Câu hỏi quiz mới?',
+              options: [{ id: 'opt1', text: 'Đúng', isCorrect: true }],
+            },
+          ],
+        },
+        stage5_practice: { id: 'authored-g5', subjectName: 'Chủ đề tùy biến' },
+        stage6_completion: { id: 'authored-g6', nextLessonSlug: 'custom-next-slug' },
         stageContentBlocks: { 'stage-0': [{ id: 'extra-tip', type: 'layout-callout', tip: 'Mẹo do giáo viên thêm' }] },
         stageBlockEditorVersion: 2,
       }
       const resolved = resolveIslandSixStageJourney({
         ...mockQuest,
         videoUrl: undefined,
-        sixStageJourney: outdatedDbJourney,
+        sixStageJourney: authoredJourney,
       })
-      // SSOT title & 3D Soft Clay should prevail over outdated DB slide
-      expect(resolved.stage1_goal.title).toContain('Một từ hay năm từ')
-      expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg?v=2')
+      // Authored content prevails over default SSOT
+      expect(resolved.stage1_goal.title).toBe('Tiêu đề do giáo viên chỉnh sửa')
+      expect(resolved.stage1_goal.imageUrl).toBe('/authored-slide.jpg')
+      expect(resolved.stage2_confirmGoal.question).toBe('Câu hỏi xác nhận do giáo viên chỉnh')
       // Custom videoUrl from DB journey is preserved
       expect(resolved.stage3_video.videoUrl).toBe('https://cdn.example.com/custom-video.mp4')
-      expect(resolved.stageContentBlocks?.['stage-0']).toEqual(outdatedDbJourney.stageContentBlocks['stage-0'])
+      expect(resolved.stage4_quiz.questions[0].prompt).toBe('Câu hỏi quiz mới?')
+      expect(resolved.stage5_practice.subjectName).toBe('Chủ đề tùy biến')
+      expect(resolved.stage6_completion.nextLessonSlug).toBe('custom-next-slug')
+      expect(resolved.stageContentBlocks?.['stage-0']).toEqual(authoredJourney.stageContentBlocks['stage-0'])
       expect(resolved.stageBlockEditorVersion).toBe(2)
     })
 
