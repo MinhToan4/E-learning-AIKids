@@ -288,6 +288,7 @@ export function SixStageJourneyView({
   const prevStageRef = useRef(currentStage)
   const prevLessonIdRef = useRef(lessonId)
   const hasAutoFinishedRef = useRef(false)
+  const hasInitializedCompletedRef = useRef(false)
 
   useEffect(() => {
     try {
@@ -316,8 +317,11 @@ export function SixStageJourneyView({
         return next
       })
       setIsVideoCompleted(true)
-      const targetStage = Math.max(0, Math.min(initialStageIndex > 0 ? initialStageIndex : maxIdx, maxIdx))
-      setCurrentStage((current) => Math.max(current, targetStage))
+      if (!hasInitializedCompletedRef.current) {
+        hasInitializedCompletedRef.current = true
+        const targetStage = Math.max(0, Math.min(initialStageIndex > 0 ? initialStageIndex : maxIdx, maxIdx))
+        setCurrentStage(targetStage)
+      }
       return
     }
     const resumedStage = Math.max(
@@ -541,6 +545,7 @@ export function SixStageJourneyView({
   useEffect(() => {
     if (prevLessonIdRef.current !== lessonId) {
       prevLessonIdRef.current = lessonId
+      hasInitializedCompletedRef.current = false
       const resumed = Math.max(0, Math.min(initialStageIndex, Math.max(0, stages.length - 1)))
       setCurrentStage(resumed)
       const set = new Set<number>()
@@ -679,7 +684,7 @@ export function SixStageJourneyView({
   ])
 
   const calculatedXp = rewardXpProp ?? rewardStageDef?.config?.rewardBadge?.xp ?? journey?.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
-  const effectiveStars = isReplay ? 0 : earnedStars
+  const effectiveStars = earnedStars
   const effectiveRewardXp = isReplay ? 0 : calculatedXp
   const previousEarnedStarsRef = useRef(earnedStars)
   const [starCelebration, setStarCelebration] = useState(0)
