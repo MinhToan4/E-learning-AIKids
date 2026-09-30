@@ -42,25 +42,41 @@ export function RewardStageBlock({
   const [displayedSrc, setDisplayedSrc] = React.useState<string>(targetArtworkUrl)
   const [isSavingProgress, setIsSavingProgress] = React.useState(false)
 
-  const finishThenNavigate = (
-    summary: LessonCompletionSummary,
-    navigate: () => void,
-  ) => {
-    if (isSavingProgress) return
-    const result = onFinishLesson?.(summary)
-    if (result instanceof Promise) {
-      setIsSavingProgress(true)
-      void result
-        .then((saved) => {
-          if (saved !== false) navigate()
-        })
-        .catch((err) => {
-          console.warn('Finish lesson error:', err)
-        })
-        .finally(() => setIsSavingProgress(false))
-      return
+  const resolvedNextSlug =
+    config?.nextLessonSlug ||
+    (stage as any)?.config?.nextLessonSlug ||
+    ''
+
+  const finishThenNavigate = (summary: LessonCompletionSummary, navigate: () => void) => {
+    let hasNavigated = false
+    const doNavigate = () => {
+      if (!hasNavigated) {
+        hasNavigated = true
+        setIsSavingProgress(false)
+        navigate()
+      }
     }
-    if (result !== false) navigate()
+
+    if (onFinishLesson) {
+      setIsSavingProgress(true)
+      try {
+        const result = onFinishLesson(summary)
+        if (result instanceof Promise) {
+          // Cho phép lưu tối đa 350ms, sau đó luôn luôn điều hướng để trải nghiệm của học sinh không bị kẹt
+          const timer = setTimeout(doNavigate, 350)
+          void result
+            .catch((err) => console.warn('Finish lesson error:', err))
+            .finally(() => {
+              clearTimeout(timer)
+              doNavigate()
+            })
+          return
+        }
+      } catch (err) {
+        console.warn('Finish lesson error:', err)
+      }
+    }
+    doNavigate()
   }
 
   React.useEffect(() => {
@@ -188,15 +204,14 @@ export function RewardStageBlock({
             {onNavigateNextLesson ? (
               <button
                 type="button"
-                disabled={isSavingProgress}
                 className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center gap-2 cursor-pointer shadow-clay transition-all active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
                 onClick={() => {
                   finishThenNavigate({
                     stars: effectiveStars,
                     xp: effectiveRewardXp,
-                    nextLessonSlug: config?.nextLessonSlug,
+                    nextLessonSlug: resolvedNextSlug,
                     answers,
-                  }, () => onNavigateNextLesson(config?.nextLessonSlug ?? ''))
+                  }, () => onNavigateNextLesson(resolvedNextSlug))
                 }}
               >
                 <span>{isSavingProgress ? 'Đang mở bài tiếp theo…' : 'Khám phá bài tiếp theo'}</span>
@@ -227,7 +242,6 @@ export function RewardStageBlock({
             {onBackToMap && (
               <Button
                 variant="secondary"
-                disabled={isSavingProgress}
                 className="w-full min-h-[44px] py-2.5 text-xs sm:text-sm font-black rounded-2xl border-2 border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5"
                 onClick={() => {
                   finishThenNavigate({

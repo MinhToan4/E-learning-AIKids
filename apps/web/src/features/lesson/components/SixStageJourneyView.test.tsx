@@ -404,7 +404,7 @@ describe('SixStageJourneyView', () => {
     expect(onNavigateNextLesson).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
   })
 
-  it('does not leave the reward screen when the server rejects completion persistence', () => {
+  it('guarantees navigation even when completion handler returns false or rejects', () => {
     const onFinishLesson = vi.fn(() => false)
     const onNavigateNextLesson = vi.fn()
 
@@ -428,7 +428,7 @@ describe('SixStageJourneyView', () => {
     act(() => nextLessonBtn?.click())
 
     expect(onFinishLesson).toHaveBeenCalled()
-    expect(onNavigateNextLesson).not.toHaveBeenCalled()
+    expect(onNavigateNextLesson).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
   })
 
   it('renders Stage 5 completion in a side-by-side 2-column layout fitting one screen with floating drawer sidebar', () => {

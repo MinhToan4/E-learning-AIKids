@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router'
 import type { QuestDetail } from '@/shared/lib/api'
 import { adaptSixStageJourneyToStages } from '@/features/lesson/lib/stage-adapter'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
-import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
+import { resolveIslandSixStageJourney, computeNextIslandLessonSlug } from '@/features/lesson/lib/island-journey-resolver'
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
 import type { LessonCompletionSummary } from '@/features/lesson/components/SixStageJourneyView'
 
@@ -45,9 +45,18 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         previousStars={liveStars}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
         onNavigateNextLesson={(nextSlug) => {
-          const nextCurriculum = findIslandCurriculum({ id: nextSlug, slug: nextSlug })
+          const fallbackNext =
+            nextSlug ||
+            journey?.stage6_completion?.nextLessonSlug ||
+            (matchedCurriculum ? computeNextIslandLessonSlug(matchedCurriculum.id || matchedCurriculum.slug) : undefined) ||
+            computeNextIslandLessonSlug(quest.id)
+          if (!fallbackNext) {
+            navigate(`/world/${effectiveCourseId}`)
+            return
+          }
+          const nextCurriculum = findIslandCurriculum({ id: fallbackNext, slug: fallbackNext })
           const targetCourseId = nextCurriculum?.islandNumber ? `dao-${nextCurriculum.islandNumber}` : effectiveCourseId
-          navigate(`/world/${targetCourseId}/lesson/${nextSlug}`)
+          navigate(`/world/${targetCourseId}/lesson/${fallbackNext}`)
         }}
         onFinishLesson={onFinish}
         onStageChange={(stageIndex) => onStageChange?.(stageIndex, stages.length)}
