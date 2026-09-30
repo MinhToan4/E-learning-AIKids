@@ -1007,10 +1007,11 @@ export function LessonPage() {
           sectionId: 'check-ready',
           occurredAt: new Date().toISOString(),
         })
-        // Advance phase learn → check before submitting (idempotent — ignore if already advanced)
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => {
-          // 409 = already advanced or lesson in different phase — continue to submitCheck
-        })
+        // Advance sequentially through phases to reach 'check' phase:
+        // learn -> (game) -> practice -> check
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => null)
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
       const confirmedStars = Math.max(0, Math.min(3, checkRes.stars))
       const celebrationMsg = isIslandJourney
@@ -1058,11 +1059,14 @@ export function LessonPage() {
         // 422 = INCOMPLETE_CHECK: payload thiếu câu, nhưng lesson vẫn coi là done
         // Cả 2 trường hợp → vẫn cho phép navigate (không chặn UI)
         const isAlreadyDone =
-          error instanceof Error &&
-          (error.message.includes('409') ||
-            error.message.includes('CHECKPOINT_REQUIRED') ||
-            error.message.includes('422') ||
-            error.message.includes('INCOMPLETE_CHECK'))
+          (error instanceof ApiError && (error.status === 409 || error.status === 422)) ||
+          (error instanceof Error &&
+            (error.message.includes('409') ||
+              error.message.includes('CHECKPOINT_REQUIRED') ||
+              error.message.includes('422') ||
+              error.message.includes('INCOMPLETE_CHECK') ||
+              error.message.includes('Lesson phase changed') ||
+              error.message.includes('phase_mismatch')))
 
         if (isAlreadyDone) {
           const confirmedStars = liveStars > 0 ? liveStars : 2
@@ -1477,16 +1481,12 @@ export function LessonPage() {
     }
     setBusy(true)
     setError(null)
-    let advanceSucceeded = false
     try {
-      // Try to advance to check phase — attempt multiple fromPhase values
-      // because the DB phase may differ from what the UI expects (e.g. 'practice' after a previous partial attempt)
-      const advanceResult = await learningApi
-        .advanceLesson(questId, { fromPhase: 'learn' })
-        .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'practice' }))
-        .catch(() => learningApi.advanceLesson(questId, { fromPhase: 'game' }))
-        .catch(() => null) // Already at check/completed — safe to continue
-      advanceSucceeded = advanceResult !== null
+      // Advance sequentially through phases to reach 'check' phase:
+      // learn -> (game) -> practice -> check
+      await learningApi.advanceLesson(questId, { fromPhase: 'learn' }).catch(() => null)
+      await learningApi.advanceLesson(questId, { fromPhase: 'game' }).catch(() => null)
+      await learningApi.advanceLesson(questId, { fromPhase: 'practice' }).catch(() => null)
 
       const res = await learningApi.submitCheck(questId, {
         answers: quest.check.map((q) => ({
@@ -1514,14 +1514,17 @@ export function LessonPage() {
         },
       }))
     } catch (e) {
-      // 409 PHASE_MISMATCH after a successful advance call means the backend
-      // already advanced the phase further (practice/check/completed) — treat as idempotent success.
+      // 409 PHASE_MISMATCH / CHECKPOINT_REQUIRED means lesson was already completed — treat as idempotent success.
       // We never want to revert UI to a previous phase when navigation buttons have already appeared.
       const isAlreadyCompleted =
-        advanceSucceeded &&
-        e instanceof ApiError &&
-        e.status === 409 &&
-        (e.body as any)?.reason === 'phase_mismatch'
+        (e instanceof ApiError && (e.status === 409 || e.status === 422)) ||
+        (e instanceof Error &&
+          (e.message.includes('409') ||
+            e.message.includes('CHECKPOINT_REQUIRED') ||
+            e.message.includes('422') ||
+            e.message.includes('INCOMPLETE_CHECK') ||
+            e.message.includes('Lesson phase changed') ||
+            e.message.includes('phase_mismatch')))
 
       if (isAlreadyCompleted) {
         const confirmedStars = liveStars > 0 ? liveStars : 2
@@ -1880,16 +1883,11 @@ export function LessonPage() {
 
   // ── TEMPLATE 2: Khóa Học Đảo AIKids (Module 1 -> Module 5 - 6 Chặng Bố Cục 2 Cột Chuẩn) ──
   if (isIslandJourney && quest) {
-    // When phase=done, let LessonCelebrationModal (rendered below) handle everything.
-    // Don't render LessonJourneyRenderer in done state — its RewardStageBlock buttons
-    // would call handleAikiFinish again, causing a second submitCheck → 409 → phase revert.
-    if (phase !== 'done') {
-      return (
-        <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-          <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
-        </Suspense>
-      )
-    }
+    return (
+      <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
+        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+      </Suspense>
+    )
   }
 
   const allCheckAnswersCorrect =
