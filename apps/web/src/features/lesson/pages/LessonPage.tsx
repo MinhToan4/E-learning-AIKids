@@ -1199,6 +1199,43 @@ export function LessonPage() {
       })
     })
   }, [quest?.id, questId, authoritativeLessonId])
+
+  const handleVideoCompleted = useCallback(() => {
+    setLiveStars((prev) => Math.max(prev, 1))
+    const progressId = authoritativeLessonId || quest?.id || questId
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`aikids_video_done_${progressId}`, 'true')
+        sessionStorage.setItem(`aikids_video_done_${questId}`, 'true')
+        localStorage.setItem(`aikids_video_done_${progressId}`, 'true')
+        localStorage.setItem(`aikids_video_done_${questId}`, 'true')
+        localStorage.setItem(`aikids_lesson_stars_${progressId}`, '1')
+        localStorage.setItem(`aikids_lesson_stars_${questId}`, '1')
+        if (authoritativeLessonId) {
+          sessionStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
+          localStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
+          localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '1')
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const effectiveId = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
+      ? progressId
+      : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-')) ? authoritativeLessonId : null
+
+    if (effectiveId && navigator.onLine) {
+      // Gọi advance từ learn để backend nâng phase và cấp 1 sao trong CSDL
+      void learningApi.advanceLesson(effectiveId, { fromPhase: 'learn' }).then(() => {
+        clearWorldPageCache()
+        clearApiCache()
+        window.dispatchEvent(new CustomEvent('aikids:xp-updated', { detail: { stars: 1 } }))
+        void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+        void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
+      }).catch(() => null)
+    }
+  }, [authoritativeLessonId, quest?.id, questId, queryClient])
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
     (station) => station.kind === 'game',
@@ -1925,7 +1962,18 @@ export function LessonPage() {
     const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null || quest.status === 'completed'
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <RuleLessonJourneyRenderer key={quest.id} quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <RuleLessonJourneyRenderer
+          key={quest.id}
+          quest={quest}
+          ruleId={ruleId}
+          effectiveCourseId={effectiveCourseId}
+          liveStars={liveStars}
+          initialStageIndex={resumeStageIndex}
+          isCompleted={isCompleted}
+          onFinish={handleAikiFinish}
+          onStageChange={persistJourneyStage}
+          onVideoCompleted={handleVideoCompleted}
+        />
       </Suspense>
     )
   }
@@ -1935,7 +1983,19 @@ export function LessonPage() {
     const isCompleted = phase === 'done' || liveStars >= 3 || checkResult !== null || quest.status === 'completed'
     return (
       <Suspense fallback={<p className="animate-pulse text-muted" aria-live="polite">Đang mở hành trình…</p>}>
-        <LessonJourneyRenderer key={quest.id} mode="island" quest={quest} ruleId={ruleId} effectiveCourseId={effectiveCourseId} liveStars={liveStars} initialStageIndex={resumeStageIndex} isCompleted={isCompleted} onFinish={handleAikiFinish} onStageChange={persistJourneyStage} />
+        <LessonJourneyRenderer
+          key={quest.id}
+          mode="island"
+          quest={quest}
+          ruleId={ruleId}
+          effectiveCourseId={effectiveCourseId}
+          liveStars={liveStars}
+          initialStageIndex={resumeStageIndex}
+          isCompleted={isCompleted}
+          onFinish={handleAikiFinish}
+          onStageChange={persistJourneyStage}
+          onVideoCompleted={handleVideoCompleted}
+        />
       </Suspense>
     )
   }

@@ -630,6 +630,54 @@ describe('Server-owned World map progress', () => {
     expect(totalStars).toBe(0)
   })
 
+  it('merges 1 star when video completion flag or 1 star is present in local storage', () => {
+    const rawQuests: Array<{
+      id: string
+      order: number
+      title: string
+      status: 'completed' | 'available' | 'locked' | 'in_progress'
+      stars: number
+    }> = [
+      { id: 'rule-5', order: 5, title: 'Quy tắc 5: Nói rõ điều con muốn', status: 'available', stars: 0 },
+      { id: 'rule-6', order: 6, title: 'Quy tắc 6', status: 'locked', stars: 0 },
+    ]
+
+    const storageMap = new Map<string, string>()
+    storageMap.set('aikids_video_done_rule-5', 'true')
+    storageMap.set('aikids_lesson_stars_rule-5', '1')
+
+    const mockStorage = {
+      getItem: (key: string) => storageMap.get(key) ?? null,
+      setItem: (key: string, val: string) => storageMap.set(key, val),
+      removeItem: (key: string) => storageMap.delete(key),
+      clear: () => storageMap.clear(),
+      key: () => null,
+      length: 0,
+    }
+
+    const prevWindow = (globalThis as any).window
+    const prevStorage = (globalThis as any).localStorage
+    ;(globalThis as any).window = globalThis
+    ;(globalThis as any).localStorage = mockStorage
+
+    try {
+      const merged = mergeQuestsWithLocalProgress(rawQuests, true)
+      expect(merged[0].stars).toBe(1)
+      expect(merged[1].stars).toBe(0)
+    } finally {
+      if (prevWindow === undefined) {
+        delete (globalThis as any).window
+      } else {
+        ;(globalThis as any).window = prevWindow
+      }
+      if (prevStorage === undefined) {
+        delete (globalThis as any).localStorage
+      } else {
+        ;(globalThis as any).localStorage = prevStorage
+      }
+    }
+  })
+
   it('does not let browser-local completion unlock a paid course station', () => {
     const rawQuests: Array<{
       id: string

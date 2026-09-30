@@ -16,9 +16,10 @@ type Props = {
   isCompleted?: boolean
   onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onStageChange?: (stageIndex: number, stageCount: number) => void
+  onVideoCompleted?: () => void
 }
 
-export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, initialStageIndex = 0, isCompleted = false, onFinish, onStageChange }: Props) {
+export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCourseId, liveStars, initialStageIndex = 0, isCompleted = false, onFinish, onStageChange, onVideoCompleted }: Props) {
   const navigate = useNavigate()
   const journey = resolveIslandSixStageJourney(quest)
   const matchedCurriculum = findIslandCurriculum(quest)
@@ -50,6 +51,7 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         }}
         onFinishLesson={onFinish}
         onStageChange={(stageIndex) => onStageChange?.(stageIndex, stages.length)}
+        onVideoCompleted={onVideoCompleted}
       />
     </div>
   )

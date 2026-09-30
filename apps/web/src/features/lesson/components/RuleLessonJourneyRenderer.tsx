@@ -15,6 +15,7 @@ type Props = {
   isCompleted?: boolean
   onFinish: (customSummary?: LessonCompletionSummary) => boolean | void | Promise<boolean | void>
   onStageChange?: (stageIndex: number, stageCount: number) => void
+  onVideoCompleted?: () => void
 }
 
 export default function RuleLessonJourneyRenderer({
@@ -26,6 +27,7 @@ export default function RuleLessonJourneyRenderer({
   isCompleted = false,
   onFinish,
   onStageChange,
+  onVideoCompleted,
 }: Props) {
   const navigate = useNavigate()
   const rule = AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
@@ -143,6 +145,7 @@ export default function RuleLessonJourneyRenderer({
         onOpenCourse={() => navigate('/world/program/aikid_official')}
         onFinishLesson={onFinish}
         onStageChange={(stageIndex) => onStageChange?.(stageIndex, stages.length)}
+        onVideoCompleted={onVideoCompleted}
       />
     </div>
   )

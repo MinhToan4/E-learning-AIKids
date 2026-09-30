@@ -453,7 +453,7 @@ function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; in
       ) : (
         <div className={cn('quest-node-caption', available && 'quest-node-caption-current')}>
           <span>Trạm {quest.order}</span>
-          {done ? <StarDisplay count={quest.stars} /> : <strong>Đang học</strong>}
+          {done || (quest.stars ?? 0) > 0 ? <StarDisplay count={quest.stars ?? 0} /> : <strong>Đang học</strong>}
         </div>
       )}
     </div>
@@ -509,14 +509,29 @@ export function mergeQuestsWithLocalProgress<
   localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
 ): T[] {
   if (!Array.isArray(quests) || quests.length === 0) return []
-  // Compatibility arguments remain while old clients are phased out, but
-  // browser storage is never authoritative for completion, stars or unlocks.
-  // The LMS response is the sole source of truth for every course, including
-  // the free Rules journey.
   void isRuleCourse
   void localCompletedLessons
   void localGoldenRules
-  return quests.map((quest) => ({ ...quest }))
+  return quests.map((quest) => {
+    let effectiveStars = quest.stars || 0
+    if (effectiveStars === 0 && quest.status !== 'locked' && typeof window !== 'undefined') {
+      try {
+        const isVideoDone =
+          localStorage.getItem(`aikids_video_done_${quest.id}`) === 'true' ||
+          (quest.slug ? localStorage.getItem(`aikids_video_done_${quest.slug}`) === 'true' : false) ||
+          localStorage.getItem(`aikids_lesson_stars_${quest.id}`) === '1' ||
+          (quest.slug ? localStorage.getItem(`aikids_lesson_stars_${quest.slug}`) === '1' : false) ||
+          (typeof quest.order === 'number' && (
+            localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true' ||
+            localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`) === '1'
+          ))
+        if (isVideoDone) effectiveStars = 1
+      } catch {
+        // ignore
+      }
+    }
+    return { ...quest, stars: effectiveStars }
+  })
 }
 
 export function enrichCoursesWithLocalProgress(

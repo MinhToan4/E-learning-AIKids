@@ -78,6 +78,7 @@ export interface SixStageJourneyViewProps {
     title: string
     journey?: Partial<LessonSixStageJourney>
   }
+  onVideoCompleted?: () => void
 }
 
 /**
@@ -143,6 +144,7 @@ export function clearLessonStageStorage(lessonId: string): void {
       `aikids_quiz_active_${lessonId}`,
       `aikids_quiz_sub_${lessonId}`,
       `aikids_video_done_${lessonId}`,
+      `aikids_lesson_stars_${lessonId}`,
       `aikids_confirm_opt_${lessonId}`,
       `aikids_confirm_cor_${lessonId}`,
     ]
@@ -173,6 +175,7 @@ export function SixStageJourneyView({
   initialSidebarCollapsed: _initialSidebarCollapsed,
   isFinalStation: isFinalStationProp,
   matchedCurriculum: matchedCurriculumProp,
+  onVideoCompleted: onVideoCompletedProp,
 }: SixStageJourneyViewProps) {
   const journey = rawJourney as LessonSixStageJourney
 
@@ -374,6 +377,14 @@ export function SixStageJourneyView({
     return isSavedDone || (stages.length === 3 ? init > 0 : init > 2)
   })
 
+  const hasNotifiedVideoDoneRef = useRef(false)
+  useEffect(() => {
+    if (isVideoCompleted && !hasNotifiedVideoDoneRef.current) {
+      hasNotifiedVideoDoneRef.current = true
+      onVideoCompletedProp?.()
+    }
+  }, [isVideoCompleted, onVideoCompletedProp])
+
   // Stage 3 (Quiz) state - khôi phục 100% khi thoát ra vào lại
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>(() =>
     readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${lessonId}`, {}),
@@ -499,6 +510,8 @@ export function SixStageJourneyView({
       if (stages[currentStage]?.type === 'VIDEO' || (stages.length === 3 && currentStage === 0) || (stages.length > 3 && currentStage === 2)) {
         setIsVideoCompleted(true)
         writeLessonStorage(`aikids_video_done_${lessonId}`, true)
+        writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 1)
+        onVideoCompletedProp?.()
       }
       setCompletedStages((prev) => {
         return new Set([...prev, currentStage])
@@ -1090,6 +1103,8 @@ export function SixStageJourneyView({
               onVideoCompleted={() => {
                 setIsVideoCompleted(true)
                 writeLessonStorage(`aikids_video_done_${lessonId}`, true)
+                writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 1)
+                onVideoCompletedProp?.()
               }}
               // Quiz stage props - lưu tiến trình tức thì cho từng câu hỏi
               activeQuizQuestionIdx={activeQuizQuestionIdx}

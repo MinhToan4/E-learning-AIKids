@@ -49,11 +49,26 @@ export function rulesProgressFromPathway(pathway: LearningPathway): RulesOverall
     const ruleId = stationRuleId(station)
     if (!ruleId || !result.rules[ruleId]) continue
     const completed = station.status === 'completed'
+    let starsEarned = clampStationStars(station.stars)
+    if (starsEarned === 0 && station.status !== 'locked' && typeof window !== 'undefined') {
+      try {
+        const isVideoDone =
+          localStorage.getItem(`aikids_video_done_rule-${ruleId}`) === 'true' ||
+          localStorage.getItem(`aikids_video_done_${station.id}`) === 'true' ||
+          (station.slug ? localStorage.getItem(`aikids_video_done_${station.slug}`) === 'true' : false) ||
+          localStorage.getItem(`aikids_lesson_stars_rule-${ruleId}`) === '1' ||
+          localStorage.getItem(`aikids_lesson_stars_${station.id}`) === '1' ||
+          (station.slug ? localStorage.getItem(`aikids_lesson_stars_${station.slug}`) === '1' : false)
+        if (isVideoDone) starsEarned = 1
+      } catch {
+        // ignore
+      }
+    }
     result.rules[ruleId] = {
       ruleId,
       status: completed ? 'completed' : station.status === 'locked' ? 'locked' : 'available',
       completedQuestions: completed ? 2 : 0,
-      starsEarned: clampStationStars(station.stars),
+      starsEarned,
     }
   }
 
@@ -63,7 +78,9 @@ export function rulesProgressFromPathway(pathway: LearningPathway): RulesOverall
     }
   }
 
-  result.totalStars = calculateCourseStars(course.stations, course.totalStars).earned
+  const rawEarned = calculateCourseStars(course.stations, course.totalStars).earned
+  const localSum = Object.values(result.rules).reduce((sum, r) => sum + r.starsEarned, 0)
+  result.totalStars = Math.max(rawEarned, localSum)
   result.totalXp = course.stations.reduce((sum, station) => sum + (station.xpEarned || 0), 0)
   result.unlockedPosters = Object.values(result.rules)
     .filter((rule) => rule.status === 'completed')

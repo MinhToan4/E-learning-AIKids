@@ -3077,4 +3077,34 @@ describe('SixStageJourneyView', () => {
     expect(onBackToMapSpy).toHaveBeenCalled()
     act(() => root.unmount())
   })
+
+  it('notifies onVideoCompleted callback and persists 1 star to storage immediately when video completes', async () => {
+    const testLessonId = 'rule-5-video-done-test'
+    const onVideoCompletedSpy = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          lessonId={testLessonId}
+          lessonTitle="Quy tắc 5: Nói rõ điều con muốn"
+          initialStageIndex={0}
+          onVideoCompleted={onVideoCompletedSpy}
+        />
+      )
+    })
+
+    // Click chapter node 4 (reaches >= 75% completion)
+    const chapterNode4 = container.querySelector('[data-testid="video-chapter-node-4"]') as HTMLButtonElement | null
+    expect(chapterNode4).not.toBeNull()
+    act(() => {
+      chapterNode4?.click()
+    })
+
+    expect(onVideoCompletedSpy).toHaveBeenCalled()
+    expect(mockLocalStorage.getItem(`aikids_video_done_${testLessonId}`)).toBe('true')
+    expect(mockLocalStorage.getItem(`aikids_lesson_stars_${testLessonId}`)).toBe('1')
+
+    act(() => root.unmount())
+  })
 })
