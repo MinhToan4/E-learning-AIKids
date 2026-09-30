@@ -30,7 +30,7 @@ import { isAikiRuleJourney, extractRuleNumber } from '../lib/rule-journey-identi
 import { STAGE_REGISTRY } from './stages'
 import type { JourneyStageDefinition, ParsedGoalCard, RewardStageConfig, VideoStageConfig } from '../types/stage-schema'
 
-import { calculateUniversalStars } from '../lib/universal-stage-engine'
+import { calculateUniversalStars, getStageTypeIndices } from '../lib/universal-stage-engine'
 import { StageStepperBar } from './StageStepperBar'
 
 const StudentStageBlocksView = React.lazy(() =>
@@ -46,6 +46,7 @@ export type LessonCompletionSummary = {
   xp: number
   nextLessonSlug?: string
   answers?: Array<{ questionId: string; optionIndex: number }>
+  keepalive?: boolean
 }
 
 export interface SixStageJourneyViewProps {
@@ -142,6 +143,7 @@ export function clearLessonStageStorage(lessonId: string): void {
       `aikids_lesson_stars_${lessonId}`,
       `aikids_confirm_opt_${lessonId}`,
       `aikids_confirm_cor_${lessonId}`,
+      `aikids_practice_done_${lessonId}`,
     ]
     for (const k of keys) {
       sessionStorage.removeItem(k)
@@ -244,6 +246,7 @@ export function SixStageJourneyView({
   }, [matchedCurriculum, lessonId, lessonTitle, stagesProp])
 
   const stages = useMemo(() => stagesProp || [], [stagesProp])
+  const indices = useMemo(() => getStageTypeIndices(stages), [stages])
 
   const isFinalStation = useMemo(() => {
     if (typeof isFinalStationProp === 'boolean') {
@@ -404,6 +407,9 @@ export function SixStageJourneyView({
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false)
 
   // Stage 4 (Practice) submitted artwork state
+  const [isPracticeCompleted, setIsPracticeCompleted] = useState<boolean>(() => {
+    return readLessonStorage<boolean>(`aikids_practice_done_${lessonId}`, false)
+  })
   const [submittedArtwork, setSubmittedArtwork] = useState<{
     image: StudioImageItem
     prompt: string
@@ -526,10 +532,13 @@ export function SixStageJourneyView({
 
       if (stages[nextStage]?.type === 'REWARD' || nextStage === stages.length - 1) {
         hasAutoFinishedRef.current = true
-        // Tự động lưu hoàn thành bài học 3 sao ngay khi học sinh chạm tới chặng Thưởng
+        // Tự động lưu hoàn thành bài học ngay khi học sinh chạm tới chặng Thưởng
+        const hasPractice = indices.practiceIdx >= 0
+        const practiceDone = Boolean(submittedArtwork) || completedStages.has(indices.practiceIdx) || isPracticeCompleted
+        const targetStars = (hasPractice && !practiceDone) ? 2 : 3
         const completionSummary: LessonCompletionSummary = {
-          stars: 3,
-          xp: rewardXp || 50,
+          stars: targetStars,
+          xp: targetStars >= 3 ? (rewardXp || 50) : calculateStationXp(targetStars),
           answers: submittedQuizAnswers,
           nextLessonSlug: (stages[nextStage]?.config as any)?.nextLessonSlug,
         }
@@ -542,7 +551,7 @@ export function SixStageJourneyView({
         // ignore audio failure
       }
     },
-    [currentStage, lessonId, onFinishLesson, onStageChange, rewardXp, stages, submittedQuizAnswers]
+    [completedStages, currentStage, indices.practiceIdx, isPracticeCompleted, lessonId, onFinishLesson, onStageChange, onVideoCompletedProp, rewardXp, stages, submittedArtwork, submittedQuizAnswers]
   )
 
   const handleRetryQuestion = useCallback((qIdx: number) => {
@@ -621,6 +630,7 @@ export function SixStageJourneyView({
       setFailedQuizImages({})
       setIsCertificateModalOpen(false)
       setSubmittedArtwork(null)
+      setIsPracticeCompleted(readLessonStorage<boolean>(`aikids_practice_done_${lessonId}`, false))
       setActivePracticePartIndex(0)
       setPracticePartsState([])
       setZoomImage(null)
@@ -675,6 +685,7 @@ export function SixStageJourneyView({
       isCompletedLesson,
       previousStars,
       defaultStars,
+      isPracticeCompleted,
     })
   }, [
     stages,
@@ -688,6 +699,7 @@ export function SixStageJourneyView({
     isCompletedLesson,
     previousStars,
     defaultStars,
+    isPracticeCompleted,
   ])
 
   const calculatedXp = rewardXpProp ?? rewardStageDef?.config?.rewardBadge?.xp ?? journey?.stage6_completion?.rewardBadge?.xp ?? calculateStationXp(earnedStars)
@@ -719,20 +731,23 @@ export function SixStageJourneyView({
       // Completion and rewards are persisted only after the owning LMS
       // endpoint verifies the submitted evidence. Browser storage must not
       // mint stars, XP or unlock the next lesson.
+      const hasPractice = indices.practiceIdx >= 0
+      const practiceDone = Boolean(submittedArtwork) || completedStages.has(indices.practiceIdx) || isPracticeCompleted
+      const targetStars = (hasPractice && !practiceDone) ? effectiveStars : 3
       Promise.resolve(
         onFinishLesson?.({
-          stars: 3,
-          xp: effectiveRewardXp || rewardXp || 50,
+          stars: targetStars,
+          xp: targetStars >= 3 ? (effectiveRewardXp || rewardXp || 50) : (effectiveRewardXp || calculateStationXp(targetStars)),
           nextLessonSlug: (currentStageDef?.config as any)?.nextLessonSlug,
           answers: submittedQuizAnswers,
         })
       ).then((res) => {
-        if (res !== false) {
+        if (res !== false && targetStars >= 3) {
           clearLessonStageStorage(lessonId)
         }
       })
     }
-  }, [currentStage, currentStageDef, effectiveRewardXp, isRuleLesson, lessonId, lessonTitle, onFinishLesson, rewardXp, stages.length, submittedQuizAnswers])
+  }, [currentStage, currentStageDef, effectiveRewardXp, isRuleLesson, lessonId, lessonTitle, onFinishLesson, rewardXp, stages.length, submittedQuizAnswers, indices.practiceIdx, submittedArtwork, completedStages, isPracticeCompleted, effectiveStars])
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
@@ -878,15 +893,20 @@ export function SixStageJourneyView({
                   // ignore
                 }
 
-                // LÀM ĐẾN ĐÂU LƯU ĐẾN ĐẤY: Lưu ngay hoàn thành bài học 3 sao lên server
-                hasAutoFinishedRef.current = true
-                const completionSummary: LessonCompletionSummary = {
-                  stars: 3,
-                  xp: rewardXp || 50,
-                  answers: submittedQuizAnswers,
-                  nextLessonSlug: (rewardStageDef?.config as any)?.nextLessonSlug,
+                if (indices.practiceIdx < 0) {
+                  // LÀM ĐẾN ĐÂU LƯU ĐẾN ĐẤY: Lưu ngay hoàn thành bài học 3 sao lên server cho bài học không có thực hành
+                  hasAutoFinishedRef.current = true
+                  const completionSummary: LessonCompletionSummary = {
+                    stars: 3,
+                    xp: rewardXp || 50,
+                    answers: submittedQuizAnswers,
+                    nextLessonSlug: (rewardStageDef?.config as any)?.nextLessonSlug,
+                  }
+                  void onFinishLesson?.(completionSummary)
+                } else {
+                  // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao
+                  writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
                 }
-                void onFinishLesson?.(completionSummary)
               }}
               onQuizImageError={(qIdx: number) => {
                 setFailedQuizImages((prev) => ({ ...prev, [qIdx]: true }))
@@ -902,11 +922,23 @@ export function SixStageJourneyView({
                 setActivePracticePartIndex(activeIdx)
               }}
               onSubmitWork={({ selectedImage, prompt }: any) => {
+                setIsPracticeCompleted(true)
+                writeLessonStorage(`aikids_practice_done_${lessonId}`, true)
+                writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 3)
                 setSubmittedArtwork({ image: selectedImage, prompt })
-                advanceToStage(5)
+                if (indices.practiceIdx >= 0) {
+                  setCompletedStages((prev) => new Set([...prev, indices.practiceIdx]))
+                }
+                void onFinishLesson?.({
+                  stars: 3,
+                  xp: effectiveRewardXp || 50,
+                  answers: submittedQuizAnswers,
+                  keepalive: true,
+                })
+                advanceToStage(indices.rewardIdx >= 0 ? indices.rewardIdx : stages.length - 1)
               }}
-              onBackToLesson={() => handleStageSelect(3)}
-              onReplayVideo={() => handleStageSelect(2)}
+              onBackToLesson={() => handleStageSelect(indices.quizIdx >= 0 ? indices.quizIdx : Math.max(0, currentStage - 1))}
+              onReplayVideo={() => handleStageSelect(indices.videoIdx >= 0 ? indices.videoIdx : Math.max(0, currentStage - 2))}
               // Reward stage props
               submittedArtwork={submittedArtwork}
               effectiveStars={effectiveStars}

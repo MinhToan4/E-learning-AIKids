@@ -21,6 +21,7 @@ export interface JourneyStageDefinition<T = any> {
   mascotRole?: string
   speech?: string
   instruction?: string
+  awardsStar?: 1 | 2 | 3
   config: T
 }
 

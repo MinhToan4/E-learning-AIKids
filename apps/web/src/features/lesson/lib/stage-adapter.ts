@@ -395,6 +395,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Thầy Giáo AIKI',
       instruction: 'Theo dõi video bài giảng và nắm chắc các mốc phân đoạn.',
       speech: videoConfig.speech,
+      awardsStar: 1,
       config: videoConfig,
     },
     {
@@ -406,6 +407,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Giám Khảo AIKI',
       instruction: 'Hoàn thành các câu hỏi trắc nghiệm để mở khóa xưởng vẽ.',
       speech: quizConfig.speech,
+      awardsStar: 2,
       config: quizConfig,
     },
     {
@@ -417,6 +419,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Bậc Thầy AIKI',
       instruction: 'Thực hành tạo tranh bằng câu lệnh và nộp bài vào Balo.',
       speech: practiceConfig.speech,
+      awardsStar: 3,
       config: practiceConfig,
     },
     {

@@ -3107,4 +3107,88 @@ describe('SixStageJourneyView', () => {
 
     act(() => root.unmount())
   })
+
+  it('in 6-stage lesson with Practice, awards only 2 stars without submitted practice even at reward stage, and increases to 3 stars immediately upon onSubmitWork', async () => {
+    vi.useFakeTimers()
+    const testLessonId = 'bai-1-1-practice-star-requirement-test'
+    const onFinishLessonSpy = vi.fn()
+
+    // Setup session storage with Video completed and Quiz completed, but NO practice submitted
+    sessionStorage.setItem(`aikids_video_done_${testLessonId}`, 'true')
+    sessionStorage.setItem(`aikids_quiz_ans_${testLessonId}`, JSON.stringify({ 0: 0, 1: 0 }))
+    sessionStorage.setItem(`aikids_quiz_chk_${testLessonId}`, JSON.stringify({ 0: true, 1: true }))
+    sessionStorage.setItem(`aikids_quiz_sub_${testLessonId}`, 'true')
+
+    // Initial mount at Stage 4 (Practice)
+    const root = createRoot(container)
+    await act(async () => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId={testLessonId}
+          lessonTitle="Đừng Để AIKI Đoán Mò"
+          initialStageIndex={4}
+          onFinishLesson={onFinishLessonSpy}
+        />
+      )
+    })
+
+    const headerPill = container.querySelector('[data-testid="star-badge-header"]')
+    expect(headerPill).not.toBeNull()
+    // At Stage 4 without submitting artwork: only 2/3 stars!
+    expect(headerPill?.textContent).toContain('2/3')
+    expect(mockLocalStorage.getItem(`aikids_practice_done_${testLessonId}`)).toBeNull()
+
+    // Preload artwork in studio session
+    mockLocalStorage.setItem(
+      `aiki_studio_session_${testLessonId}`,
+      JSON.stringify([
+        {
+          id: 'img-test-artwork',
+          url: '/assets/aiki-islands/island1_lesson1_cat.jpg',
+          prompt: 'Mèo mướp béo',
+          time: '09:00',
+          turn: 1,
+          partIndex: 0,
+          partTurn: 1,
+        },
+      ])
+    )
+
+    // Open submit modal in practice studio
+    const submitStudioBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement | null
+    expect(submitStudioBtn).not.toBeNull()
+    await act(async () => {
+      submitStudioBtn?.click()
+    })
+
+    // Confirm submit in modal
+    const confirmSubmitBtn = document.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement | null
+    expect(confirmSubmitBtn).not.toBeNull()
+    await act(async () => {
+      confirmSubmitBtn?.click()
+    })
+
+    // Advance submission timer to complete onSubmitWork and transition to Reward
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500)
+    })
+
+    // Stage 5 (Reward): Stars immediately jumped to 3/3!
+    expect(container.querySelector('[data-testid="stage-5-completion"]')).not.toBeNull()
+    expect(headerPill?.textContent).toContain('3/3')
+
+    // Storage and server persistence are triggered with 3 stars immediately:
+    expect(mockLocalStorage.getItem(`aikids_practice_done_${testLessonId}`)).toBe('true')
+    expect(mockLocalStorage.getItem(`aikids_lesson_stars_${testLessonId}`)).toBe('3')
+    expect(onFinishLessonSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stars: 3,
+        keepalive: true,
+      })
+    )
+
+    vi.useRealTimers()
+    act(() => root.unmount())
+  })
 })

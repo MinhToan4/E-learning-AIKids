@@ -222,6 +222,125 @@ describe('universal-stage-engine', () => {
         }),
       ).toBe(3)
     })
+
+    it('enforces practice requirement for 3rd star in 6-stage course with practice', () => {
+      const stages6 = createMockStages(['GOAL', 'CONFIRM', 'VIDEO', 'QUIZ', 'PRACTICE', 'REWARD'])
+      
+      // Learner reached Stage 5 (REWARD) with Video & Quiz done, but Practice NOT completed
+      const starsWithoutPractice = calculateUniversalStars({
+        stages: stages6,
+        currentStage: 5,
+        completedStages: new Set([0, 1, 2, 3]), // Practice (4) is NOT completed
+        isVideoCompleted: true,
+        quizScore: 2,
+        effectiveQuizQuestions: [{ id: 'q1' }, { id: 'q2' }],
+        quizSubmitted: true,
+        submittedArtwork: null,
+        isCompletedLesson: false,
+        isPracticeCompleted: false,
+      })
+      // MUST be capped at 2 stars!
+      expect(starsWithoutPractice).toBe(2)
+
+      // As soon as practice is completed (via isPracticeCompleted flag)
+      const starsWithPracticeFlag = calculateUniversalStars({
+        stages: stages6,
+        currentStage: 5,
+        completedStages: new Set([0, 1, 2, 3]),
+        isVideoCompleted: true,
+        quizScore: 2,
+        effectiveQuizQuestions: [{ id: 'q1' }, { id: 'q2' }],
+        quizSubmitted: true,
+        submittedArtwork: null,
+        isCompletedLesson: false,
+        isPracticeCompleted: true,
+      })
+      expect(starsWithPracticeFlag).toBe(3)
+
+      // As soon as practice is completed (via submittedArtwork)
+      const starsWithArtwork = calculateUniversalStars({
+        stages: stages6,
+        currentStage: 5,
+        completedStages: new Set([0, 1, 2, 3]),
+        isVideoCompleted: true,
+        quizScore: 2,
+        effectiveQuizQuestions: [{ id: 'q1' }, { id: 'q2' }],
+        quizSubmitted: true,
+        submittedArtwork: { image: { id: '1', url: 'cat.jpg', title: 'Cat' }, prompt: 'cute cat' },
+        isCompletedLesson: false,
+        isPracticeCompleted: false,
+      })
+      expect(starsWithArtwork).toBe(3)
+
+      // As soon as practice is completed (via completedStages having practiceIdx)
+      const starsWithStageCompleted = calculateUniversalStars({
+        stages: stages6,
+        currentStage: 5,
+        completedStages: new Set([0, 1, 2, 3, 4]),
+        isVideoCompleted: true,
+        quizScore: 2,
+        effectiveQuizQuestions: [{ id: 'q1' }, { id: 'q2' }],
+        quizSubmitted: true,
+        submittedArtwork: null,
+        isCompletedLesson: false,
+        isPracticeCompleted: false,
+      })
+      expect(starsWithStageCompleted).toBe(3)
+    })
+
+    it('awards 3 stars at reward stage for lessons without practice (e.g. Aiki Rule 3 stages)', () => {
+      const stages3 = createMockStages(['VIDEO', 'QUIZ', 'REWARD'])
+      const stars = calculateUniversalStars({
+        stages: stages3,
+        currentStage: 2,
+        completedStages: new Set([0, 1]),
+        isVideoCompleted: true,
+        quizScore: 1,
+        effectiveQuizQuestions: [{ id: 'q1' }],
+        quizSubmitted: true,
+        submittedArtwork: null,
+        isCompletedLesson: false,
+      })
+      expect(stars).toBe(3)
+    })
+
+    it('honors awardsStar flag on stage definitions directly', () => {
+      const customStages: JourneyStageDefinition[] = [
+        { id: 's1', type: 'GOAL', title: 'Stage 1', stepNumber: 1, awardsStar: 1, config: {} },
+        { id: 's2', type: 'QUIZ', title: 'Stage 2', stepNumber: 2, awardsStar: 2, config: {} },
+        { id: 's3', type: 'REWARD', title: 'Stage 3', stepNumber: 3, awardsStar: 3, config: {} },
+      ]
+
+      // Only stage 1 completed
+      expect(
+        calculateUniversalStars({
+          stages: customStages,
+          currentStage: 1,
+          completedStages: new Set([0]),
+          isVideoCompleted: false,
+          quizScore: 0,
+          effectiveQuizQuestions: [],
+          quizSubmitted: false,
+          submittedArtwork: null,
+          isCompletedLesson: false,
+        }),
+      ).toBe(1)
+
+      // Stages 1 & 2 completed
+      expect(
+        calculateUniversalStars({
+          stages: customStages,
+          currentStage: 2,
+          completedStages: new Set([0, 1]),
+          isVideoCompleted: false,
+          quizScore: 0,
+          effectiveQuizQuestions: [],
+          quizSubmitted: false,
+          submittedArtwork: null,
+          isCompletedLesson: false,
+        }),
+      ).toBe(2)
+    })
   })
 
   describe('isStageStepDone', () => {
