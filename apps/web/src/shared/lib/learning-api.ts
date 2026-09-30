@@ -58,9 +58,14 @@ export function lessonStageIndexFromProgress(progress: LessonProgress): number {
     ?? progress.resume?.sectionId
     ?? ''
   const match = /^stage-(\d+)$/.exec(sectionId.trim())
-  if (!match) return 0
-  const stageNumber = Number(match[1])
-  return Number.isFinite(stageNumber) ? Math.max(0, stageNumber - 1) : 0
+  if (match) {
+    const stageNumber = Number(match[1])
+    if (Number.isFinite(stageNumber)) return Math.max(0, stageNumber - 1)
+  }
+  if (progress.phase === 'practice' || progress.phase === 'check') {
+    return 1
+  }
+  return 0
 }
 
 type LessonAdvanceInput = {

@@ -271,7 +271,11 @@ export function SixStageJourneyView({
     if (isCompletedLesson) {
       return Math.max(0, Math.min(initialStageIndex > 0 ? initialStageIndex : maxIdx, maxIdx))
     }
-    return Math.max(0, Math.min(initialStageIndex, maxIdx))
+    const savedRaw = readLessonStorage<number>(`aikids_stage_${lessonId}`, 0)
+    const maxLocalStage = Math.max(0, maxIdx - 1)
+    const savedStage = Math.min(savedRaw, maxLocalStage)
+    const effectiveInitial = initialStageIndex > 0 ? initialStageIndex : savedStage
+    return Math.max(0, Math.min(effectiveInitial, maxIdx))
   })
 
   const [completedStages, setCompletedStages] = useState<Set<number>>(() => {
@@ -281,8 +285,16 @@ export function SixStageJourneyView({
       for (let i = 0; i <= maxIdx; i++) set.add(i)
       return set
     }
-    const init = Math.max(0, Math.min(initialStageIndex, maxIdx))
+    const savedRaw = readLessonStorage<number>(`aikids_stage_${lessonId}`, 0)
+    const maxLocalStage = Math.max(0, maxIdx - 1)
+    const savedStage = Math.min(savedRaw, maxLocalStage)
+    const effectiveInitial = initialStageIndex > 0 ? initialStageIndex : savedStage
+    const init = Math.max(0, Math.min(effectiveInitial, maxIdx))
     for (let i = 0; i < init; i++) set.add(i)
+    const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
+    if (isSavedDone || (stages.length === 3 ? init > 0 : init > 2)) {
+      set.add(0)
+    }
     return set
   })
   const prevStageRef = useRef(currentStage)
@@ -356,7 +368,9 @@ export function SixStageJourneyView({
   const [videoSeekSec, setVideoSeekSec] = useState<number | null>(null)
   const [isVideoCompleted, setIsVideoCompleted] = useState<boolean>(() => {
     const isSavedDone = readLessonStorage<boolean>(`aikids_video_done_${lessonId}`, false)
-    const init = readLessonStorage<number>(`aikids_lesson_stage_${lessonId}`, initialStageIndex)
+    const savedStage = readLessonStorage<number>(`aikids_lesson_stage_${lessonId}`, 0)
+      || readLessonStorage<number>(`aikids_stage_${lessonId}`, 0)
+    const init = Math.max(initialStageIndex, savedStage)
     return isSavedDone || (stages.length === 3 ? init > 0 : init > 2)
   })
 
@@ -855,7 +869,7 @@ export function SixStageJourneyView({
                       (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
                       (idx === 2 && completedStages.has(2))
                     : completedStages.has(idx)
-                ) && currentStage > idx
+                ) && (currentStage > idx || completedStages.has(idx) || (idx === 0 && isVideoCompleted))
             const isUnlocked =
               isCompletedLesson ||
               idx <= currentStage ||
@@ -931,7 +945,7 @@ export function SixStageJourneyView({
                       (idx === 1 && (quizScore >= 1 || completedStages.has(1))) ||
                       (idx === 2 && completedStages.has(2))
                     : completedStages.has(idx)
-                ) && currentStage > idx
+                ) && (currentStage > idx || completedStages.has(idx) || (idx === 0 && isVideoCompleted))
             const isUnlocked =
               isCompletedLesson ||
               idx <= currentStage ||

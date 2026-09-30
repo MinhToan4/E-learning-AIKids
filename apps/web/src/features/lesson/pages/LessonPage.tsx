@@ -1122,9 +1122,19 @@ export function LessonPage() {
         sessionStorage.setItem(`aikids_stage_${questId}`, stageStr)
         localStorage.setItem(`aikids_lesson_stage_${progressId}`, stageStr)
         localStorage.setItem(`aikids_lesson_stage_${questId}`, stageStr)
+        if (stageIndex >= 1) {
+          sessionStorage.setItem(`aikids_video_done_${progressId}`, 'true')
+          sessionStorage.setItem(`aikids_video_done_${questId}`, 'true')
+          localStorage.setItem(`aikids_video_done_${progressId}`, 'true')
+          localStorage.setItem(`aikids_video_done_${questId}`, 'true')
+        }
         if (authoritativeLessonId) {
           sessionStorage.setItem(`aikids_stage_${authoritativeLessonId}`, stageStr)
           localStorage.setItem(`aikids_lesson_stage_${authoritativeLessonId}`, stageStr)
+          if (stageIndex >= 1) {
+            sessionStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
+            localStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
+          }
         }
       }
     } catch {
@@ -1136,6 +1146,12 @@ export function LessonPage() {
     const effectiveLessonIdForResume = (!progressId.startsWith('rule-') && !progressId.startsWith('bai-') && progressId !== 'aiki-rules')
       ? progressId
       : (authoritativeLessonId && !authoritativeLessonId.startsWith('rule-')) ? authoritativeLessonId : null
+
+    if (stageIndex >= 1 && effectiveLessonIdForResume) {
+      void learningApi.advanceLesson(effectiveLessonIdForResume, { fromPhase: 'learn' }).catch(() => {
+        // Phase may have already advanced or already completed
+      })
+    }
 
     if (!navigator.onLine || !effectiveLessonIdForResume) return
     const percent = Math.max(1, Math.min(99, Math.round(((stageIndex + 1) / stageCount) * 100)))
