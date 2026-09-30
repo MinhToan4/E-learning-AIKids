@@ -188,7 +188,7 @@ export function QuestNode({
   currentIslandIndex,
   onStationClick,
 }: QuestNodeProps) {
-  const isCompleted = quest.status === 'completed'
+  const isCompleted = quest.status === 'completed' || (quest.stars ?? 0) >= 3
   const isCurrent =
     quest.status === 'in_progress' ||
     (quest.status === 'available' && index === meta.completedCount) ||

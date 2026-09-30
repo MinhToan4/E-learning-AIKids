@@ -409,7 +409,7 @@ export function mergeQuestsWithLocalProgress<
 
         let calculated = effectiveStars
 
-        if (isCompleted) {
+        if (isCompleted || calculated >= 3 || localStars >= 3) {
           calculated = Math.max(calculated, 3)
           effectiveStatus = 'completed'
         } else if (localStars > 0) {

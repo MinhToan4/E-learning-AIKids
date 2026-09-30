@@ -683,6 +683,59 @@ describe('Server-owned World map progress', () => {
     }
   })
 
+  it('merges 3 stars and completion status from localStorage to unlock Station 2 and mark Station 1 completed', () => {
+    const rawQuests: Array<{
+      id: string
+      slug: string
+      order: number
+      title: string
+      status: 'completed' | 'available' | 'locked' | 'in_progress'
+      stars: number
+    }> = [
+      { id: 'bai-1-1', slug: 'bai-1-1-meo-aiki', order: 1, title: 'Trạm 1: Mèo AIKI', status: 'available', stars: 0 },
+      { id: 'bai-1-2', slug: 'bai-1-2-bon-chia-khoa', order: 2, title: 'Trạm 2: 4 Chìa Khóa', status: 'locked', stars: 0 },
+    ]
+
+    const storageMap = new Map<string, string>()
+    storageMap.set('aikids_lesson_completed_bai-1-1', 'true')
+    storageMap.set('aikids_lesson_stars_bai-1-1', '3')
+
+    const mockStorage = {
+      getItem: (key: string) => storageMap.get(key) ?? null,
+      setItem: (key: string, val: string) => storageMap.set(key, val),
+      removeItem: (key: string) => storageMap.delete(key),
+      clear: () => storageMap.clear(),
+      key: () => null,
+      length: 0,
+    }
+
+    const prevWindow = (globalThis as any).window
+    const prevStorage = (globalThis as any).localStorage
+    ;(globalThis as any).window = globalThis
+    ;(globalThis as any).localStorage = mockStorage
+
+    try {
+      const merged = mergeQuestsWithLocalProgress(rawQuests, false)
+      expect(merged[0].status).toBe('completed')
+      expect(merged[0].stars).toBe(3)
+
+      const sequential = applySequentialQuestRules(merged, false)
+      expect(sequential[0].status).toBe('completed')
+      expect(sequential[1].status).toBe('available')
+    } finally {
+      if (prevWindow === undefined) {
+        delete (globalThis as any).window
+      } else {
+        ;(globalThis as any).window = prevWindow
+      }
+      if (prevStorage === undefined) {
+        delete (globalThis as any).localStorage
+      } else {
+        ;(globalThis as any).localStorage = prevStorage
+      }
+    }
+  })
+
   it('does not let browser-local completion unlock a paid course station', () => {
     const rawQuests: Array<{
       id: string
