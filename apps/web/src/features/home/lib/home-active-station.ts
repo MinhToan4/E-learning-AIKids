@@ -85,20 +85,50 @@ export function resolveNextActiveStation(courses: CourseSummary[] = [], userName
       }
 
       // Tính % tiến độ của đảo hiện tại
+      const lessonIslandTitle = (lesson as any).islandTitle
       const courseMatch = courses.find(
         (c) =>
           c.id === islandSlug ||
           (c as any).slug === islandSlug ||
-          (c.shortTitle && c.shortTitle.includes(`Đảo ${islandNumber}`)) ||
-          (c.title && c.title.includes(`Đảo ${islandNumber}`)),
+          c.id?.startsWith(`dao-${islandNumber}`) ||
+          (c as any).slug?.startsWith(`dao-${islandNumber}`) ||
+          c.courseKey?.startsWith(`dao-${islandNumber}`) ||
+          (Boolean(c.shortTitle) && (c.shortTitle!.includes(`Đảo ${islandNumber}`) || Boolean(lessonIslandTitle && c.shortTitle!.includes(lessonIslandTitle)))) ||
+          (Boolean(c.title) && (c.title.includes(`Đảo ${islandNumber}`) || Boolean(lessonIslandTitle && c.title.includes(lessonIslandTitle)))),
       )
-      const progressPct = courseMatch?.progressPct ?? 0
+
+      const islandLessons = ISLAND_CURRICULUM_LESSONS.filter((l) => (l.islandNumber || 1) === islandNumber)
+      const islandTotal = islandLessons.length || 4
+      let islandDone = 0
+      for (const il of islandLessons) {
+        const done =
+          typeof window !== 'undefined' &&
+          typeof localStorage !== 'undefined' &&
+          (localStorage.getItem(`aikids_lesson_completed_${il.id}`) === 'true' ||
+            localStorage.getItem(`aikids_lesson_completed_${il.slug}`) === 'true' ||
+            Number(localStorage.getItem(`aikids_lesson_stars_${il.id}`) || 0) >= 3 ||
+            Number(localStorage.getItem(`aikids_lesson_stars_${il.slug}`) || 0) >= 3)
+        if (done) islandDone++
+      }
+      const calculatedPct = islandTotal > 0 ? Math.round((islandDone / islandTotal) * 100) : 0
+      const progressPct = Math.max(calculatedPct, courseMatch?.progressPct ?? 0)
+
+      const defaultIslandTitle =
+        islandNumber === 1
+          ? 'Đảo 1: Khám Phá'
+          : islandNumber === 2
+            ? 'Đảo 2: Họa Sĩ'
+            : islandNumber === 3
+              ? 'Đảo 3: Nhân Vật'
+              : islandNumber === 4
+                ? 'Đảo 4: Truyện Tranh'
+                : 'Đảo 5: Trò Chơi'
 
       return {
         stationLabel,
         stationTitle,
         stationDesc,
-        islandTitle: courseMatch?.shortTitle || courseMatch?.title || `Đảo ${islandNumber}: Khám Phá`,
+        islandTitle: courseMatch?.shortTitle || courseMatch?.title || lessonIslandTitle || defaultIslandTitle,
         islandNumber,
         islandSlug,
         lessonSlug: lesson.slug,

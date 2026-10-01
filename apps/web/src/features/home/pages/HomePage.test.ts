@@ -106,7 +106,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[0]).toMatchObject({
       id: 'island-rules',
       slug: 'muoi-quy-tac-xuong-sang-tao',
-      badge: 'ĐẢO 1',
+      badge: 'TIÊN QUYẾT',
       defaultQuestCount: 10,
       targetRoute: '/world/program/aikid_official?island=muoi-quy-tac-xuong-sang-tao',
       description: '10 Quy tắc vàng về an toàn, đạo đức và làm chủ AI.',
@@ -115,7 +115,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[1]).toMatchObject({
       id: 'island-explorer',
       slug: 'dao-1-nha-tham-hiem-ai',
-      badge: 'ĐẢO 2',
+      badge: 'ĐẢO 1',
       defaultQuestCount: 4,
       targetRoute: '/world/program/aikid_official?island=dao-1-nha-tham-hiem-ai',
       description: '4 Chìa khóa lệnh — Tạo hình ảnh và sửa câu lệnh đúng ý.',
@@ -124,7 +124,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[2]).toMatchObject({
       id: 'island-artist',
       slug: 'dao-2-hoa-si-ai',
-      badge: 'ĐẢO 3',
+      badge: 'ĐẢO 2',
       defaultQuestCount: 4,
       targetRoute: '/world/program/aikid_official?island=dao-2-hoa-si-ai',
       description: 'Sắc màu cọ vẽ — Bố cục 3 lớp và tranh biết nói.',
@@ -133,7 +133,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[3]).toMatchObject({
       id: 'island-character',
       slug: 'dao-3-biet-doi-nhan-vat-ai',
-      badge: 'ĐẢO 4',
+      badge: 'ĐẢO 3',
       defaultQuestCount: 4,
       targetRoute: '/world/program/aikid_official?island=dao-3-biet-doi-nhan-vat-ai',
       description: 'Hồ sơ 3 điểm — Nhận diện nhân vật và 6 biểu cảm.',
@@ -142,7 +142,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[4]).toMatchObject({
       id: 'island-comic',
       slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
-      badge: 'ĐẢO 5',
+      badge: 'ĐẢO 4',
       defaultQuestCount: 4,
       targetRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
       description: 'Storyboard 8 ô — Phân khung và xuất bản truyện tranh.',
@@ -151,7 +151,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
     expect(OFFICIAL_SIX_ISLANDS[5]).toMatchObject({
       id: 'island-game',
       slug: 'dao-5-nha-phat-minh-tro-choi-ai',
-      badge: 'ĐẢO 6',
+      badge: 'ĐẢO 5',
       defaultQuestCount: 4,
       targetRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
       description: 'Đấu trường thẻ bài — Bộ thẻ và luật chơi công bằng.',

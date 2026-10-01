@@ -20,6 +20,7 @@ import {
   HeroProgressCard,
   OfficialCourseCard,
 } from '@/features/home/components'
+import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 import { resolveNextActiveStation } from '../lib/home-active-station'
 
 type EnrollmentSummary = {
@@ -135,7 +136,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-rules',
     slug: 'muoi-quy-tac-xuong-sang-tao',
-    badge: 'ĐẢO 1',
+    badge: 'TIÊN QUYẾT',
     title: 'Đảo Tiên Quyết',
     description: '10 Quy tắc vàng về an toàn, đạo đức và làm chủ AI.',
     scene: designerAssets.worldScenes.aiValley,
@@ -150,7 +151,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-explorer',
     slug: 'dao-1-nha-tham-hiem-ai',
-    badge: 'ĐẢO 2',
+    badge: 'ĐẢO 1',
     title: 'Đảo Khám Phá',
     description: '4 Chìa khóa lệnh — Tạo hình ảnh và sửa câu lệnh đúng ý.',
     scene: designerAssets.worldScenes.promptKeys,
@@ -165,7 +166,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-artist',
     slug: 'dao-2-hoa-si-ai',
-    badge: 'ĐẢO 3',
+    badge: 'ĐẢO 2',
     title: 'Đảo Họa Sĩ',
     description: 'Sắc màu cọ vẽ — Bố cục 3 lớp và tranh biết nói.',
     scene: designerAssets.worldScenes.creativeMountain,
@@ -180,7 +181,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-character',
     slug: 'dao-3-biet-doi-nhan-vat-ai',
-    badge: 'ĐẢO 4',
+    badge: 'ĐẢO 3',
     title: 'Đảo Nhân Vật',
     description: 'Hồ sơ 3 điểm — Nhận diện nhân vật và 6 biểu cảm.',
     scene: designerAssets.worldScenes.characterLab,
@@ -195,7 +196,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-comic',
     slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
-    badge: 'ĐẢO 5',
+    badge: 'ĐẢO 4',
     title: 'Đảo Truyện Tranh',
     description: 'Storyboard 8 ô — Phân khung và xuất bản truyện tranh.',
     scene: designerAssets.worldScenes.storyIsland,
@@ -210,7 +211,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
   {
     id: 'island-game',
     slug: 'dao-5-nha-phat-minh-tro-choi-ai',
-    badge: 'ĐẢO 6',
+    badge: 'ĐẢO 5',
     title: 'Đảo Trò Chơi',
     description: 'Đấu trường thẻ bài — Bộ thẻ và luật chơi công bằng.',
     scene: designerAssets.worldScenes.gameArena,
@@ -328,34 +329,71 @@ export function HomePage() {
         })
 
         const questCount = pathwayItem?.questCount || island.defaultQuestCount
-        const completedCount =
+
+        // Tính toán tiến trình thực tế kết hợp từ LocalStorage và Server API
+        let localCompletedCount = 0
+        let localStars = 0
+        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+          if (index === 0) {
+            for (let r = 1; r <= 10; r++) {
+              const done =
+                localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
+                localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
+                Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3 ||
+                Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0) >= 3
+              if (done) {
+                localCompletedCount++
+                const stars = Math.max(
+                  Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0),
+                  Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0),
+                  3,
+                )
+                localStars += stars
+              }
+            }
+          } else {
+            const islandLessons = ISLAND_CURRICULUM_LESSONS.filter((l) => (l.islandNumber || 1) === index)
+            for (const lesson of islandLessons) {
+              const isLessonDone =
+                localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
+                localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
+                Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
+                Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
+              if (isLessonDone) {
+                localCompletedCount++
+                const stars = Math.max(
+                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0),
+                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0),
+                  3,
+                )
+                localStars += stars
+              }
+            }
+          }
+        }
+
+        const serverCompleted =
           pathwayItem?.completedCount ??
           (pathwayItem?.stations ? pathwayItem.stations.filter((s: any) => s.status === 'completed').length : 0)
-        const totalStars =
+        const serverStars =
           pathwayItem?.totalStars ??
           (pathwayItem?.stations ? pathwayItem.stations.reduce((sum: number, s: any) => sum + Number(s.stars || 0), 0) : 0)
-        const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
-        const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || index === 0)
 
-        if (foundIndex >= 0) {
-          const existing = canonicalCourses[foundIndex]
+        const existing = foundIndex >= 0 ? canonicalCourses[foundIndex] : null
+        const completedCount = Math.max(existing?.completedCount ?? 0, serverCompleted, localCompletedCount)
+        const totalStars = Math.max(existing?.totalStars ?? 0, serverStars, localStars)
+        const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
+        const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || index === 0 || existing?.enrolled)
+
+        if (foundIndex >= 0 && existing) {
           canonicalCourses[foundIndex] = {
             ...existing,
             questCount: existing.questCount || questCount,
-            completedCount:
-              existing.completedCount !== undefined && existing.completedCount > 0
-                ? existing.completedCount
-                : completedCount,
-            totalStars:
-              existing.totalStars !== undefined && existing.totalStars > 0
-                ? existing.totalStars
-                : totalStars,
-            progressPct:
-              existing.progressPct !== undefined && existing.progressPct > 0
-                ? existing.progressPct
-                : progressPct,
-            status: existing.status || 'open',
-            enrolled: existing.enrolled || enrolled,
+            completedCount,
+            totalStars,
+            progressPct,
+            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : (existing.status || 'open')),
+            enrolled: Boolean(existing.enrolled || enrolled),
           }
         } else {
           canonicalCourses.push({
@@ -373,11 +411,11 @@ export function HomePage() {
             courseKey: island.slug,
             durationLabel: `${questCount} trạm`,
             productLabel: 'Khóa học AI Kid',
-            status: 'open',
+            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : 'open'),
             recommended: index === 0,
             skills: [],
             questCount,
-            enrolled,
+            enrolled: Boolean(enrolled),
             completedCount,
             totalStars,
             progressPct,
@@ -397,8 +435,39 @@ export function HomePage() {
         OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
           const p = pathwayList[index]
           const questCount = p?.questCount ?? island.defaultQuestCount
-          const completedCount = p?.completedCount ?? 0
-          const totalStars = p?.totalStars ?? 0
+          let localCompletedCount = 0
+          let localStars = 0
+          if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+            if (index === 0) {
+              for (let r = 1; r <= 10; r++) {
+                const done =
+                  localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
+                  localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
+                  Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3 ||
+                  Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0) >= 3
+                if (done) {
+                  localCompletedCount++
+                  localStars += 3
+                }
+              }
+            } else {
+              const islandLessons = ISLAND_CURRICULUM_LESSONS.filter((l) => (l.islandNumber || 1) === index)
+              for (const lesson of islandLessons) {
+                const isLessonDone =
+                  localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
+                  localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
+                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
+                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
+                if (isLessonDone) {
+                  localCompletedCount++
+                  localStars += 3
+                }
+              }
+            }
+          }
+          const completedCount = Math.max(p?.completedCount ?? 0, localCompletedCount)
+          const totalStars = Math.max(p?.totalStars ?? 0, localStars)
+          const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
           fallbackCourses.push({
             id: island.slug,
             title: island.title,
@@ -414,14 +483,14 @@ export function HomePage() {
             courseKey: island.slug,
             durationLabel: `${questCount} trạm`,
             productLabel: 'Khóa học AI Kid',
-            status: 'open',
+            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : 'open'),
             recommended: index === 0,
             skills: [],
             questCount,
             enrolled: p?.enrolled ?? true,
             completedCount,
             totalStars,
-            progressPct: questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0,
+            progressPct,
             quests: [],
           } as CourseSummary)
         })
@@ -620,7 +689,7 @@ export function HomePage() {
             <div className="relative mt-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="pointer-events-none absolute left-14 right-14 top-[62px] hidden border-t-2 border-dashed border-sky-300 sm:block" />
               <div className="relative grid min-w-[720px] grid-cols-6 gap-3 sm:min-w-0">
-              {OFFICIAL_SIX_ISLANDS.map((island) => {
+              {OFFICIAL_SIX_ISLANDS.map((island, index) => {
                 const matched = courses.find((c) => {
                   const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
                   const title = `${c.title ?? ''} ${c.shortTitle ?? ''}`.toLowerCase()
@@ -666,7 +735,13 @@ export function HomePage() {
                               : 'bg-white text-slate-500'
                         }`}
                       >
-                        {isCompleted ? <Check className="h-4 w-4" /> : island.badge.replace('ĐẢO ', '')}
+                        {isCompleted ? (
+                          <Check className="h-4 w-4" />
+                        ) : index === 0 ? (
+                          '🛡️'
+                        ) : (
+                          index.toString()
+                        )}
                       </div>
                     </div>
                     <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-black leading-snug text-slate-900">

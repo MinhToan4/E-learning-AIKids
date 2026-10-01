@@ -112,6 +112,19 @@ describe('resolveNextActiveStation', () => {
     expect(active.catDialogue).toContain('Úm ba la biến hình')
   })
 
+  it('resolves to Lesson 1.4 with 75% progress when Lessons 1.1, 1.2, 1.3 are completed', () => {
+    store.set('aikids_lesson_completed_bai-1-1', 'true')
+    store.set('aikids_lesson_completed_bai-1-2-bon-chiec-chia-khoa', 'true')
+    store.set('aikids_lesson_completed_bai-1-3-um-ba-la-bien-hinh', 'true')
+
+    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+
+    expect(active.stationLabel).toBe('Bài 1.4')
+    expect(active.islandNumber).toBe(1)
+    expect(active.progressPct).toBe(75)
+    expect(active.catDialogue).toContain('Trạm cuối Đảo 1 rồi')
+  })
+
   it('moves to Island 2 (Lesson 2.1) when all Island 1 lessons are completed', () => {
     store.set('aikids_lesson_completed_bai-1-1', 'true')
     store.set('aikids_lesson_completed_bai-1-2-bon-chiec-chia-khoa', 'true')
