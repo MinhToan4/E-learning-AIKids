@@ -22,8 +22,7 @@ export function LoginPage() {
   const navigate = useNavigate()
 
   const STUDENT_LOGIN_NOTICE =
-    'AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba' +
-    '/Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ của bé nhé!'
+    'AIKid hiện chỉ hỗ trợ đăng nhập qua tài khoản Phụ huynh. Ba / Mẹ vui lòng đăng nhập bằng Email rồi chọn hồ sơ của bé nhé!'
 
   function goAfterLogin(user: User) {
     if (user.role === 'student') {
@@ -60,7 +59,7 @@ export function LoginPage() {
 
   return (
     <div
-      className="relative h-dvh overflow-hidden bg-bg bg-cover bg-center"
+      className="relative min-h-dvh overflow-x-hidden overflow-y-auto bg-bg bg-cover bg-center"
       style={{ backgroundImage: `url(${designerAssets.lobby.bgLogin})` }}
     >
       <div className="absolute inset-0 bg-white/20" />
@@ -73,10 +72,11 @@ export function LoginPage() {
         ×
       </Link>
 
-      <div className="absolute inset-0 flex items-end justify-center overflow-hidden pt-20 sm:pt-16">
-        <div className="h-[82dvh] max-h-[56rem] min-h-[36rem] shrink-0 aspect-[1000/820] sm:h-[86dvh]">
+      <div className="relative min-h-dvh sm:absolute sm:inset-0 flex items-end justify-center overflow-y-auto sm:overflow-hidden pt-12 sm:pt-16 pb-8 sm:pb-0">
+        <div className="h-[85dvh] max-h-[56rem] min-h-[30rem] sm:min-h-[36rem] shrink-0 aspect-[1000/820] sm:h-[86dvh]">
           <LoginCatFrame
             variant="adult"
+            isBusy={busy}
             portalSlot={(
               <div className="rounded-[1.25rem] border border-white/80 bg-white/90 p-3 text-center shadow-clay backdrop-blur-sm">
                 <div className="flex items-center justify-center gap-2 text-sm font-extrabold text-coral-700 sm:text-base">
@@ -127,14 +127,24 @@ export function LoginPage() {
                   form="login-form"
                   type="submit"
                   disabled={busy}
-                  className="w-[75%] max-w-[16rem] !min-h-16 !rounded-[2rem] !border-4 !border-white !bg-brand-500 !text-xl !font-black !text-white shadow-[0_8px_0_rgba(109,94,252,0.3)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none"
+                  className="w-[82%] sm:w-[75%] max-w-[17.5rem] px-5 sm:px-6 !min-h-16 !rounded-[2rem] !border-4 !border-white !bg-brand-500 !text-xl !font-black !text-white shadow-[0_8px_0_rgba(109,94,252,0.3)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none"
                 >
-                  {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
+                  {busy ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      <span className="text-base sm:text-lg">Đang vào…</span>
+                    </span>
+                  ) : (
+                    'Đăng nhập'
+                  )}
                 </Button>
               </div>
             )}
             footerSlot={(
-              <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border-2 border-border bg-white p-3 text-center shadow-clay sm:p-4" aria-label="Hỗ trợ đăng nhập">
+              <aside className="flex w-full flex-col gap-1.5 sm:gap-2 rounded-[1.35rem] border-2 border-border bg-white p-2.5 sm:p-4 text-center shadow-clay" aria-label="Hỗ trợ đăng nhập">
                 <GoogleSignInButton
                   disabled={busy}
                   onSuccess={goAfterLogin}

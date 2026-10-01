@@ -6,9 +6,10 @@ type LoginCatFrameProps = {
   mouthSlot: ReactNode
   pawsSlot?: ReactNode
   footerSlot?: ReactNode
+  isBusy?: boolean
 }
 
-export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot, footerSlot }: LoginCatFrameProps) {
+export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot, footerSlot, isBusy }: LoginCatFrameProps) {
   const shadowId = `login-cat-shadow-${useId().replace(/:/g, '')}`
 
   return (
@@ -90,13 +91,21 @@ export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot, footer
         </defs>
 
         <style>{`
-          @keyframes tailWag {
+          @keyframes tailWagSlow {
             0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(3deg); }
+            50% { transform: rotate(3.2deg); }
           }
-          .animate-cat-tail {
+          @keyframes tailWagFast {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(6.5deg); }
+          }
+          .animate-cat-tail-slow {
             transform-origin: 2000px 4200px;
-            animation: tailWag 5s ease-in-out infinite;
+            animation: tailWagSlow 8.5s ease-in-out infinite;
+          }
+          .animate-cat-tail-fast {
+            transform-origin: 2000px 4200px;
+            animation: tailWagFast 0.75s ease-in-out infinite;
           }
           @keyframes earTwitchLeft {
             0%, 90%, 100% { transform: rotate(0deg); }
@@ -129,7 +138,7 @@ export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot, footer
           }
         `}</style>
         <g filter={`url(#${shadowId})`}>
-          <g className="animate-cat-tail">
+          <g className={isBusy ? 'animate-cat-tail-fast' : 'animate-cat-tail-slow'}>
             <path d="M1771.36 4123.58C1682.74 3952.97 1762.63 3732.34 1953.61 3620.59L4201.16 2305.2C4473.31 2145.92 4809.17 2216.58 4935.52 2459.78C5061.87 2702.92 4926.64 3018.41 4639.79 3149.51L2287.69 4263.61C2086.45 4355.6 1860.04 4294.19 1771.36 4123.58Z" fill="url(#paint0_linear_272_45)"/>
             <path d="M4669.14 3135.26C4659.54 3140.37 4649.89 3144.96 4639.99 3149.51L4631.06 3153.54C4626.41 2989.01 4584.58 2827.66 4508.69 2681.6C4432.81 2535.53 4324.84 2408.54 4192.89 2310.15L4201.31 2305.04C4473.46 2145.77 4809.32 2216.47 4935.67 2459.62C5057.53 2694.55 4935.67 2996.61 4669.14 3135.26Z" fill="url(#paint1_linear_272_45)"/>
           </g>
@@ -198,7 +207,7 @@ export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot, footer
         </>
       )}
       {footerSlot && (
-        <div className="absolute left-1/2 top-[76%] z-20 w-[min(90vw,24rem)] -translate-x-1/2">
+        <div className="absolute left-1/2 top-[74%] sm:top-[76%] z-20 w-[min(92vw,22rem)] sm:w-[min(90vw,24rem)] -translate-x-1/2">
           {footerSlot}
         </div>
       )}
