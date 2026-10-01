@@ -62,13 +62,9 @@ type AuthState = {
   enteredFromParent: boolean
   bootstrap: () => Promise<void>
   refreshMe: () => Promise<User | null>
-  loginStudent: (
-    nickname: string,
-    second?: string | undefined,
-    opts?: { pin?: string },
-  ) => Promise<User>
+  loginStudent: (nickname: string, second?: string | undefined) => Promise<User>
   /** Parent hands device to an owned child profile (ends parent session). */
-  enterAsChild: (childId: string, options?: { pin?: string }) => Promise<User>
+  enterAsChild: (childId: string) => Promise<User>
   loginAdult: (login: string, password: string, role?: 'parent' | 'teacher') => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
@@ -331,35 +327,37 @@ export const useAuth = create<AuthState>((set, get) => ({
     return user
   },
 
-  loginStudent: async (nickname, _second, opts) => {
+  loginStudent: async (nickname) => {
     set({ error: null })
     writeParentHandoff(false)
     const { user } = await api<{ user: User }>('/api/auth/login/student', {
       method: 'POST',
-      body: JSON.stringify({
-        nickname,
-        ...(opts?.pin ? { pin: opts.pin } : {}),
-      }),
+      body: JSON.stringify({ nickname }),
     })
-    if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
+    if (get().user?.id !== user.id) {
+      clearStudentProgressionCache(get().user?.id)
+      await clearPreviousLearnerData()
+      clearApiCache()
+    }
     // WHY: loginStudent là con tự đăng nhập — KHÔNG phải từ phụ huynh chuyển sang
     set({ user, access: null, activeContext: null, enteredFromParent: false })
     return user
   },
 
-  enterAsChild: async (childId, options) => {
+  enterAsChild: async (childId) => {
     set({ error: null })
     const { user } = await api<{ user: User }>(
       '/api/auth/login/child-profile',
       {
         method: 'POST',
-        body: JSON.stringify({
-          childId,
-          ...(options?.pin ? { pin: options.pin } : {}),
-        }),
+        body: JSON.stringify({ childId }),
       },
     )
-    if (get().user?.id !== user.id) clearStudentProgressionCache(get().user?.id)
+    if (get().user?.id !== user.id) {
+      clearStudentProgressionCache(get().user?.id)
+      await clearPreviousLearnerData()
+      clearApiCache()
+    }
     // WHY: enteredFromParent = true là flag duy nhất phân biệt phiên này với loginStudent.
     // Không dùng parentId vì học sinh tự đăng nhập cũng có parentId.
     writeParentHandoff(true)

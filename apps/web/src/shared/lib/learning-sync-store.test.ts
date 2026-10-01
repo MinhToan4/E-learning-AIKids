@@ -64,18 +64,14 @@ describe('learning-sync-store', () => {
       expect(getStoredItemWithFallback('my_key', 'child-1')).toBe('val-1')
     })
 
-    it('falls back to legacy key and automatically migrates to namespaced key, cleaning up legacy key and setting migration flag', () => {
+    it('quarantines legacy data instead of assigning it to the current child', () => {
       localStorage.setItem('my_key', 'legacy-value')
       expect(localStorage.getItem('aikids:child-2:my_key')).toBeNull()
 
       const result = getStoredItemWithFallback('my_key', 'child-2')
-      expect(result).toBe('legacy-value')
-      // Auto-migrated to namespaced key:
-      expect(localStorage.getItem('aikids:child-2:my_key')).toBe('legacy-value')
-      // Cleaned up legacy key:
-      expect(localStorage.getItem('my_key')).toBeNull()
-      // Marked migration flag:
-      expect(localStorage.getItem('aikids:legacy_migrated_child_id')).toBe('child-2')
+      expect(result).toBeNull()
+      expect(localStorage.getItem('aikids:child-2:my_key')).toBeNull()
+      expect(localStorage.getItem('my_key')).toBe('legacy-value')
     })
 
     it('strictly prevents cross-profile contamination for a second child profile (e.g. bé Bum)', () => {
@@ -100,14 +96,11 @@ describe('learning-sync-store', () => {
   })
 
   describe('saveLocalLessonProgress & getLocalProgress', () => {
-    it('saves progress to both legacy and namespaced keys with alias resolution', () => {
+    it('saves progress only to learner-scoped keys with alias resolution', () => {
       saveLocalLessonProgress('rule-1', 3, true, 'child-test')
 
-      // Legacy keys
-      expect(localStorage.getItem('aikids_lesson_completed_rule-1')).toBe('true')
-      expect(localStorage.getItem('aikids_lesson_stars_rule-1')).toBe('3')
-      expect(localStorage.getItem('aikids_lesson_completed_bai-0-1')).toBe('true')
-      expect(localStorage.getItem('aikids_lesson_stars_bai-0-1')).toBe('3')
+      expect(localStorage.getItem('aikids_lesson_completed_rule-1')).toBeNull()
+      expect(localStorage.getItem('aikids_lesson_stars_rule-1')).toBeNull()
 
       // Namespaced keys
       expect(localStorage.getItem('aikids:child-test:aikids_lesson_completed_rule-1')).toBe('true')
@@ -126,17 +119,15 @@ describe('learning-sync-store', () => {
       expect(progress.lessonStars['bai-1-1']).toBe(3)
     })
 
-    it('reads legacy data with automatic migration on getLocalProgress', () => {
+    it('does not attribute ownerless legacy progress to a new child', () => {
       // Setup legacy storage (before namespacing existed)
       localStorage.setItem('aikids_lesson_completed_rule-2', 'true')
       localStorage.setItem('aikids_lesson_stars_rule-2', '3')
 
       const progress = getLocalProgress('new-child-id')
-      expect(progress.completedLessonIds.has('rule-2')).toBe(true)
-      expect(progress.totalStars).toBeGreaterThanOrEqual(3)
-
-      // Verified migrated
-      expect(localStorage.getItem('aikids:new-child-id:aikids_lesson_completed_rule-2')).toBe('true')
+      expect(progress.completedLessonIds.has('rule-2')).toBe(false)
+      expect(progress.totalStars).toBe(0)
+      expect(localStorage.getItem('aikids:new-child-id:aikids_lesson_completed_rule-2')).toBeNull()
     })
   })
 
@@ -209,7 +200,7 @@ describe('learning-sync-store', () => {
         childId: 'child-1',
       })
 
-      await flushPendingSyncQueue()
+      await flushPendingSyncQueue('child-1')
 
       expect(submitSpy).toHaveBeenCalledWith('bai-1-2', {
         answers: [{ questionId: 'q1', optionIndex: 2 }],
@@ -229,11 +220,37 @@ describe('learning-sync-store', () => {
         childId: 'child-1',
       })
 
-      await flushPendingSyncQueue()
+      await flushPendingSyncQueue('child-1')
 
       const remaining = getPendingSyncQueue()
       expect(remaining.length).toBe(1)
       expect(remaining[0].lessonId).toBe('bai-1-3')
+    })
+
+    it('never replays another learner queue item in the active session', async () => {
+      const submitSpy = vi.spyOn(learningApi, 'submitCheck').mockResolvedValue({
+        stars: 3,
+        message: 'ok',
+        nextQuestId: null,
+      })
+      queuePendingSync({ lessonId: 'lesson-a', answers: [], childId: 'child-a' })
+      queuePendingSync({ lessonId: 'lesson-b', answers: [], childId: 'child-b' })
+
+      await flushPendingSyncQueue('child-b')
+
+      expect(submitSpy).toHaveBeenCalledTimes(1)
+      expect(submitSpy).toHaveBeenCalledWith('lesson-b', { answers: [] })
+      expect(getPendingSyncQueue().map((item) => item.childId)).toEqual(['child-a'])
+    })
+
+    it('quarantines legacy queue items that have no owner', async () => {
+      const submitSpy = vi.spyOn(learningApi, 'submitCheck')
+      queuePendingSync({ lessonId: 'legacy-item', answers: [] })
+
+      await flushPendingSyncQueue('child-a')
+
+      expect(submitSpy).not.toHaveBeenCalled()
+      expect(getPendingSyncQueue()).toHaveLength(1)
     })
   })
 })

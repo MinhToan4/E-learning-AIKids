@@ -28,8 +28,7 @@ export const FALLBACK_AGE_BANDS = [
   { value: '13-15', label: '13–15 tuổi' },
 ]
 
-// ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu, PIN ────
-// Ba / Mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
+// ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu ────
 export function EditChildModal({
   child,
   isOpen,
@@ -49,7 +48,6 @@ export function EditChildModal({
   const [ageBand, setAgeBand] = useState('8-11')
   const [avatarId, setAvatarId] = useState('avatar-robot')
   const [goal, setGoal] = useState('comic')
-  const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
   // Danh sách nhóm tuổi lấy động từ API courses; fallback về hằng số nếu không có data
   const [ageBandOptions, setAgeBandOptions] = useState(FALLBACK_AGE_BANDS)
@@ -61,7 +59,6 @@ export function EditChildModal({
       setAgeBand(child?.ageBand ?? '8-11')
       setAvatarId(child?.avatarId ?? 'avatar-robot')
       setGoal('comic')
-      setPin('')
     }
   }, [isOpen, child])
 
@@ -126,22 +123,9 @@ export function EditChildModal({
       onError('Vui lòng nhập tên hiển thị.')
       return
     }
-    if (!child) {
-      if (!pin || !/^\d{6}$/.test(pin)) {
-        onError('Mã PIN cần đúng 6 chữ số để con đăng nhập vào học.')
-        return
-      }
-    } else {
-      if (pin && !/^\d{6}$/.test(pin)) {
-        onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.')
-        return
-      }
-    }
     setSaving(true)
     try {
       if (child) {
-        // Cập nhật hồ sơ con; PIN có contract riêng để không bị bỏ qua ở
-        // gateway adapter và để backend áp dụng rate-limit/step-up policy.
         await api(`/api/parent/children/${child.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
@@ -150,12 +134,6 @@ export function EditChildModal({
             ageBand,
           }),
         })
-        if (pin) {
-          await api(`/api/parent/children/${child.id}/pin`, {
-            method: 'POST',
-            body: JSON.stringify({ pin }),
-          })
-        }
       } else {
         await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
@@ -164,8 +142,6 @@ export function EditChildModal({
             avatarId,
             ageBand,
             goal,
-            // Gửi PIN kèm lúc tạo nếu Ba / Mẹ đặt ngay
-            ...(pin ? { pin } : {}),
           }),
         })
       }
@@ -303,28 +279,6 @@ export function EditChildModal({
               </div>
             </div>
           )}
-
-          {/* Đổi mã PIN — field nhập bình thường */}
-          <div className="rounded-2xl border border-border bg-brand-50/40 p-4">
-            <label className="mb-1 block text-sm font-bold" htmlFor="edit-pin">
-              {child?.hasPin ? 'Đổi mã PIN (tùy chọn)' : 'Mã PIN đăng nhập (6 số) *'}
-            </label>
-            <input
-              id="edit-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={6}
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className="w-full max-w-[14rem] rounded-xl border border-brand-200 px-3 py-2.5 font-mono tracking-[0.4em] text-lg focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="••••••"
-            />
-            <p className="mt-1.5 text-xs text-muted">
-              {child?.hasPin
-                ? 'Nhập PIN mới để đổi. Để trống nếu không muốn thay đổi.'
-                : '6 chữ số. Con dùng để đăng nhập vào học và giữ riêng tư giữa các bé.'}
-            </p>
-          </div>
 
           {/* Actions — cố định cuối form */}
           <div className="flex flex-shrink-0 gap-3 pb-1">

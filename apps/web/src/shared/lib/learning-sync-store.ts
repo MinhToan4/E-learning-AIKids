@@ -30,8 +30,8 @@ export function getNamespacedKey(baseKey: string, childId?: string | null): stri
 export const LEGACY_MIGRATED_CHILD_ID_KEY = 'aikids:legacy_migrated_child_id'
 
 /**
- * Đọc giá trị từ namespaced key. Nếu chưa có, fallback đọc legacy baseKey và tự động migrate.
- * Ngăn chặn tuyệt đối việc nhiễm chéo tiến trình giữa các profile con khác nhau.
+ * Đọc cache theo learner. Dữ liệu legacy không có owner không được tự động gán
+ * cho learner hiện tại; việc đoán owner chính là nguồn gây nhiễm chéo profile.
  */
 export function getStoredItemWithFallback(baseKey: string, childId?: string | null): string | null {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null
@@ -44,32 +44,14 @@ export function getStoredItemWithFallback(baseKey: string, childId?: string | nu
       const namespacedVal = localStorage.getItem(namespacedKey)
       if (namespacedVal !== null) return namespacedVal
 
-      // Chống nhiễm chéo:
-      // Kiểm tra cờ di trú aikids:legacy_migrated_child_id
-      const migratedChildId = localStorage.getItem(LEGACY_MIGRATED_CHILD_ID_KEY)
-      if (migratedChildId && migratedChildId !== cid) {
-        // Đã migrate sang profile con khác -> TUYỆT ĐỐI KHÔNG đọc baseKey unnamespaced cho profile này
-        return null
-      }
-
-      // Chưa có profile nào migrate (hoặc chính cid này)
-      const legacyVal = localStorage.getItem(baseKey)
-      if (legacyVal !== null) {
-        try {
-          localStorage.setItem(namespacedKey, legacyVal)
-          localStorage.setItem(LEGACY_MIGRATED_CHILD_ID_KEY, cid)
-          localStorage.removeItem(baseKey)
-        } catch {
-          // storage quota hoặc privacy mode
-        }
-        return legacyVal
-      }
       return null
     }
 
     // Trường hợp anonymous / không có childId cụ thể
     const namespacedVal = localStorage.getItem(namespacedKey)
     if (namespacedVal !== null) return namespacedVal
+    // Anonymous preview data may use the old key, but authenticated learners
+    // never consume it.
     return localStorage.getItem(baseKey)
   } catch {
     return null
@@ -203,7 +185,10 @@ export function getIslandLocalProgress(
 }
 
 /**
- * Ghi đồng bộ tiến trình một bài học vào cả namespaced key và legacy key để tương thích ngược 100%.
+ * Cache tiến trình tạm thời theo đúng learner. Server vẫn là nguồn sự thật.
+ *
+ * Không ghi key legacy không namespace: trên thiết bị dùng chung, key đó không
+ * thể hiện chủ sở hữu và từng làm tiến trình của trẻ A xuất hiện ở trẻ B.
  */
 export function saveLocalLessonProgress(
   lessonId: string,
@@ -243,15 +228,6 @@ export function saveLocalLessonProgress(
     const compKey = `aikids_lesson_completed_${id}`
     const starKey = `aikids_lesson_stars_${id}`
 
-    // 1. Lưu legacy key
-    try {
-      localStorage.setItem(compKey, completedStr)
-      localStorage.setItem(starKey, starsStr)
-    } catch {
-      // ignore
-    }
-
-    // 2. Lưu namespaced key
     try {
       const namespacedCompKey = getNamespacedKey(compKey, childId)
       const namespacedStarKey = getNamespacedKey(starKey, childId)
@@ -337,20 +313,27 @@ let isFlushing = false
  * Lặp qua hàng đợi đồng bộ, gửi lên server DB khi có mạng.
  * Khi thành công xóa khỏi queue và phát sự kiện `aikids:lesson-completed`.
  */
-export async function flushPendingSyncQueue(): Promise<void> {
+export async function flushPendingSyncQueue(activeChildId?: string | null): Promise<void> {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') return
   if (isFlushing) return
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return
 
+  const normalizedChildId = activeChildId?.trim()
+  // Never replay a learner mutation without proving which learner owns the
+  // current authenticated session. Legacy queue items without childId remain
+  // quarantined for manual recovery instead of being written to another child.
+  if (!normalizedChildId) return
+
   const queue = getPendingSyncQueue()
-  if (queue.length === 0) return
+  const ownedQueue = queue.filter((item) => item.childId === normalizedChildId)
+  if (ownedQueue.length === 0) return
 
   isFlushing = true
   const successfulIds = new Set<string>()
   let anySuccess = false
 
   try {
-    for (const item of queue) {
+    for (const item of ownedQueue) {
       const syncId = item.id || `${item.lessonId}-${item.timestamp}`
       try {
         if (item.answers && Array.isArray(item.answers)) {
@@ -392,8 +375,6 @@ export async function flushPendingSyncQueue(): Promise<void> {
 }
 
 // Tự động gắn listener lắng nghe khi thiết bị kết nối mạng trở lại
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    void flushPendingSyncQueue()
-  })
-}
+// Route owners trigger a flush with the authenticated learner id. An unscoped
+// global `online` replay is intentionally forbidden because the active account
+// may have changed while the device was offline.

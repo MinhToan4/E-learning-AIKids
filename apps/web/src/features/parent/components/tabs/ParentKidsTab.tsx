@@ -3,8 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 import {
   Baby,
   BookOpen,
-  KeyRound,
-  Lock,
   Pencil,
   Plus,
   ShieldCheck,
@@ -140,7 +138,7 @@ export function ParentKidsTab() {
             </Button>
           </div>
         </div>
-        <p className="sr-only">Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập</p>
+        <p className="sr-only">Quản lý danh tính, quyền an toàn và hồ sơ học của con</p>
       </header>
 
       {/* Grid of child cards */}
@@ -213,28 +211,9 @@ export function ParentKidsTab() {
                     </span>
                   </div>
 
-                  {/* PIN Safety status */}
-                  <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold">
-                    {k.hasPin ? (
-                      <button
-                        type="button"
-                        onClick={() => setEditTarget(k)}
-                        className="inline-flex items-center gap-1 text-mint-700 hover:underline text-[11px]"
-                      >
-                        <Lock size={11} className="text-mint-600" />
-                        <span>Đã có mã PIN</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setEditTarget(k)}
-                        className="inline-flex items-center gap-1 text-amber-800 hover:underline text-[11px]"
-                      >
-                        <KeyRound size={11} className="text-amber-600" />
-                        <span>Chưa tạo mã PIN</span>
-                      </button>
-                    )}
-                  </div>
+                  <p className="mt-1.5 text-[11px] font-bold text-mint-700">
+                    Vào học qua phiên đăng nhập của Ba / Mẹ
+                  </p>
                 </div>
               </div>
 

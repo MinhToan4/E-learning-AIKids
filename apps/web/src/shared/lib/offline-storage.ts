@@ -14,8 +14,16 @@ export const LEARNER_CACHE_KEYS = [
 export const LEARNER_CACHE_PREFIXES = [
   'aiki_studio_session_',
   'aiki_studio_turns_',
+  'aiki_backpack_items_',
+  'aikids_stage_',
+  'aikids_quiz_',
+  'aikids_video_done_',
+  'aikids_lesson_stars_',
+  'aikids_lesson_completed_',
   'aikids_lesson_stage_',
   'aikids_lesson_completed_stages_',
+  'aikids_confirm_',
+  'aikids_practice_done_',
 ] as const
 
 export async function clearOfflineLearningData() {

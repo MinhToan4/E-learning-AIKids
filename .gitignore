@@ -35,4 +35,7 @@ tools/
 data-export/
 
 # Allow specific docs
+!docs/
+docs/*
 !docs/DATA_FLOW.md
+!docs/DATA_OWNERSHIP_AND_OFFLINE_SYNC.md

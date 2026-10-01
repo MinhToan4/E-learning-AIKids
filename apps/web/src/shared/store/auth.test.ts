@@ -574,31 +574,4 @@ describe('auth store', () => {
     expect(useAuth.getState().user?.nickname).toBe('Bé Mây')
   })
 
-  it('enters as child with PIN verification and passes pin in payload', async () => {
-    mocks.api.mockResolvedValueOnce({
-      user: {
-        id: 'child-2',
-        role: 'student',
-        email: null,
-        nickname: 'Bé Sóc',
-        avatarId: 'squirrel',
-        level: 2,
-        xp: 60,
-        onboarded: true,
-        goal: null,
-        parentId: 'parent-1',
-        classId: null,
-      },
-    })
-
-    const child = await useAuth.getState().enterAsChild('child-2', { pin: '654321' })
-
-    expect(child.id).toBe('child-2')
-    expect(mocks.api).toHaveBeenCalledWith('/api/auth/login/child-profile', {
-      method: 'POST',
-      body: JSON.stringify({ childId: 'child-2', pin: '654321' }),
-    })
-    expect(useAuth.getState().enteredFromParent).toBe(true)
-    expect(useAuth.getState().user?.id).toBe('child-2')
-  })
 })

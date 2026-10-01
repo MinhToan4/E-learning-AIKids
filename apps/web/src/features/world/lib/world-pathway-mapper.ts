@@ -390,65 +390,10 @@ export function mergeQuestsWithLocalProgress<
   void isRuleCourse
   void localCompletedLessons
   void localGoldenRules
-
-  return quests.map((quest) => {
-    let effectiveStars = quest.stars || 0
-    let effectiveStatus = quest.status
-
-    if (typeof window !== 'undefined') {
-      try {
-        const idStars = Number(localStorage.getItem(`aikids_lesson_stars_${quest.id}`)) || 0
-        const slugStars = quest.slug ? Number(localStorage.getItem(`aikids_lesson_stars_${quest.slug}`)) || 0 : 0
-        const orderStars = typeof quest.order === 'number' ? Number(localStorage.getItem(`aikids_lesson_stars_rule-${quest.order}`)) || 0 : 0
-        const localStars = Math.max(idStars, slugStars, orderStars)
-
-        const isCompleted =
-          quest.status === 'completed' ||
-          effectiveStars >= 3 ||
-          localStars >= 3 ||
-          localStorage.getItem(`aikids_lesson_completed_${quest.id}`) === 'true' ||
-          (quest.slug ? localStorage.getItem(`aikids_lesson_completed_${quest.slug}`) === 'true' : false) ||
-          (typeof quest.order === 'number' && localStorage.getItem(`aikids_lesson_completed_rule-${quest.order}`) === 'true')
-
-        const isVideoDone =
-          localStorage.getItem(`aikids_video_done_${quest.id}`) === 'true' ||
-          (quest.slug ? localStorage.getItem(`aikids_video_done_${quest.slug}`) === 'true' : false) ||
-          (typeof quest.order === 'number' && localStorage.getItem(`aikids_video_done_rule-${quest.order}`) === 'true')
-
-        let calculated = effectiveStars
-        if (isCompleted) {
-          calculated = Math.max(calculated, localStars, 3)
-          effectiveStatus = 'completed'
-        } else if (localStars > 0) {
-          calculated = Math.max(calculated, localStars)
-          if (effectiveStatus === 'locked') effectiveStatus = 'in_progress'
-        } else if (isVideoDone) {
-          calculated = Math.max(calculated, 1)
-          if (effectiveStatus === 'locked') effectiveStatus = 'in_progress'
-        }
-
-        const hasLocalProgress =
-          sessionStorage.getItem(`aikids_stage_${quest.id}`) != null ||
-          (quest.slug && sessionStorage.getItem(`aikids_stage_${quest.slug}`) != null) ||
-          localStorage.getItem(`aikids_lesson_stage_${quest.id}`) != null ||
-          (quest.slug && localStorage.getItem(`aikids_lesson_stage_${quest.slug}`) != null)
-
-        if (hasLocalProgress && effectiveStatus === 'locked') {
-          effectiveStatus = 'in_progress'
-        }
-
-        effectiveStars = calculated
-      } catch {
-        // ignore
-      }
-    }
-
-    return {
-      ...quest,
-      stars: effectiveStars,
-      status: effectiveStatus,
-    }
-  })
+  // Unlock, completion and stars are authorization/progression facts owned by
+  // LMS. Device storage may preserve a draft, but it must never override the
+  // pathway projection or turn a locked quest into an available one.
+  return quests.map((quest) => ({ ...quest }))
 }
 
 export function enrichCoursesWithLocalProgress(

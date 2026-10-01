@@ -352,7 +352,7 @@ export function ProfilePage() {
   )
 
   useEffect(() => {
-    void flushPendingSyncQueue()
+    void flushPendingSyncQueue(user?.id)
     let active = true
     const loadVersion = equipmentMutationVersion.current
 

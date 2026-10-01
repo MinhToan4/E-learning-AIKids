@@ -454,17 +454,23 @@ export function HomePage() {
   }, [user?.id])
 
   useEffect(() => {
-    void flushPendingSyncQueue()
+    void flushPendingSyncQueue(user?.id)
     void load()
+
+    const onOnline = () => {
+      void flushPendingSyncQueue(user?.id)
+    }
 
     const onLessonCompleted = () => {
       void load()
     }
     window.addEventListener('aikids:lesson-completed', onLessonCompleted)
+    window.addEventListener('online', onOnline)
     return () => {
       window.removeEventListener('aikids:lesson-completed', onLessonCompleted)
+      window.removeEventListener('online', onOnline)
     }
-  }, [load])
+  }, [load, user?.id])
 
   const isPurchased = courses.some(
     (course) => course.enrolled && getAikiIslandSortOrder(course) > 1,

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router'
 import {
   ArrowRight,
   CheckCircle2,
-  Lock,
   Plus,
   RefreshCw,
   Sparkles,
@@ -176,7 +175,7 @@ export function ParentDashboardTab({
           color="sky"
           trend={kids.length > 0 ? { value: `${kids.length} hồ sơ`, isPositive: true } : undefined}
           sparklineData={[kids.length]}
-          subtext="Học an toàn bằng biệt danh & PIN"
+          subtext="Ba / Mẹ chọn đúng hồ sơ để vào học"
           onClick={() => navigate('/parent/kids')}
         />
         <StatMetricCard
@@ -300,7 +299,7 @@ export function ParentDashboardTab({
           <div>
             <h3 className="font-display text-lg font-bold text-text">Hành trình học tập của các con</h3>
             <p className="text-xs text-muted">
-              Lộ trình, hoạt động và năng lực · Danh tính, PIN và quyền an toàn
+              Lộ trình, hoạt động và năng lực · Danh tính và quyền an toàn
             </p>
           </div>
           <Button
@@ -369,11 +368,6 @@ export function ParentDashboardTab({
                               )}
                               title={k.active ? 'Đang hoạt động' : 'Tạm dừng'}
                             />
-                            {k.hasPin && (
-                              <span title="Có PIN bảo vệ">
-                                <Lock size={12} className="text-emerald-600 shrink-0" />
-                              </span>
-                            )}
                           </div>
                           <p className="text-xs text-muted truncate">
                             {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'}

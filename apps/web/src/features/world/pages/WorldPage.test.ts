@@ -643,7 +643,7 @@ describe('Server-owned World map progress', () => {
     expect(totalStars).toBe(0)
   })
 
-  it('merges 1 star when video completion flag or 1 star is present in local storage', () => {
+  it('ignores local video/star flags when rendering server-owned progress', () => {
     const rawQuests: Array<{
       id: string
       order: number
@@ -675,7 +675,7 @@ describe('Server-owned World map progress', () => {
 
     try {
       const merged = mergeQuestsWithLocalProgress(rawQuests, true)
-      expect(merged[0].stars).toBe(1)
+      expect(merged[0].stars).toBe(0)
       expect(merged[1].stars).toBe(0)
     } finally {
       if (prevWindow === undefined) {
@@ -691,7 +691,7 @@ describe('Server-owned World map progress', () => {
     }
   })
 
-  it('merges 3 stars and completion status from localStorage to unlock Station 2 and mark Station 1 completed', () => {
+  it('does not let localStorage complete a lesson or unlock the next station', () => {
     const rawQuests: Array<{
       id: string
       slug: string
@@ -724,12 +724,12 @@ describe('Server-owned World map progress', () => {
 
     try {
       const merged = mergeQuestsWithLocalProgress(rawQuests, false)
-      expect(merged[0].status).toBe('completed')
-      expect(merged[0].stars).toBe(3)
+      expect(merged[0].status).toBe('available')
+      expect(merged[0].stars).toBe(0)
 
       const sequential = applySequentialQuestRules(merged, false)
-      expect(sequential[0].status).toBe('completed')
-      expect(sequential[1].status).toBe('available')
+      expect(sequential[0].status).toBe('available')
+      expect(sequential[1].status).toBe('locked')
     } finally {
       if (prevWindow === undefined) {
         delete (globalThis as any).window
@@ -1006,4 +1006,3 @@ describe('WorldPage official program and island selection', () => {
     expect(target?.course.slug).toBe('dao-1-nha-tham-hiem-ai')
   })
 })
-
