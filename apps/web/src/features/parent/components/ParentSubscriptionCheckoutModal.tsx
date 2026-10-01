@@ -164,7 +164,7 @@ export interface PaymentIntentResponse {
   }
 }
 
-function extractPaymentIntentData(res: PaymentIntentResponse | undefined) {
+export function extractPaymentIntentData(res: PaymentIntentResponse | undefined) {
   const status =
     res?.paymentIntent?.status ??
     res?.data?.paymentIntent?.status ??
