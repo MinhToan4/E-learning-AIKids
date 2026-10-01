@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Wand2, Sparkles, Check, SunMedium } from 'lucide-react'
+import { Wand2, Check } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { playInstantSound } from '../../LessonInteractiveSidebar'
 import type { EngineProps, CreativeBlock } from '../types'
@@ -189,34 +189,24 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                 data-testid={`subject-button-${sub.id}`}
                 onClick={() => handleSelectSubject(idx)}
                 className={cn(
-                  'p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center gap-2.5 select-none min-h-[54px] group',
+                  'p-3 rounded-2xl border-2 text-center transition-all cursor-pointer flex items-center justify-center gap-2 select-none min-h-[50px] sm:min-h-[54px] relative group',
                   isSelected
-                    ? 'bg-purple-50/80 border-purple-600 shadow-clay-xs ring-2 ring-purple-300 scale-[1.01]'
+                    ? 'bg-purple-50/90 border-purple-600 shadow-clay-xs ring-2 ring-purple-300 scale-[1.01]'
                     : 'bg-white/95 border-slate-200 hover:border-purple-300 hover:bg-purple-50/30 text-slate-700 shadow-2xs'
                 )}
               >
-                <div
+                <span
                   className={cn(
-                    'size-9 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-105',
-                    isSelected ? 'bg-purple-100 text-purple-900 shadow-2xs' : 'bg-slate-100 text-slate-700'
+                    'text-sm sm:text-base font-black leading-tight break-words',
+                    isSelected ? 'text-purple-950' : 'text-slate-800'
                   )}
                 >
-                  {sub.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div
-                    className={cn(
-                      'text-xs font-black leading-tight break-words line-clamp-2',
-                      isSelected ? 'text-purple-950' : 'text-slate-800'
-                    )}
-                  >
-                    {sub.name}
-                  </div>
-                </div>
+                  {sub.name}
+                </span>
                 {isSelected && (
-                  <div className="size-4 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                  <span className="size-4.5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-black shrink-0 ml-1">
                     ✓
-                  </div>
+                  </span>
                 )}
               </button>
             )
@@ -283,29 +273,21 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                   }
                 }}
                 className={cn(
-                  'min-h-[52px] rounded-2xl border-2 p-3.5 transition-all duration-150 select-none relative flex items-center gap-3',
+                  'min-h-[50px] sm:min-h-[54px] rounded-2xl border-2 p-3 sm:p-3.5 transition-all duration-150 select-none relative flex items-center justify-between gap-2',
                   'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95',
                   isSelected
                     ? 'border-purple-500 bg-purple-500/10 shadow-md ring-2 ring-purple-400 scale-[1.01]'
                     : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/30 shadow-2xs'
                 )}
               >
-                <div className="size-11 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-2xl shrink-0">
-                  {style.icon}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="font-black text-xs sm:text-sm text-slate-900">
-                      {style.label}
-                    </span>
-                    {isSelected && (
-                      <div className="size-5 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xs">
-                        <Check size={12} strokeWidth={3} />
-                      </div>
-                    )}
+                <span className="font-black text-sm sm:text-base text-slate-900 leading-tight">
+                  {style.label}
+                </span>
+                {isSelected && (
+                  <div className="size-5 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <Check size={12} strokeWidth={3} />
                   </div>
-                </div>
+                )}
               </div>
             )
           })}
@@ -328,7 +310,7 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
           {PRISM_LIGHTING_OPTIONS.map((light) => {
             const isSelected = selectedLighting.id === light.id
 
@@ -339,18 +321,15 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                 data-testid={`lighting-btn-${light.id}`}
                 onClick={() => handleSelectLighting(light)}
                 className={cn(
-                  'p-2.5 rounded-xl border-2 text-left transition-all duration-150 flex flex-col gap-1 cursor-pointer select-none',
+                  'p-2.5 sm:p-3 rounded-2xl border-2 text-center transition-all duration-150 flex items-center justify-center min-h-[46px] sm:min-h-[52px] cursor-pointer select-none',
                   isSelected
                     ? 'border-amber-500 bg-amber-50 shadow-xs ring-2 ring-amber-300 scale-102'
                     : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/30'
                 )}
               >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-lg">{light.icon}</span>
-                  <span className="text-xs font-black text-slate-900 truncate">
-                    {light.label}
-                  </span>
-                </div>
+                <span className="text-xs sm:text-sm font-black text-slate-900 leading-snug whitespace-normal break-words text-center">
+                  {light.label}
+                </span>
               </button>
             )
           })}

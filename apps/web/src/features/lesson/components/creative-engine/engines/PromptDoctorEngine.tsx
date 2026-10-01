@@ -553,10 +553,10 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
                     {selectedCure.icon}
                   </span>
                   <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                    <div className="text-xs sm:text-sm font-black text-slate-900 leading-snug break-words">
                       {selectedCure.label}
                     </div>
-                    <div className="text-[11px] font-bold text-emerald-800 truncate mt-0.5">
+                    <div className="text-[11px] font-bold text-emerald-800 leading-tight break-words mt-0.5">
                       {selectedCure.text}
                     </div>
                   </div>
@@ -617,8 +617,10 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
               >
                 <span className="text-2xl sm:text-3xl shrink-0 drop-shadow-xs">{cure.icon}</span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs sm:text-sm font-black truncate text-slate-900">{cure.label}</div>
-                  <div className="text-[11px] font-bold text-emerald-800 truncate mt-0.5">
+                  <div className="text-xs sm:text-sm font-black text-slate-900 leading-snug break-words">
+                    {cure.label}
+                  </div>
+                  <div className="text-[11px] font-bold text-emerald-800 leading-tight break-words mt-0.5">
                     {cure.hint}
                   </div>
                 </div>

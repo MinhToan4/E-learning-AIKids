@@ -346,8 +346,8 @@ export const IdentityLockEngine: React.FC<IdentityLockEngineProps> = ({
               >
                 <span className="text-2xl shrink-0">{expr.icon}</span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-black truncate">{expr.label}</div>
-                  <div className="text-[10px] font-semibold text-slate-400 truncate">
+                  <div className="text-xs font-black leading-snug break-words">{expr.label}</div>
+                  <div className="text-[10px] font-semibold text-slate-400 leading-tight break-words mt-0.5">
                     {expr.text}
                   </div>
                 </div>

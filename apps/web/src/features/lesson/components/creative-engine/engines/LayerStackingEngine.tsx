@@ -277,7 +277,9 @@ export const LayerStackingEngine: React.FC<EngineProps> = ({
                 )}
               >
                 <span className="text-xl shrink-0">{item.icon}</span>
-                <span className="text-xs font-black truncate pr-4">{item.label}</span>
+                <span className="text-xs font-black leading-snug whitespace-normal break-words pr-2">
+                  {item.label}
+                </span>
                 {activeTab === 'star' && (
                   <span className="absolute top-0 right-0 -mt-1.5 -mr-1.5 bg-amber-100 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded-md border border-amber-200 shadow-xs">
                     ⭐ 1/3
