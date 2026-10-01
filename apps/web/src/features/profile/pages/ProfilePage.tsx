@@ -51,6 +51,7 @@ import {
 } from '@/shared/lib/creation/xp-levels'
 import {
   loadProfileOverview,
+  loadProfileAppearance,
   type ProfileEquipmentRow,
   type PublicProfileSettings,
 } from '../profile-overview-api'
@@ -61,9 +62,7 @@ import {
   isCertificateClaimed,
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
-import { useRulesProgress, rulesProgressFromPathway } from '@/features/rules/hooks/useRulesProgress'
-import type { LearningPathwayCourse } from '@/shared/lib/learning-api'
-import type { CompetencyMap } from '@/features/leaderboard/components/SkillGardenSection'
+import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
 
 const BookSpread = lazy(() =>
   import('@/features/storybook/components/BookSpread').then((module) => ({ default: module.BookSpread })),
@@ -182,7 +181,7 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
   )
 }
 
-export type ProfileTabSection = 'progress' | 'certificates' | 'competencies' | 'storybook' | 'memories' | 'customize'
+export type ProfileTabSection = 'progress' | 'certificates' | 'storybook' | 'memories' | 'customize'
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
@@ -299,7 +298,6 @@ export function ProfilePage() {
     () => earnedStickerIds.filter((id) => storybookPublishedStickerIds.has(id)).length,
     [earnedStickerIds, storybookPublishedStickerIds],
   )
-  const { completedCount: hookRulesCompleted } = useRulesProgress()
   const [selectedCertificateForModal, setSelectedCertificateForModal] = useState<CertificateItem | null>(null)
   const [backpackCertificates, setBackpackCertificates] = useState<BackpackCertificate[]>(() =>
     getBackpackCertificates(user?.id)
@@ -320,8 +318,6 @@ export function ProfilePage() {
   const [completedStations, setCompletedStations] = useState<number>(0)
   const [starsCollected, setStarsCollected] = useState<number>(0)
   const [pathwayCourses, setPathwayCourses] = useState<LearningPathwayCourse[]>([])
-  const [competencyMap, setCompetencyMap] = useState<CompetencyMap | null>(null)
-  const [pathwayRulesCompleted, setPathwayRulesCompleted] = useState<number>(0)
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
     themeKey: null as string | null,
@@ -347,13 +343,13 @@ export function ProfilePage() {
     let active = true
     const loadVersion = equipmentMutationVersion.current
 
-    // Gọi API /api/competency-map
-    api<CompetencyMap>('/api/competency-map')
-      .then((data) => {
-        if (!active || !data) return
-        setCompetencyMap(data)
-      })
-      .catch(() => undefined)
+    const applyPathwayData = (courses: LearningPathwayCourse[]) => {
+      setPathwayCourses(courses)
+      const comp = courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
+      const stars = courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
+      if (comp > 0) setCompletedStations(comp)
+      if (stars > 0) setStarsCollected(stars)
+    }
 
     loadProfileOverview(api, 3500, false, false, true, true)
       .then((overview) => {
@@ -423,22 +419,59 @@ export function ProfilePage() {
         }
 
         const pw = overview.pathway
-        if (pw && Array.isArray(pw.courses)) {
-          setPathwayCourses(pw.courses)
-          const comp = pw.courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
-          const stars = pw.courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
-          if (comp > 0) setCompletedStations(comp)
-          if (stars > 0) setStarsCollected(stars)
-          try {
-            const rulesProg = rulesProgressFromPathway(pw)
-            const rCount = Object.values(rulesProg.rules).filter((r) => r.status === 'completed').length
-            if (rCount > 0) setPathwayRulesCompleted(rCount)
-          } catch {
-            // ignore
-          }
+        if (pw && Array.isArray(pw.courses) && pw.courses.length > 0) {
+          applyPathwayData(pw.courses)
+        } else {
+          learningApi.getPathway()
+            .then((res) => {
+              if (active && res?.courses && res.courses.length > 0) {
+                applyPathwayData(res.courses)
+              }
+            })
+            .catch(() => undefined)
         }
       })
-      .catch(() => undefined)
+      .catch(async () => {
+        if (!active) return
+        try {
+          const [streakRes, achRes, projRes, appearanceRes, pathwayRes] = await Promise.allSettled([
+            api<{ current?: number }>('/api/gamification/streak'),
+            api<{ achievements?: AchievementRow[] }>('/api/gamification/achievements'),
+            api<{ projects?: ShowcaseProject[] }>('/api/projects'),
+            loadProfileAppearance(api, 3500),
+            learningApi.getPathway().catch(() => null),
+          ])
+          if (!active) return
+          if (streakRes.status === 'fulfilled' && streakRes.value?.current !== undefined) {
+            setStreak(Number(streakRes.value.current))
+          }
+          if (achRes.status === 'fulfilled' && Array.isArray(achRes.value?.achievements)) {
+            setAchievements(achRes.value.achievements.filter((row) => row.unlocked))
+          }
+          if (projRes.status === 'fulfilled' && Array.isArray(projRes.value?.projects)) {
+            setProjects(projRes.value.projects.filter(isCleanDisplayableWork))
+          }
+          if (appearanceRes.status === 'fulfilled' && appearanceRes.value) {
+            const app = appearanceRes.value
+            if (app.profileSettings) {
+              setProfileSlug(app.profileSettings.slug)
+              setProfileAppearance({
+                themeKey: app.profileSettings.themeKey ?? null,
+                frameKey: app.profileSettings.frameKey ?? null,
+                backgroundKey: app.profileSettings.backgroundKey ?? null,
+              })
+            }
+            if (user && app.equipment && equipmentMutationVersion.current === loadVersion) {
+              setEquipment(syncRewardEquipment(user.id, rewardEquipmentFromRows(app.equipment)))
+            }
+          }
+          if (pathwayRes.status === 'fulfilled' && pathwayRes.value?.courses) {
+            applyPathwayData(pathwayRes.value.courses)
+          }
+        } catch {
+          // ignore
+        }
+      })
       .finally(() => {
         if (active) setLoading(false)
       })
@@ -537,58 +570,7 @@ export function ProfilePage() {
     return `${hours}h ${mins}m`
   }, [totalStudyMinutes])
 
-  // Biểu đồ 7 cột đại diện nhịp học trong tuần từ T2 -> CN
-  const weeklyDays = useMemo(() => {
-    const todayIndex = (new Date().getDay() + 6) % 7 // 0=T2, 1=T3, ..., 6=CN
-    const labels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
-    const baseMinutes = [40, 50, 35, 60, 45, 30, 25]
 
-    return labels.map((label, idx) => {
-      const isToday = idx === todayIndex
-      const isPast = idx <= todayIndex
-      const active = isPast && (streak >= (todayIndex - idx + 1) || isToday || idx % 2 === 0)
-      const minutes = active ? baseMinutes[idx] : 0
-      const isPeak = idx === 3 // Ngày học chăm nhất
-      const showPill = isToday || (isPeak && !isToday && idx < todayIndex)
-      const pillText = minutes >= 60 ? `${(minutes / 60).toFixed(1).replace('.0', '')}hr` : `${minutes}m`
-
-      return {
-        label,
-        minutes,
-        active,
-        isToday,
-        showPill,
-        pillText,
-      }
-    })
-  }, [streak])
-
-  const activeDaysCount = useMemo(() => {
-    return weeklyDays.filter((d) => d.active).length
-  }, [weeklyDays])
-
-  const maxDayMinutes = useMemo(() => {
-    return Math.max(60, ...weeklyDays.map((d) => d.minutes))
-  }, [weeklyDays])
-
-  // Số quy tắc thực tế hoàn thành (Đảo 1: 10 Quy Tắc Vàng)
-  const effectiveRulesCount = useMemo(() => {
-    const isGraduated = stationPercent === 100 || displayStations >= 30
-    if (isGraduated) return 10
-    const safetyEvidence = (competencyMap?.frameworks || [])
-      .flatMap((fw) => (fw.domains || []).flatMap((dom) => dom.skills || []))
-      .find((s) => /safe|ethic|an[\s_-]?toan|quy[\s_-]?tac|dao[\s_-]?duc/i.test(s.id + ' ' + s.name))
-      ?.result?.evidenceCount || 0
-    return Math.min(
-      10,
-      Math.max(
-        hookRulesCompleted,
-        pathwayRulesCompleted,
-        safetyEvidence,
-        Math.floor((displayStations * 10) / 30) || 1,
-      ),
-    )
-  }, [competencyMap, displayStations, hookRulesCompleted, pathwayRulesCompleted, stationPercent])
 
   // Bằng khen tốt nghiệp khóa học duy nhất chuẩn hóa (Course Graduation Certificate)
   const isGraduated = stationPercent === 100 || displayStations >= 30
@@ -628,217 +610,7 @@ export function ProfilePage() {
 
   const hasClaimedCertificate = isCourseCertificateClaimed || backpackCertificates.length > 0
 
-  // Vườn Kỹ Năng Sáng Tạo Của Con (4 Kỹ Năng Cốt Lõi) kết nối dữ liệu học tập thực tế & /api/competency-map
-  const competencies = useMemo(() => {
-    const isGraduated = stationPercent === 100 || displayStations >= 30
 
-    // Kỹ năng từ /api/competency-map (nếu có cấu hình)
-    const allCompetencySkills =
-      !competencyMap || competencyMap.status === 'configuration_required'
-        ? []
-        : (competencyMap.frameworks || []).flatMap((fw) =>
-            (fw.domains || []).flatMap((dom) => dom.skills || []),
-          )
-    const promptSkill = allCompetencySkills.find((s) =>
-      /prompt|lenh|chi[\s_-]?khoa|command/i.test(s.id + ' ' + s.name),
-    )
-    const visualSkill = allCompetencySkills.find((s) =>
-      /visual|art|my[\s_-]?thuat|hoi[\s_-]?hoa|ve|hinh[\s_-]?anh/i.test(s.id + ' ' + s.name),
-    )
-    const storySkill = allCompetencySkills.find((s) =>
-      /story|truyen|kich[\s_-]?ban|cot[\s_-]?truyen|narrative/i.test(s.id + ' ' + s.name),
-    )
-    const safetySkill = allCompetencySkills.find((s) =>
-      /safe|ethic|an[\s_-]?toan|quy[\s_-]?tac|dao[\s_-]?duc/i.test(s.id + ' ' + s.name),
-    )
-
-    // 1. Tư Duy Diễn Đạt & Giao Tiếp (Creative Thinking & Expression - Đảo 2)
-    const island2Course = pathwayCourses.find((c) =>
-      /dao[-_\s]?2|kham[-_\s]?pha|tham[-_\s]?hiem|chi[\s_-]?khoa|lenh|prompt/i.test(
-        c.id + ' ' + (c.shortTitle || '') + ' ' + c.title,
-      ),
-    )
-    const island2Stations =
-      island2Course?.completedCount ??
-      (displayStations >= 8 ? 4 : Math.min(4, Math.floor(displayStations / 2)))
-    const promptKeysCount = isGraduated
-      ? 4
-      : Math.min(4, Math.max(1, promptSkill?.result?.evidenceCount || island2Stations))
-    const promptPercent =
-      promptSkill?.result?.scorePercent ??
-      (isGraduated ? 100 : Math.min(100, Math.round((promptKeysCount / 4) * 95)))
-    const promptLevelText =
-      promptKeysCount >= 4
-        ? 'Cấp 5 · Nhà Diễn Đạt Bậc Thầy'
-        : promptKeysCount === 3
-          ? 'Cấp 4 · Nhà Sáng Tạo Tài Ba'
-          : promptKeysCount === 2
-            ? 'Cấp 3 · Người Khám Phá Ý Tưởng'
-            : 'Cấp 2 · Tập Sự Sáng Tạo'
-
-    // 2. Mỹ Thuật & Sáng Tạo Tranh Vẽ (Visual Arts - Đảo 3 + Tranh vẽ)
-    const userImageWorks = displayableProjects.filter(
-      (p) => p.kind === 'image' || (!p.kind?.includes('comic') && !p.kind?.includes('story')),
-    ).length
-    const island3Course = pathwayCourses.find((c) =>
-      /dao[-_\s]?3|hoa[-_\s]?si|mau|co[-_\s]?ve|visual|art/i.test(
-        c.id + ' ' + (c.shortTitle || '') + ' ' + c.title,
-      ),
-    )
-    const island3Stations =
-      island3Course?.completedCount ??
-      (displayStations >= 16 ? 5 : Math.min(5, Math.floor(displayStations / 3)))
-    const visualEvidenceCount = isGraduated
-      ? Math.max(6, island3Stations + userImageWorks)
-      : Math.max(1, visualSkill?.result?.evidenceCount || island3Stations + userImageWorks)
-    const visualPercent =
-      visualSkill?.result?.scorePercent ??
-      (isGraduated ? 100 : Math.min(95, Math.max(45, 45 + visualEvidenceCount * 10)))
-    const visualLevelText =
-      visualEvidenceCount >= 6
-        ? 'Cấp 5 · Đại Danh Họa'
-        : visualEvidenceCount >= 4
-          ? 'Cấp 4 · Họa Sĩ Tài Ba'
-          : visualEvidenceCount >= 2
-            ? 'Cấp 3 · Họa Sĩ Nhí'
-            : 'Cấp 2 · Họa Sĩ Tập Sự'
-
-    // 3. Kể Chuyện & Kịch Bản Nhí (Storytelling - Đảo 4, 5 + Truyện/Comic)
-    const userStoryWorks = displayableProjects.filter(
-      (p) =>
-        p.kind === 'comic' ||
-        p.kind === 'story' ||
-        p.kind?.includes('panel') ||
-        p.kind?.includes('text') ||
-        p.kind?.includes('writing'),
-    ).length
-    const island4Course = pathwayCourses.find((c) =>
-      /dao[-_\s]?4|nhan[-_\s]?vat|character/i.test(
-        c.id + ' ' + (c.shortTitle || '') + ' ' + c.title,
-      ),
-    )
-    const island5Course = pathwayCourses.find((c) =>
-      /dao[-_\s]?5|truyen|storyboard|comic/i.test(
-        c.id + ' ' + (c.shortTitle || '') + ' ' + c.title,
-      ),
-    )
-    const storyStations =
-      (island4Course?.completedCount ?? 0) + (island5Course?.completedCount ?? 0) ||
-      (displayStations >= 24 ? 6 : Math.min(6, Math.floor(displayStations / 3)))
-    const storyEvidenceCount = isGraduated
-      ? Math.max(6, storyStations + userStoryWorks)
-      : Math.max(1, storySkill?.result?.evidenceCount || storyStations + userStoryWorks)
-    const storyPercent =
-      storySkill?.result?.scorePercent ??
-      (isGraduated ? 100 : Math.min(95, Math.max(40, 40 + storyEvidenceCount * 10)))
-    const storyLevelText =
-      storyEvidenceCount >= 6
-        ? 'Cấp 5 · Bậc Thầy Cốt Truyện'
-        : storyEvidenceCount >= 4
-          ? 'Cấp 4 · Kể Chuyện Xuất Sắc'
-          : storyEvidenceCount >= 2
-            ? 'Cấp 3 · Kể Chuyện Nhí'
-            : 'Cấp 2 · Người Soạn Kịch Bản'
-
-    // 4. An Toàn Số & Ứng Xử Thông Minh (Digital Safety & Smart Habits - Đảo 1 10 quy tắc)
-    const effectiveRules = effectiveRulesCount
-    const safetyPercent =
-      safetySkill?.result?.scorePercent ??
-      (isGraduated ? 100 : Math.min(100, Math.round((effectiveRules / 10) * 100)))
-    const safetyLevelText =
-      effectiveRules >= 10
-        ? 'Cấp 5 · Hiệp Sĩ An Toàn Tối Cao'
-        : effectiveRules >= 7
-          ? 'Cấp 4 · Hiệp Sĩ An Toàn Tinh Nhuệ'
-          : effectiveRules >= 4
-            ? 'Cấp 3 · Vệ Binh An Toàn'
-            : 'Cấp 2 · Hiệp Sĩ Nhí'
-
-    return [
-      {
-        title: 'Tư Duy Diễn Đạt & Giao Tiếp',
-        englishTitle: 'Creative Thinking & Expression',
-        level: promptLevelText,
-        percent: promptPercent,
-        evidenceCount: promptKeysCount,
-        evidenceText: `${promptKeysCount} bài học chìa khóa lệnh đã vượt qua`,
-        statusLabel:
-          promptKeysCount >= 4
-            ? 'Nắm trọn 4 chiếc chìa khóa thần kỳ'
-            : 'Nắm vững 4 chiếc chìa khóa & tả chi tiết',
-        description:
-          'Biết cách diễn đạt ý tưởng rõ ràng, miêu tả bối cảnh chi tiết và cùng bạn đồng hành hoàn thiện tác phẩm.',
-        tag: 'TƯ DUY',
-        icon: Sparkles,
-        cardBg: 'border-sky-200/80 bg-linear-to-br from-sky-50/70 via-white to-blue-50/30',
-        iconBg: 'border-sky-200 bg-sky-100 text-sky-700',
-        badgeBg: 'border-sky-200 bg-sky-100 text-sky-800',
-        textColor: 'text-sky-700',
-        barGradient: 'bg-gradient-to-r from-sky-400 to-blue-500',
-      },
-      {
-        title: 'Mỹ Thuật & Sáng Tạo Tranh Vẽ',
-        englishTitle: 'Visual Arts',
-        level: visualLevelText,
-        percent: visualPercent,
-        evidenceCount: visualEvidenceCount,
-        evidenceText: `${visualEvidenceCount} bức tranh & phong cách nghệ thuật`,
-        statusLabel: 'Làm chủ màu sắc & phong cách thị giác',
-        description:
-          'Hiểu cách phối hợp ánh sáng, góc nhìn camera và phong cách hội họa để tạo tranh minh họa đẹp.',
-        tag: 'MỸ THUẬT',
-        icon: Palette,
-        cardBg: 'border-pink-200/80 bg-linear-to-br from-pink-50/70 via-white to-rose-50/30',
-        iconBg: 'border-pink-200 bg-pink-100 text-pink-700',
-        badgeBg: 'border-pink-200 bg-pink-100 text-pink-800',
-        textColor: 'text-pink-700',
-        barGradient: 'bg-gradient-to-r from-pink-400 to-rose-500',
-      },
-      {
-        title: 'Kể Chuyện & Kịch Bản Nhí',
-        englishTitle: 'Storytelling',
-        level: storyLevelText,
-        percent: storyPercent,
-        evidenceCount: storyEvidenceCount,
-        evidenceText: `${storyEvidenceCount} kịch bản & khung truyện tranh`,
-        statusLabel: 'Xây dựng nhân vật & kịch bản phân khung',
-        description:
-          'Phát triển tuyến nhân vật, kết nối các khung truyện tranh và tạo kịch bản hấp dẫn.',
-        tag: 'KỂ CHUYỆN',
-        icon: BookOpen,
-        cardBg: 'border-amber-200/80 bg-linear-to-br from-amber-50/70 via-white to-yellow-50/30',
-        iconBg: 'border-amber-200 bg-amber-100 text-amber-700',
-        badgeBg: 'border-amber-200 bg-amber-100 text-amber-800',
-        textColor: 'text-amber-700',
-        barGradient: 'bg-gradient-to-r from-amber-400 to-yellow-500',
-      },
-      {
-        title: 'An Toàn Số & Ứng Xử Thông Minh',
-        englishTitle: 'Digital Safety & Smart Habits',
-        level: safetyLevelText,
-        percent: safetyPercent,
-        evidenceCount: effectiveRules,
-        evidenceText: `${effectiveRules} / 10 quy tắc đã thuộc lòng`,
-        statusLabel: 'Đạt Chuẩn Hiệp Sĩ An Toàn Số',
-        description:
-          'Thuộc lòng 10 quy tắc xưởng sáng tạo, bảo vệ thông tin riêng tư và sử dụng công nghệ an toàn, văn minh.',
-        tag: 'AN TOÀN',
-        icon: ShieldCheck,
-        cardBg: 'border-emerald-200/80 bg-linear-to-br from-emerald-50/70 via-white to-teal-50/30',
-        iconBg: 'border-emerald-200 bg-emerald-100 text-emerald-700',
-        badgeBg: 'border-emerald-200 bg-emerald-100 text-emerald-800',
-        textColor: 'text-emerald-700',
-        barGradient: 'bg-gradient-to-r from-emerald-400 to-teal-500',
-      },
-    ]
-  }, [
-    competencyMap,
-    displayStations,
-    displayableProjects,
-    effectiveRulesCount,
-    pathwayCourses,
-    stationPercent,
-  ])
 
   // Top 4 Huy Hiệu Vinh Danh
   const featuredBadges = useMemo(() => {
@@ -1016,6 +788,7 @@ export function ProfilePage() {
         xpToNextLevel={xpToNextLevel}
         onOpenAvatarPicker={() => setAvatarPickerOpen(true)}
         profileSlug={profileSlug}
+        equipment={equipment}
       />
 
       {/* 2. Bộ Ba Thành Tựu Vàng Cốt Lõi (What I've achieved) */}
@@ -1046,12 +819,6 @@ export function ProfilePage() {
             label: 'Bằng khen',
             icon: Award,
             badge: backpackCertificates.length > 0 ? backpackCertificates.length : undefined,
-          },
-          {
-            id: 'competencies' as const,
-            label: 'Kỹ năng',
-            icon: Sparkles,
-            badge: 4,
           },
           {
             id: 'storybook' as const,
@@ -1113,10 +880,34 @@ export function ProfilePage() {
         aria-labelledby={`tab-${activeTab}`}
         className="flex flex-col gap-6"
       >
-        {/* 1. TAB TIẾN ĐỘ: Thống kê 4 chỉ số cốt lõi, Biểu đồ nhịp học tuần này, Hành trình cấp độ thám hiểm */}
+        {/* 1. TAB TIẾN ĐỘ: Hải trình 6 đảo kỳ thú */}
         {activeTab === 'progress' && (
           <>
-            {/* 2. Hải Trình 6 Đảo Của Con (My Island Voyages) - Lưới 6 thẻ Soft Clay */}
+            <Link
+              to="/level"
+              className="aikid-flat-panel group flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl shadow-clay border-2 border-amber-200/80 bg-white/95 hover:bg-amber-50/40 transition-colors"
+              aria-label={`Xem hành trình Cấp ${explorerLevel}`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 font-black text-xl shrink-0">
+                  <Flame className="w-6 h-6 text-amber-500" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-wider text-amber-700">Hành trình cấp độ</p>
+                  <p className="font-display text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    Cấp {explorerLevel} · {explorerXp.toLocaleString('vi-VN')} XP
+                  </p>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5">
+                    {xpToNextLevel > 0 ? `Còn ${xpToNextLevel} XP để lên cấp tiếp theo` : 'Con đã sẵn sàng cho cấp tiếp theo'}
+                  </p>
+                </div>
+              </div>
+              <span className="sr-only">Xem quà sắp mở và các mốc cấp tiếp theo.</span>
+              <span className="inline-flex min-h-10 items-center justify-center rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs px-4 py-2 shadow-2xs shrink-0 cursor-pointer">
+                Xem hành trình cấp độ
+              </span>
+            </Link>
+
             <section
               aria-labelledby="island-voyages-title"
               className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay flex flex-col gap-5"
@@ -1208,310 +999,6 @@ export function ProfilePage() {
                 ))}
               </div>
             </section>
-
-            {/* 2.5 Kho Báu Thành Tựu Của Con (My Trophy Case / Đã Đạt Được Gì) */}
-            <section
-              aria-labelledby="my-trophy-case-title"
-              className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay flex flex-col gap-5"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-extrabold text-amber-800">
-                    Đã Đạt Được Gì
-                  </div>
-                  <h2
-                    id="my-trophy-case-title"
-                    className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl"
-                  >
-                    Kho Báu Thành Tựu Của Con
-                  </h2>
-                  <p className="text-xs font-bold text-muted sm:text-sm">
-                    Ghi dấu những cột mốc rực rỡ, bằng khen danh dự và huy hiệu con đã tự tay gặt hái.
-                  </p>
-                </div>
-
-                {/* Tổng kết thành tựu: Trạm xong, Sao, Bằng khen, Huy hiệu */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-1.5 rounded-2xl bg-teal-50 border border-teal-200/80 px-3 py-1.5 text-xs font-black text-teal-800 shadow-2xs">
-                    <Compass className="w-3.5 h-3.5 text-teal-600" />
-                    <span>{displayStations} Trạm xong</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200/80 px-3 py-1.5 text-xs font-black text-amber-800 shadow-2xs">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                    <span>{displayStars} Sao</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 rounded-2xl bg-orange-50 border border-orange-200/80 px-3 py-1.5 text-xs font-black text-orange-800 shadow-2xs">
-                    <GraduationCap className="w-3.5 h-3.5 text-orange-600" />
-                    <span>{backpackCertificates.length} Bằng khen</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 rounded-2xl bg-purple-50 border border-purple-200/80 px-3 py-1.5 text-xs font-black text-purple-800 shadow-2xs">
-                    <Trophy className="w-3.5 h-3.5 text-purple-600" />
-                    <span>{achievements.length} Huy hiệu</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Grid 2 phần: Card Bằng Khen Tốt Nghiệp + Dải Huy Hiệu Danh Dự */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Card Bằng Khen Tốt Nghiệp */}
-                <div className="lg:col-span-1 rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/40 p-4 sm:p-5 shadow-soft flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100 text-amber-800 shadow-xs select-none">
-                        <GraduationCap className="w-6 h-6 text-amber-900" />
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${
-                          hasClaimedCertificate
-                            ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
-                            : isGraduated
-                              ? 'bg-amber-100 border-amber-300 text-amber-900'
-                              : 'bg-slate-100 border-slate-200 text-slate-700'
-                        }`}
-                      >
-                        {hasClaimedCertificate
-                          ? 'Đã nhận vào ba lô'
-                          : isGraduated
-                            ? 'Sẵn sàng nhận bằng khen'
-                            : 'Sẵn sàng nhận khi hoàn thành'}
-                      </span>
-                    </div>
-
-                    <h3 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
-                      Bằng Khen Tốt Nghiệp
-                    </h3>
-                    <p className="mt-1 text-xs font-bold text-slate-600">
-                      {hasClaimedCertificate
-                        ? 'Chứng nhận danh dự đã được trao tặng và cất giữ an toàn trong Ba Lô của con.'
-                        : isGraduated
-                          ? 'Con đã xuất sắc hoàn thành trọn vẹn 30 trạm học và sẵn sàng nhận bằng khen!'
-                          : 'Hoàn thành 30 trạm học để mở khóa bằng khen tốt nghiệp danh dự từ Ban Cố Vấn.'}
-                    </p>
-
-                    <div className="mt-3 rounded-2xl bg-white/90 border border-amber-100 p-2.5 shadow-2xs">
-                      <div className="flex items-center justify-between text-[11px] font-black text-amber-900 mb-1">
-                        <span>Tiến độ toàn khóa</span>
-                        <span>{displayStations}/30 trạm ({stationPercent}%)</span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-amber-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500"
-                          style={{ width: `${stationPercent}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-amber-100">
-                    {hasClaimedCertificate ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedCertificateForModal(courseCertificate)
-                        }}
-                        className="w-full flex min-h-10 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
-                      >
-                        <Award className="w-4 h-4" />
-                        <span>Xem lại bằng khen</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('certificates')}
-                        className="w-full flex min-h-10 items-center justify-center gap-1.5 rounded-2xl bg-white border border-amber-300 px-4 py-2 text-xs sm:text-sm font-black text-amber-900 shadow-soft hover:bg-amber-50 active:scale-95 transition-all cursor-pointer"
-                      >
-                        <Award className="w-4 h-4" />
-                        <span>Xem chi tiết bằng khen</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Dải Huy Hiệu Danh Dự */}
-                <div className="lg:col-span-2 rounded-3xl border-2 border-slate-100 bg-gradient-to-br from-slate-50/60 via-white to-amber-50/20 p-4 sm:p-5 shadow-soft flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-                          Bộ sưu tập danh dự
-                        </span>
-                        <h3 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
-                          Dải Huy Hiệu Danh Dự
-                        </h3>
-                      </div>
-                      <Link
-                        to="/achievements"
-                        className="inline-flex items-center gap-1 rounded-xl bg-amber-100/80 border border-amber-200/80 px-2.5 py-1 text-xs font-black text-amber-900 hover:bg-amber-200/80 transition-colors shadow-2xs"
-                      >
-                        <Trophy className="w-3.5 h-3.5" />
-                        <span>{achievements.length} Đã mở</span>
-                      </Link>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {featuredBadges.map((badge, idx) => (
-                        <div
-                          key={badge.id || `badge-honor-${idx}`}
-                          className="flex flex-col items-center justify-between rounded-2xl border border-amber-100 bg-white/90 p-2.5 text-center shadow-2xs hover:scale-105 hover:shadow-soft transition-all"
-                        >
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/60 p-1 mb-1.5 select-none">
-                            {badge.image ? (
-                              <img
-                                src={badge.image}
-                                alt=""
-                                className="h-10 w-10 object-contain drop-shadow-xs"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <Trophy className="w-6 h-6 text-amber-600 fill-amber-300 drop-shadow-xs" />
-                            )}
-                          </div>
-                          <span className="text-xs font-black text-slate-900 line-clamp-1 leading-snug">
-                            {badge.title}
-                          </span>
-                          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-emerald-700">
-                            Đã đạt được
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500">
-                      Càng học chăm chỉ, con càng mở khóa thêm nhiều huy hiệu kỳ diệu!
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('memories')}
-                      className="inline-flex items-center gap-1 text-xs font-black text-brand-700 hover:text-brand-900 cursor-pointer"
-                    >
-                      <span>Xem tất cả huy hiệu</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* 3. BỔ SUNG: Biểu Đồ Nhịp Học Tập Tuần (Thu gọn, tối giản) */}
-            <section className="aikid-flat-panel p-4 sm:p-5 rounded-3xl shadow-soft" aria-labelledby="weekly-pulse-title">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-                    Nhịp học tập tuần này
-                  </div>
-                  <h2 id="weekly-pulse-title" className="mt-1 font-display text-xl font-black text-slate-900 tracking-tight sm:text-2xl">
-                    Xem con học như thế nào
-                  </h2>
-                  <p className="text-xs font-bold text-muted">
-                    Theo dõi nhịp độ rèn luyện đều đặn mỗi ngày từ Thứ 2 đến Chủ Nhật.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 text-xs font-extrabold text-emerald-800 self-start sm:self-auto shadow-xs">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                  <span>Nhịp học đều đặn: {activeDaysCount}/7 ngày</span>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-slate-100 bg-linear-to-b from-slate-50/60 via-white to-brand-50/20 p-3 sm:p-4">
-                <div className="grid grid-cols-7 gap-1.5 sm:gap-3 items-end pt-2 pb-1">
-                  {weeklyDays.map((d) => {
-                    const heightPercent = d.active
-                      ? Math.max(20, Math.min(100, Math.round((d.minutes / maxDayMinutes) * 100)))
-                      : 0
-                    return (
-                      <div key={d.label} className="flex flex-col items-center justify-end group">
-                        {/* Tooltip Pill */}
-                        <div className="h-6 mb-1.5 flex items-center justify-center">
-                          {d.showPill ? (
-                            <div className="transform animate-bounce rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-black text-white shadow-soft whitespace-nowrap">
-                              {d.pillText}
-                            </div>
-                          ) : (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-slate-800 px-1.5 py-0.5 text-[9px] font-black text-white shadow-soft whitespace-nowrap">
-                              {d.minutes > 0 ? `${d.minutes}m` : 'Nghỉ'}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Pillar Track with explicit height */}
-                        <div className="relative w-full max-w-[32px] sm:max-w-[40px] h-20 sm:h-24 rounded-xl bg-amber-50/60 border border-amber-200/60 shadow-inner flex flex-col justify-end p-0.5 overflow-hidden">
-                          {d.active ? (
-                            <div
-                              className={`w-full rounded-lg transition-all duration-700 ease-out shadow-xs ${
-                                d.isToday
-                                  ? 'bg-gradient-to-t from-orange-500 via-amber-500 to-amber-400 ring-2 ring-orange-300/90 shadow-[0_2px_8px_rgba(249,115,22,0.35)]'
-                                  : 'bg-gradient-to-t from-amber-500 via-amber-400 to-orange-300 group-hover:brightness-105'
-                              }`}
-                              style={{ height: `${heightPercent}%` }}
-                            />
-                          ) : (
-                            <div className="w-full h-1 rounded-full bg-slate-200/80 mx-auto" />
-                          )}
-                        </div>
-
-                        {/* Day Label & Indicator */}
-                        <div className="mt-2 text-center">
-                          <span className={`block font-display text-xs sm:text-sm font-black transition-colors ${
-                            d.isToday ? 'text-coral-600' : d.active ? 'text-slate-800' : 'text-slate-400'
-                          }`}>
-                            {d.label}
-                          </span>
-                          {d.isToday ? (
-                            <span className="inline-block h-1 w-1 rounded-full bg-coral-500 mt-0.5 shadow-xs" />
-                          ) : (
-                            <span className="inline-block h-1 w-1 mt-0.5" />
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-xs font-bold text-muted">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-brand-500 inline-block" /> Đã rèn luyện
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-coral-500 inline-block ring-1 ring-coral-300" /> Hôm nay
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-slate-200 inline-block" /> Chưa học
-                    </span>
-                  </div>
-                  <p className="text-slate-600">
-                    Lời khuyên của Mèo Mee: <span className="font-extrabold text-brand-700">Chỉ cần 15-20 phút mỗi ngày</span> để rèn luyện thói quen học tập và sáng tạo đều đặn!
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* 4. Hành trình cấp độ */}
-          <Link
-            to="/level"
-            className="aikid-flat-panel group grid min-h-32 gap-4 p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6 rounded-3xl shadow-clay"
-            aria-label={`Xem hành trình Cấp ${explorerLevel}`}
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-100 to-brand-200/60 shadow-soft select-none" aria-hidden="true">
-              <Trophy className="w-7 h-7 text-brand-600 fill-brand-300 drop-shadow-xs" />
-            </div>
-            <span>
-              <span className="block text-sm font-extrabold text-brand-600">Hành trình cấp độ thám hiểm</span>
-              <span className="mt-1 block font-display text-2xl font-black text-slate-900 tracking-tight">
-                Cấp {explorerLevel} · {explorerXp.toLocaleString('vi-VN')} XP
-              </span>
-              <CuteProgress className="mt-3" value={levelProgress} label={`Tiến độ lên Cấp ${nextLevel.level}`} tone="violet" />
-              <span className="mt-2 block text-sm font-bold text-muted">
-                {remainingXpToNextLevel > 0 ? `Còn ${remainingXpToNextLevel} XP để lên Cấp ${nextLevel.level}` : 'Con đã sẵn sàng cho cấp tiếp theo'}
-              </span>
-              <span className="sr-only">Xem quà sắp mở và các mốc cấp tiếp theo.</span>
-            </span>
-            <span className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-coral-400 px-5 font-extrabold text-white group-hover:bg-coral-600 shadow-soft">
-              Xem hành trình
-            </span>
-          </Link>
-
           </>
         )}
 
@@ -1734,89 +1221,6 @@ export function ProfilePage() {
           </>
         )}
 
-        {/* 3. TAB KỸ NĂNG: Vườn Kỹ Năng Sáng Tạo Của Con (4 Kỹ Năng Cốt Lõi) */}
-        {activeTab === 'competencies' && (
-          <>
-            <section className="aikid-flat-panel p-5 sm:p-7 rounded-3xl shadow-clay" aria-labelledby="ai-garden-title">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-800">
-                  Vườn Kỹ Năng Sáng Tạo Của Con
-                </div>
-                <h2 id="ai-garden-title" className="mt-1 font-display text-2xl font-black text-slate-900 tracking-tight sm:text-3xl">
-                  4 Kỹ Năng Sáng Tạo Cốt Lõi
-                </h2>
-                <p className="text-xs font-bold text-muted sm:text-sm">
-                  Bộ kỹ năng toàn diện: Tư duy diễn đạt, Mỹ thuật tranh vẽ, Kể chuyện và An toàn số.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {competencies.map((comp) => {
-                return (
-                  <div
-                    key={comp.title}
-                    className={`flex flex-col justify-between rounded-3xl border-2 p-4 sm:p-5 shadow-soft transition-all hover:shadow-clay hover:-translate-y-0.5 ${comp.cardBg}`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-xs select-none ${comp.iconBg}`}>
-                            <comp.icon className="w-6 h-6 drop-shadow-xs" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-display text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
-                                {comp.title}
-                              </h3>
-                              <span className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-600 border border-slate-200/60 shadow-2xs">
-                                {comp.tag}
-                              </span>
-                            </div>
-                            <span className="text-[11px] font-extrabold text-muted">
-                              {comp.englishTitle}
-                            </span>
-                          </div>
-                        </div>
-                        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-black shadow-xs ${comp.badgeBg}`}>
-                          {comp.level}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-xs font-bold text-slate-600 leading-relaxed">
-                        {comp.description}
-                      </p>
-                      {/* Minh chứng thực tế Pill */}
-                      <div className="mt-3 flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-700 shadow-2xs">
-                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                        <span>
-                          Minh chứng: <strong className="font-black text-slate-900">{comp.evidenceText}</strong>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-2">
-                      <CuteProgress
-                        value={comp.percent}
-                        label={comp.statusLabel}
-                        tone={
-                          comp.tag === 'TƯ DUY'
-                            ? 'coral'
-                            : comp.tag === 'MỸ THUẬT'
-                              ? 'coral'
-                              : comp.tag === 'KỂ CHUYỆN'
-                                ? 'violet'
-                                : 'mint'
-                        }
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-          </>
-        )}
 
         {/* 4. TAB SỔ KỶ NIỆM: Full Storybook Chuẩn Nguyên Bản */}
         {activeTab === 'storybook' && (

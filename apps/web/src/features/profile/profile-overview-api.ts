@@ -102,39 +102,38 @@ export async function loadProfileOverview(
     const aggregate = await withTimeout(request<Record<string, unknown>>(
       `/api/v1/aikids/profile-overview?${query.toString()}`,
     ), timeoutMs)
-    if (!aggregate.streak || !aggregate.achievements) {
+    if (!aggregate.streak && !aggregate.achievements) {
       throw new Error('Profile overview aggregate is incomplete')
     }
-    if ((includeProgression && !aggregate.progression) ||
-        (includeAppearance && (!aggregate.appearance || !aggregate.storybook)) ||
-        (includePathway && !aggregate.pathway)) {
-      throw new Error('Profile overview optional sections are incomplete')
-    }
-    const streak = normalizeGatewayResponse('/api/gamification/streak', aggregate.streak) as { current?: number }
-    const achievements = normalizeGatewayResponse('/api/gamification/achievements', aggregate.achievements) as { achievements?: AchievementRow[] }
+    const streak = aggregate.streak
+      ? (normalizeGatewayResponse('/api/gamification/streak', aggregate.streak) as { current?: number })
+      : { current: 0 }
+    const achievements = aggregate.achievements
+      ? (normalizeGatewayResponse('/api/gamification/achievements', aggregate.achievements) as { achievements?: AchievementRow[] })
+      : { achievements: [] }
     const projects = aggregate.projects
-      ? normalizeGatewayResponse('/api/projects', aggregate.projects) as { projects?: ShowcaseProject[] }
+      ? (normalizeGatewayResponse('/api/projects', aggregate.projects) as { projects?: ShowcaseProject[] })
       : { projects: [] }
-    const progression = includeProgression
-      ? normalizeGatewayResponse('/api/gamification/profile', aggregate.progression) as { totalXp?: number; level?: number }
+    const progression = includeProgression && aggregate.progression
+      ? (normalizeGatewayResponse('/api/gamification/profile', aggregate.progression) as { totalXp?: number; level?: number })
       : null
-    const settings = includeAppearance
-      ? normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null
+    const settings = includeAppearance && aggregate.appearance
+      ? (normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null)
       : null
-    const storybook = includeAppearance
-      ? normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData
+    const storybook = includeAppearance && aggregate.storybook
+      ? (normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData)
       : null
-    const pathway = includePathway
-      ? normalizeGatewayResponse('/api/learning/pathway', aggregate.pathway) as LearningPathway
+    const pathway = includePathway && aggregate.pathway
+      ? (normalizeGatewayResponse('/api/learning/pathway', aggregate.pathway) as LearningPathway)
       : null
-    const media = includeMedia
-      ? normalizeGatewayResponse('/api/backpack', aggregate.media) as { assets?: ProfileMediaAsset[] }
+    const media = includeMedia && aggregate.media
+      ? (normalizeGatewayResponse('/api/backpack', aggregate.media) as { assets?: ProfileMediaAsset[] })
       : null
 
     return {
-      streak: Number(streak.current ?? 0),
-      achievements: achievements.achievements ?? [],
-      projects: projects.projects ?? [],
+      streak: Number(streak?.current ?? 0),
+      achievements: achievements?.achievements ?? [],
+      projects: projects?.projects ?? [],
       avatarChoices: media?.assets ?? [],
       totalXp: Number(progression?.totalXp ?? 0),
       level: Number(progression?.level ?? 1),

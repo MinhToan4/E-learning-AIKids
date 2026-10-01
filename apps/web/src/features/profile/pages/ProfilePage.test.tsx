@@ -213,17 +213,16 @@ describe('ProfilePage Component', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Navigation tab list with 6 tabs
+    // Navigation tab list with 5 tabs
     const nav = container.querySelector('nav[role="tablist"]')
     expect(nav).not.toBeNull()
     const tabs = Array.from(nav?.querySelectorAll('button[role="tab"]') ?? [])
-    expect(tabs).toHaveLength(6)
+    expect(tabs).toHaveLength(5)
     expect(tabs[0].textContent).toContain('Tiến độ')
     expect(tabs[1].textContent).toContain('Bằng khen')
-    expect(tabs[2].textContent).toContain('Kỹ năng')
-    expect(tabs[3].textContent).toContain('Sổ kỷ niệm')
-    expect(tabs[4].textContent).toContain('Thành tích')
-    expect(tabs[5].textContent).toContain('Trang trí')
+    expect(tabs[2].textContent).toContain('Sổ kỷ niệm')
+    expect(tabs[3].textContent).toContain('Thành tích')
+    expect(tabs[4].textContent).toContain('Trang trí')
 
     // Active tab is progress by default
     expect(tabs[0].getAttribute('aria-selected')).toBe('true')
@@ -245,18 +244,15 @@ describe('ProfilePage Component', () => {
     expect(coreCardsSection).not.toBeNull()
     expect(coreCardsSection?.querySelector('.truncate')).toBeNull()
 
-    // Weekly pulse chart
-    expect(container.textContent).toContain('Nhịp học tập tuần này')
-    expect(container.textContent).toContain('Xem con học như thế nào')
-
-    // Level journey
-    expect(container.textContent).toContain('Hành trình cấp độ thám hiểm')
+    // Streamlined 6 Island Voyages in progress tab
+    expect(container.textContent).toContain('Hải Trình 6 Đảo Của Con')
+    expect(container.textContent).not.toContain('Nhịp học tập tuần này')
 
     act(() => root.unmount())
     container.remove()
   })
 
-  it('renders Weekly Activity Pulse chart with 7 days and friendly non-AI advice', async () => {
+  it('renders streamlined 6 island voyages in progress tab without clutter', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -273,27 +269,17 @@ describe('ProfilePage Component', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Weekly pulse chart title and days
-    expect(container.textContent).toContain('Nhịp học tập tuần này')
-    expect(container.textContent).toContain('Xem con học như thế nào')
-    expect(container.textContent).toContain('T2')
-    expect(container.textContent).toContain('T3')
-    expect(container.textContent).toContain('T4')
-    expect(container.textContent).toContain('T5')
-    expect(container.textContent).toContain('T6')
-    expect(container.textContent).toContain('T7')
-    expect(container.textContent).toContain('CN')
-
-    // Advice text has NO AI
-    expect(container.textContent).toContain('Lời khuyên của Mèo Mee')
-    expect(container.textContent).not.toContain('Lời khuyên AIKI')
-    expect(container.textContent).not.toContain('tư duy AI')
+    expect(container.textContent).toContain('Hải Trình 6 Đảo Của Con')
+    expect(container.textContent).toContain('30 trạm bài học sáng tạo qua 6 hòn đảo kỳ thú cùng Mèo Aiki.')
+    expect(container.textContent).toContain('Mở Bản Đồ Khám Phá')
+    expect(container.textContent).not.toContain('Kho Báu Thành Tựu Của Con')
+    expect(container.textContent).not.toContain('Nhịp học tập tuần này')
 
     act(() => root.unmount())
     container.remove()
   })
 
-  it('switches to competencies tab and renders Vườn Kỹ Năng Sáng Tạo Của Con with 4 core pillars and zero AI buzzwords', async () => {
+  it('verifies competencies tab is removed and does not exist in navigation', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -310,45 +296,9 @@ describe('ProfilePage Component', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Click on Kỹ năng tab
-    const competenciesTab = container.querySelector('#tab-competencies') as HTMLButtonElement
-    expect(competenciesTab).not.toBeNull()
-
-    await act(async () => {
-      competenciesTab.click()
-    })
-
-    // 4 Pillars with updated non-AI text
-    expect(container.textContent).toContain('Vườn Kỹ Năng Sáng Tạo Của Con')
-    expect(container.textContent).toContain('4 Kỹ Năng Sáng Tạo Cốt Lõi')
-    expect(container.textContent).toContain('Bộ kỹ năng toàn diện: Tư duy diễn đạt, Mỹ thuật tranh vẽ, Kể chuyện và An toàn số.')
-
-    // Pillar 1: Tư Duy Diễn Đạt & Giao Tiếp
-    expect(container.textContent).toContain('Tư Duy Diễn Đạt & Giao Tiếp')
-    expect(container.textContent).toContain('Creative Thinking & Expression')
-    expect(container.textContent).toContain('chìa khóa lệnh đã vượt qua')
-    expect(container.textContent).not.toContain('Tư duy Ra lệnh AI')
-    expect(container.textContent).not.toContain('Prompt Thinking')
-
-    // Pillar 2: Mỹ Thuật & Sáng Tạo Tranh Vẽ
-    expect(container.textContent).toContain('Mỹ Thuật & Sáng Tạo Tranh Vẽ')
-    expect(container.textContent).toContain('Visual Arts')
-    expect(container.textContent).toContain('bức tranh & phong cách nghệ thuật')
-    expect(container.textContent).not.toContain('Mỹ thuật & Thị giác AI')
-
-    // Pillar 3: Kể Chuyện & Kịch Bản Nhí
-    expect(container.textContent).toContain('Kể Chuyện & Kịch Bản Nhí')
-    expect(container.textContent).toContain('Storytelling')
-    expect(container.textContent).toContain('kịch bản & khung truyện tranh')
-
-    // Pillar 4: An Toàn Số & Ứng Xử Thông Minh
-    expect(container.textContent).toContain('An Toàn Số & Ứng Xử Thông Minh')
-    expect(container.textContent).toContain('Digital Safety & Smart Habits')
-    expect(container.textContent).toContain('Đạt Chuẩn Hiệp Sĩ An Toàn Số')
-    expect(container.textContent).toContain('quy tắc đã thuộc lòng')
-    expect(container.textContent).not.toContain('Đạo đức & An toàn số AI')
-    expect(container.textContent).not.toContain('AI Safety & Ethics')
-    expect(container.textContent).not.toContain('Hiệp Sĩ AI')
+    const competenciesTab = container.querySelector('#tab-competencies')
+    expect(competenciesTab).toBeNull()
+    expect(container.textContent).not.toContain('Vườn Kỹ Năng Sáng Tạo Của Con')
 
     act(() => root.unmount())
     container.remove()
@@ -761,7 +711,7 @@ describe('ProfilePage Component', () => {
     })
 
     // Check all tabs sequentially for arrows
-    const tabIds: ProfileTabSection[] = ['progress', 'certificates', 'competencies', 'storybook', 'memories', 'customize']
+    const tabIds: ProfileTabSection[] = ['progress', 'certificates', 'storybook', 'memories', 'customize']
 
     for (const tabId of tabIds) {
       const tabBtn = container.querySelector(`#tab-${tabId}`) as HTMLButtonElement
