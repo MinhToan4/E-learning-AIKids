@@ -53,10 +53,10 @@ describe('profile overview adapter', () => {
       level: 12,
     })
     expect(request).toHaveBeenCalledTimes(1)
-    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cmedia%2Cprogression%2Cappearance')
+    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cprogression%2Cappearance%2Cpathway')
   })
 
-  it('hydrates profile, backpack and pathway through one scoped request', async () => {
+  it('hydrates profile, backpack and pathway through one scoped request with storybook', async () => {
     const request = vi.fn().mockResolvedValue({
       streak: { currentStreak: 4 },
       achievements: { achievements: [] },
@@ -71,12 +71,24 @@ describe('profile overview adapter', () => {
       },
     })
 
-    await expect(loadProfileOverview(request, 3500, false, false, true, true)).resolves.toMatchObject({
+    await expect(loadProfileOverview(request, 3500, false, false, true, true, true)).resolves.toMatchObject({
       storybook: { inventory: [], equipment: [] },
       pathway: { courses: [] },
     })
     expect(request).toHaveBeenCalledTimes(1)
-    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cappearance%2Cpathway')
+    expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cappearance%2Cpathway%2Cstorybook')
+  })
+
+  it('omits storybook section by default to accelerate initial profile load', async () => {
+    const request = vi.fn().mockResolvedValue({
+      streak: { currentStreak: 5 },
+      achievements: { achievements: [] },
+      storybook: { inventory: [{ rewardId: 'reward-1' }], equipment: [] },
+    })
+
+    const result = await loadProfileOverview(request)
+    expect(result.storybook).toBeNull()
+    expect(request).toHaveBeenCalledWith(expect.not.stringContaining('storybook'))
   })
 
   it('fails closed instead of starting legacy browser fan-out', async () => {

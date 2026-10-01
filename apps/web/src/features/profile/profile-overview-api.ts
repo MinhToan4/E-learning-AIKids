@@ -82,10 +82,11 @@ export function withTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T
 export async function loadProfileOverview(
   request: ProfileRequest = api,
   timeoutMs = 3500,
-  includeMedia = true,
+  includeMedia = false,
   includeProgression = true,
   includeAppearance = true,
-  includePathway = false,
+  includePathway = true,
+  includeStorybook = false,
 ): Promise<ProfileOverviewData> {
   // Fail closed when the aggregate contract is incomplete. Falling back to
   // browser fan-out hides deployment mismatches and recreates the waterfall.
@@ -97,6 +98,7 @@ export async function loadProfileOverview(
     if (includeProgression) sections.push('progression')
     if (includeAppearance) sections.push('appearance')
     if (includePathway) sections.push('pathway')
+    if (includeStorybook) sections.push('storybook')
     const query = new URLSearchParams({ sections: sections.join(',') })
     if (activeIpId) query.set('ipId', activeIpId)
     const aggregate = await withTimeout(request<Record<string, unknown>>(
@@ -120,7 +122,7 @@ export async function loadProfileOverview(
     const settings = includeAppearance && aggregate.appearance
       ? (normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null)
       : null
-    const storybook = includeAppearance && aggregate.storybook
+    const storybook = includeStorybook && aggregate.storybook
       ? (normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData)
       : null
     const pathway = includePathway && aggregate.pathway

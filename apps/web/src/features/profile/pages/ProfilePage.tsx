@@ -63,6 +63,7 @@ import {
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
+import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 
 const BookSpread = lazy(() =>
   import('@/features/storybook/components/BookSpread').then((module) => ({ default: module.BookSpread })),
@@ -183,6 +184,46 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 
 export type ProfileTabSection = 'progress' | 'certificates' | 'storybook' | 'memories' | 'customize'
 
+function getLocalLearningProgress(): { completedCount: number; totalStars: number } {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return { completedCount: 0, totalStars: 0 }
+  }
+  let localCompleted = 0
+  let localStars = 0
+
+  // 1. Quét 10 quy tắc vàng (Đảo Tiên Quyết)
+  for (let r = 1; r <= 10; r++) {
+    const isDone =
+      localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
+      localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
+      Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3
+    const stars = Math.max(
+      Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0),
+      isDone ? 3 : 0
+    )
+    if (isDone) localCompleted++
+    localStars += stars
+  }
+
+  // 2. Quét 22 bài học thuộc 5 đảo chính thức
+  for (const lesson of ISLAND_CURRICULUM_LESSONS) {
+    const isDone =
+      localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
+      localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
+      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
+      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
+    const stars = Math.max(
+      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0),
+      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0),
+      isDone ? 3 : 0
+    )
+    if (isDone) localCompleted++
+    localStars += stars
+  }
+
+  return { completedCount: localCompleted, totalStars: localStars }
+}
+
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
   const { data: progression } = useProgression(user)
@@ -239,6 +280,12 @@ export function ProfilePage() {
       setStorybookNotice('Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
     }
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'storybook') {
+      void loadStorybook()
+    }
+  }, [activeTab, loadStorybook])
 
   const storybookEarned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
   const storybookOwnedRewards = useMemo(() => new Set(ownedRewardIds), [ownedRewardIds])
@@ -315,8 +362,8 @@ export function ProfilePage() {
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projects, setProjects] = useState<ShowcaseProject[]>([])
-  const [completedStations, setCompletedStations] = useState<number>(0)
-  const [starsCollected, setStarsCollected] = useState<number>(0)
+  const [completedStations, setCompletedStations] = useState<number>(() => getLocalLearningProgress().completedCount)
+  const [starsCollected, setStarsCollected] = useState<number>(() => getLocalLearningProgress().totalStars)
   const [pathwayCourses, setPathwayCourses] = useState<LearningPathwayCourse[]>([])
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
@@ -325,8 +372,10 @@ export function ProfilePage() {
     backgroundKey: null as string | null,
   })
   const [avatarChoices, setAvatarChoices] = useState<ProfileAvatar[]>([])
-  const explorerXp = progression?.totalXp ?? user?.xp ?? 0
-  const explorerLevel = progression?.level ?? user?.level ?? 1
+  const [overviewXp, setOverviewXp] = useState<number | null>(null)
+  const [overviewLevel, setOverviewLevel] = useState<number | null>(null)
+  const explorerXp = progression?.totalXp ?? overviewXp ?? user?.xp ?? 0
+  const explorerLevel = progression?.level ?? overviewLevel ?? user?.level ?? 1
   const [equipment, setEquipment] = useState(() =>
     user ? readRewardEquipment(user.id) : {},
   )
@@ -345,13 +394,18 @@ export function ProfilePage() {
 
     const applyPathwayData = (courses: LearningPathwayCourse[]) => {
       setPathwayCourses(courses)
-      const comp = courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
-      const stars = courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
-      if (comp > 0) setCompletedStations(comp)
-      if (stars > 0) setStarsCollected(stars)
+      const serverComp = courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
+      const serverStars = courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
+      const { completedCount: localComp, totalStars: localStars } = getLocalLearningProgress()
+
+      const finalComp = Math.max(serverComp, localComp)
+      const finalStars = Math.max(serverStars, localStars)
+
+      setCompletedStations(finalComp)
+      setStarsCollected(finalStars)
     }
 
-    loadProfileOverview(api, 3500, false, false, true, true)
+    loadProfileOverview(api, 3500, false, true, true, true, false)
       .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
@@ -367,22 +421,31 @@ export function ProfilePage() {
             source: asset.type.includes('generated') ? 'generated' : 'library',
           })))
 
+        if (typeof overview.totalXp === 'number') {
+          setOverviewXp(overview.totalXp)
+        }
+        if (typeof overview.level === 'number' && overview.level > 0) {
+          setOverviewLevel(overview.level)
+        }
+
         const profileSettings = overview.profileSettings
         const serverRows = overview.equipment
         const storybook = overview.storybook
-        const storybookInventory = Array.isArray(storybook?.inventory) ? storybook.inventory : []
-        setWardrobeBootstrap({
-          ownedRewardIds: storybookInventory.map((item) => item.rewardId),
-          equipment: serverRows,
-        })
-        setEarnedStickerIds(uniqueStorybookIds(
-          Array.isArray(storybook?.earnedStickerIds) ? storybook.earnedStickerIds : [],
-        ))
-        setOwnedRewardIds(uniqueRewardIds(storybookInventory.map((item) => item.rewardId)))
-        setStudioChapters(Array.isArray(storybook?.studio?.chapters)
-          ? storybook.studio.chapters as typeof studioChapters
-          : [])
-        setStorybookNotice(storybook ? '' : 'Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
+        if (storybook) {
+          const storybookInventory = Array.isArray(storybook?.inventory) ? storybook.inventory : []
+          setWardrobeBootstrap({
+            ownedRewardIds: storybookInventory.map((item) => item.rewardId),
+            equipment: serverRows,
+          })
+          setEarnedStickerIds(uniqueStorybookIds(
+            Array.isArray(storybook?.earnedStickerIds) ? storybook.earnedStickerIds : [],
+          ))
+          setOwnedRewardIds(uniqueRewardIds(storybookInventory.map((item) => item.rewardId)))
+          setStudioChapters(Array.isArray(storybook?.studio?.chapters)
+            ? storybook.studio.chapters as typeof studioChapters
+            : [])
+          setStorybookNotice('')
+        }
 
         if (profileSettings) {
           setProfileSlug(profileSettings.slug)
@@ -414,7 +477,7 @@ export function ProfilePage() {
             return next
           })
         }
-        if (user && equipmentMutationVersion.current === loadVersion) {
+        if (user && serverRows.length > 0 && equipmentMutationVersion.current === loadVersion) {
           setEquipment(syncRewardEquipment(user.id, rewardEquipmentFromRows(serverRows)))
         }
 
