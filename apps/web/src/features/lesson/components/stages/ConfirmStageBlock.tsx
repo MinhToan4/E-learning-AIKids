@@ -68,7 +68,7 @@ export function ConfirmStageBlock({
   return (
     <section
       data-testid="stage-1-confirm"
-      className="rounded-3xl bg-white p-4 sm:p-6 shadow-xs border border-slate-200/80 flex flex-col gap-4 animate-fade-up"
+      className="rounded-3xl bg-white p-2.5 sm:p-5 shadow-xs border border-slate-200/80 flex flex-col gap-4 animate-fade-up"
     >
       <div className="flex flex-col gap-2 shrink-0">
         <span className="sr-only">Chặng 2: Xác nhận mục tiêu</span>

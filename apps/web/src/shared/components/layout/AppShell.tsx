@@ -899,13 +899,13 @@ export function AppShell() {
 
       {isLessonOrRule ? (
         <div className="w-full flex-1 min-h-0 flex justify-center overflow-hidden">
-          <main className="flex-1 min-h-0 w-full max-w-[1024px] mx-auto px-2 sm:px-4 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
+          <main className="flex-1 min-h-0 w-full max-w-[1024px] mx-auto px-1 sm:px-3 pt-1 pb-16 sm:pt-2 md:pb-2 overflow-y-auto overflow-x-hidden overscroll-contain flex flex-col">
             <RouteOutlet />
           </main>
         </div>
       ) : (
         <div className="w-full flex justify-center">
-          <main className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 pb-28">
+          <main className="max-w-[1024px] mx-auto w-full px-2 sm:px-5 md:px-6 pb-28">
             <RouteOutlet />
           </main>
         </div>

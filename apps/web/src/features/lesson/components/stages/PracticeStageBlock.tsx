@@ -36,10 +36,10 @@ export function PracticeStageBlock({
   const parts = config.defaultPracticeParts || (config as any).practiceParts || []
   const attempts =
     lessonId === 'bai-1-1' || lessonId?.includes('1-1')
-      ? 6
+      ? 2
       : parts.length > 0
         ? parts.length
-        : 4
+        : 2
 
   // Chế độ magic-keys hoặc mặc định sẽ nạp trực tiếp Xưởng Studio Soft Clay 3 Cột (1 Lượt duy nhất)
   const isSoftClayMagicKeysMode =

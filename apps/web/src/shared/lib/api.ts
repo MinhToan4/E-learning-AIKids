@@ -861,6 +861,8 @@ export interface LessonSixStageJourney {
   stageContentBlocks?: Record<string, unknown[]>
   /** CMS block schema version. Version 2 stores the goal stage as one unified canvas. */
   stageBlockEditorVersion?: number
+  /** Indices of stages (0-5) that award stars, sorted ascending. Max 3 stars. Defaults to [2, 3, 5] if omitted */
+  stageStarAllocation?: number[]
 }
 
 

@@ -835,7 +835,7 @@ export function StudentStageBlocksView({
             <div
               key={block.id}
               data-testid="block-versus-ab"
-              className="rounded-3xl border-3 border-brand-200 bg-white p-5 sm:p-7 shadow-clay animate-fade-up text-left space-y-5"
+              className="rounded-3xl border-3 border-brand-200 bg-white p-3 sm:p-6 md:p-7 shadow-clay animate-fade-up text-left space-y-5"
             >
               <div className="flex items-center justify-between gap-2 border-b border-brand-100 pb-3">
                 <div className="flex items-center gap-2 text-brand-700 font-extrabold text-sm uppercase tracking-wider">

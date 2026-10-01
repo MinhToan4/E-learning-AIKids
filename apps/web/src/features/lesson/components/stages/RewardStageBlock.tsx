@@ -102,7 +102,7 @@ export function RewardStageBlock({
   return (
     <section
       data-testid="stage-5-completion"
-      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 lg:p-6 pb-28 sm:pb-8 shadow-xs animate-fade-up overflow-y-auto"
+      className="flex w-full max-w-full min-h-0 flex-col rounded-3xl border border-slate-200/80 bg-white p-2.5 sm:p-5 lg:p-6 pb-28 sm:pb-8 shadow-xs animate-fade-up overflow-y-auto"
     >
       <div className="grid w-full max-w-full grid-cols-1 items-center gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
         {/* Hình chúc mừng dùng chung cho mọi bài học và khóa học */}

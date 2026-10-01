@@ -10,6 +10,7 @@ import {
   MessageCircleQuestion,
   Lightbulb,
   ScanSearch,
+  Star,
 } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
@@ -173,6 +174,47 @@ export function SixStageJourneyEditor({
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Bộ chọn tặng sao cho chặng */}
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-brand-200/60">
+              <button
+                type="button"
+                disabled={readOnly}
+                onClick={() => {
+                  const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 5]
+                  const isAllocated = currentAllocation.includes(stageIndex)
+                  if (isAllocated) {
+                    // Hủy chọn
+                    const next = currentAllocation.filter((idx) => idx !== stageIndex)
+                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                    showToast(`Đã bỏ tặng sao ở Chặng ${stageIndex + 1}`, 'info')
+                  } else {
+                    // Chọn thêm: kiểm tra tối đa 3 sao
+                    if (currentAllocation.length >= 3) {
+                      showToast('Bài học tối đa chỉ có 3 Sao! Con hãy bỏ chọn một chặng khác trước nhé.', 'error')
+                      return
+                    }
+                    const next = [...currentAllocation, stageIndex].sort((a, b) => a - b)
+                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                    showToast(`⭐ Chặng ${stageIndex + 1} sẽ tặng 1 Sao khi hoàn thành!`, 'success')
+                  }
+                }}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 shadow-2xs',
+                  (currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex)
+                    ? 'bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-clay-xs'
+                    : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50/50'
+                )}
+              >
+                <Star size={14} className={cn((currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? 'fill-amber-950 text-amber-950' : 'text-slate-400')} />
+                <span>
+                  {(currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? '⭐ Chặng này được tặng 1 Sao' : 'Chưa tặng sao ở chặng này'}
+                </span>
+              </button>
+              <span className="text-[11px] font-bold text-brand-800">
+                (Đã chọn {(currentJourney.stageStarAllocation ?? [2, 3, 5]).length}/3 Sao)
+              </span>
             </div>
           </div>
 

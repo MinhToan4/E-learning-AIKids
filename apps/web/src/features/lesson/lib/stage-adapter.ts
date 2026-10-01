@@ -367,6 +367,21 @@ export function adaptSixStageJourneyToStages(
       'Chúc mừng Nhà Sáng Tạo Tí Hon đã xuất sắc hoàn thành trạm học!',
   }
 
+  const getStarForStage = (index: number): 1 | 2 | 3 | undefined => {
+    if (Array.isArray(journey.stageStarAllocation)) {
+      const starIndex = journey.stageStarAllocation.indexOf(index)
+      if (starIndex === 0) return 1
+      if (starIndex === 1) return 2
+      if (starIndex === 2) return 3
+      return undefined
+    }
+    // Legacy fallback: Video (1), Quiz (2), Practice (3)
+    if (index === 2) return 1
+    if (index === 3) return 2
+    if (index === 4) return 3
+    return undefined
+  }
+
   return [
     {
       id: journey.stage1_goal?.id || 'stage-goal',
@@ -377,6 +392,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'AIKI Đồng Hành',
       instruction: 'Đọc kỹ mục tiêu bài học và ghi nhớ 3 điểm vàng quan trọng.',
       speech: goalConfig.speech,
+      awardsStar: getStarForStage(0),
       config: goalConfig,
     },
     {
@@ -388,6 +404,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'AIKI Cố Vấn',
       instruction: 'Quan sát tranh minh họa và chọn phương án chuẩn xác nhất.',
       speech: confirmConfig.speech,
+      awardsStar: getStarForStage(1),
       config: confirmConfig,
     },
     {
@@ -399,7 +416,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Thầy Giáo AIKI',
       instruction: 'Theo dõi video bài giảng và nắm chắc các mốc phân đoạn.',
       speech: videoConfig.speech,
-      awardsStar: 1,
+      awardsStar: getStarForStage(2),
       config: videoConfig,
     },
     {
@@ -411,7 +428,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Giám Khảo AIKI',
       instruction: 'Hoàn thành các câu hỏi trắc nghiệm để mở khóa xưởng vẽ.',
       speech: quizConfig.speech,
-      awardsStar: 2,
+      awardsStar: getStarForStage(3),
       config: quizConfig,
     },
     {
@@ -423,7 +440,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Bậc Thầy AIKI',
       instruction: 'Thực hành tạo tranh bằng câu lệnh và nộp bài vào Balo.',
       speech: practiceConfig.speech,
-      awardsStar: 3,
+      awardsStar: getStarForStage(4),
       config: practiceConfig,
     },
     {
@@ -435,6 +452,7 @@ export function adaptSixStageJourneyToStages(
       mascotRole: 'Thần Đèn AIKI',
       instruction: 'Chiêm ngưỡng cúp vàng, tác phẩm và sẵn sàng bài học mới!',
       speech: rewardConfig.speech,
+      awardsStar: getStarForStage(5),
       config: rewardConfig,
     },
   ]

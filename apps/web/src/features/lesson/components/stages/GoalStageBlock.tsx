@@ -41,7 +41,7 @@ export function GoalStageBlock({
   return (
     <section
       data-testid="stage-0-goal"
-      className="min-w-0 rounded-3xl bg-white p-5 sm:p-7 shadow-xs border border-slate-200/80 flex flex-col gap-5 animate-fade-up"
+      className="min-w-0 rounded-3xl bg-white p-3 sm:p-6 md:p-7 shadow-xs border border-slate-200/80 flex flex-col gap-5 animate-fade-up"
     >
       {/* Phần 1 - Tiêu đề & Header */}
       <div className="flex flex-col gap-2 shrink-0">

@@ -99,7 +99,7 @@ export function QuizStageBlock({
   return (
     <section
       data-testid="stage-3-quiz"
-      className="flex min-h-0 h-full max-h-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs animate-fade-up gap-2"
+      className="flex min-h-0 h-full max-h-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-2.5 sm:p-4 shadow-xs animate-fade-up gap-2"
     >
       <h2 className="sr-only">{config.title}</h2>
 

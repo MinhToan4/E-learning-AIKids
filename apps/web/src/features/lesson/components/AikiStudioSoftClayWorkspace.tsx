@@ -258,6 +258,37 @@ const DEFAULT_PARTS_MAPPING_1_1 = [
 ]
 
 
+interface StoredPracticeData {
+  attemptsLeft?: number
+  turn1Artworks?: Record<number, { url: string; prompt: string }>
+  turn2Artworks?: Record<number, { url: string; prompt: string }>
+  committedArtworksByPart?: Record<number, { url: string; prompt: string }>
+  completedParts?: number[]
+  turnByPart?: Record<number, 1 | 2>
+  favoriteByPart?: Record<number, 1 | 2>
+  favoriteReasonByPart?: Record<number, string>
+  isSubmitted?: boolean
+}
+
+function getStoredPracticeData(key: string): StoredPracticeData | null {
+  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(key)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function setStoredPracticeData(key: string, data: StoredPracticeData): void {
+  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return
+  try {
+    window.localStorage.setItem(key, JSON.stringify(data))
+  } catch (e) {
+    console.error('Failed to save practice state to localStorage', e)
+  }
+}
+
 export function AikiStudioSoftClayWorkspace({
   lessonId,
   lessonTitle,
@@ -319,31 +350,103 @@ export function AikiStudioSoftClayWorkspace({
     onPartChange?.(idx)
   }
 
+  const storageKey = `aiki_softclay_practice_${lessonId || 'default'}`
+
   // Quản lý trạng thái các món đã vẽ xong
-  const [completedParts, setCompletedParts] = useState<number[]>([])
+  const [completedParts, setCompletedParts] = useState<number[]>(() => {
+    return getStoredPracticeData(storageKey)?.completedParts ?? []
+  })
 
   // State lưu trữ ảnh ĐÃ GENERATE bằng AI (chỉ cập nhật khi ấn nút Tạo ảnh)
-  const [committedArtworksByPart, setCommittedArtworksByPart] = useState<Record<number, { url: string; prompt: string }>>({})
+  const [committedArtworksByPart, setCommittedArtworksByPart] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    return getStoredPracticeData(storageKey)?.committedArtworksByPart ?? {}
+  })
 
   // Trạng thái 2 lượt cho Bài 1.1: Lượt 1 (1 từ) -> Lượt 2 (5 điều)
-  const [turnByPart, setTurnByPart] = useState<Record<number, 1 | 2>>({})
+  const [turnByPart, setTurnByPart] = useState<Record<number, 1 | 2>>(() => {
+    return getStoredPracticeData(storageKey)?.turnByPart ?? {}
+  })
   const currentPartTurn: 1 | 2 = isLesson1_1 ? (turnByPart[activeIdx] ?? 1) : 1
 
-  const [turn1Artworks, setTurn1Artworks] = useState<Record<number, { url: string; prompt: string }>>({})
-  const [turn2Artworks, setTurn2Artworks] = useState<Record<number, { url: string; prompt: string }>>({})
-  const [favoriteByPart, setFavoriteByPart] = useState<Record<number, 1 | 2>>({})
-  const [favoriteReasonByPart, setFavoriteReasonByPart] = useState<Record<number, string>>({})
+  const [turn1Artworks, setTurn1Artworks] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    return getStoredPracticeData(storageKey)?.turn1Artworks ?? {}
+  })
+  const [turn2Artworks, setTurn2Artworks] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    return getStoredPracticeData(storageKey)?.turn2Artworks ?? {}
+  })
+  const [favoriteByPart, setFavoriteByPart] = useState<Record<number, 1 | 2>>(() => {
+    return getStoredPracticeData(storageKey)?.favoriteByPart ?? {}
+  })
+  const [favoriteReasonByPart, setFavoriteReasonByPart] = useState<Record<number, string>>(() => {
+    return getStoredPracticeData(storageKey)?.favoriteReasonByPart ?? {}
+  })
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(() => {
+    return Boolean(getStoredPracticeData(storageKey)?.isSubmitted)
+  })
   const hasBothTurns = Boolean(isLesson1_1 && turn1Artworks[activeIdx] && turn2Artworks[activeIdx])
 
-  const [attemptsLeft, setAttemptsLeft] = useState<number>(
-    initialAttemptsLeft ?? (isLesson1_1 ? 6 : (parts.length > 0 ? parts.length : 2))
-  )
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(() => {
+    const saved = getStoredPracticeData(storageKey)
+    if (saved && typeof saved.attemptsLeft === 'number') {
+      return saved.attemptsLeft
+    }
+    return initialAttemptsLeft ?? (isLesson1_1 ? 2 : (parts.length > 0 ? parts.length : 2))
+  })
+
+  // Đồng bộ lại khi storageKey thay đổi (ví dụ đổi bài học)
+  const lastLoadedKeyRef = React.useRef<string>(storageKey)
+  useEffect(() => {
+    if (lastLoadedKeyRef.current === storageKey) return
+    lastLoadedKeyRef.current = storageKey
+    const saved = getStoredPracticeData(storageKey)
+    if (saved) {
+      if (typeof saved.attemptsLeft === 'number') setAttemptsLeft(saved.attemptsLeft)
+      if (saved.completedParts) setCompletedParts(saved.completedParts)
+      if (saved.committedArtworksByPart) setCommittedArtworksByPart(saved.committedArtworksByPart)
+      if (saved.turnByPart) setTurnByPart(saved.turnByPart)
+      if (saved.turn1Artworks) setTurn1Artworks(saved.turn1Artworks)
+      if (saved.turn2Artworks) setTurn2Artworks(saved.turn2Artworks)
+      if (saved.favoriteByPart) setFavoriteByPart(saved.favoriteByPart)
+      if (saved.favoriteReasonByPart) setFavoriteReasonByPart(saved.favoriteReasonByPart)
+      setIsSubmitted(Boolean(saved.isSubmitted))
+    }
+  }, [storageKey])
 
   useEffect(() => {
     if (initialAttemptsLeft !== undefined) {
-      setAttemptsLeft(initialAttemptsLeft)
+      const saved = getStoredPracticeData(storageKey)
+      if (!saved || typeof saved.attemptsLeft !== 'number') {
+        setAttemptsLeft(initialAttemptsLeft)
+      }
     }
-  }, [initialAttemptsLeft])
+  }, [initialAttemptsLeft, storageKey])
+
+  // Tự động lưu toàn bộ state vào storageKey mỗi khi có thay đổi
+  useEffect(() => {
+    const payload: StoredPracticeData = {
+      attemptsLeft,
+      turn1Artworks,
+      turn2Artworks,
+      committedArtworksByPart,
+      completedParts,
+      turnByPart,
+      favoriteByPart,
+      favoriteReasonByPart,
+      isSubmitted,
+    }
+    setStoredPracticeData(storageKey, payload)
+  }, [
+    storageKey,
+    attemptsLeft,
+    turn1Artworks,
+    turn2Artworks,
+    committedArtworksByPart,
+    completedParts,
+    turnByPart,
+    favoriteByPart,
+    favoriteReasonByPart,
+    isSubmitted,
+  ])
 
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false)
@@ -509,6 +612,19 @@ export function AikiStudioSoftClayWorkspace({
   const handleConfirmSubmit = () => {
     playInstantSound('star')
     setIsSubmitModalOpen(false)
+    setIsSubmitted(true)
+    const payload: StoredPracticeData = {
+      attemptsLeft,
+      turn1Artworks,
+      turn2Artworks,
+      committedArtworksByPart,
+      completedParts,
+      turnByPart,
+      favoriteByPart,
+      favoriteReasonByPart,
+      isSubmitted: true,
+    }
+    setStoredPracticeData(storageKey, payload)
     const effectiveSubmitPrompt =
       isLesson1_1 && completedParts.includes(activeIdx) && turn2Artworks[activeIdx]
         ? ((favoriteByPart[activeIdx] ?? 2) === 1
@@ -1025,9 +1141,17 @@ export function AikiStudioSoftClayWorkspace({
                   <span>⚖️</span>
                   <span>So sánh 2 bức tranh của bé</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
-                  Chạm chọn bức thích hơn
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {isSubmitted && (
+                    <span className="text-[9px] sm:text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
+                      <Backpack className="w-3 h-3" />
+                      <span>✓ Đã lưu vào Balo</span>
+                    </span>
+                  )}
+                  <span className="text-[9px] sm:text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
+                    Chạm chọn bức thích hơn
+                  </span>
+                </div>
               </div>
 
               {/* Side-by-side 2 bức tranh */}
@@ -1149,10 +1273,15 @@ export function AikiStudioSoftClayWorkspace({
                   playInstantSound('click')
                   setIsSubmitModalOpen(true)
                 }}
-                className="w-full mt-1 min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs sm:text-sm shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className={cn(
+                  'w-full mt-1 min-h-[44px] px-4 py-2 rounded-xl text-white font-black text-xs sm:text-sm shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer',
+                  isSubmitted
+                    ? 'bg-emerald-600 hover:bg-emerald-700'
+                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600'
+                )}
               >
                 <Backpack className="w-4 h-4" />
-                <span>Cất vào Ba Lô &amp; Tiếp tục</span>
+                <span>{isSubmitted ? '✓ Đã cất vào Ba Lô' : 'Cất vào Ba Lô & Tiếp tục'}</span>
               </button>
             </div>
           ) : (
@@ -1167,13 +1296,10 @@ export function AikiStudioSoftClayWorkspace({
                     </div>
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-xs sm:text-sm font-black text-[#FD7D2E] animate-pulse">
-                        {isLesson1_1 ? `AIKI đang vẽ Lượt ${currentPartTurn}... ✨` : 'AIKI đang hóa phép vẽ tranh... ✨'}
-                      </span>
-                      <span className="text-[11px] font-bold text-amber-800">
-                        Đang tạo tranh bằng AI (~3s)...
+                        {isLesson1_1 ? 'AIKI đang vẽ tranh...' : 'AIKI đang hóa phép vẽ tranh... ✨'}
                       </span>
                     </div>
-                    {/* Thanh tiến độ loading 3 giây */}
+                    {/* Thanh tiến độ loading */}
                     <div className="w-48 max-w-[80%] h-2 bg-amber-200/70 rounded-full overflow-hidden border border-amber-300/80 shadow-2xs mt-1">
                       <div
                         className="h-full bg-gradient-to-r from-[#FD7D2E] via-amber-400 to-purple-600 rounded-full animate-pulse"
@@ -1190,10 +1316,10 @@ export function AikiStudioSoftClayWorkspace({
                 />
 
                 {/* Badge Đã lưu vào Balo */}
-                {(committedArtworksByPart[activeIdx] || (isLesson1_1 && completedParts.includes(activeIdx))) && (
+                {(isSubmitted || committedArtworksByPart[activeIdx] || (isLesson1_1 && completedParts.includes(activeIdx))) && (
                   <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-600/95 text-white text-[10px] font-black shadow-md flex items-center gap-1 backdrop-blur-xs">
                     <Backpack className="w-3 h-3" />
-                    <span>Đã lưu vào Balo</span>
+                    <span>{isSubmitted ? '✓ Đã lưu vào Balo' : 'Đã lưu vào Balo'}</span>
                   </span>
                 )}
 
@@ -1201,14 +1327,6 @@ export function AikiStudioSoftClayWorkspace({
                 <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold backdrop-blur-xs">
                   Phong cách: Hoạt hình 2D
                 </span>
-
-                {/* Badge Thông báo đã đổi câu lệnh (chưa ấn Generate) */}
-                {isOptionsChanged && !isGenerating && !isLesson1_1 && (
-                  <div className="absolute inset-x-2 bottom-9 z-10 px-3 py-1.5 rounded-xl bg-[#FD7D2E]/95 text-white text-xs font-black shadow-lg flex items-center justify-center gap-1.5 backdrop-blur-xs text-center animate-fade-in border border-white/20">
-                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                    <span>✨ Đã đổi câu lệnh • Bấm nút Tạo ảnh bên dưới để xem tranh mới!</span>
-                  </div>
-                )}
               </div>
 
               {/* Thông tin lượt vẽ */}
@@ -1317,32 +1435,37 @@ export function AikiStudioSoftClayWorkspace({
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-0.5 w-full">
-          {(!isLesson1_1 || !hasBothTurns) && (
-            <button
-              type="button"
-              onClick={handleDraw}
-              disabled={isGenerating || attemptsLeft <= 0}
-              className={cn(
-                'min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 text-center',
-                isGenerating || attemptsLeft <= 0
-                  ? 'opacity-50 cursor-not-allowed border-slate-400 bg-slate-400'
-                  : isOptionsChanged
-                    ? 'border-amber-500 bg-gradient-to-r from-[#FD7D2E] to-amber-500 hover:from-[#ea6a1f] hover:to-amber-600 animate-pulse ring-2 ring-amber-300 cursor-pointer'
-                    : 'border-sky-600 bg-sky-500 hover:bg-sky-600 cursor-pointer'
+          <button
+            type="button"
+            data-testid="studio-draw-btn"
+            onClick={handleDraw}
+            disabled={isGenerating || attemptsLeft <= 0}
+            className={cn(
+              'min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 text-center',
+              isGenerating || attemptsLeft <= 0
+                ? 'opacity-50 cursor-not-allowed border-slate-400 bg-slate-400'
+                : isOptionsChanged
+                  ? 'border-amber-500 bg-gradient-to-r from-[#FD7D2E] to-amber-500 hover:from-[#ea6a1f] hover:to-amber-600 animate-pulse ring-2 ring-amber-300 cursor-pointer'
+                  : 'border-sky-600 bg-sky-500 hover:bg-sky-600 cursor-pointer'
+            )}
+          >
+            <span>
+              {attemptsLeft <= 0 ? (
+                'Đã hết lượt tạo ảnh (0 lượt)'
+              ) : (
+                <>
+                  {isLesson1_1
+                    ? currentPartTurn === 1
+                      ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
+                      : 'Vẽ Lượt 2: Năm điều chi tiết'
+                    : isOptionsChanged && committedArtworksByPart[activeIdx]
+                      ? 'Vẽ tranh cùng AIKI (Tạo ảnh mới ✨)'
+                      : 'Vẽ tranh cùng AIKI'}{' '}
+                  · còn {attemptsLeft} lượt
+                </>
               )}
-            >
-              <span>
-                {isLesson1_1
-                  ? currentPartTurn === 1
-                    ? 'Vẽ Lượt 1: Một từ duy nhất (con mèo)'
-                    : 'Vẽ Lượt 2: Năm điều chi tiết'
-                  : isOptionsChanged && committedArtworksByPart[activeIdx]
-                    ? 'Vẽ tranh cùng AIKI (Tạo ảnh mới ✨)'
-                    : 'Vẽ tranh cùng AIKI'}{' '}
-                · còn {attemptsLeft} lượt
-              </span>
-            </button>
-          )}
+            </span>
+          </button>
           <button
             type="button"
             data-testid="studio-submit-btn"
@@ -1350,9 +1473,20 @@ export function AikiStudioSoftClayWorkspace({
               playInstantSound('click')
               setIsSubmitModalOpen(true)
             }}
-            className="flex-1 min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 border-brand-600 bg-brand-500 hover:bg-brand-600 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+            className={cn(
+              'flex-1 min-h-[48px] px-3 sm:px-5 py-2 rounded-2xl border-2 text-white text-xs sm:text-sm font-black shadow-clay active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center',
+              isSubmitted
+                ? 'border-emerald-600 bg-emerald-600 hover:bg-emerald-700'
+                : 'border-brand-600 bg-brand-500 hover:bg-brand-600'
+            )}
           >
-            <span>{isLesson1_1 && hasBothTurns ? 'Cất vào Ba Lô & Tiếp tục' : 'Hoàn tất thực hành'}</span>
+            <span>
+              {isSubmitted
+                ? '✓ Đã cất vào Ba Lô'
+                : isLesson1_1 && hasBothTurns
+                ? 'Cất vào Ba Lô & Tiếp tục'
+                : 'Hoàn tất thực hành'}
+            </span>
           </button>
         </div>
       </div>

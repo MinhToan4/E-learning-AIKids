@@ -9,6 +9,7 @@ import { learningApi } from '@/shared/lib/learning-api'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 import {
   calculateCourseStars,
+  clampStationStars,
   dedupeStationProgress,
 } from '@/shared/lib/star-progress'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
@@ -318,7 +319,8 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           const calculatedCompletedCount = sequentialQuests.filter(
             (q) => q.status === 'completed',
           ).length
-          const starSummary = calculateCourseStars(sequentialQuests, progressData?.totalStars)
+          const detailedStars = sequentialQuests.reduce((sum, q) => sum + clampStationStars(q.stars), 0)
+          const starSummary = calculateCourseStars(sequentialQuests, detailedStars > 0 ? detailedStars : progressData?.totalStars)
           const nextMeta = {
             totalStars: starSummary.earned,
             completedCount: Math.min(
@@ -448,7 +450,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
   }
 
   return (
-    <div className="max-w-[1024px] mx-auto w-full px-2 sm:px-6 flex flex-col gap-4 sm:gap-6 page-enter py-2 sm:py-6">
+    <div className="max-w-[1024px] mx-auto w-full px-1 sm:px-4 md:px-6 flex flex-col gap-4 sm:gap-6 page-enter py-2 sm:py-6">
       {enrollmentRequired && !loading ? (
         <section className="ui-card mx-auto w-full max-w-xl p-6 text-center rounded-3xl shadow-clay">
           <CourseBookIcon size={42} className="mx-auto text-brand-500" aria-hidden="true" />

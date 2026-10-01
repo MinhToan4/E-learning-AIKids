@@ -454,4 +454,200 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     container.remove()
     vi.useRealTimers()
   })
+
+  it('does NOT render floating text banner covering the artwork on canvas even when options changed', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-2" />)
+    })
+
+    // Change an option
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const altDescBtn = buttons.find((b) => b.textContent?.includes('Trắng đốm nâu quanh mắt'))
+    await act(async () => {
+      altDescBtn?.click()
+    })
+
+    const text = container.textContent || ''
+    // Absolutely NO floating banner text covering canvas
+    expect(text).not.toContain('Đã đổi câu lệnh • Bấm nút Tạo ảnh bên dưới')
+    expect(text).not.toContain('xem tranh mới!')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('shows friendly generating title and NO technical text (~3s)... during generation', async () => {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-1" />)
+    })
+
+    const drawBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 1')
+    )
+    expect(drawBtn).toBeDefined()
+
+    await act(async () => {
+      drawBtn?.click()
+    })
+
+    // While generating is active:
+    const text = container.textContent || ''
+    expect(text).toContain('AIKI đang vẽ tranh...')
+    expect(text).not.toContain('(~3s)')
+    expect(text).not.toContain('Đang tạo tranh bằng AI')
+
+    act(() => {
+      vi.advanceTimersByTime(3100)
+    })
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+    vi.useRealTimers()
+  })
+
+  it('enforces 2 attempts quota in Lesson 1.1: draw button is disabled with "Đã hết lượt tạo ảnh (0 lượt)" after 2 turns', async () => {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-1" />)
+    })
+
+    // Turn 1
+    const drawBtn1 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 1')
+    ) as HTMLButtonElement
+    expect(drawBtn1).toBeDefined()
+    expect(drawBtn1.disabled).toBe(false)
+    expect(drawBtn1.textContent).toContain('còn 2 lượt')
+
+    await act(async () => {
+      drawBtn1.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(3100)
+    })
+
+    // Turn 2
+    const drawBtn2 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 2')
+    ) as HTMLButtonElement
+    expect(drawBtn2).toBeDefined()
+    expect(drawBtn2.disabled).toBe(false)
+    expect(drawBtn2.textContent).toContain('còn 1 lượt')
+
+    await act(async () => {
+      drawBtn2.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(3100)
+    })
+
+    // After 2 turns: attemptsLeft is 0, draw button is disabled
+    const exhaustedDrawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(exhaustedDrawBtn).toBeDefined()
+    expect(exhaustedDrawBtn.disabled).toBe(true)
+    expect(exhaustedDrawBtn.textContent).toContain('Đã hết lượt tạo ảnh (0 lượt)')
+    expect(exhaustedDrawBtn.className).toContain('opacity-50')
+    expect(exhaustedDrawBtn.className).toContain('cursor-not-allowed')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+    vi.useRealTimers()
+  })
+
+  it('restores attempts, both turn artworks, and submitted status from localStorage upon reload', async () => {
+    const lessonId = 'bai-1-1-test-reload'
+    const storageKey = `aiki_softclay_practice_${lessonId}`
+
+    const mockStorage: Record<string, string> = {}
+    const mockLocalStorage = {
+      getItem: (key: string) => mockStorage[key] || null,
+      setItem: (key: string, value: string) => {
+        mockStorage[key] = value
+      },
+      removeItem: (key: string) => {
+        delete mockStorage[key]
+      },
+      clear: () => {
+        Object.keys(mockStorage).forEach((k) => delete mockStorage[k])
+      },
+    }
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+      configurable: true,
+    })
+
+    // Seed state as if student finished 2 turns, chose favorite, and submitted
+    const savedData = {
+      attemptsLeft: 0,
+      turn1Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_one_word_v1.webp', prompt: 'con mèo' },
+      },
+      turn2Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_full_details_v1.webp', prompt: 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân' },
+      },
+      completedParts: [0],
+      turnByPart: { 0: 2 },
+      favoriteByPart: { 0: 2 },
+      favoriteReasonByPart: { 0: 'Vì nhìn rõ hơn' },
+      isSubmitted: true,
+    }
+    mockLocalStorage.setItem(storageKey, JSON.stringify(savedData))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    // Render component simulating reload
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId={lessonId} />)
+    })
+
+    const text = container.textContent || ''
+
+    // 1. Both turns restored: comparison board visible
+    expect(text).toContain('TRANH SÁNG TẠO: BẢNG SO SÁNH 2 BƯỚC')
+    expect(text).toContain('So sánh 2 bức tranh của bé')
+    expect(text).toContain('1. Một từ (con mèo)')
+    expect(text).toContain('2. Năm điều')
+
+    // 2. Both turn images restored
+    const images = Array.from(container.querySelectorAll('img')).map((img) => img.src)
+    expect(images.some((s) => s.includes('cat_one_word_v1.webp'))).toBe(true)
+    expect(images.some((s) => s.includes('cat_full_details_v1.webp'))).toBe(true)
+
+    // 3. Attempts quota: 0 attempts left, draw button disabled
+    const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(drawBtn).toBeDefined()
+    expect(drawBtn.disabled).toBe(true)
+    expect(drawBtn.textContent).toContain('Đã hết lượt tạo ảnh (0 lượt)')
+
+    // 4. Submitted status restored: Balo badges & submit button text
+    expect(text).toContain('✓ Đã lưu vào Balo')
+    expect(text).toContain('✓ Đã cất vào Ba Lô')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })

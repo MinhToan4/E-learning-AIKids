@@ -56,7 +56,7 @@ export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onC
       data-testid="stage-0-goal"
       className={cn(
         'rounded-3xl bg-white shadow-xs border border-slate-200/80 flex flex-col',
-        compact ? 'gap-4 p-3' : 'gap-5 p-5 sm:p-7'
+        compact ? 'gap-4 p-3' : 'gap-5 p-3 sm:p-6 md:p-7'
       )}
     >
       {/* Phần 1 - Tiêu đề & Header */}
