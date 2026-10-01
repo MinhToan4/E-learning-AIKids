@@ -441,6 +441,7 @@ export type User = {
   name?: string | null
   nickname: string | null
   avatarId: string | null
+  avatarUrl?: string | null
   level: number
   xp: number
   onboarded: boolean

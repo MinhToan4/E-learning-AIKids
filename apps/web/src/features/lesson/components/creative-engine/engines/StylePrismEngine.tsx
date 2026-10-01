@@ -147,21 +147,18 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
   return (
     <div data-testid="style-prism-engine" className="flex flex-col gap-3 text-left">
       {/* Header Lăng Kính Phù Thủy */}
-      <div className="bg-linear-to-r from-purple-50 via-pink-50 to-amber-50 rounded-2xl border-2 border-purple-200 p-3.5 sm:p-4 shadow-2xs">
-        <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+      <div className="bg-linear-to-r from-purple-50 via-pink-50 to-amber-50 rounded-2xl border-2 border-purple-200 p-3 sm:p-3.5 shadow-2xs">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <Wand2 className="text-purple-600 animate-pulse" size={18} />
             <span className="font-black text-xs sm:text-sm text-purple-950">
-              Lăng Kính Phù Thủy: "Úm ba la... Biến hình!"
+              Lăng Kính Phù Thủy ✨
             </span>
           </div>
           <span className="text-[11px] font-black text-purple-800 bg-purple-100/90 px-2 py-0.5 rounded-full">
             Biến Hình Phong Cách ✨
           </span>
         </div>
-        <p className="text-[11px] font-bold text-slate-500">
-          Hãy chọn <strong>Chủ thể</strong>, xoay <strong>Lăng kính phong cách</strong> và thêm <strong>Ánh sáng ma thuật</strong>!
-        </p>
       </div>
 
       {/* ── BƯỚC 1: 🎨 CHỌN ĐỐI TƯỢNG BIẾN HÌNH (CHỦ THỂ) ── */}
@@ -215,9 +212,6 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                   >
                     {sub.name}
                   </div>
-                  <div className="text-[10px] font-bold text-slate-400 leading-tight break-words line-clamp-1">
-                    Món đồ {idx + 1}
-                  </div>
                 </div>
                 {isSelected && (
                   <div className="size-4 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
@@ -242,15 +236,12 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
               if (data) handleSelectStyle(JSON.parse(data))
             } catch {}
           }}
-          className="flex items-center gap-2 bg-purple-50/50 rounded-xl p-2.5 border border-purple-200/80 transition-all"
+          className="flex items-center gap-2 bg-purple-50/50 rounded-xl p-2 border border-purple-200/80 transition-all"
         >
-          <span className="text-xl">🪄</span>
+          <span className="text-lg">🪄</span>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-black text-slate-800">
               Đang chọn: <span className="text-purple-700 font-extrabold">{selectedSubject}</span>
-            </div>
-            <div className="text-[11px] font-semibold text-slate-500">
-              Kéo hoặc chạm vào 1 trong 4 Lăng Kính bên dưới để đổi ngay phong cách vẽ!
             </div>
           </div>
         </div>
@@ -292,7 +283,7 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                   }
                 }}
                 className={cn(
-                  'min-h-[76px] rounded-2xl border-2 p-3.5 transition-all duration-150 select-none relative flex items-start gap-3',
+                  'min-h-[52px] rounded-2xl border-2 p-3.5 transition-all duration-150 select-none relative flex items-center gap-3',
                   'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95',
                   isSelected
                     ? 'border-purple-500 bg-purple-500/10 shadow-md ring-2 ring-purple-400 scale-[1.01]'
@@ -314,9 +305,6 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-bold text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
-                    {style.hint || style.text}
-                  </p>
                 </div>
               </div>
             )
@@ -363,9 +351,6 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                     {light.label}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-500 line-clamp-1">
-                  {light.hint}
-                </span>
               </button>
             )
           })}

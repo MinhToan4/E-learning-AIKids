@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, Map as MapIcon, Settings, Star } from 'lucide-react'
+import { Check, Map as MapIcon, Star } from 'lucide-react'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { designerAssets } from '@/shared/config/assets'
+import { avatarImage } from '@/shared/config/avatars'
+import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
+import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
@@ -263,6 +266,7 @@ export function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showTrailerModal, setShowTrailerModal] = useState(false)
+  const [gateOpen, setGateOpen] = useState(false)
 
   const handleUnlockFullCourse = () => {
     setShowTrailerModal(false)
@@ -281,13 +285,7 @@ export function HomePage() {
     : 0
   const streakInfo = streakState((user as any)?.currentStreak ?? 3, (user as any)?.lastActivityDate ?? null)
 
-  const rawName = user?.nickname || user?.name || 'Bo Bo'
-  const childDisplayName =
-    rawName === 'Bo' || rawName.toLowerCase() === 'bo bo' || rawName === 'Bé Bo' || rawName === 'Bé Bo Bo'
-      ? 'Bo Bo'
-      : rawName.startsWith('Bé ')
-        ? rawName.replace(/^Bé\s+/, '')
-        : rawName
+  const childDisplayName = user?.nickname || user?.name || 'Bé'
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -455,8 +453,18 @@ export function HomePage() {
     (course) => course.enrolled && getAikiIslandSortOrder(course) > 1,
   )
 
+  const resolvedAvatarUrl =
+    (user?.avatarUrl && user.avatarUrl.trim() !== '')
+      ? user.avatarUrl
+      : (user?.avatarId && (user.avatarId.startsWith('http') || user.avatarId.startsWith('/')))
+        ? user.avatarId
+        : avatarImage(user?.avatarId) || designerAssets.brand.modalMascot || designerAssets.catPoses.welcome
+
+  const activeCourse = courses.find((c) => c.enrolled && (c.progressPct ?? 0) < 100) || courses[0]
+  const activeIslandLabel = activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
+
   return (
-    <PageMotion className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 flex flex-col gap-5 sm:gap-6 pb-32 sm:pb-36">
+    <PageMotion className="max-w-[1024px] mx-auto w-full px-1 sm:px-4 md:px-6 flex flex-col gap-3.5 sm:gap-6 pb-32 sm:pb-36">
       {/* ── 1. HEADER CHUẨN 1:1 THEO THIẾT KẾ ĐÃ DUYỆT (Ảnh 1) ── */}
       <header className="w-full bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xs">
         {/* Cụm trái: Avatar vuông bo góc vàng mèo + Tên học sinh (Online) + Đảo Khám Phá · Bài 1.2 */}
@@ -467,7 +475,7 @@ export function HomePage() {
         >
           {/* Avatar vuông bo góc vàng Soft Clay */}
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src={designerAssets.brand.mascot} alt="Avatar" className="w-8 h-8 object-cover rounded-xl" />
+            <img src={resolvedAvatarUrl} alt={childDisplayName} className="w-8 h-8 object-cover rounded-xl" />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -480,13 +488,12 @@ export function HomePage() {
               </span>
             </div>
             <div className="text-[11px] sm:text-xs text-slate-500 font-semibold truncate">
-              <span className="sm:hidden">Đảo 1 · Bài 1.2</span>
-              <span className="hidden sm:inline">Đảo Khám Phá · Bài 1.2</span>
+              {activeIslandLabel} · Cấp {explorerLevel}
             </div>
           </div>
         </Link>
 
-        {/* Cụm phải: Viên thuốc sao vàng (⭐ 48 Sao) + Nút bánh răng cài đặt phụ huynh ⚙️ */}
+        {/* Cụm phải: Viên thuốc sao vàng (⭐ 48 Sao) + Nút Ba / Mẹ Soft Clay */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-amber-50/90 border border-amber-200 text-amber-800 shadow-2xs">
             <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 fill-amber-400 shrink-0" />
@@ -500,12 +507,19 @@ export function HomePage() {
 
           <button
             type="button"
-            onClick={() => navigate('/parent')}
-            title="Khu vực dành cho Phụ huynh"
-            aria-label="Cài đặt phụ huynh"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center border border-slate-200/80 transition-all shrink-0 cursor-pointer active:scale-95 shadow-2xs font-bold text-sm"
+            onClick={() => {
+              if (user?.role === 'student') {
+                setGateOpen(true)
+              } else {
+                navigate('/parent')
+              }
+            }}
+            title="Khu vực dành cho Ba / Mẹ"
+            aria-label="Khu vực Ba / Mẹ"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100/80 hover:bg-amber-200/90 text-amber-900 border border-amber-300 shadow-2xs transition-all shrink-0 cursor-pointer active:scale-95 text-xs font-black"
           >
-            <Settings className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+            <ParentHomeIcon size={18} />
+            <span className="hidden sm:inline">Ba / Mẹ</span>
           </button>
         </div>
       </header>
@@ -670,6 +684,7 @@ export function HomePage() {
         onClose={() => setShowTrailerModal(false)}
         onUnlock={handleUnlockFullCourse}
       />
+      <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </PageMotion>
   )
 }

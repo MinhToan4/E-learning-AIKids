@@ -117,7 +117,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
   )
 
   const promptBarContent = (
-    <div className="flex w-full min-w-0 shrink-0 flex-col items-stretch gap-2 border-t border-amber-100/90 pt-1 sm:flex-row sm:items-stretch">
+    <div className="flex w-full min-w-0 shrink-0 flex-col items-stretch gap-2 border-t border-amber-100/90 pt-1">
       <PromptPreviewBar
         mode={activeMode}
         blocks={activeBlocks}
@@ -132,7 +132,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
           setActiveBlocks([])
           onPromptChange('')
         }}
-        className="w-full min-w-0 flex-1"
+        className="w-full min-w-0"
       />
 
       <input
@@ -151,7 +151,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
         aria-hidden="true"
       />
 
-      <div className="grid w-full shrink-0 grid-cols-1 gap-2 sm:w-auto sm:grid-cols-[auto_auto]">
+      <div className="flex w-full items-center justify-between sm:justify-end gap-2.5 pt-1">
       <button
         type="button"
         data-testid="studio-draw-btn"

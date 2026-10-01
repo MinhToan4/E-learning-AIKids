@@ -78,13 +78,13 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
                 }
               }}
               className={cn(
-                'px-2.5 py-1 rounded-xl bg-linear-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-amber-950 font-black text-xs border border-amber-500/60 shadow-2xs transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0',
+                'px-2.5 py-1 rounded-xl bg-linear-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-amber-950 font-black text-xs border border-amber-500/60 shadow-2xs transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0 max-w-[280px]',
                 isPromptAlreadyIncluded && 'hidden'
               )}
               title="Chạm để thử ngay câu lệnh này"
             >
-              <span className="shrink-0">👉 {stepQuickLabel || 'Chạm để thử ngay:'}</span>
-              <span className="underline decoration-1 font-black">"{stepQuickPrompt}"</span>
+              <span className="shrink-0 truncate">👉 {stepQuickLabel || 'Chạm để thử ngay:'}</span>
+              <span className="underline decoration-1 font-black truncate">"{stepQuickPrompt}"</span>
             </button>
           )}
 
@@ -107,7 +107,7 @@ export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
         {blocks && blocks.length > 0 ? (
           <div
             data-testid="prompt-linked-blocks"
-            className="flex flex-wrap items-baseline gap-1 py-0.5 max-h-[72px] sm:max-h-[82px] overflow-y-auto pr-1 scrollbar-thin [scrollbar-width:thin]"
+            className="flex min-h-[32px] flex-wrap items-baseline gap-1.5 py-0.5 pr-1"
           >
             {blocks.map((block, idx) => {
               const isFirst = idx === 0

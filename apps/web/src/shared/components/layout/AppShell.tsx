@@ -853,6 +853,15 @@ export function AppShell() {
     location.pathname.includes('/lesson/') ||
     location.pathname.includes('/rule/') ||
     location.pathname.startsWith('/rules')
+  const hasPageHeader =
+    location.pathname === '/home' ||
+    location.pathname.startsWith('/world') ||
+    location.pathname.startsWith('/course') ||
+    location.pathname.startsWith('/profile') ||
+    location.pathname.startsWith('/backpack') ||
+    location.pathname.startsWith('/achievements') ||
+    location.pathname.startsWith('/leaderboard') ||
+    location.pathname.startsWith('/progress')
   const featureTone = studentFeatureTone(location.pathname)
 
   return (
@@ -874,12 +883,13 @@ export function AppShell() {
           <nav className="student-rail-nav" aria-label="Điều hướng học sinh">
             <span className="student-nav-link student-rail-logout w-[4.5rem]">
               <ParentHomeIcon size={28} />
+              <span style={{ display: 'none' }}>Ba / Mẹ</span>
             </span>
           </nav>
         </aside>
       </div>
 
-      {!isLessonOrRule && location.pathname !== '/home' && (
+      {!isLessonOrRule && !hasPageHeader && (
         <div className="fixed z-40 flex items-center gap-2 right-3 top-3 sm:right-4 md:right-6">
           {showParentButton && (
             <button
@@ -905,7 +915,7 @@ export function AppShell() {
         </div>
       ) : (
         <div className="w-full flex justify-center">
-          <main className="max-w-[1024px] mx-auto w-full px-2 sm:px-5 md:px-6 pb-28">
+          <main className="max-w-[1024px] mx-auto w-full px-1 sm:px-4 md:px-6 pb-28">
             <RouteOutlet />
           </main>
         </div>

@@ -747,11 +747,9 @@ describe('CreativeEngine Suite', () => {
         />
       )
 
-      // Kiểm tra container linked blocks tồn tại & có thanh cuộn giới hạn độ cao không tràn khung
+      // Kiểm tra container linked blocks tồn tại & hiển thị dòng chảy mềm mại không bị giới hạn cuộn
       expect(html).toContain('data-testid="prompt-linked-blocks"')
-      expect(html).toContain('max-h-[72px]')
-      expect(html).toContain('sm:max-h-[82px]')
-      expect(html).toContain('overflow-y-auto')
+      expect(html).toContain('min-h-[32px]')
 
       // Kiểm tra chip có break-words và whitespace-normal bảo vệ layout mobile/tablet không bị cắt chữ
       expect(html).toContain('max-w-full')

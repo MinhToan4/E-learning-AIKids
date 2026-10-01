@@ -36,7 +36,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-[2rem] bg-white border-2 border-amber-200/90 p-4 sm:p-6 shadow-clay min-w-0 transition-all',
+        'relative overflow-hidden rounded-[2rem] bg-white border-2 border-amber-200/90 p-2.5 sm:p-5 md:p-6 shadow-clay min-w-0 transition-all',
         className,
       )}
       aria-label="Tiến trình học tập và thế giới thám hiểm"

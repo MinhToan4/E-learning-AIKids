@@ -675,7 +675,7 @@ export function AikiStudioWorkspace({
   const currentPartTurn = 1 as const
 
   const isCurrentPartTurnAlreadyDrawn = activePartImages.some((img) => img.partTurn === currentPartTurn)
-  const turnLockedMessage = 'Phần này đã có tranh. Chọn phần khác hoặc nộp bài nhé!'
+  const turnLockedMessage = 'Phần này đã có tranh'
 
   const latestStudioImage = useMemo(() => {
     if (activePartImages && activePartImages.length > 0) {
