@@ -57,12 +57,19 @@ import {
   hydrateAikiRuleCard,
   createAikiRuleCardsFromData,
 } from '@/features/lesson/lib/aiki-rule-cards'
+import {
+  saveLocalLessonProgress,
+  queuePendingSync,
+  getStoredItemWithFallback,
+} from '@/shared/lib/learning-sync-store'
 
-export function resolveInitialLessonProgress(openedProgress: any, authLessonId: string, questId: string) {
+export function resolveInitialLessonProgress(openedProgress: any, authLessonId: string, questId: string, childId?: string | null) {
   const isLocallyCompleted =
     (typeof window !== 'undefined') &&
-    (localStorage.getItem(`aikids_lesson_completed_${authLessonId}`) === 'true' ||
-      localStorage.getItem(`aikids_lesson_completed_${questId}`) === 'true')
+    (getStoredItemWithFallback(`aikids_lesson_completed_${authLessonId}`, childId) === 'true' ||
+      getStoredItemWithFallback(`aikids_lesson_completed_${questId}`, childId) === 'true' ||
+      Number(getStoredItemWithFallback(`aikids_lesson_stars_${authLessonId}`, childId) || 0) >= 3 ||
+      Number(getStoredItemWithFallback(`aikids_lesson_stars_${questId}`, childId) || 0) >= 3)
   const status = isLocallyCompleted ? 'completed' : openedProgress?.status
   const stars = isLocallyCompleted ? 3 : clampStationStars(openedProgress?.stars)
   let cachedLocalStage = 0
@@ -557,15 +564,10 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
             nextQuestId: checkRes.nextQuestId || nextRuleTarget,
           })
           try {
-            if (quest?.id) localStorage.setItem(`aikids_lesson_completed_${quest.id}`, 'true')
-            if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-            if (progressId) localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
-
-            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, '3')
-            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '3')
-            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
+            saveLocalLessonProgress(progressId, 3, true, user?.id)
+            if (quest?.id && quest.id !== progressId) saveLocalLessonProgress(quest.id, 3, true, user?.id)
+            if (questId && questId !== progressId) saveLocalLessonProgress(questId, 3, true, user?.id)
+            if (authoritativeLessonId && authoritativeLessonId !== progressId) saveLocalLessonProgress(authoritativeLessonId, 3, true, user?.id)
 
             sessionStorage.removeItem(`aikids_stage_${quest.id}`)
             sessionStorage.removeItem(`aikids_stage_${questId}`)
@@ -579,10 +581,10 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         } else {
           setLiveStars(confirmedStars)
           try {
-            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, String(confirmedStars))
-            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
-            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
+            saveLocalLessonProgress(progressId, confirmedStars, false, user?.id)
+            if (quest?.id && quest.id !== progressId) saveLocalLessonProgress(quest.id, confirmedStars, false, user?.id)
+            if (questId && questId !== progressId) saveLocalLessonProgress(questId, confirmedStars, false, user?.id)
+            if (authoritativeLessonId && authoritativeLessonId !== progressId) saveLocalLessonProgress(authoritativeLessonId, confirmedStars, false, user?.id)
           } catch {
             // ignore storage failure
           }
@@ -605,6 +607,19 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         const progressId = authoritativeLessonId || quest.id || questId
         const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
 
+        // Lưu đồng bộ vào local cache (hỗ trợ offline và tương thích ngược)
+        saveLocalLessonProgress(progressId, confirmedStars, confirmedStars >= 3, user?.id)
+        if (quest?.id && quest.id !== progressId) saveLocalLessonProgress(quest.id, confirmedStars, confirmedStars >= 3, user?.id)
+        if (questId && questId !== progressId) saveLocalLessonProgress(questId, confirmedStars, confirmedStars >= 3, user?.id)
+        if (authoritativeLessonId && authoritativeLessonId !== progressId) saveLocalLessonProgress(authoritativeLessonId, confirmedStars, confirmedStars >= 3, user?.id)
+
+        // Đưa vào hàng đợi tự động sync lên DB khi mạng phục hồi
+        queuePendingSync({
+          lessonId: authoritativeLessonId || quest.id || questId,
+          answers: answersPayload,
+          childId: user?.id,
+        })
+
         if (confirmedStars >= 3) {
           quest.status = 'completed'
           setQuest((prev) => (prev ? { ...prev, status: 'completed' } : prev))
@@ -619,16 +634,6 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
             nextQuestId: nextRuleTarget,
           })
           try {
-            if (quest?.id) localStorage.setItem(`aikids_lesson_completed_${quest.id}`, 'true')
-            if (questId) localStorage.setItem(`aikids_lesson_completed_${questId}`, 'true')
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_completed_${authoritativeLessonId}`, 'true')
-            if (progressId) localStorage.setItem(`aikids_lesson_completed_${progressId}`, 'true')
-
-            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, '3')
-            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, '3')
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '3')
-            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, '3')
-
             sessionStorage.removeItem(`aikids_stage_${quest.id}`)
             sessionStorage.removeItem(`aikids_stage_${questId}`)
             if (authoritativeLessonId) sessionStorage.removeItem(`aikids_stage_${authoritativeLessonId}`)
@@ -640,14 +645,6 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
           window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
         } else {
           setLiveStars(confirmedStars)
-          try {
-            if (quest?.id) localStorage.setItem(`aikids_lesson_stars_${quest.id}`, String(confirmedStars))
-            if (questId) localStorage.setItem(`aikids_lesson_stars_${questId}`, String(confirmedStars))
-            if (authoritativeLessonId) localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, String(confirmedStars))
-            if (progressId) localStorage.setItem(`aikids_lesson_stars_${progressId}`, String(confirmedStars))
-          } catch {
-            // ignore
-          }
         }
         void queryClient.invalidateQueries({ queryKey: ['progression'] })
         void queryClient.invalidateQueries({ queryKey: ['pathway'] })

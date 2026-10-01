@@ -21,6 +21,11 @@ import {
   OfficialCourseCard,
 } from '@/features/home/components'
 import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
+import {
+  getLocalProgress,
+  getIslandLocalProgress,
+  flushPendingSyncQueue,
+} from '@/shared/lib/learning-sync-store'
 import { resolveNextActiveStation } from '../lib/home-active-station'
 
 type EnrollmentSummary = {
@@ -331,46 +336,8 @@ export function HomePage() {
         const questCount = pathwayItem?.questCount || island.defaultQuestCount
 
         // Tính toán tiến trình thực tế kết hợp từ LocalStorage và Server API
-        let localCompletedCount = 0
-        let localStars = 0
-        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-          if (index === 0) {
-            for (let r = 1; r <= 10; r++) {
-              const done =
-                localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
-                localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
-                Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3 ||
-                Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0) >= 3
-              if (done) {
-                localCompletedCount++
-                const stars = Math.max(
-                  Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0),
-                  Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0),
-                  3,
-                )
-                localStars += stars
-              }
-            }
-          } else {
-            const islandLessons = ISLAND_CURRICULUM_LESSONS.filter((l) => (l.islandNumber || 1) === index)
-            for (const lesson of islandLessons) {
-              const isLessonDone =
-                localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
-                localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
-                Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
-                Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
-              if (isLessonDone) {
-                localCompletedCount++
-                const stars = Math.max(
-                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0),
-                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0),
-                  3,
-                )
-                localStars += stars
-              }
-            }
-          }
-        }
+        const { completedCount: localCompletedCount, totalStars: localStars } =
+          getIslandLocalProgress(index, user?.id)
 
         const serverCompleted =
           pathwayItem?.completedCount ??
@@ -435,36 +402,8 @@ export function HomePage() {
         OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
           const p = pathwayList[index]
           const questCount = p?.questCount ?? island.defaultQuestCount
-          let localCompletedCount = 0
-          let localStars = 0
-          if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-            if (index === 0) {
-              for (let r = 1; r <= 10; r++) {
-                const done =
-                  localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
-                  localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
-                  Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3 ||
-                  Number(localStorage.getItem(`aikids_lesson_stars_bai-0-${r}`) || 0) >= 3
-                if (done) {
-                  localCompletedCount++
-                  localStars += 3
-                }
-              }
-            } else {
-              const islandLessons = ISLAND_CURRICULUM_LESSONS.filter((l) => (l.islandNumber || 1) === index)
-              for (const lesson of islandLessons) {
-                const isLessonDone =
-                  localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
-                  localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
-                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
-                  Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
-                if (isLessonDone) {
-                  localCompletedCount++
-                  localStars += 3
-                }
-              }
-            }
-          }
+          const { completedCount: localCompletedCount, totalStars: localStars } =
+            getIslandLocalProgress(index, user?.id)
           const completedCount = Math.max(p?.completedCount ?? 0, localCompletedCount)
           const totalStars = Math.max(p?.totalStars ?? 0, localStars)
           const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
@@ -515,7 +454,16 @@ export function HomePage() {
   }, [user?.id])
 
   useEffect(() => {
+    void flushPendingSyncQueue()
     void load()
+
+    const onLessonCompleted = () => {
+      void load()
+    }
+    window.addEventListener('aikids:lesson-completed', onLessonCompleted)
+    return () => {
+      window.removeEventListener('aikids:lesson-completed', onLessonCompleted)
+    }
   }, [load])
 
   const isPurchased = courses.some(

@@ -63,7 +63,10 @@ import {
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
-import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
+import {
+  getLocalProgress,
+  flushPendingSyncQueue,
+} from '@/shared/lib/learning-sync-store'
 
 const BookSpread = lazy(() =>
   import('@/features/storybook/components/BookSpread').then((module) => ({ default: module.BookSpread })),
@@ -183,46 +186,6 @@ function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
 }
 
 export type ProfileTabSection = 'progress' | 'certificates' | 'storybook' | 'memories' | 'customize'
-
-function getLocalLearningProgress(): { completedCount: number; totalStars: number } {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    return { completedCount: 0, totalStars: 0 }
-  }
-  let localCompleted = 0
-  let localStars = 0
-
-  // 1. Quét 10 quy tắc vàng (Đảo Tiên Quyết)
-  for (let r = 1; r <= 10; r++) {
-    const isDone =
-      localStorage.getItem(`aikids_lesson_completed_rule-${r}`) === 'true' ||
-      localStorage.getItem(`aikids_lesson_completed_bai-0-${r}`) === 'true' ||
-      Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0) >= 3
-    const stars = Math.max(
-      Number(localStorage.getItem(`aikids_lesson_stars_rule-${r}`) || 0),
-      isDone ? 3 : 0
-    )
-    if (isDone) localCompleted++
-    localStars += stars
-  }
-
-  // 2. Quét 22 bài học thuộc 5 đảo chính thức
-  for (const lesson of ISLAND_CURRICULUM_LESSONS) {
-    const isDone =
-      localStorage.getItem(`aikids_lesson_completed_${lesson.id}`) === 'true' ||
-      localStorage.getItem(`aikids_lesson_completed_${lesson.slug}`) === 'true' ||
-      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0) >= 3 ||
-      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0) >= 3
-    const stars = Math.max(
-      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.id}`) || 0),
-      Number(localStorage.getItem(`aikids_lesson_stars_${lesson.slug}`) || 0),
-      isDone ? 3 : 0
-    )
-    if (isDone) localCompleted++
-    localStars += stars
-  }
-
-  return { completedCount: localCompleted, totalStars: localStars }
-}
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
@@ -362,8 +325,8 @@ export function ProfilePage() {
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projects, setProjects] = useState<ShowcaseProject[]>([])
-  const [completedStations, setCompletedStations] = useState<number>(() => getLocalLearningProgress().completedCount)
-  const [starsCollected, setStarsCollected] = useState<number>(() => getLocalLearningProgress().totalStars)
+  const [completedStations, setCompletedStations] = useState<number>(() => getLocalProgress(user?.id).completedCount)
+  const [starsCollected, setStarsCollected] = useState<number>(() => getLocalProgress(user?.id).totalStars)
   const [pathwayCourses, setPathwayCourses] = useState<LearningPathwayCourse[]>([])
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
@@ -389,6 +352,7 @@ export function ProfilePage() {
   )
 
   useEffect(() => {
+    void flushPendingSyncQueue()
     let active = true
     const loadVersion = equipmentMutationVersion.current
 
@@ -396,10 +360,10 @@ export function ProfilePage() {
       setPathwayCourses(courses)
       const serverComp = courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
       const serverStars = courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
-      const { completedCount: localComp, totalStars: localStars } = getLocalLearningProgress()
+      const localProgress = getLocalProgress(user?.id)
 
-      const finalComp = Math.max(serverComp, localComp)
-      const finalStars = Math.max(serverStars, localStars)
+      const finalComp = Math.max(serverComp, localProgress.completedCount)
+      const finalStars = Math.max(serverStars, localProgress.totalStars)
 
       setCompletedStations(finalComp)
       setStarsCollected(finalStars)
@@ -539,8 +503,16 @@ export function ProfilePage() {
         if (active) setLoading(false)
       })
 
+    const onLessonCompleted = () => {
+      const localProgress = getLocalProgress(user?.id)
+      setCompletedStations((prev) => Math.max(prev, localProgress.completedCount))
+      setStarsCollected((prev) => Math.max(prev, localProgress.totalStars))
+    }
+    window.addEventListener('aikids:lesson-completed', onLessonCompleted)
+
     return () => {
       active = false
+      window.removeEventListener('aikids:lesson-completed', onLessonCompleted)
     }
   }, [user?.id])
 
