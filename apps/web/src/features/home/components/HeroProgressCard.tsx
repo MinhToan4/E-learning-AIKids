@@ -27,6 +27,7 @@ export interface HeroProgressCardProps {
   dailyMission?: HeroDailyMissionProp | null
   streakDays?: number
   streakLabel?: string
+  hasStarted?: boolean
 }
 
 export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
@@ -43,8 +44,9 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
   className = '',
   activeStation,
   dailyMission,
-  streakDays = 3,
+  streakDays = 0,
   streakLabel: _streakLabel,
+  hasStarted = false,
 }) => {
   const displayIslandTitle = activeStation?.islandTitle || activeIslandTitle
   const displayStationLabel = activeStation?.stationLabel || activeStationLabel
@@ -126,7 +128,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
           {/* Bài học tiếp theo */}
           <div>
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-              Học tiếp • Cấp {explorerLevel}
+              {hasStarted ? 'Học tiếp' : 'Bắt đầu'} • Cấp {explorerLevel}
             </span>
             <h2 className="font-black text-slate-900 leading-tight text-xl sm:text-2xl md:text-3xl break-words">
               {displayStationTitle}
@@ -187,7 +189,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
                 onClick={onStartLesson}
                 className="flex min-h-12 w-full min-w-0 items-center justify-center rounded-2xl border border-orange-400 bg-gradient-to-r from-orange-500 to-amber-500 px-4 text-sm font-black text-white shadow-[0_5px_0_#c2410c] transition-all hover:from-orange-600 hover:to-amber-600 active:translate-y-1 active:shadow-none sm:flex-1 sm:text-base cursor-pointer"
               >
-                Học tiếp {displayStationLabel}
+                {hasStarted ? 'Học tiếp' : 'Bắt đầu'} {displayStationLabel}
               </button>
             )}
 

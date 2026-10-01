@@ -79,6 +79,20 @@ describe('resolveNextActiveStation', () => {
     },
   ]
 
+  const withCompleted = (courses: CourseSummary[], lessonIds: string[]): CourseSummary[] => [
+    {
+      ...courses[0],
+      quests: lessonIds.map((id, index) => ({
+        id,
+        order: index + 1,
+        title: id,
+        status: 'completed',
+        stars: 3,
+      })) as any,
+    },
+    ...courses.slice(1),
+  ]
+
   it('resolves to Lesson 1.1 when student has no completed lessons', () => {
     const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
 
@@ -91,10 +105,19 @@ describe('resolveNextActiveStation', () => {
     expect(active.isAllCompleted).toBe(false)
   })
 
-  it('resolves to Lesson 1.2 when Lesson 1.1 is completed in localStorage', () => {
-    store.set('aikids_lesson_completed_bai-1-1', 'true')
+  it('ignores stale browser progress when backend reports a fresh learner', () => {
+    store.set('aikids:child-fresh:aikids_lesson_completed_bai-1-1', 'true')
+    store.set('aikids:child-fresh:aikids_lesson_stars_bai-1-1', '3')
 
-    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+    const freshCourses = mockCourses.map((course) => ({ ...course, progressPct: 0 }))
+    const active = resolveNextActiveStation(freshCourses, 'Bé Mới', 'child-fresh')
+
+    expect(active.stationLabel).toBe('Bài 1.1')
+    expect(active.progressPct).toBe(0)
+  })
+
+  it('resolves to Lesson 1.2 when Lesson 1.1 is completed by the backend', () => {
+    const active = resolveNextActiveStation(withCompleted(mockCourses, ['bai-1-1']), 'Bé Bo')
 
     expect(active.stationLabel).toBe('Bài 1.2')
     expect(active.route).toBe('/world/dao-1/lesson/bai-1-2-bon-chiec-chia-khoa')
@@ -102,10 +125,10 @@ describe('resolveNextActiveStation', () => {
   })
 
   it('resolves to Lesson 1.3 when Lesson 1.1 and 1.2 are completed', () => {
-    store.set('aikids_lesson_completed_bai-1-1', 'true')
-    store.set('aikids_lesson_stars_bai-1-2-bon-chiec-chia-khoa', '3')
-
-    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+    const active = resolveNextActiveStation(
+      withCompleted(mockCourses, ['bai-1-1', 'bai-1-2-bon-chiec-chia-khoa']),
+      'Bé Bo',
+    )
 
     expect(active.stationLabel).toBe('Bài 1.3')
     expect(active.route).toBe('/world/dao-1/lesson/bai-1-3-um-ba-la-bien-hinh')
@@ -113,11 +136,14 @@ describe('resolveNextActiveStation', () => {
   })
 
   it('resolves to Lesson 1.4 with 75% progress when Lessons 1.1, 1.2, 1.3 are completed', () => {
-    store.set('aikids_lesson_completed_bai-1-1', 'true')
-    store.set('aikids_lesson_completed_bai-1-2-bon-chiec-chia-khoa', 'true')
-    store.set('aikids_lesson_completed_bai-1-3-um-ba-la-bien-hinh', 'true')
-
-    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+    const active = resolveNextActiveStation(
+      withCompleted(mockCourses, [
+        'bai-1-1',
+        'bai-1-2-bon-chiec-chia-khoa',
+        'bai-1-3-um-ba-la-bien-hinh',
+      ]),
+      'Bé Bo',
+    )
 
     expect(active.stationLabel).toBe('Bài 1.4')
     expect(active.islandNumber).toBe(1)
@@ -126,12 +152,15 @@ describe('resolveNextActiveStation', () => {
   })
 
   it('moves to Island 2 (Lesson 2.1) when all Island 1 lessons are completed', () => {
-    store.set('aikids_lesson_completed_bai-1-1', 'true')
-    store.set('aikids_lesson_completed_bai-1-2-bon-chiec-chia-khoa', 'true')
-    store.set('aikids_lesson_completed_bai-1-3-um-ba-la-bien-hinh', 'true')
-    store.set('aikids_lesson_completed_bai-1-4', 'true')
-
-    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+    const active = resolveNextActiveStation(
+      withCompleted(mockCourses, [
+        'bai-1-1',
+        'bai-1-2-bon-chiec-chia-khoa',
+        'bai-1-3-um-ba-la-bien-hinh',
+        'bai-1-4',
+      ]),
+      'Bé Bo',
+    )
 
     expect(active.islandNumber).toBe(2)
     expect(active.islandSlug).toBe('dao-2')
@@ -158,11 +187,10 @@ describe('resolveNextActiveStation', () => {
   })
 
   it('handles the edge case when all 22 lessons are completed', () => {
-    for (const lesson of ISLAND_CURRICULUM_LESSONS) {
-      store.set(`aikids_lesson_completed_${lesson.id}`, 'true')
-    }
-
-    const active = resolveNextActiveStation(mockCourses, 'Nhà Thám Hiểm')
+    const active = resolveNextActiveStation(
+      withCompleted(mockCourses, ISLAND_CURRICULUM_LESSONS.map((lesson) => lesson.id)),
+      'Nhà Thám Hiểm',
+    )
 
     expect(active.isAllCompleted).toBe(true)
     expect(active.progressPct).toBe(100)
@@ -200,9 +228,11 @@ describe('resolveNextActiveStation', () => {
     })
 
     it('advances to Rule 2 when Rule 1 is completed for unpaid child', () => {
-      store.set('aikids:child-unpaid:aikids_lesson_completed_rule-1', 'true')
-
-      const active = resolveNextActiveStation(lockedCourses, 'Bé Bo', 'child-unpaid')
+      const active = resolveNextActiveStation(
+        withCompleted(lockedCourses, ['rule-1']),
+        'Bé Bo',
+        'child-unpaid',
+      )
 
       expect(active.stationLabel).toBe('Quy tắc 2')
       expect(active.lessonSlug).toBe('rule-2')
@@ -210,11 +240,11 @@ describe('resolveNextActiveStation', () => {
     })
 
     it('shows unlock subscription card when all 10 Golden Rules are completed but Island 1 is locked', () => {
-      for (let r = 1; r <= 10; r++) {
-        store.set(`aikids:child-unpaid:aikids_lesson_completed_rule-${r}`, 'true')
-      }
-
-      const active = resolveNextActiveStation(lockedCourses, 'Bé Bo', 'child-unpaid')
+      const active = resolveNextActiveStation(
+        withCompleted(lockedCourses, Array.from({ length: 10 }, (_, index) => `rule-${index + 1}`)),
+        'Bé Bo',
+        'child-unpaid',
+      )
 
       expect(active.stationLabel).toBe('Mở khóa')
       expect(active.stationTitle).toBe('Mở khóa 5 Khóa Học Sáng Tạo')

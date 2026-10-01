@@ -22,8 +22,6 @@ import {
 } from '@/features/home/components'
 import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 import {
-  getLocalProgress,
-  getIslandLocalProgress,
   flushPendingSyncQueue,
 } from '@/shared/lib/learning-sync-store'
 import { resolveNextActiveStation } from '../lib/home-active-station'
@@ -289,7 +287,7 @@ export function HomePage() {
   const courseOverallProgressPct = totalStationsCount > 0
     ? Math.min(100, Math.round((completedStationsCount / totalStationsCount) * 100))
     : 0
-  const streakInfo = streakState((user as any)?.currentStreak ?? 3, (user as any)?.lastActivityDate ?? null)
+  const streakInfo = streakState((user as any)?.currentStreak ?? 0, (user as any)?.lastActivityDate ?? null)
 
   const childDisplayName = user?.nickname || user?.name || 'Bé'
   const load = useCallback(async () => {
@@ -335,10 +333,6 @@ export function HomePage() {
 
         const questCount = pathwayItem?.questCount || island.defaultQuestCount
 
-        // Tính toán tiến trình thực tế kết hợp từ LocalStorage và Server API
-        const { completedCount: localCompletedCount, totalStars: localStars } =
-          getIslandLocalProgress(index, user?.id)
-
         const serverCompleted =
           pathwayItem?.completedCount ??
           (pathwayItem?.stations ? pathwayItem.stations.filter((s: any) => s.status === 'completed').length : 0)
@@ -347,8 +341,10 @@ export function HomePage() {
           (pathwayItem?.stations ? pathwayItem.stations.reduce((sum: number, s: any) => sum + Number(s.stars || 0), 0) : 0)
 
         const existing = foundIndex >= 0 ? canonicalCourses[foundIndex] : null
-        const completedCount = Math.max(existing?.completedCount ?? 0, serverCompleted, localCompletedCount)
-        const totalStars = Math.max(existing?.totalStars ?? 0, serverStars, localStars)
+        // DB/API is the progress SSOT. Browser storage is only an offline write
+        // queue and must never inflate another learner's official dashboard.
+        const completedCount = pathwayItem ? serverCompleted : (existing?.completedCount ?? 0)
+        const totalStars = pathwayItem ? serverStars : (existing?.totalStars ?? 0)
         const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
         const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || index === 0 || existing?.enrolled)
 
@@ -402,10 +398,8 @@ export function HomePage() {
         OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
           const p = pathwayList[index]
           const questCount = p?.questCount ?? island.defaultQuestCount
-          const { completedCount: localCompletedCount, totalStars: localStars } =
-            getIslandLocalProgress(index, user?.id)
-          const completedCount = Math.max(p?.completedCount ?? 0, localCompletedCount)
-          const totalStars = Math.max(p?.totalStars ?? 0, localStars)
+          const completedCount = p?.completedCount ?? 0
+          const totalStars = p?.totalStars ?? 0
           const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
           fallbackCourses.push({
             id: island.slug,
@@ -483,8 +477,23 @@ export function HomePage() {
         ? user.avatarId
         : avatarImage(user?.avatarId) || designerAssets.brand.modalMascot || designerAssets.catPoses.welcome
 
-  const streakDays = (user as any)?.currentStreak || 3
+  const streakDays = (user as any)?.currentStreak ?? 0
   const activeStation = resolveNextActiveStation(courses, childDisplayName, user?.id)
+  const hasLearningActivity = courses.some((course) => {
+    const stations = (course.quests ?? (course as any).stations ?? []) as Array<{
+      status?: string
+      stars?: number
+    }>
+    return (
+      (course.completedCount ?? 0) > 0 ||
+      (course.totalStars ?? 0) > 0 ||
+      stations.some((station) =>
+        station.status === 'in_progress' ||
+        station.status === 'completed' ||
+        Number(station.stars ?? 0) > 0,
+      )
+    )
+  })
   const activeCourse = courses.find((c) => c.enrolled && (c.progressPct ?? 0) < 100) || courses[0]
   const activeIslandLabel = activeStation.islandTitle || activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
 
@@ -599,6 +608,7 @@ export function HomePage() {
             }
             streakDays={streakDays}
             streakLabel={streakInfo.label}
+            hasStarted={hasLearningActivity}
             onStartLesson={() => navigate(activeStation.route)}
             onOpenMap={() => navigate('/world/program/aikid_official')}
           />

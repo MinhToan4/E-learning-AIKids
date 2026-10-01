@@ -1,6 +1,5 @@
 import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
-import { getLocalProgress } from '@/shared/lib/learning-sync-store'
 import type { CourseSummary } from '@/shared/lib/api'
 
 export interface HomeActiveStation {
@@ -17,19 +16,47 @@ export interface HomeActiveStation {
   isAllCompleted: boolean
 }
 
+function serverLessonCompleted(
+  courses: CourseSummary[],
+  identifiers: Array<string | undefined>,
+): boolean {
+  const expected = identifiers.filter(Boolean).map((value) => String(value).toLowerCase())
+  return courses.some((course) => {
+    const stations = ((course as any).quests || (course as any).stations || []) as any[]
+    return stations.some((station) => {
+      const values = [
+        station?.id,
+        station?.slug,
+        station?.questId,
+        station?.lessonId,
+        station?.stationId,
+      ].filter(Boolean).map((value) => String(value).toLowerCase())
+      const title = String(station?.title ?? '').toLowerCase()
+      const matches = expected.some((identifier) =>
+        values.includes(identifier) ||
+        (identifier.match(/^\d+\.\d+$/) && title.includes(identifier)) ||
+        (identifier.match(/^(?:rule-|bai-0-)(\d+)$/) &&
+          new RegExp(`(?:qt|quy tắc)\\s*${identifier.match(/\d+/)?.[0]}(?:\\D|$)`, 'i').test(title)),
+      )
+      return matches && (station?.status === 'completed' || Number(station?.stars || 0) >= 3)
+    })
+  })
+}
+
 export function resolveNextActiveStation(
   courses: CourseSummary[] = [],
   userName: string = 'Bé',
-  childId?: string | null,
+  _childId?: string | null,
 ): HomeActiveStation {
-  const { completedLessonIds, lessonStars } = getLocalProgress(childId)
-
   // Phân định quyền truy cập theo Gói Đăng Ký (Subscription Gate):
   // Kiểm tra xem 5 đảo sáng tạo có đang bị khóa không:
   const island1 = courses.find(
     (c) =>
       c.id === 'dao-1' ||
       (c as any).slug === 'dao-1-nha-tham-hiem-ai' ||
+      c.courseKey?.includes('dao-1-nha-tham-hiem-ai') ||
+      c.shortTitle?.toLowerCase().includes('nhà thám hiểm') ||
+      c.title?.toLowerCase().includes('nhà thám hiểm') ||
       c.shortTitle?.includes('Đảo 1') ||
       c.title?.includes('Đảo 1'),
   )
@@ -39,7 +66,7 @@ export function resolveNextActiveStation(
     // Quét 10 Quy Tắc Vàng (Đảo Tiên Quyết - hoàn toàn miễn phí):
     // Tìm quy tắc đầu tiên từ 1 đến 10 chưa hoàn thành:
     for (let r = 1; r <= 10; r++) {
-      const isDone = completedLessonIds.has(`rule-${r}`) || completedLessonIds.has(`bai-0-${r}`)
+      const isDone = serverLessonCompleted(courses, [`rule-${r}`, `bai-0-${r}`])
       if (!isDone) {
         // Tìm thấy quy tắc vàng tiếp theo cần học!
         const ruleData = AIKI_RULES_DATA.find((rule) => rule.id === r) || AIKI_RULES_DATA[0]
@@ -77,39 +104,10 @@ export function resolveNextActiveStation(
 
   // Nếu Đảo 1 đã được mở khóa: Quét qua danh sách 22 bài học của các đảo theo thứ tự
   for (const lesson of ISLAND_CURRICULUM_LESSONS) {
-    const localCompleted =
-      completedLessonIds.has(lesson.id) ||
-      (lesson.slug ? completedLessonIds.has(lesson.slug) : false) ||
-      (lesson.lessonNumber ? completedLessonIds.has(lesson.lessonNumber) : false) ||
-      (lessonStars[lesson.id] ?? 0) >= 3 ||
-      (lesson.slug ? (lessonStars[lesson.slug] ?? 0) >= 3 : false) ||
-      (lesson.lessonNumber ? (lessonStars[lesson.lessonNumber] ?? 0) >= 3 : false)
-
-    let serverCompleted = false
-    if (courses && courses.length > 0) {
-      const identifiers = [lesson.id, lesson.slug]
-      const matches = (val?: string) => Boolean(val && identifiers.includes(val))
-
-      for (const c of courses) {
-        const quests = (c as any).quests || (c as any).stations || []
-        if (Array.isArray(quests)) {
-          const q = quests.find(
-            (item: any) =>
-              matches(item?.id) ||
-              matches(item?.slug) ||
-              matches(item?.questId) ||
-              matches(item?.lessonId) ||
-              matches(item?.stationId),
-          )
-          if (q && (q.status === 'completed' || Number(q.stars || 0) >= 3)) {
-            serverCompleted = true
-            break
-          }
-        }
-      }
-    }
-
-    const isCompleted = Boolean(localCompleted || serverCompleted)
+    const isCompleted = serverLessonCompleted(
+      courses,
+      [lesson.id, lesson.slug, lesson.lessonNumber],
+    )
 
     if (!isCompleted) {
       // Tìm thấy bài học đầu tiên chưa hoàn thành!
@@ -160,13 +158,7 @@ export function resolveNextActiveStation(
       const islandTotal = islandLessons.length || 4
       let islandDone = 0
       for (const il of islandLessons) {
-        const done =
-          completedLessonIds.has(il.id) ||
-          (il.slug ? completedLessonIds.has(il.slug) : false) ||
-          (il.lessonNumber ? completedLessonIds.has(il.lessonNumber) : false) ||
-          (lessonStars[il.id] ?? 0) >= 3 ||
-          (il.slug ? (lessonStars[il.slug] ?? 0) >= 3 : false) ||
-          (il.lessonNumber ? (lessonStars[il.lessonNumber] ?? 0) >= 3 : false)
+        const done = serverLessonCompleted(courses, [il.id, il.slug, il.lessonNumber])
         if (done) islandDone++
       }
       const calculatedPct = islandTotal > 0 ? Math.round((islandDone / islandTotal) * 100) : 0
