@@ -15,9 +15,11 @@ export interface PracticeStageBlockProps {
   activePracticePartIndex?: number
   onPartChange?: (index: number) => void
   onPracticePartsSync?: (parts: PracticePartState[], activeIdx: number) => void
-  onSubmitWork?: (data: { selectedImage: any; prompt: string }) => void
+  onSubmitWork?: (data: { selectedImage: any; prompt: string; practiceState?: any }) => void
   onBackToLesson?: () => void
   onReplayVideo?: () => void
+  initialPracticeState?: any
+  onPracticeStateChange?: (state: any) => void
 }
 
 export function PracticeStageBlock({
@@ -31,6 +33,8 @@ export function PracticeStageBlock({
   onSubmitWork,
   onBackToLesson,
   onReplayVideo,
+  initialPracticeState,
+  onPracticeStateChange,
 }: PracticeStageBlockProps) {
   const { config } = stage
   const parts = config.defaultPracticeParts || (config as any).practiceParts || []
@@ -67,6 +71,8 @@ export function PracticeStageBlock({
           onReplayVideo={onReplayVideo}
           initialAttemptsLeft={attempts}
           studentStars={studentStars}
+          initialPracticeState={initialPracticeState}
+          onPracticeStateChange={onPracticeStateChange}
         />
       ) : (
         <React.Suspense

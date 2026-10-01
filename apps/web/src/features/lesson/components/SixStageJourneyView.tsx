@@ -66,6 +66,8 @@ export interface SixStageJourneyViewProps {
   }
   onVideoCompleted?: () => void
   isSavingProgress?: boolean
+  initialPracticeState?: any
+  onPracticeStateChange?: (state: any) => void
 }
 
 export const STAGES = [
@@ -169,6 +171,8 @@ export function SixStageJourneyView(props: SixStageJourneyViewProps) {
                 state.setActivePracticePartIndex(activeIdx)
               }}
               onSubmitWork={state.handleSubmitWork}
+              initialPracticeState={props.initialPracticeState}
+              onPracticeStateChange={state.handlePracticeStateChange}
               onBackToLesson={() => state.handleStageSelect(state.indices.quizIdx >= 0 ? state.indices.quizIdx : Math.max(0, state.currentStage - 1))}
               onReplayVideo={() => state.handleStageSelect(state.indices.videoIdx >= 0 ? state.indices.videoIdx : Math.max(0, state.currentStage - 2))}
               // Reward stage props

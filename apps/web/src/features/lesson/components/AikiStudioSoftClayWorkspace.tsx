@@ -3,6 +3,20 @@ import { Backpack, Sparkles } from 'lucide-react'
 import { playInstantSound } from '../lib/lesson-sound'
 import { cn } from '@/shared/lib/cn'
 import { getDefaultPracticeParts } from '../lib/practice-parts'
+import { learningApi } from '@/shared/lib/learning-api'
+
+export interface PracticeState {
+  attemptsLeft?: number
+  generatedCount?: number
+  turn1Artworks?: Record<number, { url: string; prompt: string }>
+  turn2Artworks?: Record<number, { url: string; prompt: string }>
+  committedArtworksByPart?: Record<number, { url: string; prompt: string }>
+  completedParts?: number[]
+  turnByPart?: Record<number, 1 | 2>
+  favoriteByPart?: Record<number, 1 | 2>
+  favoriteReasonByPart?: Record<number, string>
+  isSubmitted?: boolean
+}
 
 export interface AikiStudioSoftClayWorkspaceProps {
   lessonId?: string
@@ -12,110 +26,25 @@ export interface AikiStudioSoftClayWorkspaceProps {
   activePartIndex?: number
   onPartChange?: (index: number) => void
   onPracticePartsSync?: (parts: any[], activeIdx: number) => void
-  onSubmitWork?: (data: { selectedImage: any; prompt: string }) => void
+  onSubmitWork?: (data: { selectedImage: any; prompt: string; practiceState?: PracticeState }) => void
   onBackToLesson?: () => void
   onReplayVideo?: () => void
   initialAttemptsLeft?: number
+  initialPracticeState?: Partial<PracticeState>
+  onPracticeStateChange?: (state: PracticeState) => void
   studentStars?: number
   generateDurationMs?: number
   className?: string
 }
 
-interface GoldenKeyOption {
-  id: string
-  label: string
-  text: string
-}
+import {
+  type GoldenKeyOption,
+  type GoldenKeyVocabulary,
+  VOCABULARY_BY_TYPE,
+  VOCABULARY_1_1,
+} from '../data/studio-soft-clay-vocabulary'
 
-interface GoldenKeyVocabulary {
-  descriptions: GoldenKeyOption[]
-  actions: GoldenKeyOption[]
-  contexts: GoldenKeyOption[]
-}
 
-const VOCABULARY_BY_TYPE: Record<string, GoldenKeyVocabulary> = {
-  cat: {
-    descriptions: [
-      { id: 'beo-tron', label: 'Mèo mướp vàng béo tròn', text: 'mèo mướp vàng béo tròn' },
-      { id: 'chuong-vang', label: 'Đeo chuông vàng cổ', text: 'đeo chuông vàng ở cổ' },
-      { id: 'long-van', label: 'Lông vằn vàng óng', text: 'lông vằn vàng óng' },
-    ],
-    actions: [
-      { id: 'dao-buoc', label: 'Đang nằm ngủ cuộn tròn', text: 'đang nằm ngủ cuộn tròn' },
-      { id: 'liem-chan', label: 'Liếm chân sạch sẽ', text: 'liếm chân sạch sẽ' },
-      { id: 'vuon-vai', label: 'Vươn vai lười biếng', text: 'vươn vai lười biếng' },
-    ],
-    contexts: [
-      { id: 'them-nha', label: 'Trên chiếc ghế mây cạnh cửa sổ', text: 'trên chiếc ghế mây cạnh cửa sổ' },
-      { id: 'hien-nha', label: 'Hiên nhà ngập hoa', text: 'ở hiên nhà ngập hoa' },
-      { id: 'tham-co', label: 'Bãi cỏ xanh mướt', text: 'trên bãi cỏ xanh mướt' },
-    ],
-  },
-  fish: {
-    descriptions: [
-      { id: 'vay-anh-bac', label: 'Vảy ánh bạc lấp lánh', text: 'vảy ánh bạc lấp lánh' },
-      { id: 'duoi-lua', label: 'Đuôi xòe như tơ lụa', text: 'đuôi xòe như tơ lụa' },
-      { id: 'bung-tron', label: 'Bụng tròn màu cam đào', text: 'bụng tròn màu cam đào' },
-    ],
-    actions: [
-      { id: 'dop-bot', label: 'Đang đớp bọt nước', text: 'đang đớp bọt nước' },
-      { id: 'luon-vong', label: 'Lượn vòng quanh rong biển', text: 'lượn vòng quanh rong biển' },
-      { id: 'boi-lung-lo', label: 'Bơi lững lờ dưới nắng', text: 'bơi lững lờ dưới nắng' },
-    ],
-    contexts: [
-      { id: 'be-soi', label: 'Trong bể cá nhỏ rải sỏi', text: 'trong bể cá nhỏ rải sỏi' },
-      { id: 'ho-sen', label: 'Giữa hồ sen thơm ngát', text: 'giữa hồ sen thơm ngát' },
-      { id: 'thuy-sinh', label: 'Cạnh cây thủy sinh xanh biếc', text: 'cạnh cây thủy sinh xanh biếc' },
-    ],
-  },
-  dog: {
-    descriptions: [
-      { id: 'tai-cup', label: 'Lông vàng hai tai cụp', text: 'lông vàng hai tai cụp' },
-      { id: 'trang-dom', label: 'Trắng đốm nâu quanh mắt', text: 'trắng đốm nâu quanh mắt' },
-      { id: 'khan-do', label: 'Đeo khăn đỏ ở cổ', text: 'đeo khăn đỏ ở cổ' },
-    ],
-    actions: [
-      { id: 'duoi-bong', label: 'Đang chạy đuổi quả bóng', text: 'đang chạy đuổi quả bóng' },
-      { id: 'vay-duoi', label: 'Đang ngồi vẫy đuôi chờ', text: 'đang ngồi vẫy đuôi chờ' },
-      { id: 'tha-dep', label: 'Đang tha một chiếc dép', text: 'đang tha một chiếc dép' },
-    ],
-    contexts: [
-      { id: 'san-gach-do', label: 'Ở góc sân gạch đỏ', text: 'ở góc sân gạch đỏ' },
-      { id: 'tham-phong-khach', label: 'Trên thảm phòng khách', text: 'trên thảm phòng khách' },
-    ],
-  },
-  bicycle: {
-    descriptions: [
-      { id: 'son-xanh-bong', label: 'Cũ sơn xanh bong từng mảng', text: 'cũ sơn xanh bong từng mảng' },
-      { id: 'mini-gio-may', label: 'Xe mini có giỏ mây trước', text: 'xe mini có giỏ mây trước' },
-      { id: 'mau-do-chuong-sang', label: 'Màu đỏ còn mới chuông sáng', text: 'màu đỏ còn mới chuông sáng' },
-    ],
-    actions: [
-      { id: 'nghieng-vao-tuong', label: 'Đang dựa nghiêng vào tường', text: 'đang dựa nghiêng vào tường' },
-      { id: 'cho-bo-rau', label: 'Giỏ trước đang chở bó rau', text: 'giỏ trước đang chở bó rau' },
-      { id: 'do-nen-dat', label: 'Đang đổ nằm trên nền đất', text: 'đang đổ nằm trên nền đất' },
-    ],
-    contexts: [
-      { id: 'goc-san-gach', label: 'Ở góc sân gạch', text: 'ở góc sân gạch' },
-      { id: 'truoc-cong-truong', label: 'Trước cổng trường', text: 'trước cổng trường' },
-    ],
-  },
-}
-
-// SSOT Từ vựng chính xác cho Bài 1.1: Một từ hay năm từ (Kịch bản Google Sheet FIX)
-const VOCABULARY_1_1: Record<string, GoldenKeyVocabulary> = {
-  cat: {
-    descriptions: [
-      { id: 'long-mau-trang', label: 'Lông màu trắng', text: 'lông màu trắng' },
-    ],
-    actions: [
-      { id: 'dang-nam-nham-mat', label: 'Đang nằm nhắm mắt', text: 'đang nằm nhắm mắt' },
-    ],
-    contexts: [
-      { id: 'o-truoc-san', label: 'Ở trước sân', text: 'ở trước sân' },
-    ],
-  },
-}
 
 const LESSON_1_1_REASONS = [
   'Vì nó giống con vật trong đầu tớ',
@@ -258,17 +187,7 @@ const DEFAULT_PARTS_MAPPING_1_1 = [
 ]
 
 
-interface StoredPracticeData {
-  attemptsLeft?: number
-  turn1Artworks?: Record<number, { url: string; prompt: string }>
-  turn2Artworks?: Record<number, { url: string; prompt: string }>
-  committedArtworksByPart?: Record<number, { url: string; prompt: string }>
-  completedParts?: number[]
-  turnByPart?: Record<number, 1 | 2>
-  favoriteByPart?: Record<number, 1 | 2>
-  favoriteReasonByPart?: Record<number, string>
-  isSubmitted?: boolean
-}
+type StoredPracticeData = PracticeState
 
 function getStoredPracticeData(key: string): StoredPracticeData | null {
   if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return null
@@ -298,7 +217,12 @@ export function AikiStudioSoftClayWorkspace({
   onPartChange,
   onPracticePartsSync,
   onSubmitWork,
+  onBackToLesson,
+  onReplayVideo,
   initialAttemptsLeft,
+  initialPracticeState,
+  onPracticeStateChange,
+  studentStars,
   generateDurationMs = 3000,
   className,
 }: AikiStudioSoftClayWorkspaceProps) {
@@ -352,46 +276,89 @@ export function AikiStudioSoftClayWorkspace({
 
   const storageKey = `aiki_softclay_practice_${lessonId || 'default'}`
 
-  // Quản lý trạng thái các món đã vẽ xong
+  // Quản lý trạng thái các món đã vẽ xong - Ưu tiên nạp từ initialPracticeState (từ DB) nếu có
   const [completedParts, setCompletedParts] = useState<number[]>(() => {
+    if (initialPracticeState?.completedParts) return initialPracticeState.completedParts
     return getStoredPracticeData(storageKey)?.completedParts ?? []
   })
 
   // State lưu trữ ảnh ĐÃ GENERATE bằng AI (chỉ cập nhật khi ấn nút Tạo ảnh)
   const [committedArtworksByPart, setCommittedArtworksByPart] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    if (initialPracticeState?.committedArtworksByPart) return initialPracticeState.committedArtworksByPart
     return getStoredPracticeData(storageKey)?.committedArtworksByPart ?? {}
   })
 
   // Trạng thái 2 lượt cho Bài 1.1: Lượt 1 (1 từ) -> Lượt 2 (5 điều)
   const [turnByPart, setTurnByPart] = useState<Record<number, 1 | 2>>(() => {
+    if (initialPracticeState?.turnByPart) return initialPracticeState.turnByPart
     return getStoredPracticeData(storageKey)?.turnByPart ?? {}
   })
   const currentPartTurn: 1 | 2 = isLesson1_1 ? (turnByPart[activeIdx] ?? 1) : 1
 
   const [turn1Artworks, setTurn1Artworks] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    if (initialPracticeState?.turn1Artworks) return initialPracticeState.turn1Artworks
     return getStoredPracticeData(storageKey)?.turn1Artworks ?? {}
   })
   const [turn2Artworks, setTurn2Artworks] = useState<Record<number, { url: string; prompt: string }>>(() => {
+    if (initialPracticeState?.turn2Artworks) return initialPracticeState.turn2Artworks
     return getStoredPracticeData(storageKey)?.turn2Artworks ?? {}
   })
   const [favoriteByPart, setFavoriteByPart] = useState<Record<number, 1 | 2>>(() => {
+    if (initialPracticeState?.favoriteByPart) return initialPracticeState.favoriteByPart
     return getStoredPracticeData(storageKey)?.favoriteByPart ?? {}
   })
   const [favoriteReasonByPart, setFavoriteReasonByPart] = useState<Record<number, string>>(() => {
+    if (initialPracticeState?.favoriteReasonByPart) return initialPracticeState.favoriteReasonByPart
     return getStoredPracticeData(storageKey)?.favoriteReasonByPart ?? {}
   })
   const [isSubmitted, setIsSubmitted] = useState<boolean>(() => {
+    if (typeof initialPracticeState?.isSubmitted === 'boolean') return initialPracticeState.isSubmitted
     return Boolean(getStoredPracticeData(storageKey)?.isSubmitted)
   })
   const hasBothTurns = Boolean(isLesson1_1 && turn1Artworks[activeIdx] && turn2Artworks[activeIdx])
 
   const [attemptsLeft, setAttemptsLeft] = useState<number>(() => {
+    if (typeof initialPracticeState?.attemptsLeft === 'number') {
+      return initialPracticeState.attemptsLeft
+    }
     const saved = getStoredPracticeData(storageKey)
     if (saved && typeof saved.attemptsLeft === 'number') {
       return saved.attemptsLeft
     }
     return initialAttemptsLeft ?? (isLesson1_1 ? 2 : (parts.length > 0 ? parts.length : 2))
   })
+
+  // Phục hồi từ initialPracticeState khi nhận được dữ liệu từ backend DB
+  useEffect(() => {
+    if (!initialPracticeState) return
+    if (typeof initialPracticeState.attemptsLeft === 'number') {
+      setAttemptsLeft(initialPracticeState.attemptsLeft)
+    }
+    if (initialPracticeState.completedParts) {
+      setCompletedParts(initialPracticeState.completedParts)
+    }
+    if (initialPracticeState.committedArtworksByPart) {
+      setCommittedArtworksByPart(initialPracticeState.committedArtworksByPart)
+    }
+    if (initialPracticeState.turnByPart) {
+      setTurnByPart(initialPracticeState.turnByPart)
+    }
+    if (initialPracticeState.turn1Artworks) {
+      setTurn1Artworks(initialPracticeState.turn1Artworks)
+    }
+    if (initialPracticeState.turn2Artworks) {
+      setTurn2Artworks(initialPracticeState.turn2Artworks)
+    }
+    if (initialPracticeState.favoriteByPart) {
+      setFavoriteByPart(initialPracticeState.favoriteByPart)
+    }
+    if (initialPracticeState.favoriteReasonByPart) {
+      setFavoriteReasonByPart(initialPracticeState.favoriteReasonByPart)
+    }
+    if (typeof initialPracticeState.isSubmitted === 'boolean') {
+      setIsSubmitted(initialPracticeState.isSubmitted)
+    }
+  }, [initialPracticeState])
 
   // Đồng bộ lại khi storageKey thay đổi (ví dụ đổi bài học)
   const lastLoadedKeyRef = React.useRef<string>(storageKey)
@@ -413,18 +380,20 @@ export function AikiStudioSoftClayWorkspace({
   }, [storageKey])
 
   useEffect(() => {
-    if (initialAttemptsLeft !== undefined) {
+    if (initialAttemptsLeft !== undefined && typeof initialPracticeState?.attemptsLeft !== 'number') {
       const saved = getStoredPracticeData(storageKey)
       if (!saved || typeof saved.attemptsLeft !== 'number') {
         setAttemptsLeft(initialAttemptsLeft)
       }
     }
-  }, [initialAttemptsLeft, storageKey])
+  }, [initialAttemptsLeft, storageKey, initialPracticeState?.attemptsLeft])
 
   // Tự động lưu toàn bộ state vào storageKey mỗi khi có thay đổi
   useEffect(() => {
-    const payload: StoredPracticeData = {
+    const stored = getStoredPracticeData(storageKey)
+    const payload: PracticeState = {
       attemptsLeft,
+      generatedCount: stored?.generatedCount ?? initialPracticeState?.generatedCount,
       turn1Artworks,
       turn2Artworks,
       committedArtworksByPart,
@@ -446,6 +415,7 @@ export function AikiStudioSoftClayWorkspace({
     favoriteByPart,
     favoriteReasonByPart,
     isSubmitted,
+    initialPracticeState?.generatedCount,
   ])
 
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
@@ -576,35 +546,68 @@ export function AikiStudioSoftClayWorkspace({
     setTimeout(() => {
       setIsGenerating(false)
       playInstantSound('star')
+      const nextAttemptsLeft = Math.max(0, attemptsLeft - 1)
+      let nextTurn1Artworks = turn1Artworks
+      let nextTurn2Artworks = turn2Artworks
+      let nextCommitted = committedArtworksByPart
+      let nextCompleted = completedParts
+      let nextTurnByPart = turnByPart
+
       if (isLesson1_1) {
         if (currentPartTurn === 1) {
           const t1Url = getLesson1_1Artwork(currentItemType, 1)
-          setTurn1Artworks((prev) => ({
-            ...prev,
+          nextTurn1Artworks = {
+            ...turn1Artworks,
             [activeIdx]: { url: t1Url, prompt: 'con mèo' },
-          }))
-          setTurnByPart((prev) => ({ ...prev, [activeIdx]: 2 }))
+          }
+          nextTurnByPart = { ...turnByPart, [activeIdx]: 2 }
+          setTurn1Artworks(nextTurn1Artworks)
+          setTurnByPart(nextTurnByPart)
         } else {
           const t2Url = getLesson1_1Artwork(currentItemType, 2)
-          setTurn2Artworks((prev) => ({
-            ...prev,
+          nextTurn2Artworks = {
+            ...turn2Artworks,
             [activeIdx]: { url: t2Url, prompt: 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân' },
-          }))
-          if (!completedParts.includes(activeIdx)) {
-            setCompletedParts((prev) => [...prev, activeIdx])
           }
+          if (!completedParts.includes(activeIdx)) {
+            nextCompleted = [...completedParts, activeIdx]
+            setCompletedParts(nextCompleted)
+          }
+          setTurn2Artworks(nextTurn2Artworks)
         }
       } else {
         const targetUrl = getItemArtwork(currentItemType, currentDescId, currentActionId, currentContextId)
-        setCommittedArtworksByPart((prev) => ({
-          ...prev,
+        nextCommitted = {
+          ...committedArtworksByPart,
           [activeIdx]: { url: targetUrl, prompt: currentPrompt },
-        }))
-        if (!completedParts.includes(activeIdx)) {
-          setCompletedParts((prev) => [...prev, activeIdx])
         }
+        if (!completedParts.includes(activeIdx)) {
+          nextCompleted = [...completedParts, activeIdx]
+          setCompletedParts(nextCompleted)
+        }
+        setCommittedArtworksByPart(nextCommitted)
       }
-      setAttemptsLeft((prev) => Math.max(0, prev - 1))
+      setAttemptsLeft(nextAttemptsLeft)
+
+      const stored = getStoredPracticeData(storageKey)
+      const snapshot: PracticeState = {
+        attemptsLeft: nextAttemptsLeft,
+        generatedCount: ((stored?.generatedCount ?? initialPracticeState?.generatedCount) ?? 0) + 1,
+        turn1Artworks: nextTurn1Artworks,
+        turn2Artworks: nextTurn2Artworks,
+        committedArtworksByPart: nextCommitted,
+        completedParts: nextCompleted,
+        turnByPart: nextTurnByPart,
+        favoriteByPart,
+        favoriteReasonByPart,
+        isSubmitted,
+      }
+
+      setStoredPracticeData(storageKey, snapshot)
+      onPracticeStateChange?.(snapshot)
+      if (lessonId) {
+        void learningApi.savePractice(lessonId, { kind: 'studio', payload: snapshot as any }).catch(() => null)
+      }
     }, generateDurationMs)
   }
 
@@ -613,8 +616,10 @@ export function AikiStudioSoftClayWorkspace({
     playInstantSound('star')
     setIsSubmitModalOpen(false)
     setIsSubmitted(true)
-    const payload: StoredPracticeData = {
+    const stored = getStoredPracticeData(storageKey)
+    const submitSnapshot: PracticeState = {
       attemptsLeft,
+      generatedCount: stored?.generatedCount ?? initialPracticeState?.generatedCount ?? 0,
       turn1Artworks,
       turn2Artworks,
       committedArtworksByPart,
@@ -624,7 +629,9 @@ export function AikiStudioSoftClayWorkspace({
       favoriteReasonByPart,
       isSubmitted: true,
     }
-    setStoredPracticeData(storageKey, payload)
+    setStoredPracticeData(storageKey, submitSnapshot)
+    onPracticeStateChange?.(submitSnapshot)
+
     const effectiveSubmitPrompt =
       isLesson1_1 && completedParts.includes(activeIdx) && turn2Artworks[activeIdx]
         ? ((favoriteByPart[activeIdx] ?? 2) === 1
@@ -647,11 +654,17 @@ export function AikiStudioSoftClayWorkspace({
       partIndex: activeIdx,
       partTurn: currentPartTurn,
       favoriteReason: favoriteReasonByPart[activeIdx],
+      practiceState: submitSnapshot,
     }
     onSubmitWork?.({
       selectedImage,
       prompt: effectiveSubmitPrompt,
+      practiceState: submitSnapshot,
     })
+
+    if (lessonId) {
+      void learningApi.savePractice(lessonId, { kind: 'studio', payload: submitSnapshot as any }).catch(() => null)
+    }
   }
 
   return (

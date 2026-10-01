@@ -2,6 +2,7 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'
 import { AikiStudioSoftClayWorkspace } from './AikiStudioSoftClayWorkspace'
+import { learningApi } from '@/shared/lib/learning-api'
 
 describe('AikiStudioSoftClayWorkspace - Bài 1.2 Bốn chiếc chìa khoá', () => {
   it('renders exactly 2 practice items (Con cún & Cái xe đạp) matching Excel SSOT', async () => {
@@ -636,6 +637,159 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     expect(images.some((s) => s.includes('cat_full_details_v1.webp'))).toBe(true)
 
     // 3. Attempts quota: 0 attempts left, draw button disabled
+    const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(drawBtn).toBeDefined()
+    expect(drawBtn.disabled).toBe(true)
+    expect(drawBtn.textContent).toContain('Đã hết lượt tạo ảnh (0 lượt)')
+
+    // 4. Submitted status restored: Balo badges & submit button text
+    expect(text).toContain('✓ Đã lưu vào Balo')
+    expect(text).toContain('✓ Đã cất vào Ba Lô')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('synchronizes practice progress to backend DB via learningApi.savePractice and onPracticeStateChange with decreasing attemptsLeft (2 -> 1 -> 0) and turn artworks', async () => {
+    vi.useFakeTimers()
+    const savePracticeSpy = vi.spyOn(learningApi, 'savePractice').mockResolvedValue({ result: 'ok' } as any)
+    const onPracticeStateChange = vi.fn()
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioSoftClayWorkspace
+          lessonId="bai-1-1"
+          onPracticeStateChange={onPracticeStateChange}
+        />
+      )
+    })
+
+    // Turn 1
+    const drawBtn1 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 1')
+    ) as HTMLButtonElement
+    expect(drawBtn1).toBeDefined()
+
+    await act(async () => {
+      drawBtn1.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(3100)
+    })
+
+    // Expect learningApi.savePractice called for Turn 1
+    expect(savePracticeSpy).toHaveBeenCalledWith('bai-1-1', {
+      kind: 'studio',
+      payload: expect.objectContaining({
+        attemptsLeft: 1,
+        generatedCount: 1,
+        turn1Artworks: expect.objectContaining({
+          0: expect.objectContaining({ prompt: 'con mèo' }),
+        }),
+      }),
+    })
+    expect(onPracticeStateChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptsLeft: 1,
+        generatedCount: 1,
+      })
+    )
+
+    // Turn 2
+    const drawBtn2 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Vẽ Lượt 2')
+    ) as HTMLButtonElement
+    expect(drawBtn2).toBeDefined()
+
+    await act(async () => {
+      drawBtn2.click()
+    })
+    act(() => {
+      vi.advanceTimersByTime(3100)
+    })
+
+    // Expect learningApi.savePractice called for Turn 2 with attemptsLeft = 0
+    expect(savePracticeSpy).toHaveBeenCalledWith('bai-1-1', {
+      kind: 'studio',
+      payload: expect.objectContaining({
+        attemptsLeft: 0,
+        generatedCount: 2,
+        turn1Artworks: expect.objectContaining({
+          0: expect.objectContaining({ prompt: 'con mèo' }),
+        }),
+        turn2Artworks: expect.objectContaining({
+          0: expect.objectContaining({ prompt: expect.stringContaining('con mèo · lông màu trắng') }),
+        }),
+        completedParts: [0],
+      }),
+    })
+    expect(onPracticeStateChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptsLeft: 0,
+        generatedCount: 2,
+        completedParts: [0],
+      })
+    )
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+    vi.useRealTimers()
+    savePracticeSpy.mockRestore()
+  })
+
+  it('restores practice state directly from initialPracticeState provided by backend DB', async () => {
+    const lessonId = 'bai-1-1-from-db'
+    const dbPracticeState = {
+      attemptsLeft: 0,
+      turn1Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_one_word_v1.webp', prompt: 'con mèo' },
+      },
+      turn2Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_full_details_v1.webp', prompt: 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân' },
+      },
+      completedParts: [0],
+      turnByPart: { 0: 2 } as Record<number, 1 | 2>,
+      favoriteByPart: { 0: 2 } as Record<number, 1 | 2>,
+      favoriteReasonByPart: { 0: 'Rõ chi tiết hơn' },
+      isSubmitted: true,
+      generatedCount: 2,
+    }
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioSoftClayWorkspace
+          lessonId={lessonId}
+          initialPracticeState={dbPracticeState}
+        />
+      )
+    })
+
+    const text = container.textContent || ''
+
+    // 1. Both turns restored: comparison board visible
+    expect(text).toContain('TRANH SÁNG TẠO: BẢNG SO SÁNH 2 BƯỚC')
+    expect(text).toContain('So sánh 2 bức tranh của bé')
+    expect(text).toContain('1. Một từ (con mèo)')
+    expect(text).toContain('2. Năm điều')
+
+    // 2. Both turn images restored
+    const images = Array.from(container.querySelectorAll('img')).map((img) => img.src)
+    expect(images.some((s) => s.includes('cat_one_word_v1.webp'))).toBe(true)
+    expect(images.some((s) => s.includes('cat_full_details_v1.webp'))).toBe(true)
+
+    // 3. Attempts quota restored from DB (0 attempts left)
     const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
     expect(drawBtn).toBeDefined()
     expect(drawBtn.disabled).toBe(true)

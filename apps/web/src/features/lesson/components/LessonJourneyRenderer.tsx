@@ -41,6 +41,11 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         rewardXp={journey?.stage6_completion?.rewardBadge?.xp ?? 50}
         matchedCurriculum={matchedCurriculum}
         initialStageIndex={initialStageIndex}
+        initialPracticeState={
+          (quest as any)?.progress?.state?.practice?.payload ??
+          (quest as any)?.state?.practice?.payload ??
+          (quest as any)?.practiceState
+        }
         isCompleted={isCompleted || liveStars >= 3}
         previousStars={liveStars}
         onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}

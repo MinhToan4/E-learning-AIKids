@@ -45,6 +45,8 @@ export interface UseSixStageJourneyStateProps {
   }
   onVideoCompleted?: () => void
   isSavingProgress?: boolean
+  initialPracticeState?: any
+  onPracticeStateChange?: (state: any) => void
 }
 
 /**
@@ -134,6 +136,8 @@ export function useSixStageJourneyState({
   matchedCurriculum: matchedCurriculumProp,
   onVideoCompleted: onVideoCompletedProp,
   isSavingProgress: _isSavingProgress = false,
+  initialPracticeState,
+  onPracticeStateChange: onPracticeStateChangeProp,
 }: UseSixStageJourneyStateProps) {
   const journey = rawJourney as LessonSixStageJourney
 
@@ -817,7 +821,7 @@ export function useSixStageJourneyState({
     setFailedQuizImages((prev) => ({ ...prev, [qIdx]: true }))
   }, [])
 
-  const handleSubmitWork = useCallback(({ selectedImage, prompt }: any) => {
+  const handleSubmitWork = useCallback(({ selectedImage, prompt, practiceState }: any) => {
     setIsPracticeCompleted(true)
     writeLessonStorage(`aikids_practice_done_${lessonId}`, true)
     writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 3)
@@ -830,6 +834,8 @@ export function useSixStageJourneyState({
       payload: {
         selectedImage: typeof selectedImage === 'string' ? selectedImage : (selectedImage?.url || ''),
         prompt: prompt || '',
+        isSubmitted: true,
+        ...(practiceState || selectedImage?.practiceState || {}),
       },
     }).catch(() => null)
     void onFinishLesson?.({
@@ -840,6 +846,16 @@ export function useSixStageJourneyState({
     })
     advanceToStage(indices.rewardIdx >= 0 ? indices.rewardIdx : stages.length - 1)
   }, [advanceToStage, effectiveRewardXp, indices.practiceIdx, indices.rewardIdx, lessonId, onFinishLesson, stages.length, submittedQuizAnswers])
+
+  const handlePracticeStateChange = useCallback((snapshot: any) => {
+    if (lessonId) {
+      void learningApi.savePractice(lessonId, {
+        kind: 'studio',
+        payload: snapshot,
+      }).catch(() => null)
+    }
+    onPracticeStateChangeProp?.(snapshot)
+  }, [lessonId, onPracticeStateChangeProp])
 
   return {
     matchedCurriculum,
@@ -905,6 +921,7 @@ export function useSixStageJourneyState({
     handleSubmitQuiz,
     handleQuizImageError,
     handleSubmitWork,
+    handlePracticeStateChange,
     studentStars,
     onBackToMap,
     onNavigateNextLesson,
