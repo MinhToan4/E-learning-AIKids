@@ -234,15 +234,18 @@ export function mapPublishedCurriculumStations(
   course?: PathwayCourse | null,
   routeIdentifier?: string,
 ): QuestProgress[] {
-  if (!course) return []
   const canonicalSlug =
-    getCanonicalAikidCourseSlug(course) ||
-    (routeIdentifier ? ISLAND_ALIAS_MAP[routeIdentifier] : null)
+    (course ? getCanonicalAikidCourseSlug(course) : null) ||
+    (routeIdentifier ? (ISLAND_ALIAS_MAP[routeIdentifier] || ((AIKID_CANONICAL_SLUGS as readonly string[]).includes(routeIdentifier) ? routeIdentifier : null)) : null) ||
+    (course?.id ? (ISLAND_ALIAS_MAP[course.id] || ((AIKID_CANONICAL_SLUGS as readonly string[]).includes(course.id) ? course.id : null)) : null) ||
+    (course?.slug ? (ISLAND_ALIAS_MAP[course.slug] || ((AIKID_CANONICAL_SLUGS as readonly string[]).includes(course.slug) ? course.slug : null)) : null)
   const islandNumber = canonicalSlug
     ? AIKID_CURRICULUM_ISLAND_BY_SLUG[canonicalSlug]
     : undefined
-  const publishedCount = getCourseStationCount(course)
   if (!islandNumber) return []
+
+  const publishedCount = course ? getCourseStationCount(course) : 0
+  const effectiveCount = publishedCount > 0 ? publishedCount : 4
 
   // Compatibility for rolling Hub deployments where pathway exposes the
   // published count but neither pathway nor course detail embeds lectures.
@@ -251,7 +254,7 @@ export function mapPublishedCurriculumStations(
   return ISLAND_CURRICULUM_LESSONS
     .filter((lesson) => lesson.islandNumber === islandNumber)
     .sort((a, b) => a.lessonNumber.localeCompare(b.lessonNumber, 'vi'))
-    .slice(0, publishedCount > 0 ? publishedCount : undefined)
+    .slice(0, effectiveCount)
     .map((lesson, index) => ({
       id: lesson.id,
       slug: lesson.slug,

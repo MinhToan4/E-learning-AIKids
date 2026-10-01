@@ -169,4 +169,69 @@ describe('resolveNextActiveStation', () => {
     expect(active.stationLabel).toBe('Xuất sắc')
     expect(active.catDialogue).toContain('Nhà Thám Hiểm AI kiệt xuất')
   })
+
+  describe('Subscription Gate (Đảo Tiên Quyết vs 5 Đảo Sáng Tạo)', () => {
+    const lockedCourses: CourseSummary[] = [
+      {
+        ...mockCourses[0],
+        status: 'locked',
+        enrolled: false,
+      },
+      {
+        ...mockCourses[1],
+        status: 'locked',
+        enrolled: false,
+      },
+    ]
+
+    it('shows Rule 1 of Đảo Tiên Quyết when Island 1 is locked and child has no completed rules', () => {
+      const active = resolveNextActiveStation(lockedCourses, 'Bé Bo', 'child-unpaid')
+
+      expect(active.stationLabel).toBe('Quy tắc 1')
+      expect(active.islandTitle).toBe('Đảo Tiên Quyết')
+      expect(active.islandNumber).toBe(0)
+      expect(active.islandSlug).toBe('muoi-quy-tac-xuong-sang-tao')
+      expect(active.lessonSlug).toBe('rule-1')
+      expect(active.route).toBe('/world/program/aikid_official?island=muoi-quy-tac-xuong-sang-tao')
+      expect(active.catDialogue).toContain('Bé Bo')
+      expect(active.catDialogue).toContain('Quy tắc 1')
+      expect(active.progressPct).toBe(0)
+      expect(active.isAllCompleted).toBe(false)
+    })
+
+    it('advances to Rule 2 when Rule 1 is completed for unpaid child', () => {
+      store.set('aikids:child-unpaid:aikids_lesson_completed_rule-1', 'true')
+
+      const active = resolveNextActiveStation(lockedCourses, 'Bé Bo', 'child-unpaid')
+
+      expect(active.stationLabel).toBe('Quy tắc 2')
+      expect(active.lessonSlug).toBe('rule-2')
+      expect(active.progressPct).toBe(10) // 1/10
+    })
+
+    it('shows unlock subscription card when all 10 Golden Rules are completed but Island 1 is locked', () => {
+      for (let r = 1; r <= 10; r++) {
+        store.set(`aikids:child-unpaid:aikids_lesson_completed_rule-${r}`, 'true')
+      }
+
+      const active = resolveNextActiveStation(lockedCourses, 'Bé Bo', 'child-unpaid')
+
+      expect(active.stationLabel).toBe('Mở khóa')
+      expect(active.stationTitle).toBe('Mở khóa 5 Khóa Học Sáng Tạo')
+      expect(active.stationDesc).toContain('10 Quy Tắc Vàng')
+      expect(active.islandTitle).toBe('Đảo Khám Phá')
+      expect(active.route).toBe('/parent/plan')
+      expect(active.progressPct).toBe(100)
+      expect(active.isAllCompleted).toBe(false)
+    })
+
+    it('shows Island 1 Lesson 1.1 immediately when Island 1 is unlocked / enrolled', () => {
+      const active = resolveNextActiveStation(mockCourses, 'Bé Bo', 'child-paid')
+
+      expect(active.stationLabel).toBe('Bài 1.1')
+      expect(active.islandNumber).toBe(1)
+      expect(active.islandSlug).toBe('dao-1')
+      expect(active.route).toBe('/world/dao-1/lesson/bai-1-1-mot-tu-hay-nam-tu')
+    })
+  })
 })

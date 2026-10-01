@@ -64,7 +64,7 @@ describe('learning-sync-store', () => {
       expect(getStoredItemWithFallback('my_key', 'child-1')).toBe('val-1')
     })
 
-    it('falls back to legacy key and automatically migrates to namespaced key', () => {
+    it('falls back to legacy key and automatically migrates to namespaced key, cleaning up legacy key and setting migration flag', () => {
       localStorage.setItem('my_key', 'legacy-value')
       expect(localStorage.getItem('aikids:child-2:my_key')).toBeNull()
 
@@ -72,6 +72,26 @@ describe('learning-sync-store', () => {
       expect(result).toBe('legacy-value')
       // Auto-migrated to namespaced key:
       expect(localStorage.getItem('aikids:child-2:my_key')).toBe('legacy-value')
+      // Cleaned up legacy key:
+      expect(localStorage.getItem('my_key')).toBeNull()
+      // Marked migration flag:
+      expect(localStorage.getItem('aikids:legacy_migrated_child_id')).toBe('child-2')
+    })
+
+    it('strictly prevents cross-profile contamination for a second child profile (e.g. bé Bum)', () => {
+      // child-1 migrated legacy data
+      localStorage.setItem('aikids:legacy_migrated_child_id', 'child-1')
+      localStorage.setItem('aikids_lesson_completed_rule-1', 'true')
+
+      // child-2 (new profile) must NOT read child-1's unnamespaced legacy data
+      const result = getStoredItemWithFallback('aikids_lesson_completed_rule-1', 'child-bum')
+      expect(result).toBeNull()
+
+      // child-bum has zero progress: 0 Stars, 0 Stations
+      const bumProgress = getLocalProgress('child-bum')
+      expect(bumProgress.completedCount).toBe(0)
+      expect(bumProgress.totalStars).toBe(0)
+      expect(bumProgress.completedLessonIds.size).toBe(0)
     })
 
     it('returns null if neither exists', () => {

@@ -27,27 +27,50 @@ export function getNamespacedKey(baseKey: string, childId?: string | null): stri
   return `aikids:${cid}:${baseKey}`
 }
 
+export const LEGACY_MIGRATED_CHILD_ID_KEY = 'aikids:legacy_migrated_child_id'
+
 /**
  * Đọc giá trị từ namespaced key. Nếu chưa có, fallback đọc legacy baseKey và tự động migrate.
+ * Ngăn chặn tuyệt đối việc nhiễm chéo tiến trình giữa các profile con khác nhau.
  */
 export function getStoredItemWithFallback(baseKey: string, childId?: string | null): string | null {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null
   try {
-    const namespacedKey = getNamespacedKey(baseKey, childId)
+    const isSpecificChild = Boolean(childId && childId.trim() && childId.trim() !== 'anonymous')
+    const cid = isSpecificChild ? childId!.trim() : 'anonymous'
+    const namespacedKey = `aikids:${cid}:${baseKey}`
+
+    if (isSpecificChild) {
+      const namespacedVal = localStorage.getItem(namespacedKey)
+      if (namespacedVal !== null) return namespacedVal
+
+      // Chống nhiễm chéo:
+      // Kiểm tra cờ di trú aikids:legacy_migrated_child_id
+      const migratedChildId = localStorage.getItem(LEGACY_MIGRATED_CHILD_ID_KEY)
+      if (migratedChildId && migratedChildId !== cid) {
+        // Đã migrate sang profile con khác -> TUYỆT ĐỐI KHÔNG đọc baseKey unnamespaced cho profile này
+        return null
+      }
+
+      // Chưa có profile nào migrate (hoặc chính cid này)
+      const legacyVal = localStorage.getItem(baseKey)
+      if (legacyVal !== null) {
+        try {
+          localStorage.setItem(namespacedKey, legacyVal)
+          localStorage.setItem(LEGACY_MIGRATED_CHILD_ID_KEY, cid)
+          localStorage.removeItem(baseKey)
+        } catch {
+          // storage quota hoặc privacy mode
+        }
+        return legacyVal
+      }
+      return null
+    }
+
+    // Trường hợp anonymous / không có childId cụ thể
     const namespacedVal = localStorage.getItem(namespacedKey)
     if (namespacedVal !== null) return namespacedVal
-
-    // Fallback: đọc legacy unnamespaced key
-    const legacyVal = localStorage.getItem(baseKey)
-    if (legacyVal !== null) {
-      try {
-        localStorage.setItem(namespacedKey, legacyVal)
-      } catch {
-        // storage quota hoặc privacy mode
-      }
-      return legacyVal
-    }
-    return null
+    return localStorage.getItem(baseKey)
   } catch {
     return null
   }
@@ -234,6 +257,12 @@ export function saveLocalLessonProgress(
       const namespacedStarKey = getNamespacedKey(starKey, childId)
       localStorage.setItem(namespacedCompKey, completedStr)
       localStorage.setItem(namespacedStarKey, starsStr)
+      if (childId && childId.trim() && childId.trim() !== 'anonymous') {
+        const currentMigrated = localStorage.getItem(LEGACY_MIGRATED_CHILD_ID_KEY)
+        if (!currentMigrated) {
+          localStorage.setItem(LEGACY_MIGRATED_CHILD_ID_KEY, childId.trim())
+        }
+      }
     } catch {
       // ignore
     }

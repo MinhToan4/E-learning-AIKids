@@ -189,6 +189,14 @@ describe('Published AIKID curriculum compatibility', () => {
       questCount: 4,
     }))).toEqual([])
   })
+
+  it('falls back to 4 default locked stations when course is null but routeIdentifier is official island', () => {
+    const stations = mapPublishedCurriculumStations(null, 'dao-1')
+    expect(stations).toHaveLength(4)
+    expect(stations[0].status).toBe('locked')
+    expect(stations[0].slug).toBe('bai-1-1-mot-tu-hay-nam-tu')
+    expect(stations.every((s) => s.status === 'locked')).toBe(true)
+  })
 })
 
 describe('Official AIKID program projection', () => {

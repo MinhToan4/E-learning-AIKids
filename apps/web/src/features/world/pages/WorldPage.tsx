@@ -219,7 +219,23 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         const pathRow =
           findCourseByIdentifier(processedCourses, activeIslandIdentifier) ||
           processedCourses.find((row) => row.id === activeIslandIdentifier) ||
-          processedCourses[0]
+          processedCourses[0] ||
+          ({
+            id: activeIslandIdentifier,
+            slug: activeIslandIdentifier,
+            title: 'Hành trình sáng tạo',
+            shortTitle: 'Đảo sáng tạo',
+            status: 'locked',
+            reasonCode: 'official',
+            completionPercent: 0,
+            missingPrerequisites: [],
+            coverImage: null,
+            enrolled: false,
+            questCount: 4,
+            completedCount: 0,
+            totalStars: 0,
+            stations: [],
+          } as PathwayCourse)
         const actualCourseId = pathRow?.id || activeIslandIdentifier
         setActiveCourseId(pathRow?.slug || pathRow?.id || activeIslandIdentifier)
 
@@ -330,7 +346,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           }
           setQuests(sequentialQuests)
           setMeta(nextMeta)
-        } else if (!forceUnlock && pathRow.status === 'available') {
+        } else if (!forceUnlock && pathRow?.status === 'available') {
           setEnrollmentRequired(true)
         }
       } catch (e) {

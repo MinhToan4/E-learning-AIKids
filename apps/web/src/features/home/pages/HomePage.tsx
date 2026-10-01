@@ -478,7 +478,7 @@ export function HomePage() {
         : avatarImage(user?.avatarId) || designerAssets.brand.modalMascot || designerAssets.catPoses.welcome
 
   const streakDays = (user as any)?.currentStreak || 3
-  const activeStation = resolveNextActiveStation(courses, childDisplayName)
+  const activeStation = resolveNextActiveStation(courses, childDisplayName, user?.id)
   const activeCourse = courses.find((c) => c.enrolled && (c.progressPct ?? 0) < 100) || courses[0]
   const activeIslandLabel = activeStation.islandTitle || activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
 
