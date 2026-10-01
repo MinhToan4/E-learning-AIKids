@@ -464,9 +464,9 @@ export function HomePage() {
   const activeIslandLabel = activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
 
   return (
-    <PageMotion className="max-w-[1024px] mx-auto w-full px-1 sm:px-4 md:px-6 flex flex-col gap-3.5 sm:gap-6 pb-32 sm:pb-36">
+    <PageMotion className="max-w-[1024px] mx-auto w-full px-0.5 sm:px-3 md:px-6 flex flex-col gap-3 sm:gap-6 pb-32 sm:pb-36">
       {/* ── 1. HEADER CHUẨN 1:1 THEO THIẾT KẾ ĐÃ DUYỆT (Ảnh 1) ── */}
-      <header className="w-full bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xs">
+      <header className="w-full bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-3 shadow-2xs">
         {/* Cụm trái: Avatar vuông bo góc vàng mèo + Tên học sinh (Online) + Đảo Khám Phá · Bài 1.2 */}
         <Link
           to="/profile"
@@ -580,7 +580,7 @@ export function HomePage() {
 
           <section
             aria-label="Hành trình của con"
-            className="rounded-3xl border border-slate-200/90 bg-white/95 p-4 shadow-sm sm:p-5"
+            className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 p-3 shadow-sm sm:p-5"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>

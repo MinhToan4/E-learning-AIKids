@@ -32,7 +32,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-[2rem] border-2 border-orange-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 shadow-sm sm:p-6',
+        'relative overflow-hidden rounded-2xl sm:rounded-[2rem] border-2 border-orange-300 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-3 shadow-sm sm:p-6',
         className,
       )}
       aria-label="Khóa học chính thức AIKid"
