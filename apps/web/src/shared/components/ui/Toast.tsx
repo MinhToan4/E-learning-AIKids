@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/shared/lib/cn'
+import { learnerFriendlyError } from '@/shared/lib/learner-error'
 
 export type ToastItem = {
   id: string
@@ -47,27 +48,30 @@ function ToastCard({
     }
   }, [toast.id, onDismiss])
 
+  const displayMessage =
+    toast.type === 'error' ? learnerFriendlyError(toast.message) : toast.message
+
   return (
     <div
       role="alert"
       className={cn(
-        'animate-fade-down flex items-start gap-3 rounded-2xl px-4 py-3 shadow-soft pointer-events-auto',
-        'border-2 bg-white text-sm font-bold',
-        toast.type === 'success' && 'border-mint-400 text-success',
-        toast.type === 'error' && 'border-coral-400 text-danger',
-        toast.type === 'info' && 'border-brand-500 text-brand-600',
+        'animate-fade-down flex items-start gap-3 rounded-2xl px-4 py-3 shadow-clay pointer-events-auto',
+        'border-2 text-sm font-bold backdrop-blur-xs',
+        toast.type === 'success' && 'border-mint-400 bg-white/95 text-emerald-900',
+        toast.type === 'error' && 'border-amber-300 bg-amber-50/95 text-amber-950',
+        toast.type === 'info' && 'border-brand-300 bg-sky-50/95 text-slate-800',
       )}
-      style={{ maxWidth: 'min(360px, calc(100vw - 2.5rem))' }}
+      style={{ maxWidth: 'min(380px, calc(100vw - 2.5rem))' }}
     >
-      <span className="mt-0.5 text-base">
-        {toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️'}
+      <span className="mt-0.5 text-base shrink-0">
+        {toast.type === 'success' ? '🌟' : toast.type === 'error' ? '✨' : '💡'}
       </span>
-      <span className="flex-1 leading-snug">{toast.message}</span>
+      <span className="flex-1 leading-snug">{displayMessage}</span>
       <button
         type="button"
         aria-label="Đóng thông báo"
         onClick={() => onDismiss(toast.id)}
-        className="ml-1 rounded-lg p-1 text-muted opacity-60 transition hover:opacity-100"
+        className="ml-1 rounded-lg p-1 text-slate-400 hover:text-slate-700 transition"
       >
         ✕
       </button>

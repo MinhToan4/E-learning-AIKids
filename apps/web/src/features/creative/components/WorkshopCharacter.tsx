@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { RotateCcw, Sparkles } from 'lucide-react'
 import { api } from '@/shared/lib/api'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { generateCreativeImage } from '@/shared/lib/creative-api'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
@@ -145,7 +146,11 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
               </div>
             )}
           </div>
-          {error && <p className="mx-3 mt-3 rounded-xl bg-coral-50 p-2 text-xs font-bold text-danger">{error}</p>}
+          {error && (
+            <div className="px-3 pt-2">
+              <ErrorState inline error={error} />
+            </div>
+          )}
           <div className="grid gap-2 p-3 sm:grid-cols-2">
             <button type="button" onClick={() => void generate()} disabled={generating}
               className="ui-btn ui-btn-primary gap-2 disabled:opacity-60">

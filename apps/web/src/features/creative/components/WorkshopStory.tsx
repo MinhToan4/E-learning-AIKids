@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BookOpen, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { generateCreativeStory } from '@/shared/lib/creative-api'
 import { STORY_GENRES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
@@ -200,9 +201,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
           </label>
 
           {error && (
-            <p className="rounded-2xl border-2 border-coral-200 bg-coral-50 p-3 text-sm font-bold text-danger">
-              {error}
-            </p>
+            <ErrorState inline error={error} className="my-2" />
           )}
         </div>
 

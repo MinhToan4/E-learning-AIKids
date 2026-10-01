@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { CoursePaywallModal } from '@/features/lesson/components/CoursePaywallModal'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
@@ -374,17 +375,16 @@ export function LessonPage() {
 
   if (error && !quest) {
     return (
-      <div className="ui-card page-enter p-6">
-        <p className="text-danger">{error}</p>
-        <p className="mt-2 text-sm text-muted">
-          Nếu trạm bị khóa, hãy hoàn thành trạm trước trên bản đồ.
-        </p>
-        <Link to={`/world/${effectiveCourseId}`} className="mt-4 inline-block">
-          <Button variant="secondary">
-            <NavWorldIcon size={18} aria-hidden="true" />
-            Về bản đồ
-          </Button>
-        </Link>
+      <div className="max-w-[768px] mx-auto w-full px-4 py-8 page-enter">
+        <ErrorState
+          title="Chưa mở được bài học"
+          error={error}
+          onRetry={() => window.location.reload()}
+          homeUrl={effectiveCourseId ? `/world/${effectiveCourseId}` : '/world'}
+          homeText="Về bản đồ"
+          showHome
+          showBack
+        />
       </div>
     )
   }
@@ -394,7 +394,19 @@ export function LessonPage() {
   }
 
   if (!quest) {
-    return <p className="text-muted">Không tìm thấy trạm.</p>
+    return (
+      <div className="max-w-[768px] mx-auto w-full px-4 py-8 page-enter">
+        <ErrorState
+          title="Không tìm thấy trạm học"
+          message="Trạm học này có thể chưa sẵn sàng hoặc đã được cập nhật. Bé hãy quay về Bản đồ để chọn trạm khác nhé!"
+          homeUrl={effectiveCourseId ? `/world/${effectiveCourseId}` : '/world'}
+          homeText="Về bản đồ"
+          showHome
+          showBack
+          mascotPose="thinking"
+        />
+      </div>
+    )
   }
 
   // ── TEMPLATE 1: 10 Quy Tắc Vàng AIKI (Module 0 - 3 Chặng Chuẩn: VIDEO ➔ QUIZ ➔ REWARD) ──

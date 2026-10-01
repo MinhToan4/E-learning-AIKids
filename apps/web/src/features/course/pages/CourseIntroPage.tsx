@@ -8,6 +8,7 @@ import {
 } from '@/shared/components/icons/KidNavIcons'
 import { ShieldLockIcon } from '@/shared/components/icons/ParentIcons'
 import { Button } from '@/shared/components/ui/Button'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { courseCoverHint } from '@/shared/config/assets'
@@ -89,11 +90,16 @@ export function CourseIntroPage() {
 
   if (error && !course) {
     return (
-      <div className="ui-card p-6">
-        <p className="text-danger">{error}</p>
-        <Link to="/home" className="mt-4 inline-block">
-          <Button variant="secondary">Về nhà</Button>
-        </Link>
+      <div className="max-w-[768px] mx-auto w-full px-4 py-8 page-enter">
+        <ErrorState
+          title="Chưa mở được khóa học"
+          error={error}
+          onRetry={() => window.location.reload()}
+          homeUrl="/world"
+          homeText="Về bản đồ"
+          showHome
+          showBack
+        />
       </div>
     )
   }
@@ -310,9 +316,7 @@ export function CourseIntroPage() {
       )}
 
       {error && (
-        <p className="rounded-xl bg-coral-100 px-3 py-2 text-sm text-danger" role="alert">
-          {error}
-        </p>
+        <ErrorState inline error={error} />
       )}
 
       <div className="ui-card flex flex-wrap items-center justify-between gap-4 p-5">

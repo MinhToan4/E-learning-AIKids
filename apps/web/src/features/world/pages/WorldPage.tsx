@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { KidLockImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { CourseBookIcon } from '@/shared/components/icons/KidNavIcons'
@@ -392,10 +393,14 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
     }
     if (error || !pathway) {
       return (
-        <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-4 sm:py-6">
-          <p className="ui-card p-4 sm:p-6 text-danger rounded-2xl" role="alert">
-            {error ?? 'Chưa tải được lộ trình học.'}
-          </p>
+        <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-6 sm:py-10">
+          <ErrorState
+            title="Chưa tải được lộ trình học"
+            error={error ?? 'Chưa tải được lộ trình học.'}
+            onRetry={() => setRefreshTick((t) => t + 1)}
+            showHome
+            showBack
+          />
         </div>
       )
     }
@@ -460,10 +465,14 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
 
   if (error || !pathway) {
     return (
-      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-4 sm:py-6">
-        <p className="ui-card p-4 sm:p-6 text-danger rounded-2xl" role="alert">
-          {error ?? 'Chưa tải được lộ trình học.'}
-        </p>
+      <div className="max-w-[1024px] mx-auto w-full px-4 sm:px-6 py-6 sm:py-10">
+        <ErrorState
+          title="Chưa tải được bản đồ"
+          error={error ?? 'Chưa tải được lộ trình học.'}
+          onRetry={() => setRefreshTick((t) => t + 1)}
+          showHome
+          showBack
+        />
       </div>
     )
   }

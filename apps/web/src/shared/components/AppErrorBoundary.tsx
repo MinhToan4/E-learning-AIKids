@@ -2,6 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { Button } from '@/shared/components/ui/Button'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 
 type Props = { children: ReactNode }
 type State = {
@@ -96,25 +97,24 @@ export class AppErrorBoundary extends Component<Props, State> {
 
     return (
       <main className="flex min-h-screen items-center justify-center bg-page px-4 py-10">
-        <section className="ui-card w-full max-w-lg p-7 text-center" role="alert">
-          <div className="flex justify-center">
-            <BrandLogo size="lg" />
-          </div>
-          <h1 className="font-display mt-5 text-3xl text-ink">
-            Trang này cần nghỉ một chút
-          </h1>
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
-            Nội dung của con vẫn được giữ an toàn. Con thử mở lại trang nhé!
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <Button onClick={this.retry}>
-              Mở lại trang
-            </Button>
-            <Button variant="secondary" onClick={this.goHome}>
-              Về trang chủ
-            </Button>
-          </div>
-        </section>
+        <ErrorState
+          title="Trang này cần nghỉ một chút"
+          message="Nội dung của con vẫn được giữ an toàn. Con thử mở lại trang hoặc về Bản đồ nhé!"
+          onRetry={this.retry}
+          onHome={this.goHome}
+          onBack={() => {
+            if (typeof window !== 'undefined' && window.history.length > 1) {
+              window.history.back()
+            } else {
+              this.goHome()
+            }
+          }}
+          homeText="Về trang chủ"
+          backText="Quay lại"
+          showHome
+          showBack
+          mascotPose="thinking"
+        />
       </main>
     )
   }
