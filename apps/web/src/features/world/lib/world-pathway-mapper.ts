@@ -10,6 +10,8 @@ import {
 } from '@/shared/lib/course-station-count'
 import { isAikiRuleJourney, extractRuleNumber } from '@/features/lesson/lib/rule-journey-identifiers'
 import { isAikiRuleCourse, sortAikiCourses } from './world-gatekeeper'
+import { getLocalProgress } from '@/shared/lib/learning-sync-store'
+import { clampStationStars } from '@/shared/lib/star-progress'
 
 const isUuid = (val: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val)
@@ -385,25 +387,91 @@ export function mergeQuestsWithLocalProgress<
   isRuleCourse: boolean,
   localCompletedLessons?: Record<string, { stars?: number; xp?: number; completedAt?: string }>,
   localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
+  childId?: string | null,
 ): T[] {
   if (!Array.isArray(quests) || quests.length === 0) return []
-  void isRuleCourse
   void localCompletedLessons
   void localGoldenRules
-  // Unlock, completion and stars are authorization/progression facts owned by
-  // LMS. Device storage may preserve a draft, but it must never override the
-  // pathway projection or turn a locked quest into an available one.
-  return quests.map((quest) => ({ ...quest }))
+
+  let localProgress: ReturnType<typeof getLocalProgress> | null = null
+  if (childId !== undefined && childId !== null && childId.trim().length > 0) {
+    try {
+      localProgress = getLocalProgress(childId)
+    } catch {
+      localProgress = null
+    }
+  }
+
+  return quests.map((quest) => {
+    let status = quest.status
+    let stars = clampStationStars(quest.stars)
+
+    if (localProgress) {
+      const isCompleted =
+        localProgress.completedLessonIds.has(quest.id) ||
+        (Boolean(quest.slug) && localProgress.completedLessonIds.has(quest.slug!)) ||
+        (isRuleCourse && typeof quest.order === 'number' && localProgress.completedLessonIds.has(`rule-${quest.order}`)) ||
+        (isRuleCourse && typeof quest.order === 'number' && localProgress.completedLessonIds.has(`bai-0-${quest.order}`))
+
+      if (isCompleted) {
+        status = 'completed'
+        const localStar =
+          localProgress.lessonStars[quest.id] ||
+          (quest.slug ? localProgress.lessonStars[quest.slug] : 0) ||
+          (isRuleCourse && typeof quest.order === 'number' ? localProgress.lessonStars[`rule-${quest.order}`] : 0) ||
+          3
+        stars = Math.max(stars, clampStationStars(localStar))
+      }
+    }
+
+    return {
+      ...quest,
+      status,
+      stars,
+    }
+  })
 }
 
 export function enrichCoursesWithLocalProgress(
   courses: PathwayCourse[],
   localCompletedLessons?: Record<string, { stars?: number; xp?: number; completedAt?: string }>,
   localGoldenRules?: Record<number, { status?: string; starsEarned?: number }>,
+  childId?: string | null,
 ): PathwayCourse[] {
   void localCompletedLessons
   void localGoldenRules
-  return courses.map((course) => ({ ...course }))
+  if (!Array.isArray(courses) || courses.length === 0) return []
+  if (!childId || !childId.trim()) return courses.map((course) => ({ ...course }))
+
+  let localProgress: ReturnType<typeof getLocalProgress> | null = null
+  try {
+    localProgress = getLocalProgress(childId)
+  } catch {
+    localProgress = null
+  }
+
+  if (!localProgress) return courses.map((course) => ({ ...course }))
+
+  return courses.map((course) => {
+    const isRule = isAikiRuleCourse(course)
+    if (isRule && localProgress) {
+      // 10 Quy tắc vàng
+      let ruleCompleted = 0
+      let ruleStars = 0
+      for (let r = 1; r <= 10; r++) {
+        if (localProgress.completedLessonIds.has(`rule-${r}`) || localProgress.completedLessonIds.has(`bai-0-${r}`)) {
+          ruleCompleted++
+          ruleStars += Math.max(localProgress.lessonStars[`rule-${r}`] || 0, 3)
+        }
+      }
+      return {
+        ...course,
+        completedCount: Math.max(course.completedCount ?? 0, ruleCompleted),
+        totalStars: Math.max(course.totalStars ?? 0, ruleStars),
+      }
+    }
+    return { ...course }
+  })
 }
 
 export function formatCourseTitle(title?: string | null): string {

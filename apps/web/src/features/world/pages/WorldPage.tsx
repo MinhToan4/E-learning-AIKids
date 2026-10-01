@@ -14,6 +14,7 @@ import {
 } from '@/shared/lib/star-progress'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import { isAikiRuleJourney } from '@/features/lesson/lib/rule-journey-identifiers'
+import { useAuth } from '@/shared/store/auth'
 
 import {
   applyGatekeeperRules,
@@ -85,6 +86,8 @@ export interface WorldPageProps {
 }
 
 export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
+  const { user } = useAuth()
+  const activeChildId = user?.id
   const { courseId, programId, trackId } = useParams<{
     courseId?: string
     programId?: string
@@ -169,7 +172,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         if (!courseId && !isOfficialProgramView) {
           const journey = await fetchPathwaySafely()
           const rawCourses = journey.courses as PathwayCourse[]
-          const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
+          const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses, undefined, undefined, activeChildId)
 
           // 1. If backend returns stations for all courses, read directly
           const hasAllStations =
@@ -202,7 +205,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         // Có courseId hoặc đang ở giao diện Official Bản Đồ (/world/program/aikid_official)
         const journey = await fetchPathwaySafely()
         const rawCourses = journey.courses as PathwayCourse[]
-        const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses)
+        const enrichedCourses = enrichCoursesWithLocalProgress(rawCourses, undefined, undefined, activeChildId)
         const processedCourses = applyGatekeeperRules(enrichedCourses)
         const finalPathway = { ...journey, courses: processedCourses }
 
@@ -328,7 +331,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         const isCourseLocked = !forceUnlock && pathRow?.status === 'locked'
 
         if (rawQuests.length > 0) {
-          const mergedQuests = mergeQuestsWithLocalProgress(rawQuests, isRuleCourse)
+          const mergedQuests = mergeQuestsWithLocalProgress(rawQuests, isRuleCourse, undefined, undefined, activeChildId)
           const sequentialQuests = isCourseLocked
             ? mergedQuests.map((q) => ({ ...q, status: 'locked' as const }))
             : applySequentialQuestRules(mergedQuests, forceUnlock)
@@ -355,7 +358,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         setLoading(false)
       }
     })()
-  }, [courseId, programId, isOfficialProgramView, islandQuery, selectedIsland, refreshTick])
+  }, [courseId, programId, isOfficialProgramView, islandQuery, selectedIsland, refreshTick, activeChildId])
 
   const effectiveCourseId =
     courseId || activeCourseId || selectedIsland || islandQuery || 'muoi-quy-tac-xuong-sang-tao'
