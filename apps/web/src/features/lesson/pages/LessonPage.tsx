@@ -90,8 +90,12 @@ export function LessonPage() {
           const pathway = await learningApi.getPathway()
           const course = routeCourseId ? findCourseByIdentifier(pathway.courses, routeCourseId) : undefined
           const isUnlocked = isUserTestingUnlocked()
-          if (!isUnlocked && (!course || (!course.enrolled && course.status !== 'completed'))) {
-            setIsPaywallOpen(true)
+          if (!isUnlocked && (!course || course.status === 'locked' || (!course.enrolled && course.status !== 'completed'))) {
+            if (course?.status === 'locked') {
+              setError(course.lockMessage || 'Hòn đảo này đang chờ mở khóa. Bé hãy hoàn thành Đảo Tiên Quyết (10 Quy Tắc Vàng) trước nhé!')
+            } else {
+              setIsPaywallOpen(true)
+            }
             setLoading(false)
             return
           }
@@ -127,6 +131,21 @@ export function LessonPage() {
             : undefined
           authLessonId = station?.id?.trim() || fallbackStation?.id?.trim() || questId
           setAuthoritativeLessonId(authLessonId)
+
+          // Kiểm tra điều kiện tuần tự: nếu rId > 1, Quy tắc rId - 1 phải được hoàn thành trước!
+          const isDevUnlocked = isUserTestingUnlocked()
+          if (!isDevUnlocked && rId > 1 && ruleCourse?.stations?.length) {
+            const prevStation = ruleCourse.stations.find((s) => s.order === rId - 1 || extractRuleNumber(s) === rId - 1)
+            const currentStation = ruleCourse.stations.find((s) => s.order === rId || extractRuleNumber(s) === rId)
+            const isCurrentAlreadyDone = currentStation?.status === 'completed' || (currentStation?.stars ?? 0) >= 3
+            const isPrevDone = prevStation?.status === 'completed' || (prevStation?.stars ?? 0) >= 3
+
+            if (!isCurrentAlreadyDone && !isPrevDone) {
+              setError(`Trạm này đang chờ mở khóa! Con hãy hoàn thành Quy tắc ${rId - 1} trên bản đồ trước nhé.`)
+              setLoading(false)
+              return
+            }
+          }
 
           const opened = await learningApi.openLesson(authLessonId)
           if (cancelled) return

@@ -464,12 +464,36 @@ export function enrichCoursesWithLocalProgress(
           ruleStars += Math.max(localProgress.lessonStars[`rule-${r}`] || 0, 3)
         }
       }
+      const nextCompleted = Math.max(course.completedCount ?? 0, ruleCompleted)
       return {
         ...course,
-        completedCount: Math.max(course.completedCount ?? 0, ruleCompleted),
+        completedCount: nextCompleted,
         totalStars: Math.max(course.totalStars ?? 0, ruleStars),
+        status: nextCompleted >= 10 ? 'completed' : course.status,
       }
     }
+
+    if (!isRule && localProgress && course.stations?.length) {
+      let islandCompleted = 0
+      let islandStars = 0
+      for (const st of course.stations) {
+        if (
+          localProgress.completedLessonIds.has(st.id) ||
+          (st.slug && localProgress.completedLessonIds.has(st.slug))
+        ) {
+          islandCompleted++
+          islandStars += Math.max(localProgress.lessonStars[st.id] || 0, 3)
+        }
+      }
+      const nextCompleted = Math.max(course.completedCount ?? 0, islandCompleted)
+      return {
+        ...course,
+        completedCount: nextCompleted,
+        totalStars: Math.max(course.totalStars ?? 0, islandStars),
+        status: nextCompleted >= course.stations.length ? 'completed' : course.status,
+      }
+    }
+
     return { ...course }
   })
 }

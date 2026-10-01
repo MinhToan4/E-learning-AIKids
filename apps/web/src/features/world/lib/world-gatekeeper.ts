@@ -52,35 +52,32 @@ export function applySequentialQuestRules<
     }))
   }
 
+  let firstUncompletedFound = false
   const result: T[] = []
   for (let idx = 0; idx < quests.length; idx++) {
     const quest = quests[idx]
-    if (idx === 0) {
-      // Trạm đầu tiên (index 0): Luôn mở (available hoặc in_progress, hoặc completed nếu đã làm xong)
+    const isSelfCompleted = quest.status === 'completed' || (quest.stars ?? 0) >= 3
+
+    if (isSelfCompleted) {
+      // Đã hoàn thành: bảo lưu trạng thái completed
+      result.push({
+        ...quest,
+        status: 'completed' as T['status'],
+      })
+    } else if (!firstUncompletedFound) {
+      // Trạm chưa hoàn thành ĐẦU TIÊN: được mở để học (available hoặc in_progress)
+      firstUncompletedFound = true
       const status = (quest.status === 'locked' ? 'available' : quest.status) as T['status']
       result.push({
         ...quest,
         status,
       })
     } else {
-      // Trạm i (i > 0): Nếu Trạm i-1 chưa completed, gán status: 'locked' as const.
-      // Trạm i chỉ mở khi Trạm i-1 đã completed.
-      const prevQuest = result[idx - 1]
-      const isPrevCompleted = prevQuest.status === 'completed'
-      const hasSelfProgress = quest.status === 'completed' || quest.status === 'in_progress' || (quest.stars ?? 0) > 0
-
-      if (isPrevCompleted || hasSelfProgress) {
-        const status = (quest.status === 'locked' ? 'available' : quest.status) as T['status']
-        result.push({
-          ...quest,
-          status,
-        })
-      } else {
-        result.push({
-          ...quest,
-          status: 'locked' as T['status'],
-        })
-      }
+      // Đã có trạm chưa hoàn thành phía trước -> BẮT BUỘC KHÓA toàn bộ các trạm chưa hoàn thành sau đó!
+      result.push({
+        ...quest,
+        status: 'locked' as T['status'],
+      })
     }
   }
 

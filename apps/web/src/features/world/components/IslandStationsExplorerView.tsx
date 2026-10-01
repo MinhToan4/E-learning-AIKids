@@ -29,6 +29,7 @@ export type IslandCourseSummary = {
   totalStars?: number
   questCount?: number
   stations?: QuestProgress[]
+  lockMessage?: string
 }
 
 export interface IslandStationsExplorerViewProps {
@@ -175,6 +176,8 @@ export interface QuestNodeProps {
   meta: { totalStars: number; completedCount: number }
   currentIslandIndex: number
   onStationClick?: (quest: QuestProgress) => void
+  isCourseLocked?: boolean
+  activeStationIndex?: number
 }
 
 export function QuestNode({
@@ -187,19 +190,16 @@ export function QuestNode({
   meta,
   currentIslandIndex,
   onStationClick,
+  isCourseLocked = false,
+  activeStationIndex = -1,
 }: QuestNodeProps) {
   const isCompleted = quest.status === 'completed' || (quest.stars ?? 0) >= 3
-  const isCurrent =
-    quest.status === 'in_progress' ||
-    (quest.status === 'available' && index === meta.completedCount) ||
-    (!isCompleted && index === meta.completedCount)
-  const isLocked =
-    quest.status === 'locked' ||
-    (!isCompleted && !isCurrent && index > meta.completedCount)
+  const isCurrent = !isCourseLocked && !isCompleted && index === activeStationIndex
+  const isLocked = isCourseLocked || quest.status === 'locked' || (!isCompleted && !isCurrent)
   const stationNum = quest.order || index + 1
   const stationSlug = getStationSlugFn(quest, isCurrentCourseRule)
   const lessonUrl = `/world/${courseId}/lesson/${stationSlug}`
-  const canOpenLesson = stationSlug.trim().length > 0
+  const canOpenLesson = stationSlug.trim().length > 0 && !isLocked
 
   const matchedCurriculum = findIslandCurriculum({
     id: quest.id,
@@ -459,24 +459,25 @@ export function IslandStationsExplorerView({
     }
   }
 
-  // Tìm trạm đang học (active quest) cho Khối 3 - Mèo Mee Navigator
-  const inProgressIndex = quests.findIndex((q) => q.status === 'in_progress')
-  const availableIndex = quests.findIndex(
-    (q, idx) => q.status === 'available' && idx === meta.completedCount,
-  )
-  const activeQuestIndex =
-    inProgressIndex >= 0
-      ? inProgressIndex
-      : availableIndex >= 0
-      ? availableIndex
-      : meta.completedCount < quests.length
-      ? meta.completedCount
-      : 0
+  // Xác định trạng thái khóa của Hòn Đảo hiện tại
+  const currentCourse =
+    courses.find((c) => c.id === courseId || c.slug === courseId) ||
+    courses[currentIslandIndex]
+  const isCurrentIslandLocked = currentCourse?.status === 'locked'
 
+  // Tìm trạm đang học (active quest) DUY NHẤT: Trạm chưa hoàn thành đầu tiên trên đảo
+  const firstUncompletedIndex = isCurrentIslandLocked
+    ? -1
+    : quests.findIndex((q) => q.status !== 'completed' && (q.stars ?? 0) < 3)
+
+  const activeQuestIndex = firstUncompletedIndex >= 0 ? firstUncompletedIndex : 0
   const activeQuest = quests[activeQuestIndex] || quests[0]
   const activeStationNum = activeQuest?.order || activeQuestIndex + 1
   const activeStationSlug = activeQuest ? getStationSlugFn(activeQuest, isCurrentCourseRule) : ''
-  const activeLessonUrl = activeStationSlug ? `/world/${courseId}/lesson/${activeStationSlug}` : ''
+  const activeLessonUrl =
+    !isCurrentIslandLocked && activeStationSlug
+      ? `/world/${courseId}/lesson/${activeStationSlug}`
+      : ''
 
   const activeCurriculum = activeQuest
     ? findIslandCurriculum({ id: activeQuest.id, title: activeQuest.title, slug: activeQuest.slug })
@@ -595,7 +596,9 @@ export function IslandStationsExplorerView({
         >
           {AIKID_SIX_ISLAND_PRESETS.map((preset, idx) => {
             const isSelected = idx === currentIslandIndex
-            const islandShortName = courses[idx]?.shortTitle || courses[idx]?.title || preset.title
+            const islandCourse = courses[idx]
+            const isIslandLocked = islandCourse?.status === 'locked'
+            const islandShortName = islandCourse?.shortTitle || islandCourse?.title || preset.title
 
             if (isSelected) {
               return (
@@ -611,6 +614,7 @@ export function IslandStationsExplorerView({
                   <span className="size-2 rounded-full bg-white animate-pulse shrink-0" />
                   <span className="sm:hidden font-black">{preset.badge}</span>
                   <span className="hidden sm:inline font-black">{preset.badge}: {islandShortName}</span>
+                  {isIslandLocked && <Lock size={12} className="inline ml-1 text-white/90" />}
                 </button>
               )
             }
@@ -621,13 +625,17 @@ export function IslandStationsExplorerView({
                 type="button"
                 onClick={() => handleIslandClick(preset.targetSlug)}
                 className={cn(
-                  'h-7.5 sm:h-9 rounded-full bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-black shadow-[0_2.5px_0_#cbd5e1] hover:scale-110 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex items-center justify-center select-none shrink-0',
-                  idx === 0 ? 'px-2 min-w-7.5 sm:min-w-9 text-[10px] sm:text-xs' : 'w-7.5 sm:w-9',
+                  'h-7.5 sm:h-9 rounded-full bg-white hover:bg-slate-100 border-2 text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center select-none shrink-0 gap-1',
+                  isIslandLocked
+                    ? 'border-slate-200 text-slate-400 bg-slate-50/90 shadow-2xs'
+                    : 'border-slate-200 text-slate-600 hover:text-slate-900 shadow-[0_2.5px_0_#cbd5e1] hover:scale-110 active:translate-y-0.5 active:shadow-none',
+                  idx === 0 ? 'px-2.5 min-w-7.5 sm:min-w-9 text-[10px] sm:text-xs' : 'px-2 min-w-7.5 sm:min-w-9',
                 )}
                 aria-label={`Chuyển đến ${preset.badge}: ${preset.title}`}
-                title={`${preset.badge}: ${preset.title}`}
+                title={`${preset.badge}: ${preset.title}${isIslandLocked ? ' (Đang khóa)' : ''}`}
               >
                 <span>{idx === 0 ? 'Quy tắc' : idx}</span>
+                {isIslandLocked && <Lock size={11} className="text-slate-400 shrink-0" />}
               </button>
             )
           })}
@@ -683,6 +691,36 @@ export function IslandStationsExplorerView({
         </div>
       </section>
 
+      {/* ── BANNER ĐẢO ĐANG CHỜ MỞ KHÓA (TIÊN QUYẾT) ── */}
+      {isCurrentIslandLocked && (
+        <div className="w-full max-w-xl mx-auto p-5 sm:p-6 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/95 via-white/95 to-orange-50/90 shadow-clay text-center space-y-3 my-2 page-enter">
+          <div className="flex items-center justify-center gap-2.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100/90 border-2 border-amber-300 shadow-soft text-amber-800">
+              <Lock size={22} />
+            </div>
+            <h3 className="font-display font-black text-xl sm:text-2xl text-slate-900">
+              Hòn Đảo Này Đang Chờ Mở Khóa!
+            </h3>
+          </div>
+          <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-md mx-auto leading-relaxed">
+            {currentCourse?.lockMessage ||
+              (currentIslandIndex === 1
+                ? 'Bé hãy hoàn thành Đảo Tiên Quyết (10 Quy Tắc Vàng) trước để mở khóa Đảo 1 nhé!'
+                : `Bé hãy hoàn thành Đảo ${currentIslandIndex} trước để mở khóa hòn đảo tiếp theo nhé!`)}
+          </p>
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => handleIslandClick(courses[0]?.slug || 'muoi-quy-tac-xuong-sang-tao')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black text-xs sm:text-sm shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <Compass size={16} />
+              <span>Đến Đảo Tiên Quyết (10 Quy Tắc Vàng)</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── KHỐI 5: LỘ TRÌNH CÁC TRẠM HỌC (WINDING ADVENTURE PATHWAY) ── */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
@@ -737,6 +775,8 @@ export function IslandStationsExplorerView({
                   meta={meta}
                   currentIslandIndex={currentIslandIndex}
                   onStationClick={handleStationClick}
+                  isCourseLocked={isCurrentIslandLocked}
+                  activeStationIndex={firstUncompletedIndex}
                 />
               ))}
             </ol>
