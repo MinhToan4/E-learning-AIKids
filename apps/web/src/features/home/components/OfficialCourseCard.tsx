@@ -8,6 +8,7 @@ export interface OfficialCourseCardProps {
   onOpenTrailer: () => void
   onUnlockCourse: () => void
   onExploreTrack?: () => void
+  actionLabel?: string
   overallProgressPct?: number
   completedStationsCount?: number
   totalStarsCount?: number
@@ -21,6 +22,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
   onOpenTrailer,
   onUnlockCourse,
   onExploreTrack,
+  actionLabel,
   overallProgressPct = 0,
   completedStationsCount = 0,
   totalStarsCount = 0,
@@ -136,9 +138,11 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
           <button
             type="button"
             onClick={primaryAction}
-            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white shadow-[0_4px_0_#c2410c] transition-all hover:bg-orange-600 active:translate-y-1 active:shadow-none"
+            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white shadow-[0_4px_0_#c2410c] transition-all hover:bg-orange-600 active:translate-y-1 active:shadow-none cursor-pointer"
           >
-            {isPurchased ? (
+            {actionLabel ? (
+              actionLabel
+            ) : isPurchased ? (
               <>
                 <Check className="h-4 w-4" aria-hidden="true" />
                 Vào học 5 khóa đã mở

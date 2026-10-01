@@ -18,9 +18,9 @@ import { ParentTrailerModal } from '@/features/subscription/components/ParentPur
 import { type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import {
   HeroProgressCard,
-  DailyMissionBanner,
   OfficialCourseCard,
 } from '@/features/home/components'
+import { resolveNextActiveStation } from '../lib/home-active-station'
 
 type EnrollmentSummary = {
   courseId: string
@@ -460,8 +460,10 @@ export function HomePage() {
         ? user.avatarId
         : avatarImage(user?.avatarId) || designerAssets.brand.modalMascot || designerAssets.catPoses.welcome
 
+  const streakDays = (user as any)?.currentStreak || 3
+  const activeStation = resolveNextActiveStation(courses, childDisplayName)
   const activeCourse = courses.find((c) => c.enrolled && (c.progressPct ?? 0) < 100) || courses[0]
-  const activeIslandLabel = activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
+  const activeIslandLabel = activeStation.islandTitle || activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
 
   return (
     <PageMotion className="max-w-[1024px] mx-auto w-full px-0.5 sm:px-3 md:px-6 flex flex-col gap-3 sm:gap-6 pb-32 sm:pb-36">
@@ -548,18 +550,39 @@ export function HomePage() {
             <ErrorState message={error} onRetry={() => void load()} inline />
           )}
 
-          {/* ── 2. HERO LEVEL / PROGRESS SCENIC BANNER (Sunset Soft Clay + Mèo Mee) ── */}
+          {/* ── 2. TRẠM CHỈ HUY THÁM HIỂM AI (HERO MISSION CONTROL) ── */}
           <HeroProgressCard
             userName={childDisplayName}
             explorerLevel={explorerLevel}
             overallProgressPct={courseOverallProgressPct}
             xpToNextLevel={xpToNextLevel}
-            onStartLesson={() => navigate('/world/dao-1')}
+            activeStation={activeStation}
+            dailyMission={
+              dailyMission
+                ? {
+                    title: dailyMission.title,
+                    xpReward: dailyMission.xpReward,
+                    isDone: Boolean(dailyMission.completedAt || dailyMission.claimedAt),
+                    claimedAt: dailyMission.claimedAt,
+                    onAction: () => navigate(activeStation.route),
+                  }
+                : {
+                    title: 'Hoàn thành 1 bài học hôm nay để rèn luyện tư duy AI',
+                    xpReward: 30,
+                    isDone: false,
+                    claimedAt: null,
+                    onAction: () => navigate(activeStation.route),
+                  }
+            }
+            streakDays={streakDays}
+            streakLabel={streakInfo.label}
+            onStartLesson={() => navigate(activeStation.route)}
             onOpenMap={() => navigate('/world/program/aikid_official')}
           />
 
           <OfficialCourseCard
             isPurchased={isPurchased}
+            actionLabel={isPurchased ? 'Xem lộ trình 5 khóa học' : 'Mở khóa ngay · 479.000đ'}
             onOpenTrailer={() => setShowTrailerModal(true)}
             onUnlockCourse={() => setShowTrailerModal(true)}
             onExploreTrack={() => navigate('/world/program/aikid_official')}
@@ -567,16 +590,6 @@ export function HomePage() {
             completedStationsCount={completedStationsCount}
             totalStarsCount={totalStarsCount}
           />
-
-          {dailyMission && (
-            <DailyMissionBanner
-              title={dailyMission.title}
-              rewardXp={dailyMission.xpReward}
-              isDone={Boolean(dailyMission.completedAt)}
-              claimedAt={dailyMission.claimedAt}
-              actionRoute={dailyMission.action.route}
-            />
-          )}
 
           <section
             aria-label="Hành trình của con"

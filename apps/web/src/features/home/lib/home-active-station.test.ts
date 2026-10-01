@@ -1,0 +1,159 @@
+// @vitest-environment jsdom
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { resolveNextActiveStation } from './home-active-station'
+import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
+import type { CourseSummary } from '@/shared/lib/api'
+
+describe('resolveNextActiveStation', () => {
+  const store = new Map<string, string>()
+
+  beforeEach(() => {
+    store.clear()
+    const mockStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, String(value)),
+      removeItem: (key: string) => store.delete(key),
+      clear: () => store.clear(),
+      key: (_i: number) => null,
+      length: store.size,
+    }
+    Object.defineProperty(window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+  })
+
+  afterEach(() => {
+    store.clear()
+  })
+
+  const mockCourses: CourseSummary[] = [
+    {
+      id: 'dao-1',
+      title: 'Đảo 1: Khám Phá',
+      shortTitle: 'Đảo 1: Khám Phá',
+      tagline: '',
+      description: '',
+      coverFrom: '#fff',
+      coverTo: '#fff',
+      accent: '#f97316',
+      coverImage: null,
+      ageLabel: '9–12 tuổi',
+      ageTrack: 'L2',
+      durationLabel: '4 trạm',
+      productLabel: 'Khóa học',
+      status: 'active',
+      enrolled: true,
+      recommended: true,
+      skills: [],
+      questCount: 4,
+      completedCount: 0,
+      totalStars: 0,
+      progressPct: 25,
+      quests: [],
+    },
+    {
+      id: 'dao-2',
+      title: 'Đảo 2: Họa Sĩ',
+      shortTitle: 'Đảo 2: Họa Sĩ',
+      tagline: '',
+      description: '',
+      coverFrom: '#fff',
+      coverTo: '#fff',
+      accent: '#f97316',
+      coverImage: null,
+      ageLabel: '9–12 tuổi',
+      ageTrack: 'L2',
+      durationLabel: '4 trạm',
+      productLabel: 'Khóa học',
+      status: 'active',
+      enrolled: true,
+      recommended: false,
+      skills: [],
+      questCount: 4,
+      completedCount: 0,
+      totalStars: 0,
+      progressPct: 0,
+      quests: [],
+    },
+  ]
+
+  it('resolves to Lesson 1.1 when student has no completed lessons', () => {
+    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+
+    expect(active.stationLabel).toBe('Bài 1.1')
+    expect(active.islandNumber).toBe(1)
+    expect(active.islandSlug).toBe('dao-1')
+    expect(active.route).toBe('/world/dao-1/lesson/bai-1-1-mot-tu-hay-nam-tu')
+    expect(active.catDialogue).toContain('Bé Bo')
+    expect(active.catDialogue).toContain('Một từ hay năm từ?')
+    expect(active.isAllCompleted).toBe(false)
+  })
+
+  it('resolves to Lesson 1.2 when Lesson 1.1 is completed in localStorage', () => {
+    store.set('aikids_lesson_completed_bai-1-1', 'true')
+
+    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+
+    expect(active.stationLabel).toBe('Bài 1.2')
+    expect(active.route).toBe('/world/dao-1/lesson/bai-1-2-bon-chiec-chia-khoa')
+    expect(active.catDialogue).toContain('Bốn chiếc chìa khóa vàng')
+  })
+
+  it('resolves to Lesson 1.3 when Lesson 1.1 and 1.2 are completed', () => {
+    store.set('aikids_lesson_completed_bai-1-1', 'true')
+    store.set('aikids_lesson_stars_bai-1-2-bon-chiec-chia-khoa', '3')
+
+    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+
+    expect(active.stationLabel).toBe('Bài 1.3')
+    expect(active.route).toBe('/world/dao-1/lesson/bai-1-3-um-ba-la-bien-hinh')
+    expect(active.catDialogue).toContain('Úm ba la biến hình')
+  })
+
+  it('moves to Island 2 (Lesson 2.1) when all Island 1 lessons are completed', () => {
+    store.set('aikids_lesson_completed_bai-1-1', 'true')
+    store.set('aikids_lesson_completed_bai-1-2-bon-chiec-chia-khoa', 'true')
+    store.set('aikids_lesson_completed_bai-1-3-um-ba-la-bien-hinh', 'true')
+    store.set('aikids_lesson_completed_bai-1-4', 'true')
+
+    const active = resolveNextActiveStation(mockCourses, 'Bé Bo')
+
+    expect(active.islandNumber).toBe(2)
+    expect(active.islandSlug).toBe('dao-2')
+    expect(active.stationLabel).toBe('Bài 2.1')
+    expect(active.route).toContain('/world/dao-2/lesson/')
+    expect(active.catDialogue).toContain('Đảo Họa Sĩ')
+  })
+
+  it('recognizes completed lessons through course quests array', () => {
+    const coursesWithQuests: CourseSummary[] = [
+      {
+        ...mockCourses[0],
+        quests: [
+          { id: 'bai-1-1', status: 'completed' },
+          { id: 'bai-1-2-bon-chiec-chia-khoa', status: 'completed' },
+        ] as any,
+      },
+    ]
+
+    const active = resolveNextActiveStation(coursesWithQuests, 'Mimi')
+
+    expect(active.stationLabel).toBe('Bài 1.3')
+    expect(active.catDialogue).toContain('Mimi')
+  })
+
+  it('handles the edge case when all 22 lessons are completed', () => {
+    for (const lesson of ISLAND_CURRICULUM_LESSONS) {
+      store.set(`aikids_lesson_completed_${lesson.id}`, 'true')
+    }
+
+    const active = resolveNextActiveStation(mockCourses, 'Nhà Thám Hiểm')
+
+    expect(active.isAllCompleted).toBe(true)
+    expect(active.progressPct).toBe(100)
+    expect(active.stationLabel).toBe('Xuất sắc')
+    expect(active.catDialogue).toContain('Nhà Thám Hiểm AI kiệt xuất')
+  })
+})
