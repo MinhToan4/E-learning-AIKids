@@ -364,6 +364,7 @@ export function RewardCollection({
 
   const equip = async (reward: RewardDefinition) => {
     if (pendingRewardId) return
+    const previous = { ...equipment }
     equipmentMutationVersion.current += 1
     setPendingRewardId(reward.id)
     setEquipment(equipReward(userId, reward.kind, reward.id))
@@ -385,9 +386,14 @@ export function RewardCollection({
       // may finish while the mutation is in flight and write an older snapshot.
       setEquipment(equipReward(userId, reward.kind, reward.id))
       setMessage(`Đã trang bị ${reward.name}`)
-    } catch {
-      equipReward(userId, reward.kind, reward.id)
-      setMessage(`Đã trang bị ${reward.name}`)
+    } catch (error) {
+      // The optimistic preview is only provisional. Never let an in-memory
+      // choice masquerade as persisted equipment when the Hub/DB rejected it.
+      setEquipment(syncRewardEquipment(userId, previous))
+      const reason = error instanceof Error && error.message !== 'Error'
+        ? ` (${error.message})`
+        : ''
+      setMessage(`Chưa thể dùng ${reward.name}${reason}.`)
     } finally {
       setPendingRewardId(null)
     }

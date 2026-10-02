@@ -142,6 +142,30 @@ export function LegendStudioDesignerTab({
 
   const chapterPreviewEarned = new Set(storybookPreviewMode === 'complete' ? chapterStickers.map((sticker) => sticker.id) : [])
 
+  const frameShape = useMemo<'circle' | 'rounded-square' | 'square'>(() => {
+    try {
+      const value = (JSON.parse(form.displayJson) as Record<string, unknown>).frameShape
+      return value === 'square' || value === 'rounded-square' ? value : 'circle'
+    } catch {
+      return 'circle'
+    }
+  }, [form.displayJson])
+
+  const setFrameShape = (shape: 'circle' | 'rounded-square' | 'square') => {
+    setForm((current) => {
+      let displayConfig: Record<string, unknown> = {}
+      try {
+        displayConfig = JSON.parse(current.displayJson) as Record<string, unknown>
+      } catch {
+        // Preserve a valid minimum config instead of writing malformed JSON.
+      }
+      return {
+        ...current,
+        displayJson: JSON.stringify({ ...displayConfig, frameShape: shape }, null, 2),
+      }
+    })
+  }
+
   const achievementMilestones = useMemo(() => {
     try {
       return JSON.parse(form.achievementMilestonesJson) as Array<{
@@ -497,6 +521,24 @@ export function LegendStudioDesignerTab({
                 })}
               </div>
             </div>
+          )}
+
+          {form.contentType === 'reward' && form.kind === 'frame' && (
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+              Hình học khung và vùng ảnh đại diện
+              <select
+                className={`${fieldClass} mt-1 h-11 text-sm font-bold normal-case`}
+                value={frameShape}
+                onChange={(event) => setFrameShape(event.target.value as 'circle' | 'rounded-square' | 'square')}
+              >
+                <option value="circle">Tròn</option>
+                <option value="rounded-square">Vuông bo góc</option>
+                <option value="square">Vuông</option>
+              </select>
+              <span className="mt-1 block text-[11px] font-semibold normal-case text-muted">
+                Lựa chọn này được lưu trong catalog và dùng giống nhau ở preview lẫn hồ sơ học sinh.
+              </span>
+            </label>
           )}
 
           {/* 4. Mục gán nhanh mở khóa (Level, Storybook... hoặc để trống) */}
@@ -977,7 +1019,9 @@ export function LegendStudioDesignerTab({
                 <div className="relative -mt-12 px-6 pb-6 text-center">
                   <div className="relative mx-auto flex h-24 w-24 items-center justify-center">
                     {/* Base Kid Avatar */}
-                    <div className="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-amber-100 shadow-md">
+                    <div className={`h-20 w-20 overflow-hidden border-4 border-white bg-amber-100 shadow-md ${
+                      frameShape === 'square' ? 'rounded-none' : frameShape === 'rounded-square' ? 'rounded-2xl' : 'rounded-full'
+                    }`}>
                       {form.kind === 'avatar' && activeAssetSrc ? (
                         <img src={activeAssetSrc} alt="Avatar" className="h-full w-full object-cover" />
                       ) : (

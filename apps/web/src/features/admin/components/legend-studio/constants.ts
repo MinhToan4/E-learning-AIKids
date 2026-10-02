@@ -109,6 +109,7 @@ export const displayTemplate = (kind: RewardKind) => {
     fit: 'contain',
     glowColor: '#A78BFA',
     intensity: 0.6,
+    ...(kind === 'frame' ? { frameShape: 'circle' } : {}),
   }, null, 2)
 }
 

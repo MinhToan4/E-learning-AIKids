@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import type { User } from '@/shared/lib/api'
+import { api, type User } from '@/shared/lib/api'
 import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
 import {
   type RewardEquipment,
@@ -10,6 +10,16 @@ import {
   readRewardEquipment,
 } from '@/features/rewards/reward-equipment'
 import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
+import { resolveCatalogRewardAsset, type RewardCatalogAssets } from '@/features/rewards/reward-catalog-assets'
+import { getResolvedRewardAssetUrl } from '@/features/rewards/reward-assets'
+
+type FrameShape = 'circle' | 'rounded-square' | 'square'
+
+function normalizeFrameShape(value: unknown): FrameShape {
+  if (value === 'square') return 'square'
+  if (value === 'rounded-square' || value === 'squircle') return 'rounded-square'
+  return 'circle'
+}
 
 export interface ProfileHeaderCardProps {
   user: User | null
@@ -36,6 +46,11 @@ export function ProfileHeaderCard({
     user ? readRewardEquipment(user.id) : {},
   )
   const equipment = propEquipment ?? cachedEquipment
+  const [framePresentation, setFramePresentation] = useState<{
+    rewardId: string
+    assetUrl?: string
+    shape: FrameShape
+  } | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -45,6 +60,45 @@ export function ProfileHeaderCard({
       window.removeEventListener('aikids:reward-equipped', sync)
     }
   }, [user?.id])
+
+  useEffect(() => {
+    const rewardId = equipment?.frame
+    if (!rewardId) {
+      setFramePresentation(null)
+      return
+    }
+    let active = true
+    void api<{ items?: Array<{
+      code: string
+      assets?: RewardCatalogAssets
+      displayConfig?: Record<string, unknown>
+    }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6')
+      .then(({ items }) => {
+        if (!active) return
+        const item = items?.find((candidate) => candidate.code === rewardId)
+        const shapeValue = item?.displayConfig?.frameShape
+          ?? item?.displayConfig?.avatarShape
+          ?? item?.displayConfig?.shape
+        setFramePresentation({
+          rewardId,
+          assetUrl: item
+            ? resolveCatalogRewardAsset({ id: item.code, assets: item.assets }, 'primary')
+            : getResolvedRewardAssetUrl(rewardId),
+          shape: normalizeFrameShape(shapeValue),
+        })
+      })
+      .catch(() => {
+        if (!active) return
+        setFramePresentation({
+          rewardId,
+          assetUrl: getResolvedRewardAssetUrl(rewardId),
+          shape: 'circle',
+        })
+      })
+    return () => {
+      active = false
+    }
+  }, [equipment?.frame])
 
   const displayName = user?.nickname || user?.name || 'Nhà Thám Hiểm'
   const avatarUrl = avatarImage(user?.avatarId)
@@ -71,6 +125,15 @@ export function ProfileHeaderCard({
   const tone = profileCardBackgroundTone(equipment?.background)
   const isDarkTone = tone === 'dark'
   const frameStyle = equipment?.frame ? rewardFrameStyle(equipment.frame) : undefined
+  const activeFramePresentation = framePresentation?.rewardId === equipment?.frame
+    ? framePresentation
+    : null
+  const frameShape = activeFramePresentation?.shape ?? 'circle'
+  const frameRadiusClass = useMemo(() => {
+    if (frameShape === 'square') return 'rounded-none'
+    if (frameShape === 'rounded-square') return 'rounded-2xl'
+    return 'rounded-full'
+  }, [frameShape])
   const hasCustomBg = Boolean(equipment?.background)
 
   return (
@@ -100,19 +163,30 @@ export function ProfileHeaderCard({
         {/* Avatar squircle bo góc tròn 3D với khung trang trí & nút bấm đổi avatar */}
         <div className="relative shrink-0">
           <div
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl border-4 border-white shadow-clay overflow-hidden bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative transition-all"
+            data-profile-frame-shape={frameShape}
+            className={`w-20 h-20 sm:w-24 sm:h-24 ${frameRadiusClass} border-4 border-white shadow-clay overflow-visible bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative transition-all`}
             style={frameStyle}
           >
-            {avatarUrl ? (
+            <span className={`absolute inset-1 z-10 overflow-hidden ${frameRadiusClass} bg-white`}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-4xl sm:text-5xl select-none" aria-hidden="true">
+                  {avatarEmoji(user?.avatarId)}
+                </span>
+              )}
+            </span>
+            {activeFramePresentation?.assetUrl && (
               <img
-                src={avatarUrl}
-                alt={displayName}
-                className="h-full w-full object-cover rounded-2xl"
+                src={activeFramePresentation.assetUrl}
+                alt=""
+                className="pointer-events-none absolute inset-0 z-20 h-full w-full max-w-none object-contain"
+                onError={(event) => { event.currentTarget.hidden = true }}
               />
-            ) : (
-              <span className="text-4xl sm:text-5xl select-none" aria-hidden="true">
-                {avatarEmoji(user?.avatarId)}
-              </span>
             )}
           </div>
           <button

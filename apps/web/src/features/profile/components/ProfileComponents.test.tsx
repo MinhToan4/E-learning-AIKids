@@ -8,6 +8,7 @@ import { MemoryRouter } from 'react-router'
 import { ProfileHeaderCard } from './ProfileHeaderCard'
 import { ProfileStatsGrid } from './ProfileStatsGrid'
 import type { User } from '@/shared/lib/api'
+import * as apiModule from '@/shared/lib/api'
 
 describe('ProfileHeaderCard Component', () => {
   const mockUser: User = {
@@ -88,6 +89,44 @@ describe('ProfileHeaderCard Component', () => {
 
     act(() => root.unmount())
     container.remove()
+  })
+
+  it('uses backend catalog geometry for an uploaded square frame', async () => {
+    vi.spyOn(apiModule, 'api').mockResolvedValue({
+      items: [{
+        code: 'frame-uploaded-square',
+        assets: { imageUrl: '/assets/rewards/frames/frame-rainbow.webp' },
+        displayConfig: { frameShape: 'square' },
+      }],
+    } as never)
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfileHeaderCard
+            user={mockUser}
+            explorerLevel={4}
+            explorerXp={350}
+            xpIntoLevel={50}
+            xpToNextLevel={100}
+            equipment={{ frame: 'frame-uploaded-square' }}
+            onOpenAvatarPicker={vi.fn()}
+          />
+        </MemoryRouter>,
+      )
+      await Promise.resolve()
+    })
+
+    const frame = container.querySelector('[data-profile-frame-shape="square"]')
+    expect(frame).not.toBeNull()
+    expect(frame?.classList.contains('rounded-none')).toBe(true)
+
+    act(() => root.unmount())
+    container.remove()
+    vi.restoreAllMocks()
   })
 })
 
