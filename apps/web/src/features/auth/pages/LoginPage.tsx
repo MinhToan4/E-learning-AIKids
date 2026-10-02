@@ -31,7 +31,7 @@ export function LoginPage() {
       return
     }
     if (user.role === 'parent') {
-      navigate('/kids', { replace: true })
+      navigate('/parent', { replace: true })
     } else if (user.role === 'admin') {
       navigate('/admin', { replace: true })
     } else if (user.role === 'teacher') {

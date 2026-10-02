@@ -5,7 +5,9 @@ import {
   CheckCircle2,
   Plus,
   RefreshCw,
+  ShieldCheck,
   Sparkles,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -88,26 +90,26 @@ export function ParentDashboardTab({
     <div className="flex flex-col gap-6">
       {/* ── 1. Household Status Banner & Cockpit ──────────────── */}
       <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/70 via-white to-white p-5 sm:p-6 shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
-              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
+              <ShieldCheck size={14} className="text-brand-600" /> Quản lý tài khoản và phân quyền an toàn
             </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
               Tổng quan gia đình
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              className="gap-2 !text-xs font-bold rounded-xl"
+              className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap h-11 px-4"
               onClick={() => navigate('/parent/kids')}
             >
               <ParentKidsIcon size={18} /> Quản lý con
             </Button>
             <Button
               variant="ghost"
-              className="gap-2 !text-xs font-bold"
+              className="gap-2 !text-xs font-bold whitespace-nowrap h-11 px-3"
               onClick={() => void load()}
             >
               <RefreshCw size={13} /> Làm mới
@@ -116,9 +118,9 @@ export function ParentDashboardTab({
         </div>
 
         <div className="mt-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <h1 className="font-display text-2xl font-black text-slate-900 sm:text-3xl">
-              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
+              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}!
             </h1>
             <p className="text-xs sm:text-sm text-muted mt-1 max-w-2xl leading-relaxed">
               Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
@@ -126,13 +128,13 @@ export function ParentDashboardTab({
           </div>
 
           {/* Subscription Cockpit Capsule */}
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/80 to-purple-50/80 p-3.5 shadow-2xs">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-lg">
-                👑
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/80 to-purple-50/80 p-3.5 shadow-2xs w-full lg:w-auto">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-lg">
+                <Sparkles size={20} className="text-white" />
               </span>
-              <div>
-                <div className="flex items-center gap-1.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-[11px] font-black uppercase tracking-wide text-brand-700">
                     Gói học hiện tại
                   </span>
@@ -140,26 +142,26 @@ export function ParentDashboardTab({
                     {sub?.planName || 'Khởi Đầu'}
                   </span>
                 </div>
-                <p className="text-xs font-bold text-slate-700">
+                <p className="text-xs font-bold text-slate-700 truncate">
                   {kids.length}/{sub?.maxChildren ?? 1} hồ sơ con · {sub?.maxOpenCoursesPerChild ?? 2} vùng mở cùng lúc
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
               <Button
                 variant="primary"
-                className="gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl"
+                className="flex-1 sm:flex-none gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-11 px-4"
                 onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
               >
-                <Sparkles size={13} /> ⭐ Nâng cấp gói
+                <Sparkles size={13} /> Nâng cấp gói
               </Button>
               <Button
                 variant="secondary"
-                className="gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+                className="flex-1 sm:flex-none gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 whitespace-nowrap h-11 px-4"
                 onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
               >
-                ⚡ Nạp lượt AI
+                Nạp lượt AI
               </Button>
             </div>
           </div>
@@ -297,7 +299,7 @@ export function ParentDashboardTab({
       <section aria-label="Tiến trình chi tiết từng con">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="font-display text-lg font-bold text-text">Hành trình học tập của các con</h3>
+            <h3 className="font-display text-lg font-bold text-text">Tiến độ học tập của các con</h3>
             <p className="text-xs text-muted">
               Lộ trình, hoạt động và năng lực · Danh tính và quyền an toàn
             </p>
@@ -313,7 +315,7 @@ export function ParentDashboardTab({
 
         {kids.length === 0 ? (
           <div className="ui-card flex flex-col items-center justify-center gap-3 p-8 text-center rounded-3xl shadow-soft">
-            <span className="text-4xl">👶</span>
+            <Users size={36} className="text-brand-500" />
             <p className="font-display text-base font-bold">Chưa có hồ sơ con nào</p>
             <p className="max-w-md text-xs text-muted">
               Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu đăng nhập bằng biệt danh và học tập.
@@ -334,12 +336,12 @@ export function ParentDashboardTab({
               return (
                 <div
                   key={k.id}
-                  className="ui-card flex flex-col justify-between p-5 rounded-3xl border border-brand-100/80 shadow-clay hover:shadow-soft-xl transition-all duration-300"
+                  className="ui-card flex flex-col justify-between p-4 sm:p-5 rounded-3xl border border-brand-100/80 shadow-clay hover:shadow-soft-xl transition-all duration-300 w-full min-w-0"
                 >
                   {/* Top: Avatar + Level + Nickname */}
                   <div>
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className="relative shrink-0">
                           <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-3xl shadow-soft border-2 border-white">
                             {img ? (
@@ -378,10 +380,10 @@ export function ParentDashboardTab({
                       {/* Mini Stat Pills */}
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-black text-amber-700 border border-amber-200/50">
-                          ⭐ {k.totalStars ?? 0}
+                          {k.totalStars ?? 0} sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2 py-0.5 text-xs font-black text-emerald-700 border border-emerald-200/50">
-                          🚀 {k.completedQuests ?? 0} trạm
+                          {k.completedQuests ?? 0} trạm
                         </span>
                       </div>
                     </div>
@@ -407,14 +409,14 @@ export function ParentDashboardTab({
                   <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 gap-2">
                     <Link
                       to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 transition"
+                      className="inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 transition px-1"
                     >
                       <span>Xem học tập</span>
                       <ArrowRight size={13} />
                     </Link>
                     <Button
                       variant="secondary"
-                      className="gap-1 !py-1.5 !px-3 !text-xs font-bold rounded-xl text-slate-700 hover:text-brand-700"
+                      className="gap-1 min-h-[44px] !px-4 !text-xs font-bold rounded-xl text-slate-700 hover:text-brand-700 whitespace-nowrap"
                       onClick={() => navigate('/kids')}
                     >
                       Chuyển sang con

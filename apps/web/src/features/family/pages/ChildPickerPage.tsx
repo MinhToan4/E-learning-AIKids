@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, LogOut, Plus, Sparkles } from 'lucide-react'
+import { ArrowLeft, LogOut, Plus, Sparkles, Users } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
@@ -10,7 +10,6 @@ import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
-import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 
 type ChildCard = {
   id: string
@@ -112,7 +111,7 @@ export function ChildPickerPage() {
     >
       <div className="absolute inset-0 bg-[#f7f5ff]/90 backdrop-blur-2xs" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1024px] flex-1 flex-col px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1024px] min-w-0 flex-1 flex-col px-3 sm:px-4 md:px-6 py-6 sm:py-8 overflow-x-hidden">
         {/* Header */}
         <header className="mb-6 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="min-w-0">
@@ -129,24 +128,21 @@ export function ChildPickerPage() {
           </div>
           <Link
             to="/parent"
-            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft self-start gap-1.5 rounded-2xl"
+            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft self-start sm:self-auto gap-1.5 rounded-2xl whitespace-nowrap"
             title="Quay lại khu vực Ba / Mẹ"
           >
             <ArrowLeft size={16} /> Quay lại quản lý
           </Link>
         </header>
 
-        {/* AIKI Cat Mascot Greeting Banner with Speech Bubble */}
-        <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/90 via-purple-50/70 to-pink-50/60 p-4 sm:p-5 shadow-clay">
-          <div className="shrink-0 flex items-center justify-center">
-            <AikidCatCharacter pose="welcome" className="h-20 w-20 sm:h-24 sm:w-24 drop-shadow-md" />
+        {/* Adult Guidance Card */}
+        <div className="mb-6 flex items-center gap-3.5 rounded-2xl border border-brand-200/80 bg-brand-50/70 p-4 sm:p-5 shadow-2xs">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-brand-200 shadow-soft text-brand-600">
+            <Users size={20} />
           </div>
-          <div className="relative rounded-2xl bg-white/95 px-4 py-3 shadow-soft border border-brand-100 flex-1 text-center sm:text-left">
-            <p className="font-display text-base sm:text-lg font-bold text-slate-800">
-              Chào bé yêu! Hôm nay ai sẽ cùng AIKI khám phá thế giới nào? 🚀
-            </p>
-            <p className="text-xs text-muted mt-0.5">
-              Chạm vào hình đại diện hoặc tên của mình để bắt đầu hành trình học tập vui vẻ nhé!
+          <div className="min-w-0 flex-1">
+            <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">
+              Chọn hồ sơ con để chuyển sang không gian học tập của bé. Khu vực quản lý của Ba / Mẹ sẽ được ẩn để con tập trung học.
             </p>
           </div>
         </div>
@@ -154,10 +150,9 @@ export function ChildPickerPage() {
         {/* Kids Grid or Empty State */}
         {kids.length === 0 && !loading ? (
           <div className="ui-card mx-auto flex max-w-md flex-col items-center gap-4 rounded-3xl border-2 border-brand-100 bg-white/95 p-8 text-center shadow-clay">
-            <AikidCatCharacter
-              pose="welcome"
-              className="h-28 w-28 shrink-0 drop-shadow-md"
-            />
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-50 border border-brand-200 text-brand-600 shadow-soft">
+              <Users size={36} />
+            </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Chưa có hồ sơ con</h2>
             <p className="text-sm text-muted">
               Ba / Mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
@@ -168,7 +163,7 @@ export function ChildPickerPage() {
           </div>
         ) : (
           <ul
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full min-w-0"
             aria-label="Chọn hồ sơ con để chuyển sang chế độ học"
           >
             {kids.map((k) => {
@@ -222,10 +217,10 @@ export function ChildPickerPage() {
                       {/* Achievement Mini Badges */}
                       <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700 border border-amber-200/60 shadow-2xs">
-                          ⭐ {k.totalStars ?? 0} sao
+                          {k.totalStars ?? 0} sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700 border border-emerald-200/60 shadow-2xs">
-                          🚀 {k.completedQuests ?? 0} trạm
+                          {k.completedQuests ?? 0} trạm
                         </span>
                       </div>
 

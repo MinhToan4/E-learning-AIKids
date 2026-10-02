@@ -76,11 +76,9 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(dialog?.className).toContain('shadow-clay')
     expect(dialog?.className).toContain('max-w-xl')
 
-    // Header & Mascot
+    // Header & Security Badge
     expect(document.body.textContent).toContain('Thanh Toán Gói AI Kid 129K')
-    expect(document.body.textContent).toContain('Mèo AIKI Đồng Hành')
-    const mascot = document.body.querySelector('[data-testid="aikid-modal-cat-character"]')
-    expect(mascot).not.toBeNull()
+    expect(document.body.textContent).toContain('Thanh toán an toàn cho phụ huynh')
 
     // Countdown timer & Essential info
     expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')

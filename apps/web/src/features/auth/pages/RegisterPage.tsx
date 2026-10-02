@@ -20,7 +20,7 @@ export function RegisterPage() {
   const navigate = useNavigate()
 
   function goAfter(user: User) {
-    if (user.role === 'parent') navigate('/kids')
+    if (user.role === 'parent') navigate('/parent')
     else navigate('/teacher')
   }
 

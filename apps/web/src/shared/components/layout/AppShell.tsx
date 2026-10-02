@@ -36,7 +36,6 @@ import {
   KidWorldImageIcon,
 } from '@/shared/components/icons/KidImageIcons'
 import {
-  ParentApprovalIcon,
   ParentDashboardIcon,
   ParentKidsIcon,
   ParentLearningIcon,
@@ -592,7 +591,7 @@ function AdultBottomNav({
       {nav.map((item) => (
         <AdultBottomLink key={item.to} {...item} tone={tone} />
       ))}
-      <MobileLogoutButton />
+      {tone !== 'parent' && <MobileLogoutButton />}
     </nav>
   )
 }
@@ -660,6 +659,8 @@ function AdultChrome({
   nav: RoleNavItem[]
   brandTo: string
 }) {
+  const { handleLogout, loggingOut } = useLogoutAction()
+
   return (
     <div className="role-shell role-tone-parent min-h-dvh md:pl-64">
       {/* Desktop sidebar */}
@@ -675,11 +676,21 @@ function AdultChrome({
       </aside>
 
       {/* Mobile top bar */}
-      <header className="role-mobile-topbar md:hidden">
-        <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
+      <header className="role-mobile-topbar md:hidden flex items-center justify-between">
+        <NavLink to={brandTo} aria-label="Trang chính phụ huynh" className="flex items-center gap-2">
           <BrandLogo size="sm" />
+          <span className="role-mobile-topbar-label">Phụ huynh</span>
         </NavLink>
-        <span className="role-mobile-topbar-label flex-1">Phụ huynh</span>
+        <button
+          type="button"
+          onClick={() => void handleLogout()}
+          disabled={loggingOut}
+          className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold text-muted hover:bg-coral-50 hover:text-coral-600 transition"
+          aria-label={loggingOut ? 'Đang đăng xuất' : 'Đăng xuất'}
+        >
+          <CmsLogoutIcon size={16} />
+          <span className="text-[11px]">{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
+        </button>
       </header>
 
       {/* Main */}
@@ -689,13 +700,7 @@ function AdultChrome({
 
       {/* Mobile bottom nav */}
       <div className="md:hidden">
-        <AdminDrawer
-          nav={nav}
-          pinnedNav={nav.filter((item) => ['/kids', '/parent', '/parent/learning'].includes(item.to))}
-          tone="parent"
-          menuTitle="Tiện ích phụ huynh"
-          menuAriaLabel="Tất cả tiện ích phụ huynh"
-        />
+        <AdultBottomNav nav={nav} tone="parent" />
       </div>
     </div>
   )
@@ -731,12 +736,10 @@ export function AppShell() {
       <AdultChrome
         brandTo="/parent"
         nav={[
-          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
-          { to: '/parent/kids', label: 'Quản lý con', icon: ParentKidsIcon },
+          { to: '/parent', label: 'Quản lý con', icon: ParentKidsIcon, end: true },
           { to: '/parent/learning', label: 'Học tập', icon: ParentLearningIcon, badge: feedbackBadge.hasAny },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
-          { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
-          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
+          { to: '/parent/profile', label: 'Cài đặt', icon: ParentProfileIcon },
           { to: '/kids', label: 'Chuyển sang con', icon: NavWorldIcon, action: true },
         ]}
       />

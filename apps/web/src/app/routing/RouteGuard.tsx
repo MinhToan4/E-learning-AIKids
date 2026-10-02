@@ -21,7 +21,7 @@ export function RouteFallback() {
 function homeFor(role: User['role']) {
   if (role === 'admin') return '/admin'
   if (role === 'teacher') return '/teacher'
-  if (role === 'parent') return '/kids'
+  if (role === 'parent') return '/parent'
   return '/home'
 }
 

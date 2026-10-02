@@ -4,7 +4,7 @@ import { useAuth } from '@/shared/store/auth'
 function homeFor(role: 'student' | 'parent' | 'teacher' | 'admin') {
   if (role === 'admin') return '/admin'
   if (role === 'teacher') return '/teacher'
-  if (role === 'parent') return '/kids'
+  if (role === 'parent') return '/parent'
   return '/home'
 }
 

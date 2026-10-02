@@ -13,7 +13,6 @@ import {
   Sparkles,
   X,
 } from 'lucide-react'
-import { AikidModalCatCharacter } from '@/shared/components/ui/AikidModalCatCharacter'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
@@ -441,18 +440,16 @@ export function ParentSubscriptionCheckoutModal({
         className="relative flex max-h-[92dvh] w-full max-w-xl flex-col overflow-hidden rounded-3xl border-2 border-cream-300 bg-white shadow-clay text-text"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with AIKI Mascot & Title */}
+        {/* Header with Title & Adult Security Badge */}
         <div className="relative flex items-center justify-between border-b border-cream-300/70 bg-gradient-to-r from-amber-100/70 via-sun-100/50 to-cream-100/80 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <AikidModalCatCharacter
-              state={isSuccess ? 'celebrate' : 'talk'}
-              variant="full-body"
-              className="h-12 w-12 sm:h-14 sm:w-14 shrink-0"
-            />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white border border-brand-200 shadow-soft text-brand-600">
+              <ShieldCheck size={22} className="text-brand-600" />
+            </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-amber-900">
-                <Sparkles size={12} className="text-amber-600" />
-                Mèo AIKI Đồng Hành
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/15 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-brand-900 border border-brand-200/60">
+                <ShieldCheck size={16} className="text-brand-600" />
+                <span>Thanh toán an toàn cho phụ huynh</span>
               </div>
               <h2
                 id="subscription-checkout-modal-title"

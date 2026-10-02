@@ -5,10 +5,12 @@ import {
   BookOpen,
   Pencil,
   Plus,
+  QrCode,
   ShieldCheck,
   Sparkles,
   Trash2,
   UserCheck,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
@@ -113,26 +115,26 @@ export function ParentKidsTab() {
 
       {/* Header: Tinh gọn súc tích */}
       <header className="rounded-3xl border-2 border-cream-300 bg-gradient-to-b from-cream-50 via-sun-50/40 to-white p-5 sm:p-6 shadow-clay text-text">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black text-amber-900">
-              <Sparkles size={13} className="text-amber-600" /> Hồ sơ con
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-black text-amber-900">
+              <Users size={14} className="text-brand-600" /> Hồ sơ của con
             </span>
-            <span className="rounded-full bg-cream-100 px-3 py-1 text-xs font-black text-brand-700 border border-cream-300">
+            <span className="rounded-full bg-cream-100 px-3 py-1.5 text-xs font-black text-brand-700 border border-cream-300">
               {kids.filter((k) => k.active !== false).length}/{maxKids} ghế
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Link
               to="/parent/plan"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 transition"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-4 h-11 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 transition whitespace-nowrap"
             >
-              ⭐ Đổi gói / Mở ghế
+              Đổi gói / Mở ghế
             </Link>
             <Button
               onClick={() => setEditTarget(null)}
               disabled={seatsLeft <= 0}
-              className="!text-xs !min-h-9 font-black shadow-clay"
+              className="!text-xs h-11 px-4 font-black shadow-clay whitespace-nowrap"
             >
               + Thêm con
             </Button>
@@ -156,7 +158,7 @@ export function ParentKidsTab() {
             <div
               key={k.id}
               className={cn(
-                'flex flex-col gap-3.5 p-5 transition rounded-3xl border-2 border-cream-300 shadow-clay bg-gradient-to-b from-white via-cream-50/30 to-white text-text',
+                'flex flex-col gap-3.5 p-4 sm:p-5 transition rounded-3xl border-2 border-cream-300 shadow-clay bg-gradient-to-b from-white via-cream-50/30 to-white text-text w-full min-w-0',
                 !k.active && 'opacity-50',
               )}
             >
@@ -221,15 +223,15 @@ export function ParentKidsTab() {
               <div className="grid grid-cols-3 gap-2 bg-cream-50/80 rounded-2xl p-2 border border-cream-200 shadow-soft">
                 <div className="flex flex-col items-center text-center">
                   <span className="text-[9px] uppercase font-black text-muted">Hoàn thành</span>
-                  <span className="text-xs font-black text-text">🚀 {k.completedQuests ?? 0}</span>
+                  <span className="text-xs font-black text-text">{k.completedQuests ?? 0}</span>
                 </div>
                 <div className="flex flex-col items-center text-center border-l border-r border-cream-200">
                   <span className="text-[9px] uppercase font-black text-muted">Tích lũy</span>
-                  <span className="text-xs font-black text-text">⭐ {k.totalStars ?? 0}</span>
+                  <span className="text-xs font-black text-text">{k.totalStars ?? 0}</span>
                 </div>
                 <div className="flex flex-col items-center text-center">
                   <span className="text-[9px] uppercase font-black text-muted">Mở khóa</span>
-                  <span className="text-xs font-black text-text">📚 {courseCount}</span>
+                  <span className="text-xs font-black text-text">{courseCount}</span>
                 </div>
               </div>
 
@@ -241,62 +243,62 @@ export function ParentKidsTab() {
                   </p>
                   <ShieldCheck size={14} className="text-mint-600" />
                 </div>
-                <div className="grid gap-1.5 text-xs">
-                  <label className="flex items-center gap-2 rounded-xl bg-cream-50/60 px-2.5 py-1.5 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                <div className="grid gap-2 text-xs">
+                  <label className="flex items-center gap-2.5 rounded-xl bg-cream-50/60 px-3 py-2 min-h-[44px] border border-cream-200 hover:border-brand-200 transition cursor-pointer select-none">
                     <input
                       type="checkbox"
-                      className="accent-brand-500 rounded"
+                      className="accent-brand-500 rounded h-4 w-4 shrink-0"
                       checked={Boolean(k.allowAiCreate)}
                       onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
                     />
                     <span className="font-bold text-text text-xs">
-                      🤖 Phòng sáng tạo AI
+                      Phòng sáng tạo AI
                     </span>
                   </label>
 
-                  <label className="flex items-center gap-2 rounded-xl bg-cream-50/60 px-2.5 py-1.5 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                  <label className="flex items-center gap-2.5 rounded-xl bg-cream-50/60 px-3 py-2 min-h-[44px] border border-cream-200 hover:border-brand-200 transition cursor-pointer select-none">
                     <input
                       type="checkbox"
-                      className="accent-brand-500 rounded"
+                      className="accent-brand-500 rounded h-4 w-4 shrink-0"
                       checked={Boolean(k.allowPhoto)}
                       onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
                     />
                     <span className="font-bold text-text text-xs">
-                      📷 Dùng ảnh & camera
+                      Dùng ảnh & camera
                     </span>
                   </label>
 
-                  <label className="flex items-center gap-2 rounded-xl bg-cream-50/60 px-2.5 py-1.5 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                  <label className="flex items-center gap-2.5 rounded-xl bg-cream-50/60 px-3 py-2 min-h-[44px] border border-cream-200 hover:border-brand-200 transition cursor-pointer select-none">
                     <input
                       type="checkbox"
-                      className="accent-brand-500 rounded"
+                      className="accent-brand-500 rounded h-4 w-4 shrink-0"
                       checked={!Boolean(k.allowExport)}
                       onChange={(event) => void updateConsent(k, 'allowExport', !event.target.checked)}
                     />
                     <span className="font-bold text-text text-xs">
-                      📤 Tắt xuất / chia sẻ
+                      Tắt xuất / chia sẻ
                     </span>
                   </label>
                 </div>
               </div>
 
-              {/* 3 Main Action Buttons */}
+              {/* 3 Main Action Buttons: Touch-friendly */}
               <div className="mt-auto pt-2 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Link
                     to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl bg-brand-500 py-2.5 px-3 text-xs font-black text-white shadow-clay transition hover:bg-brand-600 active:scale-95 text-center"
+                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-brand-500 py-2 px-3 text-xs font-black text-white shadow-clay transition hover:bg-brand-600 active:scale-95 text-center whitespace-nowrap"
                   >
-                    <BookOpen size={14} />
+                    <BookOpen size={14} className="shrink-0" />
                     <span>Xem học tập</span>
                   </Link>
 
                   <button
                     type="button"
                     onClick={() => navigate('/kids')}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl border-2 border-brand-200 bg-brand-50/70 py-2.5 px-3 text-xs font-black text-brand-700 shadow-soft transition hover:bg-brand-100 active:scale-95 text-center"
+                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border-2 border-brand-200 bg-brand-50/70 py-2 px-3 text-xs font-black text-brand-700 shadow-soft transition hover:bg-brand-100 active:scale-95 text-center whitespace-nowrap"
                   >
-                    <UserCheck size={14} />
+                    <UserCheck size={14} className="shrink-0" />
                     <span>Đổi sang bé</span>
                   </button>
                 </div>
@@ -304,9 +306,10 @@ export function ParentKidsTab() {
                 <button
                   type="button"
                   onClick={() => setQrModalTarget(k)}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-2xl border border-cream-300 bg-white py-2 px-3 text-xs font-black text-muted shadow-soft transition hover:text-text hover:bg-cream-50 active:scale-95"
+                  className="w-full flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-cream-300 bg-white py-2 px-3 text-xs font-black text-slate-700 shadow-soft transition hover:text-text hover:bg-cream-50 active:scale-95 whitespace-nowrap"
                 >
-                  <span>📲 Thẻ QR học sinh</span>
+                  <QrCode size={14} className="shrink-0 text-brand-600" />
+                  <span>Thẻ QR học sinh</span>
                 </button>
               </div>
             </div>
