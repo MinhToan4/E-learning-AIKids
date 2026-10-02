@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, Map as MapIcon, Star } from 'lucide-react'
+import { Check, Map as MapIcon, Play, Star } from 'lucide-react'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { designerAssets } from '@/shared/config/assets'
@@ -498,45 +498,42 @@ export function HomePage() {
   const activeIslandLabel = activeStation.islandTitle || activeCourse?.shortTitle || activeCourse?.title || 'Đảo 1: Khám Phá'
 
   return (
-    <PageMotion className="max-w-[1024px] mx-auto w-full px-0.5 sm:px-3 md:px-6 flex flex-col gap-3 sm:gap-6 pb-32 sm:pb-36">
-      {/* ── 1. HEADER CHUẨN 1:1 THEO THIẾT KẾ ĐÃ DUYỆT (Ảnh 1) ── */}
-      <header className="w-full bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-3 shadow-2xs">
-        {/* Cụm trái: Avatar vuông bo góc vàng mèo + Tên học sinh (Online) + Đảo Khám Phá · Bài 1.2 */}
+    <PageMotion className="max-w-[1024px] mx-auto w-full px-1 sm:px-3 md:px-6 flex flex-col gap-3 sm:gap-5 pb-32 sm:pb-36">
+      {/* ── 1. HEADER DẠNG FLOATING PILLS (KHÔNG DÙNG HỘP BAO CỨNG) ── */}
+      <header className="w-full flex items-center justify-between gap-3 pt-1 pb-1">
+        {/* Cụm trái: Avatar vuông bo góc vàng mèo + Tên học sinh (Online) */}
         <Link
           to="/profile"
-          className="flex items-center gap-2.5 min-w-0 flex-1 group focus-visible:outline-focus"
+          className="flex items-center gap-2.5 bg-white/95 backdrop-blur-md rounded-full px-3.5 py-1.5 shadow-clay border border-white/80 hover:scale-102 transition-all focus-visible:outline-focus group"
           title="Xem hồ sơ thám hiểm của bé"
         >
-          {/* Avatar vuông bo góc vàng Soft Clay */}
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src={resolvedAvatarUrl} alt={childDisplayName} className="w-8 h-8 object-cover rounded-xl" />
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-white shadow-2xs flex items-center justify-center shrink-0 overflow-hidden">
+            <img src={resolvedAvatarUrl} alt={childDisplayName} className="w-8 h-8 object-cover rounded-full" />
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 pr-1">
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-sm sm:text-base text-slate-900 max-w-[130px] sm:max-w-none truncate">
+              <span className="font-extrabold text-sm text-slate-900 truncate">
                 {childDisplayName}
               </span>
               <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black shrink-0">
                 Online
               </span>
             </div>
-            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold truncate">
+            <div className="text-[11px] text-slate-500 font-semibold truncate">
               {activeIslandLabel} · Cấp {explorerLevel}
             </div>
           </div>
         </Link>
 
-        {/* Cụm phải: Viên thuốc sao vàng (⭐ 48 Sao) + Nút Ba / Mẹ Soft Clay */}
+        {/* Cụm phải: 2 Viên Pill Độc Lập Soft Clay */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-amber-50/90 border border-amber-200 text-amber-800 shadow-2xs">
-            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 fill-amber-400 shrink-0" />
-            <span className="font-black text-xs sm:text-sm text-amber-800">
+          <div className="flex items-center gap-1 sm:gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50/95 border border-amber-200/90 shadow-clay">
+            <Star className="w-4 h-4 text-amber-500 fill-amber-400 shrink-0" />
+            <span className="font-black text-sm text-amber-800">
               {totalStarsCount}
             </span>
-            <span className="text-[11px] sm:text-xs font-bold text-amber-700 ml-0.5 inline">
-              Sao
-            </span>
+            <span className="text-[11px] font-bold text-amber-700 ml-0.5">Sao</span>
           </div>
 
           <button
@@ -550,7 +547,7 @@ export function HomePage() {
             }}
             title="Khu vực dành cho Ba / Mẹ"
             aria-label="Khu vực Ba / Mẹ"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100/80 hover:bg-amber-200/90 text-amber-900 border border-amber-300 shadow-2xs transition-all shrink-0 cursor-pointer active:scale-95 text-xs font-black"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-amber-50/90 text-amber-900 border border-amber-200/90 shadow-clay transition-all shrink-0 cursor-pointer active:scale-95 text-xs font-black"
           >
             <ParentHomeIcon size={18} />
             <span className="hidden sm:inline">Ba / Mẹ</span>
@@ -582,149 +579,164 @@ export function HomePage() {
             <ErrorState message={error} onRetry={() => void load()} inline />
           )}
 
-          {/* ── 2. TRẠM CHỈ HUY THÁM HIỂM AI (HERO MISSION CONTROL) ── */}
-          <HeroProgressCard
-            userName={childDisplayName}
-            explorerLevel={explorerLevel}
-            overallProgressPct={courseOverallProgressPct}
-            xpToNextLevel={xpToNextLevel}
-            activeStation={activeStation}
-            dailyMission={
-              dailyMission
-                ? {
-                    title: dailyMission.title,
-                    xpReward: dailyMission.xpReward,
-                    isDone: Boolean(dailyMission.completedAt || dailyMission.claimedAt),
-                    claimedAt: dailyMission.claimedAt,
-                    onAction: () => navigate(activeStation.route),
-                  }
-                : {
-                    title: 'Hoàn thành 1 bài học hôm nay để rèn luyện tư duy AI',
-                    xpReward: 30,
-                    isDone: false,
-                    claimedAt: null,
-                    onAction: () => navigate(activeStation.route),
-                  }
-            }
-            streakDays={streakDays}
-            streakLabel={streakInfo.label}
-            hasStarted={hasLearningActivity}
-            onStartLesson={() => navigate(activeStation.route)}
-            onOpenMap={() => navigate('/world/program/aikid_official')}
-          />
-
-          <OfficialCourseCard
-            isPurchased={isPurchased}
-            actionLabel={isPurchased ? 'Xem lộ trình 5 khóa học' : 'Mở khóa ngay · 479.000đ'}
-            onOpenTrailer={() => setShowTrailerModal(true)}
-            onUnlockCourse={() => setShowTrailerModal(true)}
-            onExploreTrack={() => navigate('/world/program/aikid_official')}
-            overallProgressPct={courseOverallProgressPct}
-            completedStationsCount={completedStationsCount}
-            totalStarsCount={totalStarsCount}
-          />
-
+          {/* ── 2. SINGLE UNIFIED OFFICIAL COURSE STAGE (TÂM ĐIỂM KHÓA HỌC CHÍNH THỨC) ── */}
           <section
-            aria-label="Hành trình của con"
-            className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 p-3 shadow-sm sm:p-5"
+            className="rounded-3xl border-2 border-orange-200/90 bg-gradient-to-b from-orange-50/60 via-white to-amber-50/40 p-4 sm:p-6 shadow-clay flex flex-col gap-4 sm:gap-5"
+            aria-label="Khóa học chính thức AIKid"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-600">
-                  Hành trình của con
-                </p>
-                <h2 className="mt-1 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">
-                  6 đảo sáng tạo
+            {/* Phần Đầu Khóa Học */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider border border-orange-200 shadow-2xs">
+                    CHƯƠNG TRÌNH CHÍNH THỨC AIKID
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs ${
+                    isPurchased
+                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                      : 'bg-amber-100 text-amber-800 border-amber-200'
+                  }`}>
+                    {isPurchased ? 'Đã mở khóa' : 'Học miễn phí Đảo Tiên Quyết'}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2">
+                  Khóa học Khám phá & Sáng tạo AIKid
                 </h2>
-                <p className="mt-1 text-sm font-semibold text-slate-500">
-                  {completedStationsCount}/{totalStationsCount} trạm đã hoàn thành
+                <div className="max-w-sm">
+                  <div className="flex justify-between text-[11px] font-bold text-slate-600 mb-1">
+                    <span>{completedStationsCount}/{totalStationsCount} trạm hoàn thành</span>
+                    <span>{courseOverallProgressPct}%</span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-slate-200/80 overflow-hidden shadow-inner">
+                    <div
+                      className="h-full bg-gradient-to-r from-orange-400 to-violet-500 rounded-full transition-all duration-500"
+                      style={{ width: `${courseOverallProgressPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowTrailerModal(true)}
+                className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-orange-300 hover:bg-orange-50 text-slate-700 font-bold text-xs transition-all shadow-2xs shrink-0 self-start cursor-pointer active:scale-95"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-700" />
+                Giới thiệu 1p45s
+              </button>
+            </div>
+
+            {/* Đường Ray Bài Học Tiếp Theo (Quick Action) */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-white/90 border border-orange-100/90 shadow-2xs">
+              <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
+                <div className="w-11 h-11 shrink-0 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-2xs overflow-hidden">
+                  <img src={designerAssets.catPoses.guide} alt="Mèo AIKI" className="w-9 h-9 object-contain" />
+                </div>
+                <p className="text-xs sm:text-sm font-semibold text-slate-700 leading-snug">
+                  “<span className="font-bold text-brand-600">{childDisplayName} ơi!</span> {activeStation.stationTitle}. Cùng tớ khám phá nhé!”
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => navigate('/world/program/aikid_official')}
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 text-sm font-black text-brand-700 transition-colors hover:bg-brand-100 sm:w-auto"
+                onClick={() => navigate(activeStation.route)}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm shadow-clay hover:scale-102 active:scale-95 transition-all shrink-0 cursor-pointer"
               >
-                <MapIcon className="h-4 w-4" aria-hidden="true" />
-                Xem bản đồ học tập
+                {hasLearningActivity ? 'Học tiếp' : 'Bắt đầu'} {activeStation.stationLabel}: {activeStation.stationTitle} <span className="ml-1.5 font-bold">➔</span>
               </button>
             </div>
 
-            <div className="relative mt-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="pointer-events-none absolute left-14 right-14 top-[62px] hidden border-t-2 border-dashed border-sky-300 sm:block" />
-              <div className="relative grid min-w-[720px] grid-cols-6 gap-3 sm:min-w-0">
-              {OFFICIAL_SIX_ISLANDS.map((island, index) => {
-                const matched = courses.find((c) => {
-                  const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
-                  const title = `${c.title ?? ''} ${c.shortTitle ?? ''}`.toLowerCase()
-                  const combined = `${key} ${title}`
-                  return island.searchKeys.some((sk) => combined.includes(sk))
-                })
+            {/* Hành Trình 6 Đảo Sáng Tạo Trực Quan */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-black uppercase tracking-[0.12em] text-slate-600 flex items-center gap-1.5">
+                  <span>🗺️</span> Hành trình 6 đảo sáng tạo ({totalStationsCount} trạm)
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => navigate('/world/program/aikid_official')}
+                  className="inline-flex items-center gap-1 text-xs font-black text-brand-600 hover:text-brand-700 transition-colors cursor-pointer"
+                >
+                  <MapIcon className="w-3.5 h-3.5" />
+                  Xem bản đồ đảo
+                </button>
+              </div>
 
-                const questCount = island.defaultQuestCount
-                const rawTotal = matched?.questCount ?? questCount
-                const rawCompleted = matched?.completedCount ?? 0
-                const completedCount = rawTotal > questCount && rawTotal > 0
-                  ? Math.min(questCount, Math.round((rawCompleted / rawTotal) * questCount))
-                  : Math.min(questCount, Math.max(0, rawCompleted))
-                const progressPct =
-                  questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
-                const isCompleted = completedCount >= questCount || matched?.status === 'completed'
-                const isActive =
-                  matched?.status === 'active' ||
-                  matched?.status === 'in_progress' ||
-                  (completedCount > 0 && !isCompleted)
+              <div className="relative overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="pointer-events-none absolute left-14 right-14 top-[50px] hidden border-t-2 border-dashed border-orange-300/50 sm:block" />
+                <div className="relative grid min-w-[720px] grid-cols-6 gap-3 sm:min-w-0">
+                  {OFFICIAL_SIX_ISLANDS.map((island, index) => {
+                    const matched = courses.find((c) => {
+                      const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
+                      const title = `${c.title ?? ''} ${c.shortTitle ?? ''}`.toLowerCase()
+                      const combined = `${key} ${title}`
+                      return island.searchKeys.some((sk) => combined.includes(sk))
+                    })
 
-                return (
-                  <Link
-                    key={island.id}
-                    to={island.targetRoute}
-                    className="group relative flex min-w-0 flex-col items-center rounded-2xl px-2 pb-2 pt-1 text-center transition-transform hover:-translate-y-1 focus-visible:outline-focus"
-                  >
-                    <div className="relative flex h-[108px] w-full items-center justify-center">
-                      <img
-                        src={island.scene}
-                        alt=""
-                        className={`h-full w-full object-contain drop-shadow-sm transition-all group-hover:scale-105 ${
-                          !isCompleted && !isActive ? 'saturate-[.65]' : ''
-                        }`}
-                        aria-hidden="true"
-                      />
-                      <div
-                        className={`absolute bottom-0 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-white px-2 text-[10px] font-black shadow-sm ${
-                          isCompleted
-                            ? 'bg-emerald-500 text-white'
-                            : isActive
-                              ? 'bg-amber-400 text-amber-950'
-                              : 'bg-white text-slate-500'
-                        }`}
+                    const questCount = island.defaultQuestCount
+                    const rawTotal = matched?.questCount ?? questCount
+                    const rawCompleted = matched?.completedCount ?? 0
+                    const completedCount = rawTotal > questCount && rawTotal > 0
+                      ? Math.min(questCount, Math.round((rawCompleted / rawTotal) * questCount))
+                      : Math.min(questCount, Math.max(0, rawCompleted))
+                    const progressPct =
+                      questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
+                    const isCompleted = completedCount >= questCount || matched?.status === 'completed'
+                    const isActive =
+                      matched?.status === 'active' ||
+                      matched?.status === 'in_progress' ||
+                      (completedCount > 0 && !isCompleted)
+
+                    return (
+                      <Link
+                        key={island.id}
+                        to={island.targetRoute}
+                        className="group relative flex min-w-0 flex-col items-center rounded-2xl px-2 pb-2 text-center transition-transform hover:-translate-y-1 focus-visible:outline-focus"
                       >
-                        {isCompleted ? (
-                          <Check className="h-4 w-4" />
-                        ) : index === 0 ? (
-                          '🛡️'
-                        ) : (
-                          index.toString()
-                        )}
-                      </div>
-                    </div>
-                    <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-black leading-snug text-slate-900">
-                      {island.title}
-                    </h3>
-                    <div className="mt-auto w-full pt-2">
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200/90">
-                        <div
-                          className="h-full rounded-full bg-violet-500 transition-[width]"
-                          style={{ width: `${progressPct}%` }}
-                        />
-                      </div>
-                      <p className="mt-1.5 text-[11px] font-bold text-slate-500">
-                        {completedCount}/{questCount} trạm
-                      </p>
-                    </div>
-                  </Link>
-                )
-              })}
+                        <div className="relative flex h-[100px] w-full items-center justify-center">
+                          <img
+                            src={island.scene}
+                            alt=""
+                            className={`h-full w-full object-contain drop-shadow-sm transition-all group-hover:scale-105 ${
+                              !isCompleted && !isActive ? 'saturate-[.65]' : ''
+                            }`}
+                            aria-hidden="true"
+                          />
+                          <div
+                            className={`absolute bottom-0 flex h-7 min-w-7 items-center justify-center rounded-full border-2 border-white px-1.5 text-[10px] font-black shadow-sm ${
+                              isCompleted
+                                ? 'bg-emerald-500 text-white'
+                                : isActive
+                                  ? 'bg-amber-400 text-amber-950'
+                                  : 'bg-white text-slate-500'
+                            }`}
+                          >
+                            {isCompleted ? (
+                              <Check className="h-3.5 w-3.5" />
+                            ) : index === 0 ? (
+                              '🛡️'
+                            ) : (
+                              index.toString()
+                            )}
+                          </div>
+                        </div>
+                        <h4 className="mt-2 line-clamp-2 min-h-[2.5rem] text-xs font-black leading-snug text-slate-800">
+                          {island.title}
+                        </h4>
+                        <div className="mt-auto w-full pt-1.5">
+                          <div className="h-1.5 overflow-hidden rounded-full bg-slate-200/90">
+                            <div
+                              className="h-full rounded-full bg-violet-500 transition-[width]"
+                              style={{ width: `${progressPct}%` }}
+                            />
+                          </div>
+                          <p className="mt-1 text-[10px] font-bold text-slate-500">
+                            {completedCount}/{questCount} trạm
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           </section>
