@@ -125,6 +125,7 @@ export function ProfileHeaderCard({
   const tone = profileCardBackgroundTone(equipment?.background)
   const isDarkTone = tone === 'dark'
   const frameStyle = equipment?.frame ? rewardFrameStyle(equipment.frame) : undefined
+  const usesBuiltInFrameRenderer = Boolean(frameStyle && Object.keys(frameStyle).length > 0)
   const activeFramePresentation = framePresentation?.rewardId === equipment?.frame
     ? framePresentation
     : null
@@ -164,7 +165,7 @@ export function ProfileHeaderCard({
         <div className="relative shrink-0">
           <div
             data-profile-frame-shape={frameShape}
-            className={`w-20 h-20 sm:w-24 sm:h-24 ${frameRadiusClass} border-4 border-white shadow-clay overflow-visible bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative transition-all`}
+            className={`w-20 h-20 sm:w-24 sm:h-24 ${frameRadiusClass} border-4 border-white shadow-clay overflow-hidden bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative transition-all`}
             style={frameStyle}
           >
             <span data-profile-avatar-layer className={`absolute inset-[10%] z-20 overflow-hidden ${frameRadiusClass} bg-white`}>
@@ -180,7 +181,7 @@ export function ProfileHeaderCard({
                 </span>
               )}
             </span>
-            {activeFramePresentation?.assetUrl && (
+            {activeFramePresentation?.assetUrl && !usesBuiltInFrameRenderer && (
               <img
                 src={activeFramePresentation.assetUrl}
                 alt=""

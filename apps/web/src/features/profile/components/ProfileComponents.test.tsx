@@ -130,6 +130,42 @@ describe('ProfileHeaderCard Component', () => {
     container.remove()
     vi.restoreAllMocks()
   })
+
+  it('does not layer an opaque catalog preview over a built-in CSS frame', async () => {
+    vi.spyOn(apiModule, 'api').mockResolvedValue({
+      items: [{
+        code: 'frame-galaxy',
+        assets: { imageUrl: '/assets/rewards/frames/frame-galaxy.webp' },
+      }],
+    } as never)
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfileHeaderCard
+            user={mockUser}
+            explorerLevel={4}
+            explorerXp={350}
+            xpIntoLevel={50}
+            xpToNextLevel={100}
+            equipment={{ frame: 'frame-galaxy' }}
+            onOpenAvatarPicker={vi.fn()}
+          />
+        </MemoryRouter>,
+      )
+      await Promise.resolve()
+    })
+
+    expect(container.querySelector('[data-profile-frame-artwork]')).toBeNull()
+    expect(container.querySelector('[data-profile-frame-shape]')?.classList.contains('overflow-hidden')).toBe(true)
+
+    act(() => root.unmount())
+    container.remove()
+    vi.restoreAllMocks()
+  })
 })
 
 describe('ProfileStatsGrid Component', () => {
