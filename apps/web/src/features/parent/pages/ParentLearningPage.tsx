@@ -617,7 +617,7 @@ export function ParentLearningPage() {
               <Sparkles size={12} /> THEO DÕI TIẾN ĐỘ HỌC TẬP
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
-              Hải Trình 6 Đảo & Năng Lực
+              Khóa Học AIKid & Năng Lực
             </span>
             {isRevalidating && (
               <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-700 animate-pulse border border-brand-200">
@@ -652,7 +652,7 @@ export function ParentLearningPage() {
           <div>
             <h1 className="font-display text-2xl font-black text-slate-900 sm:text-3xl">Trung tâm học tập</h1>
             <p className="mt-1 max-w-2xl text-xs sm:text-sm text-muted leading-relaxed">
-              Theo dõi Hải Trình 6 Đảo Sáng Tạo, bằng khen chứng nhận và đánh giá năng lực của từng bé trên một giao diện ấm áp.
+              Theo dõi Khóa học AIKid Chính Thức, bằng khen chứng nhận và đánh giá năng lực của từng bé trên một giao diện ấm áp.
             </p>
           </div>
 
@@ -731,7 +731,7 @@ export function ParentLearningPage() {
       >
         {(
           [
-            ['overview', 'Hành trình 6 Đảo', Compass],
+            ['overview', 'Khóa học AIKid', Compass],
             ['credentials', 'Bằng khen & Chứng nhận', Trophy],
             ['growth', 'Năng lực & Nhận xét', Sparkles],
             ['activity', 'Hoạt động', Activity],
@@ -754,9 +754,9 @@ export function ParentLearningPage() {
           >
             <Icon size={18} aria-hidden="true" />
             <span>{label}</span>
-            {key === 'credentials' && (
+            {key === 'credentials' && ((completedQuests >= 30 ? 1 : 0) + (data?.credentials.length ?? 0) > 0) && (
               <span className="rounded-full bg-amber-400 text-amber-950 px-1.5 py-0.2 text-[10px] font-black">
-                1
+                {(completedQuests >= 30 ? 1 : 0) + (data?.credentials.length ?? 0)}
               </span>
             )}
             {key === 'feedback' && feedbackBadge.byChild[studentId] && (
@@ -837,19 +837,17 @@ export function ParentLearningPage() {
   )
 }
 
-// ── Tab 1: Tổng Quan & Hải Trình 6 Đảo Sáng Tạo ────────────────
+// ── Tab 1: Tổng Quan & Khóa Học AIKid Chính Thức ────────────────
 function LearningOverview({
   child,
   pathway,
   credentials,
   totalStars,
   completedQuests,
-  aiCredits,
   hasNewFeedback,
   onOpenPathway,
   onOpenFeedback,
   onOpenCredentials,
-  onTopupCredits,
   onEnterChild,
 }: {
   child: Child | null
@@ -857,7 +855,7 @@ function LearningOverview({
   credentials: Credential[]
   totalStars: number
   completedQuests: number
-  aiCredits: number
+  aiCredits?: number
   hasNewFeedback: boolean
   onOpenPathway: () => void
   onOpenFeedback: () => void
@@ -873,60 +871,28 @@ function LearningOverview({
 
   return (
     <div className="grid gap-5">
-      {/* AI Creative Studio Banner */}
-      <section className="ui-card flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 bg-gradient-to-r from-sun-50 via-cream-50 to-amber-50 border border-amber-200 shadow-soft">
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-100 text-amber-700 shadow-soft">
-            <Sparkles size={22} className="text-amber-600" />
-          </span>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
-                Xưởng Sáng Tạo & Tranh Vẽ AI Cho {childName}
-              </h3>
-              <span className="rounded-full bg-amber-200/90 px-2 py-0.5 text-[11px] font-black text-amber-950">
-                🎨 {aiCredits} lượt khả dụng
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs text-muted">
-              Bé thỏa sức sáng tác truyện tranh và mở rộng trí tưởng tượng cùng AI Cat AIKI. Lượt tạo ảnh không bao giờ hết hạn.
-            </p>
-          </div>
-        </div>
-        {onTopupCredits && (
-          <button
-            type="button"
-            onClick={onTopupCredits}
-            className="inline-flex items-center gap-1.5 rounded-2xl py-2 px-3.5 text-xs font-black shadow-clay bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white transition active:scale-[0.98]"
-          >
-            <Sparkles size={14} />
-            <span>Nạp Thêm Lượt Tạo Ảnh AI</span>
-          </button>
-        )}
-      </section>
-
-      {/* Thẻ Bước Tiếp Theo */}
+      {/* Thẻ Báo Cáo Tiến Độ Súc Tích Cho Phụ Huynh */}
       <section className="ui-card overflow-hidden rounded-3xl border-2 border-brand-200 shadow-clay">
         <div className="grid gap-5 bg-gradient-to-br from-brand-50/90 via-white to-sky-50/60 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-brand-500 text-white px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-2xs">
-                Bước tiếp theo
+                TIẾN ĐỘ HỌC TẬP
               </span>
               <span className="text-xs font-bold text-slate-500">
-                Lộ trình Hải Trình 6 Đảo
+                Bước tiếp theo
               </span>
             </div>
             <h2 className="mt-2 font-display text-xl sm:text-2xl font-black text-slate-900">
               {isIsland0Done
-                ? `${childName} ơi! Cùng tiếp tục hành trình tại Đảo 1: Nhà thám hiểm AI`
+                ? 'Khóa học tiếp theo: Đảo 1 - Nhà thám hiểm AI'
                 : active
-                  ? `${childName} nên tiếp tục “${active.title}”`
+                  ? `Khóa học tiếp theo: ${active.title}`
                   : `Chọn chương trình đầu tiên cho ${childName}`}
             </h2>
             <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-600">
               {isIsland0Done
-                ? `Bé đã xuất sắc hoàn thành 10/10 trạm Đảo Tiên Quyết (30 sao) và nhận Giấy chứng nhận tốt nghiệp! Hãy tiếp tục hành trình bước vào Đảo 1 để khám phá 4 chiếc chìa khóa vàng viết Prompt.`
+                ? 'Con đã hoàn thành Đảo Tiên Quyết (10/10 trạm) và đang tiếp tục học Đảo 1 (4 trạm viết Prompt).'
                 : active
                   ? `Lộ trình đã hoàn thành ${active.completionPercent}%. Tiến độ và điều kiện mở khóa do hệ thống học tập cập nhật.`
                   : 'Chương trình phù hợp độ tuổi và quyền học hiện có sẽ xuất hiện trong mục Lộ trình.'}
@@ -939,7 +905,7 @@ function LearningOverview({
                 className="gap-2 font-black shadow-clay rounded-2xl min-h-[44px] px-6 text-sm"
                 onClick={onEnterChild}
               >
-                <span>Vào học ngay ➔</span>
+                <span>Vào lớp học cùng con ➔</span>
               </Button>
             ) : (
               <Button onClick={onOpenPathway} className="gap-2 rounded-2xl shadow-clay min-h-[44px] px-6">
@@ -969,8 +935,12 @@ function LearningOverview({
         <OverviewStat
           icon={Award}
           label="Chứng nhận"
-          value={isIsland0Done ? Math.max(1, credentials.length) : credentials.length}
-          subtext={isIsland0Done ? 'Tốt nghiệp Đảo Tiên Quyết' : 'Chưa có chứng nhận'}
+          value={completedQuests >= 30 ? 1 : 0}
+          subtext={
+            completedQuests >= 30
+              ? 'Đã tốt nghiệp Khóa học AIKid'
+              : 'Cần hoàn thành 30/30 trạm để tốt nghiệp'
+          }
           tone="sun"
           onClick={onOpenCredentials}
         />
@@ -996,9 +966,9 @@ function LearningOverview({
         </button>
       </div>
 
-      {/* ── HẢI TRÌNH 6 ĐẢO SÁNG TẠO (VISUAL 6 ISLANDS GRID) ──── */}
+      {/* ── KHÓA HỌC AIKID CHÍNH THỨC (30 TRẠM HỌC) ──── */}
       <section
-        aria-label="Hải Trình 6 Đảo Sáng Tạo"
+        aria-label="Khóa Học AIKid Chính Thức (30 Trạm Học)"
         className="rounded-3xl border-2 border-brand-100 bg-gradient-to-b from-brand-50/40 via-white to-white p-5 sm:p-6 shadow-soft"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-100/70 pb-4 mb-5">
@@ -1008,10 +978,10 @@ function LearningOverview({
             </span>
             <div>
               <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
-                Hải Trình 6 Đảo Sáng Tạo
+                Khóa Học AIKid Chính Thức (30 Trạm Học)
               </h2>
               <p className="text-xs text-muted">
-                Hành trình chinh phục AI qua 6 chặng đảo: Đảo Tiên Quyết (10 trạm) và 5 Đảo Sáng Tạo (mỗi đảo 4 trạm).
+                Chương trình đào tạo toàn diện gồm Đảo Tiên Quyết (10 trạm) và 5 Đảo Sáng Tạo (mỗi đảo 4 trạm).
               </p>
             </div>
           </div>
@@ -1050,7 +1020,7 @@ function LearningOverview({
                 className={cn(
                   'relative flex flex-col justify-between rounded-3xl border-2 p-5 transition-all duration-300 shadow-clay',
                   islandStatus === 'completed'
-                    ? 'border-amber-300 bg-gradient-to-b from-amber-50/60 via-white to-white'
+                    ? 'border-emerald-300 bg-gradient-to-b from-emerald-50/50 via-white to-white'
                     : islandStatus === 'active'
                       ? 'border-brand-300 bg-gradient-to-b from-brand-50/60 via-white to-white ring-2 ring-brand-200'
                       : 'border-slate-200 bg-slate-50/70 opacity-80',
@@ -1068,8 +1038,8 @@ function LearningOverview({
                         />
                       </div>
                       {islandStatus === 'completed' && (
-                        <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow-2xs text-xs font-black">
-                          🏆
+                        <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white shadow-2xs text-xs font-black">
+                          ✓
                         </span>
                       )}
                     </div>
@@ -1078,14 +1048,14 @@ function LearningOverview({
                       className={cn(
                         'rounded-full px-2.5 py-1 text-xs font-black shadow-2xs',
                         islandStatus === 'completed'
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
                           : islandStatus === 'active'
                             ? 'bg-brand-500 text-white'
                             : 'bg-slate-200 text-slate-600',
                       )}
                     >
                       {islandStatus === 'completed'
-                        ? 'Đã Tốt Nghiệp'
+                        ? `🟢 Đã hoàn thành (${islandCompleted}/${island.totalStations} trạm)`
                         : islandStatus === 'active'
                           ? 'Đang Học 🧭'
                           : 'Chặng Kế Tiếp 🔒'}
@@ -1114,7 +1084,7 @@ function LearningOverview({
                       <div
                         className={cn(
                           'h-full rounded-full transition-all duration-700',
-                          islandStatus === 'completed' ? 'bg-amber-400' : 'bg-brand-500',
+                          islandStatus === 'completed' ? 'bg-emerald-500' : 'bg-brand-500',
                         )}
                         style={{ width: `${pct}%` }}
                       />
@@ -1125,13 +1095,9 @@ function LearningOverview({
                 {/* Action Footer */}
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                   {islandStatus === 'completed' ? (
-                    <button
-                      type="button"
-                      onClick={onOpenCredentials}
-                      className="inline-flex items-center gap-1.5 text-xs font-black text-amber-800 hover:text-amber-950 transition"
-                    >
-                      <span>Xem Bằng Khen 🏆</span>
-                    </button>
+                    <span className="text-xs font-bold text-slate-600">
+                      Đã đạt chuẩn an toàn AI
+                    </span>
                   ) : islandStatus === 'active' ? (
                     <button
                       type="button"
@@ -1212,8 +1178,9 @@ function CredentialsShowcase({
   busy: boolean
   onDownload: (credential: Credential) => void
 }) {
-  const childName = child?.nickname ?? 'Bé'
-  const isEligibleForCert = completedQuests >= 10
+  const childName = child?.nickname ?? 'Con'
+  const isGraduated = completedQuests >= 30
+  const progressPercent = Math.min(100, Math.round((completedQuests / 30) * 100))
 
   return (
     <div className="grid gap-6">
@@ -1227,10 +1194,10 @@ function CredentialsShowcase({
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-display uppercase tracking-wide">
-            Giấy Chứng Nhận Tốt Nghiệp Đảo Tiên Quyết
+            Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
-            Chương trình 10 Quy Tắc Vàng & Khởi Đầu Văn Hóa AI An Toàn
+          <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1 max-w-lg">
+            Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid là chứng chỉ vinh dự cao nhất khi học sinh hoàn thành trọn bộ 30 trạm học của cả 6 đảo.
           </p>
 
           <div className="flex items-center gap-2 my-3">
@@ -1239,12 +1206,46 @@ function CredentialsShowcase({
             <div className="h-0.5 w-16 bg-amber-300 rounded-full" />
           </div>
 
-          {/* SVG Vector Artwork */}
-          <div className="relative my-4 flex items-center justify-center w-full max-w-[320px] sm:max-w-[360px] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50/50 p-2">
+          {/* Thanh tiến độ tốt nghiệp trực quan */}
+          <div className="w-full max-w-md my-3 rounded-2xl bg-white/90 p-3.5 border border-amber-200 shadow-soft">
+            <div className="flex items-center justify-between text-xs font-black text-slate-700 mb-1.5">
+              <span>Tiến độ tốt nghiệp: {completedQuests} / 30 trạm ({progressPercent}%)</span>
+              <span className={cn(isGraduated ? 'text-emerald-700' : 'text-amber-700')}>
+                {isGraduated ? '🟢 Đã đủ điều kiện' : `Còn ${Math.max(0, 30 - completedQuests)} trạm`}
+              </span>
+            </div>
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all duration-700',
+                  isGraduated ? 'bg-emerald-500' : 'bg-gradient-to-r from-amber-400 to-amber-500',
+                )}
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Thông báo tiến độ cho phụ huynh nếu chưa hoàn thành 30 trạm */}
+          {!isGraduated && (
+            <div className="my-2 w-full max-w-md rounded-2xl bg-amber-50 border border-amber-200 p-3 text-xs font-bold text-amber-900 leading-relaxed text-left sm:text-center">
+              Con cần hoàn thành đủ 30 trạm của Khóa học AIKid Chính Thức để nhận Giấy chứng nhận tốt nghiệp danh dự. Hiện tại con đã tích lũy {completedQuests}/30 trạm.
+            </div>
+          )}
+
+          {/* SVG Vector Artwork (Bản xem trước hoặc Bản chính thức) */}
+          <div className="relative my-4 flex flex-col items-center justify-center w-full max-w-[320px] sm:max-w-[360px] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50/50 p-2">
+            {!isGraduated && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap rounded-full bg-slate-900/85 px-3 py-1 text-[11px] font-black text-amber-300 shadow-md backdrop-blur-xs border border-amber-400/40">
+                Bản xem trước chứng nhận · Mở khi hoàn thành 30 trạm
+              </div>
+            )}
             <img
               src={designerAssets.certificates.graduation}
-              alt="Giấy Chứng Nhận Tốt Nghiệp AI Kids"
-              className="w-full h-auto object-contain rounded-xl drop-shadow-md hover:scale-105 transition-transform duration-300"
+              alt="Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid"
+              className={cn(
+                'w-full h-auto object-contain rounded-xl drop-shadow-md transition-all duration-300',
+                !isGraduated ? 'opacity-90 contrast-95' : 'hover:scale-105',
+              )}
             />
           </div>
 
@@ -1255,30 +1256,45 @@ function CredentialsShowcase({
           </p>
 
           <p className="text-xs sm:text-sm font-bold text-slate-600 mt-2 max-w-md">
-            Đã xuất sắc vượt qua 10/10 trạm học Đảo Tiên Quyết, nắm vững quy chuẩn đạo đức số và sẵn sàng thám hiểm thế giới AI.
+            {isGraduated
+              ? 'Đã xuất sắc hoàn thành trọn bộ 30/30 trạm học của 6 đảo Khóa học AIKid Chính Thức, làm chủ kiến thức và kỹ năng sáng tạo AI toàn diện.'
+              : `Hiện đang tham gia Khóa học AIKid Chính Thức (đã hoàn thành ${completedQuests}/30 trạm).`}
           </p>
 
           {/* Achievement Stats Badges */}
           <div className="flex items-center justify-center gap-3 my-4 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-black border border-amber-300 shadow-2xs">
-              ⭐ {Math.max(30, totalStars)} Sao Tinh Hoa
+              ⭐ {totalStars} Sao Tinh Hoa
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs sm:text-sm font-black border border-emerald-300 shadow-2xs">
-              🎯 10/10 Trạm Hoàn Thành
+            <span
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-black border shadow-2xs',
+                isGraduated
+                  ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                  : 'bg-slate-100 text-slate-800 border-slate-300',
+              )}
+            >
+              🎯 {completedQuests} / 30 Trạm Hoàn Thành
             </span>
           </div>
 
           {/* Download Button */}
           <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-            <a
-              href={designerAssets.certificates.graduation}
-              download={`Chung-Nhan-Tot-Nghiep-${childName}.svg`}
-              className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-sm px-7 py-3 shadow-clay transition cursor-pointer active:scale-95"
-              title="Tải Giấy Chứng Nhận về máy để in ấn hoặc đóng khung kỷ niệm"
-            >
-              <Download size={18} />
-              <span>Tải Bằng Khen (.SVG)</span>
-            </a>
+            {isGraduated ? (
+              <a
+                href={designerAssets.certificates.graduation}
+                download={`Chung-Nhan-Tot-Nghiep-${childName}.svg`}
+                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-sm px-7 py-3 shadow-clay transition cursor-pointer active:scale-95"
+                title="Tải Giấy Chứng Nhận về máy để in ấn hoặc đóng khung kỷ niệm"
+              >
+                <Download size={18} />
+                <span>Tải Bằng Khen (.SVG)</span>
+              </a>
+            ) : (
+              <div className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-500 font-black text-xs sm:text-sm px-6 py-3 cursor-not-allowed select-none">
+                <span>🔒 Mở khóa tải về khi hoàn thành 30/30 trạm</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
