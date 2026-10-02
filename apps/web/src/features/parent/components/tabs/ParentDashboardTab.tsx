@@ -2,16 +2,23 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
   ArrowRight,
+  Camera,
   CheckCircle2,
+  Download,
+  Lock,
   Palette,
+  Pencil,
   Plus,
+  QrCode,
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Trash2,
   Users,
   Zap,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
+import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { StatMetricCard } from '@/shared/components/charts/StatMetricCard'
 import {
@@ -25,10 +32,18 @@ import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
+import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
+import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
+import { useToast } from '@/shared/hooks/useToast'
+import { ToastContainer } from '@/shared/components/ui/Toast'
 import type { CheckoutProductMode } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
-import { getDashboardCache, setDashboardCache } from '@/features/parent/lib/parent-cache'
+import {
+  getDashboardCache,
+  invalidateParentCache,
+  setDashboardCache,
+} from '@/features/parent/lib/parent-cache'
 
 export function ParentDashboardTab({
   onOpenCheckout,
@@ -47,8 +62,15 @@ export function ParentDashboardTab({
   const [sub, setSub] = useState<HouseholdSub | null>(initialCache?.sub ?? null)
   const [loading, setLoading] = useState(!initialCache)
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
+  const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
+  const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
+
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
+  const enterAsChild = useAuth((s) => s.enterAsChild)
+  const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async (silent = false) => {
     const hasCache = Boolean(getDashboardCache())
@@ -98,12 +120,6 @@ export function ParentDashboardTab({
     return () => window.removeEventListener('parent:reload-data', handleReload)
   }, [load])
 
-  if (loading) {
-    return <LoadingSkeleton count={3} />
-  }
-
-  if (error) return <ErrorState message={error} onRetry={() => void load()} inline />
-
   const getDerivedStats = (k: Child) => {
     const localStats = getChildOverallLocalStats(k.id)
     const xpForCalculation = (k.xp || 0) > 0 ? (k.xp || 0) : Math.max(0, ((k.level || 1) - 1) * 100)
@@ -120,20 +136,79 @@ export function ParentDashboardTab({
     return { totalStars, completedQuests }
   }
 
+  async function handleEnterChild(childId: string) {
+    setBusy(true)
+    try {
+      const next = await enterAsChild(childId)
+      navigate(next.onboarded ? '/home' : '/onboarding')
+    } catch (e) {
+      showToast(
+        e instanceof Error ? e.message : 'Chưa chuyển sang tài khoản bé được. Ba / Mẹ thử lại nhé.',
+        'error',
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function updateConsent(
+    child: Child,
+    capability: 'allowAiCreate' | 'allowPhoto' | 'allowExport',
+    enabled: boolean,
+  ) {
+    try {
+      await api(`/api/parent/children/${child.id}/consent`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          [capability]: enabled,
+          policyVersion: 'aikids-child-safety-v1',
+          locale: 'vi-VN',
+        }),
+      })
+      invalidateParentCache()
+      setKids((prev) =>
+        prev.map((item) => (item.id === child.id ? { ...item, [capability]: enabled } : item)),
+      )
+      showToast('Đã cập nhật quyền an toàn cho con.', 'success')
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Không cập nhật được quyền an toàn', 'error')
+    }
+  }
+
+  async function deleteChild(childId: string) {
+    try {
+      await api(`/api/parent/children/${childId}`, { method: 'DELETE' })
+      showToast('Tài khoản con đã được tạm khóa.', 'success')
+      invalidateParentCache()
+      await load()
+      setDeleteTarget(null)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi tạm khóa tài khoản', 'error')
+      setDeleteTarget(null)
+    }
+  }
+
+  if (loading) {
+    return <LoadingSkeleton count={3} />
+  }
+
+  if (error) return <ErrorState message={error} onRetry={() => void load()} inline />
+
   const totalStars = kids.reduce((s, k) => s + getDerivedStats(k).totalStars, 0)
   const totalQuests = kids.reduce((s, k) => s + getDerivedStats(k).completedQuests, 0)
   const pendingCount = approvals.length
   const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
 
-
   return (
     <div className="flex flex-col gap-6">
-      {/* ── 1. Household Status Banner & Cockpit ──────────────── */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
+      {/* ── 1. Household Status Banner & Cockpit Header ──────── */}
       <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/70 via-white to-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
-              <ShieldCheck size={14} className="text-brand-600" /> Quản lý tài khoản và phân quyền an toàn
+              <ShieldCheck size={14} className="text-brand-600" /> Quản lý danh tính, quyền an toàn và hồ sơ học của con
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
               Tổng quan gia đình
@@ -188,7 +263,7 @@ export function ParentDashboardTab({
                   {kids.length}/{sub?.maxChildren || 2} hồ sơ con · {sub?.maxOpenCoursesPerChild || 5} vùng mở cùng lúc
                 </p>
                 <p className="text-[11px] font-bold text-purple-700 mt-0.5 truncate">
-                  🎨 Còn {sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI
+                  🎨 Còn {aiCredits} lượt tạo ảnh AI
                 </p>
               </div>
             </div>
@@ -278,7 +353,142 @@ export function ParentDashboardTab({
         />
       </div>
 
-      {/* ── 3. Creative Approvals Widget (Tinh tế & Gọn gàng) ──── */}
+      {/* ── 3. KHỐI CHUYỂN NHANH SANG TÀI KHOẢN CON (TOUCH-TO-ENTER) ── */}
+      <section
+        aria-label="Chuyển nhanh sang không gian học của con"
+        className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-50/70 via-white to-purple-50/30 p-5 sm:p-6 shadow-clay"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-100/70 pb-3 mb-5">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft text-lg">
+              🚀
+            </span>
+            <div>
+              <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
+                Chuyển nhanh sang không gian học của con
+              </h2>
+              <p className="text-xs text-muted">
+                Chạm vào bé để thiết bị chuyển sang chế độ học tập riêng của con. Khu vực quản lý của Ba / Mẹ sẽ được ẩn để con tập trung học.
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-brand-100/80 px-3 py-1 text-xs font-black text-brand-800">
+            <Sparkles size={13} className="text-brand-600" /> Chạm là vào học ngay
+          </span>
+        </div>
+
+        {kids.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 p-8 text-center rounded-2xl bg-white/80 border border-brand-100">
+            <Users size={36} className="text-brand-500" />
+            <p className="font-display text-base font-bold">Chưa có hồ sơ con nào</p>
+            <p className="text-xs text-muted max-w-sm">
+              Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu hành trình học tập.
+            </p>
+            <Button onClick={() => setEditTarget(null)} className="gap-2 rounded-2xl shadow-clay">
+              <Plus size={16} /> Thêm hồ sơ con
+            </Button>
+          </div>
+        ) : (
+          <ul
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full min-w-0"
+            aria-label="Danh sách con touch-to-enter"
+          >
+            {kids.map((k) => {
+              const av = getAvatar(k.avatarId)
+              const img = avatarImage(k.avatarId)
+              const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
+
+              return (
+                <li key={k.id} className="h-full">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleEnterChild(k.id)}
+                    className={cn(
+                      'group relative flex w-full h-full flex-col items-center justify-between rounded-3xl border-2 border-brand-100/90 bg-white p-5 sm:p-6 text-center shadow-clay transition-all duration-300',
+                      'hover:-translate-y-1 hover:border-brand-400 hover:shadow-soft-xl active:scale-95 focus-visible:outline focus-visible:outline-3 focus-visible:outline-focus',
+                      busy && 'opacity-60 pointer-events-none',
+                    )}
+                  >
+                    {/* Top Status */}
+                    <div className="flex w-full items-center justify-between">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-black text-brand-700">
+                        <Sparkles size={11} className="text-brand-500" />
+                        <span>Học sinh</span>
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-400">Vào không gian riêng</span>
+                    </div>
+
+                    {/* Avatar with Ceramic Rim & Level Badge */}
+                    <div className="relative my-3">
+                      <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-gradient-to-tr from-brand-100 to-purple-50 text-4xl shadow-clay group-hover:scale-105 transition-transform duration-300">
+                        {img ? (
+                          <img
+                            src={img}
+                            alt={k.nickname ?? 'Avatar'}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          av.emoji
+                        )}
+                      </div>
+                      <span className="absolute -bottom-1 right-0 rounded-full bg-gradient-to-r from-brand-600 to-purple-600 px-2.5 py-0.5 text-xs font-black text-white shadow-md border-2 border-white">
+                        Lv.{k.level || 1}
+                      </span>
+                    </div>
+
+                    {/* Nickname & Stats */}
+                    <div className="w-full">
+                      <h3 className="font-display text-xl font-black text-slate-900 group-hover:text-brand-600 transition-colors">
+                        {k.nickname ?? 'Bạn nhỏ'}
+                      </h3>
+
+                      {/* Mini Badges */}
+                      <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700 border border-amber-200/60 shadow-2xs">
+                          ⭐ {childStars} sao
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700 border border-emerald-200/60 shadow-2xs">
+                          🎯 {childQuests} trạm
+                        </span>
+                      </div>
+
+                      <div className="mt-3.5 inline-flex items-center justify-center gap-1.5 w-full rounded-2xl bg-brand-500 group-hover:bg-brand-600 text-white py-2 px-3 text-xs font-black shadow-clay transition">
+                        <span>Chạm để vào học ngay</span>
+                        <ArrowRight size={13} />
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              )
+            })}
+
+            {/* Card "+ Thêm bé mới" */}
+            <li className="h-full">
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className={cn(
+                  'group flex w-full h-full min-h-[220px] flex-col items-center justify-center rounded-3xl border-3 border-dashed border-brand-200 bg-white/70 backdrop-blur-xs p-6 text-center transition-all duration-300',
+                  'hover:-translate-y-1 hover:border-brand-400 hover:bg-brand-50/70 hover:shadow-clay active:scale-95 shadow-xs',
+                )}
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100/80 text-brand-600 shadow-soft group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all duration-300">
+                  <Plus size={30} strokeWidth={2.5} />
+                </div>
+                <span className="mt-3 font-display text-lg font-black text-slate-800 group-hover:text-brand-700 transition-colors">
+                  + Thêm bé mới
+                </span>
+                <span className="mt-1 text-xs text-muted max-w-[180px]">
+                  Tạo thêm hồ sơ và cá nhân hóa trải nghiệm học tập
+                </span>
+              </button>
+            </li>
+          </ul>
+        )}
+      </section>
+
+      {/* ── 4. Creative Approvals Widget (Duyệt tác phẩm AI) ──── */}
       {pendingCount > 0 ? (
         <section aria-label="Trung tâm phê duyệt tác phẩm" className="ui-card overflow-hidden shadow-soft">
           <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/50 px-5 py-3.5">
@@ -358,298 +568,174 @@ export function ParentDashboardTab({
         </div>
       )}
 
-      {/* ── Bảng So Sánh Chỉ Số Giữa Các Con (Khi có từ 2 bé trở lên) ── */}
-      {kids.length >= 2 && (
-        <section aria-label="Bảng so sánh chỉ số giữa các con" className="rounded-3xl border-2 border-brand-100 bg-gradient-to-b from-brand-50/50 via-white to-white p-5 sm:p-6 shadow-soft">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-100/70 pb-3 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-sm">
-                📊
-              </span>
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
-                  Bảng so sánh chỉ số giữa các con
-                </h3>
-                <p className="text-xs text-muted">
-                  Đối soát trực quan song song thành tích, nhịp độ học tập và tiến độ chặng đảo của các bé
-                </p>
-              </div>
-            </div>
-            <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-brand-100/70 px-2.5 py-1 text-[11px] font-black text-brand-800">
-              <Sparkles size={12} className="text-brand-600" /> {kids.length} bé song hành
+      {/* ── 5. QUẢN TRỊ & PHÂN QUYỀN AN TOÀN ─────────────────── */}
+      <section
+        aria-label="Quản trị & Phân quyền an toàn"
+        className="rounded-3xl border border-border/80 bg-white p-5 sm:p-6 shadow-soft"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4 mb-5">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-soft">
+              <ShieldCheck size={22} />
             </span>
+            <div>
+              <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
+                Quản trị & Phân quyền an toàn
+              </h2>
+              <p className="text-xs text-muted">
+                Quản lý danh tính, phân quyền tạo ảnh AI, sử dụng máy ảnh, xuất tác phẩm và thiết lập bảo vệ cho từng con.
+              </p>
+            </div>
           </div>
-
-          <div
-            className={cn(
-              'grid gap-4',
-              kids.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-            )}
+          <Button
+            variant="secondary"
+            className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap self-start sm:self-auto h-11 px-4"
+            onClick={() => setEditTarget(null)}
           >
+            <Plus size={15} /> Thêm bé mới
+          </Button>
+        </div>
+
+        {kids.length === 0 ? (
+          <div className="py-6 text-center text-sm text-muted">
+            Chưa có hồ sơ con. Nhấn "Thêm bé mới" để bắt đầu.
+          </div>
+        ) : (
+          <div className="space-y-4">
             {kids.map((k) => {
-              const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
-              const childApprovals = approvals.filter((a) => a.child.id === k.id).length
-              const img = avatarImage(k.avatarId)
               const av = getAvatar(k.avatarId)
-              const islandBadge =
-                childQuests >= 10
-                  ? { icon: '🏆', text: 'Hoàn thành Đảo Tiên Quyết', color: 'bg-amber-50 border-amber-300 text-amber-900' }
-                  : { icon: '🧭', text: `Đang ở Trạm ${Math.min(childQuests + 1, 10)} / 10`, color: 'bg-sky-50 border-sky-200 text-sky-900' }
+              const img = avatarImage(k.avatarId)
 
               return (
                 <div
                   key={k.id}
-                  className="flex flex-col justify-between rounded-3xl border-2 border-brand-100 bg-white p-4 sm:p-5 shadow-clay hover:shadow-soft-xl transition-all duration-300"
+                  className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 transition hover:bg-slate-50 hover:border-brand-200"
                 >
-                  {/* Child Header in Matrix */}
-                  <div>
-                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    {/* Child Profile Info */}
+                    <div className="flex items-center gap-3.5 min-w-0">
                       <div className="relative shrink-0">
-                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-2xl shadow-soft border-2 border-white">
+                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-3xl shadow-soft border-2 border-white">
                           {img ? (
                             <img src={img} alt={k.nickname || 'Avatar'} className="h-full w-full object-cover" />
                           ) : (
                             av.emoji
                           )}
                         </div>
-                        <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.2 text-[9px] font-black text-white shadow-2xs border border-white">
-                          Lv.{k.level}
+                        <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.2 text-[10px] font-black text-white shadow-2xs border border-white">
+                          Lv.{k.level || 1}
                         </span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-display text-base font-black text-slate-900 truncate">
-                          {k.nickname || 'Bé yêu'}
-                        </h4>
-                        <p className="text-xs font-bold text-brand-700">
-                          Lv.{k.level} · {k.xp || 0} XP
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-base sm:text-lg font-black text-slate-900 truncate">
+                            {k.nickname || 'Bé yêu'}
+                          </h3>
+                          <span
+                            className={cn(
+                              'h-2 w-2 shrink-0 rounded-full',
+                              k.active !== false ? 'bg-emerald-500' : 'bg-slate-300',
+                            )}
+                            title={k.active !== false ? 'Đang hoạt động' : 'Tạm dừng'}
+                          />
+                        </div>
+                        <p className="text-xs text-muted font-bold mt-0.5">
+                          {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'} · Cấp độ Lv.{k.level || 1}
                         </p>
                       </div>
                     </div>
 
-                    {/* Matrix Rows: Soft-Clay Metric Boxes */}
-                    <div className="mt-3.5 space-y-2">
-                      {/* Sao tích lũy */}
-                      <div className="flex items-center justify-between rounded-2xl border border-amber-200/80 bg-amber-50/70 px-3.5 py-2.5 shadow-2xs">
-                        <span className="text-xs font-bold text-amber-800">Sao tích lũy</span>
-                        <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1">
-                          ⭐ {childStars} sao
-                        </span>
-                      </div>
-
-                      {/* Trạm học hoàn thành */}
-                      <div className="flex items-center justify-between rounded-2xl border border-emerald-200/80 bg-emerald-50/70 px-3.5 py-2.5 shadow-2xs">
-                        <span className="text-xs font-bold text-emerald-800">Trạm học hoàn thành</span>
-                        <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-1">
-                          🎯 {childQuests} / 10 trạm
-                        </span>
-                      </div>
-
-                      {/* Tác phẩm AI & Phê duyệt */}
-                      <div className="flex items-center justify-between rounded-2xl border border-rose-200/80 bg-rose-50/70 px-3.5 py-2.5 shadow-2xs">
-                        <span className="text-xs font-bold text-rose-800">Sáng tạo & Duyệt bài</span>
-                        <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-1">
-                          🎨 {childApprovals} chờ duyệt
-                        </span>
-                      </div>
-
-                      {/* Trạng thái chặng đảo */}
-                      <div
-                        className={cn(
-                          'flex items-center justify-between rounded-2xl border px-3.5 py-2 text-xs font-bold shadow-2xs',
-                          islandBadge.color,
-                        )}
+                    {/* Management Action Buttons */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditTarget(k)}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
+                        title="Đổi tên hoặc ảnh đại diện"
                       >
-                        <span>Trạng thái đảo</span>
-                        <span className="font-black flex items-center gap-1">
-                          {islandBadge.icon} {islandBadge.text}
-                        </span>
-                      </div>
+                        <Pencil size={13} className="text-slate-500" />
+                        <span>Đổi tên / avatar</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQrModalTarget(k)}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-100 transition shadow-2xs"
+                        title="Xem thẻ QR đăng nhập nhanh"
+                      >
+                        <QrCode size={13} className="text-brand-600" />
+                        <span>Thẻ QR</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(k)}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition shadow-2xs"
+                        title="Tạm khóa tài khoản con"
+                      >
+                        <Trash2 size={13} />
+                        <span>Tạm khóa</span>
+                      </button>
+
+                      <Link
+                        to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                        className="inline-flex items-center gap-1 rounded-xl bg-brand-500 hover:bg-brand-600 text-white px-3.5 py-2 text-xs font-black shadow-clay transition"
+                      >
+                        <span>Học tập</span>
+                        <ArrowRight size={13} />
+                      </Link>
                     </div>
                   </div>
 
-                  {/* Quick Action Buttons */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <Link
-                      to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                      className="flex-1 inline-flex min-h-[40px] items-center justify-center gap-1 rounded-xl bg-brand-500 hover:bg-brand-600 text-white px-3 py-1.5 text-xs font-black shadow-clay transition"
-                    >
-                      <span>Xem học tập</span>
-                      <ArrowRight size={13} />
-                    </Link>
-                    <Button
-                      variant="secondary"
-                      className="flex-1 min-h-[40px] !text-xs font-bold rounded-xl text-slate-700 hover:text-brand-700 whitespace-nowrap"
-                      onClick={() => navigate('/kids')}
-                    >
-                      Chuyển sang bé
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ── 4. Compact Per-Child Learning Journey ────────────── */}
-      <section aria-label="Tiến trình chi tiết từng con">
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <h3 className="font-display text-lg font-bold text-text">Tiến độ học tập của các con</h3>
-            <p className="text-xs text-muted">
-              Lộ trình, hoạt động và năng lực · Danh tính và quyền an toàn
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            className="!text-xs font-bold text-brand-600"
-            onClick={() => navigate('/parent/kids')}
-          >
-            Quản lý hồ sơ
-          </Button>
-        </div>
-
-        {kids.length === 0 ? (
-          <div className="ui-card flex flex-col items-center justify-center gap-3 p-8 text-center rounded-3xl shadow-soft">
-            <Users size={36} className="text-brand-500" />
-            <p className="font-display text-base font-bold">Chưa có hồ sơ con nào</p>
-            <p className="max-w-md text-xs text-muted">
-              Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu đăng nhập bằng biệt danh và học tập.
-            </p>
-            <Button onClick={() => navigate('/parent/kids')} className="gap-2 rounded-2xl shadow-clay">
-              <Plus size={16} /> Thêm hồ sơ con
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {kids.map((k) => {
-              const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
-              const childApprovals = approvals.filter((a) => a.child.id === k.id).length
-              const nextLevelXp = Math.max(k.level * 200, 100)
-              const currentLvlXp = k.xp % nextLevelXp
-              const progressPct = Math.min(Math.round((currentLvlXp / nextLevelXp) * 100), 100)
-              const img = avatarImage(k.avatarId)
-              const av = getAvatar(k.avatarId)
-
-              return (
-                <div
-                  key={k.id}
-                  className="ui-card flex flex-col justify-between p-4 sm:p-5 rounded-3xl border border-brand-100/80 shadow-clay hover:shadow-soft-xl transition-all duration-300 w-full min-w-0"
-                >
-                  {/* Top: Avatar + Level + Nickname */}
-                  <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative shrink-0">
-                          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-3xl shadow-soft border-2 border-white">
-                            {img ? (
-                              <img
-                                src={img}
-                                alt={k.nickname || 'Avatar'}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              av.emoji
-                            )}
-                          </div>
-                          <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.2 text-[10px] font-black text-white shadow-2xs border border-white">
-                            Lv.{k.level}
-                          </span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <h4 className="font-display text-base font-bold text-text truncate">
-                              {k.nickname || 'Bé yêu'}
-                            </h4>
-                            <span
-                              className={cn(
-                                'h-2 w-2 shrink-0 rounded-full',
-                                k.active ? 'bg-emerald-500' : 'bg-slate-300',
-                              )}
-                              title={k.active ? 'Đang hoạt động' : 'Tạm dừng'}
-                            />
-                          </div>
-                          <p className="text-xs text-muted truncate">
-                            {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Dải 4 Khối Chỉ Số Nổi Bật */}
-                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2 my-3.5">
-                      {/* Vàng cho sao */}
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200/90 bg-amber-50/80 p-2 text-center shadow-2xs">
-                        <span className="text-[10px] font-extrabold uppercase text-amber-700">Sao</span>
-                        <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-0.5 mt-0.5">
-                          ⭐ {childStars}
+                  {/* Safety Permissions Switches */}
+                  <div className="mt-4 pt-3.5 border-t border-slate-200/70">
+                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
+                      Cài đặt phân quyền an toàn cho {k.nickname || 'bé'}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {/* AI Create Toggle */}
+                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                        <span className="flex items-center gap-1.5 text-slate-700">
+                          <Palette size={14} className="text-purple-500" />
+                          <span>Cho phép AI tạo ảnh</span>
                         </span>
-                      </div>
-                      {/* Xanh ngọc cho trạm */}
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-2 text-center shadow-2xs">
-                        <span className="text-[10px] font-extrabold uppercase text-emerald-700">Trạm</span>
-                        <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-0.5 mt-0.5">
-                          🎯 {childQuests}
-                        </span>
-                      </div>
-                      {/* Tím cho cấp độ */}
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-purple-200/90 bg-purple-50/80 p-2 text-center shadow-2xs">
-                        <span className="text-[10px] font-extrabold uppercase text-purple-700">Cấp</span>
-                        <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-0.5 mt-0.5">
-                          ⚡ Lv.{k.level}
-                        </span>
-                      </div>
-                      {/* San hô cho duyệt */}
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-rose-50/80 p-2 text-center shadow-2xs">
-                        <span className="text-[10px] font-extrabold uppercase text-rose-700">Duyệt</span>
-                        <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-0.5 mt-0.5">
-                          🎨 {childApprovals}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Nhãn tiến độ đảo */}
-                    <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-1.5 text-xs font-bold text-slate-700 mb-3">
-                      <span>
-                        {childQuests >= 10
-                          ? '🏆 Đã hoàn thành 10 Quy tắc vàng'
-                          : `🧭 Đang thám hiểm Đảo Tiên Quyết (Trạm ${Math.min(childQuests + 1, 10)}/10)`}
-                      </span>
-                    </div>
-
-                    {/* XP Progress Bar */}
-                    <div className="mt-2">
-                      <div className="flex justify-between text-[11px]">
-                        <span className="font-bold text-muted">Cấp {k.level + 1}</span>
-                        <span className="font-black text-brand-600">
-                          {currentLvlXp} / {nextLevelXp} XP ({progressPct}%)
-                        </span>
-                      </div>
-                      <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-brand-400 via-brand-500 to-sky-400 transition-all duration-700"
-                          style={{ width: `${progressPct}%` }}
+                        <input
+                          type="checkbox"
+                          checked={k.allowAiCreate ?? true}
+                          onChange={(e) => void updateConsent(k, 'allowAiCreate', e.target.checked)}
+                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
                         />
-                      </div>
-                    </div>
-                  </div>
+                      </label>
 
-                  {/* Actions: Xem học tập + Chuyển sang con */}
-                  <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 gap-2">
-                    <Link
-                      to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                      className="inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 transition px-1"
-                    >
-                      <span>Xem học tập</span>
-                      <ArrowRight size={13} />
-                    </Link>
-                    <Button
-                      variant="secondary"
-                      className="gap-1 min-h-[44px] !px-4 !text-xs font-bold rounded-xl text-slate-700 hover:text-brand-700 whitespace-nowrap"
-                      onClick={() => navigate('/kids')}
-                    >
-                      Chuyển sang con
-                    </Button>
+                      {/* Photo/Camera Toggle */}
+                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                        <span className="flex items-center gap-1.5 text-slate-700">
+                          <Camera size={14} className="text-sky-500" />
+                          <span>Sử dụng máy ảnh</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={k.allowPhoto ?? true}
+                          onChange={(e) => void updateConsent(k, 'allowPhoto', e.target.checked)}
+                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
+                        />
+                      </label>
+
+                      {/* Export Artwork Toggle */}
+                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                        <span className="flex items-center gap-1.5 text-slate-700">
+                          <Download size={14} className="text-emerald-500" />
+                          <span>Xuất tác phẩm</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={k.allowExport ?? true}
+                          onChange={(e) => void updateConsent(k, 'allowExport', e.target.checked)}
+                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
               )
@@ -657,6 +743,70 @@ export function ParentDashboardTab({
           </div>
         )}
       </section>
+
+      {/* ── 6. Chuyển tiếp sang Tab Học Tập ────────────────────── */}
+      <section className="rounded-3xl border border-brand-200/80 bg-gradient-to-r from-amber-50/70 via-cream-50 to-brand-50/60 p-5 sm:p-6 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-100 text-2xl shadow-soft">
+              🧭
+            </span>
+            <div>
+              <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
+                Lộ trình, hoạt động và năng lực học tập của con
+              </h3>
+              <p className="text-xs sm:text-sm text-muted mt-0.5 max-w-xl leading-relaxed">
+                Để xem tiến độ Hải Trình 6 Đảo Sáng Tạo, chứng nhận tốt nghiệp và nhận xét năng lực của từng con, Ba / Mẹ vui lòng chuyển sang tab <strong>Học tập</strong>.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/parent/learning"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs sm:text-sm px-5 py-2.5 shadow-clay transition whitespace-nowrap self-start sm:self-auto"
+          >
+            <span>Khám phá Trung tâm học tập</span>
+            <ArrowRight size={15} />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Modals: Edit Child & Student QR Card ──────────────── */}
+      {editTarget !== undefined && (
+        <EditChildModal
+          child={editTarget}
+          isOpen={true}
+          referenceChildId={kids[0]?.id}
+          onClose={() => setEditTarget(undefined)}
+          onSuccess={() => {
+            setEditTarget(undefined)
+            invalidateParentCache()
+            void load()
+            showToast('Đã lưu thông tin của con.', 'success')
+          }}
+          onError={(msg) => showToast(msg, 'error')}
+        />
+      )}
+
+      {qrModalTarget && (
+        <StudentQrCardModal
+          child={qrModalTarget}
+          isOpen={true}
+          onClose={() => setQrModalTarget(null)}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          open={true}
+          title="Tạm khóa hồ sơ con"
+          description={`Ba / Mẹ có chắc chắn muốn tạm khóa hồ sơ của bé "${deleteTarget.nickname}" không? Dữ liệu và tác phẩm đã lưu của bé vẫn được bảo lưu an toàn.`}
+          confirmLabel="Tạm khóa"
+          cancelLabel="Hủy"
+          danger={true}
+          onConfirm={() => void deleteChild(deleteTarget.id)}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
     </div>
   )
 }

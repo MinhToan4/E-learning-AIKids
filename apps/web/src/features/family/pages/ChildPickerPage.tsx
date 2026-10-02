@@ -8,6 +8,7 @@ import { designerAssets } from '@/shared/config/assets'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
+import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 
@@ -169,6 +170,10 @@ export function ChildPickerPage() {
             {kids.map((k) => {
               const av = getAvatar(k.avatarId)
               const img = avatarImage(k.avatarId)
+              const localStats = getChildOverallLocalStats(k.id)
+              const xpForCalculation = (k.xp || 0) > 0 ? (k.xp || 0) : Math.max(0, ((k.level || 1) - 1) * 100)
+              const totalStars = Math.max(k.totalStars ?? 0, localStats.totalStars, Math.min(30, Math.floor(xpForCalculation / 100)))
+              const completedQuests = Math.max(k.completedQuests ?? 0, localStats.completedCount, Math.min(32, Math.floor(totalStars / 3)))
               return (
                 <li key={k.id} className="h-full">
                   <button
@@ -217,10 +222,10 @@ export function ChildPickerPage() {
                       {/* Achievement Mini Badges */}
                       <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700 border border-amber-200/60 shadow-2xs">
-                          {k.totalStars ?? 0} sao
+                          {totalStars} sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700 border border-emerald-200/60 shadow-2xs">
-                          {k.completedQuests ?? 0} trạm
+                          {completedQuests} trạm
                         </span>
                       </div>
 

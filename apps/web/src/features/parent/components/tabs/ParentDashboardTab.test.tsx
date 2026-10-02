@@ -148,7 +148,7 @@ describe('ParentDashboardTab Component', () => {
     expect(document.body.textContent).toContain('Bo: 10 trạm · Bi: 4 trạm')
   })
 
-  it('displays Per-Child Comparative Scorecard Matrix when 2 or more children exist', async () => {
+  it('displays Touch-to-enter quick child switcher section at top of dashboard', async () => {
     await act(async () => {
       root.render(
         createElement(
@@ -159,18 +159,18 @@ describe('ParentDashboardTab Component', () => {
       )
     })
 
-    // Title of comparative scorecard
-    expect(document.body.textContent).toContain('Bảng so sánh chỉ số giữa các con')
-    expect(document.body.textContent).toContain('2 bé song hành')
+    // Section title and note
+    expect(document.body.textContent).toContain('Chuyển nhanh sang không gian học của con')
+    expect(document.body.textContent).toContain('Chạm vào bé để thiết bị chuyển sang chế độ học tập riêng của con')
 
-    // Check Bo's matrix info: >= 10 quests -> Hoàn thành Đảo Tiên Quyết
-    expect(document.body.textContent).toContain('Hoàn thành Đảo Tiên Quyết')
-
-    // Check Bi's matrix info: 4 quests -> Đang ở Trạm 5 / 10
-    expect(document.body.textContent).toContain('Đang ở Trạm 5 / 10')
+    // Touch-to-enter card badges and CTA
+    expect(document.body.textContent).toContain('⭐ 15 sao')
+    expect(document.body.textContent).toContain('🎯 10 trạm')
+    expect(document.body.textContent).toContain('Chạm để vào học ngay')
+    expect(document.body.textContent).toContain('+ Thêm bé mới')
   })
 
-  it('renders 4 distinct Soft-Clay stat blocks and island progress banner in each child card', async () => {
+  it('displays Administration and Safety Permissions section with quick management actions and consent controls', async () => {
     await act(async () => {
       root.render(
         createElement(
@@ -181,14 +181,17 @@ describe('ParentDashboardTab Component', () => {
       )
     })
 
-    // Child cards contain 4 stat blocks: Sao, Trạm, Cấp, Duyệt
-    expect(document.body.textContent).toContain('⭐ 15')
-    expect(document.body.textContent).toContain('🎯 10')
-    expect(document.body.textContent).toContain('⚡ Lv.3')
-    expect(document.body.textContent).toContain('🎨 1') // Bo has 1 pending approval
+    // Administration section header
+    expect(document.body.textContent).toContain('Quản trị & Phân quyền an toàn')
 
-    // Island banners
-    expect(document.body.textContent).toContain('🏆 Đã hoàn thành 10 Quy tắc vàng')
-    expect(document.body.textContent).toContain('🧭 Đang thám hiểm Đảo Tiên Quyết (Trạm 5/10)')
+    // Management buttons
+    expect(document.body.textContent).toContain('Đổi tên / avatar')
+    expect(document.body.textContent).toContain('Thẻ QR')
+    expect(document.body.textContent).toContain('Tạm khóa')
+
+    // Safety permission toggles
+    expect(document.body.textContent).toContain('Cho phép AI tạo ảnh')
+    expect(document.body.textContent).toContain('Sử dụng máy ảnh')
+    expect(document.body.textContent).toContain('Xuất tác phẩm')
   })
 })
