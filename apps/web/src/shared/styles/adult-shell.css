@@ -132,6 +132,12 @@
     backdrop-filter: blur(16px);
   }
 
+  @media (min-width: 768px) {
+    .role-mobile-topbar {
+      display: none !important;
+    }
+  }
+
   .role-mobile-topbar-label {
     font-size: 0.75rem;
     font-weight: 900;

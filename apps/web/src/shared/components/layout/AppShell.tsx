@@ -627,7 +627,7 @@ function CmsShell({
       </aside>
 
       {/* Mobile top bar (brand only, no nav) */}
-      <header className="role-mobile-topbar md:hidden">
+      <header className="role-mobile-topbar md:!hidden">
         <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
           <BrandLogo size="sm" />
         </NavLink>
@@ -676,7 +676,7 @@ function AdultChrome({
       </aside>
 
       {/* Mobile top bar */}
-      <header className="role-mobile-topbar md:hidden flex items-center justify-between">
+      <header className="role-mobile-topbar md:!hidden flex items-center justify-between">
         <NavLink to={brandTo} aria-label="Trang chính phụ huynh" className="flex items-center gap-2">
           <BrandLogo size="sm" />
           <span className="role-mobile-topbar-label">Phụ huynh</span>
