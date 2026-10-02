@@ -21,6 +21,7 @@ import { cn } from '@/shared/lib/cn'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
 import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
+import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import type { Child, HouseholdSub } from '@/features/parent/types/parent.types'
 
 export function ParentKidsTab() {
@@ -153,6 +154,18 @@ export function ParentKidsTab() {
           </div>
         )}
         {kids.map((k) => {
+          const localStats = getChildOverallLocalStats(k.id)
+          const xpForCalculation = (k.xp || 0) > 0 ? (k.xp || 0) : Math.max(0, ((k.level || 1) - 1) * 100)
+          const totalStars = Math.max(
+            k.totalStars ?? 0,
+            localStats.totalStars,
+            Math.min(30, Math.floor(xpForCalculation / 100)),
+          )
+          const completedQuests = Math.max(
+            k.completedQuests ?? 0,
+            localStats.completedCount,
+            Math.min(32, Math.floor(totalStars / 3)),
+          )
           const courseCount = (k as unknown as { openCourses?: number }).openCourses ?? 2
           return (
             <div
@@ -223,11 +236,11 @@ export function ParentKidsTab() {
               <div className="grid grid-cols-3 gap-2 bg-cream-50/80 rounded-2xl p-2 border border-cream-200 shadow-soft">
                 <div className="flex flex-col items-center text-center">
                   <span className="text-[9px] uppercase font-black text-muted">Hoàn thành</span>
-                  <span className="text-xs font-black text-text">{k.completedQuests ?? 0}</span>
+                  <span className="text-xs font-black text-text">{completedQuests}</span>
                 </div>
                 <div className="flex flex-col items-center text-center border-l border-r border-cream-200">
                   <span className="text-[9px] uppercase font-black text-muted">Tích lũy</span>
-                  <span className="text-xs font-black text-text">{k.totalStars ?? 0}</span>
+                  <span className="text-xs font-black text-text">{totalStars}</span>
                 </div>
                 <div className="flex flex-col items-center text-center">
                   <span className="text-[9px] uppercase font-black text-muted">Mở khóa</span>

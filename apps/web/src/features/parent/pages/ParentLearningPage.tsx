@@ -145,7 +145,12 @@ type LearningData = {
   pathway: Pathway
   courses: Course[]
   progress: ChildProgress
-  subscription: { status: string; maxOpenCoursesPerChild: number }
+  subscription: {
+    status: string
+    maxOpenCoursesPerChild: number
+    planName?: string
+    planCode?: string
+  }
   ageExperience: {
     status: 'ready' | 'configuration_required'
     policy: AgeExperiencePolicy | null
@@ -261,7 +266,15 @@ export function ParentLearningPage() {
     setError(null)
     try {
       const query = `studentId=${encodeURIComponent(studentId)}`
-      const [competency, credentials, pathway, ageExperience, courseResponse, progress, subscriptionResponse] = await Promise.all([
+      const [
+        competencyResult,
+        credentialsResult,
+        pathwayResult,
+        ageExperienceResult,
+        coursesResult,
+        progressResult,
+        subscriptionResult,
+      ] = await Promise.allSettled([
         api<CompetencyMap>(`/api/competency-map?${query}`),
         api<{ credentials: Credential[] }>(`/api/credentials?${query}`),
         learningApi.getPathway(studentId),
@@ -273,13 +286,86 @@ export function ParentLearningPage() {
         api<ChildProgress>(`/api/parent/children/${studentId}/progress`),
         api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription'),
       ])
+
+      const allRejected = [
+        competencyResult,
+        credentialsResult,
+        pathwayResult,
+        ageExperienceResult,
+        coursesResult,
+        progressResult,
+        subscriptionResult,
+      ].every((r) => r.status === 'rejected')
+
+      if (allRejected) {
+        const firstReason = [
+          competencyResult,
+          credentialsResult,
+          pathwayResult,
+          ageExperienceResult,
+          coursesResult,
+          progressResult,
+          subscriptionResult,
+        ].find((r): r is PromiseRejectedResult => r.status === 'rejected')?.reason
+        setError(friendlyError(firstReason))
+        return
+      }
+
+      const competency: CompetencyMap =
+        competencyResult.status === 'fulfilled' && competencyResult.value
+          ? competencyResult.value
+          : { status: 'configuration_required', frameworks: [] }
+
+      const credentials: Credential[] =
+        credentialsResult.status === 'fulfilled' && credentialsResult.value?.credentials
+          ? credentialsResult.value.credentials
+          : []
+
+      const pathway: Pathway =
+        pathwayResult.status === 'fulfilled' && pathwayResult.value
+          ? pathwayResult.value
+          : { recommendedCourseId: null, courses: [] }
+
+      const ageExperience: {
+        status: 'ready' | 'configuration_required'
+        policy: AgeExperiencePolicy | null
+      } =
+        ageExperienceResult.status === 'fulfilled' && ageExperienceResult.value
+          ? ageExperienceResult.value
+          : { status: 'ready', policy: null }
+
+      const courses: Course[] =
+        coursesResult.status === 'fulfilled' && coursesResult.value?.courses
+          ? coursesResult.value.courses
+          : []
+
+      const progress: ChildProgress =
+        progressResult.status === 'fulfilled' && progressResult.value
+          ? progressResult.value
+          : {
+              courseId: null,
+              courses: [],
+              summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null },
+              quests: [],
+            }
+
+      const subscription: LearningData['subscription'] =
+        subscriptionResult.status === 'fulfilled' && subscriptionResult.value?.subscription
+          ? subscriptionResult.value.subscription
+          : {
+              status: 'active',
+              maxOpenCoursesPerChild: 5,
+              planName: 'AI Kid Chính Thức',
+              planCode: 'aikids_official_129k',
+            }
+
       setData({
         competency,
-        credentials: credentials.credentials,
+        credentials,
         pathway,
-        courses: courseResponse.courses,
+        courses,
         progress,
-        subscription: subscriptionResponse.subscription,
+        subscription,
         ageExperience,
       })
     } catch (cause) {

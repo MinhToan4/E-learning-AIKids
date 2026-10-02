@@ -44,6 +44,8 @@ export type HouseholdSub = {
   seatsRemaining: number
   features: string[]
   currentPeriodEnd: string | null
+  monthlyCreateCredits?: number
+  aiCreditsRemaining?: number
 }
 
 export type PlanRow = {

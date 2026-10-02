@@ -16,4 +16,14 @@ describe('parentFriendlyError', () => {
     expect(parentFriendlyError(new Error('Gói học hiện tại chưa đủ quyền.')))
       .toBe('Gói học hiện tại chưa đủ quyền.')
   })
+
+  it('safely converts bare Error or empty message into friendly Vietnamese guidance', () => {
+    const expected = 'Chưa tải được đầy đủ dữ liệu học tập của bé. Ba / Mẹ vui lòng bấm Thử lại nhé.'
+    expect(parentFriendlyError(new Error('Error'))).toBe(expected)
+    expect(parentFriendlyError(new Error('error'))).toBe(expected)
+    expect(parentFriendlyError(new Error(''))).toBe(expected)
+    expect(parentFriendlyError(new Error('   '))).toBe(expected)
+    expect(parentFriendlyError('Error')).toBe(expected)
+    expect(parentFriendlyError({ message: 'Error' })).toBe(expected)
+  })
 })

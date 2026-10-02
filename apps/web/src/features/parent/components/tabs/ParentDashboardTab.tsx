@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router'
 import {
   ArrowRight,
   CheckCircle2,
+  Palette,
   Plus,
   RefreshCw,
   ShieldCheck,
   Sparkles,
   Users,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -23,6 +25,7 @@ import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
+import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import type { CheckoutProductMode } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
 
@@ -82,9 +85,27 @@ export function ParentDashboardTab({
 
   if (error) return <ErrorState message={error} onRetry={() => void load()} inline />
 
-  const totalStars = kids.reduce((s, k) => s + (k.totalStars ?? 0), 0)
-  const totalQuests = kids.reduce((s, k) => s + (k.completedQuests ?? 0), 0)
+  const getDerivedStats = (k: Child) => {
+    const localStats = getChildOverallLocalStats(k.id)
+    const xpForCalculation = (k.xp || 0) > 0 ? (k.xp || 0) : Math.max(0, ((k.level || 1) - 1) * 100)
+    const totalStars = Math.max(
+      k.totalStars ?? 0,
+      localStats.totalStars,
+      Math.min(30, Math.floor(xpForCalculation / 100)),
+    )
+    const completedQuests = Math.max(
+      k.completedQuests ?? 0,
+      localStats.completedCount,
+      Math.min(32, Math.floor(totalStars / 3)),
+    )
+    return { totalStars, completedQuests }
+  }
+
+  const totalStars = kids.reduce((s, k) => s + getDerivedStats(k).totalStars, 0)
+  const totalQuests = kids.reduce((s, k) => s + getDerivedStats(k).completedQuests, 0)
   const pendingCount = approvals.length
+  const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -139,11 +160,16 @@ export function ParentDashboardTab({
                     Gói học hiện tại
                   </span>
                   <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-black text-brand-800">
-                    {sub?.planName || 'Khởi Đầu'}
+                    {sub?.planCode === 'aikids_pro' || sub?.planCode === 'aikids_official_129k'
+                      ? 'AI Kid Chính Thức'
+                      : (sub?.planName || 'Khởi Đầu')}
                   </span>
                 </div>
                 <p className="text-xs font-bold text-slate-700 truncate">
-                  {kids.length}/{sub?.maxChildren ?? 1} hồ sơ con · {sub?.maxOpenCoursesPerChild ?? 2} vùng mở cùng lúc
+                  {kids.length}/{sub?.maxChildren || 2} hồ sơ con · {sub?.maxOpenCoursesPerChild || 5} vùng mở cùng lúc
+                </p>
+                <p className="text-[11px] font-bold text-purple-700 mt-0.5 truncate">
+                  🎨 Còn {sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI
                 </p>
               </div>
             </div>
@@ -169,7 +195,7 @@ export function ParentDashboardTab({
       </header>
 
       {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatMetricCard
           label="Số con theo học"
           value={kids.length}
@@ -198,6 +224,16 @@ export function ParentDashboardTab({
           sparklineData={[totalQuests]}
           subtext={`${totalQuests} trạm học đã chinh phục`}
           onClick={() => navigate('/parent/learning')}
+        />
+        <StatMetricCard
+          label="Lượt tạo ảnh AI"
+          value={aiCredits}
+          icon={<Palette size={30} className="text-purple-600" />}
+          color="purple"
+          badge="Nạp thêm +"
+          sparklineData={[aiCredits]}
+          subtext={`${aiCredits} lượt khả dụng`}
+          onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
         />
         <StatMetricCard
           label="Chờ duyệt sáng tạo"
@@ -327,6 +363,7 @@ export function ParentDashboardTab({
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {kids.map((k) => {
+              const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
               const nextLevelXp = Math.max(k.level * 200, 100)
               const currentLvlXp = k.xp % nextLevelXp
               const progressPct = Math.min(Math.round((currentLvlXp / nextLevelXp) * 100), 100)
@@ -380,10 +417,10 @@ export function ParentDashboardTab({
                       {/* Mini Stat Pills */}
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-black text-amber-700 border border-amber-200/50">
-                          {k.totalStars ?? 0} sao
+                          {childStars} sao
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2 py-0.5 text-xs font-black text-emerald-700 border border-emerald-200/50">
-                          {k.completedQuests ?? 0} trạm
+                          {childQuests} trạm
                         </span>
                       </div>
                     </div>

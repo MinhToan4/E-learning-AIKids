@@ -185,6 +185,16 @@ export function getIslandLocalProgress(
 }
 
 /**
+ * Trả về tổng số sao và trạm hoàn thành từ các đảo cho một bé (childId).
+ */
+export function getChildOverallLocalStats(
+  childId?: string | null,
+): { completedCount: number; totalStars: number } {
+  const { completedCount, totalStars } = getLocalProgress(childId)
+  return { completedCount, totalStars }
+}
+
+/**
  * Cache tiến trình tạm thời theo đúng learner. Server vẫn là nguồn sự thật.
  *
  * Không ghi key legacy không namespace: trên thiết bị dùng chung, key đó không

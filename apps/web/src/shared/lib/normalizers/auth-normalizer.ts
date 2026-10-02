@@ -549,20 +549,33 @@ export function normalizeAuthGatewayResponse(
     const subscription = recordValue(payload.subscription ?? payload)
     const plan = recordValue(subscription.planDef)
     const planCode = String(subscription.plan ?? plan.id ?? 'free')
-    const maxChildren = Number(plan.maxChildren ?? 0)
+    const maxChildrenRaw = Number(plan.maxChildren ?? subscription.maxChildren ?? 0)
+    const maxChildren = maxChildrenRaw <= 0 ? 2 : maxChildrenRaw
+    const maxOpenRaw = Number(plan.maxOpenCoursesPerChild ?? subscription.maxOpenCoursesPerChild ?? 0)
+    const maxOpenCoursesPerChild = maxOpenRaw <= 0 ? 5 : maxOpenRaw
+    const planName =
+      planCode === 'aikids_pro' || planCode === 'aikids_official_129k'
+        ? 'AI Kid Chính Thức'
+        : String(plan.name ?? planCode)
+    const monthlyCreateCredits = Number(plan.monthlyCreateCredits || subscription.credits || 50)
+    const aiCreditsRemaining = Number(
+      subscription.creditsRemaining ?? subscription.aiCredits ?? plan.monthlyCreateCredits ?? 50,
+    )
     return {
       subscription: {
         planCode,
-        planName: String(plan.name ?? planCode),
+        planName,
         status: String(subscription.status ?? 'pending'),
         maxChildren,
-        maxOpenCoursesPerChild: Number(plan.maxOpenCoursesPerChild ?? 0),
+        maxOpenCoursesPerChild,
         childCount: 0,
         seatsRemaining: maxChildren,
         features: Array.isArray(plan.features) ? plan.features.map(String) : [],
         currentPeriodEnd: subscription.expiresAt
           ? String(subscription.expiresAt)
           : null,
+        monthlyCreateCredits,
+        aiCreditsRemaining,
       },
       message: typeof body.message === 'string' ? body.message : '',
       checkout: body.checkout,

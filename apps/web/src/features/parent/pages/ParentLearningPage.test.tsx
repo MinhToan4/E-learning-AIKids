@@ -134,4 +134,40 @@ describe('ParentLearningPage Component', () => {
     expect(document.body.textContent).toContain('NẠP LƯỢT TẠO ẢNH AI DỰ PHÒNG')
     expect(document.body.textContent).toContain('Chọn Gói Lượt Tạo Ảnh Cho Bé')
   })
+
+  it('does not display bare "Error" when sub-queries fail or reject, and renders gracefully', async () => {
+    const mockedApi = vi.mocked(api)
+    mockedApi.mockImplementation((path: string) => {
+      if (path === '/api/parent/children') {
+        return Promise.resolve({
+          children: [
+            { id: 'child-1', nickname: 'Bé Bo', avatarId: 'avatar-1', level: 115, xp: 11400 },
+          ],
+        })
+      }
+      if (path.includes('/api/competency-map')) {
+        return Promise.reject(new Error('Network error'))
+      }
+      if (path.includes('/api/credentials')) {
+        return Promise.reject(new Error('Error'))
+      }
+      if (path.includes('/progress')) {
+        return Promise.reject(new Error('Internal Server Error'))
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(
+        createElement(
+          MemoryRouter,
+          null,
+          createElement(ParentLearningPage, null),
+        ),
+      )
+    })
+
+    expect(document.body.textContent).not.toMatch(/\bError\b/)
+    expect(document.body.textContent).toContain('Bé Bo')
+  })
 })
