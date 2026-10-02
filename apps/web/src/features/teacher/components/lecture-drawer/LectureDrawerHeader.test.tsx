@@ -480,6 +480,52 @@ describe('LectureDrawerHeader Section Navigation Stepper', () => {
       expect(buttons.some((b) => b.textContent?.includes(`${i}. Chặng nâng cao ${i}`))).toBe(true)
     }
   })
+
+  it('displays readiness indicator with "yêu cầu" and activates 6 island stages for bai-1-1 draft', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    act(() => {
+      root?.render(
+        <LectureDrawerHeader
+          uid="drawer-test"
+          draft={{ ...mockDraft, id: 'bai-1-1' }}
+          isEdit={true}
+          isIslandCourse={false}
+          lessonFormat="standard"
+          activeSection="stage-0"
+          readiness={{ completed: 5, total: 6, complete: false }}
+          showInlinePreview={false}
+          recovery={null}
+          draftStorageKey="key"
+          onRequestClose={vi.fn()}
+          onShowFullPreview={vi.fn()}
+          onToggleInlinePreview={vi.fn()}
+          onFormatChange={vi.fn()}
+          onSelectSection={vi.fn()}
+          onDiscardRecovery={vi.fn()}
+          onApplyRecovery={vi.fn()}
+          sectionStatus={vi.fn().mockReturnValue(true)}
+          sectionMissing={vi.fn().mockReturnValue([])}
+        />
+      )
+    })
+
+    // Readiness displays "5/6 yêu cầu" (not "bước")
+    expect(container.textContent).toContain('5/6')
+    expect(container.textContent).toContain('yêu cầu')
+    expect(container.textContent).not.toContain('5/6 bước')
+
+    // Renders 6 island stages even though isIslandCourse was false and lessonFormat was standard
+    const buttons = Array.from(container.querySelectorAll('button'))
+    expect(buttons.some((b) => b.textContent?.includes('1. 🎯 Mục tiêu'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('2. ❓ Xác nhận'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('3. 🎬 Video'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('4. 🧩 Trắc nghiệm'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('5. 🎨 Thực hành'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('6. 🏆 Kết thúc'))).toBe(true)
+  })
 })
 
 

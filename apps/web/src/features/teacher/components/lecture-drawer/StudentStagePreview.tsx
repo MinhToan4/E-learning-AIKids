@@ -23,6 +23,7 @@ import {
   PracticeStageBlock,
 } from '@/features/lesson/components/stages'
 import { adaptSixStageJourneyToStages } from '@/features/lesson/lib/stage-adapter'
+import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
 import type {
   GoalStageConfig,
   ConfirmStageConfig,
@@ -106,8 +107,8 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
   }, [isFullscreen])
 
   const isRule3Steps = lessonFormat === 'aiki-rule-3steps'
-
-  if ((isIsland || isRule3Steps) && sixStageJourney) {
+  const isIslandEffective = Boolean(isIsland || lessonFormat === 'aiki-island-6steps' || (card?.id && /^bai-\d+-\d+/i.test(card.id)))
+  if ((isIslandEffective || isRule3Steps) && (sixStageJourney || card)) {
     const stageName = isRule3Steps
       ? (STANDARD_RULE_3_STAGES[stageIndex]?.title ?? `Bước ${stageIndex + 1}`)
       : (ISLAND_6_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`)
@@ -115,7 +116,8 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
     const renderIslandStageContent = (_isFs: boolean, vp: PreviewViewportMode) => {
       const isMobile = vp === 'mobile'
 
-      const stages = adaptSixStageJourneyToStages(sixStageJourney, {
+      const effectiveJourney = sixStageJourney || resolveIslandSixStageJourney((card as any)?.draft || (card as any) || { id: card?.id || 'bai-1-1' })
+      const stages = adaptSixStageJourneyToStages(effectiveJourney, {
         lessonId: card?.id,
         lessonTitle: card?.title,
       })
@@ -166,8 +168,8 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
               {stageIndex === 2 && stages[5] && (
                 <RewardStageBlock
                   stage={stages[5] as StageSchemaDefinition<RewardStageConfig>}
-                  effectiveStars={sixStageJourney.stage6_completion?.rewardBadge?.stars ?? 3}
-                  effectiveRewardXp={sixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
+                  effectiveStars={effectiveJourney.stage6_completion?.rewardBadge?.stars ?? 3}
+                  effectiveRewardXp={effectiveJourney.stage6_completion?.rewardBadge?.xp ?? 50}
                   onImageClick={(image) => setZoomedImage(image)}
                 />
               )}
@@ -243,8 +245,8 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
               {stageIndex === 5 && stages[5] && (
                 <RewardStageBlock
                   stage={stages[5] as StageSchemaDefinition<RewardStageConfig>}
-                  effectiveStars={sixStageJourney.stage6_completion?.rewardBadge?.stars ?? 3}
-                  effectiveRewardXp={sixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
+                  effectiveStars={effectiveJourney.stage6_completion?.rewardBadge?.stars ?? 3}
+                  effectiveRewardXp={effectiveJourney.stage6_completion?.rewardBadge?.xp ?? 50}
                   onImageClick={(image) => setZoomedImage(image)}
                 />
               )}
@@ -278,7 +280,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
           <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
             <div className="flex items-center justify-between gap-2">
               <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-                <Eye size={15} /> {isRule3Steps ? 'Xem trước học sinh (Quy tắc AIKI · 3 bước)' : 'Xem trước học sinh (Đảo AIKids)'}
+                <Eye size={15} /> {isRule3Steps ? 'Xem trước học sinh (Quy tắc AIKI · 3 bước)' : 'Xem trước học sinh (Khóa học AIKid · 6 chặng)'}
               </p>
               <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
                 Chặng {stageIndex + 1}/{isRule3Steps ? 3 : 6}
@@ -385,7 +387,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                     <span className="text-brand-600 truncate">{stageName}</span>
                   </h2>
                   <span className="text-[11px] font-medium text-slate-500 block truncate">
-                    {isRule3Steps ? `Quy tắc AIKI · 3 bước · Bước ${stageIndex + 1}/3` : `Đảo AIKids · Chặng ${stageIndex + 1}/6`}
+                    {isRule3Steps ? `Quy tắc AIKI · 3 bước · Bước ${stageIndex + 1}/3` : `Khóa học AIKid · 6 chặng · Chặng ${stageIndex + 1}/6`}
                   </span>
                 </div>
               </div>
@@ -865,10 +867,10 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
         <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
           <div className="flex items-center justify-between gap-2">
             <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-              <Eye size={15} /> Xem trước học sinh (10 Quy Tắc)
+              <Eye size={15} /> {lessonFormat === 'aiki-rule-5steps' ? 'Xem trước học sinh (10 Quy Tắc)' : 'Xem trước học sinh (Khóa học AIKid)'}
             </p>
             <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
-              Chặng {stageIndex + 1}/5
+              Chặng {stageIndex + 1}/{lessonFormat === 'aiki-rule-5steps' ? 5 : 6}
             </span>
           </div>
 
@@ -972,7 +974,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                   <span className="text-brand-600 truncate">{stageName}</span>
                 </h2>
                 <span className="text-[11px] font-medium text-slate-500 block truncate">
-                  Mười Quy Tắc Vàng · Chặng {stageIndex + 1}/5
+                  {lessonFormat === 'aiki-rule-5steps' ? 'Mười Quy Tắc Vàng · Chặng' : 'Khóa học AIKid · Chặng'} {stageIndex + 1}/{lessonFormat === 'aiki-rule-5steps' ? 5 : 6}
                 </span>
               </div>
             </div>

@@ -288,11 +288,14 @@ export function LectureDrawerHeader({
   }
 
   const islandStages = ISLAND_6_STAGE_SECTIONS.filter((s) => s.id !== 'basics')
+  const isIsland6Steps = isIslandCourse || lessonFormat === 'aiki-island-6steps' || Boolean(draft.id && /^bai-\d+-\d+/i.test(draft.id))
   const generalSections = (
     lessonFormat === 'aiki-rule-3steps'
       ? AIKI_3_STAGE_SECTIONS
       : lessonFormat === 'aiki-rule-5steps'
       ? AIKI_SECTIONS
+      : isIsland6Steps
+      ? islandStages
       : STANDARD_SECTIONS
   ).filter((s) => s.id !== 'basics')
 
@@ -314,7 +317,7 @@ export function LectureDrawerHeader({
 
   const displaySections = hasCustomStages
     ? customSections
-    : (isIslandCourse ? islandStages : generalSections)
+    : (isIsland6Steps ? islandStages : generalSections)
 
   return (
     <>
@@ -458,7 +461,7 @@ export function LectureDrawerHeader({
           >
             <Eye size={14} className="shrink-0" /> Xem toàn bộ
           </button>
-          {(isIslandCourse || lessonFormat === 'aiki-rule-5steps' || lessonFormat === 'aiki-rule-3steps' || activeSection === 'basics') && (
+          {(isIsland6Steps || lessonFormat === 'aiki-rule-5steps' || lessonFormat === 'aiki-rule-3steps' || activeSection === 'basics') && (
             <button
               type="button"
               onClick={onToggleInlinePreview}
@@ -481,7 +484,7 @@ export function LectureDrawerHeader({
               <span style={{ color: readiness.complete ? '#10b981' : '#f97316', fontWeight: 700 }}>
                 {readiness.completed}/{readiness.total}
               </span>
-              <span>bước</span>
+              <span>yêu cầu</span>
             </div>
           )}
 
@@ -594,7 +597,7 @@ export function LectureDrawerHeader({
                 )
               })}
             </div>
-          ) : isIslandCourse ? (
+          ) : isIsland6Steps ? (
             /* Thanh Stepper 6 chặng dàn đều trọn vẹn 100% bề ngang: grid-cols-3 trên mobile < 640px, grid-cols-6 trên màn hình >= 640px */
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 w-full min-w-0">
               {islandStages.map((section) => {
@@ -638,7 +641,10 @@ export function LectureDrawerHeader({
             <div
               className={cn(
                 "grid gap-1.5 w-full min-w-0",
-                generalSections.length === 5 ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"
+                generalSections.length === 6 ? "grid-cols-3 sm:grid-cols-6" :
+                generalSections.length === 5 ? "grid-cols-2 sm:grid-cols-5" :
+                generalSections.length === 3 ? "grid-cols-3 sm:grid-cols-3" :
+                "grid-cols-2 sm:grid-cols-4"
               )}
             >
               {generalSections.map((section) => {

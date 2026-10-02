@@ -130,7 +130,8 @@ export function SixStageJourneyEditor({
   setIsTrashDragOver,
 }: SixStageJourneyEditorProps) {
   // ── 1. ĐẢO AIKIDS 6 CHẶNG ──
-  if (isIslandCourse && lessonFormat !== 'aiki-rule-3steps') {
+  const isIsland6Steps = (isIslandCourse || lessonFormat === 'aiki-island-6steps' || Boolean(draft.id && /^bai-\d+-\d+/i.test(draft.id))) && lessonFormat !== 'aiki-rule-3steps'
+  if (isIsland6Steps) {
     const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
     const islandCard = draft.learnCards[stageIndex]
     const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []

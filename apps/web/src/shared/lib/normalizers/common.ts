@@ -120,7 +120,10 @@ export function normalizeGalleryItem(row: Record<string, unknown>) {
     purpose === 'creative_workshop' ||
     Boolean(firstText(metadata.creativeKind, row.creativeKind)) ||
     comicPage ||
-    kind === 'story'
+    kind === 'story' ||
+    kind === 'character' ||
+    String(metadata.assetType ?? row.assetType ?? '').startsWith('aikid-') ||
+    tags.some((tag) => tag.startsWith('kind:character') || tag.startsWith('kind:story') || tag.startsWith('kind:comic'))
   const outputUrls = Array.isArray(row.outputUrls)
     ? row.outputUrls
     : Array.isArray(metadata.outputUrls)

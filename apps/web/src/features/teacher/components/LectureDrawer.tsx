@@ -81,13 +81,17 @@ export function LectureDrawer({
     (courseId && (courseId.toLowerCase() === 'aiki-rules' || courseId.toLowerCase().includes('rule'))) ||
     isAikiRuleJourney(lecture) || isAikiRuleJourney(courseId)
   )
-  const isIslandCourse = !isAikiRule && Boolean(
-    courseId.startsWith('dao-') || (lecture as any)?.lessonFormat === 'aiki-island-6steps' ||
-    (lecture as any)?.metadata?.sixStageJourney || lecture?.sixStageJourney ||
-    (/^bai-\d+-\d+/i.test(lecture?.id || '') && (lecture as any)?.lessonFormat !== 'standard')
-  )
   const initialDraftRef = useRef(normalizeLectureDraft(lecture ?? emptyDraft(), courseId))
   const [draft, setDraft] = useState<LectureDraft>(() => initialDraftRef.current)
+  const isIslandCourse = !isAikiRule && Boolean(
+    courseId.startsWith('dao-') ||
+    courseId.includes('island') ||
+    (lecture as any)?.lessonFormat === 'aiki-island-6steps' ||
+    (lecture as any)?.metadata?.sixStageJourney ||
+    lecture?.sixStageJourney ||
+    Boolean(lecture?.id && /^bai-\d+-\d+/i.test(lecture.id)) ||
+    Boolean(draft?.id && /^bai-\d+-\d+/i.test(draft.id))
+  )
   const deferredDraft = useDeferredValue(draft)
   const [activeSection, setActiveSection] = useState<Section>('basics')
   const [quizQuestions, setQuizQuestions] = useState<EditableQuestion[]>([])
@@ -177,7 +181,12 @@ export function LectureDrawer({
       prevLectureKeyRef.current = lectureKey
       const nextDraft = normalizeLectureDraft(lecture ?? emptyDraft(), courseId)
       initialDraftRef.current = nextDraft
-      setDraft(nextDraft); setLessonFormat(nextDraft.lessonFormat ?? 'standard'); setActiveSection('basics')
+      setDraft(nextDraft)
+      const resolvedFormat = (isIslandCourse || Boolean(nextDraft.id && /^bai-\d+-\d+/i.test(nextDraft.id)))
+        ? 'aiki-island-6steps'
+        : (nextDraft.lessonFormat ?? (isAikiRule ? 'aiki-rule-3steps' : 'standard'))
+      setLessonFormat(resolvedFormat)
+      setActiveSection(resolvedFormat.startsWith('aiki-') ? 'stage-0' : 'basics')
       if (nextDraft.checkQuestions?.length) {
         setQuizQuestions(nextDraft.checkQuestions.map((q, idx) => ({
           id: q.id ?? `q-${idx}`, prompt: q.prompt, options: q.options, answer: q.answer,
@@ -185,7 +194,7 @@ export function LectureDrawer({
         })))
       } else setQuizQuestions([])
     }
-  }, [lectureKey, lecture, courseId])
+  }, [lectureKey, lecture, courseId, isIslandCourse, isAikiRule])
 
   useEffect(() => { onDirtyChange?.(dirty); return () => onDirtyChange?.(false) }, [dirty, onDirtyChange])
   useEffect(() => {

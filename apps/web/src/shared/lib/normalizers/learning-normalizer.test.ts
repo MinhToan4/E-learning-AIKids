@@ -35,4 +35,31 @@ describe('backpack overview route', () => {
       projects: [{ id: 'project-1', title: 'Tranh của Bo' }],
     })
   })
+
+  it('correctly classifies aikid character and play creations as projects', () => {
+    expect(normalizeLearningGatewayResponse('/api/backpack/overview', {
+      items: [
+        {
+          id: 'char-1',
+          name: 'Chú Mèo Vàng',
+          url: '/cat.webp',
+          tags: ['product:aikid', 'kind:character', 'child:bo-123'],
+          metadata: { assetType: 'aikid-character', originalName: 'Chú Mèo Vàng' },
+        },
+        {
+          id: 'art-1',
+          name: 'Tranh màu nước',
+          url: '/art.webp',
+          tags: ['product:aikid', 'child:bo-123'],
+          metadata: { creativeKind: 'art', purpose: 'creative_workshop' },
+        },
+      ],
+    })).toMatchObject({
+      assets: [],
+      projects: [
+        { id: 'char-1', title: 'Chú Mèo Vàng', kind: 'character' },
+        { id: 'art-1', title: 'Tranh màu nước', kind: 'art' },
+      ],
+    })
+  })
 })

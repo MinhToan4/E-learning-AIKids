@@ -1331,21 +1331,22 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
     !isRuleCandidate &&
     (explicitFormat === 'aiki-island-6steps' ||
       courseId.startsWith('dao-') ||
+      courseId.includes('island') ||
       Boolean(draft.metadata?.sixStageJourney) ||
       Boolean(draft.sixStageJourney) ||
-      (/^bai-\d+-\d+/i.test(draft.id || '') && explicitFormat !== 'standard'))
+      Boolean(draft.id && /^bai-\d+-\d+/i.test(draft.id)))
   const format: LessonFormat = explicitFormat === 'aiki-island-6steps'
     ? 'aiki-island-6steps'
     : explicitFormat === 'aiki-rule-3steps'
     ? 'aiki-rule-3steps'
     : explicitFormat === 'aiki-rule-5steps'
     ? 'aiki-rule-5steps'
-    : explicitFormat === 'standard'
-    ? 'standard'
     : isRuleCandidate
     ? 'aiki-rule-3steps'
     : hasIslandContract
     ? 'aiki-island-6steps'
+    : explicitFormat === 'standard'
+    ? 'standard'
     : isAikiRuleLesson(draft.learnCards || [])
     ? 'aiki-rule-5steps'
     : (Array.isArray(draft.learnCards) && draft.learnCards.length === 3)
