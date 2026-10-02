@@ -7,7 +7,6 @@ import {
   Plus,
   QrCode,
   ShieldCheck,
-  Sparkles,
   Trash2,
   UserCheck,
   Users,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
-  ArrowRight,
+  Award,
   Camera,
   CheckCircle2,
   Download,
@@ -11,7 +11,6 @@ import {
   QrCode,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Users,
 } from 'lucide-react'
@@ -244,7 +243,7 @@ export function ParentDashboardTab({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/80 to-purple-50/80 p-3.5 shadow-2xs w-full lg:w-auto">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-lg">
-                <Sparkles size={20} className="text-white" />
+                <Award size={20} className="text-white" />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -272,7 +271,7 @@ export function ParentDashboardTab({
                 className="flex-1 sm:flex-none gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-11 px-4 cursor-pointer"
                 onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
               >
-                <Sparkles size={13} /> Nâng cấp gói
+                Nâng cấp gói
               </Button>
               <Button
                 variant="secondary"
@@ -431,7 +430,6 @@ export function ParentDashboardTab({
                           className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-white font-extrabold shadow-clay border-2 border-brand-600 transition-all py-3 px-4 text-sm sm:text-base cursor-pointer"
                         >
                           <span>🚀 Chạm để vào học ngay</span>
-                          <ArrowRight size={16} />
                         </button>
 
                         <Link
@@ -439,7 +437,6 @@ export function ParentDashboardTab({
                           className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs py-2 px-3 border border-slate-200/80 transition"
                         >
                           <span>Xem tiến độ học tập</span>
-                          <ArrowRight size={13} />
                         </Link>
                       </div>
                     </div>
@@ -636,7 +633,6 @@ export function ParentDashboardTab({
             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs sm:text-sm px-5 py-2.5 shadow-clay transition whitespace-nowrap self-start sm:self-auto"
           >
             <span>Khám phá Trung tâm học tập</span>
-            <ArrowRight size={15} />
           </Link>
         </div>
       </section>

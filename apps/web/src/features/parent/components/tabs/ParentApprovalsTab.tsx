@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BookOpen, Check, Lock, Palette, PartyPopper, ShieldCheck, Sparkles, Video } from 'lucide-react'
+import { BookOpen, Check, Lock, Palette, PartyPopper, ShieldCheck, Video } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'

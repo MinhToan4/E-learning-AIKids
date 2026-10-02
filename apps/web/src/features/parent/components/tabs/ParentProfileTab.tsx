@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { KeyRound, Languages, ShieldCheck, Sparkles } from 'lucide-react'
+import { KeyRound, Languages, ShieldCheck } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'

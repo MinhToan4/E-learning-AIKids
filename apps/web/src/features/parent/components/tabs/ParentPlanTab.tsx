@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Compass, CreditCard, ExternalLink, Palette, Sparkles, Users } from 'lucide-react'
+import { Check, Compass, CreditCard, ExternalLink, Palette, Users } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
@@ -129,7 +129,7 @@ export function ParentPlanTab({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
-              <Sparkles size={13} /> 👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
+              👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
               Gói học gia đình
@@ -243,7 +243,7 @@ export function ParentPlanTab({
                 className="gap-2 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl h-11 px-4 cursor-pointer"
                 onClick={() => setPricingTab('plans')}
               >
-                <Sparkles size={14} /> Đổi gói / Mở thêm ghế
+                Đổi gói / Mở thêm ghế
               </Button>
             </div>
           </div>
@@ -299,7 +299,6 @@ export function ParentPlanTab({
                 onClick={() => onOpenCheckout?.('sub', 'aikids_official_129k', 479000, 'Gói AI Kid Chính Thức')}
               >
                 <span>🚀 Kích hoạt Gói AI Kid Chính Thức · 479.000đ</span>
-                <span className="text-base font-bold">➔</span>
               </Button>
             </div>
           </div>
@@ -311,7 +310,7 @@ export function ParentPlanTab({
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex items-start gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-3.5 shadow-2xs">
-                <span className="text-2xl shrink-0">✨</span>
+                <span className="text-2xl shrink-0">🏝️</span>
                 <div>
                   <p className="font-display text-sm font-black text-slate-900">Trọn bộ 5 Đảo Sáng Tạo</p>
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
