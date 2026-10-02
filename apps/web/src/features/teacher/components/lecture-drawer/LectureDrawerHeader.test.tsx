@@ -388,7 +388,7 @@ describe('LectureDrawerHeader Section Navigation Stepper', () => {
     expect(buttons.some((b) => b.textContent?.includes('3. Quy tắc'))).toBe(true)
     expect(buttons.some((b) => b.textContent?.includes('4. Giải thích'))).toBe(true)
     expect(buttons.some((b) => b.textContent?.includes('5. Chốt'))).toBe(true)
-    expect(buttons.some((b) => b.textContent?.includes('Xem song song'))).toBe(true)
+    expect(buttons.some((b) => b.textContent?.includes('Xem trước'))).toBe(true)
   })
 
   it('renders custom 3-stage journey stepper correctly when customJourneyStages provides 3 steps', () => {

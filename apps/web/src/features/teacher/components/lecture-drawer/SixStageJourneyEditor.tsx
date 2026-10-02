@@ -11,6 +11,7 @@ import {
   Lightbulb,
   ScanSearch,
   Star,
+  Eye,
 } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
@@ -32,7 +33,6 @@ import {
   type LearnCardDraft,
 } from '../../lib/authoring'
 import { StudentStagePreview } from './StudentStagePreview'
-import { CollapsedPreviewRail } from './PracticeWorkflowStepsAccordion'
 import { StageBlocksCanvas } from './StageBlocksCanvas'
 import {
   GoalBlockEditor,
@@ -142,10 +142,10 @@ export function SixStageJourneyEditor({
     return (
       <div
         className={cn(
-          'grid min-w-0 items-start gap-5 transition-all',
+          'w-full min-w-0 transition-all',
           showInlinePreview
-            ? '2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1'
-            : 'xl:grid-cols-[minmax(0,1fr)_56px] grid-cols-1'
+            ? 'grid 2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1 items-start gap-5'
+            : 'flex flex-col gap-4'
         )}
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -175,6 +175,17 @@ export function SixStageJourneyEditor({
                   </p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('aikids:open-stage-preview', { detail: { stageIndex } }))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white hover:bg-brand-50 text-brand-700 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer shrink-0"
+                title="Xem trước chặng này trên màn hình học sinh"
+              >
+                <Eye size={13} />
+                <span>Xem thử chặng</span>
+              </button>
             </div>
 
             {/* Bộ chọn tặng sao cho chặng */}
@@ -374,7 +385,7 @@ export function SixStageJourneyEditor({
         </div>
 
         {/* Live preview Đảo 6 chặng */}
-        {showInlinePreview ? (
+        {showInlinePreview && (
           (() => {
             const deferredJourney =
               deferredDraft.sixStageJourney || resolveIslandSixStageJourney(deferredDraft as any)
@@ -389,8 +400,6 @@ export function SixStageJourneyEditor({
               />
             )
           })()
-        ) : (
-          <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
         )}
       </div>
     )
@@ -442,10 +451,10 @@ export function SixStageJourneyEditor({
   return (
     <div
       className={cn(
-        'grid min-w-0 items-start gap-5 transition-all',
+        'w-full min-w-0 transition-all',
         showInlinePreview
-          ? '2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1'
-          : 'xl:grid-cols-[minmax(0,1fr)_56px] grid-cols-1'
+          ? 'grid 2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1 items-start gap-5'
+          : 'flex flex-col gap-4'
       )}
     >
       <div className="flex min-w-0 flex-col gap-4">
@@ -466,9 +475,22 @@ export function SixStageJourneyEditor({
                 <p className="mt-0.5 text-xs font-semibold text-brand-800">{stageInfo.desc}</p>
               </div>
             </div>
-            <span className="rounded-full bg-brand-100 border border-brand-200 px-2.5 py-1 text-[11px] font-black text-brand-900">
-              {stageBlocks.length} khối nội dung
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('aikids:open-stage-preview', { detail: { stageIndex } }))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-white hover:bg-brand-50 text-brand-700 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer shrink-0"
+                title="Xem trước chặng này trên màn hình học sinh"
+              >
+                <Eye size={13} />
+                <span>Xem thử chặng</span>
+              </button>
+              <span className="rounded-full bg-brand-100 border border-brand-200 px-2.5 py-1 text-[11px] font-black text-brand-900">
+                {stageBlocks.length} khối nội dung
+              </span>
+            </div>
           </div>
         </div>
 
@@ -614,7 +636,7 @@ export function SixStageJourneyEditor({
       </div>
 
       {/* Live preview */}
-      {showInlinePreview ? (
+      {showInlinePreview && (
         (() => {
           const deferredCard = deferredDraft.learnCards[stageIndex] ?? card
           return (
@@ -627,8 +649,6 @@ export function SixStageJourneyEditor({
             />
           )
         })()
-      ) : (
-        <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
       )}
     </div>
   )

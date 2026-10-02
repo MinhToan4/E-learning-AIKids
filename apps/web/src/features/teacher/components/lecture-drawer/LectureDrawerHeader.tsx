@@ -373,27 +373,12 @@ export function LectureDrawerHeader({
           <button
             type="button"
             onClick={onShowFullPreview}
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-extrabold text-brand-700 hover:bg-brand-100 shrink-0 whitespace-nowrap cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-700 font-extrabold text-xs px-3 py-1.5 shadow-2xs transition cursor-pointer shrink-0 whitespace-nowrap"
+            title="Xem trước trạm học trên màn hình học sinh"
           >
-            <Eye size={14} className="shrink-0" /> Xem toàn bộ
+            <Eye size={14} className="shrink-0" />
+            <span>Xem trước</span>
           </button>
-          {(isIsland6Steps || lessonFormat === 'aiki-rule-5steps' || lessonFormat === 'aiki-rule-3steps' || activeSection === 'basics') && (
-            <button
-              type="button"
-              onClick={onToggleInlinePreview}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-extrabold transition shrink-0 whitespace-nowrap cursor-pointer',
-                showInlinePreview
-                  ? 'border-sky-300 bg-sky-100 text-sky-900 shadow-2xs'
-                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-              )}
-              aria-pressed={showInlinePreview}
-              title={showInlinePreview ? 'Thu gọn cột xem trước' : 'Mở xem trước song song'}
-            >
-              {showInlinePreview ? <PanelRightClose size={14} className="shrink-0" /> : <Split size={14} className="shrink-0" />}
-              <span>{showInlinePreview ? 'Thu gọn preview' : 'Xem song song'}</span>
-            </button>
-          )}
 
           {!readOnly && (
             <div className="hidden sm:flex items-center gap-1.5 text-[13px] text-slate-500 shrink-0 whitespace-nowrap">

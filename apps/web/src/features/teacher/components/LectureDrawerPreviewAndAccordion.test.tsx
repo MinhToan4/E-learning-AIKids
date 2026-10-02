@@ -1085,7 +1085,7 @@ describe('Creative Engine Selector - Collapse / Expand in LectureDrawer', () => 
     container.remove()
   })
 
-  it('toggles preview visibility in LectureDrawer across stages and basics tabs', () => {
+  it('opens compact preview modal from header and stage quick button, returning 100% space to editor', () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -1118,38 +1118,34 @@ describe('Creative Engine Selector - Collapse / Expand in LectureDrawer', () => 
       )
     })
 
-    // 1. Initial state (defaults to 'basics' tab): header has "Thu gọn preview" button
-    const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Thu gọn preview') || b.textContent?.includes('Xem song song')
-    )
-    expect(toggleBtn).toBeDefined()
-    expect(toggleBtn?.textContent).toContain('Thu gọn preview')
-    expect(container.textContent).toContain('Học sinh sẽ thấy')
+    // 1. Initial state: inline preview is OFF by default, no 56px CollapsedPreviewRail
+    const rail = container.querySelector('[aria-label="Mở rộng xem trước màn học sinh"]')
+    expect(rail).toBeNull()
 
-    // 2. Click "Thu gọn preview" in header
+    // Header has the single prominent "Xem trước" button
+    const previewHeaderBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xem trước')
+    )
+    expect(previewHeaderBtn).toBeDefined()
+
+    // 2. Click "Xem trước" in header opens CompactStationPreviewModal
     act(() => {
-      toggleBtn?.click()
+      previewHeaderBtn?.click()
     })
 
-    // Now header button displays "Xem song song"
-    expect(toggleBtn?.textContent).toContain('Xem song song')
+    // Modal is rendered in document.body via createPortal
+    expect(document.body.textContent).toContain('Xem trước học sinh')
+    expect(document.body.textContent).toContain('Trạm 1: Khởi động 4 Chìa Khóa')
 
-    // In basics tab, 56px CollapsedPreviewRail appears with "HỌC SINH SẼ THẤY" and "PREVIEW"
-    const railBasics = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.getAttribute('aria-label') === 'Mở rộng xem trước màn học sinh'
+    // 3. Close the modal by clicking "Đóng xem trước"
+    const closeBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Đóng xem trước')
     )
-    expect(railBasics).toBeDefined()
-    expect(railBasics?.textContent).toContain('HỌC SINH SẼ THẤY')
-    expect(railBasics?.textContent).toContain('PREVIEW')
-
-    // 3. Click CollapsedPreviewRail inside the basics tab
+    expect(closeBtn).toBeDefined()
     act(() => {
-      railBasics?.click()
+      closeBtn?.click()
     })
-
-    // Preview is restored in basics tab
-    expect(container.textContent).toContain('Học sinh sẽ thấy')
-    expect(toggleBtn?.textContent).toContain('Thu gọn preview')
+    expect(document.body.textContent).not.toContain('Xem trước học sinh')
 
     // 4. Navigate to Stage 0 (Mục tiêu)
     const stage0Btn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -1160,27 +1156,24 @@ describe('Creative Engine Selector - Collapse / Expand in LectureDrawer', () => 
       stage0Btn?.click()
     })
 
-    // In Stage 0, preview is currently visible. Now collapse it via header button:
-    act(() => {
-      toggleBtn?.click()
-    })
-    expect(toggleBtn?.textContent).toContain('Xem song song')
-
-    // Stage right column now shows 56px CollapsedPreviewRail
-    const railStage = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.getAttribute('aria-label') === 'Mở rộng xem trước màn học sinh'
+    // In Stage 0 header, "Xem thử chặng" button is available
+    const stagePreviewBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xem thử chặng')
     )
-    expect(railStage).toBeDefined()
-    expect(railStage?.textContent).toContain('HỌC SINH SẼ THẤY')
-    expect(railStage?.textContent).toContain('PREVIEW')
+    expect(stagePreviewBtn).toBeDefined()
 
-    // 5. Click CollapsedPreviewRail inside the stage section
+    // 5. Click "Xem thử chặng" to open preview for this specific stage
     act(() => {
-      railStage?.click()
+      stagePreviewBtn?.click()
     })
+    expect(document.body.textContent).toContain('Xem trước học sinh')
+    expect(document.body.textContent).toContain('Chặng 1/6')
 
-    // Preview expands again and header button returns to "Thu gọn preview"
-    expect(toggleBtn?.textContent).toContain('Thu gọn preview')
+    // Press Escape key to close modal
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    })
+    expect(document.body.textContent).not.toContain('Xem trước học sinh')
 
     act(() => {
       root.unmount()

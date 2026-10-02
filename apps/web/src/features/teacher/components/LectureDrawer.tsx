@@ -105,7 +105,17 @@ export function LectureDrawer({
   const [isTrashDragOver, setIsTrashDragOver] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
-  const [showInlinePreview, setShowInlinePreview] = useState(true)
+  const [showInlinePreview, setShowInlinePreview] = useState(false)
+  const [previewStageIndex, setPreviewStageIndex] = useState<number>(0)
+
+  useEffect(() => {
+    const handleOpen = (e: any) => {
+      setPreviewStageIndex(e.detail?.stageIndex ?? 0)
+      setShowFullPreview(true)
+    }
+    window.addEventListener('aikids:open-stage-preview', handleOpen)
+    return () => window.removeEventListener('aikids:open-stage-preview', handleOpen)
+  }, [])
 
   const [lessonFormat, setLessonFormat] = useState<LessonFormat>(() => {
     if (isIslandCourse) return 'aiki-island-6steps'
@@ -267,7 +277,7 @@ export function LectureDrawer({
 
   const containerStyle: React.CSSProperties = inline
     ? { display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc', overflow: 'hidden', borderRadius: '1rem', border: '1px solid #e2e8f0' }
-    : { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 401, width: '100%', maxWidth: showInlinePreview ? 'min(1280px, 100vw)' : '700px', background: '#f8fafc', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '-20px 0 60px rgba(15,23,42,0.15)' }
+    : { position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 401, width: '100%', maxWidth: showInlinePreview ? 'min(1280px, 100vw)' : 'min(1100px, 100vw)', background: '#f8fafc', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '-20px 0 60px rgba(15,23,42,0.15)' }
 
   const body = (
     <div style={containerStyle}>
@@ -275,7 +285,14 @@ export function LectureDrawer({
         uid={uid} draft={draft} isEdit={isEdit} readOnly={readOnly} archived={archived} isIslandCourse={isIslandCourse}
         lessonFormat={lessonFormat} customJourneyStages={draft.customJourneyStages} activeSection={activeSection}
         readiness={readiness} showInlinePreview={showInlinePreview} recovery={recovery} draftStorageKey={draftStorageKey}
-        onRestore={onRestore} onArchive={onArchive} onRequestClose={requestClose} onShowFullPreview={() => setShowFullPreview(true)}
+        onRestore={onRestore} onArchive={onArchive} onRequestClose={requestClose}
+        onShowFullPreview={() => {
+          const currentIdx = activeSection.startsWith('stage-')
+            ? parseInt(activeSection.replace('stage-', ''), 10)
+            : 0
+          setPreviewStageIndex(Number.isNaN(currentIdx) ? 0 : currentIdx)
+          setShowFullPreview(true)
+        }}
         onToggleInlinePreview={() => setShowInlinePreview((v) => !v)}
         onFormatChange={(fmt) => { setLessonFormat(fmt); setActiveSection(fmt.startsWith('aiki-') ? 'stage-0' : 'content') }}
         onSelectSection={(sec) => setActiveSection(sec)}
@@ -346,7 +363,7 @@ export function LectureDrawer({
       </div>
       {showBankPicker && <QuestionBankPicker selectedIds={quizQuestions.map((q) => q.id)} onSelect={(nq) => setQuizQuestions((p) => [...p, ...nq])} onClose={() => setShowBankPicker(false)} />}
       <ConfirmDialog open={confirmClose} title="Bỏ các thay đổi chưa lưu?" description="Nội dung vừa chỉnh trong trạm sẽ bị mất." confirmLabel="Bỏ thay đổi" cancelLabel="Tiếp tục soạn" danger onCancel={() => setConfirmClose(false)} onConfirm={() => { window.sessionStorage.removeItem(draftStorageKey); setConfirmClose(false); onDirtyChange?.(false); onClose() }} />
-      <FullStationPreviewModal open={showFullPreview} onClose={() => setShowFullPreview(false)} draft={draft} lessonFormat={lessonFormat} gameConfig={buildLectureGameConfig(draft)} isIslandCourse={isIslandCourse} />
+      <FullStationPreviewModal open={showFullPreview} onClose={() => setShowFullPreview(false)} draft={draft} lessonFormat={lessonFormat} gameConfig={buildLectureGameConfig(draft)} isIslandCourse={isIslandCourse} initialStageIndex={previewStageIndex} />
     </div>
   )
 

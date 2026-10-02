@@ -3,7 +3,7 @@ import { BookOpen, Youtube, Star, Award } from 'lucide-react'
 import type { LectureDraft, LessonAccessConfig } from '../../lib/authoring'
 import { slugifyAuthoringId } from '../../lib/authoring'
 import { cn } from '@/shared/lib/cn'
-import { StudentBasicsPreview, CollapsedPreviewRail } from './PracticeWorkflowStepsAccordion'
+import { StudentBasicsPreview } from './PracticeWorkflowStepsAccordion'
 import { inputStyle, textareaStyle, FormRow } from './lecture-drawer-constants'
 
 export interface LectureDrawerBasicsFormProps {
@@ -52,10 +52,10 @@ export function LectureDrawerBasicsForm({
 
       <div
         className={cn(
-          'grid items-start gap-5 transition-all',
+          'w-full min-w-0 transition-all',
           showInlinePreview
-            ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,.85fr)]'
-            : 'lg:grid-cols-[minmax(0,1fr)_56px]'
+            ? 'grid lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,.85fr)] items-start gap-5'
+            : 'flex flex-col gap-4'
         )}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -414,10 +414,8 @@ export function LectureDrawerBasicsForm({
         </div>
 
         {/* Live preview */}
-        {showInlinePreview ? (
+        {showInlinePreview && (
           <StudentBasicsPreview draft={deferredDraft} onCollapse={() => setShowInlinePreview(false)} />
-        ) : (
-          <CollapsedPreviewRail onExpand={() => setShowInlinePreview(true)} />
         )}
       </div>
     </div>
