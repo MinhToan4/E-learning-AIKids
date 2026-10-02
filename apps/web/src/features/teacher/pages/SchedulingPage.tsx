@@ -591,7 +591,7 @@ function RescheduleSection({
           <DecisionCard
             key={row.id}
             title={`${row.student.nickname ?? 'Học viên'} · ${row.session.title}`}
-            description={`Hiện tại ${displayDate(row.session.startsAt)} → mong muốn ${displayDate(row.preferredStartsAt)}. Lý do: ${row.reason}`}
+            description={`Hiện tại ${displayDate(row.session.startsAt)} sang mong muốn ${displayDate(row.preferredStartsAt)}. Lý do: ${row.reason}`}
             options={targets}
             optionalOption={row.session.classroom.classType === 'one_to_one'}
             optionLabel={(session) => `${session.title} · ${displayDate(session.startsAt)}`}

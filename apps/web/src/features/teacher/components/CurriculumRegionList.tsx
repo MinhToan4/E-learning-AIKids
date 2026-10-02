@@ -1,4 +1,4 @@
-import { Plus, Sparkles, MapPin, ArrowRight, Edit, Layers, ArrowLeft } from 'lucide-react'
+import { Plus, FileText, MapPin, ArrowRight, Edit, Layers, ArrowLeft } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import type { CourseLectures, LearningProgram } from '../types'
@@ -79,8 +79,8 @@ export function CurriculumRegionList({
               className="!min-h-9 !text-xs font-black shadow-xs gap-1.5 cursor-pointer"
               onClick={onOpenScriptGenerator}
             >
-              <Sparkles size={14} />
-              <span>🪄 Tạo từ kịch bản AI</span>
+              <FileText size={14} />
+              <span>Tạo từ kịch bản bài học</span>
             </Button>
           </div>
         </div>
@@ -165,7 +165,7 @@ export function CurriculumRegionList({
                     onClick={() => onSelectRegion(region.id)}
                     className="w-full flex items-center justify-center gap-2 rounded-2xl bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white py-2.5 px-4 text-xs font-black shadow-xs transition cursor-pointer"
                   >
-                    <span>Quản lý Trạm học ➔</span>
+                    <span>Quản lý Trạm học</span>
                     <ArrowRight size={14} />
                   </button>
                 </div>
@@ -199,8 +199,8 @@ export function CurriculumRegionList({
               className="!min-h-10 text-xs font-black border-sky-300 bg-white text-sky-800 hover:bg-sky-50 shadow-xs cursor-pointer"
               onClick={onOpenScriptGenerator}
             >
-              <Sparkles size={14} />
-              <span>🪄 Tạo từ kịch bản AI</span>
+              <FileText size={14} />
+              <span>Tạo từ kịch bản bài học</span>
             </Button>
           </div>
         </div>

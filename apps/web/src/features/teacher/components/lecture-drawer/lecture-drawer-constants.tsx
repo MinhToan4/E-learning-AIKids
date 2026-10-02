@@ -176,7 +176,7 @@ export const AVAILABLE_MODULES = [
   { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '🔑', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
   { id: 'layout-confirm-option', label: 'Phương Án Lựa Chọn (A, B, C...)', icon: '🔘', desc: 'Phương án trắc nghiệm xác nhận mục tiêu (Chữ + Ảnh)' },
   { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '🎬', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
-  { id: 'voice', label: 'Trợ lý âm thanh Mèo AIKI', icon: '🐱', desc: 'Trợ lý giọng đọc AI & lipsync ngầm, tối ưu diện tích bài học' },
+  { id: 'voice', label: 'Giọng đọc & Lời thoại', icon: '🎙️', desc: 'Trợ lý giọng đọc AI & lipsync ngầm, tối ưu diện tích bài học' },
   { id: 'video', label: 'Video Bài Giảng (16:9)', icon: '🎬', desc: 'Video MP4 / YouTube sạch bóng với dải phụ đề riêng biệt' },
   { id: 'versus-ab', label: '2 Ảnh Đối Đầu A/B', icon: '🖼️', desc: 'Upload & cấu hình 2 ảnh đối đầu A & B' },
   { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Phân vai Zico / Sonet / AIKI / Tùy chọn' },
@@ -304,7 +304,7 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
     case 'layout-storyboard':
       return customTitle || 'CHUỖI STORYBOARD'
     case 'voice':
-      return 'MÈO AIKI ĐỒNG HÀNH & TRỢ GIẢNG AI'
+      return 'GIỌNG ĐỌC & LỜI THOẠI HƯỚNG DẪN'
     case 'video':
       return 'VIDEO BÀI GIẢNG'
     case 'versus-ab':

@@ -780,7 +780,7 @@ export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved
             {/* Next tab or Save */}
             {activeTab !== 'recognition' ? (
               <button type="button" onClick={() => setActiveTab(activeTab === 'basics' ? 'outcomes' : 'recognition')} style={primaryBtnStyle}>
-                Tiếp theo →
+                Tiếp theo
               </button>
             ) : (
               <button

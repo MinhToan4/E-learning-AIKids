@@ -260,7 +260,7 @@ export function ParentDashboardTab({
                   {kids.length}/{sub?.maxChildren || 2} hồ sơ con · {sub?.maxOpenCoursesPerChild || 5} vùng mở cùng lúc
                 </p>
                 <p className="text-[11px] font-bold text-purple-700 mt-0.5 truncate">
-                  🎨 Còn {aiCredits} lượt tạo ảnh AI
+                  Còn {aiCredits} lượt tạo ảnh AI
                 </p>
               </div>
             </div>
@@ -417,9 +417,9 @@ export function ParentDashboardTab({
                             {k.ageBand ? `Nhóm ${k.ageBand}` : 'Nhóm 8-11 tuổi'}
                           </p>
                           <div className="flex items-center gap-1.5 mt-1 text-[11px] font-bold text-amber-700">
-                            <span>⭐ {childStars} sao</span>
+                            <span>{childStars} sao</span>
                             <span className="text-slate-300">·</span>
-                            <span className="text-emerald-700">🎯 {childQuests} trạm</span>
+                            <span className="text-emerald-700">{childQuests} trạm</span>
                           </div>
                         </div>
                       </div>

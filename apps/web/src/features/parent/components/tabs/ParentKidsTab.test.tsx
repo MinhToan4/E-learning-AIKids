@@ -133,12 +133,12 @@ describe('ParentKidsTab Component', () => {
 
     // Child card contains:
     expect(document.body.textContent).toContain('Bé Tít')
-    expect(document.body.textContent).toContain('⭐ 20') // Sao
-    expect(document.body.textContent).toContain('🎯 10') // Trạm
-    expect(document.body.textContent).toContain('⚡ Lv.4') // Cấp
-    expect(document.body.textContent).toContain('🎨 1') // Duyệt
+    expect(document.body.textContent).toContain('20 sao') // Sao
+    expect(document.body.textContent).toContain('10 trạm') // Trạm
+    expect(document.body.textContent).toContain('Cấp 4') // Cấp
+    expect(document.body.textContent).toContain('1 chờ duyệt') // Duyệt
 
     // Island progress banner
-    expect(document.body.textContent).toContain('🏆 Đã hoàn thành 10 Quy tắc vàng')
+    expect(document.body.textContent).toContain('Đã hoàn thành 10 Quy tắc vàng')
   })
 })

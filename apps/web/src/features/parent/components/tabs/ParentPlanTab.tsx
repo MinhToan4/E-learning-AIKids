@@ -186,7 +186,7 @@ export function ParentPlanTab({
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
             )}
           >
-            <span>🎨 Lượt sáng tạo AI</span>
+            <span>Lượt sáng tạo AI</span>
           </button>
         </div>
       </div>
@@ -199,7 +199,7 @@ export function ParentPlanTab({
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800 shadow-2xs">
-                  🟢 GÓI ĐANG HOẠT ĐỘNG
+                  GÓI ĐANG HOẠT ĐỘNG
                 </span>
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
@@ -242,7 +242,7 @@ export function ParentPlanTab({
               <p className="font-display text-base sm:text-lg font-black text-purple-700 mt-0.5">
                 Còn {aiCredits} lượt
               </p>
-              <p className="text-[11px] text-muted">Tạo ảnh AI cùng AIKI Cat</p>
+              <p className="text-[11px] text-muted">Tạo ảnh AI</p>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
               <p className="text-[11px] font-extrabold uppercase tracking-wide text-brand-600">Hạn mức vùng học mỗi bé</p>
@@ -259,7 +259,7 @@ export function ParentPlanTab({
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-brand-100/70 pb-5">
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 shadow-2xs">
-                ⚪ GÓI KHỞI ĐẦU (MIỄN PHÍ)
+                GÓI KHỞI ĐẦU (MIỄN PHÍ)
               </span>
               <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
                 Tài khoản Khởi Đầu
@@ -290,7 +290,6 @@ export function ParentPlanTab({
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex items-start gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-3.5 shadow-2xs">
-                <span className="text-2xl shrink-0">🏝️</span>
                 <div>
                   <p className="font-display text-sm font-black text-slate-900">Trọn bộ 5 Đảo Sáng Tạo</p>
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
@@ -299,20 +298,18 @@ export function ParentPlanTab({
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-3.5 shadow-2xs">
-                <span className="text-2xl shrink-0">🎨</span>
                 <div>
                   <p className="font-display text-sm font-black text-slate-900">{officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI</p>
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                    {officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.
+                    {officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI mỗi tháng.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 shadow-2xs">
-                <span className="text-2xl shrink-0">📊</span>
                 <div>
                   <p className="font-display text-sm font-black text-slate-900">Báo cáo & Bằng khen</p>
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                    Báo cáo năng lực Montessori & Bằng khen tốt nghiệp vector SVG.
+                    Báo cáo năng lực Montessori & Bằng khen tốt nghiệp.
                   </p>
                 </div>
               </div>
@@ -481,7 +478,6 @@ export function ParentPlanTab({
                   </span>
                 )}
                 <div>
-                  <div className="text-2xl mb-1">🎨</div>
                   <h4 className="font-display text-base font-black text-text">{pack.label}</h4>
                   <p className="text-xs text-muted">{pack.unitPriceText}</p>
                   <p className="mt-2 font-display text-lg font-black text-brand-600">{pack.priceFormatted}</p>

@@ -74,7 +74,7 @@ export function RewardBlockEditor({
           value={completion.congratsMessage || ''}
           disabled={readOnly}
           onChange={(e) => onChange({ congratsMessage: e.target.value })}
-          placeholder="Lời khen ngợi và dặn dò từ Mèo AIKI dành cho bé..."
+          placeholder="Lời khen ngợi và dặn dò dành cho bé..."
           className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
         />
       </div>

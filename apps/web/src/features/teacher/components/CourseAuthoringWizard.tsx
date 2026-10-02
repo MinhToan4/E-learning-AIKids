@@ -164,7 +164,7 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
               <textarea className={`${textareaClass} min-h-32`} value={value.finalAssessment} onChange={(event) => setField('finalAssessment', event.target.value)} placeholder="Học sinh trình bày sản phẩm, giải thích lựa chọn và cải thiện theo phản hồi." />
             </label>
             <div className="rounded-2xl bg-sky-50 p-4 text-sm leading-relaxed text-muted">
-              <strong className="text-text">Một trạm đạt chuẩn có bốn pha:</strong> Khám phá → Thử cùng Mee → Tự tay làm → Thử thách. Sau khi lưu khung giáo trình, hãy mở Nội dung & lộ trình để soạn từng trạm.
+              <strong className="text-text">Một trạm đạt chuẩn có bốn pha:</strong> Khám phá · Thử cùng Mee · Tự tay làm · Thử thách. Sau khi lưu khung giáo trình, hãy mở Nội dung & lộ trình để soạn từng trạm.
             </div>
           </div>
         )}

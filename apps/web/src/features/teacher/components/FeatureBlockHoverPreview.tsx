@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { Play } from 'lucide-react'
 
 export type FeatureBlockItem = {
   id: string
@@ -114,8 +115,8 @@ export const FEATURE_BLOCK_PEDAGOGY_MAP: Record<string, PedagogyGuide> = {
     studentSees: 'Khung video 16:9 rõ nét không bị che, kèm dải phụ đề lời thoại chuyên dụng nằm ngay dưới chân video.',
   },
   voice: {
-    useWhen: 'Luyện kỹ năng nghe, đọc hiểu qua âm thanh lời đọc và cử chỉ của Mèo AIKI.',
-    studentSees: 'Âm thanh lời đọc đồng hành của Mèo AIKI (ẩn khung hình trên bài học để tối ưu diện tích).',
+    useWhen: 'Luyện kỹ năng nghe, đọc hiểu qua âm thanh lời đọc và ngữ điệu sư phạm chuẩn mực.',
+    studentSees: 'Âm thanh giọng đọc bài học đồng hành (ẩn khung hình trên bài học để tối ưu diện tích).',
   },
   'layout-split': {
     useWhen: 'Kết hợp cân đối: 50% văn bản giải thích bên trái và 50% tranh ảnh/media bên phải.',
@@ -135,7 +136,7 @@ export const FEATURE_BLOCK_PEDAGOGY_MAP: Record<string, PedagogyGuide> = {
   },
   'layout-storyboard': {
     useWhen: 'Trình bày cốt truyện hoặc quy trình theo chuỗi 3 phân cảnh điện ảnh tuần tự.',
-    studentSees: 'Dải phim 3 cảnh nối tiếp 1 ➔ 2 ➔ 3 như đang theo dõi một đoạn phim hoạt hình.',
+    studentSees: 'Dải phim 3 cảnh nối tiếp 1 · 2 · 3 như đang theo dõi một đoạn phim hoạt hình.',
   },
   'layout-formula': {
     useWhen: 'Giảng giải công thức toán học, cấu trúc câu lệnh prompt hoặc logic thuật toán.',
@@ -372,7 +373,7 @@ function renderMiniWireframe(id: string, blockName: string, blockIcon: string) {
               <span className="text-emerald-400 font-bold">● Không bị text che</span>
             </div>
             <div className="self-center flex items-center justify-center w-6 h-6 rounded-full bg-rose-600 text-white text-xs shadow-md">
-              ▶
+              <Play size={10} className="fill-white translate-x-0.5" />
             </div>
             <div className="w-full space-y-0.5">
               <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
@@ -381,7 +382,7 @@ function renderMiniWireframe(id: string, blockName: string, blockIcon: string) {
             </div>
           </div>
           <div className="bg-amber-50 px-2 py-1 border-t border-slate-200 flex items-center gap-1 text-[8px] text-slate-800 font-bold">
-            <span className="bg-brand-500 text-white rounded-full px-1 text-[7px]">AIKI</span>
+            <span className="bg-brand-500 text-white rounded-full px-1 text-[7px]">Lời thoại</span>
             <span className="truncate">"Phụ đề hiển thị dưới video, không che hình"</span>
           </div>
         </div>
@@ -483,8 +484,8 @@ function renderMiniWireframe(id: string, blockName: string, blockIcon: string) {
       return (
         <div data-testid="wireframe-layout-storyboard" className="rounded-lg border border-emerald-300 bg-slate-900 p-1.5 text-white shadow-2xs">
           <div className="flex justify-between items-center text-[7px] text-emerald-400 px-1 mb-1">
-            <span>🎞️ DẢI PHIM STORYBOARD</span>
-            <span>1 ➔ 2 ➔ 3</span>
+            <span>DẢI PHIM STORYBOARD</span>
+            <span>1 · 2 · 3</span>
           </div>
           <div className="grid grid-cols-3 gap-1">
             {[1, 2, 3].map((scene) => (

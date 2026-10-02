@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import {
   CheckCircle2,
-  Circle,
   Eye,
   Split,
   X,
@@ -51,9 +50,9 @@ export interface SectionDefinition {
 
 export const AIKI_3_STAGE_SECTIONS: SectionDefinition[] = [
   { id: 'basics', label: 'Thông tin trạm', shortLabel: 'Trạm', fullTitle: 'Thông tin cơ bản của trạm học', icon: <BookOpen size={14} /> },
-  { id: 'stage-0', label: '1. Bài học', shortLabel: 'Bài học', fullTitle: '1. 🎬 Rạp chiếu video bài học & kiến thức trọng tâm', icon: <Film size={14} /> },
-  { id: 'stage-1', label: '2. Kiểm tra', shortLabel: 'Kiểm tra', fullTitle: '2. ⚡ Thử tài phản xạ (Trắc nghiệm củng cố quy tắc)', icon: <MessageCircleQuestion size={14} /> },
-  { id: 'stage-2', label: '3. Hoàn thành', shortLabel: 'Hoàn thành', fullTitle: '3. 🏆 Vinh danh, trao huy hiệu & nhận sao hoàn thành', icon: <Trophy size={14} /> },
+  { id: 'stage-0', label: '1. Bài học', shortLabel: 'Bài học', fullTitle: '1. Rạp chiếu video bài học & kiến thức trọng tâm', icon: <Film size={14} /> },
+  { id: 'stage-1', label: '2. Kiểm tra', shortLabel: 'Kiểm tra', fullTitle: '2. Thử tài phản xạ (Trắc nghiệm củng cố quy tắc)', icon: <MessageCircleQuestion size={14} /> },
+  { id: 'stage-2', label: '3. Hoàn thành', shortLabel: 'Hoàn thành', fullTitle: '3. Vinh danh, trao huy hiệu & nhận sao hoàn thành', icon: <Trophy size={14} /> },
 ]
 
 export const AIKI_SECTIONS: SectionDefinition[] = [
@@ -67,12 +66,12 @@ export const AIKI_SECTIONS: SectionDefinition[] = [
 
 export const ISLAND_6_STAGE_SECTIONS: SectionDefinition[] = [
   { id: 'basics', label: 'Thông tin trạm', shortLabel: 'Trạm', fullTitle: 'Thông tin cơ bản của trạm học', icon: <BookOpen size={14} /> },
-  { id: 'stage-0', label: '1. 🎯 Mục tiêu', shortLabel: 'Mục tiêu', fullTitle: '1. 🎯 Mục tiêu bài học (Ảnh minh họa)', icon: <Target size={14} /> },
-  { id: 'stage-1', label: '2. ❓ Xác nhận', shortLabel: 'Khởi động', fullTitle: '2. ❓ Xác nhận (1 câu hỏi khởi động)', icon: <HelpCircle size={14} /> },
-  { id: 'stage-2', label: '3. 🎬 Video', shortLabel: 'Video', fullTitle: '3. 🎬 Video bài giảng YouTube / MP4', icon: <Film size={14} /> },
-  { id: 'stage-3', label: '4. 🧩 Trắc nghiệm', shortLabel: 'Câu hỏi', fullTitle: '4. 🧩 Bộ câu hỏi trắc nghiệm kiểm tra', icon: <MessageCircleQuestion size={14} /> },
-  { id: 'stage-4', label: '5. 🎨 Thực hành', shortLabel: 'Thực hành', fullTitle: '5. 🎨 Kịch bản thực hành AI Studio', icon: <Palette size={14} /> },
-  { id: 'stage-5', label: '6. 🏆 Kết thúc', shortLabel: 'Kết thúc', fullTitle: '6. 🏆 Màn kết thúc, trao sao & huy hiệu', icon: <Trophy size={14} /> },
+  { id: 'stage-0', label: '1. Mục tiêu', shortLabel: 'Mục tiêu', fullTitle: '1. Mục tiêu bài học (Ảnh minh họa)', icon: <Target size={14} /> },
+  { id: 'stage-1', label: '2. Xác nhận', shortLabel: 'Khởi động', fullTitle: '2. Xác nhận (1 câu hỏi khởi động)', icon: <HelpCircle size={14} /> },
+  { id: 'stage-2', label: '3. Video', shortLabel: 'Video', fullTitle: '3. Video bài giảng YouTube / MP4', icon: <Film size={14} /> },
+  { id: 'stage-3', label: '4. Trắc nghiệm', shortLabel: 'Câu hỏi', fullTitle: '4. Bộ câu hỏi trắc nghiệm kiểm tra', icon: <MessageCircleQuestion size={14} /> },
+  { id: 'stage-4', label: '5. Thực hành', shortLabel: 'Thực hành', fullTitle: '5. Kịch bản thực hành AI Studio', icon: <Palette size={14} /> },
+  { id: 'stage-5', label: '6. Kết thúc', shortLabel: 'Kết thúc', fullTitle: '6. Màn kết thúc, trao sao & huy hiệu', icon: <Trophy size={14} /> },
 ]
 
 export const STANDARD_SECTIONS: SectionDefinition[] = [
@@ -325,11 +324,8 @@ export function LectureDrawerHeader({
       {archived && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-amber-300 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-4 py-3 text-white shadow-sm flex-shrink-0">
           <div className="flex items-center gap-2.5 text-xs font-black sm:text-sm">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20 text-base shadow-inner">
-              📦
-            </span>
             <span>
-              <strong>TRẠM CŨ / ĐÃ ẨN:</strong> Trạm này đang bị ẩn khỏi lộ trình học sinh trên Bản đồ Đảo. Học sinh sẽ không thể nhìn thấy hoặc truy cập.
+              <strong>Trạm đã ẩn:</strong> Trạm này đang bị ẩn khỏi lộ trình học sinh trên Bản đồ Đảo. Học sinh sẽ không thể nhìn thấy hoặc truy cập.
             </span>
           </div>
           {!readOnly && onRestore && (
@@ -338,7 +334,7 @@ export function LectureDrawerHeader({
               onClick={onRestore}
               className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-black text-amber-900 shadow-md transition hover:bg-amber-50 hover:shadow-lg active:scale-95 cursor-pointer"
             >
-              <span>👁️ Bật lại trạm này ngay</span>
+              <span>Bật lại trạm</span>
             </button>
           )}
         </div>
@@ -411,11 +407,11 @@ export function LectureDrawerHeader({
                 className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[340px] sm:max-w-[480px]"
               >
                 {isIslandCourse ? (
-                  <option value="aiki-island-6steps">Khóa học · 6 chặng (Mục tiêu ➔ Khởi động ➔ Video ➔ Trắc nghiệm ➔ Thực hành ➔ Kết thúc)</option>
+                  <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
                 ) : (
                   <>
-                    <option value="aiki-island-6steps">Khóa học · 6 chặng (Mục tiêu ➔ Khởi động ➔ Video ➔ Trắc nghiệm ➔ Thực hành ➔ Kết thúc)</option>
-                    <option value="aiki-rule-3steps">Quy tắc AIKI · 3 bước (1. Bài học ➔ 2. Kiểm tra ➔ 3. Hoàn thành)</option>
+                    <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
+                    <option value="aiki-rule-3steps">Quy tắc 3 bước (Bài học, Kiểm tra, Hoàn thành)</option>
                     <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
                     <option value="standard">Khám phá tiêu chuẩn</option>
                   </>
@@ -440,7 +436,7 @@ export function LectureDrawerHeader({
               ) : (
                 <BookOpen size={13} className={cn("shrink-0", activeSection === 'basics' ? "text-brand-600" : "text-slate-500")} />
               )}
-              <span>📖 Thông tin trạm</span>
+              <span>Thông tin trạm</span>
               {!sectionStatus('basics') && sectionMissing('basics').length > 0 && (
                 <span
                   title={`Còn thiếu: ${sectionMissing('basics').join(', ')}`}
@@ -496,7 +492,7 @@ export function LectureDrawerHeader({
                 className="shrink-0 whitespace-nowrap cursor-pointer"
                 style={{ padding: '0.375rem 0.75rem', border: '1px solid #6ee7b7', background: '#ecfdf5', borderRadius: '0.5rem', color: '#059669', fontSize: '0.8125rem', fontWeight: 700 }}
               >
-                ↩ Khôi phục
+                Khôi phục
               </button>
             ) : (
               <button
@@ -505,7 +501,7 @@ export function LectureDrawerHeader({
                 className="shrink-0 whitespace-nowrap cursor-pointer"
                 style={{ padding: '0.375rem 0.75rem', border: '1px solid #fca5a5', background: '#fff1f2', borderRadius: '0.5rem', color: '#dc2626', fontSize: '0.8125rem', fontWeight: 700 }}
               >
-                🗃 Ẩn bài
+                Ẩn bài
               </button>
             )
           )}
@@ -573,16 +569,14 @@ export function LectureDrawerHeader({
                     onClick={(e) => handleTabClick(section.id, e)}
                     title={section.fullTitle || section.label}
                     className={cn(
-                      "group relative flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
+                      "group relative flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
                       isActive
                         ? "bg-brand-50 text-brand-700 border-2 border-brand-300 shadow-xs font-black ring-1 ring-brand-200"
                         : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold hover:border-slate-300"
                     )}
                   >
-                    {complete ? (
-                      <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    ) : (
-                      <Circle size={13} className={cn("shrink-0", isActive ? "text-brand-500" : "text-slate-300")} />
+                    {complete && (
+                      <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
                     {!complete && missing.length > 0 && (
@@ -612,16 +606,14 @@ export function LectureDrawerHeader({
                     onClick={(e) => handleTabClick(section.id, e)}
                     title={section.fullTitle || section.label}
                     className={cn(
-                      "group relative flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
+                      "group relative flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
                       isActive
                         ? "bg-brand-50 text-brand-700 border-2 border-brand-300 shadow-xs font-black ring-1 ring-brand-200"
                         : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold hover:border-slate-300"
                     )}
                   >
-                    {complete ? (
-                      <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    ) : (
-                      <Circle size={13} className={cn("shrink-0", isActive ? "text-brand-500" : "text-slate-300")} />
+                    {complete && (
+                      <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
                     {!complete && missing.length > 0 && (
@@ -659,16 +651,14 @@ export function LectureDrawerHeader({
                     onClick={(e) => handleTabClick(section.id, e)}
                     title={section.fullTitle || section.label}
                     className={cn(
-                      "group relative flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
+                      "group relative flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none text-center min-w-0 shadow-2xs",
                       isActive
                         ? "bg-brand-50 text-brand-700 border-2 border-brand-300 shadow-xs font-black ring-1 ring-brand-200"
                         : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold hover:border-slate-300"
                     )}
                   >
-                    {complete ? (
-                      <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    ) : (
-                      <Circle size={13} className={cn("shrink-0", isActive ? "text-brand-500" : "text-slate-300")} />
+                    {complete && (
+                      <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
                     {!complete && missing.length > 0 && (

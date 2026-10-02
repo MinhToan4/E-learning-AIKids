@@ -164,11 +164,11 @@ export function GoalBlockEditor({
         </div>
       </div>
 
-      {/* Lời chào & Thuyết minh của Mèo AIKI */}
+      {/* Lời thoại hướng dẫn đầu bài */}
       <div>
         <div className="flex items-center justify-between">
           <label className="block text-xs font-black uppercase text-slate-700">
-            Lời chào &amp; Thuyết minh của Mèo AIKI
+            Lời thoại hướng dẫn đầu bài
           </label>
           {previewAikiVoice && (
             <button
@@ -177,7 +177,7 @@ export function GoalBlockEditor({
               className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
             >
               <Volume2 size={13} />
-              <span>Nghe thử giọng AIKI</span>
+              <span>Nghe thử giọng đọc</span>
             </button>
           )}
         </div>

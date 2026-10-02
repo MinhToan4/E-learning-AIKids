@@ -283,28 +283,28 @@ export function ParentKidsTab() {
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200/90 bg-amber-50/80 p-2 text-center shadow-2xs">
                   <span className="text-[10px] font-extrabold uppercase text-amber-700">Sao</span>
                   <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-0.5 mt-0.5">
-                    ⭐ {totalStars}
+                    {totalStars} sao
                   </span>
                 </div>
                 {/* Xanh ngọc cho trạm */}
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-2 text-center shadow-2xs">
                   <span className="text-[10px] font-extrabold uppercase text-emerald-700">Trạm</span>
                   <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-0.5 mt-0.5">
-                    🎯 {completedQuests}
+                    {completedQuests} trạm
                   </span>
                 </div>
                 {/* Tím cho cấp độ */}
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-purple-200/90 bg-purple-50/80 p-2 text-center shadow-2xs">
                   <span className="text-[10px] font-extrabold uppercase text-purple-700">Cấp</span>
                   <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-0.5 mt-0.5">
-                    ⚡ Lv.{k.level || 1}
+                    Cấp {k.level || 1}
                   </span>
                 </div>
                 {/* San hô cho duyệt */}
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-rose-50/80 p-2 text-center shadow-2xs">
                   <span className="text-[10px] font-extrabold uppercase text-rose-700">Duyệt</span>
                   <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-0.5 mt-0.5">
-                    🎨 {approvals.filter((a) => a.child.id === k.id).length}
+                    {approvals.filter((a) => a.child.id === k.id).length} chờ duyệt
                   </span>
                 </div>
               </div>
@@ -313,8 +313,8 @@ export function ParentKidsTab() {
               <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-1.5 text-xs font-bold text-slate-700">
                 <span>
                   {completedQuests >= 10
-                    ? '🏆 Đã hoàn thành 10 Quy tắc vàng'
-                    : `🧭 Đang thám hiểm Đảo Tiên Quyết (Trạm ${Math.min(completedQuests + 1, 10)}/10)`}
+                    ? 'Đã hoàn thành 10 Quy tắc vàng'
+                    : `Đang học Đảo Tiên Quyết (Trạm ${Math.min(completedQuests + 1, 10)}/10)`}
                 </span>
               </div>
 

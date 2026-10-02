@@ -229,7 +229,7 @@ export function VideoBlockEditor({
                 className="w-16 rounded-lg border border-border bg-white px-2 py-1.5 text-xs font-semibold text-center font-mono"
                 title="Giây bắt đầu"
               />
-              <span className="text-xs text-muted">➔</span>
+              <span className="text-xs font-bold text-muted">-</span>
               <input
                 type="number"
                 value={ts.endSec}

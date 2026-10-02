@@ -236,7 +236,7 @@ export function FullStationPreview({
                 onClick={() => setActiveStage((prev) => Math.max(0, prev - 1))}
                 className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
               >
-                ← Chặng trước
+                Chặng trước
               </button>
               <span className="text-xs font-black text-brand-800">
                 Chặng {activeStage + 1} / 6
@@ -247,7 +247,7 @@ export function FullStationPreview({
                 onClick={() => setActiveStage((prev) => Math.min(5, prev + 1))}
                 className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
               >
-                Chặng tiếp theo →
+                Chặng tiếp theo
               </button>
             </div>
           </div>,
@@ -323,7 +323,7 @@ export function FullStationPreview({
                 onClick={() => setActiveStage((prev) => Math.max(0, prev - 1))}
                 className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
               >
-                ← Chặng trước
+                Chặng trước
               </button>
               <span className="text-xs font-black text-brand-800">
                 Chặng {activeStage + 1} / {totalStages}
@@ -334,7 +334,7 @@ export function FullStationPreview({
                 onClick={() => setActiveStage((prev) => Math.min(totalStages - 1, prev + 1))}
                 className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
               >
-                Chặng tiếp theo →
+                Chặng tiếp theo
               </button>
             </div>
           </div>,

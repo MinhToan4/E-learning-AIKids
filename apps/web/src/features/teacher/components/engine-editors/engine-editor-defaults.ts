@@ -84,7 +84,7 @@ export function getEngineConfigMeta(mode?: string): EngineConfigMeta {
         title: '🎒 SỔ TAY SÁNG TẠO BA LÔ (TEXT ENGINE)',
         desc: 'Học sinh sẽ thực hành viết hồ sơ, cốt truyện, phân cảnh storyboard và cân bằng luật chơi cất vào Ba Lô.',
         badge: 'Sổ tay Ba Lô',
-        pipelineLabel: 'Biên soạn nội dung sáng tạo: [Tiêu đề sổ tay] + [Ô thông minh / Viết tự do] -> [Cất vào Ba Lô]',
+        pipelineLabel: 'Biên soạn nội dung sáng tạo: [Tiêu đề sổ tay] + [Ô thông minh / Viết tự do] cất vào [Cất vào Ba Lô]',
       }
     case 'prompt-doctor':
       return {

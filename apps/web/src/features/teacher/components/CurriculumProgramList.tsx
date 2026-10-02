@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, Sparkles, Search, Compass, Layers, ArrowRight, Shield } from 'lucide-react'
+import { Plus, FileText, Search, Compass, Layers, ArrowRight, Shield } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { programArtworkHint } from '@/shared/config/assets'
@@ -93,8 +93,8 @@ export function CurriculumProgramList({
               className="!min-h-9 !text-xs font-black shadow-xs gap-1.5 cursor-pointer"
               onClick={onOpenScriptGenerator}
             >
-              <Sparkles size={14} />
-              <span>🪄 Tạo từ kịch bản AI</span>
+              <FileText size={14} />
+              <span>Tạo từ kịch bản bài học</span>
             </Button>
 
             <Button
@@ -224,7 +224,7 @@ export function CurriculumProgramList({
                     onClick={() => onSelectProgram(program.id)}
                     className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-white py-2.5 px-4 text-xs font-black shadow-xs transition cursor-pointer"
                   >
-                    <span>Quản lý các Vùng ➔</span>
+                    <span>Quản lý các Vùng</span>
                     <ArrowRight size={14} />
                   </button>
                 </div>
@@ -236,7 +236,7 @@ export function CurriculumProgramList({
         /* Empty State */
         <div className="rounded-3xl border-2 border-dashed border-brand-200 bg-brand-50/40 p-8 sm:p-12 text-center">
           <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 shadow-2xs mb-3.5">
-            <Sparkles size={28} />
+            <FileText size={28} />
           </div>
           <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
             {selectedSpace === 'workspace'
@@ -258,15 +258,15 @@ export function CurriculumProgramList({
               onClick={onOpenCreateProgram}
             >
               <Plus size={14} />
-              <span>+ Tạo giáo trình</span>
+              <span>Tạo giáo trình</span>
             </Button>
             <Button
               type="button"
               className="!min-h-10 text-xs font-black shadow-xs gap-1.5 cursor-pointer"
               onClick={onOpenScriptGenerator}
             >
-              <Sparkles size={14} />
-              <span>🪄 Tạo từ kịch bản AI</span>
+              <FileText size={14} />
+              <span>Tạo từ kịch bản bài học</span>
             </Button>
           </div>
         </div>

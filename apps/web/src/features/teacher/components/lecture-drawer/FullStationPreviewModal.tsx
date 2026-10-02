@@ -32,10 +32,10 @@ export function FullStationPreviewModal({
       title={draft.title || 'Trạm học chưa có tên'}
       description={
         lessonFormat === 'aiki-rule-3steps'
-          ? 'Toàn bộ hành trình 3 bước Quy tắc AIKI: Bài học (Video) → Kiểm tra (Quiz) → Hoàn thành.'
+          ? 'Toàn bộ hành trình 3 bước: Bài học (Video) · Kiểm tra (Quiz) · Hoàn thành.'
           : lessonFormat === 'aiki-rule-5steps'
-          ? 'Toàn bộ hành trình 5 chặng Quy tắc AIKI: Tình huống → Câu đố AIKI → Quy tắc → Giải thích → Chốt.'
-          : 'Toàn bộ hành trình trong một trạm: mở bài → khám phá → chơi → thực hành → thử thách.'
+          ? 'Toàn bộ hành trình 5 chặng: Tình huống · Câu đố · Quy tắc · Giải thích · Chốt.'
+          : 'Toàn bộ hành trình trong một trạm: Mở bài · Khám phá · Chơi · Thực hành · Thử thách.'
       }
       showMascot={false}
       className="station-preview-modal"

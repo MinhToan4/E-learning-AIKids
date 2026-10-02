@@ -119,7 +119,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
     )
 
     // Header title & badge
-    expect(html).toContain('Xem trước học sinh (Khóa học AIKid · 6 chặng)')
+    expect(html).toContain('Xem trước học sinh')
     expect(html).toContain('Chặng 1/6')
 
     // Viewport selector buttons
@@ -202,7 +202,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
     expect(header?.className).toContain('shadow-2xs')
 
     // 3. Modal title
-    expect(header?.textContent).toContain('👁️ Xem Trước Trải Nghiệm Học Sinh:')
+    expect(header?.textContent).toContain('Xem trước học sinh:')
     expect(header?.textContent).toContain('1. 🎯 Mục tiêu (Ảnh)')
 
     // 4. Device selector buttons
@@ -728,7 +728,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     )
 
     // Khẳng định không có thanh công cụ lồng nhau
-    expect(html).not.toContain('Xem trước học sinh (Khóa học AIKid · 6 chặng)')
+    expect(html).not.toContain('Xem trước học sinh')
     expect(html).not.toContain('Chặng 3/6')
     expect(html).not.toContain('Toàn màn hình')
 

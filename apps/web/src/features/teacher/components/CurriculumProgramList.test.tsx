@@ -57,7 +57,7 @@ describe('CurriculumProgramList Component', () => {
     expect(html).toContain('1 Vùng học')
     expect(html).toContain('2 Trạm')
     expect(html).toContain('Mở tuần tự')
-    expect(html).toContain('Quản lý các Vùng ➔')
+    expect(html).toContain('Quản lý các Vùng')
     // Does not show workspace programs when space is aikid_official
     expect(html).not.toContain('Trường Tiểu Học Alpha AI')
   })
@@ -94,6 +94,6 @@ describe('CurriculumProgramList Component', () => {
     )
 
     expect(html).toContain('Chưa có chương trình nào trong không gian Học tự do')
-    expect(html).toContain('+ Tạo giáo trình')
+    expect(html).toContain('Tạo giáo trình')
   })
 })

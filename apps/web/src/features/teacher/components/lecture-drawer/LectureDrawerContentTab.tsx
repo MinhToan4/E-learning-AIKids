@@ -111,13 +111,13 @@ export function LectureDrawerContentTab({
               <span className="flex items-center gap-2 text-sm font-extrabold text-text">
                 <Clapperboard size={16} className="text-brand-600" /> Quy tắc AIKI (5 chặng)
               </span>
-              <span className="mt-1 text-xs text-muted">Mạch chuẩn: Tình huống ➔ Câu đố ➔ Quy tắc ➔ Giải thích ➔ Chốt. Có Video & Mèo AIKI.</span>
+              <span className="mt-1 text-xs text-muted">Mạch chuẩn: Tình huống · Câu đố · Quy tắc · Giải thích · Chốt. Có Video & Giọng đọc.</span>
             </button>
           </div>
         </div>
 
         <div className="rounded-xl border border-sun-200 bg-sun-50 px-3.5 py-3 text-xs font-bold leading-relaxed text-sun-900">
-          <strong>Mỗi khối là một màn đọc ngắn của học sinh.</strong> Chọn loại nội dung, layout và sắp thứ tự theo mạch: hiểu ý chính → xem ví dụ → tự ghi nhớ.
+          <strong>Mỗi khối là một màn đọc ngắn của học sinh.</strong> Chọn loại nội dung, layout và sắp thứ tự theo mạch: hiểu ý chính · xem ví dụ · tự ghi nhớ.
         </div>
 
         {draft.learnCards.map((card, index) => (

@@ -59,7 +59,7 @@ describe('CurriculumRegionList Component', () => {
     expect(html).toContain('Vùng 2')
     expect(html).toContain('Xưởng Tranh')
     expect(html).toContain('Đang ẩn')
-    expect(html).toContain('Quản lý Trạm học ➔')
+    expect(html).toContain('Quản lý Trạm học')
     expect(html).toContain('+ Thêm vùng')
   })
 

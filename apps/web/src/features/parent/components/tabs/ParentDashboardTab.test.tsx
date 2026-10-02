@@ -173,9 +173,10 @@ describe('ParentDashboardTab Component', () => {
     expect(document.body.textContent).toContain('Bo')
     expect(document.body.textContent).toContain('Bi')
     expect(document.body.textContent).toContain('Lv.3')
-    expect(document.body.textContent).toContain('Lv.1')
-    expect(document.body.textContent).toContain('⭐ 15 sao')
-    expect(document.body.textContent).toContain('🎯 10 trạm')
+    expect(document.body.textContent).toContain('15 sao')
+    expect(document.body.textContent).toContain('10 trạm')
+    expect(document.body.textContent).not.toContain('⭐ 15 sao')
+    expect(document.body.textContent).not.toContain('🎯 10 trạm')
 
     // Action buttons
     expect(document.body.textContent).toContain('Chạm để vào học ngay')

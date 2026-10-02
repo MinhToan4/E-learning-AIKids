@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Send,
   ShieldCheck,
-  Sparkles,
   X,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
@@ -482,8 +481,7 @@ export function ParentSubscriptionCheckoutModal({
             /* SUCCESS CONGRATULATIONS SCREEN */
             <div className="flex flex-col items-center py-6 text-center animate-in fade-in zoom-in-95 duration-300">
               <div className="relative mb-3 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-mint-100 text-mint-700 shadow-soft">
-                <Sparkles size={44} className="animate-pulse text-amber-500" />
-                <CheckCircle2 size={32} className="absolute -bottom-1 -right-1 text-mint-600" />
+                <CheckCircle2 size={44} className="text-mint-600" />
               </div>
 
               <span className="rounded-full bg-mint-100 border border-mint-200 px-4 py-1 text-xs font-black uppercase text-mint-800">
@@ -570,7 +568,6 @@ export function ParentSubscriptionCheckoutModal({
                 onClick={onClose}
                 className="w-full max-w-xs py-3.5 text-base font-black shadow-clay"
               >
-                <Sparkles size={18} />
                 Bắt Đầu Học Ngay
               </Button>
             </div>
@@ -598,7 +595,6 @@ export function ParentSubscriptionCheckoutModal({
                       : 'text-muted hover:text-text',
                   )}
                 >
-                  <Sparkles size={15} className={productMode === 'sub' ? 'text-amber-500' : 'text-muted'} />
                   <span>Gói Học AI Kid 129K</span>
                 </button>
 

@@ -91,7 +91,7 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
     case 'layout-storyboard':
       return customTitle || 'CHUỖI STORYBOARD'
     case 'voice':
-      return 'MÈO AIKI ĐỒNG HÀNH & TRỢ GIẢNG AI'
+      return 'GIỌNG ĐỌC & LỜI THOẠI HƯỚNG DẪN'
     case 'video':
       return 'VIDEO BÀI GIẢNG'
     case 'versus-ab':

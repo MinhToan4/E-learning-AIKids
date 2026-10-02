@@ -159,7 +159,7 @@ export function SixStageJourneyEditor({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-md bg-brand-200 px-1.5 py-0.5 text-[10px] font-black text-brand-900 uppercase">
-                      Chặng {stageIndex + 1}/6 · Đảo AIKids
+                      Chặng {stageIndex + 1}/6
                     </span>
                     <h3 className="font-display text-lg text-brand-950">
                       {ISLAND_6_STAGE_NAMES[stageIndex]}
@@ -170,7 +170,7 @@ export function SixStageJourneyEditor({
                     {stageIndex === 1 && '1 câu đố A/B xác nhận mục tiêu và mở khóa video bài học.'}
                     {stageIndex === 2 && 'Video bài giảng YouTube/MP4 và các mốc phân đoạn thời gian.'}
                     {stageIndex === 3 && 'Bộ câu hỏi trắc nghiệm kiểm tra kiến thức sau video.'}
-                    {stageIndex === 4 && 'Kịch bản 4 bước thực hành trên Xưởng Sáng Tạo AI.'}
+                    {stageIndex === 4 && 'Kịch bản 4 bước thực hành trên Xưởng thực hành.'}
                     {stageIndex === 5 && 'Màn kết thúc chúc mừng, trao huy hiệu 3 sao, 50 XP và bài học tiếp.'}
                   </p>
                 </div>
@@ -335,7 +335,7 @@ export function SixStageJourneyEditor({
                 onClick={() => onSelectSection(`stage-${stageIndex - 1}` as Section)}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[48%] truncate"
               >
-                ← Chặng trước: {ISLAND_6_STAGE_NAMES[stageIndex - 1]}
+                Chặng trước: {ISLAND_6_STAGE_NAMES[stageIndex - 1]}
               </button>
             ) : (
               <button
@@ -343,7 +343,7 @@ export function SixStageJourneyEditor({
                 onClick={() => onSelectSection('basics')}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[48%] truncate"
               >
-                ← Thông tin trạm
+                Thông tin trạm
               </button>
             )}
 
@@ -353,7 +353,7 @@ export function SixStageJourneyEditor({
                 onClick={() => onSelectSection(`stage-${stageIndex + 1}` as Section)}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap max-w-[50%] truncate"
               >
-                Chặng tiếp theo: {ISLAND_6_STAGE_NAMES[stageIndex + 1]} ➔
+                Chặng tiếp theo: {ISLAND_6_STAGE_NAMES[stageIndex + 1]}
               </button>
             ) : (
               <button
@@ -367,7 +367,7 @@ export function SixStageJourneyEditor({
                     : 'bg-slate-300 cursor-not-allowed opacity-70'
                 )}
               >
-                {saving ? 'Đang lưu...' : 'Hoàn thành & Lưu trạm học ➔'}
+                {saving ? 'Đang lưu...' : 'Hoàn thành và lưu trạm học'}
               </button>
             )}
           </div>
@@ -577,7 +577,7 @@ export function SixStageJourneyEditor({
               onClick={() => onSelectSection(`stage-${stageIndex - 1}` as Section)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[48%] truncate cursor-pointer"
             >
-              ← Chặng trước: {customStages[stageIndex - 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex - 1] || `Chặng ${stageIndex}`}
+              Chặng trước: {customStages[stageIndex - 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex - 1] || `Chặng ${stageIndex}`}
             </button>
           ) : (
             <button
@@ -585,7 +585,7 @@ export function SixStageJourneyEditor({
               onClick={() => onSelectSection('basics')}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[48%] truncate cursor-pointer"
             >
-              ← Thông tin trạm
+              Thông tin trạm
             </button>
           )}
 
@@ -595,7 +595,7 @@ export function SixStageJourneyEditor({
               onClick={() => onSelectSection(`stage-${stageIndex + 1}` as Section)}
               className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate cursor-pointer"
             >
-              Chặng tiếp theo: {customStages[stageIndex + 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex + 1] || `Chặng ${stageIndex + 2}`} ➔
+              Chặng tiếp theo: {customStages[stageIndex + 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex + 1] || `Chặng ${stageIndex + 2}`}
             </button>
           ) : (
             <button
@@ -607,7 +607,7 @@ export function SixStageJourneyEditor({
                 readiness.complete ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer' : 'bg-slate-300 cursor-not-allowed opacity-70'
               )}
             >
-              {saving ? 'Đang lưu...' : 'Hoàn thành & Lưu trạm học ➔'}
+              {saving ? 'Đang lưu...' : 'Hoàn thành và lưu trạm học'}
             </button>
           )}
         </div>

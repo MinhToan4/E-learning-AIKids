@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/shared/hooks/useToast'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
-import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import {
@@ -280,7 +279,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
           <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
             <div className="flex items-center justify-between gap-2">
               <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-                <Eye size={15} /> {isRule3Steps ? 'Xem trước học sinh (Quy tắc AIKI · 3 bước)' : 'Xem trước học sinh (Khóa học AIKid · 6 chặng)'}
+                <Eye size={15} /> Xem trước học sinh
               </p>
               <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
                 Chặng {stageIndex + 1}/{isRule3Steps ? 3 : 6}
@@ -383,11 +382,11 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
                 </span>
                 <div className="min-w-0">
                   <h2 className="text-sm font-black text-slate-900 truncate flex items-center gap-2">
-                    <span>👁️ Xem Trước Trải Nghiệm Học Sinh:</span>
+                    <span>Xem trước học sinh:</span>
                     <span className="text-brand-600 truncate">{stageName}</span>
                   </h2>
                   <span className="text-[11px] font-medium text-slate-500 block truncate">
-                    {isRule3Steps ? `Quy tắc AIKI · 3 bước · Bước ${stageIndex + 1}/3` : `Khóa học AIKid · 6 chặng · Chặng ${stageIndex + 1}/6`}
+                    Chặng {stageIndex + 1}/{isRule3Steps ? 3 : 6}
                   </span>
                 </div>
               </div>
@@ -835,15 +834,8 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
               if (block.type === 'voice') {
                 return (
                   <div key={block.id} className="flex items-center gap-3 rounded-2xl border-2 border-sky-300 bg-sky-50/90 p-3 shadow-2xs">
-                    <AikidCatCharacter
-                      pose={card.mee?.gesture === 'think' ? 'thinking' : card.mee?.gesture === 'celebrate' ? 'celebrate' : 'guide'}
-                      gesture={card.mee?.gesture ?? 'presentation'}
-                      isSpeaking={false}
-                      animated={true}
-                      className="h-14 w-14 shrink-0 object-contain"
-                    />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-extrabold uppercase text-sky-800">Mèo AIKI nói:</p>
+                      <p className="text-[11px] font-extrabold uppercase text-sky-800">Lời thoại hướng dẫn:</p>
                       <p className="mt-0.5 line-clamp-3 text-xs font-semibold text-sky-950 italic">
                         &quot;{card.mee?.readText?.trim() || card.body?.trim() || 'Chào các bạn nhỏ!'}&quot;
                       </p>
@@ -867,7 +859,7 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
         <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
           <div className="flex items-center justify-between gap-2">
             <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-              <Eye size={15} /> {lessonFormat === 'aiki-rule-5steps' ? 'Xem trước học sinh (10 Quy Tắc)' : 'Xem trước học sinh (Khóa học AIKid)'}
+              <Eye size={15} /> Xem trước học sinh
             </p>
             <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
               Chặng {stageIndex + 1}/{lessonFormat === 'aiki-rule-5steps' ? 5 : 6}
@@ -970,11 +962,11 @@ export const StudentStagePreview = React.memo(function StudentStagePreview({
               </span>
               <div className="min-w-0">
                 <h2 className="text-sm font-black text-slate-900 truncate flex items-center gap-2">
-                  <span>👁️ Xem Trước Trải Nghiệm Học Sinh:</span>
+                  <span>Xem trước học sinh:</span>
                   <span className="text-brand-600 truncate">{stageName}</span>
                 </h2>
                 <span className="text-[11px] font-medium text-slate-500 block truncate">
-                  {lessonFormat === 'aiki-rule-5steps' ? 'Mười Quy Tắc Vàng · Chặng' : 'Khóa học AIKid · Chặng'} {stageIndex + 1}/{lessonFormat === 'aiki-rule-5steps' ? 5 : 6}
+                  Chặng {stageIndex + 1}/{lessonFormat === 'aiki-rule-5steps' ? 5 : 6}
                 </span>
               </div>
             </div>

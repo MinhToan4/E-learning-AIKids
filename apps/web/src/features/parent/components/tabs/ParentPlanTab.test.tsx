@@ -118,7 +118,7 @@ describe('ParentPlanTab Component', () => {
 
     // Dynamic AI credit privileges
     expect(document.body.textContent).toContain('50 lượt tạo ảnh AI')
-    expect(document.body.textContent).toContain('50 lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.')
+    expect(document.body.textContent).toContain('50 lượt tạo ảnh AI mỗi tháng.')
 
     // Click Hero CTA
     const buttons = Array.from(document.body.querySelectorAll('button'))
@@ -192,7 +192,7 @@ describe('ParentPlanTab Component', () => {
 
     expect(document.body.textContent).toContain('Kích hoạt Gói AI Kid VIP · 199.000đ')
     expect(document.body.textContent).toContain('100 lượt tạo ảnh AI')
-    expect(document.body.textContent).toContain('100 lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.')
+    expect(document.body.textContent).toContain('100 lượt tạo ảnh AI mỗi tháng.')
 
     const buttons = Array.from(document.body.querySelectorAll('button'))
     const heroBtn = buttons.find((b) =>
