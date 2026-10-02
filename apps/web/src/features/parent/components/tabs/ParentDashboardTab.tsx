@@ -28,6 +28,7 @@ import { avatarImage, getAvatar } from '@/shared/config/avatars'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import type { CheckoutProductMode } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
+import { getDashboardCache, setDashboardCache } from '@/features/parent/lib/parent-cache'
 
 export function ParentDashboardTab({
   onOpenCheckout,
@@ -40,33 +41,51 @@ export function ParentDashboardTab({
     packId?: string,
   ) => void
 }) {
-  const [kids, setKids] = useState<Child[]>([])
-  const [approvals, setApprovals] = useState<Approval[]>([])
-  const [sub, setSub] = useState<HouseholdSub | null>(null)
-  const [loading, setLoading] = useState(true)
+  const initialCache = getDashboardCache()
+  const [kids, setKids] = useState<Child[]>(initialCache?.kids ?? [])
+  const [approvals, setApprovals] = useState<Approval[]>(initialCache?.approvals ?? [])
+  const [sub, setSub] = useState<HouseholdSub | null>(initialCache?.sub ?? null)
+  const [loading, setLoading] = useState(!initialCache)
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (silent = false) => {
+    const hasCache = Boolean(getDashboardCache())
+    if (!silent && !hasCache) {
+      setLoading(true)
+    }
     setError('')
-    const [childrenData, approvalsData, subData] = await Promise.allSettled([
-      api<{ children: Child[] }>('/api/parent/children'),
-      api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
-      api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
-    ])
-    if (childrenData.status === 'rejected') {
-      setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
+    try {
+      const [childrenData, approvalsData, subData] = await Promise.allSettled([
+        api<{ children: Child[] }>('/api/parent/children'),
+        api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+        api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
+      ])
+      if (childrenData.status === 'rejected') {
+        if (!hasCache) {
+          setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
+        }
+        return
+      }
+      const fetchedKids = childrenData.value.children
+      const fetchedApprovals = approvalsData.status === 'fulfilled' ? approvalsData.value.approvals : []
+      const fetchedSub = subData.status === 'fulfilled' ? subData.value.subscription : null
+
+      setKids(fetchedKids)
+      setApprovals(fetchedApprovals)
+      if (fetchedSub) {
+        setSub(fetchedSub)
+      }
+
+      setDashboardCache({
+        kids: fetchedKids,
+        approvals: fetchedApprovals,
+        sub: fetchedSub,
+      })
+    } finally {
       setLoading(false)
-      return
     }
-    setKids(childrenData.value.children)
-    setApprovals(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals : [])
-    if (subData.status === 'fulfilled') {
-      setSub(subData.value.subscription)
-    }
-    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -213,7 +232,11 @@ export function ParentDashboardTab({
           color="sun"
           trend={totalStars > 0 ? { value: `${totalStars} sao`, isPositive: true } : undefined}
           sparklineData={[totalStars]}
-          subtext={`${totalStars} sao đạt từ các bài quiz`}
+          subtext={
+            kids.length > 0
+              ? kids.map((k) => `${k.nickname || 'Bé'}: ${getDerivedStats(k).totalStars} sao`).join(' · ')
+              : '0 sao đạt từ các bài quiz'
+          }
         />
         <StatMetricCard
           label="Nhiệm vụ hoàn thành"
@@ -222,7 +245,11 @@ export function ParentDashboardTab({
           color="mint"
           trend={totalQuests > 0 ? { value: `${totalQuests} trạm`, isPositive: true } : undefined}
           sparklineData={[totalQuests]}
-          subtext={`${totalQuests} trạm học đã chinh phục`}
+          subtext={
+            kids.length > 0
+              ? kids.map((k) => `${k.nickname || 'Bé'}: ${getDerivedStats(k).completedQuests} trạm`).join(' · ')
+              : '0 trạm học đã chinh phục'
+          }
           onClick={() => navigate('/parent/learning')}
         />
         <StatMetricCard
@@ -331,6 +358,139 @@ export function ParentDashboardTab({
         </div>
       )}
 
+      {/* ── Bảng So Sánh Chỉ Số Giữa Các Con (Khi có từ 2 bé trở lên) ── */}
+      {kids.length >= 2 && (
+        <section aria-label="Bảng so sánh chỉ số giữa các con" className="rounded-3xl border-2 border-brand-100 bg-gradient-to-b from-brand-50/50 via-white to-white p-5 sm:p-6 shadow-soft">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-100/70 pb-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-sm">
+                📊
+              </span>
+              <div>
+                <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
+                  Bảng so sánh chỉ số giữa các con
+                </h3>
+                <p className="text-xs text-muted">
+                  Đối soát trực quan song song thành tích, nhịp độ học tập và tiến độ chặng đảo của các bé
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-brand-100/70 px-2.5 py-1 text-[11px] font-black text-brand-800">
+              <Sparkles size={12} className="text-brand-600" /> {kids.length} bé song hành
+            </span>
+          </div>
+
+          <div
+            className={cn(
+              'grid gap-4',
+              kids.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+            )}
+          >
+            {kids.map((k) => {
+              const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
+              const childApprovals = approvals.filter((a) => a.child.id === k.id).length
+              const img = avatarImage(k.avatarId)
+              const av = getAvatar(k.avatarId)
+              const islandBadge =
+                childQuests >= 10
+                  ? { icon: '🏆', text: 'Hoàn thành Đảo Tiên Quyết', color: 'bg-amber-50 border-amber-300 text-amber-900' }
+                  : { icon: '🧭', text: `Đang ở Trạm ${Math.min(childQuests + 1, 10)} / 10`, color: 'bg-sky-50 border-sky-200 text-sky-900' }
+
+              return (
+                <div
+                  key={k.id}
+                  className="flex flex-col justify-between rounded-3xl border-2 border-brand-100 bg-white p-4 sm:p-5 shadow-clay hover:shadow-soft-xl transition-all duration-300"
+                >
+                  {/* Child Header in Matrix */}
+                  <div>
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                      <div className="relative shrink-0">
+                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-2xl shadow-soft border-2 border-white">
+                          {img ? (
+                            <img src={img} alt={k.nickname || 'Avatar'} className="h-full w-full object-cover" />
+                          ) : (
+                            av.emoji
+                          )}
+                        </div>
+                        <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.2 text-[9px] font-black text-white shadow-2xs border border-white">
+                          Lv.{k.level}
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-display text-base font-black text-slate-900 truncate">
+                          {k.nickname || 'Bé yêu'}
+                        </h4>
+                        <p className="text-xs font-bold text-brand-700">
+                          Lv.{k.level} · {k.xp || 0} XP
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Matrix Rows: Soft-Clay Metric Boxes */}
+                    <div className="mt-3.5 space-y-2">
+                      {/* Sao tích lũy */}
+                      <div className="flex items-center justify-between rounded-2xl border border-amber-200/80 bg-amber-50/70 px-3.5 py-2.5 shadow-2xs">
+                        <span className="text-xs font-bold text-amber-800">Sao tích lũy</span>
+                        <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1">
+                          ⭐ {childStars} sao
+                        </span>
+                      </div>
+
+                      {/* Trạm học hoàn thành */}
+                      <div className="flex items-center justify-between rounded-2xl border border-emerald-200/80 bg-emerald-50/70 px-3.5 py-2.5 shadow-2xs">
+                        <span className="text-xs font-bold text-emerald-800">Trạm học hoàn thành</span>
+                        <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-1">
+                          🎯 {childQuests} / 10 trạm
+                        </span>
+                      </div>
+
+                      {/* Tác phẩm AI & Phê duyệt */}
+                      <div className="flex items-center justify-between rounded-2xl border border-rose-200/80 bg-rose-50/70 px-3.5 py-2.5 shadow-2xs">
+                        <span className="text-xs font-bold text-rose-800">Sáng tạo & Duyệt bài</span>
+                        <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-1">
+                          🎨 {childApprovals} chờ duyệt
+                        </span>
+                      </div>
+
+                      {/* Trạng thái chặng đảo */}
+                      <div
+                        className={cn(
+                          'flex items-center justify-between rounded-2xl border px-3.5 py-2 text-xs font-bold shadow-2xs',
+                          islandBadge.color,
+                        )}
+                      >
+                        <span>Trạng thái đảo</span>
+                        <span className="font-black flex items-center gap-1">
+                          {islandBadge.icon} {islandBadge.text}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Action Buttons */}
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <Link
+                      to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                      className="flex-1 inline-flex min-h-[40px] items-center justify-center gap-1 rounded-xl bg-brand-500 hover:bg-brand-600 text-white px-3 py-1.5 text-xs font-black shadow-clay transition"
+                    >
+                      <span>Xem học tập</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                    <Button
+                      variant="secondary"
+                      className="flex-1 min-h-[40px] !text-xs font-bold rounded-xl text-slate-700 hover:text-brand-700 whitespace-nowrap"
+                      onClick={() => navigate('/kids')}
+                    >
+                      Chuyển sang bé
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
       {/* ── 4. Compact Per-Child Learning Journey ────────────── */}
       <section aria-label="Tiến trình chi tiết từng con">
         <div className="mb-3 flex items-center justify-between">
@@ -364,6 +524,7 @@ export function ParentDashboardTab({
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {kids.map((k) => {
               const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
+              const childApprovals = approvals.filter((a) => a.child.id === k.id).length
               const nextLevelXp = Math.max(k.level * 200, 100)
               const currentLvlXp = k.xp % nextLevelXp
               const progressPct = Math.min(Math.round((currentLvlXp / nextLevelXp) * 100), 100)
@@ -413,20 +574,51 @@ export function ParentDashboardTab({
                           </p>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Mini Stat Pills */}
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-black text-amber-700 border border-amber-200/50">
-                          {childStars} sao
+                    {/* Dải 4 Khối Chỉ Số Nổi Bật */}
+                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2 my-3.5">
+                      {/* Vàng cho sao */}
+                      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200/90 bg-amber-50/80 p-2 text-center shadow-2xs">
+                        <span className="text-[10px] font-extrabold uppercase text-amber-700">Sao</span>
+                        <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-0.5 mt-0.5">
+                          ⭐ {childStars}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2 py-0.5 text-xs font-black text-emerald-700 border border-emerald-200/50">
-                          {childQuests} trạm
+                      </div>
+                      {/* Xanh ngọc cho trạm */}
+                      <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-2 text-center shadow-2xs">
+                        <span className="text-[10px] font-extrabold uppercase text-emerald-700">Trạm</span>
+                        <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-0.5 mt-0.5">
+                          🎯 {childQuests}
+                        </span>
+                      </div>
+                      {/* Tím cho cấp độ */}
+                      <div className="flex flex-col items-center justify-center rounded-2xl border border-purple-200/90 bg-purple-50/80 p-2 text-center shadow-2xs">
+                        <span className="text-[10px] font-extrabold uppercase text-purple-700">Cấp</span>
+                        <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-0.5 mt-0.5">
+                          ⚡ Lv.{k.level}
+                        </span>
+                      </div>
+                      {/* San hô cho duyệt */}
+                      <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-rose-50/80 p-2 text-center shadow-2xs">
+                        <span className="text-[10px] font-extrabold uppercase text-rose-700">Duyệt</span>
+                        <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-0.5 mt-0.5">
+                          🎨 {childApprovals}
                         </span>
                       </div>
                     </div>
 
+                    {/* Nhãn tiến độ đảo */}
+                    <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-1.5 text-xs font-bold text-slate-700 mb-3">
+                      <span>
+                        {childQuests >= 10
+                          ? '🏆 Đã hoàn thành 10 Quy tắc vàng'
+                          : `🧭 Đang thám hiểm Đảo Tiên Quyết (Trạm ${Math.min(childQuests + 1, 10)}/10)`}
+                      </span>
+                    </div>
+
                     {/* XP Progress Bar */}
-                    <div className="mt-3.5">
+                    <div className="mt-2">
                       <div className="flex justify-between text-[11px]">
                         <span className="font-bold text-muted">Cấp {k.level + 1}</span>
                         <span className="font-black text-brand-600">

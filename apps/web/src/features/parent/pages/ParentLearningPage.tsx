@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import {
   Award,
@@ -12,6 +12,7 @@ import {
   Map as MapIcon,
   MessageSquareText,
   Plus,
+  RefreshCw,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -36,6 +37,12 @@ import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbac
 import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
 import { parentFriendlyError } from '../lib/parent-error'
+import {
+  getChildLearningCache,
+  getDashboardCache,
+  invalidateParentCache,
+  setChildLearningCache,
+} from '../lib/parent-cache'
 
 
 type Child = {
@@ -191,11 +198,29 @@ export function ParentLearningPage() {
   const [checkoutMode, setCheckoutMode] = useState<'sub' | 'credits'>('sub')
   const role = useAuth((s) => s.user?.role)
   const feedbackBadge = useParentFeedbackBadge(role)
-  const [children, setChildren] = useState<Child[]>([])
-  const [studentId, setStudentId] = useState('')
+  const initialChildId = useMemo(() => {
+    return searchParams.get('childId') || getDashboardCache()?.kids[0]?.id || ''
+  }, [searchParams])
+
+  const initialCachedData = useMemo(() => {
+    return initialChildId ? getChildLearningCache<LearningData>(initialChildId) : null
+  }, [initialChildId])
+
+  const initialKids = useMemo(() => {
+    return (getDashboardCache()?.kids as Child[]) || []
+  }, [])
+
+  const [children, setChildren] = useState<Child[]>(initialKids)
+  const [studentId, setStudentId] = useState(initialChildId)
   const [section, setSection] = useState<Section>('overview')
-  const [data, setData] = useState<LearningData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<LearningData | null>(initialCachedData)
+  const dataRef = useRef<LearningData | null>(initialCachedData)
+  useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
+  const [loading, setLoading] = useState(!initialCachedData && Boolean(initialChildId))
+  const [isRevalidating, setIsRevalidating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
@@ -236,20 +261,45 @@ export function ParentLearningPage() {
   }, [section, studentId])
 
   useEffect(() => {
+    const cachedDash = getDashboardCache()
+    if (cachedDash?.kids?.length) {
+      setChildren(cachedDash.kids as Child[])
+    }
     void api<{ children: Child[] }>('/api/parent/children')
       .then((response) => {
         setChildren(response.children)
         const requestedChildId = searchParams.get('childId')
-        const initialChildId = response.children.some((child) => child.id === requestedChildId)
+        const targetChildId = response.children.some((child) => child.id === requestedChildId)
           ? requestedChildId ?? ''
           : response.children[0]?.id ?? ''
-        setStudentId(initialChildId)
+        setStudentId((current) => {
+          const nextId = current && response.children.some((c) => c.id === current) ? current : targetChildId
+          if (nextId && nextId !== current) {
+            const cached = getChildLearningCache<LearningData>(nextId)
+            dataRef.current = cached
+            if (cached) {
+              setData(cached)
+              setLoading(false)
+            }
+          }
+          return nextId
+        })
       })
       .catch((cause) => setError(friendlyError(cause)))
   }, [searchParams])
 
   const selectChild = useCallback((childId: string) => {
     setStudentId(childId)
+    const cached = getChildLearningCache<LearningData>(childId)
+    dataRef.current = cached
+    if (cached) {
+      setData(cached)
+      setLoading(false)
+      setError(null)
+    } else {
+      setData(null)
+      setLoading(true)
+    }
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
       next.set('childId', childId)
@@ -262,10 +312,23 @@ export function ParentLearningPage() {
       setLoading(false)
       return
     }
-    setLoading(true)
+    const cached = getChildLearningCache<LearningData>(studentId)
+    const existingData = dataRef.current || cached
+    if (!existingData) {
+      setLoading(true)
+    } else {
+      setIsRevalidating(true)
+    }
     setError(null)
+
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(() => {
+      controller.abort()
+    }, 3500)
+
     try {
       const query = `studentId=${encodeURIComponent(studentId)}`
+      const fetchOpts: RequestInit = { signal: controller.signal }
       const [
         competencyResult,
         credentialsResult,
@@ -275,16 +338,16 @@ export function ParentLearningPage() {
         progressResult,
         subscriptionResult,
       ] = await Promise.allSettled([
-        api<CompetencyMap>(`/api/competency-map?${query}`),
-        api<{ credentials: Credential[] }>(`/api/credentials?${query}`),
+        api<CompetencyMap>(`/api/competency-map?${query}`, fetchOpts),
+        api<{ credentials: Credential[] }>(`/api/credentials?${query}`, fetchOpts),
         learningApi.getPathway(studentId),
         api<{
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null
-        }>(`/api/v1/lms/me/age-policy?${query}`),
-        api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`),
-        api<ChildProgress>(`/api/parent/children/${studentId}/progress`),
-        api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription'),
+        }>(`/api/v1/lms/me/age-policy?${query}`, fetchOpts),
+        api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`, fetchOpts),
+        api<ChildProgress>(`/api/parent/children/${studentId}/progress`, fetchOpts),
+        api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription', fetchOpts),
       ])
 
       const allRejected = [
@@ -298,33 +361,35 @@ export function ParentLearningPage() {
       ].every((r) => r.status === 'rejected')
 
       if (allRejected) {
-        const firstReason = [
-          competencyResult,
-          credentialsResult,
-          pathwayResult,
-          ageExperienceResult,
-          coursesResult,
-          progressResult,
-          subscriptionResult,
-        ].find((r): r is PromiseRejectedResult => r.status === 'rejected')?.reason
-        setError(friendlyError(firstReason))
+        if (!existingData) {
+          const firstReason = [
+            competencyResult,
+            credentialsResult,
+            pathwayResult,
+            ageExperienceResult,
+            coursesResult,
+            progressResult,
+            subscriptionResult,
+          ].find((r): r is PromiseRejectedResult => r.status === 'rejected')?.reason
+          setError(friendlyError(firstReason))
+        }
         return
       }
 
       const competency: CompetencyMap =
         competencyResult.status === 'fulfilled' && competencyResult.value
           ? competencyResult.value
-          : { status: 'configuration_required', frameworks: [] }
+          : (existingData?.competency ?? { status: 'configuration_required', frameworks: [] })
 
       const credentials: Credential[] =
         credentialsResult.status === 'fulfilled' && credentialsResult.value?.credentials
           ? credentialsResult.value.credentials
-          : []
+          : (existingData?.credentials ?? [])
 
       const pathway: Pathway =
         pathwayResult.status === 'fulfilled' && pathwayResult.value
           ? pathwayResult.value
-          : { recommendedCourseId: null, courses: [] }
+          : (existingData?.pathway ?? { recommendedCourseId: null, courses: [] })
 
       const ageExperience: {
         status: 'ready' | 'configuration_required'
@@ -332,34 +397,34 @@ export function ParentLearningPage() {
       } =
         ageExperienceResult.status === 'fulfilled' && ageExperienceResult.value
           ? ageExperienceResult.value
-          : { status: 'ready', policy: null }
+          : (existingData?.ageExperience ?? { status: 'ready', policy: null })
 
       const courses: Course[] =
         coursesResult.status === 'fulfilled' && coursesResult.value?.courses
           ? coursesResult.value.courses
-          : []
+          : (existingData?.courses ?? [])
 
       const progress: ChildProgress =
         progressResult.status === 'fulfilled' && progressResult.value
           ? progressResult.value
-          : {
+          : (existingData?.progress ?? {
               courseId: null,
               courses: [],
               summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null },
               quests: [],
-            }
+            })
 
       const subscription: LearningData['subscription'] =
         subscriptionResult.status === 'fulfilled' && subscriptionResult.value?.subscription
           ? subscriptionResult.value.subscription
-          : {
+          : (existingData?.subscription ?? {
               status: 'active',
               maxOpenCoursesPerChild: 5,
               planName: 'AI Kid Chính Thức',
               planCode: 'aikids_official_129k',
-            }
+            })
 
-      setData({
+      const freshLearningData: LearningData = {
         competency,
         credentials,
         pathway,
@@ -367,11 +432,19 @@ export function ParentLearningPage() {
         progress,
         subscription,
         ageExperience,
-      })
+      }
+
+      dataRef.current = freshLearningData
+      setData(freshLearningData)
+      setChildLearningCache(studentId, freshLearningData)
     } catch (cause) {
-      setError(friendlyError(cause))
+      if (!existingData) {
+        setError(friendlyError(cause))
+      }
     } finally {
+      window.clearTimeout(timeoutId)
       setLoading(false)
+      setIsRevalidating(false)
     }
   }, [studentId])
 
@@ -418,6 +491,7 @@ export function ParentLearningPage() {
 
 
   const handleUpgradeSuccess = useCallback(() => {
+    invalidateParentCache()
     showToast('Nâng cấp gói thành công! Bé đã có thêm hạn mức học tập.', 'success')
     void load()
   }, [load, showToast])
@@ -434,6 +508,11 @@ export function ParentLearningPage() {
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
               Lộ trình & Năng lực
             </span>
+            {isRevalidating && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-700 animate-pulse border border-brand-200">
+                <RefreshCw size={10} className="animate-spin text-brand-600" /> Đang cập nhật...
+              </span>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button

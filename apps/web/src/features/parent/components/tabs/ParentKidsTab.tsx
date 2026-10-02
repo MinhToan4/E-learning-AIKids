@@ -22,12 +22,19 @@ import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
 import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
-import type { Child, HouseholdSub } from '@/features/parent/types/parent.types'
+import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
+import {
+  getDashboardCache,
+  invalidateParentCache,
+  setDashboardCache,
+} from '@/features/parent/lib/parent-cache'
 
 export function ParentKidsTab() {
-  const [kids, setKids] = useState<Child[]>([])
-  const [sub, setSub] = useState<HouseholdSub | null>(null)
-  const [loading, setLoading] = useState(true)
+  const cachedDash = getDashboardCache()
+  const [kids, setKids] = useState<Child[]>(cachedDash?.kids ?? [])
+  const [sub, setSub] = useState<HouseholdSub | null>(cachedDash?.sub ?? null)
+  const [approvals, setApprovals] = useState<Approval[]>(cachedDash?.approvals ?? [])
+  const [loading, setLoading] = useState(!cachedDash)
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
@@ -35,16 +42,40 @@ export function ParentKidsTab() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const loadKids = useCallback(async () => {
+  const loadKids = useCallback(async (silent = false) => {
+    const hasCache = Boolean(getDashboardCache())
+    if (!silent && !hasCache) {
+      setLoading(true)
+    }
     try {
-      const data = await api<{
-        children: Child[]
-        subscription: HouseholdSub
-      }>('/api/parent/children')
-      setKids(data.children)
-      setSub(data.subscription)
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lỗi tải dữ liệu', 'error')
+      const [childrenData, approvalsData] = await Promise.allSettled([
+        api<{
+          children: Child[]
+          subscription: HouseholdSub
+        }>('/api/parent/children'),
+        api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+      ])
+
+      if (childrenData.status === 'fulfilled') {
+        const fetchedKids = childrenData.value.children
+        const fetchedSub = childrenData.value.subscription
+        const fetchedApprovals = approvalsData.status === 'fulfilled' ? approvalsData.value.approvals : []
+        setKids(fetchedKids)
+        setSub(fetchedSub)
+        setApprovals(fetchedApprovals)
+        setDashboardCache({
+          kids: fetchedKids,
+          sub: fetchedSub,
+          approvals: fetchedApprovals,
+        })
+      } else {
+        if (!hasCache) {
+          showToast(
+            childrenData.reason instanceof Error ? childrenData.reason.message : 'Lỗi tải dữ liệu',
+            'error',
+          )
+        }
+      }
     } finally {
       setLoading(false)
     }
@@ -77,6 +108,7 @@ export function ParentKidsTab() {
     try {
       await api(`/api/parent/children/${childId}`, { method: 'DELETE' })
       showToast('Tài khoản con đã được tạm khóa.', 'success')
+      invalidateParentCache()
       await loadKids()
       setDeleteTarget(null)
     } catch (e) {
@@ -99,6 +131,7 @@ export function ParentKidsTab() {
           locale: 'vi-VN',
         }),
       })
+      invalidateParentCache()
       setKids((prev) =>
         prev.map((item) => (item.id === child.id ? { ...item, [capability]: enabled } : item)),
       )
@@ -232,20 +265,45 @@ export function ParentKidsTab() {
                 </div>
               </div>
 
-              {/* 3 Quick Stat Badges */}
-              <div className="grid grid-cols-3 gap-2 bg-cream-50/80 rounded-2xl p-2 border border-cream-200 shadow-soft">
-                <div className="flex flex-col items-center text-center">
-                  <span className="text-[9px] uppercase font-black text-muted">Hoàn thành</span>
-                  <span className="text-xs font-black text-text">{completedQuests}</span>
+              {/* Dải 4 Khối Chỉ Số Nổi Bật */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 my-2">
+                {/* Vàng cho sao */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200/90 bg-amber-50/80 p-2 text-center shadow-2xs">
+                  <span className="text-[10px] font-extrabold uppercase text-amber-700">Sao</span>
+                  <span className="text-xs sm:text-sm font-black text-amber-950 flex items-center gap-0.5 mt-0.5">
+                    ⭐ {totalStars}
+                  </span>
                 </div>
-                <div className="flex flex-col items-center text-center border-l border-r border-cream-200">
-                  <span className="text-[9px] uppercase font-black text-muted">Tích lũy</span>
-                  <span className="text-xs font-black text-text">{totalStars}</span>
+                {/* Xanh ngọc cho trạm */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-2 text-center shadow-2xs">
+                  <span className="text-[10px] font-extrabold uppercase text-emerald-700">Trạm</span>
+                  <span className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-0.5 mt-0.5">
+                    🎯 {completedQuests}
+                  </span>
                 </div>
-                <div className="flex flex-col items-center text-center">
-                  <span className="text-[9px] uppercase font-black text-muted">Mở khóa</span>
-                  <span className="text-xs font-black text-text">{courseCount}</span>
+                {/* Tím cho cấp độ */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-purple-200/90 bg-purple-50/80 p-2 text-center shadow-2xs">
+                  <span className="text-[10px] font-extrabold uppercase text-purple-700">Cấp</span>
+                  <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-0.5 mt-0.5">
+                    ⚡ Lv.{k.level || 1}
+                  </span>
                 </div>
+                {/* San hô cho duyệt */}
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-rose-50/80 p-2 text-center shadow-2xs">
+                  <span className="text-[10px] font-extrabold uppercase text-rose-700">Duyệt</span>
+                  <span className="text-xs sm:text-sm font-black text-rose-950 flex items-center gap-0.5 mt-0.5">
+                    🎨 {approvals.filter((a) => a.child.id === k.id).length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nhãn tiến độ đảo */}
+              <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-1.5 text-xs font-bold text-slate-700">
+                <span>
+                  {completedQuests >= 10
+                    ? '🏆 Đã hoàn thành 10 Quy tắc vàng'
+                    : `🧭 Đang thám hiểm Đảo Tiên Quyết (Trạm ${Math.min(completedQuests + 1, 10)}/10)`}
+                </span>
               </div>
 
               {/* Tinh gọn: Quyền an toàn trực quan, không tooltip hay accordion */}
@@ -369,6 +427,7 @@ export function ParentKidsTab() {
         onSuccess={async () => {
           setEditTarget(undefined)
           showToast(editTarget ? 'Đã cập nhật hồ sơ con!' : 'Đã tạo tài khoản con!', 'success')
+          invalidateParentCache()
           await loadKids()
         }}
         onError={(e) => showToast(e, 'error')}
