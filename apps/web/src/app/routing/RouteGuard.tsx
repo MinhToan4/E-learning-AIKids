@@ -1,7 +1,8 @@
-import { Navigate } from 'react-router'
+import { Link, Navigate } from 'react-router'
 import { hasAnyPermission } from '@/shared/lib/rbac'
 import { useAuth } from '@/shared/store/auth'
 import type { User } from '@/shared/lib/api'
+import { designerAssets } from '@/shared/config/assets'
 
 export function RouteFallback() {
   return (
@@ -44,23 +45,41 @@ export function RouteGuard({
   const bootstrap = useAuth((state) => state.bootstrap)
 
   if (loading) return <RouteFallback />
+
   if (!user && error) {
+    if (!error || error.includes('hết hạn') || error.includes('401') || error.includes('Unauthorized')) {
+      return <Navigate to="/login" replace />
+    }
     return (
       <main className="flex min-h-dvh items-center justify-center bg-page px-4 py-10">
-        <section className="ui-card w-full max-w-lg p-7 text-center" role="alert">
+        <section className="ui-card w-full max-w-lg p-7 text-center shadow-clay border border-amber-200/80" role="alert">
+          <img
+            src={designerAssets.catPoses.welcome}
+            alt="Mèo AIKI"
+            className="mx-auto mb-4 h-28 object-contain"
+          />
           <h1 className="font-display text-2xl text-ink">Chưa kết nối được phiên học</h1>
           <p className="mt-2 text-sm text-muted">{error}</p>
-          <button
-            type="button"
-            className="ui-btn ui-btn-primary mt-5"
-            onClick={() => void bootstrap()}
-          >
-            Thử kết nối lại
-          </button>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              className="ui-btn ui-btn-primary"
+              onClick={() => void bootstrap()}
+            >
+              Thử kết nối lại
+            </button>
+            <Link to="/login" className="ui-btn ui-btn-secondary">
+              Đăng nhập lại
+            </Link>
+            <Link to="/" className="ui-btn ui-btn-ghost">
+              Về trang giới thiệu
+            </Link>
+          </div>
         </section>
       </main>
     )
   }
+
   if (!user) return <Navigate to="/login" replace />
   if (roles && !roles.includes(user.role)) {
     return <Navigate to={homeFor(user.role)} replace />
