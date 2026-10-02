@@ -563,7 +563,6 @@ export function ProfilePage() {
         backgroundKey: nextEquipment.background ?? null,
       }
       setProfileAppearance(appearance)
-      void persistProfileSettings(sharing, appearance).catch(() => undefined)
     }
     window.addEventListener('aikids:reward-equipped', sync)
     return () => window.removeEventListener('aikids:reward-equipped', sync)

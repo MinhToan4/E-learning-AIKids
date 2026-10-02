@@ -167,7 +167,7 @@ export function ProfileHeaderCard({
             className={`w-20 h-20 sm:w-24 sm:h-24 ${frameRadiusClass} border-4 border-white shadow-clay overflow-visible bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center relative transition-all`}
             style={frameStyle}
           >
-            <span className={`absolute inset-1 z-10 overflow-hidden ${frameRadiusClass} bg-white`}>
+            <span data-profile-avatar-layer className={`absolute inset-[10%] z-20 overflow-hidden ${frameRadiusClass} bg-white`}>
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -184,7 +184,8 @@ export function ProfileHeaderCard({
               <img
                 src={activeFramePresentation.assetUrl}
                 alt=""
-                className="pointer-events-none absolute inset-0 z-20 h-full w-full max-w-none object-contain"
+                data-profile-frame-artwork
+                className="pointer-events-none absolute inset-0 z-10 h-full w-full max-w-none object-contain"
                 onError={(event) => { event.currentTarget.hidden = true }}
               />
             )}

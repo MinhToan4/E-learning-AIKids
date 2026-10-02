@@ -122,8 +122,14 @@ export async function loadProfileOverview(
     const settings = includeAppearance && aggregate.appearance
       ? (normalizeGatewayResponse('/api/profile/settings', aggregate.appearance) as PublicProfileSettings | null)
       : null
-    const storybook = includeStorybook && aggregate.storybook
-      ? (normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData)
+    // Older Hub deployments can accept `sections=storybook` while omitting the
+    // section from the aggregate response. Do not interpret that deployment
+    // mismatch as authoritative empty equipment: read the owning service
+    // directly so an F5 cannot visually unequip persisted rewards.
+    const storybook = includeStorybook
+      ? aggregate.storybook
+        ? (normalizeGatewayResponse('/api/gamification/storybook', aggregate.storybook) as ProfileStorybookData)
+        : await withTimeout(request<ProfileStorybookData>('/api/gamification/storybook'), timeoutMs)
       : null
     const pathway = includePathway && aggregate.pathway
       ? (normalizeGatewayResponse('/api/learning/pathway', aggregate.pathway) as LearningPathway)

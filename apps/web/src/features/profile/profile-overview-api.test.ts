@@ -79,6 +79,31 @@ describe('profile overview adapter', () => {
     expect(request).toHaveBeenCalledWith('/api/v1/aikids/profile-overview?sections=core%2Cappearance%2Cpathway%2Cstorybook')
   })
 
+  it('reads storybook directly when an older Hub aggregate omits the requested section', async () => {
+    const request = vi.fn().mockImplementation((path: string) => {
+      if (path.startsWith('/api/v1/aikids/profile-overview')) {
+        return Promise.resolve({
+          streak: { currentStreak: 4 },
+          achievements: { achievements: [] },
+          appearance: { childProfileId: 'child-1', enabled: true },
+        })
+      }
+      if (path === '/api/gamification/storybook') {
+        return Promise.resolve({
+          inventory: [{ rewardId: 'frame-uploaded-square' }],
+          equipment: [{ kind: 'frame', rewardId: 'frame-uploaded-square' }],
+        })
+      }
+      return Promise.reject(new Error(`Unexpected request: ${path}`))
+    })
+
+    await expect(loadProfileOverview(request, 3500, false, false, true, false, true)).resolves.toMatchObject({
+      equipment: [{ kind: 'frame', rewardId: 'frame-uploaded-square' }],
+      storybook: { inventory: [{ rewardId: 'frame-uploaded-square' }] },
+    })
+    expect(request).toHaveBeenCalledTimes(2)
+  })
+
   it('omits storybook section by default to accelerate initial profile load', async () => {
     const request = vi.fn().mockResolvedValue({
       streak: { currentStreak: 5 },

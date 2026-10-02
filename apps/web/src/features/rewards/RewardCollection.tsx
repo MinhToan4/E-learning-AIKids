@@ -277,6 +277,14 @@ export function RewardCollection({
   const [previewReward, setPreviewReward] = useState<CatalogReward | null>(null)
   const [pendingRewardId, setPendingRewardId] = useState<string | null>(null)
   const equipmentMutationVersion = useRef(0)
+  const readServerEquipment = async () => {
+    const storybook = await api<{
+      equipment?: Array<{ kind: RewardKind; rewardId: string }>
+    }>('/api/gamification/storybook')
+    return Object.fromEntries(
+      (storybook.equipment ?? []).map((item) => [item.kind, item.rewardId]),
+    ) as Partial<Record<RewardKind, string>>
+  }
   // Capture the server bootstrap available when this tab mounts. This keeps
   // opening "Trang trí" from requesting the same storybook payload twice.
   const initialWardrobeRef = useRef(initialWardrobe)
@@ -382,9 +390,11 @@ export function RewardCollection({
         method: 'PUT',
         body: JSON.stringify({ rewardId: reward.id }),
       })
-      // Re-commit after the authoritative response. A profile/catalog refresh
-      // may finish while the mutation is in flight and write an older snapshot.
-      setEquipment(equipReward(userId, reward.kind, reward.id))
+      const confirmed = await readServerEquipment()
+      if (confirmed[reward.kind] !== reward.id) {
+        throw new Error('Máy chủ chưa xác nhận vật phẩm vừa chọn')
+      }
+      setEquipment(syncRewardEquipment(userId, confirmed))
       setMessage(`Đã trang bị ${reward.name}`)
     } catch (error) {
       // The optimistic preview is only provisional. Never let an in-memory
@@ -413,8 +423,14 @@ export function RewardCollection({
           method: 'PUT',
           body: JSON.stringify({ rewardId: null }),
         })
+        const confirmed = await readServerEquipment()
+        if (confirmed[kind]) {
+          throw new Error('Máy chủ chưa xác nhận bỏ vật phẩm')
+        }
+        setEquipment(syncRewardEquipment(userId, confirmed))
+      } else {
+        setEquipment(unequipReward(userId, kind))
       }
-      setEquipment(unequipReward(userId, kind))
       setPreviewReward(null)
       setMessage(`Đã bỏ ${kindLabels[kind].toLowerCase()}.`)
     } catch (error) {

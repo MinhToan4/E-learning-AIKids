@@ -123,6 +123,8 @@ describe('ProfileHeaderCard Component', () => {
     const frame = container.querySelector('[data-profile-frame-shape="square"]')
     expect(frame).not.toBeNull()
     expect(frame?.classList.contains('rounded-none')).toBe(true)
+    expect(container.querySelector('[data-profile-avatar-layer]')?.classList.contains('z-20')).toBe(true)
+    expect(container.querySelector('[data-profile-frame-artwork]')?.classList.contains('z-10')).toBe(true)
 
     act(() => root.unmount())
     container.remove()

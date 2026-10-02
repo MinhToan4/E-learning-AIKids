@@ -9,6 +9,55 @@ import { RewardCollection } from './RewardCollection'
 import { readRewardEquipment } from './reward-equipment'
 
 describe('RewardCollection persistence', () => {
+  it('keeps an equipped frame only after the storybook read confirms it', async () => {
+    const userId = 'child-equip-confirmed'
+    let persisted = false
+    vi.spyOn(apiModule, 'api').mockImplementation(async (path: string, options?: RequestInit) => {
+      if (path.startsWith('/api/gamification/catalog')) return { items: [] } as never
+      if (path === '/api/gamification/rewards/equipment/frame' && options?.method === 'PUT') {
+        persisted = true
+        return { equipment: { kind: 'frame', rewardId: 'frame-rainbow' } } as never
+      }
+      if (path === '/api/gamification/storybook') {
+        return {
+          equipment: persisted ? [{ kind: 'frame', rewardId: 'frame-rainbow' }] : [],
+        } as never
+      }
+      return {} as never
+    })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <RewardCollection
+          userId={userId}
+          xpLevel={3}
+          initialWardrobe={{ ownedRewardIds: ['frame-rainbow'], equipment: [] }}
+        />,
+      )
+      await Promise.resolve()
+    })
+
+    const equipButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Dùng khung cấp độ này'),
+    )
+    await act(async () => {
+      equipButton?.click()
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(readRewardEquipment(userId).frame).toBe('frame-rainbow')
+    expect(container.textContent).toContain('Đã trang bị Khung Cầu Vồng')
+
+    act(() => root.unmount())
+    container.remove()
+    vi.restoreAllMocks()
+  })
+
   it('rolls back an optimistic equip when the Hub does not persist it', async () => {
     const userId = 'child-equip-rollback'
     vi.spyOn(apiModule, 'api').mockImplementation(async (path: string) => {
