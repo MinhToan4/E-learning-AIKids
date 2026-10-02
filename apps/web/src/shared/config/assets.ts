@@ -107,6 +107,14 @@ export const designerAssets = {
     storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.webp',
     gameArena: '/assets/aikid-ui/world-scenes/scene-game-arena-generated.webp',
   },
+  islandStickers: {
+    tienQuyet: '/assets/aiki-islands/island-sticker-0-tien-quyet.svg',
+    khamPha: '/assets/aiki-islands/island-sticker-1-kham-pha.svg',
+    hoaSi: '/assets/aiki-islands/island-sticker-2-hoa-si.svg',
+    nhanVat: '/assets/aiki-islands/island-sticker-3-nhan-vat.svg',
+    truyenTranh: '/assets/aiki-islands/island-sticker-4-truyen-tranh.svg',
+    troChoi: '/assets/aiki-islands/island-sticker-5-tro-choi.svg',
+  },
   asmoScenes: {
     appleForest: '/assets/asmo-scenes/scene_apple_forest.png',
     treeMother: '/assets/asmo-scenes/tree_mother_soft_clay.png',

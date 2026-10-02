@@ -240,13 +240,45 @@ describe('ProfilePage Component', () => {
     expect(container.textContent).toContain('Tích lũy qua bài học')
 
     // Zero-truncation check: ensure no truncate class exists within the 4 cards
-    const coreCardsSection = container.querySelector('section[aria-label="Bộ tứ chỉ số học tập cốt lõi"]')
+    const coreCardsSection = container.querySelector('section[aria-label="Ba dấu ấn hành trình của con"]')
     expect(coreCardsSection).not.toBeNull()
     expect(coreCardsSection?.querySelector('.truncate')).toBeNull()
 
     // Streamlined 6 Island Voyages in progress tab
     expect(container.textContent).toContain('Hải Trình 6 Đảo Của Con')
     expect(container.textContent).not.toContain('Nhịp học tập tuần này')
+
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it('never lets cached browser progress override the authoritative pathway snapshot', async () => {
+    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-1'] = 'true'
+    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-1'] = '3'
+    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-2'] = 'true'
+    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-2'] = '3'
+    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-3'] = 'true'
+    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-3'] = '3'
+    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-4'] = 'true'
+    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-4'] = '3'
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // The mocked Hub pathway owns this value (3 stations, 9 stars). Local
+    // completion keys are an offline transport detail, never the profile SSOT.
+    expect(container.textContent).toContain('3 / 30 Trạm')
+    expect(container.textContent).toContain('9 Sao')
 
     act(() => root.unmount())
     container.remove()

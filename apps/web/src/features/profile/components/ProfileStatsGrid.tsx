@@ -29,10 +29,17 @@ export function ProfileStatsGrid({
     `${Math.floor(fallbackMinutes / 60)}h ${fallbackMinutes % 60}m`
 
   const totalHonors = (achievementsCount ?? 0) + (certificatesCount ?? 0)
+  const nextStationMilestone = displayStations >= 30
+    ? 30
+    : Math.min(30, Math.ceil((displayStations + 1) / 5) * 5)
+  const stationsToMilestone = Math.max(0, nextStationMilestone - displayStations)
+  const starsInMilestone = Math.max(0, totalStars % 15)
+  const starsToMilestone = starsInMilestone === 0 && totalStars > 0 ? 15 : 15 - starsInMilestone
+  const starMilestonePercent = totalStars === 0 ? 0 : Math.round((starsInMilestone / 15) * 100)
 
   return (
     <section
-      aria-label="Bộ tứ chỉ số học tập cốt lõi"
+      aria-label="Ba dấu ấn hành trình của con"
       className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 w-full min-w-0"
     >
       {/* Thẻ 1: Hành trình 6 Đảo (Icon Compass xanh ngọc) */}
@@ -62,7 +69,7 @@ export function ProfileStatsGrid({
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-teal-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-teal-900 border border-teal-200/60">
-          <span>Đã vượt qua {displayStations} trạm học</span>
+          <span>{displayStations >= 30 ? 'Đã chinh phục trọn hành trình' : `Còn ${stationsToMilestone} trạm tới cột mốc ${nextStationMilestone}`}</span>
         </div>
       </div>
 
@@ -85,15 +92,15 @@ export function ProfileStatsGrid({
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-amber-100/80 border border-amber-200/60 p-0.5">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.round((totalStars / 90) * 100))}%` }}
+              style={{ width: `${starMilestonePercent}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-amber-900">
-            <span>Kho báu lấp lánh</span>
+            <span>Cột mốc kho báu mỗi 15 sao</span>
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-amber-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-amber-900 border border-amber-200/60">
-          <span>Ngôi sao tri thức gặt hái được</span>
+          <span>Còn {starsToMilestone} sao tới kho báu tiếp theo</span>
         </div>
       </div>
 
@@ -113,18 +120,20 @@ export function ProfileStatsGrid({
           </div>
         </div>
         <div className="mt-3.5 space-y-1.5">
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-orange-100/80 border border-orange-200/60 p-0.5">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-500 transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.max(10, totalHonors * 15))}%` }}
-            />
+          <div className="flex h-3 items-center gap-1" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, index) => (
+              <span
+                key={index}
+                className={`h-2.5 flex-1 rounded-full border ${index < Math.min(5, totalHonors) ? 'border-orange-400 bg-orange-400' : 'border-orange-200 bg-orange-100'}`}
+              />
+            ))}
           </div>
-          <div className="flex items-center justify-between text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-900">
-            <span>Dấu ấn tự hào</span>
+          <div className="text-[11px] sm:text-xs font-bold leading-snug text-orange-900">
+            Bộ sưu tập dấu ấn tự hào
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-orange-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-900 border border-orange-200/60">
-          <span>Vinh danh nỗ lực &amp; sáng tạo</span>
+          <span>{totalHonors > 0 ? 'Chọn một danh hiệu để kể câu chuyện của con' : 'Danh hiệu đầu tiên đang chờ con khám phá'}</span>
         </div>
       </div>
 
@@ -139,6 +148,7 @@ export function ProfileStatsGrid({
         <span>Tích lũy học &amp; sáng tạo</span>
         <span>Trạm hoàn thành</span>
         <span>Tiến độ khám phá</span>
+        <span>Ngôi sao tri thức</span>
         <span>Tích lũy qua bài học</span>
       </div>
     </section>

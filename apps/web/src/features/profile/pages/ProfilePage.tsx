@@ -25,9 +25,7 @@ import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '@/featur
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
-import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import {
-  profileCardBackgroundStyle,
   readRewardEquipment,
   rewardEquipmentFromRows,
   syncRewardEquipment,
@@ -63,10 +61,7 @@ import {
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
-import {
-  getLocalProgress,
-  flushPendingSyncQueue,
-} from '@/shared/lib/learning-sync-store'
+import { flushPendingSyncQueue } from '@/shared/lib/learning-sync-store'
 
 const BookSpread = lazy(() =>
   import('@/features/storybook/components/BookSpread').then((module) => ({ default: module.BookSpread })),
@@ -190,7 +185,9 @@ export type ProfileTabSection = 'progress' | 'certificates' | 'storybook' | 'mem
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
   const { data: progression } = useProgression(user)
-  const [loading, setLoading] = useState(() => !user)
+  // Never paint learner stats from a previous render or browser cache. The
+  // Hub aggregate is the first authoritative snapshot for this child.
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<ProfileTabSection>('progress')
   const [storybookPageIndex, setStorybookPageIndex] = useState(0)
   const [earnedStickerIds, setEarnedStickerIds] = useState<string[]>([])
@@ -325,8 +322,8 @@ export function ProfilePage() {
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projects, setProjects] = useState<ShowcaseProject[]>([])
-  const [completedStations, setCompletedStations] = useState<number>(() => getLocalProgress(user?.id).completedCount)
-  const [starsCollected, setStarsCollected] = useState<number>(() => getLocalProgress(user?.id).totalStars)
+  const [completedStations, setCompletedStations] = useState(0)
+  const [starsCollected, setStarsCollected] = useState(0)
   const [pathwayCourses, setPathwayCourses] = useState<LearningPathwayCourse[]>([])
   const [profileSlug, setProfileSlug] = useState<string | null>(null)
   const [profileAppearance, setProfileAppearance] = useState({
@@ -352,24 +349,37 @@ export function ProfilePage() {
   )
 
   useEffect(() => {
-    void flushPendingSyncQueue(user?.id)
     let active = true
     const loadVersion = equipmentMutationVersion.current
+
+    setLoading(true)
+    setCompletedStations(0)
+    setStarsCollected(0)
+    setPathwayCourses([])
 
     const applyPathwayData = (courses: LearningPathwayCourse[]) => {
       setPathwayCourses(courses)
       const serverComp = courses.reduce((acc, c) => acc + (c.completedCount ?? 0), 0)
       const serverStars = courses.reduce((acc, c) => acc + (c.totalStars ?? 0), 0)
-      const localProgress = getLocalProgress(user?.id)
 
-      const finalComp = Math.max(serverComp, localProgress.completedCount)
-      const finalStars = Math.max(serverStars, localProgress.totalStars)
-
-      setCompletedStations(finalComp)
-      setStarsCollected(finalStars)
+      // Server projections are the SSOT. The owner-scoped offline queue is
+      // only a transport mechanism and must never award final progress here.
+      setCompletedStations(serverComp)
+      setStarsCollected(serverStars)
     }
 
-    loadProfileOverview(api, 3500, false, true, true, true, false)
+    const loadAuthoritativeOverview = () => {
+      // Offline replay must not block the first profile paint. Reconcile the
+      // pathway once replay finishes, while the aggregate request runs now.
+      // A successful replay emits `aikids:lesson-completed`, which triggers
+      // the authoritative pathway reconciliation below.
+      void flushPendingSyncQueue(user?.id).catch(() => undefined)
+      // Storybook owns inventory/equipment. Loading it in the same Hub fan-out
+      // removes the delayed second request when the child opens “Trang trí”.
+      return loadProfileOverview(api, 3500, false, true, true, true, true)
+    }
+
+    loadAuthoritativeOverview()
       .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
@@ -441,7 +451,7 @@ export function ProfilePage() {
             return next
           })
         }
-        if (user && serverRows.length > 0 && equipmentMutationVersion.current === loadVersion) {
+        if (user && equipmentMutationVersion.current === loadVersion) {
           setEquipment(syncRewardEquipment(user.id, rewardEquipmentFromRows(serverRows)))
         }
 
@@ -504,9 +514,13 @@ export function ProfilePage() {
       })
 
     const onLessonCompleted = () => {
-      const localProgress = getLocalProgress(user?.id)
-      setCompletedStations((prev) => Math.max(prev, localProgress.completedCount))
-      setStarsCollected((prev) => Math.max(prev, localProgress.totalStars))
+      // Completion events only trigger an authoritative reconciliation. Do
+      // not promote localStorage values to final stars/stations.
+      void learningApi.getPathway()
+        .then((res) => {
+          if (active && res?.courses) applyPathwayData(res.courses)
+        })
+        .catch(() => undefined)
     }
     window.addEventListener('aikids:lesson-completed', onLessonCompleted)
 
@@ -1475,25 +1489,6 @@ export function ProfilePage() {
                 Quay lại hồ sơ
               </button>
             </div>
-            {/* Hero Banner Preview: Hồ sơ đang trang bị trực quan */}
-            {user && (
-              <div
-                className="mb-5 overflow-hidden rounded-3xl border-2 border-white shadow-clay bg-white/60 p-4 sm:p-5"
-                style={{
-                  ...profileCardBackgroundStyle(equipment.background),
-                  backgroundPosition: 'center',
-                }}
-              >
-                <EquippedProfile
-                  user={user}
-                  xp={explorerXp}
-                  level={explorerLevel}
-                  compact
-                  equipment={equipment}
-                  onAvatarClick={() => setAvatarPickerOpen(true)}
-                />
-              </div>
-            )}
             <div className="sr-only" aria-hidden="true">
               <Link to="/profile/avatar-studio">Tạo avatar của con - Mở Avatar Studio</Link>
             </div>
