@@ -1,5 +1,9 @@
 import React from 'react'
-import { Compass, Star, Award } from 'lucide-react'
+import {
+  FlatClayCompass,
+  FlatClayStar,
+  FlatClayTrophy,
+} from '@/features/asmo/components/AsmoFlatClayIcons'
 
 export interface ProfileStatsGridProps {
   streakDays: number
@@ -43,14 +47,16 @@ export function ProfileStatsGrid({
       className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 w-full min-w-0"
     >
       {/* Thẻ 1: Hành trình 6 Đảo (Icon Compass xanh ngọc) */}
-      <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-teal-200/80 bg-gradient-to-br from-teal-50/80 via-white to-emerald-50/50 p-4 sm:p-5 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
+      <div className="relative flex min-w-0 overflow-hidden flex-col justify-between rounded-3xl border-2 border-teal-300 bg-gradient-to-br from-[#dffff8] via-white to-[#c9fff0] p-4 sm:p-5 shadow-[0_7px_0_#99f6e4] transition-transform hover:-translate-y-1">
+        <span className="pointer-events-none absolute -right-7 -top-8 h-24 w-24 rounded-full bg-teal-200/45" aria-hidden="true" />
+        <span className="mb-2 w-fit rounded-full bg-teal-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white">Bản đồ chinh phục</span>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-teal-300 bg-gradient-to-br from-teal-100 to-emerald-100 shadow-[0_3px_0_#5eead4] select-none">
-            <Compass className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600 drop-shadow-xs" />
+          <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center select-none">
+            <FlatClayCompass size={62} />
           </div>
           <div className="min-w-0 flex-1">
             <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-              {displayStations} / 30 Trạm
+              <span className="text-3xl sm:text-4xl">{displayStations}</span><span className="text-base text-teal-700"> / 30 Trạm</span>
             </span>
             <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
               Hành trình 6 Đảo
@@ -69,19 +75,21 @@ export function ProfileStatsGrid({
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-teal-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-teal-900 border border-teal-200/60">
-          <span>{displayStations >= 30 ? 'Đã chinh phục trọn hành trình' : `Còn ${stationsToMilestone} trạm tới cột mốc ${nextStationMilestone}`}</span>
+          <span><strong>Nhiệm vụ:</strong> {displayStations >= 30 ? 'Chinh phục trọn hành trình' : `Thêm ${stationsToMilestone} trạm để chạm mốc ${nextStationMilestone}`}</span>
         </div>
       </div>
 
       {/* Thẻ 2: Sao Tri Thức (Icon Star vàng mật ong) */}
-      <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/50 p-4 sm:p-5 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
+      <div className="relative flex min-w-0 overflow-hidden flex-col justify-between rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-[#fff8c7] via-white to-[#fff0a6] p-4 sm:p-5 shadow-[0_7px_0_#fde68a] transition-transform hover:-translate-y-1">
+        <span className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rotate-12 rounded-[2rem] bg-yellow-200/50" aria-hidden="true" />
+        <span className="mb-2 w-fit rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white">Kho sao tri thức</span>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-[0_3px_0_#fcd34d] select-none">
-            <Star className="w-6 h-6 sm:w-7 sm:h-7 text-amber-500 fill-amber-400 drop-shadow-xs" />
+          <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center select-none">
+            <FlatClayStar size={62} />
           </div>
           <div className="min-w-0 flex-1">
             <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-              {totalStars} Sao
+              <span className="text-3xl sm:text-4xl">{totalStars}</span><span className="text-base text-amber-700"> Sao</span>
             </span>
             <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
               Sao tích lũy
@@ -100,19 +108,21 @@ export function ProfileStatsGrid({
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-amber-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-amber-900 border border-amber-200/60">
-          <span>Còn {starsToMilestone} sao tới kho báu tiếp theo</span>
+          <span><strong>Kho báu:</strong> Còn {starsToMilestone} sao để mở rương tiếp theo</span>
         </div>
       </div>
 
       {/* Thẻ 3: Bằng Khen & Huy Hiệu (Icon Award cam hổ phách) */}
-      <div className="flex min-w-0 flex-col justify-between rounded-3xl border-2 border-orange-200/80 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 p-4 sm:p-5 shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-clay">
+      <div className="relative flex min-w-0 overflow-hidden flex-col justify-between rounded-3xl border-2 border-orange-300 bg-gradient-to-br from-[#ffe8d2] via-white to-[#ffdfc5] p-4 sm:p-5 shadow-[0_7px_0_#fed7aa] transition-transform hover:-translate-y-1">
+        <span className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-orange-200/45" aria-hidden="true" />
+        <span className="mb-2 w-fit rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white">Tủ huy hiệu</span>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-orange-300 bg-gradient-to-br from-orange-100 to-amber-100 shadow-[0_3px_0_#fdba74] select-none">
-            <Award className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600 drop-shadow-xs" />
+          <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center select-none">
+            <FlatClayTrophy size={62} />
           </div>
           <div className="min-w-0 flex-1">
             <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-              {totalHonors} Danh hiệu
+              <span className="text-3xl sm:text-4xl">{totalHonors}</span><span className="text-base text-orange-700"> dấu ấn</span>
             </span>
             <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
               Bằng khen &amp; Huy hiệu
@@ -129,11 +139,11 @@ export function ProfileStatsGrid({
             ))}
           </div>
           <div className="text-[11px] sm:text-xs font-bold leading-snug text-orange-900">
-            Bộ sưu tập dấu ấn tự hào
+            Mỗi ô sáng là một chiến tích của con
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-orange-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-900 border border-orange-200/60">
-          <span>{totalHonors > 0 ? 'Chọn một danh hiệu để kể câu chuyện của con' : 'Danh hiệu đầu tiên đang chờ con khám phá'}</span>
+          <span><strong>Trưng bày:</strong> {totalHonors > 0 ? 'Chọn danh hiệu con tự hào nhất' : 'Danh hiệu đầu tiên đang chờ con'}</span>
         </div>
       </div>
 

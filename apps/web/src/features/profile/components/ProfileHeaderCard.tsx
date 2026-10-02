@@ -12,6 +12,7 @@ import {
 import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
 import { resolveCatalogRewardAsset, type RewardCatalogAssets } from '@/features/rewards/reward-catalog-assets'
 import { getResolvedRewardAssetUrl } from '@/features/rewards/reward-assets'
+import { rewardTitleAsset } from '@/features/rewards/title-assets'
 
 type FrameShape = 'circle' | 'rounded-square' | 'square'
 
@@ -51,6 +52,7 @@ export function ProfileHeaderCard({
     assetUrl?: string
     shape: FrameShape
   } | null>(null)
+  const [titleArtworkUrl, setTitleArtworkUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -99,6 +101,35 @@ export function ProfileHeaderCard({
       active = false
     }
   }, [equipment?.frame])
+
+  useEffect(() => {
+    const rewardId = equipment?.title
+    if (!rewardId) {
+      setTitleArtworkUrl(null)
+      return
+    }
+    const localArtwork = rewardTitleAsset(rewardId)
+    let active = true
+    void api<{ items?: Array<{
+      code: string
+      assets?: RewardCatalogAssets
+    }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6')
+      .then(({ items }) => {
+        if (!active) return
+        const item = items?.find((candidate) => candidate.code === rewardId)
+        setTitleArtworkUrl(
+          (item ? resolveCatalogRewardAsset({ id: item.code, assets: item.assets }, 'primary') : undefined)
+          ?? localArtwork
+          ?? null,
+        )
+      })
+      .catch(() => {
+        if (active) setTitleArtworkUrl(localArtwork ?? null)
+      })
+    return () => {
+      active = false
+    }
+  }, [equipment?.title])
 
   const displayName = user?.nickname || user?.name || 'Nhà Thám Hiểm'
   const avatarUrl = avatarImage(user?.avatarId)
@@ -227,8 +258,20 @@ export function ProfileHeaderCard({
 
             <div className="flex items-center gap-2 justify-center sm:justify-end flex-wrap">
               {/* Huy hiệu cấp độ Soft Clay & Danh hiệu trang bị */}
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-black border border-amber-300 shadow-2xs shrink-0">
-                Cấp {explorerLevel} • {displayTitle}
+              <div className="inline-flex min-h-9 items-center gap-2 rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
+                <span className="whitespace-nowrap">Cấp {explorerLevel}</span>
+                <span className="h-4 w-px bg-amber-300" aria-hidden="true" />
+                {titleArtworkUrl ? (
+                  <img
+                    src={titleArtworkUrl}
+                    alt={displayTitle}
+                    data-profile-title-artwork
+                    className="h-7 w-auto max-w-44 object-contain sm:max-w-52"
+                    onError={() => setTitleArtworkUrl(null)}
+                  />
+                ) : (
+                  <span>{displayTitle}</span>
+                )}
               </div>
 
               {/* Chip Online màu ngọc lục bảo */}

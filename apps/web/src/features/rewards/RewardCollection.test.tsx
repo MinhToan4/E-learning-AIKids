@@ -9,6 +9,28 @@ import { RewardCollection } from './RewardCollection'
 import { readRewardEquipment } from './reward-equipment'
 
 describe('RewardCollection persistence', () => {
+  it('does not infer ownership from a high browser level', async () => {
+    vi.spyOn(apiModule, 'api').mockImplementation(async (path: string) => {
+      if (path.startsWith('/api/gamification/catalog')) return { items: [] } as never
+      return {} as never
+    })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    await act(async () => {
+      root.render(<RewardCollection userId="child-authoritative-inventory" xpLevel={112}
+        initialWardrobe={{ ownedRewardIds: [], equipment: [] }} />)
+      await Promise.resolve()
+    })
+    const titleTabs = Array.from(container.querySelectorAll('button')).filter((button) => button.textContent === 'Danh hiệu')
+    await act(async () => titleTabs.at(-1)?.click())
+    expect(container.textContent).toContain('Mở ở Cấp 3')
+    expect(container.querySelector('.reward-equip-button')).toBeNull()
+    act(() => root.unmount())
+    container.remove()
+    vi.restoreAllMocks()
+  })
+
   it('keeps an equipped frame only after the storybook read confirms it', async () => {
     const userId = 'child-equip-confirmed'
     let persisted = false

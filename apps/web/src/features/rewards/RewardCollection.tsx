@@ -232,26 +232,15 @@ export function RewardCollection({
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
 
   const defaultOwned = useMemo(() => {
-    const set = new Set<string>()
-    // 1. Các vật phẩm đang được trang bị sẵn
+    // Supabase inventory is the only ownership authority. Never infer unlocks
+    // again from the browser level because the backend catalog can retire,
+    // draft or remap a reward independently.
+    const set = new Set<string>(initialWardrobe?.ownedRewardIds ?? [])
     Object.values(equipment).forEach((id) => {
       if (id) set.add(id)
     })
-    // 2. Tự động mở khóa các vật phẩm đạt điều kiện theo cấp độ xpLevel của học sinh
-    REWARD_CATALOG.forEach((reward) => {
-      if (
-        reward.unlock?.type === 'xp_level' &&
-        xpLevel >= Number(reward.unlock.value)
-      ) {
-        set.add(reward.id)
-      }
-      // Các vật phẩm khởi đầu (cấp 1 hoặc không yêu cầu)
-      if (!reward.unlock || (reward.unlock.type === 'xp_level' && Number(reward.unlock.value) <= 1)) {
-        set.add(reward.id)
-      }
-    })
     return set
-  }, [equipment, xpLevel])
+  }, [equipment, initialWardrobe])
 
   const [owned, setOwned] = useState<Set<string>>(() => defaultOwned)
   const defaultOwnedRef = useRef(defaultOwned)

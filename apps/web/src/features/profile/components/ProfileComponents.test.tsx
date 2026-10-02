@@ -47,7 +47,8 @@ describe('ProfileHeaderCard Component', () => {
     // Contains student name and level
     expect(container.textContent).toContain('Lan Khám Phá')
     expect(container.textContent).toContain('Hồ sơ của con')
-    expect(container.textContent).toContain('Cấp 4 • Nhà Thám Hiểm Nhí')
+    expect(container.textContent).toContain('Cấp 4')
+    expect(container.textContent).toContain('Nhà Thám Hiểm Nhí')
     expect(container.textContent).toContain('50/100 XP')
     expect(container.textContent).toContain('Xem bản chia sẻ')
 
@@ -84,7 +85,8 @@ describe('ProfileHeaderCard Component', () => {
     })
 
     expect(container.textContent).toContain('Nhà Thám Hiểm')
-    expect(container.textContent).toContain('Cấp 1 • Nhà Thám Hiểm Nhí')
+    expect(container.textContent).toContain('Cấp 1')
+    expect(container.textContent).toContain('Nhà Thám Hiểm Nhí')
     expect(container.textContent).toContain('0/100 XP')
 
     act(() => root.unmount())
@@ -133,35 +135,46 @@ describe('ProfileHeaderCard Component', () => {
 
   it('does not layer an opaque catalog preview over a built-in CSS frame', async () => {
     vi.spyOn(apiModule, 'api').mockResolvedValue({
-      items: [{
-        code: 'frame-galaxy',
-        assets: { imageUrl: '/assets/rewards/frames/frame-galaxy.webp' },
-      }],
+      items: [{ code: 'frame-galaxy', assets: { imageUrl: '/assets/rewards/frames/frame-galaxy.webp' } }],
     } as never)
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
-
     await act(async () => {
       root.render(
         <MemoryRouter>
-          <ProfileHeaderCard
-            user={mockUser}
-            explorerLevel={4}
-            explorerXp={350}
-            xpIntoLevel={50}
-            xpToNextLevel={100}
-            equipment={{ frame: 'frame-galaxy' }}
-            onOpenAvatarPicker={vi.fn()}
-          />
+          <ProfileHeaderCard user={mockUser} explorerLevel={4} explorerXp={350} xpIntoLevel={50}
+            xpToNextLevel={100} equipment={{ frame: 'frame-galaxy' }} onOpenAvatarPicker={vi.fn()} />
         </MemoryRouter>,
       )
       await Promise.resolve()
     })
-
     expect(container.querySelector('[data-profile-frame-artwork]')).toBeNull()
     expect(container.querySelector('[data-profile-frame-shape]')?.classList.contains('overflow-hidden')).toBe(true)
+    act(() => root.unmount())
+    container.remove()
+    vi.restoreAllMocks()
+  })
 
+  it('renders the equipped title plaque artwork instead of plain title text', async () => {
+    vi.spyOn(apiModule, 'api').mockResolvedValue({
+      items: [{ code: 'title-curious-seeker', assets: { imageUrl: 'https://storage.storymee.com/content-media/title-curious.png' } }],
+    } as never)
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfileHeaderCard user={mockUser} explorerLevel={4} explorerXp={350} xpIntoLevel={50}
+            xpToNextLevel={100} equipment={{ title: 'title-curious-seeker' }} onOpenAvatarPicker={vi.fn()} />
+        </MemoryRouter>,
+      )
+      await Promise.resolve()
+    })
+    const artwork = container.querySelector('[data-profile-title-artwork]') as HTMLImageElement | null
+    expect(artwork?.src).toBe('https://storage.storymee.com/content-media/title-curious.png')
+    expect(artwork?.alt).toBe('Người Tìm Tòi')
     act(() => root.unmount())
     container.remove()
     vi.restoreAllMocks()
