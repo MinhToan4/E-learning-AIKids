@@ -144,8 +144,8 @@ export function SixStageJourneyEditor({
         className={cn(
           'grid min-w-0 items-start gap-5 transition-all',
           showInlinePreview
-            ? 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]'
-            : 'xl:grid-cols-[minmax(0,1fr)_56px]'
+            ? '2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1'
+            : 'xl:grid-cols-[minmax(0,1fr)_56px] grid-cols-1'
         )}
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -444,11 +444,11 @@ export function SixStageJourneyEditor({
       className={cn(
         'grid min-w-0 items-start gap-5 transition-all',
         showInlinePreview
-          ? 'xl:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]'
-          : 'xl:grid-cols-[minmax(0,1fr)_56px]'
+          ? '2xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid-cols-1'
+          : 'xl:grid-cols-[minmax(0,1fr)_56px] grid-cols-1'
       )}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="flex min-w-0 flex-col gap-4">
         {/* Header chặng */}
         <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
           <div className="flex items-center justify-between gap-2">

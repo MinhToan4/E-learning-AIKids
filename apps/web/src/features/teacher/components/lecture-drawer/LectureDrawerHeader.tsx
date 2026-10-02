@@ -189,14 +189,18 @@ export function LectureDrawerHeader({
     }
   }, [checkScrollOverflow, activeSection, isIslandCourse, lessonFormat])
 
-  // Tự động cuộn active tab vào giữa tầm mắt khi chuyển chặng
+  // Tự động cuộn active tab vào giữa tầm mắt trong thanh tab (chỉ cuộn nội bộ container, không cuộn window)
   useEffect(() => {
-    if (activeTabRef.current && typeof activeTabRef.current.scrollIntoView === 'function') {
-      activeTabRef.current.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
-      })
+    const container = scrollContainerRef.current
+    const tab = activeTabRef.current
+    if (container && tab) {
+      const targetLeft = tab.offsetLeft - container.clientWidth / 2 + tab.clientWidth / 2
+      if (typeof container.scrollTo === 'function') {
+        container.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' })
+      } else if (typeof tab.scrollIntoView === 'function') {
+        // Fallback cho môi trường test jsdom
+        tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+      }
     }
   }, [activeSection])
 
@@ -340,113 +344,29 @@ export function LectureDrawerHeader({
         </div>
       )}
 
-      {/* Header Top Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1rem 1.5rem',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#fff',
-          flexShrink: 0,
-        }}
-      >
+      {/* Header Top Bar - Hàng 1: Tiêu đề & Các nút hành động chính */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 bg-white border-b border-slate-100 shrink-0">
         <div className="min-w-0 flex-1 mr-3">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#0f172a' }} className="shrink-0 whitespace-nowrap">
+          <div className="flex items-center gap-2">
+            <div className="text-[1.0625rem] font-bold text-slate-900 shrink-0 whitespace-nowrap">
               {readOnly ? 'Xem trạm học' : isEdit ? 'Chỉnh sửa trạm học' : 'Tạo trạm học mới'}
             </div>
             {readOnly && (
-              <span
-                className="shrink-0 whitespace-nowrap"
-                style={{
-                  fontSize: '0.6875rem',
-                  fontWeight: 700,
-                  color: '#92400e',
-                  background: '#fffbeb',
-                  border: '1px solid #fde68a',
-                  borderRadius: '0.375rem',
-                  padding: '0.125rem 0.5rem',
-                }}
-              >
+              <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-2 py-0.5">
                 Chỉ xem
               </span>
             )}
             {!readOnly && isEdit && archived && (
-              <span
-                className="shrink-0 whitespace-nowrap"
-                style={{
-                  fontSize: '0.6875rem',
-                  fontWeight: 700,
-                  color: '#ea580c',
-                  background: '#fff7ed',
-                  border: '1px solid #fed7aa',
-                  borderRadius: '0.375rem',
-                  padding: '0.125rem 0.5rem',
-                }}
-              >
+              <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-2 py-0.5">
                 Đang ẩn
               </span>
             )}
           </div>
           {draft.title && (
-            <div className="truncate" style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.125rem' }} title={draft.title}>
+            <div className="truncate max-w-xs sm:max-w-md text-[13px] text-slate-500 mt-0.5" title={draft.title}>
               {draft.title}
             </div>
           )}
-
-          {/* Hàng cấu trúc trạm học & Nút Thông tin trạm riêng biệt */}
-          <div className="flex items-center gap-2 mt-1.5 min-w-0 flex-wrap">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Cấu trúc:</span>
-              <select
-                disabled={readOnly || isIslandCourse}
-                value={lessonFormat}
-                onChange={(e) => onFormatChange(e.target.value as LessonFormat)}
-                className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[340px] sm:max-w-[480px]"
-              >
-                {isIslandCourse ? (
-                  <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
-                ) : (
-                  <>
-                    <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
-                    <option value="aiki-rule-3steps">Quy tắc 3 bước (Bài học, Kiểm tra, Hoàn thành)</option>
-                    <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
-                    <option value="standard">Khám phá tiêu chuẩn</option>
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Nút riêng biệt Thông tin trạm - Tách độc lập khỏi Stepper 6 chặng */}
-            <button
-              type="button"
-              onClick={() => onSelectSection('basics')}
-              title="Thông tin cơ bản của trạm học (Tiêu đề, mô tả, ảnh bìa, kỹ năng trọng tâm)"
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs border shrink-0",
-                activeSection === 'basics'
-                  ? "bg-brand-100 text-brand-900 border-brand-400 font-black ring-2 ring-brand-300/60 shadow-xs"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:text-brand-800 hover:border-brand-200"
-              )}
-            >
-              {sectionStatus('basics') ? (
-                <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-              ) : (
-                <BookOpen size={13} className={cn("shrink-0", activeSection === 'basics' ? "text-brand-600" : "text-slate-500")} />
-              )}
-              <span>Thông tin trạm</span>
-              {!sectionStatus('basics') && sectionMissing('basics').length > 0 && (
-                <span
-                  title={`Còn thiếu: ${sectionMissing('basics').join(', ')}`}
-                  className="grid min-w-4 h-4 place-items-center rounded-full bg-amber-100 px-1 text-[10px] font-black text-amber-700 shrink-0"
-                >
-                  {sectionMissing('basics').length}
-                </span>
-              )}
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -489,8 +409,7 @@ export function LectureDrawerHeader({
               <button
                 type="button"
                 onClick={onRestore}
-                className="shrink-0 whitespace-nowrap cursor-pointer"
-                style={{ padding: '0.375rem 0.75rem', border: '1px solid #6ee7b7', background: '#ecfdf5', borderRadius: '0.5rem', color: '#059669', fontSize: '0.8125rem', fontWeight: 700 }}
+                className="shrink-0 whitespace-nowrap cursor-pointer px-3 py-1.5 border border-emerald-300 bg-emerald-50 rounded-lg text-emerald-700 text-[13px] font-bold hover:bg-emerald-100 transition"
               >
                 Khôi phục
               </button>
@@ -498,8 +417,7 @@ export function LectureDrawerHeader({
               <button
                 type="button"
                 onClick={onArchive}
-                className="shrink-0 whitespace-nowrap cursor-pointer"
-                style={{ padding: '0.375rem 0.75rem', border: '1px solid #fca5a5', background: '#fff1f2', borderRadius: '0.5rem', color: '#dc2626', fontSize: '0.8125rem', fontWeight: 700 }}
+                className="shrink-0 whitespace-nowrap cursor-pointer px-3 py-1.5 border border-rose-300 bg-rose-50 rounded-lg text-rose-600 text-[13px] font-bold hover:bg-rose-100 transition"
               >
                 Ẩn bài
               </button>
@@ -510,11 +428,69 @@ export function LectureDrawerHeader({
             type="button"
             id={`${uid}-drawer-close`}
             onClick={onRequestClose}
-            className="shrink-0 cursor-pointer"
-            style={{ padding: '0.5rem', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '0.5rem', color: '#64748b' }}
+            className="shrink-0 cursor-pointer p-2 border border-slate-200 bg-slate-50 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
           >
             <X size={16} />
           </button>
+        </div>
+      </div>
+
+      {/* Header Top Bar - Hàng 2: Cấu hình trạm học & Thông tin cơ bản */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-2 sm:px-6 bg-slate-50/80 border-b border-slate-200/80 shrink-0">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Cấu trúc:</span>
+            <select
+              disabled={readOnly || isIslandCourse}
+              value={lessonFormat}
+              onChange={(e) => onFormatChange(e.target.value as LessonFormat)}
+              className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[280px] sm:max-w-[360px]"
+            >
+              {isIslandCourse ? (
+                <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
+              ) : (
+                <>
+                  <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
+                  <option value="aiki-rule-3steps">Quy tắc 3 bước (Bài học, Kiểm tra, Hoàn thành)</option>
+                  <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
+                  <option value="standard">Khám phá tiêu chuẩn</option>
+                </>
+              )}
+            </select>
+          </div>
+
+          {/* Nút riêng biệt Thông tin trạm - Tách độc lập khỏi Stepper 6 chặng */}
+          <button
+            type="button"
+            onClick={() => onSelectSection('basics')}
+            title="Thông tin cơ bản của trạm học (Tiêu đề, mô tả, ảnh bìa, kỹ năng trọng tâm)"
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs border shrink-0",
+              activeSection === 'basics'
+                ? "bg-brand-100 text-brand-900 border-brand-400 font-black ring-2 ring-brand-300/60 shadow-xs"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:text-brand-800 hover:border-brand-200"
+            )}
+          >
+            {sectionStatus('basics') ? (
+              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
+            ) : (
+              <BookOpen size={13} className={cn("shrink-0", activeSection === 'basics' ? "text-brand-600" : "text-slate-500")} />
+            )}
+            <span>Thông tin trạm</span>
+            {!sectionStatus('basics') && sectionMissing('basics').length > 0 && (
+              <span
+                title={`Còn thiếu: ${sectionMissing('basics').join(', ')}`}
+                className="grid min-w-4 h-4 place-items-center rounded-full bg-amber-100 px-1 text-[10px] font-black text-amber-700 shrink-0"
+              >
+                {sectionMissing('basics').length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Bên phải: Nhãn gợi ý chuẩn sư phạm */}
+        <div className="hidden md:flex items-center gap-2 text-[11px] font-bold text-slate-500 shrink-0">
+          <span>Hải trình 6 chặng chuẩn sư phạm AIKids</span>
         </div>
       </div>
 

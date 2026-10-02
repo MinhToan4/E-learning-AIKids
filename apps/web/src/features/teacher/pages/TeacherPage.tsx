@@ -10,7 +10,7 @@
  * RBAC: teacher (full write) + admin (read-only on class operations)
  */
 import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode, Suspense, lazy } from 'react'
-import { Search, AlertCircle, RefreshCw, Puzzle, ListOrdered, Plus, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Target, Columns2, Image, BookOpen } from 'lucide-react'
+import { Search, AlertCircle, RefreshCw, Puzzle, ListOrdered, Plus, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Target, Columns2, Image, BookOpen, ArrowLeft } from 'lucide-react'
 
 import { FeatureBlockHoverPreview } from '../components/FeatureBlockHoverPreview'
 import type { FeatureBlockItem } from '../types'
@@ -1156,9 +1156,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
         {/* CẤP 4: Focus Studio Soạn Trạm (Áp dụng Lazy Loading LectureDrawer) */}
         {currentLevel === 4 && selectedCourseId && (
-          <div className={cn("grid items-start gap-4 transition-all duration-300", isSidebarCollapsed ? "md:grid-cols-[56px_minmax(0,1fr)]" : "md:grid-cols-[320px_minmax(0,1fr)]")}>
+          <div className={cn("grid items-start gap-4 transition-all duration-300 w-full min-w-0 overflow-x-hidden", isSidebarCollapsed ? "md:grid-cols-[56px_minmax(0,1fr)]" : "md:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]")}>
             {/* Sidebar Trái: Khối tính năng */}
-            <aside className={cn("shrink-0 sticky top-20 h-[calc(100vh-6rem)] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white/95 shadow-clay-xs backdrop-blur-xs overflow-hidden transition-all duration-300", isSidebarCollapsed ? "w-14 max-w-[56px]" : "w-full max-w-[320px]")} aria-label="Thanh công cụ Focus Studio">
+            <aside className={cn("shrink-0 sticky top-20 h-[calc(100vh-6rem)] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white/95 shadow-clay-xs backdrop-blur-xs overflow-hidden transition-all duration-300", isSidebarCollapsed ? "w-14 min-w-[56px] max-w-[56px]" : "w-72 min-w-[280px] max-w-[280px] xl:w-[300px] xl:max-w-[300px]")} aria-label="Thanh công cụ Focus Studio">
               {isSidebarCollapsed ? (
                 <div className="flex flex-col items-center py-3 gap-2.5 h-full bg-brand-50/50">
                   <button
@@ -1333,7 +1333,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     onClick={() => runLectureAction(closeLectureEditor)}
                     className="flex items-center gap-1.5 rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-black text-slate-700 shadow-2xs hover:border-brand-300 hover:bg-slate-50 transition cursor-pointer"
                   >
-                    <span>◄ Quay lại Bản đồ Trạm học</span>
+                    <ArrowLeft size={14} className="shrink-0" />
+                    <span>Quay lại Bản đồ Trạm</span>
                   </button>
 
                   <div className="hidden sm:block h-5 w-px bg-border/80" />

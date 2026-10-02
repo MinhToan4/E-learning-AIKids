@@ -635,7 +635,7 @@ function CmsShell({
       </header>
 
       {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
-      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 md:pb-6">
+      <main className="page-enter mx-auto min-w-0 w-full max-w-[1440px] overflow-x-clip px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 md:pb-6">
         <RouteOutlet />
       </main>
 
