@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Trophy, Award, Sparkles, X, Star, Zap, CheckCircle2, BookmarkCheck } from 'lucide-react'
+import { Trophy, Award, Sparkles, X, Star, Zap, CheckCircle2, BookmarkCheck, Download } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { playInstantSound } from './LessonInteractiveSidebar'
 import {
@@ -92,7 +92,7 @@ export function CourseCertificateModal({
       aria-labelledby="certificate-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/65 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-xl rounded-3xl bg-gradient-to-b from-amber-50/80 via-white to-amber-50/40 p-4 sm:p-7 border-4 border-amber-200/90 shadow-clay overflow-hidden animate-scale-up">
+      <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-amber-50/80 via-white to-amber-50/40 p-4 sm:p-7 border-4 border-amber-200/90 shadow-clay animate-scale-up">
         {/* Decorative background rays & sparkles */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 size-48 rounded-full bg-amber-200/30 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 size-48 rounded-full bg-brand-200/25 blur-2xl pointer-events-none" />
@@ -128,13 +128,15 @@ export function CourseCertificateModal({
             <div className="h-0.5 w-12 bg-amber-300 rounded-full" />
           </div>
 
-          {/* Golden Trophy Medallion */}
-          <div className="relative my-2 sm:my-3 flex items-center justify-center">
-            <div className="size-20 sm:size-24 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 p-1 shadow-clay flex items-center justify-center ring-4 ring-amber-100">
-              <Trophy size={46} className="text-white drop-shadow-md" />
-            </div>
-            <div className="absolute -top-1 -right-1 size-6 rounded-full bg-white shadow-sm flex items-center justify-center text-amber-500">
-              <Sparkles size={14} />
+          {/* Official Graduation Certificate SVG Vector Artwork */}
+          <div className="relative my-2 sm:my-3 flex items-center justify-center w-full max-w-[240px] sm:max-w-[280px] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50/50 group">
+            <img
+              src="/assets/rewards/graduation-certificate.svg"
+              alt="Giấy Chứng Nhận Tốt Nghiệp AI Kids"
+              className="w-full h-auto max-h-44 sm:max-h-52 object-contain rounded-xl drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute -top-1 -right-1 size-7 rounded-full bg-white shadow-sm flex items-center justify-center text-amber-500 ring-2 ring-amber-200">
+              <Sparkles size={16} />
             </div>
           </div>
 
@@ -178,12 +180,12 @@ export function CourseCertificateModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5 flex-wrap">
           <Button
             variant="primary"
             onClick={handleSaveToBackpack}
             disabled={isSaved}
-            className="w-full sm:w-auto px-6 py-2.5 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-clay"
+            className="w-full sm:w-auto px-6 py-2.5 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-clay cursor-pointer"
           >
             {isSaved ? (
               <>
@@ -198,10 +200,20 @@ export function CourseCertificateModal({
             )}
           </Button>
 
+          <a
+            href="/assets/rewards/graduation-certificate.svg"
+            download="Chung-Nhan-Tot-Nghiep-AIKids.svg"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 font-black text-sm rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
+            title="Tải Giấy Chứng Nhận về máy để in ấn"
+          >
+            <Download size={17} />
+            <span>Tải Bằng Khen (.SVG)</span>
+          </a>
+
           <Button
             variant="secondary"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 font-bold text-sm text-slate-600 hover:text-slate-800"
+            className="w-full sm:w-auto px-5 py-2.5 font-bold text-sm text-slate-600 hover:text-slate-800 cursor-pointer"
           >
             ✕ Đóng
           </Button>

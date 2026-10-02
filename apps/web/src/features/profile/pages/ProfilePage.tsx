@@ -1080,8 +1080,17 @@ export function ProfilePage() {
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3.5 sm:gap-4">
-                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-b from-amber-200 to-amber-400 p-2 shadow-inner ring-4 ring-amber-100/80 select-none">
-                      <Award className="w-8 h-8 sm:w-9 sm:h-9 text-amber-950 fill-amber-300 drop-shadow-xs" />
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="relative w-14 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50 group hover:scale-105 transition-transform">
+                        <img
+                          src="/assets/rewards/graduation-certificate.svg"
+                          alt="Bằng Khen Tốt Nghiệp"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-300 bg-gradient-to-b from-amber-200 to-amber-400 p-2 shadow-inner ring-4 ring-amber-100/80 select-none">
+                        <Award className="w-8 h-8 sm:w-9 sm:h-9 text-amber-950 fill-amber-300 drop-shadow-xs" />
+                      </div>
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-2.5 py-0.5 text-xs font-black text-amber-900 mb-1">
@@ -1150,10 +1159,19 @@ export function ProfilePage() {
                     className="relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/90 via-white to-amber-100/40 p-5 sm:p-6 shadow-clay transition-all hover:-translate-y-0.5"
                   >
                     <div>
-                      {/* Top bar with Status Badge */}
+                      {/* Top bar with Status Badge & Certificate SVG Thumbnail */}
                       <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-2 ring-amber-200/60 shadow-xs select-none">
-                          <Award className="w-6 h-6 text-amber-900 fill-amber-300 drop-shadow-xs" />
+                        <div className="flex items-center gap-2.5">
+                          <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden border border-amber-300 shadow-2xs bg-amber-50">
+                            <img
+                              src="/assets/rewards/graduation-certificate.svg"
+                              alt="Bằng Khen Tốt Nghiệp"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-100/80 text-amber-800 ring-2 ring-amber-200/60 shadow-xs select-none">
+                            <Award className="w-6 h-6 text-amber-900 fill-amber-300 drop-shadow-xs" />
+                          </div>
                         </div>
 
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-xs font-black text-emerald-900 shadow-2xs">

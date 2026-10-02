@@ -17,6 +17,8 @@ import { cn } from '@/shared/lib/cn'
 import { type QuestProgress } from '@/shared/lib/api'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
+import { CourseCertificateModal } from '@/features/lesson/components/CourseCertificateModal'
+import { playInstantSound } from '@/features/lesson/components/LessonInteractiveSidebar'
 
 export type IslandCourseSummary = {
   id: string
@@ -353,7 +355,25 @@ export function IslandStationsExplorerView({
       ? Math.round((meta.completedCount / quests.length) * 100)
       : 0
 
+  const [voyageDirection, setVoyageDirection] = useState<'next' | 'prev' | null>(null)
+  const [isVoyaging, setIsVoyaging] = useState(false)
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false)
+
   const handleIslandClick = (targetSlug: string) => {
+    const targetIdx = AIKID_SIX_ISLAND_PRESETS.findIndex(
+      (isl) => isl.targetSlug === targetSlug || isl.canonicalSlug === targetSlug,
+    )
+    if (targetIdx >= 0 && targetIdx !== currentIslandIndex) {
+      setVoyageDirection(targetIdx > currentIslandIndex ? 'next' : 'prev')
+      setIsVoyaging(true)
+      try {
+        playInstantSound('click')
+      } catch {}
+      setTimeout(() => {
+        setIsVoyaging(false)
+      }, 600)
+    }
+
     if (onSelectIsland) {
       onSelectIsland(targetSlug)
     } else {
@@ -362,13 +382,29 @@ export function IslandStationsExplorerView({
   }
 
   const goToNextIsland = () => {
+    setVoyageDirection('next')
+    setIsVoyaging(true)
+    try {
+      playInstantSound('click')
+    } catch {}
     const nextIndex = (currentIslandIndex + 1) % 6
     handleIslandClick(AIKID_SIX_ISLAND_PRESETS[nextIndex].targetSlug)
+    setTimeout(() => {
+      setIsVoyaging(false)
+    }, 600)
   }
 
   const goToPrevIsland = () => {
+    setVoyageDirection('prev')
+    setIsVoyaging(true)
+    try {
+      playInstantSound('click')
+    } catch {}
     const prevIndex = (currentIslandIndex - 1 + 6) % 6
     handleIslandClick(AIKID_SIX_ISLAND_PRESETS[prevIndex].targetSlug)
+    setTimeout(() => {
+      setIsVoyaging(false)
+    }, 600)
   }
 
   // Hỗ trợ phím mũi tên bàn phím: ArrowLeft / ArrowRight
@@ -551,7 +587,14 @@ export function IslandStationsExplorerView({
           {/* Cảnh quan đảo không background, mở rộng thoáng đãng tự nhiên trên nền thế giới */}
           <div
             key={currentIsland.canonicalSlug}
-            className="w-full h-full flex items-center justify-center transition-all duration-300 ease-out animate-fadeIn pointer-events-none"
+            className={cn(
+              'w-full h-full flex items-center justify-center transition-all duration-300 ease-out pointer-events-none',
+              voyageDirection === 'next'
+                ? 'animate-voyage-next'
+                : voyageDirection === 'prev'
+                ? 'animate-voyage-prev'
+                : 'animate-fadeIn',
+            )}
           >
             <img
               src={currentIsland.scene || designerAssets.worldScenes.promptKeys}
@@ -566,13 +609,16 @@ export function IslandStationsExplorerView({
             onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="relative mb-0.5 px-3 py-1 rounded-full bg-white/95 text-zinc-800 text-[11px] sm:text-xs font-black shadow-xs flex items-center gap-1 animate-bounce-subtle whitespace-nowrap border border-amber-200">
-              <span>Mee chào con!</span>
+              <span>{isVoyaging ? `Tiến đến ${currentIsland.title}!` : 'Mee chào con!'}</span>
               <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
             </div>
             <img
               src={designerAssets.catPoses.welcome}
               alt="Mèo Mee"
-              className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain drop-shadow-md cursor-pointer hover:scale-105 transition-all"
+              className={cn(
+                'w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain drop-shadow-md cursor-pointer hover:scale-105 transition-all',
+                isVoyaging && 'animate-bounce-subtle',
+              )}
             />
           </div>
 
@@ -801,6 +847,28 @@ export function IslandStationsExplorerView({
                   <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
                   <span>Rương Báu Đã Mở • Vinh Danh Thám Hiểm Xuất Sắc</span>
                 </div>
+
+                {/* Nút Tiến lên đảo tiếp theo hoặc Nhận bằng khen tốt nghiệp */}
+                {currentIslandIndex < 5 ? (
+                  <button
+                    type="button"
+                    onClick={goToNextIsland}
+                    className="mt-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white font-display font-black text-sm sm:text-base shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2 animate-bounce-subtle"
+                  >
+                    <Sparkles className="w-4 h-4 text-yellow-200" />
+                    <span>Tiến Lên Đảo Tiếp Theo ➔</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsCertModalOpen(true)}
+                    className="mt-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-900 font-display font-black text-base sm:text-lg shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5 animate-pulse-subtle ring-4 ring-amber-200/70"
+                  >
+                    <span>🎓</span>
+                    <span>Nhận Giấy Chứng Nhận Tốt Nghiệp</span>
+                    <Sparkles className="w-5 h-5 text-amber-900" />
+                  </button>
+                )}
               </div>
             ) : (
               /* Mốc Rương Báu Đích Đến khi đang thám hiểm */
@@ -829,6 +897,16 @@ export function IslandStationsExplorerView({
           </div>
         </div>
       </section>
+
+      {/* ── MODAL TRAO CHỨNG CHỈ TỐT NGHIỆP ── */}
+      <CourseCertificateModal
+        isOpen={isCertModalOpen}
+        onClose={() => setIsCertModalOpen(false)}
+        courseTitle="Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)"
+        islandTitle="Tốt Nghiệp Xuất Sắc Toàn Khóa"
+        stars={meta.totalStars || 30}
+        xp={meta.completedCount * 50 || 1500}
+      />
     </div>
   )
 }
