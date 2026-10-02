@@ -178,7 +178,9 @@ describe('ParentDashboardTab Component', () => {
     expect(document.body.textContent).toContain('🎯 10 trạm')
 
     // Action buttons
-    expect(document.body.textContent).toContain('🚀 Chạm để vào học ngay')
+    expect(document.body.textContent).toContain('Chạm để vào học ngay')
+    expect(document.body.textContent).not.toContain('🚀')
+    expect(document.body.textContent).not.toContain('👨‍👩‍👧‍👦')
     expect(document.body.textContent).toContain('Xem tiến độ học tập')
     expect(document.body.textContent).toContain('+ Thêm bé mới')
   })
@@ -195,7 +197,8 @@ describe('ParentDashboardTab Component', () => {
     })
 
     // Collapsible accordion button
-    expect(document.body.textContent).toContain('🛡️ Cài đặt & Phân quyền an toàn')
+    expect(document.body.textContent).toContain('Cài đặt & Phân quyền an toàn')
+    expect(document.body.textContent).not.toContain('🛡️')
 
     // Initially collapsed: consent switches are not visible
     expect(document.body.textContent).not.toContain('Cho phép AI tạo ảnh')

@@ -13,7 +13,6 @@ import {
   MessageSquareText,
   Plus,
   RefreshCw,
-  ShieldCheck,
   TrendingUp,
   TimerReset,
   Trophy,
@@ -173,14 +172,7 @@ type LearningData = {
     policy: AgeExperiencePolicy | null
   }
 }
-type Section = 'overview' | 'credentials' | 'growth' | 'pathway' | 'activity' | 'feedback'
-
-const levelLabels = {
-  no_data: 'Chưa có dữ liệu',
-  not_met: 'Cần thêm trải nghiệm',
-  developing: 'Đang phát triển',
-  achieved: 'Đã thể hiện tốt',
-} as const
+type Section = 'overview' | 'credentials' | 'pathway' | 'activity' | 'feedback' | 'growth'
 
 // ── 6 Đảo Sáng Tạo Canonical Definitions ───────────────────────
 export const SIX_ISLANDS = [
@@ -289,6 +281,7 @@ export function ParentLearningPage() {
   const [children, setChildren] = useState<Child[]>(initialKids)
   const [studentId, setStudentId] = useState(initialChildId)
   const [section, setSection] = useState<Section>('overview')
+  const activeSection = section === 'growth' ? 'overview' : section
   const [data, setData] = useState<LearningData | null>(initialCachedData)
   const dataRef = useRef<LearningData | null>(initialCachedData)
   useEffect(() => {
@@ -330,11 +323,11 @@ export function ParentLearningPage() {
 
   // Mark seen when parent actively views feedback section
   useEffect(() => {
-    if (section === 'feedback' && studentId) {
+    if (activeSection === 'feedback' && studentId) {
       feedbackBadge.markSeen(studentId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [section, studentId])
+  }, [activeSection, studentId])
 
   useEffect(() => {
     const cachedDash = getDashboardCache()
@@ -691,7 +684,6 @@ export function ParentLearningPage() {
           [
             ['overview', 'Khóa học AIKid', Compass],
             ['credentials', 'Bằng khen & Chứng nhận', Trophy],
-            ['growth', 'Năng lực & Nhận xét', Award],
             ['activity', 'Hoạt động', Activity],
             ['pathway', 'Lộ trình', MapIcon],
             ['feedback', 'Nhận xét', MessageSquareText],
@@ -701,10 +693,10 @@ export function ParentLearningPage() {
             key={key}
             type="button"
             role="tab"
-            aria-selected={section === key}
+            aria-selected={activeSection === key}
             className={cn(
               'flex min-h-11 shrink-0 items-center gap-2 rounded-2xl px-4 text-xs sm:text-sm font-extrabold transition-all duration-200 border-2',
-              section === key
+              activeSection === key
                 ? 'bg-brand-500 text-white border-brand-600 shadow-clay'
                 : 'bg-white text-slate-700 border-cream-200 hover:bg-amber-50 hover:border-amber-300',
             )}
@@ -734,9 +726,9 @@ export function ParentLearningPage() {
         <PageSkeleton rows={4} />
       ) : error ? (
         <ErrorState message={error} onRetry={() => void load()} />
-      ) : section === 'feedback' && studentId ? (
+      ) : activeSection === 'feedback' && studentId ? (
         <ParentTeacherFeedbackSection childId={studentId} />
-      ) : data && section === 'overview' ? (
+      ) : data && activeSection === 'overview' ? (
         <LearningOverview
           child={selectedChild}
           pathway={data.pathway}
@@ -750,7 +742,7 @@ export function ParentLearningPage() {
           onTopupCredits={() => handleOpenUpgrade('credits')}
           onEnterChild={() => void handleEnterChild(studentId)}
         />
-      ) : data && section === 'credentials' ? (
+      ) : data && activeSection === 'credentials' ? (
         <CredentialsShowcase
           child={selectedChild}
           credentials={data.credentials}
@@ -759,16 +751,7 @@ export function ParentLearningPage() {
           busy={busy}
           onDownload={downloadCredential}
         />
-      ) : data && section === 'growth' ? (
-        <GrowthAndFeedbackSection
-          child={selectedChild}
-          competency={data.competency}
-          credentials={data.credentials}
-          ageExperience={data.ageExperience}
-          busy={busy}
-          onDownload={downloadCredential}
-        />
-      ) : data && section === 'pathway' ? (
+      ) : data && activeSection === 'pathway' ? (
         <div className="grid gap-5">
           <PathwaySection pathway={data.pathway} />
           <CourseSelectionSection
@@ -779,7 +762,7 @@ export function ParentLearningPage() {
             onUpgrade={() => handleOpenUpgrade('sub')}
           />
         </div>
-      ) : data && section === 'activity' ? (
+      ) : data && activeSection === 'activity' ? (
         <LearningActivitySection studentId={studentId} initialProgress={data.progress} />
       ) : null}
 
@@ -1243,188 +1226,6 @@ function CredentialsShowcase({
   )
 }
 
-// ── Tab 3: Năng Lực & Nhận Xét ────────────────────────────────
-function GrowthAndFeedbackSection({
-  child,
-  competency,
-  credentials,
-  ageExperience,
-  busy,
-  onDownload,
-}: {
-  child: Child | null
-  competency: CompetencyMap
-  credentials: Credential[]
-  ageExperience: LearningData['ageExperience']
-  busy: boolean
-  onDownload: (credential: Credential) => void
-}) {
-  const childName = child?.nickname ?? 'Bé'
-  const levelWidth = { no_data: 0, not_met: 25, developing: 62, achieved: 100 } as const
-
-  return (
-    <div className="grid gap-6">
-      {/* 3 Trụ Cột Năng Lực AI Kids Chuẩn Montessori */}
-      <section className="rounded-3xl border-2 border-brand-100 bg-gradient-to-b from-brand-50/50 via-white to-white p-5 sm:p-6 shadow-soft">
-        <div className="flex items-center gap-3 border-b border-brand-100/70 pb-3 mb-5">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft text-lg">
-            📊
-          </span>
-          <div>
-            <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
-              Đánh Giá Năng Lực Của {childName}
-            </h2>
-            <p className="text-xs text-muted">
-              Đánh giá năng lực tư duy AI, đạo đức số và khả năng biểu đạt sáng tạo qua từng chặng học.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          {/* Cột 1: Tư duy Prompt */}
-          <div className="rounded-2xl border border-sky-200/90 bg-sky-50/70 p-4 shadow-2xs">
-            <span className="text-xs font-black text-sky-700 uppercase tracking-wide">
-              Tư Duy Prompt & Ngôn Ngữ AI
-            </span>
-            <p className="text-xl font-black text-sky-950 font-display mt-1">95% · Xuất Sắc</p>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-              Biết cách diễn đạt ý tưởng mạch lạc, nắm chắc cấu trúc 4 chìa khóa vàng để ra lệnh cho AI.
-            </p>
-          </div>
-
-          {/* Cột 2: Đạo đức số */}
-          <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/70 p-4 shadow-2xs">
-            <span className="text-xs font-black text-emerald-700 uppercase tracking-wide">
-              Đạo Đức Số & An Toàn AI
-            </span>
-            <p className="text-xl font-black text-emerald-950 font-display mt-1">100% · Đạt Chuẩn</p>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-              Hoàn thành xuất sắc 10 Quy tắc vàng, luôn bảo mật thông tin cá nhân và tôn trọng tác quyền số.
-            </p>
-          </div>
-
-          {/* Cột 3: Thẩm mỹ & Storyboard */}
-          <div className="rounded-2xl border border-purple-200/90 bg-purple-50/70 p-4 shadow-2xs">
-            <span className="text-xs font-black text-purple-700 uppercase tracking-wide">
-              Thẩm Mỹ & Storyboard Sáng Tạo
-            </span>
-            <p className="text-xl font-black text-purple-950 font-display mt-1">88% · Đang Bứt Phá</p>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-              Phối hợp màu sắc hài hòa, tư duy bố cục đa khung hình và kể chuyện mạch lạc qua từng ô tranh.
-            </p>
-          </div>
-        </div>
-
-        {/* Lời Nhắn Ấm Áp Từ Ban Sư Phạm */}
-        <div className="mt-5 rounded-2xl border border-amber-200/90 bg-amber-50/80 p-4 sm:p-5 shadow-2xs flex items-start gap-3.5">
-          <span className="text-3xl shrink-0">🐱</span>
-          <div>
-            <h4 className="font-display text-sm sm:text-base font-black text-amber-950">
-              Nhận xét ấm áp từ Mèo AIKI & Ban Sư Phạm AI Kids
-            </h4>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mt-1">
-              "Bé {childName} có trí tưởng tượng phong phú và tư duy phản biện rất tốt khi giao tiếp với AI. Bé luôn có ý thức tự bảo vệ thông tin cá nhân và biết cách biến những suy nghĩ sáng tạo thành những tác phẩm tranh truyện rực rỡ!"
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Khung Năng Lực Chi Tiết từ LMS */}
-      <section className="ui-card p-5">
-        <div className="mb-4 flex items-start gap-3">
-          <ShieldCheck className="text-brand-500" aria-hidden="true" />
-          <div>
-            <h3 className="font-display text-xl font-bold">Bản đồ năng lực hệ thống</h3>
-            <p className="text-sm text-muted">
-              "Chưa có dữ liệu" được giữ riêng, không quy đổi thành điểm 0.
-            </p>
-          </div>
-        </div>
-        {competency.status === 'configuration_required' ? (
-          <div className="rounded-2xl bg-sun-50 p-4 text-sm text-warning">
-            Nhà trường chưa công bố khung năng lực. Hệ thống không tự đặt tên miền năng lực thay khách hàng.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {competency.frameworks.map((framework) => (
-              <article key={framework.id}>
-                <h4 className="font-bold">{framework.name}</h4>
-                <div className="mt-3 space-y-3">
-                  {framework.domains.map((domain) => (
-                    <div key={domain.id} className="rounded-3xl border border-border bg-page p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-display text-lg text-brand-800">{domain.name}</p>
-                        <span className="text-xs font-bold text-muted">
-                          {domain.skills.reduce((sum, skill) => sum + skill.result.evidenceCount, 0)} bằng chứng
-                        </span>
-                      </div>
-                      <div className="mt-3 grid gap-3">
-                        {domain.skills.map((skill) => (
-                          <div key={skill.id} className="rounded-2xl bg-white p-4 shadow-soft">
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="font-bold">{skill.learnerLabel || skill.name}</p>
-                              <span
-                                className={cn(
-                                  'rounded-full px-2 py-0.5 text-xs font-bold',
-                                  skill.result.level === 'achieved'
-                                    ? 'bg-mint-100 text-success'
-                                    : skill.result.level === 'developing'
-                                      ? 'bg-sun-100 text-warning'
-                                      : 'bg-sky-100 text-muted',
-                                )}
-                              >
-                                {ageExperience.policy?.copyPolicy.competencyLevelLabels[
-                                  skill.result.level
-                                ] ?? levelLabels[skill.result.level]}
-                              </span>
-                            </div>
-                            <div
-                              className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50"
-                              role="progressbar"
-                              aria-label={`${skill.learnerLabel || skill.name}: ${levelLabels[skill.result.level]}`}
-                              aria-valuenow={levelWidth[skill.result.level]}
-                              aria-valuemin={0}
-                              aria-valuemax={100}
-                            >
-                              <div
-                                className={cn(
-                                  'h-full rounded-full',
-                                  skill.result.level === 'achieved'
-                                    ? 'bg-mint-500'
-                                    : skill.result.level === 'developing'
-                                      ? 'bg-sun-400'
-                                      : 'bg-sky-300',
-                                )}
-                                style={{ width: `${levelWidth[skill.result.level]}%` }}
-                              />
-                            </div>
-                            <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted">
-                              <span>
-                                {skill.result.evidenceCount === 0
-                                  ? 'Cần thêm trải nghiệm để đánh giá'
-                                  : `${skill.result.evidenceCount} bằng chứng học tập`}
-                              </span>
-                              {skill.result.scorePercent !== null && (
-                                <span className="font-bold">
-                                  Kết quả gần nhất {skill.result.scorePercent}%
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs leading-relaxed text-muted">{framework.disclaimer}</p>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  )
-}
 
 function LearningActivitySection({
   studentId,

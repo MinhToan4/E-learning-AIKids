@@ -183,7 +183,7 @@ export function CourseSelectModal({
               Lộ trình của {child.nickname ?? 'con'}
             </h2>
             <p className="text-xs text-muted mt-0.5">
-              Bật khóa học → con thấy và học được ngay. Tắt → ẩn khỏi lộ trình.
+              Bật khóa học để con thấy và học được ngay. Tắt để ẩn khỏi lộ trình.
             </p>
           </div>
           <button

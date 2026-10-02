@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Compass, CreditCard, ExternalLink, Palette, Users } from 'lucide-react'
+import { Check, CreditCard, ExternalLink, Palette } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
@@ -120,6 +120,18 @@ export function ParentPlanTab({
   const isPaid = Boolean(sub && sub.planCode && sub.planCode !== 'free')
   const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
 
+  const isCurrentPlan = (pCode: string) => {
+    if (!sub) return false
+    if (sub.planCode === pCode) return true
+    if (
+      (sub.planCode === 'aikids_pro' || sub.planCode === 'aikids_official_129k') &&
+      (pCode === 'aikids_pro' || pCode === 'aikids_official_129k')
+    ) {
+      return true
+    }
+    return false
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
@@ -129,33 +141,11 @@ export function ParentPlanTab({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
-              👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
+              Góc Phụ Huynh & Gia Đình
             </span>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
               Gói học gia đình
             </span>
-          </div>
-          <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
-            <button
-              type="button"
-              onClick={() => setPricingTab('plans')}
-              className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
-                pricingTab === 'plans' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
-              )}
-            >
-              Gói học định kỳ
-            </button>
-            <button
-              type="button"
-              onClick={() => setPricingTab('credits')}
-              className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
-                pricingTab === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
-              )}
-            >
-              Lượt sáng tạo AI
-            </button>
           </div>
         </div>
         <h1 className="font-display text-2xl font-black text-slate-900 mt-4 sm:text-3xl">
@@ -166,48 +156,33 @@ export function ParentPlanTab({
         </p>
       </header>
 
-      {/* ── 2. Chỉ số tài khoản và gói học quan trọng (Stats Strip) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {/* Số con đang học */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
-          <div className="flex items-center gap-2 text-slate-500 mb-1">
-            <Users size={16} className="text-brand-600" />
-            <span className="text-xs font-extrabold uppercase tracking-wide">Số con đang học</span>
-          </div>
-          <p className="font-display text-xl sm:text-2xl font-black text-slate-900">
-            {sub?.childCount ?? 0}/{sub?.maxChildren ?? 2} ghế
-          </p>
-          <p className="text-[11px] text-muted font-medium mt-0.5">
-            Hồ sơ con trong gia đình
-          </p>
-        </div>
-
-        {/* Lượt tạo ảnh AI */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
-          <div className="flex items-center gap-2 text-slate-500 mb-1">
-            <Palette size={16} className="text-purple-600" />
-            <span className="text-xs font-extrabold uppercase tracking-wide">Lượt tạo ảnh AI</span>
-          </div>
-          <p className="font-display text-xl sm:text-2xl font-black text-purple-700">
-            Còn {aiCredits} lượt
-          </p>
-          <p className="text-[11px] text-muted font-medium mt-0.5">
-            Sáng tạo cùng AIKI Cat
-          </p>
-        </div>
-
-        {/* Vùng mở cùng lúc */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
-          <div className="flex items-center gap-2 text-slate-500 mb-1">
-            <Compass size={16} className="text-amber-600" />
-            <span className="text-xs font-extrabold uppercase tracking-wide">Vùng mở cùng lúc</span>
-          </div>
-          <p className="font-display text-xl sm:text-2xl font-black text-brand-700">
-            {sub?.maxOpenCoursesPerChild ?? 1} vùng / con
-          </p>
-          <p className="text-[11px] text-muted font-medium mt-0.5">
-            vùng học mở cùng lúc / con
-          </p>
+      {/* ── 2. Segmented Control Men Gốm Sang Trọng ──────────── */}
+      <div className="flex items-center justify-start">
+        <div className="inline-flex items-center gap-1.5 rounded-2xl bg-cream-100 p-1.5 border border-cream-200/80 shadow-soft">
+          <button
+            type="button"
+            onClick={() => setPricingTab('plans')}
+            className={cn(
+              'flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer',
+              pricingTab === 'plans'
+                ? 'bg-brand-500 text-white shadow-clay'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
+            )}
+          >
+            <span>💳 Gói học định kỳ</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPricingTab('credits')}
+            className={cn(
+              'flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer',
+              pricingTab === 'credits'
+                ? 'bg-brand-500 text-white shadow-clay'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
+            )}
+          >
+            <span>🎨 Lượt sáng tạo AI</span>
+          </button>
         </div>
       </div>
 
@@ -352,12 +327,15 @@ export function ParentPlanTab({
                 maxOpen > 0
                   ? Math.min(100, Math.round((child.openCourses / maxOpen) * 100))
                   : 100
+              const isFull = child.openCourses >= maxOpen
               return (
                 <article key={child.id} className="rounded-2xl border border-slate-200/80 p-3.5 bg-white shadow-2xs">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-bold text-sm text-slate-900">{child.nickname ?? 'Học viên'}</p>
                     <span className="text-xs font-black text-brand-700">
-                      {child.openCourses}/{maxOpen} vùng
+                      {isFull
+                        ? `${child.openCourses}/${maxOpen} vùng · Đã mở trọn bộ 6 đảo`
+                        : `${child.openCourses}/${maxOpen} vùng`}
                     </span>
                   </div>
                   <div
@@ -369,13 +347,16 @@ export function ParentPlanTab({
                     aria-valuemax={100}
                   >
                     <div
-                      className={cn('h-full rounded-full transition-all duration-300', percent >= 100 ? 'bg-rose-500' : 'bg-brand-500')}
+                      className={cn(
+                        'h-full rounded-full transition-all duration-300',
+                        isFull ? 'bg-emerald-500' : 'bg-brand-500',
+                      )}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
                   <p className="mt-1.5 text-[11px] text-muted font-medium">
-                    {child.openCourses >= maxOpen
-                      ? 'Đã dùng hết hạn mức vùng học.'
+                    {isFull
+                      ? 'Đã kích hoạt toàn bộ các đảo trong khóa học của con.'
                       : `Còn ${maxOpen - child.openCourses} vùng có thể mở.`}
                   </p>
                 </article>
@@ -411,38 +392,16 @@ export function ParentPlanTab({
 
       {/* ── 6. Danh mục các gói & Lượt sáng tạo AI ─────────────── */}
       <div className="pt-2">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4">
           <h3 className="font-display text-lg sm:text-xl font-black text-slate-900">
             {pricingTab === 'plans' ? 'Tất cả các gói học' : 'Gói nạp lượt sáng tạo AI'}
           </h3>
-          <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
-            <button
-              type="button"
-              onClick={() => setPricingTab('plans')}
-              className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
-                pricingTab === 'plans' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
-              )}
-            >
-              Gói học định kỳ
-            </button>
-            <button
-              type="button"
-              onClick={() => setPricingTab('credits')}
-              className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
-                pricingTab === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
-              )}
-            >
-              Lượt sáng tạo AI
-            </button>
-          </div>
         </div>
 
         {pricingTab === 'plans' ? (
           <div className="grid gap-4 md:grid-cols-3">
             {plans.map((p) => {
-              const current = sub?.planCode === p.code
+              const current = isCurrentPlan(p.code)
               const keyFeatures = p.features.slice(0, 3)
               return (
                 <article
@@ -488,19 +447,17 @@ export function ParentPlanTab({
                     disabled={current || busy === p.code}
                     onClick={() => void activate(p.code, p.name, p.priceMonthly)}
                     className={cn(
-                      'w-full py-2.5 font-black text-sm rounded-2xl shadow-clay transition cursor-pointer',
+                      'w-full py-2.5 font-black text-sm rounded-2xl transition',
                       current
-                        ? 'bg-slate-200 text-slate-600 cursor-default'
-                        : 'bg-brand-500 hover:bg-brand-600 text-white',
+                        ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none hover:bg-slate-100'
+                        : 'bg-brand-500 hover:bg-brand-600 text-white shadow-clay cursor-pointer',
                     )}
                   >
                     {current
                       ? 'Gói hiện tại'
                       : busy === p.code
                         ? 'Đang tạo yêu cầu…'
-                        : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild
-                          ? 'Nâng lên gói này'
-                          : 'Chọn gói'}
+                        : 'Chọn gói'}
                   </Button>
                 </article>
               )

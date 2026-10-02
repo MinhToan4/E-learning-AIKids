@@ -26,7 +26,7 @@ describe('adult management surfaces', () => {
     expect(learning).toContain('Lịch sử gần đây')
     expect(learning).toContain('Nhịp học & thời lượng')
     expect(learning).toContain('Không dùng sao hoặc XP để suy đoán thời gian học.')
-    expect(learning).toContain('Cần thêm trải nghiệm để đánh giá')
+    expect(learning).not.toContain('Năng lực & Nhận xét')
     expect(learning).toContain('Chọn chương trình cho con')
     expect(learning).toContain("'Chọn vùng học'")
     expect(learning).toContain('Đăng ký vùng này')
@@ -100,7 +100,8 @@ describe('adult management surfaces', () => {
     expect(parent).toContain('Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc')
     expect(parent).toContain('Mức sử dụng của gia đình')
     expect(parent).toContain('vùng học mở cùng lúc / con')
-    expect(parent).toContain('Nâng lên gói này')
+    expect(parent).toContain('Gói hiện tại')
+    expect(parent).toContain('Chọn gói')
     expect(parent).toContain('Hoàn tất nâng gói')
   })
 

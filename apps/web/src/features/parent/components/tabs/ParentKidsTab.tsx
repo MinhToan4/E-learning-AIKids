@@ -177,9 +177,9 @@ export function ParentKidsTab() {
       </header>
 
       {/* Grid of child cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
         {kids.length === 0 && (
-          <div className="ui-card p-6 text-center sm:col-span-2 xl:col-span-3">
+          <div className="ui-card p-6 text-center md:col-span-2 xl:col-span-3">
             <Baby className="mx-auto text-brand-500" size={36} aria-hidden="true" />
             <p className="mt-2 font-bold">Chưa có con nào</p>
             <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
@@ -207,9 +207,45 @@ export function ParentKidsTab() {
                 !k.active && 'opacity-50',
               )}
             >
-              {/* Card Header: Avatar, Name, Level & Quick Actions */}
-              <div className="flex items-start gap-3.5">
-                <div className="relative">
+              {/* Card Header: Hàng 1 (Trạng thái + Nút công cụ) */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-cream-200/80">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span
+                    className={cn(
+                      'h-2.5 w-2.5 shrink-0 rounded-full',
+                      k.active !== false ? 'bg-emerald-500 ring-2 ring-emerald-100' : 'bg-slate-300',
+                    )}
+                  />
+                  <span className="text-xs font-bold text-slate-600 truncate">
+                    {k.active !== false ? 'Đang hoạt động' : 'Tạm dừng'}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setEditTarget(k)}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-cream-100 hover:text-text transition border border-cream-200/60 shadow-2xs"
+                    title="Chỉnh sửa hồ sơ"
+                    aria-label="Chỉnh sửa hồ sơ con"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(k)}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-coral-50 hover:text-coral-600 transition border border-cream-200/60 shadow-2xs"
+                    title="Tạm khóa"
+                    aria-label="Tạm khóa hồ sơ con"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Card Body: Hàng 2 (Avatar + Khối thông tin rộng rãi) */}
+              <div className="flex items-center gap-3.5 pt-1">
+                <div className="relative shrink-0">
                   <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-b from-sun-100 to-cream-100 text-3xl shadow-soft border-2 border-cream-200">
                     {avatarEmoji(k.avatarId)}
                   </div>
@@ -219,31 +255,8 @@ export function ParentKidsTab() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-display text-lg font-black text-text leading-tight truncate">{k.nickname}</h3>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setEditTarget(k)}
-                        className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-cream-100 hover:text-text transition"
-                        title="Chỉnh sửa hồ sơ"
-                        aria-label="Chỉnh sửa hồ sơ con"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(k)}
-                        className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-coral-50 hover:text-coral-600 transition"
-                        title="Tạm khóa"
-                        aria-label="Tạm khóa hồ sơ con"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-muted font-bold mt-0.5">{k.ageBand || 'Chưa đặt nhóm tuổi'}</p>
+                  <h3 className="font-display text-lg font-black text-text leading-snug break-words">{k.nickname}</h3>
+                  <p className="text-xs text-muted font-bold mt-0.5">{k.ageBand || 'Nhóm 8-11 tuổi'}</p>
 
                   {/* Level XP Bar */}
                   <div className="mt-1.5 flex items-center gap-2">
@@ -258,7 +271,7 @@ export function ParentKidsTab() {
                     </span>
                   </div>
 
-                  <p className="mt-1.5 text-[11px] font-bold text-mint-700">
+                  <p className="mt-1 text-[11px] font-bold text-mint-700">
                     Vào học qua phiên đăng nhập của Ba / Mẹ
                   </p>
                 </div>

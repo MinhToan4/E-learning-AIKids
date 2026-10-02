@@ -552,7 +552,12 @@ export function normalizeAuthGatewayResponse(
     const maxChildrenRaw = Number(plan.maxChildren ?? subscription.maxChildren ?? 0)
     const maxChildren = maxChildrenRaw <= 0 ? 2 : maxChildrenRaw
     const maxOpenRaw = Number(plan.maxOpenCoursesPerChild ?? subscription.maxOpenCoursesPerChild ?? 0)
-    const maxOpenCoursesPerChild = maxOpenRaw <= 0 ? 5 : maxOpenRaw
+    const maxOpenCoursesPerChild =
+      planCode === 'aikids_pro' || planCode === 'aikids_official_129k'
+        ? Math.max(6, maxOpenRaw)
+        : maxOpenRaw <= 0
+          ? 5
+          : maxOpenRaw
     const planName =
       planCode === 'aikids_pro' || planCode === 'aikids_official_129k'
         ? 'AI Kid Chính Thức'
