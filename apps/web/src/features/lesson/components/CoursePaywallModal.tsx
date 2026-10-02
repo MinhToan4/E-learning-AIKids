@@ -20,7 +20,8 @@ export function CoursePaywallModal({
   mode = 'course',
   courseTitle,
 }: CoursePaywallModalProps) {
-  const { priceFormatted } = useOfficialBillingPlan()
+  const { priceFormatted, officialPlan } = useOfficialBillingPlan()
+  const dailyEstimate = Math.round((officialPlan.amountMinor || 129000) / 30)
 
   if (!open) return null
 
@@ -125,7 +126,7 @@ export function CoursePaywallModal({
                 <span className="block text-lg sm:text-xl font-black text-brand-600 font-display">
                   {priceFormatted} / tháng
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-bold text-muted">(Chưa tới 4.500đ/ngày)</span>
+                <span className="text-[10px] sm:text-[11px] font-bold text-muted">(Chưa tới {dailyEstimate.toLocaleString('vi-VN')}đ/ngày)</span>
               </div>
             </div>
 
@@ -140,13 +141,13 @@ export function CoursePaywallModal({
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-coral-100 text-coral-700" aria-hidden="true">
                   <Palette size={13} strokeWidth={2.5} />
                 </span>
-                <span>🎨 50 lượt tạo ảnh AI sáng tạo mỗi tháng (2.000đ/lượt)</span>
+                <span>🎨 {officialPlan.monthlyCreateCredits || 50} lượt tạo ảnh AI sáng tạo mỗi tháng</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-sky-100 text-sky-700" aria-hidden="true">
                   <Users size={13} strokeWidth={2.5} />
                 </span>
-                <span>👫 2 hồ sơ trẻ em trong gia đình cùng học</span>
+                <span>👫 {officialPlan.maxChildren || 2} hồ sơ trẻ em trong gia đình cùng học</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-mint-100 text-mint-700" aria-hidden="true">

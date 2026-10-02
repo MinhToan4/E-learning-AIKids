@@ -120,6 +120,11 @@ export function ParentPlanTab({
   const isPaid = Boolean(sub && sub.planCode && sub.planCode !== 'free')
   const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
 
+  const officialPlan = plans.find((p) => p.code === 'aikids_official_129k' || p.code === 'aikids_pro')
+  const officialPrice = officialPlan?.priceMonthly ?? 129000
+  const officialName = officialPlan?.name || 'Gói AI Kid Chính Thức'
+  const officialPriceFormatted = officialPrice > 0 ? `${officialPrice.toLocaleString('vi-VN')}đ` : 'Miễn phí'
+
   const isCurrentPlan = (pCode: string) => {
     if (!sub) return false
     if (sub.planCode === pCode) return true
@@ -271,9 +276,9 @@ export function ParentPlanTab({
               <Button
                 variant="primary"
                 className="w-full sm:w-auto gap-2 !text-sm font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-2xl py-3 px-6 h-auto cursor-pointer"
-                onClick={() => onOpenCheckout?.('sub', 'aikids_official_129k', 479000, 'Gói AI Kid Chính Thức')}
+                onClick={() => onOpenCheckout?.('sub', officialPlan?.code || 'aikids_official_129k', officialPrice, officialName)}
               >
-                <span>🚀 Kích hoạt Gói AI Kid Chính Thức · 479.000đ</span>
+                <span>Kích hoạt {officialName} · {officialPriceFormatted}</span>
               </Button>
             </div>
           </div>
@@ -296,9 +301,9 @@ export function ParentPlanTab({
               <div className="flex items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-3.5 shadow-2xs">
                 <span className="text-2xl shrink-0">🎨</span>
                 <div>
-                  <p className="font-display text-sm font-black text-slate-900">50 lượt tạo ảnh AI</p>
+                  <p className="font-display text-sm font-black text-slate-900">{officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI</p>
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                    50 lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.
+                    {officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.
                   </p>
                 </div>
               </div>

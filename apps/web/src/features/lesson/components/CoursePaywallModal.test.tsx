@@ -9,8 +9,16 @@ import { CoursePaywallModal } from './CoursePaywallModal'
 describe('CoursePaywallModal Component', () => {
   let container: HTMLDivElement
   let root: Root
+  let storageMap: Map<string, string>
 
   beforeEach(() => {
+    storageMap = new Map()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storageMap.get(key) ?? null,
+      setItem: (key: string, value: string) => storageMap.set(key, String(value)),
+      removeItem: (key: string) => storageMap.delete(key),
+      clear: () => storageMap.clear(),
+    })
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
@@ -23,6 +31,7 @@ describe('CoursePaywallModal Component', () => {
     })
     container.remove()
     document.body.innerHTML = ''
+    vi.unstubAllGlobals()
   })
 
   it('renders nothing when open is false', () => {
@@ -64,7 +73,7 @@ describe('CoursePaywallModal Component', () => {
 
     // 129k price and benefits
     expect(document.body.textContent).toContain('129.000đ / tháng')
-    expect(document.body.textContent).toContain('Chưa tới 4.500đ/ngày')
+    expect(document.body.textContent).toContain('Chưa tới 4.300đ/ngày')
     expect(document.body.textContent).toContain('Trọn bộ Khóa học AI Kid chính thức')
     expect(document.body.textContent).toContain('50 lượt tạo ảnh AI sáng tạo mỗi tháng')
     expect(document.body.textContent).toContain('2 hồ sơ trẻ em trong gia đình cùng học')
@@ -183,5 +192,49 @@ describe('CoursePaywallModal Component', () => {
     })
 
     expect(document.body.textContent).toContain('Mở Khóa Đảo Hoạ Sĩ Kỳ Diệu')
+  })
+
+  it('dynamically updates price, daily estimate, AI credits and children limit when Admin updates the plan', () => {
+    act(() => {
+      root.render(
+        createElement(CoursePaywallModal, {
+          open: true,
+          onClose: vi.fn(),
+          onUpgrade: vi.fn(),
+          onContinueFree: vi.fn(),
+          mode: 'course',
+        }),
+      )
+    })
+
+    // Initially standard
+    expect(document.body.textContent).toContain('129.000đ / tháng')
+    expect(document.body.textContent).toContain('Chưa tới 4.300đ/ngày')
+    expect(document.body.textContent).toContain('50 lượt tạo ảnh AI sáng tạo mỗi tháng')
+    expect(document.body.textContent).toContain('2 hồ sơ trẻ em trong gia đình cùng học')
+
+    // Admin updates official plan in PlanEditorModal (e.g., 180.000đ, 80 credits, 3 children)
+    act(() => {
+      const customPlans = [
+        {
+          id: 'aikids_official_129k',
+          name: 'AI Kid Chính Thức',
+          currency: 'vnd',
+          amountMinor: 180000,
+          monthlyCreateCredits: 80,
+          maxChildren: 3,
+          requiresPayment: true,
+          features: [],
+        },
+      ]
+      localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(customPlans))
+      window.dispatchEvent(new CustomEvent('aikids:billing-plans-updated'))
+    })
+
+    // Dynamic updates reflected
+    expect(document.body.textContent).toContain('180.000đ / tháng')
+    expect(document.body.textContent).toContain('Chưa tới 6.000đ/ngày')
+    expect(document.body.textContent).toContain('80 lượt tạo ảnh AI sáng tạo mỗi tháng')
+    expect(document.body.textContent).toContain('3 hồ sơ trẻ em trong gia đình cùng học')
   })
 })

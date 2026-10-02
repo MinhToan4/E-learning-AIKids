@@ -57,6 +57,7 @@ export type PlanRow = {
   priceMonthly: number
   currency: string
   features: string[]
+  monthlyCreateCredits?: number
 }
 
 export type ChildPlanUsage = {
