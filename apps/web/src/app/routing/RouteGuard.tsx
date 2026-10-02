@@ -60,18 +60,18 @@ export function RouteGuard({
           />
           <h1 className="font-display text-2xl text-ink">Chưa kết nối được phiên học</h1>
           <p className="mt-2 text-sm text-muted">{error}</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-6 flex w-full flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
             <button
               type="button"
-              className="ui-btn ui-btn-primary"
+              className="ui-btn ui-btn-primary w-full sm:w-auto h-11 px-5 whitespace-nowrap"
               onClick={() => void bootstrap()}
             >
               Thử kết nối lại
             </button>
-            <Link to="/login" className="ui-btn ui-btn-secondary">
+            <Link to="/login" className="ui-btn ui-btn-secondary w-full sm:w-auto h-11 px-5 whitespace-nowrap">
               Đăng nhập lại
             </Link>
-            <Link to="/" className="ui-btn ui-btn-ghost">
+            <Link to="/" className="ui-btn ui-btn-ghost w-full sm:w-auto h-11 px-5 whitespace-nowrap">
               Về trang giới thiệu
             </Link>
           </div>

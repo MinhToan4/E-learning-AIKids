@@ -254,11 +254,21 @@ function EditUserModal({
             </div>
           </div>
 
-          <div className="mt-2 flex justify-end gap-3 border-t border-border/60 pt-4">
-            <Button type="button" variant="secondary" onClick={onClose}>
+          <div className="mt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 border-t border-border/60 pt-4 w-full">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+            >
               Hủy
             </Button>
-            <Button type="submit">Lưu thay đổi</Button>
+            <Button
+              type="submit"
+              className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+            >
+              Lưu thay đổi
+            </Button>
           </div>
         </form>
       </div>
@@ -890,11 +900,19 @@ export function AdminStaffTab() {
                 />
               </label>
 
-              <div className="mt-2 flex items-center justify-end gap-2.5 border-t border-border/70 pt-4">
-                <Button type="button" variant="secondary" onClick={() => setShowCreateModal(false)}>
+              <div className="mt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 border-t border-border/70 pt-4 w-full">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowCreateModal(false)}
+                  className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+                >
                   Hủy bỏ
                 </Button>
-                <Button type="submit" className="shadow-sm">
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto h-11 px-5 shadow-sm whitespace-nowrap inline-flex items-center justify-center"
+                >
                   Xác nhận tạo cán bộ
                 </Button>
               </div>

@@ -1239,16 +1239,21 @@ export function ClassManagementConsole({ canManageClass = true }: ClassManagemen
                 Hệ thống sẽ liên kết tài khoản học sinh tương ứng với biệt danh này vào lớp {classInfo.name}.
               </p>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2 w-full">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setShowAddModal(false)}
                   disabled={submittingStudent}
+                  className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
                 >
                   Hủy
                 </Button>
-                <Button type="submit" disabled={submittingStudent}>
+                <Button
+                  type="submit"
+                  disabled={submittingStudent}
+                  className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+                >
                   {submittingStudent ? 'Đang thêm…' : 'Thêm vào lớp'}
                 </Button>
               </div>
@@ -1312,16 +1317,21 @@ export function ClassManagementConsole({ canManageClass = true }: ClassManagemen
                 />
               </label>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2 w-full">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setShowSettingsModal(false)}
                   disabled={savingClass}
+                  className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
                 >
                   Hủy
                 </Button>
-                <Button type="submit" disabled={savingClass}>
+                <Button
+                  type="submit"
+                  disabled={savingClass}
+                  className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+                >
                   {savingClass ? 'Đang lưu…' : 'Lưu cài đặt'}
                 </Button>
               </div>
@@ -1358,18 +1368,19 @@ export function ClassManagementConsole({ canManageClass = true }: ClassManagemen
               Lưu ý: Thao tác này chỉ hủy liên kết của bé với lớp học hiện tại, không xóa tài khoản hay dữ liệu tiến độ của bé.
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-3">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 w-full">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => setRemoveTarget(null)}
                 disabled={removingStudent}
+                className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
               >
                 Hủy
               </Button>
               <Button
                 type="button"
-                className="bg-danger text-white hover:bg-rose-700"
+                className="w-full sm:w-auto h-11 px-5 bg-danger text-white hover:bg-rose-700 whitespace-nowrap inline-flex items-center justify-center"
                 onClick={() => void handleRemoveStudent()}
                 disabled={removingStudent}
               >
@@ -1521,8 +1532,12 @@ export function ClassManagementConsole({ canManageClass = true }: ClassManagemen
               </div>
             ) : null}
 
-            <div className="border-t border-border pt-3 flex justify-end shrink-0">
-              <Button variant="secondary" onClick={handleCloseProgress}>
+            <div className="border-t border-border pt-3 flex flex-col-reverse sm:flex-row justify-end gap-2.5 shrink-0 w-full">
+              <Button
+                variant="secondary"
+                onClick={handleCloseProgress}
+                className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+              >
                 Đóng
               </Button>
             </div>

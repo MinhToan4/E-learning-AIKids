@@ -79,14 +79,26 @@ export class AppErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button variant="primary" onClick={this.retry}>
+            <div className="mt-6 flex w-full flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
+              <Button
+                variant="primary"
+                onClick={this.retry}
+                className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+              >
                 Tải lại trang
               </Button>
-              <Button variant="secondary" onClick={this.goLogin}>
+              <Button
+                variant="secondary"
+                onClick={this.goLogin}
+                className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+              >
                 Về trang đăng nhập
               </Button>
-              <Button variant="ghost" onClick={this.goHome}>
+              <Button
+                variant="ghost"
+                onClick={this.goHome}
+                className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center text-slate-600 hover:text-slate-900"
+              >
                 Về trang chủ
               </Button>
             </div>

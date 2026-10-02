@@ -110,27 +110,41 @@ export function LessonCelebrationModal({
       )}
 
       {/* Action buttons */}
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 sm:gap-3 w-full">
         {checkResult.nextQuestId && onNextQuest && (
-          <Button onClick={() => onNextQuest(checkResult.nextQuestId!)}>
+          <Button
+            onClick={() => onNextQuest(checkResult.nextQuestId!)}
+            className="w-full sm:w-auto min-h-[44px] px-5 whitespace-nowrap inline-flex items-center justify-center"
+          >
             <Play size={18} aria-hidden="true" />
             Trạm tiếp theo
           </Button>
         )}
         {onBackToMap && (
-          <Button variant="secondary" onClick={onBackToMap}>
+          <Button
+            variant="secondary"
+            onClick={onBackToMap}
+            className="w-full sm:w-auto min-h-[44px] px-5 whitespace-nowrap inline-flex items-center justify-center"
+          >
             <NavWorldIcon size={18} aria-hidden="true" />
             Về bản đồ
           </Button>
         )}
         {checkResult.stars < 3 && onRetry && (
-          <Button onClick={onRetry}>
+          <Button
+            onClick={onRetry}
+            className="w-full sm:w-auto min-h-[44px] px-5 whitespace-nowrap inline-flex items-center justify-center"
+          >
             <Star size={18} aria-hidden="true" />
             {checkResult.stars === 0 ? 'Thử lại để nhận sao' : 'Thử lại để nâng sao'}
           </Button>
         )}
         {onReview && (
-          <Button variant="ghost" onClick={onReview}>
+          <Button
+            variant="ghost"
+            onClick={onReview}
+            className="w-full sm:w-auto min-h-[44px] px-5 whitespace-nowrap inline-flex items-center justify-center text-slate-600 hover:text-slate-900"
+          >
             Xem lại bài
           </Button>
         )}

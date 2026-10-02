@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
+import { cn } from '@/shared/lib/cn'
 
 type Props = {
   open: boolean
@@ -59,12 +60,20 @@ export function ConfirmDialog({
       className="!max-w-md"
       actions={
         <>
-          <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
+          <Button
+            ref={cancelRef}
+            variant="secondary"
+            className="whitespace-nowrap min-h-[44px] h-11 sm:h-12 px-5"
+            onClick={onCancel}
+          >
             {cancelLabel}
           </Button>
           <Button
             variant={danger ? 'ghost' : 'primary'}
-            className={danger ? 'text-danger hover:bg-coral-100' : ''}
+            className={cn(
+              'whitespace-nowrap min-h-[44px] h-11 sm:h-12 px-5',
+              danger ? 'text-danger hover:bg-coral-100' : '',
+            )}
             onClick={onConfirm}
           >
             {confirmLabel}

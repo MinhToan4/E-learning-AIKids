@@ -129,7 +129,7 @@ export function ErrorState({
     >
       {/* Decorative top soft badge */}
       <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">
-        ✨ Chuyến thám hiểm tạm dừng một chút
+        🧭 Chuyến thám hiểm tạm dừng một chút
       </span>
 
       {/* Mascot illustration */}
@@ -163,12 +163,12 @@ export function ErrorState({
       )}
 
       {/* Action buttons row with escape hatches */}
-      <div className="mt-6 flex w-full flex-wrap items-center justify-center gap-3">
+      <div className="mt-6 flex w-full flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
         {onRetry && (
           <Button
             type="button"
             variant="primary"
-            className="flex-1 min-w-[130px] !py-3 shadow-md"
+            className="w-full sm:flex-1 h-11 sm:h-12 !py-0 whitespace-nowrap inline-flex items-center justify-center shadow-md"
             onClick={onRetry}
           >
             <RefreshCw size={16} className="mr-1.5 inline" /> Thử lại
@@ -179,7 +179,7 @@ export function ErrorState({
           <Button
             type="button"
             variant="secondary"
-            className="flex-1 min-w-[130px] !py-3 border-2 border-slate-200"
+            className="w-full sm:flex-1 h-11 sm:h-12 !py-0 whitespace-nowrap border-2 border-slate-200 inline-flex items-center justify-center"
             onClick={handleHome}
           >
             <Home size={16} className="mr-1.5 inline" /> {homeText}
@@ -190,7 +190,7 @@ export function ErrorState({
           <Button
             type="button"
             variant="ghost"
-            className="min-w-[100px] !py-3 text-slate-600 hover:text-slate-900"
+            className="w-full sm:w-auto sm:px-5 h-11 sm:h-12 !py-0 whitespace-nowrap text-slate-600 hover:text-slate-900 inline-flex items-center justify-center"
             onClick={handleBack}
           >
             <ArrowLeft size={16} className="mr-1 inline" /> {backText}

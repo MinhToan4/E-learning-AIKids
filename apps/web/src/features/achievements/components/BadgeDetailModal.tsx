@@ -110,14 +110,14 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
       description={activeItem.description}
       onClose={onClose}
       actions={
-        <div className="flex flex-wrap items-center justify-between gap-2 w-full">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full">
           {activeItem.unlocked && (
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               {pinnedSlotIndex >= 0 ? (
                 <Button
                   variant="secondary"
                   onClick={() => onUnpinFromPodium(activeItem.type)}
-                  className="text-amber-800 border-amber-300 bg-amber-50 hover:bg-amber-100"
+                  className="w-full sm:w-auto min-h-[44px] text-amber-800 border-amber-300 bg-amber-50 hover:bg-amber-100 whitespace-nowrap inline-flex items-center justify-center"
                 >
                   <Pin size={16} className="mr-1.5 fill-current text-amber-600" />
                   Đang ở Vị trí {pinnedSlotIndex + 1} (Gỡ)
@@ -127,7 +127,7 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
                   <Button
                     variant="primary"
                     onClick={() => setIsPinMenuOpen(!isPinMenuOpen)}
-                    className="bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black shadow-press hover:brightness-105"
+                    className="w-full sm:w-auto min-h-[44px] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black shadow-press hover:brightness-105 whitespace-nowrap inline-flex items-center justify-center"
                   >
                     <Pin size={16} className="mr-1.5" />
                     Đặt vào 3 Báu Vật Tự Hào
@@ -144,7 +144,7 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
                           onPinToPodium(activeItem.type, 0)
                           setIsPinMenuOpen(false)
                         }}
-                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors"
+                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors whitespace-nowrap"
                       >
                         ✨ Đặt vào Báu vật 1
                       </button>
@@ -154,7 +154,7 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
                           onPinToPodium(activeItem.type, 1)
                           setIsPinMenuOpen(false)
                         }}
-                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors"
+                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors whitespace-nowrap"
                       >
                         ✨ Đặt vào Báu vật 2
                       </button>
@@ -164,7 +164,7 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
                           onPinToPodium(activeItem.type, 2)
                           setIsPinMenuOpen(false)
                         }}
-                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors"
+                        className="flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-black text-slate-800 hover:bg-amber-50 text-left transition-colors whitespace-nowrap"
                       >
                         ✨ Đặt vào Báu vật 3
                       </button>
@@ -175,7 +175,11 @@ export const BadgeDetailModal = memo(function BadgeDetailModal({
             </div>
           )}
 
-          <Button variant="secondary" onClick={onClose}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            className="w-full sm:w-auto min-h-[44px] whitespace-nowrap inline-flex items-center justify-center"
+          >
             Đóng
           </Button>
         </div>

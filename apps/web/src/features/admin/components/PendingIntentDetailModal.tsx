@@ -272,17 +272,17 @@ export function PendingIntentDetailModal({
         </div>
 
         {/* ── 6. NÚT HÀNH ĐỘNG ── */}
-        <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-4 border-t border-border/60">
+        <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-4 border-t border-border/60 w-full">
           <Button
             variant="secondary"
             onClick={onClose}
             disabled={confirming}
-            className="w-full sm:w-auto rounded-xl font-bold"
+            className="w-full sm:w-auto h-11 px-5 rounded-xl font-bold whitespace-nowrap inline-flex items-center justify-center"
           >
             Đóng
           </Button>
           <Button
-            className="w-full sm:w-auto !bg-emerald-600 hover:!bg-emerald-700 !text-white rounded-xl font-black shadow-clay flex items-center justify-center gap-2 py-2.5 px-5"
+            className="w-full sm:w-auto h-11 px-5 !bg-emerald-600 hover:!bg-emerald-700 !text-white rounded-xl font-black shadow-clay inline-flex items-center justify-center gap-2 whitespace-nowrap"
             disabled={confirming}
             onClick={async () => {
               await onConfirm(intent)

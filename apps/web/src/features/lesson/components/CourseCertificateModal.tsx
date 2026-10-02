@@ -181,12 +181,12 @@ export function CourseCertificateModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5 flex-wrap">
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5 flex-wrap w-full">
           <Button
             variant="primary"
             onClick={handleSaveToBackpack}
             disabled={isSaved}
-            className="w-full sm:w-auto px-6 py-2.5 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-clay cursor-pointer"
+            className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-clay cursor-pointer whitespace-nowrap"
           >
             {isSaved ? (
               <>
@@ -204,7 +204,7 @@ export function CourseCertificateModal({
           <a
             href={designerAssets.certificates.graduation}
             download="Chung-Nhan-Tot-Nghiep-AIKids.svg"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 font-black text-sm rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
+            className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 font-black text-sm rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             title="Tải Giấy Chứng Nhận về máy để in ấn"
           >
             <Download size={17} />
@@ -214,7 +214,7 @@ export function CourseCertificateModal({
           <Button
             variant="secondary"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 font-bold text-sm text-slate-600 hover:text-slate-800 cursor-pointer"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 font-bold text-sm text-slate-600 hover:text-slate-800 cursor-pointer whitespace-nowrap"
           >
             ✕ Đóng
           </Button>

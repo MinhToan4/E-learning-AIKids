@@ -1,6 +1,7 @@
-import { Sparkles, Palette, Users, Award, Zap, Paintbrush, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Palette, Users, Award, Zap, Paintbrush } from 'lucide-react'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { Button } from '@/shared/components/ui/Button'
+import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 
 export interface CoursePaywallModalProps {
   open: boolean
@@ -19,6 +20,8 @@ export function CoursePaywallModal({
   mode = 'course',
   courseTitle,
 }: CoursePaywallModalProps) {
+  const { priceFormatted } = useOfficialBillingPlan()
+
   if (!open) return null
 
   const isCreditsMode = mode === 'credits'
@@ -89,7 +92,7 @@ export function CoursePaywallModal({
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
             <Button
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black shadow-clay active:shadow-press"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black shadow-clay active:shadow-press whitespace-nowrap"
               onClick={onUpgrade}
             >
               <Zap size={16} aria-hidden="true" />
@@ -97,7 +100,7 @@ export function CoursePaywallModal({
             </Button>
             <Button
               variant="secondary"
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold whitespace-nowrap"
               onClick={onContinueFree}
             >
               <Paintbrush size={16} aria-hidden="true" />
@@ -120,7 +123,7 @@ export function CoursePaywallModal({
               </div>
               <div className="text-right">
                 <span className="block text-lg sm:text-xl font-black text-brand-600 font-display">
-                  129.000đ / tháng
+                  {priceFormatted} / tháng
                 </span>
                 <span className="text-[10px] sm:text-[11px] font-bold text-muted">(Chưa tới 4.500đ/ngày)</span>
               </div>
@@ -129,7 +132,7 @@ export function CoursePaywallModal({
             <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 text-xs sm:text-sm font-bold text-text">
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-sun-100 text-sun-800" aria-hidden="true">
-                  <Sparkles size={13} strokeWidth={2.5} />
+                  <CheckCircle2 size={13} strokeWidth={2.5} />
                 </span>
                 <span>🌟 Trọn bộ Khóa học AI Kid chính thức (Lộ trình 6 chặng chuẩn Quốc tế)</span>
               </li>
@@ -157,18 +160,17 @@ export function CoursePaywallModal({
           {/* 2 nút hành động */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
             <Button
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black shadow-clay active:shadow-press"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black shadow-clay active:shadow-press whitespace-nowrap"
               onClick={onUpgrade}
             >
-              <Sparkles size={16} aria-hidden="true" />
+              <CheckCircle2 size={16} aria-hidden="true" />
               Ba Mẹ Ơi, Mở Khóa Cho Con!
             </Button>
             <Button
               variant="secondary"
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold whitespace-nowrap"
               onClick={onContinueFree}
             >
-              <ArrowRight size={16} aria-hidden="true" />
               Tiếp Tục Trải Nghiệm Miễn Phí
             </Button>
           </div>

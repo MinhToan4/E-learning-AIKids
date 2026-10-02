@@ -429,7 +429,7 @@ export function ParentSubscriptionCheckoutModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
       style={{ background: 'rgba(20, 26, 48, 0.65)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
       role="presentation"
@@ -595,7 +595,7 @@ export function ParentSubscriptionCheckoutModal({
                     setPartialPayment(null)
                   }}
                   className={cn(
-                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition',
+                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition whitespace-nowrap',
                     productMode === 'sub'
                       ? 'bg-white text-brand-700 shadow-clay'
                       : 'text-muted hover:text-text',
@@ -615,7 +615,7 @@ export function ParentSubscriptionCheckoutModal({
                     setPartialPayment(null)
                   }}
                   className={cn(
-                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition',
+                    'flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition whitespace-nowrap',
                     productMode === 'credits'
                       ? 'bg-white text-brand-700 shadow-clay'
                       : 'text-muted hover:text-text',
@@ -719,7 +719,7 @@ export function ParentSubscriptionCheckoutModal({
                           onClick={() =>
                             copyToClipboard(String(partialPayment.amountDue), 'amountDue')
                           }
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400 bg-white px-3 py-1.5 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 active:scale-[0.98]"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400 bg-white px-3 py-1.5 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 active:scale-[0.98] whitespace-nowrap shrink-0"
                           aria-label="Sao chép số tiền còn thiếu"
                         >
                           {copiedField === 'amountDue' ? (
@@ -762,7 +762,7 @@ export function ParentSubscriptionCheckoutModal({
                       <button
                         type="button"
                         onClick={handleRefreshPayment}
-                        className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-amber-400 bg-white px-3 py-1.5 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 active:scale-[0.98] transition"
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-amber-400 bg-white px-3 py-1.5 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 active:scale-[0.98] transition whitespace-nowrap"
                       >
                         <RefreshCw size={13} />
                         <span>Làm mới mã thanh toán</span>
@@ -787,7 +787,7 @@ export function ParentSubscriptionCheckoutModal({
                   <button
                     type="button"
                     onClick={handleDownloadQr}
-                    className="mt-2.5 inline-flex items-center justify-center gap-1.5 w-full max-w-[220px] rounded-xl border border-brand-300 bg-brand-50/90 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-100 active:scale-[0.98] transition"
+                    className="mt-2.5 inline-flex items-center justify-center gap-1.5 w-full max-w-[220px] rounded-xl border border-brand-300 bg-brand-50/90 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-100 active:scale-[0.98] transition whitespace-nowrap"
                     aria-label="Tải mã QR về máy"
                   >
                     <Download size={14} />
@@ -817,7 +817,7 @@ export function ParentSubscriptionCheckoutModal({
                       <button
                         type="button"
                         onClick={() => copyToClipboard(BANK_INFO.accountNumber, 'account')}
-                        className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100 active:scale-95 transition"
+                        className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100 active:scale-95 transition whitespace-nowrap shrink-0"
                         aria-label="Sao chép số tài khoản"
                       >
                         {copiedField === 'account' ? (
@@ -858,7 +858,7 @@ export function ParentSubscriptionCheckoutModal({
                       <button
                         type="button"
                         onClick={() => copyToClipboard(String(effectiveAmount), 'amount')}
-                        className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100 active:scale-95 transition"
+                        className="flex items-center gap-1 rounded-lg border border-cream-300 bg-cream-50 px-2 py-1 text-[11px] font-bold text-brand-700 hover:bg-cream-100 active:scale-95 transition whitespace-nowrap shrink-0"
                         aria-label="Sao chép số tiền"
                       >
                         {copiedField === 'amount' ? (
@@ -885,7 +885,7 @@ export function ParentSubscriptionCheckoutModal({
                       <button
                         type="button"
                         onClick={() => copyToClipboard(activePaymentCode, 'code')}
-                        className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-900 hover:bg-amber-100 active:scale-95 transition"
+                        className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-900 hover:bg-amber-100 active:scale-95 transition whitespace-nowrap shrink-0"
                         aria-label="Sao chép nội dung chuyển khoản"
                       >
                         {copiedField === 'code' ? (
@@ -907,7 +907,7 @@ export function ParentSubscriptionCheckoutModal({
                   <button
                     type="button"
                     onClick={copyAllPaymentInfo}
-                    className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3 py-2.5 text-xs font-black text-brand-700 shadow-soft hover:bg-cream-100 active:scale-[0.98] transition"
+                    className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3 py-2.5 text-xs font-black text-brand-700 shadow-soft hover:bg-cream-100 active:scale-[0.98] transition whitespace-nowrap"
                     aria-label="Sao chép toàn bộ thông tin chuyển khoản"
                   >
                     {copiedField === 'allInfo' ? (
@@ -943,7 +943,7 @@ export function ParentSubscriptionCheckoutModal({
                     type="button"
                     onClick={() => checkPaymentStatus()}
                     disabled={isPolling}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black text-emerald-800 shadow-soft hover:bg-emerald-100 active:scale-95 disabled:opacity-50 transition"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black text-emerald-800 shadow-soft hover:bg-emerald-100 active:scale-95 disabled:opacity-50 transition whitespace-nowrap shrink-0"
                   >
                     <RefreshCw size={13} className={cn(isPolling && 'animate-spin')} />
                     {isPolling ? 'Đang kiểm tra...' : 'Kiểm tra ngay'}
@@ -967,7 +967,7 @@ export function ParentSubscriptionCheckoutModal({
                         type="button"
                         variant="ghost"
                         onClick={handleManualConfirm}
-                        className="!py-1.5 !px-3 text-xs font-bold border border-cream-300 bg-white hover:bg-cream-100 shadow-soft"
+                        className="!py-1.5 !px-3 text-xs font-bold border border-cream-300 bg-white hover:bg-cream-100 shadow-soft whitespace-nowrap"
                       >
                         <Send size={13} />
                         <span>Tôi đã chuyển khoản xong</span>

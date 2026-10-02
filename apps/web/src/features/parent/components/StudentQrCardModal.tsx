@@ -22,7 +22,7 @@ export function StudentQrCardModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm"
       style={{ background: 'rgba(20, 26, 48, 0.65)' }}
       role="dialog"
       aria-modal="true"
@@ -36,7 +36,7 @@ export function StudentQrCardModal({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-muted hover:bg-white hover:text-text transition shadow-xs"
+            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-muted hover:bg-white hover:text-text transition shadow-xs cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -63,7 +63,11 @@ export function StudentQrCardModal({
           <p className="text-xs text-muted mb-4 px-2 leading-relaxed font-bold">
             Mở camera trên máy tính bảng hoặc điện thoại của con và quét mã này để đăng nhập nhanh không cần mật khẩu.
           </p>
-          <Button variant="secondary" className="w-full font-black text-sm shadow-soft" onClick={onClose}>
+          <Button
+            variant="secondary"
+            className="w-full h-11 font-black text-sm shadow-soft whitespace-nowrap inline-flex items-center justify-center"
+            onClick={onClose}
+          >
             Đóng lại
           </Button>
         </div>

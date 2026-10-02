@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 import { api, ApiError, type User } from '@/shared/lib/api'
@@ -89,9 +90,9 @@ export function ParentGateModal({
 
   if (!open) return null
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[150] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Cổng phụ huynh"
@@ -149,7 +150,7 @@ export function ParentGateModal({
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
-                className="absolute right-1 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-xl text-gray-400 hover:bg-white hover:text-gray-600"
+                className="absolute right-1 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-xl text-gray-400 hover:bg-white hover:text-gray-600 cursor-pointer"
                 aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
                 {showPw ? (
@@ -165,12 +166,12 @@ export function ParentGateModal({
           </div>
 
           {/* Confirm / Cancel */}
-          <div className="mb-5 flex gap-3">
+          <div className="mb-5 flex gap-3 w-full">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 rounded-2xl border-2 border-gray-200 py-3 text-sm font-bold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40"
+              className="flex-1 rounded-2xl border-2 border-gray-200 py-3 min-h-[44px] text-sm font-bold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
             >
               Huỷ
             </button>
@@ -178,7 +179,7 @@ export function ParentGateModal({
               type="button"
               onClick={() => void handleSubmit()}
               disabled={loading || !password.trim()}
-              className="flex-1 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:opacity-90 disabled:opacity-40"
+              className="flex-1 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 py-3 min-h-[44px] text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:opacity-90 disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
             >
               {loading ? '…' : 'Xác nhận'}
             </button>
@@ -196,6 +197,7 @@ export function ParentGateModal({
           80%       { transform: translateX(4px); }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body,
   )
 }

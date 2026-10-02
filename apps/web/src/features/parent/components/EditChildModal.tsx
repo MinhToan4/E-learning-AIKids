@@ -281,12 +281,21 @@ export function EditChildModal({
           )}
 
           {/* Actions — cố định cuối form */}
-          <div className="flex flex-shrink-0 gap-3 pb-1">
-            <Button type="submit" disabled={saving} className="flex-1">
-              {saving ? 'Đang lưu…' : child ? 'Lưu thay đổi' : 'Tạo tài khoản'}
-            </Button>
-            <Button type="button" variant="secondary" onClick={onClose}>
+          <div className="flex flex-col-reverse sm:flex-row flex-shrink-0 gap-2.5 sm:gap-3 pb-1 w-full">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="w-full sm:w-auto h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+            >
               Hủy
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving}
+              className="w-full sm:flex-1 h-11 px-5 whitespace-nowrap inline-flex items-center justify-center"
+            >
+              {saving ? 'Đang lưu…' : child ? 'Lưu thay đổi' : 'Tạo tài khoản'}
             </Button>
           </div>
         </form>

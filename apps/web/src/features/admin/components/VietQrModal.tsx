@@ -193,12 +193,12 @@ export function VietQrModal({ intent, onClose, onConfirmPaid }: VietQrModalProps
         </div>
 
         {/* Nút thao tác */}
-        <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
+        <div className="mt-5 flex flex-col sm:flex-row gap-2.5 w-full">
           <Button
             type="button"
             onClick={handleConfirm}
             disabled={confirming}
-            className="flex-1 !bg-success hover:!bg-success/90 !text-white rounded-2xl shadow-clay"
+            className="w-full sm:flex-1 h-11 px-5 !bg-success hover:!bg-success/90 !text-white rounded-2xl shadow-clay whitespace-nowrap inline-flex items-center justify-center"
           >
             {confirming ? 'Đang xác nhận...' : '⚡ Đã nhận tiền (Xác nhận ngay)'}
           </Button>
@@ -206,7 +206,7 @@ export function VietQrModal({ intent, onClose, onConfirmPaid }: VietQrModalProps
             type="button"
             variant="ghost"
             onClick={onClose}
-            className="sm:w-24 rounded-2xl"
+            className="w-full sm:w-auto sm:min-w-24 h-11 px-5 rounded-2xl whitespace-nowrap inline-flex items-center justify-center"
           >
             Đóng
           </Button>
