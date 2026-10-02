@@ -5,7 +5,6 @@ import {
   Camera,
   CheckCircle2,
   Download,
-  Lock,
   Palette,
   Pencil,
   Plus,
@@ -15,24 +14,20 @@ import {
   Sparkles,
   Trash2,
   Users,
-  Zap,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
-import { StatMetricCard } from '@/shared/components/charts/StatMetricCard'
 import {
   ParentApprovalIcon,
   ParentKidsIcon,
-  ParentQuestIcon,
-  ParentStarsIcon,
 } from '@/shared/components/icons/ParentIcons'
 import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
-import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
+import { EditChildModal } from '@/features/parent/components/EditChildModal'
 import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import { useToast } from '@/shared/hooks/useToast'
@@ -66,11 +61,16 @@ export function ParentDashboardTab({
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
+  const [expandedSafety, setExpandedSafety] = useState<Record<string, boolean>>({})
 
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
   const enterAsChild = useAuth((s) => s.enterAsChild)
   const { toasts, showToast, dismissToast } = useToast()
+
+  const toggleSafety = (childId: string) => {
+    setExpandedSafety((prev) => ({ ...prev, [childId]: !prev[childId] }))
+  }
 
   const load = useCallback(async (silent = false) => {
     const hasCache = Boolean(getDashboardCache())
@@ -194,8 +194,6 @@ export function ParentDashboardTab({
 
   if (error) return <ErrorState message={error} onRetry={() => void load()} inline />
 
-  const totalStars = kids.reduce((s, k) => s + getDerivedStats(k).totalStars, 0)
-  const totalQuests = kids.reduce((s, k) => s + getDerivedStats(k).completedQuests, 0)
   const pendingCount = approvals.length
   const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
 
@@ -217,14 +215,14 @@ export function ParentDashboardTab({
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap h-11 px-4"
+              className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap h-11 px-4 cursor-pointer"
               onClick={() => navigate('/parent/kids')}
             >
               <ParentKidsIcon size={18} /> Quản lý con
             </Button>
             <Button
               variant="ghost"
-              className="gap-2 !text-xs font-bold whitespace-nowrap h-11 px-3"
+              className="gap-2 !text-xs font-bold whitespace-nowrap h-11 px-3 cursor-pointer"
               onClick={() => void load()}
             >
               <RefreshCw size={13} /> Làm mới
@@ -271,14 +269,14 @@ export function ParentDashboardTab({
             <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
               <Button
                 variant="primary"
-                className="flex-1 sm:flex-none gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-11 px-4"
+                className="flex-1 sm:flex-none gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-11 px-4 cursor-pointer"
                 onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
               >
                 <Sparkles size={13} /> Nâng cấp gói
               </Button>
               <Button
                 variant="secondary"
-                className="flex-1 sm:flex-none gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 whitespace-nowrap h-11 px-4"
+                className="flex-1 sm:flex-none gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 whitespace-nowrap h-11 px-4 cursor-pointer"
                 onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
               >
                 Nạp lượt AI
@@ -288,93 +286,32 @@ export function ParentDashboardTab({
         </div>
       </header>
 
-      {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatMetricCard
-          label="Số con theo học"
-          value={kids.length}
-          icon={<ParentKidsIcon size={32} />}
-          color="sky"
-          trend={kids.length > 0 ? { value: `${kids.length} hồ sơ`, isPositive: true } : undefined}
-          sparklineData={[kids.length]}
-          subtext="Ba / Mẹ chọn đúng hồ sơ để vào học"
-          onClick={() => navigate('/parent/kids')}
-        />
-        <StatMetricCard
-          label="Tổng sao tích lũy"
-          value={totalStars}
-          icon={<ParentStarsIcon size={32} />}
-          color="sun"
-          trend={totalStars > 0 ? { value: `${totalStars} sao`, isPositive: true } : undefined}
-          sparklineData={[totalStars]}
-          subtext={
-            kids.length > 0
-              ? kids.map((k) => `${k.nickname || 'Bé'}: ${getDerivedStats(k).totalStars} sao`).join(' · ')
-              : '0 sao đạt từ các bài quiz'
-          }
-        />
-        <StatMetricCard
-          label="Nhiệm vụ hoàn thành"
-          value={totalQuests}
-          icon={<ParentQuestIcon size={32} />}
-          color="mint"
-          trend={totalQuests > 0 ? { value: `${totalQuests} trạm`, isPositive: true } : undefined}
-          sparklineData={[totalQuests]}
-          subtext={
-            kids.length > 0
-              ? kids.map((k) => `${k.nickname || 'Bé'}: ${getDerivedStats(k).completedQuests} trạm`).join(' · ')
-              : '0 trạm học đã chinh phục'
-          }
-          onClick={() => navigate('/parent/learning')}
-        />
-        <StatMetricCard
-          label="Lượt tạo ảnh AI"
-          value={aiCredits}
-          icon={<Palette size={30} className="text-purple-600" />}
-          color="purple"
-          badge="Nạp thêm +"
-          sparklineData={[aiCredits]}
-          subtext={`${aiCredits} lượt khả dụng`}
-          onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
-        />
-        <StatMetricCard
-          label="Chờ duyệt sáng tạo"
-          value={pendingCount}
-          icon={<ParentApprovalIcon size={32} />}
-          color={pendingCount > 0 ? 'coral' : 'brand'}
-          badge={pendingCount > 0 ? 'Cần duyệt ngay' : 'Đã duyệt hết'}
-          sparklineData={[pendingCount]}
-          subtext={
-            pendingCount > 0
-              ? `${pendingCount} tác phẩm con muốn chia sẻ`
-              : 'Tất cả tác phẩm đã sẵn sàng'
-          }
-          onClick={() => navigate('/parent/approvals')}
-        />
-      </div>
-
-      {/* ── 3. KHỐI CHUYỂN NHANH SANG TÀI KHOẢN CON (TOUCH-TO-ENTER) ── */}
+      {/* ── 2. KHỐI DUY NHẤT: HỒ SƠ CỦA CÁC CON ───────────────────────── */}
       <section
-        aria-label="Chuyển nhanh sang không gian học của con"
+        aria-label="Hồ sơ của các con"
         className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-50/70 via-white to-purple-50/30 p-5 sm:p-6 shadow-clay"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-100/70 pb-3 mb-5">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft text-lg">
-              🚀
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-100/70 pb-4 mb-5">
+          <div className="flex items-center gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft text-xl">
+              👨‍👩‍👧‍👦
             </span>
             <div>
-              <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
-                Chuyển nhanh sang không gian học của con
+              <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900">
+                Hồ sơ của các con
               </h2>
-              <p className="text-xs text-muted">
-                Chạm vào bé để thiết bị chuyển sang chế độ học tập riêng của con. Khu vực quản lý của Ba / Mẹ sẽ được ẩn để con tập trung học.
+              <p className="text-xs sm:text-sm text-muted mt-0.5">
+                Chạm vào bé để thiết bị chuyển sang không gian học tập riêng, hoặc quản lý phân quyền bảo vệ con.
               </p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1 self-start sm:self-auto rounded-full bg-brand-100/80 px-3 py-1 text-xs font-black text-brand-800">
-            <Sparkles size={13} className="text-brand-600" /> Chạm là vào học ngay
-          </span>
+          <Button
+            variant="primary"
+            className="gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap self-start sm:self-auto h-11 px-4 cursor-pointer"
+            onClick={() => setEditTarget(null)}
+          >
+            <Plus size={15} /> + Thêm bé mới
+          </Button>
         </div>
 
         {kids.length === 0 ? (
@@ -384,93 +321,203 @@ export function ParentDashboardTab({
             <p className="text-xs text-muted max-w-sm">
               Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu hành trình học tập.
             </p>
-            <Button onClick={() => setEditTarget(null)} className="gap-2 rounded-2xl shadow-clay">
+            <Button onClick={() => setEditTarget(null)} className="gap-2 rounded-2xl shadow-clay cursor-pointer">
               <Plus size={16} /> Thêm hồ sơ con
             </Button>
           </div>
         ) : (
           <ul
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full min-w-0"
-            aria-label="Danh sách con touch-to-enter"
+            aria-label="Danh sách hồ sơ các con"
           >
             {kids.map((k) => {
               const av = getAvatar(k.avatarId)
               const img = avatarImage(k.avatarId)
               const { totalStars: childStars, completedQuests: childQuests } = getDerivedStats(k)
+              const isExpanded = !!expandedSafety[k.id]
 
               return (
                 <li key={k.id} className="h-full">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handleEnterChild(k.id)}
+                  <div
                     className={cn(
-                      'group relative flex w-full h-full flex-col items-center justify-between rounded-3xl border-2 border-brand-100/90 bg-white p-5 sm:p-6 text-center shadow-clay transition-all duration-300',
-                      'hover:-translate-y-1 hover:border-brand-400 hover:shadow-soft-xl active:scale-95 focus-visible:outline focus-visible:outline-3 focus-visible:outline-focus',
-                      busy && 'opacity-60 pointer-events-none',
+                      'group relative flex w-full h-full flex-col justify-between rounded-3xl border-2 border-brand-100/90 bg-white p-5 sm:p-6 shadow-clay transition-all duration-300 hover:border-brand-300 hover:shadow-soft-xl',
+                      busy && 'opacity-70 pointer-events-none',
                     )}
                   >
-                    {/* Top Status */}
-                    <div className="flex w-full items-center justify-between">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-black text-brand-700">
-                        <Sparkles size={11} className="text-brand-500" />
-                        <span>Học sinh</span>
-                      </span>
-                      <span className="text-[11px] font-bold text-slate-400">Vào không gian riêng</span>
-                    </div>
+                    <div>
+                      {/* ── Header thẻ con ── */}
+                      <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+                        {/* Avatar & Tên bé */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative shrink-0">
+                            <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center overflow-hidden rounded-full border-3 border-white bg-gradient-to-tr from-brand-100 to-purple-50 text-3xl shadow-clay">
+                              {img ? (
+                                <img
+                                  src={img}
+                                  alt={k.nickname ?? 'Avatar'}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                av.emoji
+                              )}
+                            </div>
+                            <span className="absolute -bottom-1 -right-1 rounded-full bg-gradient-to-r from-brand-600 to-purple-600 px-2 py-0.5 text-[10px] font-black text-white shadow-2xs border border-white">
+                              Lv.{k.level || 1}
+                            </span>
+                          </div>
 
-                    {/* Avatar with Ceramic Rim & Level Badge */}
-                    <div className="relative my-3">
-                      <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-gradient-to-tr from-brand-100 to-purple-50 text-4xl shadow-clay group-hover:scale-105 transition-transform duration-300">
-                        {img ? (
-                          <img
-                            src={img}
-                            alt={k.nickname ?? 'Avatar'}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          av.emoji
-                        )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="font-display text-lg font-black text-slate-900 truncate">
+                                {k.nickname ?? 'Bạn nhỏ'}
+                              </h3>
+                              <span
+                                className={cn(
+                                  'h-2.5 w-2.5 shrink-0 rounded-full',
+                                  k.active !== false ? 'bg-emerald-500' : 'bg-slate-300',
+                                )}
+                                title={k.active !== false ? 'Đang hoạt động' : 'Tạm dừng'}
+                              />
+                            </div>
+                            <p className="text-xs font-bold text-slate-500 mt-0.5 truncate">
+                              {k.ageBand ? `Nhóm ${k.ageBand}` : 'Nhóm 8-11 tuổi'}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-1 text-[11px] font-bold text-amber-700">
+                              <span>⭐ {childStars} sao</span>
+                              <span className="text-slate-300">·</span>
+                              <span className="text-emerald-700">🎯 {childQuests} trạm</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Cụm nút công cụ nhỏ gọn */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setEditTarget(k)}
+                            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition border border-slate-200/60 shadow-2xs cursor-pointer"
+                            title="Đổi tên / avatar"
+                            aria-label="Đổi tên / avatar"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setQrModalTarget(k)}
+                            className="p-2 rounded-xl text-brand-600 hover:text-brand-800 hover:bg-brand-50 transition border border-brand-200/60 shadow-2xs cursor-pointer"
+                            title="Thẻ QR đăng nhập"
+                            aria-label="Thẻ QR đăng nhập"
+                          >
+                            <QrCode size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(k)}
+                            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition border border-slate-200/60 shadow-2xs cursor-pointer"
+                            title="Tạm khóa tài khoản con"
+                            aria-label="Tạm khóa tài khoản con"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
-                      <span className="absolute -bottom-1 right-0 rounded-full bg-gradient-to-r from-brand-600 to-purple-600 px-2.5 py-0.5 text-xs font-black text-white shadow-md border-2 border-white">
-                        Lv.{k.level || 1}
-                      </span>
+
+                      {/* ── Nút hành động trung tâm ── */}
+                      <div className="my-4 flex flex-col gap-2">
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void handleEnterChild(k.id)}
+                          className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-white font-extrabold shadow-clay border-2 border-brand-600 transition-all py-3 px-4 text-sm sm:text-base cursor-pointer"
+                        >
+                          <span>🚀 Chạm để vào học ngay</span>
+                          <ArrowRight size={16} />
+                        </button>
+
+                        <Link
+                          to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs py-2 px-3 border border-slate-200/80 transition"
+                        >
+                          <span>Xem tiến độ học tập</span>
+                          <ArrowRight size={13} />
+                        </Link>
+                      </div>
                     </div>
 
-                    {/* Nickname & Stats */}
-                    <div className="w-full">
-                      <h3 className="font-display text-xl font-black text-slate-900 group-hover:text-brand-600 transition-colors">
-                        {k.nickname ?? 'Bạn nhỏ'}
-                      </h3>
-
-                      {/* Mini Badges */}
-                      <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-700 border border-amber-200/60 shadow-2xs">
-                          ⭐ {childStars} sao
+                    {/* ── Phần Cài đặt phân quyền an toàn (COLLAPSIBLE / THU GỌN) ── */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => toggleSafety(k.id)}
+                        className="w-full flex items-center justify-between rounded-xl bg-slate-50 hover:bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 border border-slate-200/70 transition cursor-pointer"
+                        aria-expanded={isExpanded}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
+                          <span>🛡️ Cài đặt & Phân quyền an toàn</span>
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700 border border-emerald-200/60 shadow-2xs">
-                          🎯 {childQuests} trạm
-                        </span>
-                      </div>
+                        <span className="text-slate-500 font-black">{isExpanded ? '▴' : '▾'}</span>
+                      </button>
 
-                      <div className="mt-3.5 inline-flex items-center justify-center gap-1.5 w-full rounded-2xl bg-brand-500 group-hover:bg-brand-600 text-white py-2 px-3 text-xs font-black shadow-clay transition">
-                        <span>Chạm để vào học ngay</span>
-                        <ArrowRight size={13} />
-                      </div>
+                      {isExpanded && (
+                        <div className="mt-2.5 space-y-2 pt-1">
+                          {/* AI Create Toggle */}
+                          <label className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                            <span className="flex items-center gap-1.5 text-slate-700">
+                              <Palette size={14} className="text-purple-500" />
+                              <span>Cho phép AI tạo ảnh</span>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={k.allowAiCreate ?? true}
+                              onChange={(e) => void updateConsent(k, 'allowAiCreate', e.target.checked)}
+                              className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
+                            />
+                          </label>
+
+                          {/* Photo/Camera Toggle */}
+                          <label className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                            <span className="flex items-center gap-1.5 text-slate-700">
+                              <Camera size={14} className="text-sky-500" />
+                              <span>Sử dụng máy ảnh</span>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={k.allowPhoto ?? true}
+                              onChange={(e) => void updateConsent(k, 'allowPhoto', e.target.checked)}
+                              className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
+                            />
+                          </label>
+
+                          {/* Export Artwork Toggle */}
+                          <label className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
+                            <span className="flex items-center gap-1.5 text-slate-700">
+                              <Download size={14} className="text-emerald-500" />
+                              <span>Xuất tác phẩm</span>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={k.allowExport ?? true}
+                              onChange={(e) => void updateConsent(k, 'allowExport', e.target.checked)}
+                              className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
+                            />
+                          </label>
+                        </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 </li>
               )
             })}
 
-            {/* Card "+ Thêm bé mới" */}
+            {/* Thẻ nét đứt "+ Thêm bé mới" */}
             <li className="h-full">
               <button
                 type="button"
                 onClick={() => setEditTarget(null)}
                 className={cn(
-                  'group flex w-full h-full min-h-[220px] flex-col items-center justify-center rounded-3xl border-3 border-dashed border-brand-200 bg-white/70 backdrop-blur-xs p-6 text-center transition-all duration-300',
-                  'hover:-translate-y-1 hover:border-brand-400 hover:bg-brand-50/70 hover:shadow-clay active:scale-95 shadow-xs',
+                  'group flex w-full h-full min-h-[260px] flex-col items-center justify-center rounded-3xl border-3 border-dashed border-brand-200 bg-white/70 backdrop-blur-xs p-6 text-center transition-all duration-300',
+                  'hover:-translate-y-1 hover:border-brand-400 hover:bg-brand-50/70 hover:shadow-clay active:scale-95 shadow-xs cursor-pointer',
                 )}
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100/80 text-brand-600 shadow-soft group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all duration-300">
@@ -479,7 +526,7 @@ export function ParentDashboardTab({
                 <span className="mt-3 font-display text-lg font-black text-slate-800 group-hover:text-brand-700 transition-colors">
                   + Thêm bé mới
                 </span>
-                <span className="mt-1 text-xs text-muted max-w-[180px]">
+                <span className="mt-1 text-xs text-muted max-w-[200px]">
                   Tạo thêm hồ sơ và cá nhân hóa trải nghiệm học tập
                 </span>
               </button>
@@ -488,7 +535,7 @@ export function ParentDashboardTab({
         )}
       </section>
 
-      {/* ── 4. Creative Approvals Widget (Duyệt tác phẩm AI) ──── */}
+      {/* ── 3. Creative Approvals Widget (Duyệt tác phẩm AI) ──── */}
       {pendingCount > 0 ? (
         <section aria-label="Trung tâm phê duyệt tác phẩm" className="ui-card overflow-hidden shadow-soft">
           <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/50 px-5 py-3.5">
@@ -505,7 +552,7 @@ export function ParentDashboardTab({
             </div>
             <Button
               variant="ghost"
-              className="!text-xs font-bold text-rose-600"
+              className="!text-xs font-bold text-rose-600 cursor-pointer"
               onClick={() => navigate('/parent/approvals')}
             >
               Xem tất cả ({pendingCount})
@@ -542,7 +589,7 @@ export function ParentDashboardTab({
 
                 <Button
                   variant="secondary"
-                  className="gap-1.5 !px-3 !py-1 !text-xs font-bold text-rose-700 rounded-xl"
+                  className="gap-1.5 !px-3 !py-1 !text-xs font-bold text-rose-700 rounded-xl cursor-pointer"
                   onClick={() => navigate('/parent/approvals')}
                 >
                   <CheckCircle2 size={13} /> Duyệt tác phẩm
@@ -560,7 +607,7 @@ export function ParentDashboardTab({
           </div>
           <Button
             variant="ghost"
-            className="!text-xs font-bold text-emerald-700 hover:text-emerald-800 !py-1 !px-2.5"
+            className="!text-xs font-bold text-emerald-700 hover:text-emerald-800 !py-1 !px-2.5 cursor-pointer"
             onClick={() => navigate('/parent/approvals')}
           >
             Lịch sử duyệt
@@ -568,183 +615,7 @@ export function ParentDashboardTab({
         </div>
       )}
 
-      {/* ── 5. QUẢN TRỊ & PHÂN QUYỀN AN TOÀN ─────────────────── */}
-      <section
-        aria-label="Quản trị & Phân quyền an toàn"
-        className="rounded-3xl border border-border/80 bg-white p-5 sm:p-6 shadow-soft"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4 mb-5">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-soft">
-              <ShieldCheck size={22} />
-            </span>
-            <div>
-              <h2 className="font-display text-lg sm:text-xl font-black text-slate-900">
-                Quản trị & Phân quyền an toàn
-              </h2>
-              <p className="text-xs text-muted">
-                Quản lý danh tính, phân quyền tạo ảnh AI, sử dụng máy ảnh, xuất tác phẩm và thiết lập bảo vệ cho từng con.
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="secondary"
-            className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap self-start sm:self-auto h-11 px-4"
-            onClick={() => setEditTarget(null)}
-          >
-            <Plus size={15} /> Thêm bé mới
-          </Button>
-        </div>
-
-        {kids.length === 0 ? (
-          <div className="py-6 text-center text-sm text-muted">
-            Chưa có hồ sơ con. Nhấn "Thêm bé mới" để bắt đầu.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {kids.map((k) => {
-              const av = getAvatar(k.avatarId)
-              const img = avatarImage(k.avatarId)
-
-              return (
-                <div
-                  key={k.id}
-                  className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 transition hover:bg-slate-50 hover:border-brand-200"
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    {/* Child Profile Info */}
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="relative shrink-0">
-                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-brand-100 to-purple-50 text-3xl shadow-soft border-2 border-white">
-                          {img ? (
-                            <img src={img} alt={k.nickname || 'Avatar'} className="h-full w-full object-cover" />
-                          ) : (
-                            av.emoji
-                          )}
-                        </div>
-                        <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.2 text-[10px] font-black text-white shadow-2xs border border-white">
-                          Lv.{k.level || 1}
-                        </span>
-                      </div>
-
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-display text-base sm:text-lg font-black text-slate-900 truncate">
-                            {k.nickname || 'Bé yêu'}
-                          </h3>
-                          <span
-                            className={cn(
-                              'h-2 w-2 shrink-0 rounded-full',
-                              k.active !== false ? 'bg-emerald-500' : 'bg-slate-300',
-                            )}
-                            title={k.active !== false ? 'Đang hoạt động' : 'Tạm dừng'}
-                          />
-                        </div>
-                        <p className="text-xs text-muted font-bold mt-0.5">
-                          {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'} · Cấp độ Lv.{k.level || 1}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Management Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditTarget(k)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
-                        title="Đổi tên hoặc ảnh đại diện"
-                      >
-                        <Pencil size={13} className="text-slate-500" />
-                        <span>Đổi tên / avatar</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setQrModalTarget(k)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-100 transition shadow-2xs"
-                        title="Xem thẻ QR đăng nhập nhanh"
-                      >
-                        <QrCode size={13} className="text-brand-600" />
-                        <span>Thẻ QR</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(k)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition shadow-2xs"
-                        title="Tạm khóa tài khoản con"
-                      >
-                        <Trash2 size={13} />
-                        <span>Tạm khóa</span>
-                      </button>
-
-                      <Link
-                        to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                        className="inline-flex items-center gap-1 rounded-xl bg-brand-500 hover:bg-brand-600 text-white px-3.5 py-2 text-xs font-black shadow-clay transition"
-                      >
-                        <span>Học tập</span>
-                        <ArrowRight size={13} />
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Safety Permissions Switches */}
-                  <div className="mt-4 pt-3.5 border-t border-slate-200/70">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
-                      Cài đặt phân quyền an toàn cho {k.nickname || 'bé'}
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                      {/* AI Create Toggle */}
-                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
-                        <span className="flex items-center gap-1.5 text-slate-700">
-                          <Palette size={14} className="text-purple-500" />
-                          <span>Cho phép AI tạo ảnh</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={k.allowAiCreate ?? true}
-                          onChange={(e) => void updateConsent(k, 'allowAiCreate', e.target.checked)}
-                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
-                        />
-                      </label>
-
-                      {/* Photo/Camera Toggle */}
-                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
-                        <span className="flex items-center gap-1.5 text-slate-700">
-                          <Camera size={14} className="text-sky-500" />
-                          <span>Sử dụng máy ảnh</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={k.allowPhoto ?? true}
-                          onChange={(e) => void updateConsent(k, 'allowPhoto', e.target.checked)}
-                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
-                        />
-                      </label>
-
-                      {/* Export Artwork Toggle */}
-                      <label className="flex items-center justify-between gap-2 rounded-xl bg-white border border-slate-200/80 p-2.5 text-xs font-bold cursor-pointer hover:border-brand-300 transition">
-                        <span className="flex items-center gap-1.5 text-slate-700">
-                          <Download size={14} className="text-emerald-500" />
-                          <span>Xuất tác phẩm</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={k.allowExport ?? true}
-                          onChange={(e) => void updateConsent(k, 'allowExport', e.target.checked)}
-                          className="h-4 w-4 rounded accent-brand-500 cursor-pointer"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* ── 6. Chuyển tiếp sang Tab Học Tập ────────────────────── */}
+      {/* ── 4. Chuyển tiếp sang Tab Học Tập ────────────────────── */}
       <section className="rounded-3xl border border-brand-200/80 bg-gradient-to-r from-amber-50/70 via-cream-50 to-brand-50/60 p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">

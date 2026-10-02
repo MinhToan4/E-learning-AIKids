@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, CreditCard, ExternalLink, Sparkles } from 'lucide-react'
+import { Check, Compass, CreditCard, ExternalLink, Palette, Sparkles, Users } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
@@ -117,16 +117,21 @@ export function ParentPlanTab({
 
   if (loading) return <LoadingSkeleton count={3} />
 
+  const isPaid = Boolean(sub && sub.planCode && sub.planCode !== 'free')
+  const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
+      {/* ── 1. Header ────────────────────────────────────────── */}
       <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
-              <Sparkles size={12} /> 👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
+              <Sparkles size={13} /> 👨‍👩‍👧 Góc Phụ Huynh & Gia Đình
             </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
               Gói học gia đình
             </span>
           </div>
@@ -135,7 +140,7 @@ export function ParentPlanTab({
               type="button"
               onClick={() => setPricingTab('plans')}
               className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
                 pricingTab === 'plans' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
               )}
             >
@@ -145,7 +150,7 @@ export function ParentPlanTab({
               type="button"
               onClick={() => setPricingTab('credits')}
               className={cn(
-                'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
                 pricingTab === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
               )}
             >
@@ -153,62 +158,226 @@ export function ParentPlanTab({
             </button>
           </div>
         </div>
-        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+        <h1 className="font-display text-2xl font-black text-slate-900 mt-4 sm:text-3xl">
           Gói học & Lượt sáng tạo AI
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
-          Chọn gói học phù hợp cho các bé trong gia đình.
-          <span className="sr-only"> Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc.</span>
+          Chọn gói học phù hợp cho các bé trong gia đình. Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc.
         </p>
-        {sub && (
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-mint-200/80 bg-mint-50/60 p-3.5 shadow-2xs">
-              <p className="text-xs font-extrabold uppercase tracking-wide text-success">Gói hiện tại</p>
-              <p className="mt-0.5 font-display text-lg font-black text-slate-900">{sub.planName}</p>
-              <p className="mt-0.5 text-xs text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p>
-            </div>
-            <div className="rounded-2xl border border-brand-200/80 bg-brand-50/60 p-3.5 shadow-2xs">
-              <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Quyền học</p>
-              <p className="mt-0.5 font-display text-lg font-black text-slate-900">{sub.maxOpenCoursesPerChild} vùng / con</p>
-            </div>
-          </div>
-        )}
       </header>
 
+      {/* ── 2. Chỉ số tài khoản và gói học quan trọng (Stats Strip) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {/* Số con đang học */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+          <div className="flex items-center gap-2 text-slate-500 mb-1">
+            <Users size={16} className="text-brand-600" />
+            <span className="text-xs font-extrabold uppercase tracking-wide">Số con đang học</span>
+          </div>
+          <p className="font-display text-xl sm:text-2xl font-black text-slate-900">
+            {sub?.childCount ?? 0}/{sub?.maxChildren ?? 2} ghế
+          </p>
+          <p className="text-[11px] text-muted font-medium mt-0.5">
+            Hồ sơ con trong gia đình
+          </p>
+        </div>
+
+        {/* Lượt tạo ảnh AI */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+          <div className="flex items-center gap-2 text-slate-500 mb-1">
+            <Palette size={16} className="text-purple-600" />
+            <span className="text-xs font-extrabold uppercase tracking-wide">Lượt tạo ảnh AI</span>
+          </div>
+          <p className="font-display text-xl sm:text-2xl font-black text-purple-700">
+            Còn {aiCredits} lượt
+          </p>
+          <p className="text-[11px] text-muted font-medium mt-0.5">
+            Sáng tạo cùng AIKI Cat
+          </p>
+        </div>
+
+        {/* Vùng mở cùng lúc */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+          <div className="flex items-center gap-2 text-slate-500 mb-1">
+            <Compass size={16} className="text-amber-600" />
+            <span className="text-xs font-extrabold uppercase tracking-wide">Vùng mở cùng lúc</span>
+          </div>
+          <p className="font-display text-xl sm:text-2xl font-black text-brand-700">
+            {sub?.maxOpenCoursesPerChild ?? 1} vùng / con
+          </p>
+          <p className="text-[11px] text-muted font-medium mt-0.5">
+            vùng học mở cùng lúc / con
+          </p>
+        </div>
+      </div>
+
+      {/* ── 3. Phân định rõ ràng: ĐÃ MUA vs CHƯA MUA ───────────── */}
+      {isPaid ? (
+        /* Trạng thái ĐÃ MUA: Gói đang hoạt động */
+        <section className="rounded-3xl border-2 border-emerald-200/80 bg-gradient-to-br from-emerald-50/70 via-white to-brand-50/30 p-5 sm:p-6 shadow-clay">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-100/70 pb-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800 shadow-2xs">
+                  🟢 GÓI ĐANG HOẠT ĐỘNG
+                </span>
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
+                {sub?.planName || 'AI Kid Chính Thức'}
+              </h2>
+              <p className="text-xs sm:text-sm text-muted">
+                Gói học cao cấp cho gia đình, sẵn sàng trên mọi hành trình sáng tạo của con.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+              <Button
+                variant="secondary"
+                className="gap-2 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs h-11 px-4 cursor-pointer"
+                onClick={() => onOpenCheckout?.('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
+              >
+                <Palette size={14} className="text-amber-700" /> Nạp thêm lượt AI
+              </Button>
+              <Button
+                variant="primary"
+                className="gap-2 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl h-11 px-4 cursor-pointer"
+                onClick={() => setPricingTab('plans')}
+              >
+                <Sparkles size={14} /> Đổi gói / Mở thêm ghế
+              </Button>
+            </div>
+          </div>
+
+          {/* Thông số cốt lõi */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Số ghế con</p>
+              <p className="font-display text-base sm:text-lg font-black text-slate-900 mt-0.5">
+                {sub?.childCount ?? 0}/{sub?.maxChildren ?? 2} ghế
+              </p>
+              <p className="text-[11px] text-muted">Hồ sơ con trong gia đình</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-purple-600">Lượt tạo ảnh AI</p>
+              <p className="font-display text-base sm:text-lg font-black text-purple-700 mt-0.5">
+                Còn {aiCredits} lượt
+              </p>
+              <p className="text-[11px] text-muted">Tạo ảnh AI cùng AIKI Cat</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-brand-600">Hạn mức vùng học mỗi bé</p>
+              <p className="font-display text-base sm:text-lg font-black text-brand-700 mt-0.5">
+                {sub?.maxOpenCoursesPerChild ?? 5} vùng học mở cùng lúc / con
+              </p>
+              <p className="text-[11px] text-muted">vùng mở cùng lúc</p>
+            </div>
+          </div>
+        </section>
+      ) : (
+        /* Trạng thái CHƯA MUA: Gói Khởi Đầu (Miễn Phí) */
+        <section className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-br from-purple-50/60 via-white to-amber-50/40 p-5 sm:p-6 shadow-clay">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-brand-100/70 pb-5">
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 shadow-2xs">
+                ⚪ GÓI KHỞI ĐẦU (MIỄN PHÍ)
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
+                Tài khoản Khởi Đầu
+              </h2>
+              <p className="text-sm font-bold text-slate-700">
+                Con được học miễn phí Đảo Tiên Quyết (10 Quy tắc vàng).
+              </p>
+              <p className="text-xs text-muted">
+                vùng học mở cùng lúc / con: 1 vùng · Nâng cấp để mở khóa trọn bộ 5 Đảo Sáng Tạo cho con.
+              </p>
+            </div>
+
+            <div className="shrink-0">
+              <Button
+                variant="primary"
+                className="w-full sm:w-auto gap-2 !text-sm font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-2xl py-3 px-6 h-auto cursor-pointer"
+                onClick={() => onOpenCheckout?.('sub', 'aikids_official_129k', 479000, 'Gói AI Kid Chính Thức')}
+              >
+                <span>🚀 Kích hoạt Gói AI Kid Chính Thức · 479.000đ</span>
+                <span className="text-base font-bold">➔</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* 3 Đặc quyền cốt lõi */}
+          <div className="mt-5">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-700 mb-3">
+              Đặc quyền cốt lõi của Gói AI Kid Chính Thức
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-start gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-3.5 shadow-2xs">
+                <span className="text-2xl shrink-0">✨</span>
+                <div>
+                  <p className="font-display text-sm font-black text-slate-900">Trọn bộ 5 Đảo Sáng Tạo</p>
+                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
+                    Mở khóa trọn bộ 5 Đảo Sáng Tạo (30 trạm học chuẩn Olympic).
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-3.5 shadow-2xs">
+                <span className="text-2xl shrink-0">🎨</span>
+                <div>
+                  <p className="font-display text-sm font-black text-slate-900">50 lượt tạo ảnh AI</p>
+                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
+                    50 lượt tạo ảnh AI độc quyền cùng AIKI Cat mỗi tháng.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 shadow-2xs">
+                <span className="text-2xl shrink-0">📊</span>
+                <div>
+                  <p className="font-display text-sm font-black text-slate-900">Báo cáo & Bằng khen</p>
+                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
+                    Báo cáo năng lực Montessori & Bằng khen tốt nghiệp vector SVG.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 4. Mức sử dụng vùng học của từng bé ───────────────── */}
       {sub && usage.length > 0 && (
-        <section className="ui-card p-4 sm:p-5">
+        <section className="ui-card p-4 sm:p-5 rounded-3xl border border-border/80 shadow-soft">
           <h3 className="font-display text-lg sm:text-xl font-black text-slate-900">Mức sử dụng của gia đình</h3>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {usage.map((child) => {
+              const maxOpen = sub.maxOpenCoursesPerChild || 1
               const percent =
-                sub.maxOpenCoursesPerChild > 0
-                  ? Math.min(100, Math.round((child.openCourses / sub.maxOpenCoursesPerChild) * 100))
+                maxOpen > 0
+                  ? Math.min(100, Math.round((child.openCourses / maxOpen) * 100))
                   : 100
               return (
-                <article key={child.id} className="rounded-2xl border border-border p-3.5 bg-white shadow-2xs">
+                <article key={child.id} className="rounded-2xl border border-slate-200/80 p-3.5 bg-white shadow-2xs">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-bold text-sm text-text">{child.nickname ?? 'Học viên'}</p>
+                    <p className="font-bold text-sm text-slate-900">{child.nickname ?? 'Học viên'}</p>
                     <span className="text-xs font-black text-brand-700">
-                      {child.openCourses}/{sub.maxOpenCoursesPerChild} vùng
+                      {child.openCourses}/{maxOpen} vùng
                     </span>
                   </div>
                   <div
-                    className="mt-2.5 h-2 overflow-hidden rounded-full bg-brand-50"
+                    className="mt-2.5 h-2 overflow-hidden rounded-full bg-slate-100"
                     role="progressbar"
-                    aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${sub.maxOpenCoursesPerChild} vùng`}
+                    aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${maxOpen} vùng`}
                     aria-valuenow={percent}
                     aria-valuemin={0}
                     aria-valuemax={100}
                   >
                     <div
-                      className={cn('h-full rounded-full', percent >= 100 ? 'bg-coral-400' : 'bg-brand-500')}
+                      className={cn('h-full rounded-full transition-all duration-300', percent >= 100 ? 'bg-rose-500' : 'bg-brand-500')}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
                   <p className="mt-1.5 text-[11px] text-muted font-medium">
-                    {child.openCourses >= sub.maxOpenCoursesPerChild
+                    {child.openCourses >= maxOpen
                       ? 'Đã dùng hết hạn mức vùng học.'
-                      : `Còn ${sub.maxOpenCoursesPerChild - child.openCourses} vùng có thể mở.`}
+                      : `Còn ${maxOpen - child.openCourses} vùng có thể mở.`}
                   </p>
                 </article>
               )
@@ -217,19 +386,20 @@ export function ParentPlanTab({
         </section>
       )}
 
+      {/* ── 5. Checkout Status Banner (nếu có yêu cầu thanh toán) ── */}
       {checkout && (
-        <section className="ui-card border-2 border-sun-200 bg-sun-50 p-5">
+        <section className="ui-card border-2 border-sun-200 bg-sun-50 p-5 rounded-3xl shadow-soft">
           <div className="flex items-start gap-3">
-            <CreditCard className="mt-0.5 text-warning" aria-hidden="true" />
+            <CreditCard className="mt-0.5 text-warning shrink-0" aria-hidden="true" />
             <div>
-              <h3 className="font-display text-xl">Hoàn tất nâng gói</h3>
+              <h3 className="font-display text-xl font-black text-slate-900">Hoàn tất nâng gói</h3>
               {checkout.transferHint && (
                 <p className="mt-1 text-sm text-muted">
                   Nội dung thanh toán: <strong className="text-text">{checkout.transferHint}</strong>
                 </p>
               )}
               {checkout.payUrl ? (
-                <a className="ui-btn ui-btn-primary mt-3" href={checkout.payUrl} target="_blank" rel="noreferrer">
+                <a className="ui-btn ui-btn-primary mt-3 inline-flex items-center gap-1.5" href={checkout.payUrl} target="_blank" rel="noreferrer">
                   Mở trang thanh toán <ExternalLink size={16} />
                 </a>
               ) : (
@@ -240,103 +410,133 @@ export function ParentPlanTab({
         </section>
       )}
 
-      {pricingTab === 'plans' ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          {plans.map((p) => {
-            const current = sub?.planCode === p.code
-            // Keep at most 3 key features for clean, concise display
-            const keyFeatures = p.features.slice(0, 3)
-            return (
-              <article
-                key={p.code}
-                className={cn(
-                  'ui-card flex flex-col justify-between p-5 rounded-3xl border-2 transition hover:shadow-soft',
-                  current ? 'border-brand-500 ring-2 ring-brand-300 bg-brand-50/20' : 'border-border/70',
-                )}
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-display text-xl font-black text-slate-900">{p.name}</h3>
-                    {current && (
-                      <span className="rounded-full bg-brand-100 text-brand-700 px-2.5 py-0.5 text-xs font-black">
-                        Đang dùng
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted mt-1">{p.tagline}</p>
-                  <p className="mt-3 font-display text-2xl font-black text-brand-600">
-                    {p.priceMonthly === 0
-                      ? 'Miễn phí'
-                      : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
-                  </p>
-                  <div className="grid gap-1 rounded-2xl bg-page p-3 text-xs sm:text-sm my-3 border border-border/50">
-                    <p>
-                      <strong>{p.maxChildren}</strong> hồ sơ con
-                    </p>
-                    <p>
-                      <strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con
-                    </p>
-                  </div>
-                  <ul className="space-y-1.5 text-xs sm:text-sm text-muted mb-4">
-                    {keyFeatures.map((f) => (
-                      <li key={f} className="flex items-start gap-2">
-                        <Check size={14} className="text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Button
-                  disabled={current || busy === p.code}
-                  onClick={() => void activate(p.code, p.name, p.priceMonthly)}
+      {/* ── 6. Danh mục các gói & Lượt sáng tạo AI ─────────────── */}
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display text-lg sm:text-xl font-black text-slate-900">
+            {pricingTab === 'plans' ? 'Tất cả các gói học' : 'Gói nạp lượt sáng tạo AI'}
+          </h3>
+          <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
+            <button
+              type="button"
+              onClick={() => setPricingTab('plans')}
+              className={cn(
+                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
+                pricingTab === 'plans' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+              )}
+            >
+              Gói học định kỳ
+            </button>
+            <button
+              type="button"
+              onClick={() => setPricingTab('credits')}
+              className={cn(
+                'rounded-xl px-3 py-1.5 text-xs font-black transition cursor-pointer',
+                pricingTab === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+              )}
+            >
+              Lượt sáng tạo AI
+            </button>
+          </div>
+        </div>
+
+        {pricingTab === 'plans' ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {plans.map((p) => {
+              const current = sub?.planCode === p.code
+              const keyFeatures = p.features.slice(0, 3)
+              return (
+                <article
+                  key={p.code}
                   className={cn(
-                    'w-full py-2.5 font-black text-sm rounded-2xl shadow-clay transition',
-                    current
-                      ? 'bg-slate-200 text-slate-600 cursor-default'
-                      : 'bg-brand-500 hover:bg-brand-600 text-white',
+                    'ui-card flex flex-col justify-between p-5 rounded-3xl border-2 transition hover:shadow-soft',
+                    current ? 'border-brand-500 ring-2 ring-brand-300 bg-brand-50/20' : 'border-border/70',
                   )}
                 >
-                  {current
-                    ? 'Gói hiện tại'
-                    : busy === p.code
-                      ? 'Đang tạo yêu cầu…'
-                      : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild
-                        ? 'Nâng lên gói này'
-                        : 'Chọn gói'}
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-display text-xl font-black text-slate-900">{p.name}</h4>
+                      {current && (
+                        <span className="rounded-full bg-brand-100 text-brand-700 px-2.5 py-0.5 text-xs font-black">
+                          Đang dùng
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted mt-1">{p.tagline}</p>
+                    <p className="mt-3 font-display text-2xl font-black text-brand-600">
+                      {p.priceMonthly === 0
+                        ? 'Miễn phí'
+                        : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
+                    </p>
+                    <div className="grid gap-1 rounded-2xl bg-page p-3 text-xs sm:text-sm my-3 border border-border/50">
+                      <p>
+                        <strong>{p.maxChildren}</strong> hồ sơ con
+                      </p>
+                      <p>
+                        <strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con
+                      </p>
+                    </div>
+                    <ul className="space-y-1.5 text-xs sm:text-sm text-muted mb-4">
+                      {keyFeatures.map((f) => (
+                        <li key={f} className="flex items-start gap-2">
+                          <Check size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Button
+                    disabled={current || busy === p.code}
+                    onClick={() => void activate(p.code, p.name, p.priceMonthly)}
+                    className={cn(
+                      'w-full py-2.5 font-black text-sm rounded-2xl shadow-clay transition cursor-pointer',
+                      current
+                        ? 'bg-slate-200 text-slate-600 cursor-default'
+                        : 'bg-brand-500 hover:bg-brand-600 text-white',
+                    )}
+                  >
+                    {current
+                      ? 'Gói hiện tại'
+                      : busy === p.code
+                        ? 'Đang tạo yêu cầu…'
+                        : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild
+                          ? 'Nâng lên gói này'
+                          : 'Chọn gói'}
+                  </Button>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            {CREDIT_PACKS.map((pack) => (
+              <article
+                key={pack.id}
+                className="ui-card flex flex-col justify-between p-4 relative overflow-hidden rounded-3xl border border-border/80 shadow-2xs"
+              >
+                {pack.badge && (
+                  <span className="absolute top-2 right-2 rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 text-[10px] font-black">
+                    {pack.badge}
+                  </span>
+                )}
+                <div>
+                  <div className="text-2xl mb-1">🎨</div>
+                  <h4 className="font-display text-base font-black text-text">{pack.label}</h4>
+                  <p className="text-xs text-muted">{pack.unitPriceText}</p>
+                  <p className="mt-2 font-display text-lg font-black text-brand-600">{pack.priceFormatted}</p>
+                </div>
+                <Button
+                  variant="primary"
+                  className="mt-3 !py-1.5 !text-xs font-bold w-full rounded-xl cursor-pointer"
+                  onClick={() => onOpenCheckout?.('credits', undefined, pack.price, pack.label, pack.id)}
+                >
+                  Mua lượt
                 </Button>
               </article>
-            )
-          })}
-        </div>
-      ) : (
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-          {CREDIT_PACKS.map((pack) => (
-            <article
-              key={pack.id}
-              className="ui-card flex flex-col justify-between p-4 relative overflow-hidden rounded-3xl border border-border/80 shadow-2xs"
-            >
-              {pack.badge && (
-                <span className="absolute top-2 right-2 rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 text-[10px] font-black">
-                  {pack.badge}
-                </span>
-              )}
-              <div>
-                <div className="text-2xl mb-1">🎨</div>
-                <h4 className="font-display text-base font-black text-text">{pack.label}</h4>
-                <p className="text-xs text-muted">{pack.unitPriceText}</p>
-                <p className="mt-2 font-display text-lg font-black text-brand-600">{pack.priceFormatted}</p>
-              </div>
-              <Button
-                variant="primary"
-                className="mt-3 !py-1.5 !text-xs font-bold w-full rounded-xl"
-                onClick={() => onOpenCheckout?.('credits', undefined, pack.price, pack.label, pack.id)}
-              >
-                Mua lượt
-              </Button>
-            </article>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
