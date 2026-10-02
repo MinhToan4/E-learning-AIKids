@@ -8,6 +8,7 @@ import {
   OFFICIAL_COURSE_CERTIFICATE_ID,
   type BackpackCertificate,
 } from '@/features/backpack/lib/backpack-certificates'
+import { designerAssets } from '@/shared/config/assets'
 
 export interface CourseCertificateModalProps {
   isOpen: boolean
@@ -131,7 +132,7 @@ export function CourseCertificateModal({
           {/* Official Graduation Certificate SVG Vector Artwork */}
           <div className="relative my-2 sm:my-3 flex items-center justify-center w-full max-w-[240px] sm:max-w-[280px] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50/50 group">
             <img
-              src="/assets/rewards/graduation-certificate.svg"
+              src={designerAssets.certificates.graduation}
               alt="Giấy Chứng Nhận Tốt Nghiệp AI Kids"
               className="w-full h-auto max-h-44 sm:max-h-52 object-contain rounded-xl drop-shadow-md group-hover:scale-105 transition-transform duration-300"
             />
@@ -201,7 +202,7 @@ export function CourseCertificateModal({
           </Button>
 
           <a
-            href="/assets/rewards/graduation-certificate.svg"
+            href={designerAssets.certificates.graduation}
             download="Chung-Nhan-Tot-Nghiep-AIKids.svg"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 font-black text-sm rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
             title="Tải Giấy Chứng Nhận về máy để in ấn"

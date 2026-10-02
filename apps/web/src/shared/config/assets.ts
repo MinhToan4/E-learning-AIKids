@@ -115,6 +115,12 @@ export const designerAssets = {
     truyenTranh: '/assets/aiki-islands/island-sticker-4-truyen-tranh.svg',
     troChoi: '/assets/aiki-islands/island-sticker-5-tro-choi.svg',
   },
+  certificates: {
+    // Kept in the public tree because learners can download the original SVG.
+    // Centralizing the address prevents feature code from bypassing the asset
+    // catalog and keeps preview/download links on the same source file.
+    graduation: ['/assets', 'rewards', 'graduation-certificate.svg'].join('/'),
+  },
   asmoScenes: {
     appleForest: '/assets/asmo-scenes/scene_apple_forest.png',
     treeMother: '/assets/asmo-scenes/tree_mother_soft_clay.png',

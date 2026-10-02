@@ -1097,7 +1097,7 @@ export function ProfilePage() {
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="relative w-14 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50 group hover:scale-105 transition-transform">
                         <img
-                          src="/assets/rewards/graduation-certificate.svg"
+                          src={designerAssets.certificates.graduation}
                           alt="Bằng Khen Tốt Nghiệp"
                           className="w-full h-full object-contain"
                         />
@@ -1178,7 +1178,7 @@ export function ProfilePage() {
                         <div className="flex items-center gap-2.5">
                           <div className="relative w-12 h-16 shrink-0 rounded-lg overflow-hidden border border-amber-300 shadow-2xs bg-amber-50">
                             <img
-                              src="/assets/rewards/graduation-certificate.svg"
+                              src={designerAssets.certificates.graduation}
                               alt="Bằng Khen Tốt Nghiệp"
                               className="w-full h-full object-contain"
                             />
