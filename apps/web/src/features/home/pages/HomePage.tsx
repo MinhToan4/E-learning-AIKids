@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, CheckCircle2, Film, Lock, Map as MapIcon, Play, Sparkles, Star } from 'lucide-react'
+import { Check, CheckCircle2, Film, Lock, Map as MapIcon, Play, Star } from 'lucide-react'
+import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { designerAssets } from '@/shared/config/assets'
@@ -271,6 +272,7 @@ export function HomePage() {
   const [loading, setLoading] = useState(true)
   const [showTrailerModal, setShowTrailerModal] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
+  const { officialPlan, priceFormatted: officialPriceFormatted } = useOfficialBillingPlan()
 
   const handleUnlockFullCourse = () => {
     setShowTrailerModal(false)
@@ -653,10 +655,10 @@ export function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
               {!effectivePurchased ? (
                 <>
-                  {/* 1. CHƯA MUA - KHUNG VIDEO TRAILER 16:9 HIỆN TRỰC TIẾP */}
+                  {/* 1. CHƯA MUA - KHUNG VIDEO TRAILER (TỰ ĐỘNG CÂN BẰNG CHIỀU CAO VỚI CỘT PHẢI, KHÔNG BỊ LỆCH) */}
                   <div
                     onClick={() => setShowTrailerModal(true)}
-                    className="md:col-span-5 relative aspect-video w-full rounded-2xl overflow-hidden bg-zinc-950 border-2 border-amber-200/80 shadow-clay group cursor-pointer"
+                    className="md:col-span-5 relative w-full h-full min-h-[240px] rounded-2xl overflow-hidden bg-zinc-950 border-2 border-amber-200/80 shadow-clay group cursor-pointer flex items-center justify-center"
                     role="button"
                     tabIndex={0}
                     aria-label="Xem video trailer giới thiệu khóa học"
@@ -670,51 +672,62 @@ export function HomePage() {
                     <img
                       src="/assets/aikid-ui/mascot-original/course-wave.webp"
                       alt="Trailer Hoạt Hình Mèo Mee"
-                      className="w-full h-full object-cover object-top scale-105 group-hover:scale-110 transition-transform duration-500 opacity-90"
+                      className="absolute inset-0 w-full h-full object-cover object-top scale-105 group-hover:scale-110 transition-transform duration-500 opacity-90"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
                     {/* Big Play Button in Center */}
-                    <div className="absolute inset-0 m-auto w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-white/95 text-[#FD7D2E] shadow-2xl flex items-center justify-center transform group-hover:scale-110 active:scale-95 transition-all">
+                    <div className="relative z-10 w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-white/95 text-[#FD7D2E] shadow-2xl flex items-center justify-center transform group-hover:scale-110 active:scale-95 transition-all">
                       <Play className="w-5 sm:w-6 h-5 sm:h-6 fill-current ml-0.5" />
                     </div>
 
-                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/75 text-white text-[10px] font-black backdrop-blur-xs flex items-center gap-1.5">
+                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/75 text-white text-[10px] font-black backdrop-blur-xs flex items-center gap-1.5 z-10">
                       <Film className="w-3.5 h-3.5 text-amber-300" />
                       <span>Trailer 2:15 phút • Trải nghiệm thực tế</span>
                     </span>
 
-                    <span className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-[#FD7D2E] text-white text-[10px] font-black shadow-xs">
+                    <span className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-[#FD7D2E] text-white text-[10px] font-black shadow-xs z-10">
                       Xem Trailer
                     </span>
                   </div>
 
-                  {/* 2. CHƯA MUA - KHUNG LỢI ÍCH KHÓA HỌC & KÊU GỌI MỞ KHÓA (KHÔNG ĐỂ NÚT HỌC TIẾP BÀI 1.1) */}
+                  {/* 2. CHƯA MUA - KHUNG LỢI ÍCH DYNAMIC THEO GÓI ADMIN (BỎ YẾU TỐ AI SVG VÀ BỎ '->') */}
                   <div className="md:col-span-7 flex flex-col justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-white/95 border border-orange-100/90 shadow-2xs">
                     <div className="flex flex-col gap-2">
                       <span className="self-start px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-black uppercase rounded-md tracking-wider">
-                        ĐẶC QUYỀN KHÓA HỌC CHÍNH THỨC
+                        {officialPlan.badge || 'ĐẶC QUYỀN KHÓA HỌC CHÍNH THỨC'}
                       </span>
                       <h3 className="text-lg sm:text-xl font-black text-slate-800 leading-tight">
-                        Mở khóa trọn bộ 5 Đảo Sáng Tạo
+                        {officialPlan.tagline || 'Mở khóa trọn bộ 5 Đảo Sáng Tạo'}
                       </h3>
                       <ul className="flex flex-col gap-2 mt-1">
-                        <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
-                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                          <span><strong>5 Đảo Sáng Tạo</strong>: Tạo tranh, biến hóa nhân vật, vẽ truyện tranh và làm game AI.</span>
-                        </li>
-                        <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
-                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                          <span><strong>Sáng tạo không giới hạn</strong>: Vẽ tranh AI thỏa thích &amp; cất vào Ba Lô.</span>
-                        </li>
-                        <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                          <span><strong>Báo cáo năng khiếu &amp; Bằng khen tốt nghiệp</strong> gửi về cho Ba Mẹ.</span>
-                        </li>
-                        <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                          <span><strong>Hiện tại</strong>: Con được học <strong>Miễn phí 10 Quy tắc vàng</strong> trên Đảo Tiên Quyết.</span>
-                        </li>
+                        {officialPlan.features && officialPlan.features.length > 0 ? (
+                          officialPlan.features.map((feat, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span>{feat}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <>
+                            <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span><strong>5 Đảo Sáng Tạo</strong>: Tạo tranh, biến hóa nhân vật, vẽ truyện tranh và làm game.</span>
+                            </li>
+                            <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span><strong>Sáng tạo không giới hạn</strong>: Vẽ tranh thỏa thích &amp; cất vào Ba Lô.</span>
+                            </li>
+                            <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span><strong>Báo cáo năng khiếu &amp; Bằng khen tốt nghiệp</strong> gửi về cho Ba Mẹ.</span>
+                            </li>
+                            <li className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span><strong>Hiện tại</strong>: Con được học <strong>Miễn phí 10 Quy tắc vàng</strong> trên Đảo Tiên Quyết.</span>
+                            </li>
+                          </>
+                        )}
                       </ul>
                     </div>
 
@@ -724,14 +737,14 @@ export function HomePage() {
                         onClick={() => setShowTrailerModal(true)}
                         className="w-full flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
                       >
-                        🚀 Mở khóa 5 khóa học · 479.000đ <span className="ml-2 font-bold">➔</span>
+                        🚀 Mở khóa {officialPlan.name} · {officialPriceFormatted}
                       </button>
                       <button
                         type="button"
                         onClick={() => navigate(OFFICIAL_SIX_ISLANDS[0].defaultRoute)}
                         className="w-full flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-orange-50/80 rounded-xl transition-all cursor-pointer"
                       >
-                        Hoặc học miễn phí Đảo Tiên Quyết ({courses[0]?.completedCount || 0}/{courses[0]?.questCount || OFFICIAL_SIX_ISLANDS[0].defaultQuestCount} trạm) <span className="ml-1">➔</span>
+                        Hoặc học miễn phí Đảo Tiên Quyết ({courses[0]?.completedCount || 0}/{courses[0]?.questCount || OFFICIAL_SIX_ISLANDS[0].defaultQuestCount} trạm)
                       </button>
                     </div>
                   </div>
@@ -739,7 +752,7 @@ export function HomePage() {
               ) : (
                 <>
                   {/* 1. ĐÃ MỞ KHÓA - HERO SHOWCASE HẢI TRÌNH CỦA BÉ (THAY THẾ VIDEO TRAILER) */}
-                  <div className="md:col-span-5 relative aspect-video w-full rounded-2xl overflow-hidden bg-sky-100 border-2 border-emerald-200/90 shadow-clay flex items-center justify-center group">
+                  <div className="md:col-span-5 relative w-full h-full min-h-[240px] rounded-2xl overflow-hidden bg-sky-100 border-2 border-emerald-200/90 shadow-clay flex items-center justify-center group">
                     <img
                       src="/assets/aikid-ui/showcase/island_hero_bright.jpg"
                       alt="Hải trình của bé"
@@ -782,7 +795,7 @@ export function HomePage() {
                       onClick={() => navigate(activeStation.route)}
                       className="w-full flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all shrink-0 cursor-pointer"
                     >
-                      {hasLearningActivity ? 'Học tiếp' : 'Bắt đầu'} {activeStation.stationLabel}: {activeStation.stationTitle} <span className="ml-2 font-bold">➔</span>
+                      {hasLearningActivity ? 'Học tiếp' : 'Bắt đầu'} {activeStation.stationLabel}: {activeStation.stationTitle}
                     </button>
                   </div>
                 </>
@@ -910,6 +923,7 @@ export function HomePage() {
         isOpen={showTrailerModal}
         onClose={() => setShowTrailerModal(false)}
         onUnlock={handleUnlockFullCourse}
+        plan={officialPlan}
       />
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </PageMotion>

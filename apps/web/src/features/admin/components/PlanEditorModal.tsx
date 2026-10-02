@@ -231,6 +231,7 @@ export function PlanEditorModal({
         const idx = targetList.findIndex((p) => p.id === cleanId)
         const updated = idx >= 0 ? targetList.map((p, i) => (i === idx ? { ...p, ...savedPlanObj } : p)) : [...targetList, savedPlanObj]
         localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('aikids:billing-plans-updated', { detail: savedPlanObj }))
       } catch { /* ignore */ }
 
       if (isEditing && applyToExistingSubscribers && subscriberCount > 0) {
@@ -253,6 +254,7 @@ export function PlanEditorModal({
         const idx = targetList.findIndex((p) => p.id === cleanId)
         const updated = idx >= 0 ? targetList.map((p, i) => (i === idx ? { ...p, ...savedPlanObj } : p)) : [...targetList, savedPlanObj]
         localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('aikids:billing-plans-updated', { detail: savedPlanObj }))
       } catch { /* ignore */ }
 
       showToast(`Đã lưu gói bán ${cleanName} vào bộ nhớ tạm hệ thống`, 'success')

@@ -2,6 +2,7 @@ import React from 'react'
 import { Check, Image, Play, ShieldCheck, TrendingUp } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
+import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 
 export interface OfficialCourseCardProps {
   isPurchased: boolean
@@ -29,6 +30,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
   className,
   children,
 }) => {
+  const { priceFormatted: officialPriceFormatted } = useOfficialBillingPlan()
   const primaryAction = isPurchased ? onExploreTrack : onUnlockCourse
 
   return (
@@ -120,16 +122,15 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
           {isPurchased ? (
             <div className="mt-3 flex items-center gap-2 rounded-2xl bg-emerald-50 px-3 py-2.5 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
               <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
-              Đã mở khóa 5 khóa học · 10 Quy tắc vẫn miễn phí
+              Đã mở khóa các khóa học · 10 Quy tắc vẫn miễn phí
             </div>
           ) : (
             <div className="mt-3 flex flex-wrap items-end justify-between gap-2 rounded-2xl bg-amber-50 px-3 py-2.5 ring-1 ring-amber-200">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-wide text-amber-800">Thanh toán một lần</p>
-                <p className="mt-0.5 text-xl font-black text-orange-700">479.000đ</p>
+                <p className="mt-0.5 text-xl font-black text-orange-700">{officialPriceFormatted}</p>
               </div>
               <div className="text-right text-[11px] font-bold text-slate-500">
-                <p className="line-through">799.000đ</p>
                 <p className="text-emerald-700">Sở hữu trọn đời</p>
               </div>
             </div>
@@ -145,10 +146,10 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
             ) : isPurchased ? (
               <>
                 <Check className="h-4 w-4" aria-hidden="true" />
-                Vào học 5 khóa đã mở
+                Vào học các khóa đã mở
               </>
             ) : (
-              'Mở khóa ngay · 479.000đ'
+              `Mở khóa ngay · ${officialPriceFormatted}`
             )}
           </button>
         </div>
