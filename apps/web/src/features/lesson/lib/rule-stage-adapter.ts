@@ -8,7 +8,8 @@ import type {
 import { buildVideoEmbedUrl } from './stage-view-utils'
 
 export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
-  const nextLessonId = rule.id < 10 ? `rule-${rule.id + 1}` : undefined
+  const isRule10 = rule.id === 10
+  const nextLessonId = rule.id < 10 ? `rule-${rule.id + 1}` : 'bai-1-1'
   const videoConfig: VideoStageConfig = {
     title: rule.title,
     videoUrl: rule.videoUrl || '',
@@ -41,12 +42,21 @@ export function adaptRuleToStages(rule: AikiRule): JourneyStageDefinition[] {
     speech: 'Cùng AIKI trả lời câu hỏi trắc nghiệm phản xạ để nhận huy hiệu vàng nhé!',
   }
   const rewardConfig: RewardStageConfig = {
-    title: `Con đã hoàn thành Quy tắc ${rule.id}!`,
-    congratsMessage: `Tuyệt vời! Con đã làm chủ "${rule.shortTitle}" và sẵn sàng sáng tạo cùng AIKI!`,
-    rewardBadge: { name: `Huy hiệu ${rule.code}: ${rule.shortTitle}`, iconUrl: rule.posterImage, stars: 3, xp: 50 },
+    title: isRule10 ? 'Chúc mừng tân Hiệp Sĩ AIKI!' : `Con đã hoàn thành Quy tắc ${rule.id}!`,
+    congratsMessage: isRule10
+      ? 'Xuất sắc! Con đã hoàn thành trọn vẹn 10 Quy Tắc Vàng của Xưởng Sáng Tạo AI. Hãy sẵn sàng mở khóa Hải Trình Đảo 1 nhé!'
+      : `Tuyệt vời! Con đã làm chủ "${rule.shortTitle}" và sẵn sàng sáng tạo cùng AIKI!`,
+    rewardBadge: {
+      name: isRule10 ? 'Huy hiệu Hiệp Sĩ AIKI' : `Huy hiệu ${rule.code}: ${rule.shortTitle}`,
+      iconUrl: rule.posterImage,
+      stars: 3,
+      xp: 50,
+    },
     nextLessonId,
     nextLessonSlug: nextLessonId,
-    speech: rule.akiTip || `Chúc mừng con đã hoàn thành xuất sắc Quy Tắc ${rule.id}!`,
+    speech: isRule10
+      ? 'Xuất sắc! Con đã hoàn thành trọn vẹn 10 Quy Tắc Vàng của Xưởng Sáng Tạo AI. Hãy sẵn sàng mở khóa Hải Trình Đảo 1 nhé!'
+      : rule.akiTip || `Chúc mừng con đã hoàn thành xuất sắc Quy Tắc ${rule.id}!`,
   }
   return [
     { id: `rule-${rule.id}-stage-video`, type: 'VIDEO', title: rule.shortTitle || rule.title || 'Rạp chiếu Quy tắc vàng', stepNumber: 1, icon: '🎬', mascotRole: 'Mèo AIKI Kể Chuyện', instruction: 'Theo dõi các hoạt cảnh 16:9 và lắng nghe Mèo AIKI giải thích quy tắc vàng nhé!', speech: videoConfig.speech, awardsStar: 1, config: videoConfig },

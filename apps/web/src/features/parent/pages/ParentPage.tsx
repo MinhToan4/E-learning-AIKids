@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import {
   ParentSubscriptionCheckoutModal,
   type CheckoutProductMode,
@@ -17,6 +18,9 @@ export function ParentPage({
 }: {
   tab?: TabKey
 }) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const upgradeParam = searchParams.get('upgrade')
+
   const [tab, setTab] = useState<TabKey>(initTab)
 
   // Checkout modal state shared across tabs
@@ -45,9 +49,29 @@ export function ParentPage({
     [],
   )
 
+  const handleCloseCheckout = useCallback(() => {
+    setIsCheckoutOpen(false)
+    if (searchParams.has('upgrade')) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete('upgrade')
+        return next
+      }, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
+
   useEffect(() => {
     setTab(initTab)
   }, [initTab])
+
+  useEffect(() => {
+    if (upgradeParam) {
+      setTab('plan')
+      setCheckoutMode('sub')
+      setCheckoutPlanId(upgradeParam || 'aikids_official_129k')
+      setIsCheckoutOpen(true)
+    }
+  }, [upgradeParam])
 
   return (
     <div className="flex flex-col gap-6">
@@ -60,9 +84,9 @@ export function ParentPage({
 
       <ParentSubscriptionCheckoutModal
         open={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
+        onClose={handleCloseCheckout}
         onSuccess={() => {
-          setIsCheckoutOpen(false)
+          handleCloseCheckout()
           window.dispatchEvent(new CustomEvent('parent:reload-data'))
         }}
         initialMode={checkoutMode}

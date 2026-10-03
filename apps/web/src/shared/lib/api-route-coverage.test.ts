@@ -47,6 +47,7 @@ describe('application API route coverage', () => {
       // domain adapter when those feature modules are next changed.
       'features/admin/components/RewardPackAdmin.tsx',
       'features/admin/components/tabs/AdminAffiliatesTab.tsx',
+      'features/admin/components/tabs/AdminBillingTab.tsx',
       'features/teacher/components/TeacherFeedbackPanel.tsx',
       'features/parent/components/ParentTeacherFeedbackSection.tsx',
       'features/parent/hooks/useParentFeedbackBadge.ts',

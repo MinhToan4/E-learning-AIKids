@@ -1406,7 +1406,7 @@ export function LegacyPhaseLessonView(props: LegacyPhaseLessonViewProps) {
         }}
         onUpgrade={() => {
           if (isParent) {
-            navigate('/parent/learning?upgrade=aikids_official_129k')
+            navigate('/parent/plan?upgrade=aikids_official_129k')
           } else {
             setIsParentGateOpen(true)
           }
@@ -1416,7 +1416,7 @@ export function LegacyPhaseLessonView(props: LegacyPhaseLessonViewProps) {
         <ParentGateModal
           open={isParentGateOpen}
           onClose={() => setIsParentGateOpen(false)}
-          redirectTo="/parent/learning?upgrade=aikids_official_129k"
+          redirectTo="/parent/plan?upgrade=aikids_official_129k"
         />
       )}
     </div>

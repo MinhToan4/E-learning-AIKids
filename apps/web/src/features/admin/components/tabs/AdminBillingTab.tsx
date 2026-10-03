@@ -458,7 +458,7 @@ export function AdminBillingTab() {
   async function handleConfirmVietQrPaid(publicId: string) {
     try {
       const res = await api<{ message?: string }>(
-        `/api/admin/billing/subscriptions/intents/${encodeURIComponent(publicId)}/complete`,
+        `/api/v1/billing/admin/subscriptions/intents/${encodeURIComponent(publicId)}/complete`,
         { method: 'POST' },
       )
       showToast(res.message || 'Xác nhận thanh toán VietQR thành công!', 'success')
@@ -515,7 +515,7 @@ export function AdminBillingTab() {
     setBillingConfirmIntent(null)
     try {
       const res = await api<{ message: string }>(
-        `/api/admin/billing/subscriptions/intents/${encodeURIComponent(intent.publicId)}/complete`,
+        `/api/v1/billing/admin/subscriptions/intents/${encodeURIComponent(intent.publicId)}/complete`,
         { method: 'POST' },
       )
       showToast(res.message ?? 'Thanh toán đã được xác nhận', 'success')
