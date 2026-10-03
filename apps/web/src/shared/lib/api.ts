@@ -325,6 +325,24 @@ api.delete = function <T = unknown>(path: string, options: RequestInit = {}): Pr
   return api<T>(path, { ...options, method: 'DELETE' })
 }
 
+export function isAuthAttemptEndpoint(path: string): boolean {
+  return (
+    path.startsWith('/api/auth/login') ||
+    path.startsWith('/api/v1/account/login') ||
+    path.startsWith('/api/v1/account/auth/firebase') ||
+    path.startsWith('/api/v1/account/auth/google') ||
+    path.startsWith('/api/auth/register') ||
+    path.startsWith('/api/v1/account/register') ||
+    path.startsWith('/api/auth/forgot-password') ||
+    path.startsWith('/api/v1/account/forgot-password') ||
+    path.startsWith('/api/auth/reset-password') ||
+    path.startsWith('/api/v1/account/reset-password') ||
+    path.startsWith('/api/auth/change-password') ||
+    path.startsWith('/api/v1/account/me/password') ||
+    path === '/api/parent/gate/verify'
+  )
+}
+
 export function isSecondaryEndpoint(path: string): boolean {
   return (
     path.startsWith('/api/notifications') ||
@@ -340,6 +358,7 @@ export function isSecondaryEndpoint(path: string): boolean {
 }
 
 export function isCoreAuthEndpoint(path: string): boolean {
+  if (isAuthAttemptEndpoint(path)) return false
   return (
     (path.startsWith('/api/auth/') && path !== '/api/auth/me') ||
     path.startsWith('/api/parent/') ||
@@ -442,20 +461,25 @@ async function executeApi<T>(
     // Secondary endpoints (notifications, gamification, media, etc.) must NEVER
     // bounce the user to login on a 401. Only core auth endpoints or an explicit
     // check to /api/auth/me confirming the session is dead may dispatch the event.
-    if (res.status === 401 && path !== '/api/auth/me' && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
-      if (!isSecondaryEndpoint(path)) {
-        if (isCoreAuthEndpoint(path)) {
+    if (
+      res.status === 401 &&
+      path !== '/api/auth/me' &&
+      !isAuthAttemptEndpoint(path) &&
+      !isSecondaryEndpoint(path) &&
+      requestSessionGeneration === sessionGeneration &&
+      !isDevPreviewMode()
+    ) {
+      if (isCoreAuthEndpoint(path)) {
+        clearAccessToken()
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+        }
+      } else {
+        const isDead = await verifySessionDead(signal)
+        if (isDead && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
           clearAccessToken()
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
-          }
-        } else {
-          const isDead = await verifySessionDead(signal)
-          if (isDead && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
-            clearAccessToken()
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
-            }
           }
         }
       }

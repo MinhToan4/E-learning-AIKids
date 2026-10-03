@@ -317,14 +317,14 @@ describe('auth store', () => {
     expect(mocks.api).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
   })
 
-  it('clears an invalid session when bootstrap receives 401', async () => {
+  it('clears an invalid session when bootstrap receives 401 without reporting session expiration', async () => {
     mocks.api.mockRejectedValueOnce(new ApiError(401, 'Expired'))
 
     await useAuth.getState().bootstrap()
 
     expect(useAuth.getState().user).toBeNull()
     expect(useAuth.getState().loading).toBe(false)
-    expect(useAuth.getState().error).toContain('hết hạn')
+    expect(useAuth.getState().error).toBeNull()
     expect(mocks.clearAccessToken).toHaveBeenCalled()
   })
 

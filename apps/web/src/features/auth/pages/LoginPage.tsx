@@ -35,6 +35,7 @@ export function LoginPage() {
       void useAuth.getState().logout().catch(() => undefined)
       return
     }
+    toasts.forEach((t) => dismissToast(t.id))
     if (user.role === 'parent') {
       navigate('/parent', { replace: true })
     } else if (user.role === 'admin') {
@@ -45,12 +46,6 @@ export function LoginPage() {
       navigate('/kids', { replace: true })
     }
   }
-
-  useEffect(() => {
-    if (sessionError) {
-      showToast(sessionError, 'error')
-    }
-  }, [sessionError])
 
   useEffect(() => {
     if (!sessionLoading && sessionUser) {
@@ -71,6 +66,7 @@ export function LoginPage() {
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
+    toasts.forEach((t) => dismissToast(t.id))
     setBusy(true)
     try {
       goAfterLogin(await loginAdult(login.trim(), password))

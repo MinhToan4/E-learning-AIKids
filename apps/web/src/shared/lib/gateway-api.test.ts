@@ -5,6 +5,8 @@ import {
   clearAccessToken,
   downloadAuthorizedBlob,
   getAccessToken,
+  isAuthAttemptEndpoint,
+  isCoreAuthEndpoint,
   markSessionTransition,
   setAccessToken,
   type AchievementRow,
@@ -220,6 +222,38 @@ describe('StoryMee Gateway adapter', () => {
     await expect(api('/api/notifications')).rejects.toMatchObject({ status: 401 })
     await expect(api('/api/gamification/streak')).rejects.toMatchObject({ status: 401 })
     await expect(api('/api/media/upload')).rejects.toMatchObject({ status: 401 })
+
+    expect(unauthorized).not.toHaveBeenCalled()
+    window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+  })
+
+  it('correctly classifies auth attempt endpoints and excludes them from core auth endpoints', () => {
+    expect(isAuthAttemptEndpoint('/api/auth/login/adult')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/auth/login/student')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/v1/account/login')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/v1/account/auth/firebase')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/auth/register')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/auth/forgot-password')).toBe(true)
+    expect(isAuthAttemptEndpoint('/api/parent/gate/verify')).toBe(true)
+
+    expect(isCoreAuthEndpoint('/api/auth/login/adult')).toBe(false)
+    expect(isCoreAuthEndpoint('/api/parent/children')).toBe(true)
+    expect(isCoreAuthEndpoint('/api/v1/account/family/children')).toBe(true)
+  })
+
+  it('does not dispatch auth unauthorized event for auth attempt endpoints on 401', async () => {
+    markSessionTransition()
+    const unauthorized = vi.fn()
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() =>
+      response({ error: 'Invalid password' }, 401),
+    ))
+
+    await expect(api('/api/auth/login/adult', { method: 'POST' })).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/v1/account/login', { method: 'POST' })).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/auth/forgot-password', { method: 'POST' })).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/v1/account/auth/firebase', { method: 'POST' })).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/parent/gate/verify', { method: 'POST' })).rejects.toMatchObject({ status: 401 })
 
     expect(unauthorized).not.toHaveBeenCalled()
     window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)

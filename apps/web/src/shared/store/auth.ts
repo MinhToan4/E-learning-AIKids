@@ -303,7 +303,15 @@ export const useAuth = create<AuthState>((set, get) => ({
       }
 
       if (error instanceof ApiError && error.status === 401) {
-        get().expireSession()
+        clearAccessToken()
+        set({
+          user: null,
+          access: null,
+          activeContext: null,
+          loading: false,
+          error: null, // Khách chưa đăng nhập là bình thường, TUYỆT ĐỐI KHÔNG gán lỗi hết hạn!
+          enteredFromParent: false,
+        })
         return
       }
       // A network/5xx failure does not prove that the credential is invalid.
@@ -342,7 +350,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       clearApiCache()
     }
     // WHY: loginStudent là con tự đăng nhập — KHÔNG phải từ phụ huynh chuyển sang
-    set({ user, access: null, activeContext: null, enteredFromParent: false })
+    set({ user, access: null, activeContext: null, error: null, enteredFromParent: false })
     return user
   },
 
@@ -363,7 +371,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     // WHY: enteredFromParent = true là flag duy nhất phân biệt phiên này với loginStudent.
     // Không dùng parentId vì học sinh tự đăng nhập cũng có parentId.
     writeParentHandoff(true)
-    set({ user, access: null, activeContext: null, enteredFromParent: true })
+    set({ user, access: null, activeContext: null, error: null, enteredFromParent: true })
     return user
   },
 
@@ -390,7 +398,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         const idToken = await signInWithFirebasePassword(resolvedEmail, password)
         hydrated = await exchangeFirebaseSession(idToken, { role: 'parent' })
       }
-      set(hydrated)
+      set({ ...hydrated, error: null })
       return hydrated.user
     } catch (error) {
       set({ error: formatFirebaseError(error) })
@@ -402,7 +410,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     set({ error: null })
     await clearPreviousLearnerData()
     const hydrated = await exchangeFirebaseSession(idToken, options)
-    set(hydrated)
+    set({ ...hydrated, error: null })
     return hydrated.user
   },
 
@@ -432,7 +440,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     }
     await firebase.sendVerification().catch(() => undefined)
     await clearPreviousLearnerData()
-    set(hydrated)
+    set({ ...hydrated, error: null })
     return hydrated.user
   },
 
