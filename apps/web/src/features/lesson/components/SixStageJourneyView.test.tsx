@@ -299,7 +299,7 @@ describe('SixStageJourneyView', () => {
     })
 
     expect(container.textContent).toContain('Chính xác! Tuyệt vời quá bạn ơi!')
-    expect(container.textContent).toContain('🎬 Xem video bài học thôi nào')
+    expect(container.textContent).toContain('Xem video bài học thôi nào')
 
     // Click to advance to video stage
     const toVideoBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -744,13 +744,13 @@ describe('SixStageJourneyView', () => {
 
     // 2-column layout
     const twoColContainer = Array.from(stage0Section?.children || []).find((el) =>
-      el.className.includes('lg:flex-row')
+      el.className.includes('md:flex-row')
     )
     expect(twoColContainer).not.toBeNull()
 
     // Left Column: natural-ratio image, without a forced aspect/height frame.
     const leftCol = twoColContainer?.children[0]
-    expect(leftCol?.className).toContain('lg:w-1/2')
+    expect(leftCol?.className).toContain('md:w-1/2')
     const heroImg = leftCol?.querySelector('img')
     expect(heroImg?.className).toContain('object-contain')
     expect(heroImg?.className).toContain('h-auto')
@@ -758,7 +758,7 @@ describe('SixStageJourneyView', () => {
 
     // Right Column: Objective card + 4 formula keys in 2x2 grid
     const rightCol = twoColContainer?.children[1]
-    expect(rightCol?.className).toContain('lg:w-1/2')
+    expect(rightCol?.className).toContain('md:w-1/2')
     const keysGrid = rightCol?.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2')
     expect(keysGrid).not.toBeNull()
     const keyItems = keysGrid?.children || []
@@ -913,9 +913,9 @@ describe('SixStageJourneyView', () => {
     const sidebar0 = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar0).toBeNull()
 
-    // Bốn Chiếc Chìa Khóa Mở Khóa Câu Lệnh được hiển thị ở Main Learning Canvas
+    // Bốn Chiếc Chìa Khóa Câu Lệnh được hiển thị ở Main Learning Canvas
     const main0 = container.querySelector('[data-testid="stage-0-goal"]')
-    expect(main0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
+    expect(main0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA CÂU LỆNH')
     expect(main0?.textContent).toContain('CÁI GÌ')
     expect(main0?.textContent).toContain('TRÔNG THẾ NÀO')
     expect(main0?.textContent).toContain('ĐANG LÀM GÌ')
@@ -1107,7 +1107,7 @@ describe('SixStageJourneyView', () => {
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
     expect(stage0?.textContent).toContain('Rương 4 Chìa Khóa Thần Kỳ')
-    expect(stage0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
+    expect(stage0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA CÂU LỆNH')
     expect(stage0?.textContent).toContain('1. Cái gì')
     expect(stage0?.textContent).toContain('2. Trông thế nào')
     expect(stage0?.textContent).toContain('3. Đang làm gì')
@@ -1212,10 +1212,10 @@ describe('SixStageJourneyView', () => {
     })
 
     // Expect unlocked state
-    expect(optBBtn.textContent).toContain('🔓')
-    expect(optBBtn.textContent).toContain('Đúng bộ này rồi! 🎉')
+    expect(optBBtn.textContent).toContain('Ổ khóa đã mở')
+    expect(optBBtn.textContent).toContain('Đúng bộ này rồi!')
     expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
-    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào')
+    expect(stage1?.textContent).toContain('Xem video bài học thôi nào')
   })
 
   it('renders clean single current station title badge without clutter station switcher buttons', () => {
@@ -1288,14 +1288,14 @@ describe('SixStageJourneyView', () => {
 
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
-    expect(stage0?.textContent).toContain('CÁC NỘI DUNG TRỌNG TÂM CỦA BÀI HỌC')
+    expect(stage0?.textContent).toContain('NỘI DUNG TRỌNG TÂM CỦA BÀI HỌC')
     expect(stage0?.textContent).toContain('MỘT TỪ')
     expect(stage0?.textContent).toContain('Con mèo')
     expect(stage0?.textContent).toContain('NĂM Ý')
     expect(stage0?.textContent).toContain('Con mèo mướp béo')
     expect(stage0?.textContent).toContain('CÂU THẦN CHÚ')
     expect(stage0?.textContent).toContain('Chỗ nào mình không nói rõ, AI sẽ tự đoán.')
-    expect(stage0?.textContent).toContain('KỸ NĂNG TRẺ HỌC ĐƯỢC')
+    expect(stage0?.textContent).toContain('KỸ NĂNG ĐẠT ĐƯỢC')
     expect(stage0?.textContent).toContain('Biết thêm chi tiết để câu lệnh rõ ràng hơn.')
   })
 
@@ -1471,7 +1471,7 @@ describe('SixStageJourneyView', () => {
     expect((optionButtons[0]?.querySelector('img') as HTMLImageElement).src).toContain(
       '/assets/aiki-keys/lock_wrong_rose.jpg'
     )
-    expect(optionButtons[0]?.textContent).toContain('Chưa mở được 🔒')
+    expect(optionButtons[0]?.textContent).toContain('Chưa mở được')
 
     // 4. User clicks Option B (Correct option)
     act(() => {
@@ -1480,9 +1480,9 @@ describe('SixStageJourneyView', () => {
     expect((optionButtons[1]?.querySelector('img') as HTMLImageElement).src).toContain(
       '/assets/aiki-keys/lock_open_mint.jpg'
     )
-    expect(optionButtons[1]?.textContent).toContain('Đúng bộ này rồi! 🎉')
+    expect(optionButtons[1]?.textContent).toContain('Đúng bộ này rồi!')
     expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
-    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào')
+    expect(stage1?.textContent).toContain('Xem video bài học thôi nào')
   })
 
   it('navigates Stage 4 quiz using single question stepper with side-by-side layout and progress indicators', () => {

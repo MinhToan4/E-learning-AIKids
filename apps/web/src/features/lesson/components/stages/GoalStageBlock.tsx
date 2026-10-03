@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, ZoomIn } from 'lucide-react'
+import { Target, ZoomIn } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import type { JourneyStageDefinition, GoalStageConfig } from '../../types/stage-schema'
@@ -52,9 +52,9 @@ export function GoalStageBlock({
       </div>
 
       {/* Thân nội dung 2 cột */}
-      <div className="flex flex-col lg:flex-row gap-5 items-stretch">
+      <div className="flex flex-col md:flex-row gap-5 items-stretch">
         {/* Cột Trái (Ảnh) */}
-        <div className="w-full lg:w-1/2 flex flex-col">
+        <div className="w-full md:w-1/2 min-w-0 flex-1 flex flex-col">
           <div className="group relative w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200/80 shadow-xs aspect-16/11 sm:aspect-16/10 flex items-center justify-center">
             <img
               fetchPriority="high"
@@ -67,7 +67,6 @@ export function GoalStageBlock({
             />
             {/* sr-only text và nút Phóng to */}
             <div className="sr-only">
-              <span>🔑</span>
               <span>{config.isFourKeys ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
               {config.isFourKeys && (
                 <div>
@@ -91,10 +90,10 @@ export function GoalStageBlock({
         </div>
 
         {/* Cột Phải (Mục tiêu cốt lõi + Box 4 chìa khóa 2x2) */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-between gap-4">
+        <div className="w-full md:w-1/2 min-w-0 flex-1 flex flex-col justify-between gap-4 break-normal leading-relaxed">
           {/* Mục Tiêu Cốt Lõi */}
           <div className="w-full rounded-2xl border border-purple-100 bg-[#f5f0ff] p-4 sm:p-5 shadow-2xs flex items-start gap-3 shrink-0">
-            <span className="text-2xl shrink-0 mt-0.5">🎯</span>
+            <Target size={22} className="text-purple-600 shrink-0 mt-0.5" />
             <div className="min-w-0">
               <span className="font-black text-purple-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
                 Mục Tiêu Cốt Lõi:
@@ -104,7 +103,7 @@ export function GoalStageBlock({
               </div>
               {config.skillLearned && (
                 <div className="mt-2 text-xs sm:text-sm font-bold text-purple-700 bg-purple-100/70 px-3 py-1.5 rounded-xl border border-purple-200/80 w-fit">
-                  💡 KỸ NĂNG TRẺ HỌC ĐƯỢC: <span className="font-semibold text-purple-900">{config.skillLearned}</span>
+                  KỸ NĂNG ĐẠT ĐƯỢC: <span className="font-semibold text-purple-900">{config.skillLearned}</span>
                 </div>
               )}
             </div>
@@ -114,7 +113,7 @@ export function GoalStageBlock({
           {config.isFourKeys && config.formulaCards && config.formulaCards.length > 0 ? (
             <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0 justify-center">
               <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-purple-900 min-w-0 break-words shrink-0">
-                <span>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</span>
+                <span>BỐN CHIẾC CHÌA KHÓA CÂU LỆNH:</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {config.formulaCards.map((card, idx) => (
@@ -155,7 +154,7 @@ export function GoalStageBlock({
           ) : (
             <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0">
               <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-purple-900 min-w-0 break-words shrink-0">
-                <span>✨ CÁC NỘI DUNG TRỌNG TÂM CỦA BÀI HỌC:</span>
+                <span>NỘI DUNG TRỌNG TÂM CỦA BÀI HỌC:</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {(config.parsedCards || []).map((card, idx) => {
@@ -181,7 +180,7 @@ export function GoalStageBlock({
                         </span>
                         {isSpecialSpan && (
                           <span className="text-[10px] sm:text-[11px] font-black text-amber-700 uppercase tracking-wide">
-                            ⭐ Ghi nhớ vàng
+                            Ghi nhớ trọng tâm
                           </span>
                         )}
                       </div>

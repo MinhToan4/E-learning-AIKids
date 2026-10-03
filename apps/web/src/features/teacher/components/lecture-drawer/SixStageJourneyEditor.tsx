@@ -221,7 +221,7 @@ export function SixStageJourneyEditor({
               >
                 <Star size={14} className={cn((currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? 'fill-amber-950 text-amber-950' : 'text-slate-400')} />
                 <span>
-                  {(currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? '⭐ Chặng này được tặng 1 Sao' : 'Chưa tặng sao ở chặng này'}
+                  {(currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? 'Chặng này được tặng 1 Sao' : 'Chưa tặng sao ở chặng này'}
                 </span>
               </button>
               <span className="text-[11px] font-bold text-brand-800">

@@ -1,11 +1,32 @@
 import React, { useState } from 'react'
-import { ChevronUp, ChevronDown, Wand2, Volume2, Palette } from 'lucide-react'
+import { ChevronUp, ChevronDown, Wand2, Volume2, Palette, Key, Stethoscope, Layers, Lock, Sparkles, BookOpen } from 'lucide-react'
 import type { LessonSixStageJourney, SixStagePractice } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { CREATIVE_ENGINES, ENGINE_DEFAULT_MOTTOS } from '../lecture-drawer-constants'
 import { Stage5CreativeEngineEditor } from '../../engine-editors'
 import { PracticeWorkflowStepsAccordion } from '../PracticeWorkflowStepsAccordion'
 import { DEFAULT_NOTEBOOK_CONFIGS } from '@/features/lesson/data/island-curriculum-registry'
+
+function renderCreativeEngineIcon(mode: string) {
+  switch (mode) {
+    case 'magic-keys':
+      return <Key size={20} className="text-brand-600" />
+    case 'style-prism':
+      return <Palette size={20} className="text-purple-600" />
+    case 'prompt-doctor':
+      return <Stethoscope size={20} className="text-rose-600" />
+    case 'layer-stacking':
+      return <Layers size={20} className="text-emerald-600" />
+    case 'identity-lock':
+      return <Lock size={20} className="text-cyan-600" />
+    case 'card-forge':
+      return <Sparkles size={20} className="text-amber-600" />
+    case 'creative-notebook':
+      return <BookOpen size={20} className="text-amber-600" />
+    default:
+      return <Sparkles size={20} className="text-slate-600" />
+  }
+}
 
 export interface PracticeBlockEditorProps {
   practice: LessonSixStageJourney['stage5_practice']
@@ -129,7 +150,7 @@ export function PracticeBlockEditor({
                         ĐANG CHỌN
                       </span>
                     )}
-                    <span className="text-xl mb-1 mt-0.5">{eng.icon}</span>
+                    <span className="size-8 rounded-xl bg-slate-100 flex items-center justify-center mb-1 mt-0.5">{renderCreativeEngineIcon(eng.mode)}</span>
                     <span className="text-[11px] font-black text-slate-900 block leading-tight">
                       {eng.shortName}
                     </span>

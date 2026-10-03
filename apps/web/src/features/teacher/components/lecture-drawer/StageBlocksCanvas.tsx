@@ -257,8 +257,8 @@ export function StageBlocksCanvas({
         >
           <p className="text-xs font-bold text-sky-900">
             {isDragOver
-              ? '✨ Thả để thêm khối vào cuối chặng!'
-              : '➕ Thêm khối vào chặng này (kéo từ menu trái hoặc bấm nhanh):'}
+              ? 'Thả để thêm khối vào cuối chặng'
+              : 'Thêm khối vào chặng này (kéo từ menu trái hoặc bấm nhanh):'}
           </p>
           <div className="mt-2.5 flex flex-wrap justify-center gap-2">
             {AVAILABLE_MODULES.map((mod) => (
@@ -275,8 +275,8 @@ export function StageBlocksCanvas({
                 className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 transition cursor-pointer active:scale-95"
                 title={mod.desc}
               >
-                <span>{mod.icon}</span>
-                <span>+ {mod.label}</span>
+                <Plus size={11} className="text-brand-600" />
+                <span>{mod.label}</span>
               </button>
             ))}
           </div>

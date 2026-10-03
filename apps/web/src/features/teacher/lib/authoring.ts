@@ -1139,12 +1139,12 @@ export function newPatrolWave(index: number): PatrolWave {
 // ─── Six-Stage Island Course Helpers & Draft Normalization ────────────────────
 
 export const ISLAND_6_STAGE_NAMES = [
-  '1. 🎯 Mục tiêu (Ảnh)',
-  '2. ❓ Xác nhận (1 câu hỏi)',
-  '3. 🎬 Video bài học',
-  '4. 📝 Bài test thử tài',
-  '5. 🎨 Thực hành (AI Studio)',
-  '6. 🏆 Màn kết thúc',
+  '1. Mục tiêu (Ảnh)',
+  '2. Xác nhận',
+  '3. Video bài học',
+  '4. Bài test thử tài',
+  '5. Thực hành',
+  '6. Kết thúc',
 ] as const
 
 export const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'

@@ -126,7 +126,7 @@ export function FullStationPreviewModal({
       }}
     >
       <div
-        className="w-full max-w-[460px] sm:max-w-[490px] max-h-[92vh] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white shadow-2xl overflow-hidden"
+        className="w-full max-w-3xl sm:max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white shadow-2xl overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-label="Xem trước học sinh"
@@ -163,7 +163,7 @@ export function FullStationPreviewModal({
 
           {/* Hàng dưới: Thanh chọn nhanh 6 chặng */}
           <nav
-            className="flex items-center gap-1 overflow-x-auto px-3 py-2 bg-brand-50/50 border-t border-brand-100/60 scrollbar-none"
+            className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 px-3 py-2 bg-brand-50/50 border-t border-brand-100/60"
             aria-label="Chọn chặng xem trước"
           >
             {stagesList.map((stage) => {
@@ -174,7 +174,7 @@ export function FullStationPreviewModal({
                   type="button"
                   onClick={() => setActiveStage(stage.index)}
                   className={cn(
-                    'inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black transition cursor-pointer shrink-0 shadow-2xs',
+                    'inline-flex items-center justify-center gap-1 px-1.5 sm:px-2 py-1 rounded-xl text-[11px] font-black transition cursor-pointer shadow-2xs w-full min-w-0',
                     isSelected
                       ? 'bg-brand-600 text-white shadow-xs font-black'
                       : 'bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-900 border border-slate-200/80 hover:border-brand-200',
@@ -182,13 +182,13 @@ export function FullStationPreviewModal({
                 >
                   <span
                     className={cn(
-                      'size-4 rounded-full text-[10px] grid place-items-center font-black',
+                      'size-4 rounded-full text-[10px] grid place-items-center font-black shrink-0',
                       isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600',
                     )}
                   >
                     {stage.index + 1}
                   </span>
-                  <span className="whitespace-nowrap">{stage.shortName}</span>
+                  <span className="truncate">{stage.shortName}</span>
                 </button>
               )
             })}
@@ -197,7 +197,7 @@ export function FullStationPreviewModal({
 
         {/* Thân Modal: Device Sandbox */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-slate-50/70">
-          <div className="w-full max-w-[390px] mx-auto rounded-2xl border-2 border-slate-300/80 bg-white shadow-sm overflow-hidden p-3.5">
+          <div className="w-full max-w-[760px] mx-auto rounded-2xl border-2 border-slate-300/80 bg-white shadow-sm overflow-hidden p-3.5 sm:p-5">
             {isIsland ? (
               <StudentStagePreview
                 stageIndex={safeActiveStage}

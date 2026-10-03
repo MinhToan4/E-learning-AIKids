@@ -103,7 +103,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'magic-keys',
     title: '4 Chìa Khóa Ma Thuật',
     shortName: '4 Chìa Khóa',
-    icon: '🔑',
+    icon: 'magic-keys',
     desc: 'Ai? + Trông thế nào? + Làm gì? + Ở đâu?',
     activeBorder: 'border-brand-500 ring-2 ring-brand-400 bg-white',
     badgeBg: 'bg-brand-600',
@@ -112,7 +112,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'style-prism',
     title: 'Lăng Kính Phù Thủy',
     shortName: 'Lăng Kính',
-    icon: '🔮',
+    icon: 'style-prism',
     desc: 'Xoay 4 phong cách: Đất nặn, Màu nước, 3D, Dân gian',
     activeBorder: 'border-purple-500 ring-2 ring-purple-400 bg-white',
     badgeBg: 'bg-purple-600',
@@ -121,7 +121,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'prompt-doctor',
     title: 'Bác Sĩ Câu Lệnh',
     shortName: 'Bác Sĩ AIKI',
-    icon: '🩺',
+    icon: 'prompt-doctor',
     desc: 'Bắt bệnh tranh lỗi & kê đơn thuốc thẻ chữ',
     activeBorder: 'border-rose-500 ring-2 ring-rose-400 bg-white',
     badgeBg: 'bg-rose-600',
@@ -130,7 +130,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'layer-stacking',
     title: '3 Tầng Sân Khấu',
     shortName: '3 Tầng',
-    icon: '🎭',
+    icon: 'layer-stacking',
     desc: 'Hậu cảnh - Ngôi sao 1/3 - Tiền cảnh',
     activeBorder: 'border-emerald-500 ring-2 ring-emerald-400 bg-white',
     badgeBg: 'bg-emerald-600',
@@ -139,7 +139,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'identity-lock',
     title: 'Khóa Mật Mã & Biểu Cảm',
     shortName: 'Khóa Mật Mã',
-    icon: '🔒',
+    icon: 'identity-lock',
     desc: 'Khóa 3 ADN nhân vật & xoay 6 biểu cảm',
     activeBorder: 'border-cyan-500 ring-2 ring-cyan-400 bg-white',
     badgeBg: 'bg-cyan-600',
@@ -148,7 +148,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'card-forge',
     title: 'Xưởng Đúc Thẻ Bài TCG',
     shortName: 'Đúc Thẻ Bài',
-    icon: '🃏',
+    icon: 'card-forge',
     desc: 'Hệ nguyên tố, khung pha lê, chỉ số HP/ATK',
     activeBorder: 'border-amber-500 ring-2 ring-amber-400 bg-white',
     badgeBg: 'bg-amber-600',
@@ -157,7 +157,7 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
     mode: 'creative-notebook',
     title: 'Sổ Tay Sáng Tạo Ba Lô',
     shortName: 'Sổ Tay Ba Lô',
-    icon: '🎒',
+    icon: 'creative-notebook',
     desc: 'Lập hồ sơ, viết cốt truyện, phân cảnh storyboard cất Ba Lô',
     activeBorder: 'border-amber-500 ring-2 ring-amber-400 bg-white',
     badgeBg: 'bg-amber-600',
@@ -165,24 +165,24 @@ export const CREATIVE_ENGINES: CreativeEngineOption[] = [
 ]
 
 export const AVAILABLE_MODULES = [
-  { id: 'course-text', label: 'Nội Dung Bài Học', icon: '📖', desc: 'Khối nội dung chuẩn cho khóa học 6 chặng' },
-  { id: 'course-four-keys', label: 'Bộ 4 Chìa Khóa', icon: '🔑', desc: 'Một bộ 4 ô kéo thả dùng trong Mục tiêu hoặc Xác nhận' },
-  { id: 'text', label: 'Đoạn văn bản (Textbox)', icon: '📖', desc: 'Thêm một đoạn văn bản hoặc tiêu đề mới' },
-  { id: 'layout-callout', label: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung vàng ghi chú bí kíp bỏ túi' },
-  { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '🔤', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
-  { id: 'layout-split', label: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
-  { id: 'layout-two-text', label: '2 Cột: 2 Văn Bản Song Song', icon: '📄', desc: 'Hai cột văn bản song song không kèm ảnh' },
-  { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Lưới 3 thẻ ví dụ trực quan' },
-  { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '🔑', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
-  { id: 'layout-confirm-option', label: 'Phương Án Lựa Chọn (A, B, C...)', icon: '🔘', desc: 'Phương án trắc nghiệm xác nhận mục tiêu (Chữ + Ảnh)' },
-  { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '🎬', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
-  { id: 'voice', label: 'Giọng đọc & Lời thoại', icon: '🎙️', desc: 'Trợ lý giọng đọc AI & lipsync ngầm, tối ưu diện tích bài học' },
-  { id: 'video', label: 'Video Bài Giảng (16:9)', icon: '🎬', desc: 'Video MP4 / YouTube sạch bóng với dải phụ đề riêng biệt' },
-  { id: 'versus-ab', label: '2 Ảnh Đối Đầu A/B', icon: '🖼️', desc: 'Upload & cấu hình 2 ảnh đối đầu A & B' },
-  { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Phân vai Zico / Sonet / AIKI / Tùy chọn' },
-  { id: 'compare', label: 'Bảng So Sánh 2 Cột', icon: '⚖️', desc: 'Bảng 2 cột tiêu đề, nội dung & 2 ảnh so sánh' },
-  { id: 'poster', label: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Quy tắc to bản, ảnh poster riêng & bí kíp bỏ túi' },
-  { id: 'images', label: 'Bộ Sưu Tập Ảnh Minh Họa', icon: '📷', desc: 'Danh sách ảnh kèm caption chú thích' },
+  { id: 'course-text', label: 'Nội Dung Bài Học', icon: '', desc: 'Khối nội dung chuẩn cho khóa học 6 chặng' },
+  { id: 'course-four-keys', label: 'Bộ 4 Chìa Khóa', icon: '', desc: 'Một bộ 4 ô kéo thả dùng trong Mục tiêu hoặc Xác nhận' },
+  { id: 'text', label: 'Đoạn văn bản (Textbox)', icon: '', desc: 'Thêm một đoạn văn bản hoặc tiêu đề mới' },
+  { id: 'layout-callout', label: 'Hộp Ghi Nhớ Nổi Bật', icon: '', desc: 'Khung vàng ghi chú bí kíp bỏ túi' },
+  { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
+  { id: 'layout-split', label: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
+  { id: 'layout-two-text', label: '2 Cột: 2 Văn Bản Song Song', icon: '', desc: 'Hai cột văn bản song song không kèm ảnh' },
+  { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '', desc: 'Lưới 3 thẻ ví dụ trực quan' },
+  { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
+  { id: 'layout-confirm-option', label: 'Phương Án Lựa Chọn (A, B, C...)', icon: '', desc: 'Phương án trắc nghiệm xác nhận mục tiêu (Chữ + Ảnh)' },
+  { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
+  { id: 'voice', label: 'Giọng đọc & Lời thoại', icon: '', desc: 'Trợ lý giọng đọc AI & lipsync ngầm, tối ưu diện tích bài học' },
+  { id: 'video', label: 'Video Bài Giảng (16:9)', icon: '', desc: 'Video MP4 / YouTube sạch bóng với dải phụ đề riêng biệt' },
+  { id: 'versus-ab', label: '2 Ảnh Đối Đầu A/B', icon: '', desc: 'Upload & cấu hình 2 ảnh đối đầu A & B' },
+  { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '', desc: 'Phân vai Zico / Sonet / AIKI / Tùy chọn' },
+  { id: 'compare', label: 'Bảng So Sánh 2 Cột', icon: '', desc: 'Bảng 2 cột tiêu đề, nội dung & 2 ảnh so sánh' },
+  { id: 'poster', label: 'Poster Quy Tắc Vàng', icon: '', desc: 'Quy tắc to bản, ảnh poster riêng & bí kíp bỏ túi' },
+  { id: 'images', label: 'Bộ Sưu Tập Ảnh Minh Họa', icon: '', desc: 'Danh sách ảnh kèm caption chú thích' },
 ] as const
 
 export function speakTextPreview(text: string) {
@@ -225,19 +225,19 @@ export const LEARN_LAYOUT_OPTIONS: Array<{
   icon: string
   description: string
 }> = [
-  { id: 'text', label: '1 Cột Tập Trung', icon: '📖', description: 'Một cột, phù hợp giải thích ý chính & đọc tập trung.' },
-  { id: 'split', label: '2 Cột Chữ + Media', icon: '📰', description: 'Hai cột trên màn hình lớn: Chữ bên trái, ảnh bên phải.' },
-  { id: 'visual-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', description: '2–3 ô để so sánh hoặc phân loại ý tưởng.' },
-  { id: 'storyboard', label: 'Chuỗi Storyboard', icon: '🎬', description: 'Các khung cảnh tranh vẽ diễn hoạt theo trình tự.' },
+  { id: 'text', label: '1 Cột Tập Trung', icon: '', description: 'Một cột, phù hợp giải thích ý chính & đọc tập trung.' },
+  { id: 'split', label: '2 Cột Chữ + Media', icon: '', description: 'Hai cột trên màn hình lớn: Chữ bên trái, ảnh bên phải.' },
+  { id: 'visual-grid', label: 'Lưới 3 Ô Thẻ', icon: '', description: '2–3 ô để so sánh hoặc phân loại ý tưởng.' },
+  { id: 'storyboard', label: 'Chuỗi Storyboard', icon: '', description: 'Các khung cảnh tranh vẽ diễn hoạt theo trình tự.' },
 ]
 
 export const LECTURE_GESTURES = [
-  { id: 'presentation', label: '🤲 Thuyết trình cơ bản' },
-  { id: 'point-left', label: '👈 Chỉ bảng bài học' },
-  { id: 'think', label: '💡 Cùng suy nghĩ (đố vui)' },
-  { id: 'idea', label: '💡 Aha! Nêu mẹo (quy tắc)' },
-  { id: 'celebrate-1', label: '🎉 Hoan hô ăn mừng' },
-  { id: 'explain', label: '👐 Diễn giải mở rộng' },
+  { id: 'presentation', label: 'Thuyết trình cơ bản' },
+  { id: 'point-left', label: 'Chỉ bảng bài học' },
+  { id: 'think', label: 'Cùng suy nghĩ (đố vui)' },
+  { id: 'idea', label: 'Aha! Nêu mẹo (quy tắc)' },
+  { id: 'celebrate-1', label: 'Hoan hô ăn mừng' },
+  { id: 'explain', label: 'Diễn giải mở rộng' },
 ] as const
 
 export const LEARN_KIND_PRESENTATION = {
@@ -255,37 +255,7 @@ export const LEARN_KIND_PRESENTATION = {
 } satisfies Record<LearnCardDraft['kind'], { label: string; icon: typeof Lightbulb; tone: string }>
 
 export function getBlockIcon(type: ContentBlockType): string {
-  switch (type) {
-    case 'text':
-    case 'layout-text':
-      return '📖'
-    case 'layout-callout':
-      return '💡'
-    case 'layout-formula':
-      return '🔤'
-    case 'layout-split':
-      return '📰'
-    case 'layout-grid':
-      return '🍱'
-    case 'layout-storyboard':
-      return '🎬'
-    case 'voice':
-      return '🐱'
-    case 'video':
-      return '🎬'
-    case 'versus-ab':
-      return '🖼️'
-    case 'dialogue':
-      return '💬'
-    case 'compare':
-      return '⚖️'
-    case 'poster':
-      return '📜'
-    case 'images':
-      return '📷'
-    default:
-      return '📦'
-  }
+  return ''
 }
 
 export function getBlockTitle(type: ContentBlockType, customTitle?: string): string {

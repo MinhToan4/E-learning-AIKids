@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { HelpCircle, ZoomIn, Video, Palette } from 'lucide-react'
+import { HelpCircle, ZoomIn, Video, Palette, CheckCircle2, Lightbulb, Lock } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { playInstantSound } from '../LessonInteractiveSidebar'
@@ -147,7 +147,7 @@ export function ConfirmStageBlock({
                         : 'border-amber-200 group-hover:scale-105'
                     )}
                   >
-                    <span className="sr-only">{isPick ? '🔓' : '🔒'}</span>
+                    <span className="sr-only">{isPick ? 'Ổ khóa đã mở' : 'Ổ khóa đang khóa'}</span>
                     <img
                       loading="lazy"
                       decoding="async"
@@ -166,7 +166,7 @@ export function ConfirmStageBlock({
                       {option.text}
                     </h3>
                     <span className="text-xs sm:text-sm font-bold text-slate-500">
-                      {isPick ? '✨ 4 Chìa Khóa Vàng' : 'Bộ 4 Chìa Khóa'}
+                      {isPick ? '4 Chìa Khóa Vàng' : 'Bộ 4 Chìa Khóa'}
                     </span>
                   </div>
                 </div>
@@ -237,9 +237,9 @@ export function ConfirmStageBlock({
                   )}
                 >
                   {isPick
-                    ? 'Đúng bộ này rồi! 🎉'
+                    ? 'Đúng bộ này rồi!'
                     : isSelected && !isCorrect
-                    ? 'Chưa mở được 🔒'
+                    ? 'Chưa mở được'
                     : 'Bấm để chọn bộ này'}
                 </div>
               </button>
@@ -382,9 +382,9 @@ export function ConfirmStageBlock({
                   )}
                 >
                   {isSelected && isThisOptionCorrect
-                    ? 'Chính xác! 🎉'
+                    ? 'Chính xác!'
                     : isSelected && !isThisOptionCorrect
-                    ? 'Chưa đúng, thử lại nhé! ❌'
+                    ? 'Chưa đúng, thử lại nhé!'
                     : 'Bấm để chọn đáp án này'}
                 </div>
 
@@ -467,9 +467,9 @@ export function ConfirmStageBlock({
                   )}
                 >
                   {isSelected && isThisOptionCorrect
-                    ? 'Chính xác! 🎉'
+                    ? 'Chính xác!'
                     : isSelected && !isThisOptionCorrect
-                    ? 'Chưa đúng, thử lại nhé! ❌'
+                    ? 'Chưa đúng, thử lại nhé!'
                     : 'Bấm để chọn đáp án này'}
                 </div>
 
@@ -499,7 +499,7 @@ export function ConfirmStageBlock({
         {isCorrect ? (
           <div className="flex-1 w-full order-1 sm:order-2 flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
             <div className="flex-1 bg-mint-50 border border-mint-200 rounded-2xl p-2 sm:p-2.5 flex items-center gap-2 text-xs sm:text-sm text-mint-900 shadow-2xs font-bold">
-              <span className="text-lg shrink-0">🎉</span>
+              <CheckCircle2 size={18} className="text-mint-600 shrink-0" />
               <p className="leading-snug line-clamp-2">
                 <strong>Đúng rồi các cậu ơi!</strong> {config.explanation}
               </p>
@@ -510,7 +510,7 @@ export function ConfirmStageBlock({
               onClick={onContinue}
             >
               <span>Xem video</span>
-              <span className="sr-only">🎬 Xem video bài học thôi nào</span>
+              <span className="sr-only">Xem video bài học thôi nào</span>
             </button>
           </div>
         ) : (
@@ -518,14 +518,14 @@ export function ConfirmStageBlock({
             {config.hasKeyOptions ? (
               selectedOption === null ? (
                 <div className="flex-1 bg-amber-50 border border-amber-200/80 rounded-2xl p-3 flex items-center gap-2.5 text-xs sm:text-sm text-amber-900 shadow-2xs">
-                  <span className="text-base shrink-0">💡</span>
+                  <Lightbulb size={16} className="text-amber-600 shrink-0" />
                   <p className="leading-snug font-bold">
                     Bé hãy quan sát 4 chiếc chìa khóa của 3 bộ ở trên, bộ nào có đủ [Cái gì · Trông như thế nào · Đang làm gì · Ở đâu] thì bấm chọn để mở Ổ Khóa nhé!
                   </p>
                 </div>
               ) : (
                 <div className="flex-1 bg-rose-50 border border-rose-200/80 rounded-2xl p-3 flex items-center gap-2.5 text-xs sm:text-sm text-rose-900 shadow-2xs">
-                  <span className="text-base shrink-0">🔒</span>
+                  <Lock size={16} className="text-rose-600 shrink-0" />
                   <p className="leading-snug font-bold">
                     Chưa mở được ổ khóa! Bé hãy quan sát kỹ lại 4 chìa khóa và chọn bộ khác nhé!
                   </p>
@@ -533,7 +533,7 @@ export function ConfirmStageBlock({
               )
             ) : (
               <span className="text-xs text-slate-500 italic">
-                💡 Bé hãy quan sát kỹ 3 bức tranh để chọn phương án đúng nhé!
+                Bé hãy quan sát kỹ 3 bức tranh để chọn phương án đúng nhé!
               </span>
             )}
           </div>

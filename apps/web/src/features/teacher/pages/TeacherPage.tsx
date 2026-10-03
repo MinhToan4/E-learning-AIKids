@@ -10,11 +10,77 @@
  * RBAC: teacher (full write) + admin (read-only on class operations)
  */
 import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode, Suspense, lazy } from 'react'
-import { Search, AlertCircle, RefreshCw, Puzzle, ListOrdered, Plus, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Target, Columns2, Image, BookOpen, ArrowLeft } from 'lucide-react'
+import {
+  Search,
+  AlertCircle,
+  RefreshCw,
+  Puzzle,
+  ListOrdered,
+  Plus,
+  ChevronDown,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Target,
+  Columns2,
+  Image,
+  BookOpen,
+  ArrowLeft,
+  FileText,
+  Grid3X3,
+  Key,
+  Video,
+  Mic,
+  Lightbulb,
+  Scale,
+  MessageSquare,
+  Type,
+  Shield,
+  Scroll,
+  CheckCircle2,
+} from 'lucide-react'
 
 import { FeatureBlockHoverPreview } from '../components/FeatureBlockHoverPreview'
 import type { FeatureBlockItem } from '../types'
 export type { FeatureBlockItem }
+
+export function renderFeatureBlockIcon(itemId: string, size = 16) {
+  const props = { size, className: 'shrink-0' }
+  switch (itemId) {
+    case 'layout-text':
+      return <FileText {...props} />
+    case 'layout-split':
+    case 'layout-two-text':
+      return <Columns2 {...props} />
+    case 'layout-grid':
+      return <Grid3X3 {...props} />
+    case 'layout-four-keys':
+      return <Key {...props} />
+    case 'practice-workflow':
+      return <ListOrdered {...props} />
+    case 'versus-ab':
+    case 'images':
+      return <Image {...props} />
+    case 'video':
+      return <Video {...props} />
+    case 'voice':
+      return <Mic {...props} />
+    case 'layout-callout':
+      return <Lightbulb {...props} />
+    case 'compare':
+      return <Scale {...props} />
+    case 'dialogue':
+      return <MessageSquare {...props} />
+    case 'layout-formula':
+      return <Type {...props} />
+    case 'poster':
+      return <Scroll {...props} />
+    case 'layout-confirm-option':
+      return <CheckCircle2 {...props} />
+    default:
+      return <BookOpen {...props} />
+  }
+}
 
 export const FEATURE_BLOCKS_CATEGORIES: Array<{
   category: string
@@ -23,36 +89,36 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
 }> = [
   {
     category: 'Bố Cục & Cột Nội Dung',
-    icon: '📐',
+    icon: '',
     items: [
-      { id: 'layout-text', name: '1 Cột Văn Bản (Full Width)', icon: '📖', desc: 'Văn bản lớn ở giữa màn hình hoặc toàn chiều rộng', color: 'border-slate-200 bg-slate-50/80 text-slate-950' },
-      { id: 'layout-split', name: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '📰', desc: 'Chữ bên trái, ảnh bên phải', badge: 'Chuẩn', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
-      { id: 'layout-two-text', name: '2 Cột: 2 Văn Bản Song Song', icon: '📄', desc: 'Hai cột văn bản song song không kèm ảnh', badge: '2 Cột', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
-      { id: 'layout-grid', name: '3 Cột: Lưới 3 Ô Thẻ (Grid 3)', icon: '🍱', desc: 'Phân loại ví dụ hoặc 3 ý tưởng', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
-      { id: 'layout-four-keys', name: '1 Ảnh + 4 Thẻ Chìa Khóa / Đặc Điểm', icon: '🔑', desc: 'Bộ 4 chìa khóa: Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Trọng tâm', color: 'border-amber-200 bg-gradient-to-r from-sky-50 via-amber-50 to-rose-50 text-slate-950' },
-      { id: 'practice-workflow', name: 'Quy Trình 4 Bước Thao Tác', icon: '🪜', desc: 'Bốn bước thao tác có thể sắp xếp', badge: 'Thực hành', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
+      { id: 'layout-text', name: '1 Cột Văn Bản (Full Width)', icon: '', desc: 'Văn bản lớn ở giữa màn hình hoặc toàn chiều rộng', color: 'border-slate-200 bg-slate-50/80 text-slate-950' },
+      { id: 'layout-split', name: '2 Cột: 1 Ảnh + 1 Chữ (50/50)', icon: '', desc: 'Chữ bên trái, ảnh bên phải', badge: 'Chuẩn', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
+      { id: 'layout-two-text', name: '2 Cột: 2 Văn Bản Song Song', icon: '', desc: 'Hai cột văn bản song song không kèm ảnh', badge: '2 Cột', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
+      { id: 'layout-grid', name: '3 Cột: Lưới 3 Ô Thẻ (Grid 3)', icon: '', desc: 'Phân loại ví dụ hoặc 3 ý tưởng', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
+      { id: 'layout-four-keys', name: '1 Ảnh + 4 Thẻ Chìa Khóa / Đặc Điểm', icon: '', desc: 'Bộ 4 chìa khóa: Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Trọng tâm', color: 'border-amber-200 bg-gradient-to-r from-sky-50 via-amber-50 to-rose-50 text-slate-950' },
+      { id: 'practice-workflow', name: 'Quy Trình 4 Bước Thao Tác', icon: '', desc: 'Bốn bước thao tác có thể sắp xếp', badge: 'Thực hành', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
     ],
   },
   {
     category: 'Hình Ảnh & Đa Phương Tiện',
-    icon: '🖼️',
+    icon: '',
     items: [
-      { id: 'versus-ab', name: '2 Ảnh Đối Đầu A/B (So Sánh Tranh)', icon: '🖼️', desc: 'Chọn tranh đúng sai, đối kháng A/B', badge: 'Hot', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-      { id: 'images', name: 'Bộ Sưu Tập Ảnh (Gallery)', icon: '📸', desc: 'Minh họa đa ảnh kèm chú thích chi tiết', color: 'border-teal-200 bg-teal-50/80 text-teal-950' },
-      { id: 'video', name: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube tự phát có mốc tua', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
-      { id: 'voice', name: 'Giọng Đọc & Lời Thoại Bài Học', icon: '🎙️', desc: 'Giọng đọc bài học và lời thoại hướng dẫn', color: 'border-rose-200 bg-rose-50/80 text-rose-950' },
+      { id: 'versus-ab', name: '2 Ảnh Đối Đầu A/B (So Sánh Tranh)', icon: '', desc: 'Chọn tranh đúng sai, đối kháng A/B', badge: 'Hot', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+      { id: 'images', name: 'Bộ Sưu Tập Ảnh (Gallery)', icon: '', desc: 'Minh họa đa ảnh kèm chú thích chi tiết', color: 'border-teal-200 bg-teal-50/80 text-teal-950' },
+      { id: 'video', name: 'Video Bài Giảng', icon: '', desc: 'Video MP4 / YouTube tự phát có mốc tua', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
+      { id: 'voice', name: 'Giọng Đọc & Lời Thoại Bài Học', icon: '', desc: 'Giọng đọc bài học và lời thoại hướng dẫn', color: 'border-rose-200 bg-rose-50/80 text-rose-950' },
     ],
   },
   {
     category: 'Khối Tương Tác & Sư Phạm',
-    icon: '💡',
+    icon: '',
     items: [
-      { id: 'layout-callout', name: 'Hộp Ghi Nhớ Nổi Bật (Callout)', icon: '💡', desc: 'Khung bo cong nhấn mạnh thông điệp, mẹo học', badge: 'Mẹo', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
-      { id: 'compare', name: 'Bảng So Sánh 2 Cột (AI vs Con Người)', icon: '⚖️', desc: 'Đối chiếu AI vs Bộ não sáng tạo của con', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
-      { id: 'dialogue', name: 'Kịch Bản Phân Vai', icon: '💬', desc: 'Hội thoại bong bóng giữa các nhân vật', badge: 'Mới', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
-      { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '🔤', desc: 'Toán học & tư duy công thức trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
-      { id: 'poster', name: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Banner quy tắc to bản phong cách cuộn giấy', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
-      { id: 'layout-confirm-option', name: 'Thẻ Phương Án Trả Lời (A/B/C)', icon: '🔘', desc: 'Phương án trả lời câu hỏi: Ảnh đơn hoặc Text + Ảnh', badge: 'Khóa học', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
+      { id: 'layout-callout', name: 'Hộp Ghi Nhớ Nổi Bật (Callout)', icon: '', desc: 'Khung bo cong nhấn mạnh thông điệp, mẹo học', badge: 'Mẹo', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+      { id: 'compare', name: 'Bảng So Sánh 2 Cột (Đối chiếu)', icon: '', desc: 'Đối chiếu AI vs Bộ não sáng tạo của con', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
+      { id: 'dialogue', name: 'Kịch Bản Phân Vai', icon: '', desc: 'Hội thoại bong bóng giữa các nhân vật', badge: 'Mới', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
+      { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '', desc: 'Toán học & tư duy công thức trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
+      { id: 'poster', name: 'Poster Quy Tắc Vàng', icon: '', desc: 'Banner quy tắc to bản phong cách cuộn giấy', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
+      { id: 'layout-confirm-option', name: 'Thẻ Phương Án Trả Lời (A/B/C)', icon: '', desc: 'Phương án trả lời câu hỏi: Ảnh đơn hoặc Text + Ảnh', badge: 'Khóa học', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
     ],
   },
 ]
@@ -596,7 +662,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
     // Chuyển sang tab courses với course mới
     navigate(`/teacher/courses?courseId=${newCourseId}&programId=${newProgramId}`)
-    showToast(`🎉 Đã tạo lộ trình "${result.courseTitle}" với ${generatedLectures.length} trạm học từ kịch bản AI!`, 'success')
+    showToast(`Đã tạo lộ trình "${result.courseTitle}" với ${generatedLectures.length} trạm học từ kịch bản AI!`, 'success')
   }, [navigate, showToast])
 
   const runLectureAction = useCallback((action: () => void) => {
@@ -1044,7 +1110,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
                   >
-                    <span>✏️ Sửa thông tin vùng</span>
+                    <span>Sửa thông tin vùng</span>
                   </button>
                 )}
               </div>
@@ -1085,8 +1151,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             {isCurrentCourseRule && (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-sm animate-pop">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-200 text-xl">
-                    🛡️
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-200 text-amber-900 shadow-2xs">
+                    <Shield size={20} className="text-amber-800" />
                   </span>
                   <div>
                     <h3 className="text-sm font-black text-amber-950">
@@ -1279,7 +1345,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                                 title={`Kéo thả hoặc click + Thêm: ${item.name} (${item.desc})`}
                               >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <span className="text-base shrink-0">{item.icon}</span>
+                                  <span className="text-base shrink-0">{renderFeatureBlockIcon(item.id, 16)}</span>
                                   <div className="flex flex-col min-w-0 flex-1">
                                     <span className="text-xs font-black leading-snug break-words line-clamp-2">
                                       {item.name}
@@ -1691,14 +1757,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 onClick={() => setShowScriptModal(true)}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-amber-500 text-white shadow-2xs hover:bg-amber-600"
               >
-                <span>✨ AI Tạo Kịch Bản</span>
+                <span>Tạo Kịch Bản Tự Động</span>
               </button>
               <button
                 type="button"
                 onClick={handleOpenRuleCourse}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-white text-amber-900 border border-amber-200 hover:bg-amber-100 shadow-2xs"
               >
-                <span>📜 10 Quy Tắc Vàng</span>
+                <span>10 Quy Tắc Vàng</span>
               </button>
               <div className="hidden sm:block h-6 w-px bg-amber-200/80 mx-1" />
               <button
@@ -1707,7 +1773,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer text-amber-900 hover:bg-white/80 hover:text-amber-950"
                 title="Chuyển sang phân hệ Quản lý Lớp học & Học sinh"
               >
-                <span>🏫 Sang Quản lý Lớp học</span>
+                <span>Sang Quản lý Lớp học</span>
               </button>
             </div>
           ) : (
@@ -1741,7 +1807,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-sm font-extrabold transition-all cursor-pointer text-brand-700 hover:bg-brand-50 hover:text-brand-900"
                 title="Chuyển sang phân hệ Studio Biên Soạn Bài Giảng"
               >
-                <span>🎨 Sang Studio Biên Soạn</span>
+                <span>Sang Studio Biên Soạn</span>
               </button>
             </div>
           )}

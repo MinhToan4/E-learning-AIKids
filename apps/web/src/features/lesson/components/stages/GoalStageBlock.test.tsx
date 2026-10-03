@@ -77,7 +77,7 @@ describe('GoalStageBlock', () => {
     expect(section?.textContent).toContain('Chặng 1: Mục tiêu bài học')
     expect(section?.textContent).toContain('Mục tiêu: Đừng Để AIKI Đoán Mò')
     expect(section?.textContent).toContain('Con hiểu được AI tạo ảnh không tự nghĩ được.')
-    expect(section?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
+    expect(section?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA CÂU LỆNH')
     expect(section?.textContent).toContain('Chú mèo mướp')
 
     const heroImg = section?.querySelector('img[alt="Mục tiêu: Đừng Để AIKI Đoán Mò"]') as HTMLImageElement

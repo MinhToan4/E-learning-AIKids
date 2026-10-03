@@ -49,7 +49,7 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
   })
 
   it('preserves full text for Stage 5 in ISLAND_6_STAGE_NAMES without truncation', () => {
-    expect(ISLAND_6_STAGE_NAMES[4]).toBe('5. 🎨 Thực hành (AI Studio)')
+    expect(ISLAND_6_STAGE_NAMES[4]).toBe('5. Thực hành')
   })
 
   it('defines SSOT mottos for all 7 creative engines in ENGINE_DEFAULT_MOTTOS', async () => {

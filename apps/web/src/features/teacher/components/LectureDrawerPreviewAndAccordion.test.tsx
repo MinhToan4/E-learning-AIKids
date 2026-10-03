@@ -21,6 +21,10 @@ import { DEFAULT_NOTEBOOK_CONFIGS } from '@/features/lesson/data/island-curricul
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 
+afterEach(() => {
+  document.body.innerHTML = ''
+})
+
 describe('PracticeWorkflowStepsAccordion Component', () => {
   const mockWorkflowSteps = [
     { step: 1, title: 'Bé vẽ món đồ chính', quickPrompt: 'vẽ cốc sứ', akiSpeech: 'Bé hãy vẽ một chiếc cốc nhé!', instruction: 'Vẽ nét chính' },
@@ -203,7 +207,7 @@ describe('StudentStagePreview Component — Viewport Selector & Fullscreen Previ
 
     // 3. Modal title
     expect(header?.textContent).toContain('Xem trước học sinh:')
-    expect(header?.textContent).toContain('1. 🎯 Mục tiêu (Ảnh)')
+    expect(header?.textContent).toContain('1. Mục tiêu (Ảnh)')
 
     // 4. Device selector buttons
     const mobileBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find(
@@ -651,7 +655,7 @@ describe('StudentStagePreview Component — Stage 6 Completion (Màn kết thúc
     expect(dialog).not.toBeNull()
 
     // Title shows stage 6
-    expect(dialog?.querySelector('header')?.textContent).toContain('6. 🏆 Màn kết thúc')
+    expect(dialog?.querySelector('header')?.textContent).toContain('6. Kết thúc')
 
     // Stage 6 complete elements are rendered inside the fullscreen canvas
     const stageComplete = dialog?.querySelector('[data-testid="stage-5-completion"]')
