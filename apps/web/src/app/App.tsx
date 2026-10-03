@@ -17,6 +17,30 @@ const NotFoundPage = lazy(() => import('@/features/auth/pages/NotFoundPage').the
   default: module.NotFoundPage,
 })))
 
+function isPublicPath(pathname: string): boolean {
+  return (
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/legal' ||
+    pathname === '/privacy' ||
+    pathname === '/terms' ||
+    pathname === '/account/delete' ||
+    pathname === '/support' ||
+    pathname === '/data-safety' ||
+    pathname === '/preview-wireframe' ||
+    pathname === '/course-demo' ||
+    pathname === '/demo' ||
+    pathname === '/concept-test' ||
+    pathname.startsWith('/lab/') ||
+    pathname.startsWith('/u/') ||
+    pathname.startsWith('/share/') ||
+    pathname.startsWith('/credentials/')
+  )
+}
+
 /**
  * Application composition root.
  *
@@ -36,13 +60,32 @@ export function App() {
   }, [bootstrap])
 
   useEffect(() => {
-    const verifyRestoredSession = (event: PageTransitionEvent) => {
+    const verifyRestoredSession = async (event: PageTransitionEvent) => {
       if (!event.persisted) return
-      void bootstrap()
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+      const isProtected = !isPublicPath(pathname)
+      const currentUser = useAuth.getState().user
+      if (isProtected && !currentUser) {
+        expireSession()
+        window.location.replace('/login')
+        return
+      }
+      try {
+        await bootstrap()
+        if (isProtected && !useAuth.getState().user) {
+          expireSession()
+          window.location.replace('/login')
+        }
+      } catch {
+        if (isProtected) {
+          expireSession()
+          window.location.replace('/login')
+        }
+      }
     }
     window.addEventListener('pageshow', verifyRestoredSession)
     return () => window.removeEventListener('pageshow', verifyRestoredSession)
-  }, [bootstrap])
+  }, [bootstrap, expireSession])
 
   useEffect(() => {
     if (!userId) return

@@ -33,6 +33,10 @@ export function RegisterPage() {
       setError('Mật khẩu xác nhận không khớp.')
       return
     }
+    if (!consentAccepted) {
+      setError('Vui lòng đồng ý với điều khoản và xác nhận là phụ huynh / người giám hộ.')
+      return
+    }
     setBusy(true)
     setError(null)
     try {
@@ -63,7 +67,7 @@ export function RegisterPage() {
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/login" className="text-sm font-bold text-brand-500">
-          ← Đã có tài khoản? Đăng nhập
+          Đã có tài khoản? Đăng nhập
         </Link>
         <div className="ui-card p-6">
           <div className="mb-4 flex items-center gap-3">
@@ -195,7 +199,7 @@ export function RegisterPage() {
               </span>
             </label>
 
-            <Button type="submit" disabled={busy || !passwordsMatch || !consentAccepted}>
+            <Button type="submit" disabled={busy || !passwordsMatch}>
               {busy ? 'Đang tạo…' : 'Đăng ký'}
             </Button>
 

@@ -209,6 +209,36 @@ describe('StoryMee Gateway adapter', () => {
     expect(unauthorized).toHaveBeenCalledOnce()
   })
 
+  it('does not dispatch auth unauthorized event for secondary endpoints on 401', async () => {
+    markSessionTransition()
+    const unauthorized = vi.fn()
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() =>
+      response({ error: 'Secondary service 401' }, 401),
+    ))
+
+    await expect(api('/api/notifications')).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/gamification/streak')).rejects.toMatchObject({ status: 401 })
+    await expect(api('/api/media/upload')).rejects.toMatchObject({ status: 401 })
+
+    expect(unauthorized).not.toHaveBeenCalled()
+    window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized)
+  })
+
+  it('immediately announces auth failure on core auth endpoint 401', async () => {
+    markSessionTransition()
+    const unauthorized = vi.fn()
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized, { once: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+      response({ error: 'Session expired' }, 401),
+    ))
+
+    await expect(api('/api/parent/children')).rejects.toMatchObject({ status: 401 })
+
+    expect(getAccessToken()).toBeNull()
+    expect(unauthorized).toHaveBeenCalledOnce()
+  })
+
   it('does not let a late parent 401 clear a newly issued child session', async () => {
     markSessionTransition()
     const unauthorized = vi.fn()

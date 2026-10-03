@@ -11,10 +11,12 @@ import type { User } from '@/shared/lib/api'
 
 describe('WelcomePage Shortcut Protocol', () => {
   let container: HTMLDivElement
+  let root: ReturnType<typeof createRoot> | null = null
 
   beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
+    root = createRoot(container)
     vi.clearAllMocks()
     useAuth.setState({
       user: null,
@@ -24,16 +26,21 @@ describe('WelcomePage Shortcut Protocol', () => {
     })
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    if (root) {
+      await act(async () => {
+        root?.unmount()
+      })
+      root = null
+    }
     if (container && container.parentNode) {
       document.body.removeChild(container)
     }
   })
 
   it('renders "Bắt đầu ngay" linking to /login for guest visitors', async () => {
-    const root = createRoot(container)
     await act(async () => {
-      root.render(
+      root?.render(
         <MemoryRouter initialEntries={['/']}>
           <WelcomePage />
         </MemoryRouter>,
@@ -68,9 +75,8 @@ describe('WelcomePage Shortcut Protocol', () => {
       error: null,
     })
 
-    const root = createRoot(container)
     await act(async () => {
-      root.render(
+      root?.render(
         <MemoryRouter initialEntries={['/']}>
           <WelcomePage />
         </MemoryRouter>,

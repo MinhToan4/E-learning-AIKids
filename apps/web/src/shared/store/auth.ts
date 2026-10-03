@@ -247,6 +247,8 @@ export const useAuth = create<AuthState>((set, get) => ({
     clearAccessToken()
     clearApiCache()
     void clearPreviousLearnerData()
+    void disconnectFirebase()
+    void Promise.resolve(api('/api/auth/logout', { method: 'POST' })).catch(() => undefined)
     set({
       user: null,
       access: null,
@@ -414,10 +416,20 @@ export const useAuth = create<AuthState>((set, get) => ({
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
     const firebase = await registerWithFirebasePassword(email, password)
-    const hydrated = await exchangeFirebaseSession(firebase.idToken, {
-      role,
-      registration: { nickname, parentalConsentAccepted },
-    })
+    let hydrated
+    try {
+      hydrated = await exchangeFirebaseSession(firebase.idToken, {
+        role,
+        registration: { nickname, parentalConsentAccepted },
+      })
+    } catch (error) {
+      if ('rollback' in firebase && typeof firebase.rollback === 'function') {
+        await firebase.rollback().catch(() => undefined)
+      } else {
+        await disconnectFirebase().catch(() => undefined)
+      }
+      throw error
+    }
     await firebase.sendVerification().catch(() => undefined)
     await clearPreviousLearnerData()
     set(hydrated)

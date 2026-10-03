@@ -10,10 +10,12 @@ import { useAuth } from '@/shared/store/auth'
 
 describe('RouteGuard Navigation & Error Escape Protocol', () => {
   let container: HTMLDivElement
+  let root: ReturnType<typeof createRoot> | null = null
 
   beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
+    root = createRoot(container)
     vi.clearAllMocks()
     useAuth.setState({
       user: null,
@@ -23,16 +25,21 @@ describe('RouteGuard Navigation & Error Escape Protocol', () => {
     })
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    if (root) {
+      await act(async () => {
+        root?.unmount()
+      })
+      root = null
+    }
     if (container && container.parentNode) {
       document.body.removeChild(container)
     }
   })
 
   it('redirects to /login when user is not logged in and there is no error', async () => {
-    const root = createRoot(container)
     await act(async () => {
-      root.render(
+      root?.render(
         <MemoryRouter initialEntries={['/home']}>
           <Routes>
             <Route
@@ -60,9 +67,8 @@ describe('RouteGuard Navigation & Error Escape Protocol', () => {
       error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
     })
 
-    const root = createRoot(container)
     await act(async () => {
-      root.render(
+      root?.render(
         <MemoryRouter initialEntries={['/home']}>
           <Routes>
             <Route
@@ -91,9 +97,8 @@ describe('RouteGuard Navigation & Error Escape Protocol', () => {
       error: 'Mất kết nối mạng (502 Bad Gateway). Máy chủ đang khởi động lại.',
     })
 
-    const root = createRoot(container)
     await act(async () => {
-      root.render(
+      root?.render(
         <MemoryRouter initialEntries={['/home']}>
           <Routes>
             <Route

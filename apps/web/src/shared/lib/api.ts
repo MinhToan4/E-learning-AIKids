@@ -96,12 +96,6 @@ export async function downloadAuthorizedBlob(
   }
 
   if (!response.ok) {
-    if (response.status === 401 && !isDevPreviewMode()) {
-      clearAccessToken()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
-      }
-    }
     throw new ApiError(
       response.status,
       `Không tải được tệp (HTTP ${response.status}).`,
@@ -331,6 +325,53 @@ api.delete = function <T = unknown>(path: string, options: RequestInit = {}): Pr
   return api<T>(path, { ...options, method: 'DELETE' })
 }
 
+export function isSecondaryEndpoint(path: string): boolean {
+  return (
+    path.startsWith('/api/notifications') ||
+    path.startsWith('/api/v1/notifications') ||
+    path.startsWith('/api/gamification') ||
+    path.startsWith('/api/v1/gamification') ||
+    path.startsWith('/api/media') ||
+    path.startsWith('/api/v1/media') ||
+    path.startsWith('/api/storage') ||
+    path.startsWith('/api/analytics') ||
+    path.startsWith('/api/telemetry')
+  )
+}
+
+export function isCoreAuthEndpoint(path: string): boolean {
+  return (
+    (path.startsWith('/api/auth/') && path !== '/api/auth/me') ||
+    path.startsWith('/api/parent/') ||
+    path.startsWith('/api/v1/account/') ||
+    path.startsWith('/internal/v1/account/')
+  )
+}
+
+let sessionVerifyPromise: Promise<boolean> | null = null
+
+async function verifySessionDead(signal?: AbortSignal | null): Promise<boolean> {
+  if (sessionVerifyPromise) return sessionVerifyPromise
+  const token = getAccessToken()
+  sessionVerifyPromise = (async () => {
+    try {
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const checkRes = await fetch(`${API_BASE}/api/auth/me`, {
+        credentials: 'include',
+        headers,
+        signal: signal ?? undefined,
+      })
+      return checkRes.status === 401
+    } catch {
+      return false
+    } finally {
+      sessionVerifyPromise = null
+    }
+  })()
+  return sessionVerifyPromise
+}
+
 async function executeApi<T>(
   path: string,
   options: RequestInit,
@@ -398,13 +439,25 @@ async function executeApi<T>(
   }
 
   if (!res.ok) {
-    // A JWT can expire while a route is already mounted. Fail closed and let
-    // the auth store return the shared device to login instead of leaving a
-    // child-facing screen populated with a gateway implementation error.
+    // Secondary endpoints (notifications, gamification, media, etc.) must NEVER
+    // bounce the user to login on a 401. Only core auth endpoints or an explicit
+    // check to /api/auth/me confirming the session is dead may dispatch the event.
     if (res.status === 401 && path !== '/api/auth/me' && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
-      clearAccessToken()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+      if (!isSecondaryEndpoint(path)) {
+        if (isCoreAuthEndpoint(path)) {
+          clearAccessToken()
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+          }
+        } else {
+          const isDead = await verifySessionDead(signal)
+          if (isDead && requestSessionGeneration === sessionGeneration && !isDevPreviewMode()) {
+            clearAccessToken()
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+            }
+          }
+        }
       }
     }
     // 401 on /me during bootstrap is normal when logged out — still throw for callers

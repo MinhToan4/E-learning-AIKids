@@ -46,7 +46,7 @@ export function WelcomePage() {
           <div className="flex flex-wrap gap-3 pt-2">
             {!loading && user?.role === 'student' ? (
               <Link to="/home" className="ui-btn ui-btn-primary">
-                Vào lớp học của {childDisplayName} 🚀
+                Vào lớp học của {childDisplayName}
               </Link>
             ) : (
               <Link to="/login" className="ui-btn ui-btn-primary">

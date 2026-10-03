@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/shared/lib/api'
 
 const mocks = vi.hoisted(() => ({
-  api: vi.fn(),
+  api: vi.fn().mockResolvedValue({}),
   clearAccessToken: vi.fn(),
   getAccessToken: vi.fn(() => 'test-token'),
   clearApiCache: vi.fn(),
@@ -313,6 +313,8 @@ describe('auth store', () => {
     expect(mocks.clearAccessToken).toHaveBeenCalled()
     expect(mocks.clearApiCache).toHaveBeenCalled()
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
+    expect(mocks.disconnectFirebaseSession).toHaveBeenCalled()
+    expect(mocks.api).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
   })
 
   it('clears an invalid session when bootstrap receives 401', async () => {
@@ -473,6 +475,40 @@ describe('auth store', () => {
       }),
     })
     expect(sendVerification).toHaveBeenCalled()
+  })
+
+  it('rolls back and disconnects Firebase if session exchange fails during registration', async () => {
+    const rollback = vi.fn().mockResolvedValue(undefined)
+    mocks.registerWithFirebasePassword.mockResolvedValueOnce({
+      idToken: 'new-firebase-token',
+      sendVerification: vi.fn(),
+      rollback,
+    })
+    mocks.api.mockRejectedValueOnce(new ApiError(409, 'Email already exists in database'))
+
+    await expect(
+      useAuth.getState().registerAdult(
+        'parent@example.test', 'example-password', 'parent', 'An', true,
+      ),
+    ).rejects.toThrow('Email already exists in database')
+
+    expect(rollback).toHaveBeenCalled()
+  })
+
+  it('disconnects Firebase session if exchange fails and rollback is not provided', async () => {
+    mocks.registerWithFirebasePassword.mockResolvedValueOnce({
+      idToken: 'new-firebase-token',
+      sendVerification: vi.fn(),
+    })
+    mocks.api.mockRejectedValueOnce(new ApiError(500, 'Server error'))
+
+    await expect(
+      useAuth.getState().registerAdult(
+        'parent@example.test', 'example-password', 'parent', 'An', true,
+      ),
+    ).rejects.toThrow('Server error')
+
+    expect(mocks.disconnectFirebaseSession).toHaveBeenCalled()
   })
 
   it('selects the platform context for an admin that also has a parent persona', async () => {

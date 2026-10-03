@@ -98,13 +98,21 @@ export async function signInWithFirebasePassword(
 export async function registerWithFirebasePassword(
   email: string,
   password: string,
-): Promise<{ idToken: string; sendVerification: () => Promise<void> }> {
+): Promise<{ idToken: string; sendVerification: () => Promise<void>; rollback: () => Promise<void> }> {
   const auth = await firebaseAuth()
   const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth')
   const credential = await createUserWithEmailAndPassword(auth, email, password)
   return {
     idToken: await credential.user.getIdToken(),
     sendVerification: () => sendEmailVerification(credential.user),
+    rollback: async () => {
+      try {
+        await credential.user.delete()
+      } catch {
+        // user.delete might fail if session expired; proceed to disconnect
+      }
+      await disconnectFirebaseSession().catch(() => undefined)
+    },
   }
 }
 
