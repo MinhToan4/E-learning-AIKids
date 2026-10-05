@@ -129,6 +129,14 @@
   ],
   "rewrites": [
     {
+      "source": "/sepay/ipn",
+      "destination": "https://dev-hub.storymee.com/internal/v1/billing/webhooks/sepay"
+    },
+    {
+      "source": "/api/sepay/ipn",
+      "destination": "https://dev-hub.storymee.com/internal/v1/billing/webhooks/sepay"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://dev-hub.storymee.com/api/$1"
     },
