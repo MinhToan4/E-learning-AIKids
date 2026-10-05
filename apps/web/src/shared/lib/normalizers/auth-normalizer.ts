@@ -222,8 +222,20 @@ export function normalizeAuthGatewayRequest(
     return { path: '/api/v1/account/parent-profile', options }
   }
 
+  if (path === '/api/parent/pin') {
+    return { path: '/api/v1/account/family/parent-pin', options }
+  }
+
+  if (path === '/api/parent/pin-status') {
+    return { path: '/api/v1/account/family/parent-pin-status', options }
+  }
+
   if (path === '/api/parent/gate/verify') {
     return { path: '/api/v1/account/family/gate-verify', options }
+  }
+
+  if (path === '/api/parent/gate/verify-google') {
+    return { path: '/api/v1/account/family/gate-verify-google', options }
   }
 
   if (path === '/api/parent/profile-shares') {
@@ -317,6 +329,7 @@ export function normalizeAuthGatewayResponse(
     path.startsWith('/api/account') ||
     path.startsWith('/api/parent/profile') ||
     path.startsWith('/api/parent/gate') ||
+    path.startsWith('/api/parent/pin') ||
     path.startsWith('/api/parent/family') ||
     path.startsWith('/api/parent/course-checkout') ||
     path.startsWith('/api/parent/plans') ||
@@ -413,11 +426,28 @@ export function normalizeAuthGatewayResponse(
     return payload
   }
 
-  if (path === '/api/parent/gate/verify') {
+  if (path === '/api/parent/gate/verify' || path === '/api/parent/gate/verify-google') {
     markSessionTransition()
     return {
       user: mapUser(recordValue(payload.user)),
-      message: String(payload.message ?? 'Parent password verified'),
+      message: String(payload.message ?? 'Parent verified'),
+      ...(payload.token ? { token: String(payload.token) } : {}),
+      ...(payload.accessToken ? { accessToken: String(payload.accessToken) } : {}),
+    }
+  }
+
+  if (path === '/api/parent/pin-status') {
+    return {
+      hasParentPin: Boolean(payload.hasParentPin),
+      updatedAt: payload.updatedAt ? String(payload.updatedAt) : null,
+    }
+  }
+
+  if (path === '/api/parent/pin') {
+    return {
+      status: String(payload.status ?? 'success'),
+      message: String(payload.message ?? 'Cài đặt mã PIN Ba / Mẹ thành công'),
+      hasParentPin: true,
     }
   }
 

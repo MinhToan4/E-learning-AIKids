@@ -339,7 +339,9 @@ export function isAuthAttemptEndpoint(path: string): boolean {
     path.startsWith('/api/v1/account/reset-password') ||
     path.startsWith('/api/auth/change-password') ||
     path.startsWith('/api/v1/account/me/password') ||
-    path === '/api/parent/gate/verify'
+    path === '/api/parent/gate/verify' ||
+    path === '/api/parent/gate/verify-google' ||
+    path.startsWith('/api/v1/account/family/gate-verify')
   )
 }
 

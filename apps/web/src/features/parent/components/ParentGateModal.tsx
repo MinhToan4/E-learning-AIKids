@@ -34,6 +34,7 @@ export function ParentGateModal({
   onClose: () => void
   redirectTo?: string
 }) {
+  const user = useAuth((s) => s.user)
   const setUser = useAuth((s) => s.setUser)
   const logout = useAuth((s) => s.logout)
   const completeFirebaseSignIn = useAuth((s) => s.completeFirebaseSignIn)
@@ -196,17 +197,25 @@ export function ParentGateModal({
       const idToken = await credential.user.getIdToken()
 
       let authedUser: User
+      let token: string | undefined
       try {
-        authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
-      } catch {
         const res = await api<{ status: string; user: User; token?: string }>(
           '/api/parent/gate/verify-google',
           {
             method: 'POST',
-            body: JSON.stringify({ idToken }),
+            body: JSON.stringify({
+              idToken,
+              parentId: user?.parentId || undefined,
+            }),
           },
         )
         authedUser = res.user
+        token = res.token
+      } catch (err: unknown) {
+        if (err instanceof ApiError && err.status === 401) {
+          throw err
+        }
+        authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
       }
 
       try {
@@ -214,7 +223,7 @@ export function ParentGateModal({
       } catch {
         // ignore
       }
-      onAuthSuccess(authedUser)
+      onAuthSuccess(authedUser, token)
     } catch (e: unknown) {
       const code =
         e && typeof e === 'object' && 'code' in e
