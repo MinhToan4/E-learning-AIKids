@@ -101,22 +101,22 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     const dialog = document.body.querySelector('[role="dialog"]')
     expect(dialog).not.toBeNull()
 
-    // Soft-clay styling classes & responsive max-w-xl
+    // Soft-clay styling classes & responsive max-w-2xl
     expect(dialog?.className).toContain('rounded-3xl')
     expect(dialog?.className).toContain('border-cream-300')
     expect(dialog?.className).toContain('shadow-clay')
-    expect(dialog?.className).toContain('max-w-xl')
+    expect(dialog?.className).toContain('max-w-2xl')
 
     // Header & Security Badge
     expect(document.body.textContent).toContain('Thanh Toán Gói AI Kid 129K')
     expect(document.body.textContent).toContain('Thanh toán an toàn cho phụ huynh')
 
     // Countdown timer & Essential info
-    expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')
+    expect(document.body.textContent).toContain('15:00')
     expect(document.body.textContent).toContain('129.000 đ')
     expect(document.body.textContent).toContain('AK129K9999')
     expect(document.body.textContent).toContain('9812723359')
-    expect(document.body.textContent).toContain('Đang chờ thanh toán tự động...')
+    expect(document.body.textContent).toContain('Đang đợi tín hiệu...')
     expect(document.body.textContent).toContain('Kiểm tra ngay')
   })
 
@@ -132,13 +132,12 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     })
 
     // Bank information
-    expect(document.body.textContent).toContain('Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)')
+    expect(document.body.textContent).toContain('Vietcombank')
     expect(document.body.textContent).toContain('9812723359')
     expect(document.body.textContent).toContain('LE QUANG MINH')
-    expect(document.body.textContent).toContain('Trụ sở CN Ba Đình')
     expect(document.body.textContent).toContain('129.000 đ')
     expect(document.body.textContent).toContain('AK129K8888')
-    expect(document.body.textContent).toContain('Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống kích hoạt tự động')
+    expect(document.body.textContent).toContain('Giữ nguyên nội dung chuyển khoản để mở khóa tự động')
 
     // VietQR image src
     const qrImage = document.body.querySelector('img[alt="VietQR AK129K8888"]') as HTMLImageElement | null
@@ -479,15 +478,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
-  it('downloads QR code and copies full payment info correctly', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      blob: () => Promise.resolve(new Blob(['fake-png-data'], { type: 'image/png' })),
-    })
-    const createObjectURLSpy = vi.fn().mockReturnValue('blob:http://localhost/fake-qr')
-    const revokeObjectURLSpy = vi.fn()
-    window.URL.createObjectURL = createObjectURLSpy
-    window.URL.revokeObjectURL = revokeObjectURLSpy
-
+  it('copies payment amount and code correctly and renders VietQR image', async () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -498,40 +489,26 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       )
     })
 
-    const downloadBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Tải mã QR về máy'),
-    )
-    expect(downloadBtn).toBeDefined()
+    // VietQR image is rendered
+    const qrImg = document.body.querySelector('img[alt="VietQR AK129K9999"]') as HTMLImageElement | null
+    expect(qrImg).not.toBeNull()
+    expect(qrImg?.src).toContain('AK129K9999')
 
+    // Copy amount button
+    const copyAmountBtn = document.body.querySelector('button[aria-label="Sao chép số tiền"]') as HTMLButtonElement | null
+    expect(copyAmountBtn).not.toBeNull()
     await act(async () => {
-      downloadBtn?.click()
+      copyAmountBtn?.click()
     })
-    expect(global.fetch).toHaveBeenCalled()
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('129000')
 
-    // Test Copy All button
-    const copyAllBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Sao chép toàn bộ thông tin'),
-    )
-    expect(copyAllBtn).toBeDefined()
-
+    // Copy code button
+    const copyCodeBtn = document.body.querySelector('button[aria-label="Sao chép nội dung chuyển khoản"]') as HTMLButtonElement | null
+    expect(copyCodeBtn).not.toBeNull()
     await act(async () => {
-      copyAllBtn?.click()
+      copyCodeBtn?.click()
     })
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('Vietcombank'),
-    )
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('9812723359'),
-    )
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('LE QUANG MINH'),
-    )
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('Trụ sở CN Ba Đình'),
-    )
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('AK129K9999'),
-    )
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('AK129K9999')
   })
 
   it('handles countdown timer and refreshes payment code when expiring', async () => {
@@ -545,7 +522,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       )
     })
 
-    expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')
+    expect(document.body.textContent).toContain('15:00')
 
     // Advance 1 second -> 14:59
     act(() => {
@@ -626,7 +603,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     )
   })
 
-  it('toggles between dynamic VietQR and original Vietcombank QR views', async () => {
+  it('uses exclusively streamlined dynamic VietQR without original VCB QR or switch tabs', () => {
     act(() => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
@@ -637,37 +614,16 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       )
     })
 
-    // Initially shows dynamic QR
+    // Renders dynamic VietQR exclusively
     const dynamicImg = document.body.querySelector('img[alt="VietQR AK129K5555"]') as HTMLImageElement | null
     expect(dynamicImg).not.toBeNull()
     expect(dynamicImg?.src).toContain('https://img.vietqr.io/image/VCB-9812723359-compact2.png')
 
-    // Click original QR tab button
-    const originalTabBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Ảnh QR Vietcombank gốc'),
-    )
-    expect(originalTabBtn).toBeDefined()
-
-    await act(async () => {
-      originalTabBtn?.click()
-    })
-
-    const originalImg = document.body.querySelector('img[alt="Ảnh QR Vietcombank gốc LE QUANG MINH"]') as HTMLImageElement | null
-    expect(originalImg).not.toBeNull()
-    expect(originalImg?.src).toContain('/images/qr-lequangminh-vcb.png')
-
-    // Click dynamic QR tab button to switch back
-    const dynamicTabBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Mã QR tự động (Napas 24/7)'),
-    )
-    expect(dynamicTabBtn).toBeDefined()
-
-    await act(async () => {
-      dynamicTabBtn?.click()
-    })
-
-    const switchedBackImg = document.body.querySelector('img[alt="VietQR AK129K5555"]') as HTMLImageElement | null
-    expect(switchedBackImg).not.toBeNull()
+    // Original QR tab and image are completely removed
+    expect(document.body.textContent).not.toContain('Ảnh QR Vietcombank gốc')
+    expect(document.body.textContent).not.toContain('Mã QR tự động (Napas 24/7)')
+    const originalImg = document.body.querySelector('img[alt*="Vietcombank gốc"]')
+    expect(originalImg).toBeNull()
   })
 
   it('supports SePay PG mode when configured via localStorage', async () => {
