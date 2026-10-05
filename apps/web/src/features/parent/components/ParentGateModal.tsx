@@ -36,6 +36,7 @@ export function ParentGateModal({
 }) {
   const setUser = useAuth((s) => s.setUser)
   const logout = useAuth((s) => s.logout)
+  const completeFirebaseSignIn = useAuth((s) => s.completeFirebaseSignIn)
 
   const [mode, setMode] = useState<GateMode>('pin')
   const [pin, setPin] = useState('')
@@ -45,7 +46,6 @@ export function ParentGateModal({
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [shake, setShake] = useState(false)
-
   const hiddenPinInputRef = useRef<HTMLInputElement>(null)
   const passwordInputRef = useRef<HTMLInputElement>(null)
 
@@ -195,19 +195,26 @@ export function ParentGateModal({
       const credential = await signInWithPopup(auth, provider)
       const idToken = await credential.user.getIdToken()
 
-      const res = await api<{ status: string; user: User; token?: string }>(
-        '/api/parent/gate/verify-google',
-        {
-          method: 'POST',
-          body: JSON.stringify({ idToken }),
-        },
-      )
+      let authedUser: User
+      try {
+        authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
+      } catch {
+        const res = await api<{ status: string; user: User; token?: string }>(
+          '/api/parent/gate/verify-google',
+          {
+            method: 'POST',
+            body: JSON.stringify({ idToken }),
+          },
+        )
+        authedUser = res.user
+      }
+
       try {
         sessionStorage.setItem('aikids.suggest_pin_setup', '1')
       } catch {
         // ignore
       }
-      onAuthSuccess(res.user, res.token)
+      onAuthSuccess(authedUser)
     } catch (e: unknown) {
       const code =
         e && typeof e === 'object' && 'code' in e
@@ -227,7 +234,7 @@ export function ParentGateModal({
     } finally {
       setLoadingGoogle(false)
     }
-  }, [onAuthSuccess])
+  }, [completeFirebaseSignIn, onAuthSuccess])
 
   const handleEmergencyLogout = useCallback(async () => {
     if (
