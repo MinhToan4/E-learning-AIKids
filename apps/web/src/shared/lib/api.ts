@@ -10,7 +10,7 @@ export type { GatewayRequest }
 
 const API_BASE = environment.apiBaseUrl
 export const AUTH_UNAUTHORIZED_EVENT = 'storymee:auth-unauthorized'
-let sessionGeneration = 0
+import { sessionGeneration, advanceSessionScope } from './session-scope'
 
 function sharedCookieDomain(): string {
   if (typeof window === 'undefined') return ''
@@ -48,12 +48,12 @@ export function setAccessToken(_token: string): void {
 /** Isolate in-flight reads whenever the server rotates its HttpOnly session. */
 export function markSessionTransition(): void {
   clearResponseCache()
-  sessionGeneration += 1
+  advanceSessionScope()
 }
 
 export function clearAccessToken(): void {
   clearResponseCache()
-  sessionGeneration += 1
+  advanceSessionScope()
   if (typeof localStorage !== 'undefined') localStorage.removeItem('storymee.access_token')
   if (typeof document !== 'undefined') {
     document.cookie = `storymee_shared_token=; Path=/; Max-Age=0; SameSite=Lax${sharedCookieDomain()}`
@@ -494,6 +494,9 @@ async function executeApi<T>(
           ? String((data as { message: string }).message)
           : res.statusText || 'Có lỗi xảy ra'
     throw new ApiError(res.status, msg, data)
+  }
+  if ((options.method ?? 'GET').toUpperCase() === 'GET' && requestSessionGeneration !== sessionGeneration) {
+    throw new DOMException('Session changed', 'AbortError')
   }
   const normalized = normalizeGatewayResponse(path, data)
   return normalized as T

@@ -181,6 +181,46 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     )
   })
 
+  it('triggers checkout initialization fallback if serverPublicId is missing on manual confirm', async () => {
+    const mockedApi = vi.mocked(api)
+    mockedApi.mockReset()
+
+    mockedApi.mockImplementation((url: string, init?: any) => {
+      if (url === '/api/v1/billing/me/checkout' && init?.method === 'POST') {
+        return Promise.resolve({
+          checkout: { publicId: 'pi_fallback_confirmed', paymentCode: 'AK129KFALL' },
+        })
+      }
+      if (url.includes('/customer-confirm')) {
+        return Promise.resolve({ ok: true })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          paymentCode: 'AK129KFALL',
+        }),
+      )
+    })
+
+    const buttons = Array.from(document.body.querySelectorAll('button'))
+    const confirmBtn = buttons.find((b) => b.textContent?.includes('Tôi đã chuyển khoản xong'))
+    expect(confirmBtn).toBeDefined()
+
+    await act(async () => {
+      confirmBtn?.click()
+    })
+
+    expect(mockedApi).toHaveBeenCalledWith(
+      '/api/v1/billing/payment-intents/pi_fallback_confirmed/customer-confirm',
+      { method: 'POST' },
+    )
+  })
+
   it('copies payment code and account number to clipboard', async () => {
     act(() => {
       root.render(

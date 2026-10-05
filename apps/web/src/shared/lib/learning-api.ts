@@ -5,6 +5,7 @@ import {
   type QuestDetail,
   type QuestProgress,
 } from './api'
+import { sessionGeneration } from './session-scope'
 
 export type LearningPathwayCourse = {
   id: string
@@ -91,18 +92,21 @@ function cachedLessonDetail(lessonId: string) {
 }
 
 function dedupedLessonStart(lessonId: string) {
+  const key = `${sessionGeneration}:${lessonId}`
   const now = Date.now()
-  const cached = lessonStartRequests.get(lessonId)
+  const cached = lessonStartRequests.get(key)
   if (cached && cached.expiresAt > now) return cached.request
   const request = api<{ progress: LessonProgress }>(
     `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/start`,
     { method: 'POST' },
   )
-  lessonStartRequests.set(lessonId, { expiresAt: now + LESSON_START_DEDUPE_MS, request })
+  lessonStartRequests.set(key, { expiresAt: now + LESSON_START_DEDUPE_MS, request })
   globalThis.setTimeout(() => {
-    if (lessonStartRequests.get(lessonId)?.request === request) lessonStartRequests.delete(lessonId)
+    if (lessonStartRequests.get(key)?.request === request) lessonStartRequests.delete(key)
   }, LESSON_START_DEDUPE_MS)
-  void request.catch(() => lessonStartRequests.delete(lessonId))
+  void request.catch(() => {
+    if (lessonStartRequests.get(key)?.request === request) lessonStartRequests.delete(key)
+  })
   return request
 }
 
@@ -114,9 +118,9 @@ function dedupedLessonStart(lessonId: string) {
  * Hub routing: /api/v1/lms/* → /internal/v1/lms/* → core-lms-api:4509
  */
 export const learningApi = {
-  getPathway(studentId?: string) {
+  getPathway(studentId?: string, options: RequestInit = {}) {
     const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : ''
-    return api<LearningPathway>(`/api/v1/lms/compat/pathway${query}`)
+    return api<LearningPathway>(`/api/v1/lms/compat/pathway${query}`, options)
   },
 
   getCourse<T = { course: CourseSummary }>(courseId: string) {

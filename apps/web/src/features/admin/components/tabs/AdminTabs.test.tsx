@@ -710,19 +710,19 @@ describe('Admin Domain Tabs & POS Refactor', () => {
   it('AdminBillingTab renders Payment Provider switcher and compact plan catalog with inactive badge', async () => {
     localStorage.removeItem('aikids_payment_provider_mode')
     mockApi.mockImplementation((url: string) => {
-      if (url === '/api/admin/billing/subscriptions/stats') {
+      if (url === '/api/v1/billing/admin/subscriptions/stats' || url === '/api/admin/billing/subscriptions/stats') {
         return Promise.resolve({
           stats: { totalPaid: 10, totalFree: 5, totalPending: 1, totalExpired: 0 },
           plans: [],
         })
       }
-      if (url === '/api/admin/billing/subscriptions') {
+      if (url === '/api/v1/billing/admin/subscriptions' || url === '/api/admin/billing/subscriptions') {
         return Promise.resolve([])
       }
-      if (url === '/api/admin/billing/subscriptions/pending-intents') {
+      if (url === '/api/v1/billing/admin/subscriptions/pending-intents' || url === '/api/admin/billing/subscriptions/pending-intents') {
         return Promise.resolve([])
       }
-      if (url === '/api/admin/billing/plans') {
+      if (url === '/api/v1/billing/admin/plans' || url === '/api/admin/billing/plans') {
         return Promise.resolve([
           {
             id: 'starter',
@@ -776,6 +776,90 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     // 4. Inactive plan badge and reopen button
     expect(container.textContent).toContain('ĐÃ TẠM ẨN KHỎI KHÁCH HÀNG')
     expect(container.textContent).toContain('Mở bán lại')
+  })
+
+  it('AdminBillingTab correctly unpacks { status: "success", data } payload format and auto-polls', async () => {
+    vi.useFakeTimers()
+    const callCounts: Record<string, number> = {}
+    mockApi.mockImplementation((url: string) => {
+      callCounts[url] = (callCounts[url] || 0) + 1
+      if (url === '/api/v1/billing/admin/subscriptions/stats') {
+        return Promise.resolve({
+          status: 'success',
+          data: {
+            stats: { totalPaid: 42, totalFree: 15, totalPending: 7, totalExpired: 3 },
+            plans: [],
+          },
+        })
+      }
+      if (url === '/api/v1/billing/admin/subscriptions') {
+        return Promise.resolve({
+          status: 'success',
+          data: [
+            {
+              id: 'sub-1',
+              userId: 'u-1',
+              email: 'wrapped@test.com',
+              name: 'Wrapped User',
+              role: 'parent',
+              active: true,
+              plan: 'starter',
+              status: 'active',
+              createdAt: '2026-10-01T00:00:00.000Z',
+            },
+          ],
+        })
+      }
+      if (url === '/api/v1/billing/admin/subscriptions/pending-intents') {
+        return Promise.resolve({
+          status: 'success',
+          data: [
+            {
+              id: 'pi-1',
+              publicId: 'pi_wrapped1',
+              provider: 'manual',
+              purpose: 'user_sub',
+              amountMinor: '69000',
+              currency: 'vnd',
+              status: 'pending',
+              userId: 'u-1',
+              userEmail: 'wrapped@test.com',
+              paymentCode: 'WRAP123',
+              createdAt: '2026-10-01T00:00:00.000Z',
+            },
+          ],
+        })
+      }
+      if (url === '/api/v1/billing/admin/plans') {
+        return Promise.resolve({
+          status: 'success',
+          data: [],
+        })
+      }
+      if (url === '/api/parent/plans') {
+        return Promise.resolve({ plans: [] })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminBillingTab />
+        </MemoryRouter>,
+      )
+    })
+
+    expect(container.textContent).toContain('wrapped@test.com')
+    expect(callCounts['/api/v1/billing/admin/subscriptions']).toBe(1)
+
+    // Advance timer by 10s to trigger polling
+    await act(async () => {
+      vi.advanceTimersByTime(10000)
+    })
+    expect(callCounts['/api/v1/billing/admin/subscriptions']).toBeGreaterThanOrEqual(2)
+
+    vi.useRealTimers()
   })
 
   it('AdminBillingPos calls onViewPendingIntentDetail when clicking the pending intent card', () => {

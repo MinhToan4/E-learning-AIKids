@@ -458,17 +458,38 @@ export function ParentSubscriptionCheckoutModal({
   // Handle manual transfer confirmation
   const handleManualConfirm = useCallback(async () => {
     setManualSubmitted(true)
-    try {
-      if (activePublicId) {
-        await api(`/api/v1/billing/payment-intents/${activePublicId}/customer-confirm`, {
+    let targetPublicId = serverPublicId
+    if (!targetPublicId && productMode === 'sub') {
+      try {
+        const res = await api<{
+          checkout?: { publicId?: string; paymentCode?: string }
+          data?: { publicId?: string; metadata?: { paymentCode?: string } }
+        }>('/api/v1/billing/me/checkout', {
+          method: 'POST',
+          body: JSON.stringify({
+            plan: defaultPlanId || 'aikids_official_129k',
+            provider: 'manual',
+            paymentCode: activePaymentCode,
+          }),
+        })
+        targetPublicId = res?.checkout?.publicId || res?.data?.publicId || null
+        if (targetPublicId) setServerPublicId(targetPublicId)
+      } catch (err) {
+        console.warn('init checkout fallback on confirm error:', err)
+      }
+    }
+    const effectivePubId = targetPublicId || activePublicId
+    if (effectivePubId) {
+      try {
+        await api(`/api/v1/billing/payment-intents/${effectivePubId}/customer-confirm`, {
           method: 'POST',
         })
+      } catch {
+        // Safe fallback: continue without blocking confirmation UI
       }
-    } catch {
-      // Safe fallback: continue without blocking confirmation UI
     }
     void checkPaymentStatus()
-  }, [activePublicId, checkPaymentStatus])
+  }, [serverPublicId, productMode, defaultPlanId, activePaymentCode, activePublicId, checkPaymentStatus])
 
   // VietQR URL with dynamically computed amount (using remaining amountDue if partially paid)
   const vietQrUrl = `https://img.vietqr.io/image/VCB-9812723359-compact2.png?amount=${effectiveAmount}&addInfo=${encodeURIComponent(activePaymentCode)}&accountName=${encodeURIComponent('LE QUANG MINH')}`

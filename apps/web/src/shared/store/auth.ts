@@ -17,6 +17,7 @@ import {
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
 import { clearStudentProgressionCache } from '@/shared/lib/query-client'
+import { advanceSessionScope } from '@/shared/lib/session-scope'
 
 const PARENT_HANDOFF_SESSION_KEY = 'aikids.parent-handoff'
 
@@ -504,6 +505,16 @@ export const useAuth = create<AuthState>((set, get) => ({
     return context
   },
 }))
+
+// Also covers identity changes from reauthentication/bootstrap, not just logout.
+useAuth.subscribe((state, previous) => {
+  if (state.user?.id !== previous.user?.id || state.user?.role !== previous.user?.role ||
+      state.activeContext?.id !== previous.activeContext?.id) {
+    advanceSessionScope()
+    clearApiCache()
+    clearStudentProgressionCache(previous.user?.id)
+  }
+})
 
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   ;(window as unknown as { __AUTH_STORE__: typeof useAuth }).__AUTH_STORE__ = useAuth

@@ -26,7 +26,7 @@ describe('Reward Mapping requirement summaries', () => {
 
 describe('Reward Mapping lifecycle controls', () => {
   it('keeps lifecycle actions in a compact menu and supports both viewing directions', () => {
-    const source = fs.readFileSync(path.join(process.cwd(), 'src/features/admin/components/RewardMappingWorkspace.tsx'), 'utf8')
+    const source = fs.readFileSync(path.join(__dirname, 'RewardMappingWorkspace.tsx'), 'utf8')
 
     expect(source).toContain('Mốc → Phần quà')
     expect(source).toContain('Phần quà → Điều kiện')

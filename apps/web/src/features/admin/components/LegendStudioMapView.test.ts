@@ -61,7 +61,7 @@ describe('LegendStudioMapView - Progression & Quick Jump Math', () => {
 })
 
 describe('LegendStudioMapView - Static Quality & Architectural Audit', () => {
-  const sourcePath = path.join(process.cwd(), 'src/features/admin/components/legend-studio/LegendStudioMapView.tsx')
+  const sourcePath = path.join(__dirname, 'legend-studio/LegendStudioMapView.tsx')
   const source = fs.readFileSync(sourcePath, 'utf8')
 
   it('preserves all unlock channels and tabs', () => {
@@ -268,7 +268,7 @@ describe('LegendStudioMapView - Filter & Progression Resilience', () => {
 })
 
 describe('LegendRewardStudio - 4 Navigation Menus Architecture', () => {
-  const studioSourcePath = path.join(process.cwd(), 'src/features/admin/components/LegendRewardStudio.tsx')
+  const studioSourcePath = path.join(__dirname, 'LegendRewardStudio.tsx')
   const studioSource = fs.readFileSync(studioSourcePath, 'utf8')
 
   it('declares exactly 4 structured navigation modes with labels and icons', () => {

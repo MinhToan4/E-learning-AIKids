@@ -87,7 +87,7 @@ describe('Legend Reward Studio map lifecycle actions', () => {
     expect(isVisibleOnPublishedMap({ source: 'studio', status: 'retired' })).toBe(false)
     expect(isVisibleOnPublishedMap({ source: 'legacy', status: 'published' })).toBe(true)
 
-    const source = fs.readFileSync(path.join(process.cwd(), 'src/features/admin/components/LegendRewardStudio.tsx'), 'utf8')
+    const source = fs.readFileSync(path.join(__dirname, 'LegendRewardStudio.tsx'), 'utf8')
 
     expect(source).toContain('Phát hành nháp')
     expect(source).toContain('Lịch sử upload & phiên bản')

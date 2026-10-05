@@ -214,25 +214,50 @@ export function AdminBillingTab() {
     setLoading(true)
     try {
       const [statsRes, subsRes, intentsRes, dbPlansRes, publicPlansRes] = await Promise.allSettled([
-        api<{ stats: BillingStats; plans: PlanDef[] }>('/api/admin/billing/subscriptions/stats'),
-        api<SubscriptionRow[]>('/api/admin/billing/subscriptions'),
-        api<PendingIntent[]>('/api/admin/billing/subscriptions/pending-intents'),
-        api<PlanDef[]>('/api/admin/billing/plans'),
+        api<{ stats: BillingStats; plans: PlanDef[] } | { status: string; data: { stats: BillingStats; plans: PlanDef[] } }>('/api/v1/billing/admin/subscriptions/stats'),
+        api<SubscriptionRow[] | { status: string; data: SubscriptionRow[] }>('/api/v1/billing/admin/subscriptions'),
+        api<PendingIntent[] | { status: string; data: PendingIntent[] }>('/api/v1/billing/admin/subscriptions/pending-intents'),
+        api<PlanDef[] | { status: string; data: PlanDef[] }>('/api/v1/billing/admin/plans'),
         api<{ plans: PlanDef[] }>('/api/parent/plans'),
       ])
 
+      const subsRaw = subsRes.status === 'fulfilled' ? subsRes.value : null
+      const subsData: SubscriptionRow[] = Array.isArray(subsRaw)
+        ? subsRaw
+        : Array.isArray((subsRaw as any)?.data)
+          ? (subsRaw as any).data
+          : []
+
+      const intentsRaw = intentsRes.status === 'fulfilled' ? intentsRes.value : null
+      const intentsData: PendingIntent[] = Array.isArray(intentsRaw)
+        ? intentsRaw
+        : Array.isArray((intentsRaw as any)?.data)
+          ? (intentsRaw as any).data
+          : []
+
+      const dbPlansRaw = dbPlansRes.status === 'fulfilled' ? dbPlansRes.value : null
+      const dbPlansData: PlanDef[] = Array.isArray(dbPlansRaw)
+        ? dbPlansRaw
+        : Array.isArray((dbPlansRaw as any)?.data)
+          ? (dbPlansRaw as any).data
+          : []
+
       // 1. Process plans
       let resolvedPlans: PlanDef[] | null = null
-      if (dbPlansRes.status === 'fulfilled' && Array.isArray(dbPlansRes.value) && dbPlansRes.value.length > 0) {
-        resolvedPlans = dbPlansRes.value
+      if (dbPlansData.length > 0) {
+        resolvedPlans = dbPlansData
       } else if (
         publicPlansRes.status === 'fulfilled' &&
         Array.isArray(publicPlansRes.value?.plans) &&
         publicPlansRes.value.plans.length > 0
       ) {
         resolvedPlans = publicPlansRes.value.plans
-      } else if (statsRes.status === 'fulfilled' && Array.isArray(statsRes.value?.plans) && statsRes.value.plans.length > 0) {
-        resolvedPlans = statsRes.value.plans
+      } else {
+        const statsVal = statsRes.status === 'fulfilled' ? statsRes.value : null
+        const statsPlans = (statsVal as any)?.plans || (statsVal as any)?.data?.plans
+        if (Array.isArray(statsPlans) && statsPlans.length > 0) {
+          resolvedPlans = statsPlans
+        }
       }
 
       if (resolvedPlans && resolvedPlans.length > 0) {
@@ -248,14 +273,14 @@ export function AdminBillingTab() {
       }
 
       // 2. Process subs & pending intents
-      const subsData = subsRes.status === 'fulfilled' && Array.isArray(subsRes.value) ? subsRes.value : []
-      const intentsData = intentsRes.status === 'fulfilled' && Array.isArray(intentsRes.value) ? intentsRes.value : []
       setBillingSubs(subsData)
       setPendingIntents(intentsData)
 
       // 3. Process stats
-      if (statsRes.status === 'fulfilled' && statsRes.value?.stats) {
-        setBillingStats(statsRes.value.stats)
+      const statsVal = statsRes.status === 'fulfilled' ? statsRes.value : null
+      const statsObj: BillingStats | null = (statsVal as any)?.stats || (statsVal as any)?.data?.stats || null
+      if (statsObj) {
+        setBillingStats(statsObj)
       } else {
         const now = new Date()
         setBillingStats({
@@ -274,6 +299,13 @@ export function AdminBillingTab() {
 
   useEffect(() => {
     void fetchBillingData()
+  }, [fetchBillingData])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void fetchBillingData()
+    }, 10000)
+    return () => clearInterval(interval)
   }, [fetchBillingData])
 
   const filteredBillingSubs = useMemo(() => {
@@ -369,7 +401,7 @@ export function AdminBillingTab() {
           note: autoReason,
         }
         const res = await api<{ message?: string }>(
-          '/api/admin/billing/subscriptions/checkout',
+          '/api/v1/billing/admin/subscriptions/checkout',
           { method: 'POST', body: JSON.stringify(payload) },
         )
         showToast(
@@ -415,7 +447,7 @@ export function AdminBillingTab() {
             paymentIntent?: { id: string; publicId: string; amountMinor: string | number }
             vietqr?: { paymentCode: string; amount: number }
           }
-        }>('/api/admin/billing/subscriptions/checkout', {
+        }>('/api/v1/billing/admin/subscriptions/checkout', {
           method: 'POST',
           body: JSON.stringify(payload),
         })
@@ -471,7 +503,7 @@ export function AdminBillingTab() {
           reason: autoReason,
         }
         const res = await api<{ message?: string }>(
-          '/api/admin/billing/subscriptions/grant',
+          '/api/v1/billing/admin/subscriptions/grant',
           { method: 'POST', body: JSON.stringify(payload) },
         )
         showToast(
