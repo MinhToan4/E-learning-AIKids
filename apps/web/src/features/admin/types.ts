@@ -345,6 +345,7 @@ export type PendingIntent = {
   userName: string | null
   paymentCode: string | null
   courseTitle: string | null
+  childNames?: string[]
   createdAt: string
   customerConfirmed?: boolean
   customerConfirmedAt?: string | null

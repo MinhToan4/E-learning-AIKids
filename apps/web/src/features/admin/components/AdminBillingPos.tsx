@@ -180,6 +180,11 @@ export function AdminBillingPos({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-bold text-xs truncate text-text">{pi.userName ?? 'Khách hàng'}</p>
+                      {pi.childNames && pi.childNames.length > 0 && (
+                        <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[10px] font-black border border-indigo-200">
+                          👶 Bé: {pi.childNames.join(', ')}
+                        </span>
+                      )}
                       <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-900">
                         {pi.paymentCode ?? pi.id.slice(0, 8)}
                       </span>

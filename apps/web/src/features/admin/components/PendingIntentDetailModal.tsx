@@ -175,6 +175,14 @@ export function PendingIntentDetailModal({
                 <span className="text-muted">Email: </span>
                 <span className="font-semibold text-text font-mono">{intent.userEmail ?? '—'}</span>
               </div>
+              {intent.childNames && intent.childNames.length > 0 && (
+                <div>
+                  <span className="text-muted">Hồ sơ bé: </span>
+                  <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-200 inline-block text-xs">
+                    👶 {intent.childNames.join(', ')}
+                  </span>
+                </div>
+              )}
               <div>
                 <span className="text-muted">User ID: </span>
                 <span className="font-mono text-muted text-[11px] truncate block">
