@@ -115,12 +115,14 @@ export interface ParentSubscriptionCheckoutModalProps {
 export type PaymentTab = 'vietqr' | 'manual'
 
 export const BANK_INFO = {
-  bankName: 'MBBank (Ngân hàng TMCP Quân Đội)',
-  accountNumber: '0382228888',
-  accountName: 'CONG TY CONG NGHE GIAO DUC AI KIDS',
+  bankName: 'Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)',
+  accountNumber: '9812723359',
+  accountName: 'LE QUANG MINH',
+  branch: 'Trụ sở CN Ba Đình',
   amount: 129000,
   amountFormatted: '129.000 đ',
   hotline: '0382.228.888',
+  originalQrUrl: '/images/qr-lequangminh-vcb.png',
 }
 
 // Deprecated bank app list kept for external interface safety
@@ -221,6 +223,7 @@ export function ParentSubscriptionCheckoutModal({
   const [refreshKey, setRefreshKey] = useState(0)
   const [serverPublicId, setServerPublicId] = useState<string | null>(null)
   const [serverPaymentCode, setServerPaymentCode] = useState<string | null>(null)
+  const [qrViewMode, setQrViewMode] = useState<'dynamic' | 'original'>('dynamic')
 
   // Find currently selected credit pack
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
@@ -252,6 +255,7 @@ export function ParentSubscriptionCheckoutModal({
       setOverpayBonusCredits(null)
       setServerPublicId(null)
       setServerPaymentCode(null)
+      setQrViewMode('dynamic')
       setTimeLeft(COUNTDOWN_SECONDS)
     }
   }, [open, initialMode, initialPackId])
@@ -446,11 +450,17 @@ export function ParentSubscriptionCheckoutModal({
   }, [activePublicId, checkPaymentStatus])
 
   // VietQR URL with dynamically computed amount (using remaining amountDue if partially paid)
-  const vietQrUrl = `https://img.vietqr.io/image/MB-0382228888-compact2.png?amount=${effectiveAmount}&addInfo=${encodeURIComponent(activePaymentCode)}&accountName=${encodeURIComponent('CONG TY AI KIDS')}`
+  const vietQrUrl = `https://img.vietqr.io/image/VCB-9812723359-compact2.png?amount=${effectiveAmount}&addInfo=${encodeURIComponent(activePaymentCode)}&accountName=${encodeURIComponent('LE QUANG MINH')}`
 
   // Download QR code image to device
   const handleDownloadQr = useCallback(() => {
-    fetch(vietQrUrl)
+    const downloadTargetUrl = qrViewMode === 'original' ? BANK_INFO.originalQrUrl : vietQrUrl
+    const downloadFileName =
+      qrViewMode === 'original'
+        ? 'vietcombank-qr-lequangminh.png'
+        : `vietqr-aikids-${activePaymentCode}.png`
+
+    fetch(downloadTargetUrl)
       .then((res) => res.blob())
       .then((blob) => {
         if (typeof window === 'undefined') return
@@ -458,7 +468,7 @@ export function ParentSubscriptionCheckoutModal({
         const a = document.createElement('a')
         a.style.display = 'none'
         a.href = url
-        a.download = `vietqr-aikids-${activePaymentCode}.png`
+        a.download = downloadFileName
         document.body.appendChild(a)
         try {
           a.click()
@@ -471,8 +481,8 @@ export function ParentSubscriptionCheckoutModal({
       .catch(() => {
         if (typeof window === 'undefined') return
         const a = document.createElement('a')
-        a.href = vietQrUrl
-        a.download = `vietqr-aikids-${activePaymentCode}.png`
+        a.href = downloadTargetUrl
+        a.download = downloadFileName
         a.target = '_blank'
         document.body.appendChild(a)
         try {
@@ -482,11 +492,11 @@ export function ParentSubscriptionCheckoutModal({
         }
         document.body.removeChild(a)
       })
-  }, [vietQrUrl, activePaymentCode])
+  }, [qrViewMode, vietQrUrl, activePaymentCode])
 
   // Copy full payment instructions in 1 tap
   const copyAllPaymentInfo = useCallback(() => {
-    const textToCopy = `Ngân hàng: ${BANK_INFO.bankName} | STK: ${BANK_INFO.accountNumber} | Chủ TK: ${BANK_INFO.accountName} | Số tiền: ${effectiveAmountFormatted} | Nội dung: ${activePaymentCode}`
+    const textToCopy = `Ngân hàng: ${BANK_INFO.bankName} | STK: ${BANK_INFO.accountNumber} | Chủ TK: ${BANK_INFO.accountName} | Chi nhánh: ${BANK_INFO.branch} | Số tiền: ${effectiveAmountFormatted} | Nội dung: ${activePaymentCode}`
     copyToClipboard(textToCopy, 'allInfo')
   }, [effectiveAmountFormatted, activePaymentCode, copyToClipboard])
 
@@ -830,17 +840,64 @@ export function ParentSubscriptionCheckoutModal({
                     </div>
                   )}
 
-                  {/* VietQR Image Container */}
-                  <div className="relative mt-3 rounded-2xl border-2 border-cream-300 bg-white p-3 shadow-clay">
-                    <img
-                      src={vietQrUrl}
-                      alt={`VietQR ${activePaymentCode}`}
-                      className="h-44 w-44 sm:h-52 sm:w-52 rounded-xl object-contain mx-auto"
-                      loading="eager"
-                    />
-                    <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-mint-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-soft">
-                      VietQR 24/7
-                    </div>
+                  {/* QR Mode Switcher Tabs */}
+                  <div
+                    role="tablist"
+                    aria-label="Chọn kiểu mã QR"
+                    className="mt-3 flex items-center justify-center gap-1.5 p-1 bg-cream-100/90 rounded-2xl border border-cream-200 shadow-soft"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={qrViewMode === 'dynamic'}
+                      onClick={() => setQrViewMode('dynamic')}
+                      className={cn(
+                        'px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black transition-all whitespace-nowrap',
+                        qrViewMode === 'dynamic'
+                          ? 'bg-white text-brand-700 shadow-clay'
+                          : 'text-muted hover:text-text',
+                      )}
+                    >
+                      Mã QR tự động (Napas 24/7)
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={qrViewMode === 'original'}
+                      onClick={() => setQrViewMode('original')}
+                      className={cn(
+                        'px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black transition-all whitespace-nowrap',
+                        qrViewMode === 'original'
+                          ? 'bg-white text-brand-700 shadow-clay'
+                          : 'text-muted hover:text-text',
+                      )}
+                    >
+                      Ảnh QR Vietcombank gốc
+                    </button>
+                  </div>
+
+                  {/* QR Image Container */}
+                  <div className="relative mt-2.5 rounded-2xl border-2 border-cream-300 bg-white p-3 shadow-clay">
+                    {qrViewMode === 'dynamic' ? (
+                      <>
+                        <img
+                          src={vietQrUrl}
+                          alt={`VietQR ${activePaymentCode}`}
+                          className="h-44 w-44 sm:h-52 sm:w-52 rounded-xl object-contain mx-auto"
+                          loading="eager"
+                        />
+                        <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-mint-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-soft">
+                          VietQR 24/7
+                        </div>
+                      </>
+                    ) : (
+                      <img
+                        src="/images/qr-lequangminh-vcb.png"
+                        alt="Ảnh QR Vietcombank gốc LE QUANG MINH"
+                        className="h-44 w-44 sm:h-52 sm:w-52 rounded-2xl object-contain mx-auto"
+                        loading="eager"
+                      />
+                    )}
                   </div>
 
                   {/* Download QR button */}
@@ -851,11 +908,13 @@ export function ParentSubscriptionCheckoutModal({
                     aria-label="Tải mã QR về máy"
                   >
                     <Download size={14} />
-                    <span>Tải mã QR về máy</span>
+                    <span>{qrViewMode === 'original' ? 'Tải ảnh QR gốc về máy' : 'Tải mã QR về máy'}</span>
                   </button>
 
                   <p className="mt-1 text-center text-[11px] font-bold text-muted">
-                    Mở app ngân hàng bất kỳ để quét mã thanh toán tức thì
+                    {qrViewMode === 'original'
+                      ? 'Quét ảnh QR Vietcombank gốc để chuyển khoản nhanh tới LE QUANG MINH'
+                      : 'Mở app ngân hàng bất kỳ để quét mã thanh toán tức thì'}
                   </p>
                 </div>
 
@@ -899,6 +958,13 @@ export function ParentSubscriptionCheckoutModal({
                     <span className="text-muted font-bold">Chủ tài khoản:</span>
                     <span className="font-extrabold text-text text-right text-[11px] sm:text-xs">
                       {BANK_INFO.accountName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-cream-200">
+                    <span className="text-muted font-bold">Chi nhánh:</span>
+                    <span className="font-extrabold text-text text-right text-[11px] sm:text-xs">
+                      {BANK_INFO.branch}
                     </span>
                   </div>
 

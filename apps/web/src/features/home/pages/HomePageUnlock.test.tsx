@@ -139,7 +139,7 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
     // Checkout modal is opened with QR code and 129.000 đ
     expect(document.body.textContent).toContain('Thanh toán an toàn cho phụ huynh')
     expect(document.body.textContent).toContain('129.000 đ')
-    expect(document.body.textContent).toContain('0382228888')
+    expect(document.body.textContent).toContain('9812723359')
     expect(mockNavigate).not.toHaveBeenCalledWith('/parent/plan')
   })
 
@@ -176,7 +176,7 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
 
     // It SHOULD open ParentSubscriptionCheckoutModal
     expect(document.body.textContent).toContain('Thanh toán an toàn cho phụ huynh')
-    expect(document.body.textContent).toContain('0382228888')
+    expect(document.body.textContent).toContain('9812723359')
     expect(document.body.textContent).toContain('129.000 đ')
   })
 

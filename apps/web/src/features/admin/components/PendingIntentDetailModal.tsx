@@ -64,9 +64,9 @@ export function PendingIntentDetailModal({
   if (!isOpen || !intent) return null
 
   const orderCode = intent.paymentCode ?? intent.id.slice(0, 8).toUpperCase()
-  const bankName = 'MBBank (Ngân hàng TMCP Quân Đội)'
-  const bankAccount = '0382228888'
-  const accountHolder = 'CONG TY CONG NGHE GIAO DUC AI KIDS'
+  const bankName = 'Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)'
+  const bankAccount = '9812723359'
+  const accountHolder = 'LE QUANG MINH'
   const purposeText = PURPOSE_LABELS[intent.purpose] ?? intent.purpose
   const createdDate = intent.createdAt
     ? new Date(intent.createdAt).toLocaleString('vi-VN')
@@ -212,7 +212,7 @@ export function PendingIntentDetailModal({
           <div className="flex items-center gap-2 mb-3 text-brand-700">
             <Building2 size={16} />
             <p className="text-xs font-black uppercase tracking-wide">
-              Thông tin chuyển khoản đối soát MBBank
+              Thông tin chuyển khoản đối soát Vietcombank
             </p>
           </div>
 

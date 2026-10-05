@@ -48,10 +48,10 @@ export function VietQrModal({ intent, onClose, onConfirmPaid }: VietQrModalProps
 
   if (!intent) return null
 
-  const bankName = 'MBBank (Ngân hàng TMCP Quân Đội)'
-  const bankAccount = '0382228888'
-  const accountHolder = 'CONG TY CONG NGHE GIAO DUC AI KIDS'
-  const qrUrl = `https://img.vietqr.io/image/MB-0382228888-compact2.png?amount=${intent.amount}&addInfo=${encodeURIComponent(intent.paymentCode)}&accountName=${encodeURIComponent('CONG TY AI KIDS')}`
+  const bankName = 'Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)'
+  const bankAccount = '9812723359'
+  const accountHolder = 'LE QUANG MINH'
+  const qrUrl = `https://img.vietqr.io/image/VCB-9812723359-compact2.png?amount=${intent.amount}&addInfo=${encodeURIComponent(intent.paymentCode)}&accountName=${encodeURIComponent('LE QUANG MINH')}`
 
   async function copyToClipboard(text: string, type: 'code' | 'account') {
     try {

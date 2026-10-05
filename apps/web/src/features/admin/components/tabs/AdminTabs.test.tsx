@@ -527,7 +527,7 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(container.textContent).toContain('👥 NGƯỜI DÙNG & PHÂN QUYỀN')
   })
 
-  it('PendingIntentDetailModal renders order details, MBBank payment info, and triggers onConfirm', async () => {
+  it('PendingIntentDetailModal renders order details, Vietcombank payment info, and triggers onConfirm', async () => {
     const mockIntent: PendingIntent = {
       id: 'pi-modal-test',
       publicId: 'pi_modal123',
@@ -562,9 +562,9 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(document.body.textContent).toContain('129.000₫')
     expect(document.body.textContent).toContain('Mẹ Thu Hằng')
     expect(document.body.textContent).toContain('mother@storymee.vn')
-    expect(document.body.textContent).toContain('0382228888')
-    expect(document.body.textContent).toContain('CONG TY CONG NGHE GIAO DUC AI KIDS')
-    expect(document.body.textContent).toContain('MBBank (Ngân hàng TMCP Quân Đội)')
+    expect(document.body.textContent).toContain('9812723359')
+    expect(document.body.textContent).toContain('LE QUANG MINH')
+    expect(document.body.textContent).toContain('Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)')
     expect(document.body.textContent).toContain('Xác nhận Đã Nhận Tiền & Kích Hoạt Gói')
 
     const confirmBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>

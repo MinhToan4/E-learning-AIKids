@@ -84,7 +84,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(document.body.textContent).toContain('Mã thanh toán có hiệu lực trong: 15:00')
     expect(document.body.textContent).toContain('129.000 đ')
     expect(document.body.textContent).toContain('AK129K9999')
-    expect(document.body.textContent).toContain('0382228888')
+    expect(document.body.textContent).toContain('9812723359')
     expect(document.body.textContent).toContain('Đang chờ thanh toán tự động...')
     expect(document.body.textContent).toContain('Kiểm tra ngay')
   })
@@ -101,9 +101,10 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     })
 
     // Bank information
-    expect(document.body.textContent).toContain('MBBank (Ngân hàng TMCP Quân Đội)')
-    expect(document.body.textContent).toContain('0382228888')
-    expect(document.body.textContent).toContain('CONG TY CONG NGHE GIAO DUC AI KIDS')
+    expect(document.body.textContent).toContain('Vietcombank (Ngân hàng TMCP Ngoại thương Việt Nam)')
+    expect(document.body.textContent).toContain('9812723359')
+    expect(document.body.textContent).toContain('LE QUANG MINH')
+    expect(document.body.textContent).toContain('Trụ sở CN Ba Đình')
     expect(document.body.textContent).toContain('129.000 đ')
     expect(document.body.textContent).toContain('AK129K8888')
     expect(document.body.textContent).toContain('Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống kích hoạt tự động')
@@ -111,9 +112,10 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     // VietQR image src
     const qrImage = document.body.querySelector('img[alt="VietQR AK129K8888"]') as HTMLImageElement | null
     expect(qrImage).not.toBeNull()
-    expect(qrImage?.src).toContain('https://img.vietqr.io/image/MB-0382228888-compact2.png')
+    expect(qrImage?.src).toContain('https://img.vietqr.io/image/VCB-9812723359-compact2.png')
     expect(qrImage?.src).toContain('amount=129000')
     expect(qrImage?.src).toContain('addInfo=AK129K8888')
+    expect(qrImage?.src).toContain('accountName=LE%20QUANG%20MINH')
   })
 
   it('handles manual transfer confirmation and sends notification to CSKH', async () => {
@@ -168,7 +170,7 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     await act(async () => {
       copyAccountBtn?.click()
     })
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('0382228888')
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('9812723359')
 
     await act(async () => {
       copyCodeBtn?.click()
@@ -426,10 +428,16 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       copyAllBtn?.click()
     })
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('MBBank'),
+      expect.stringContaining('Vietcombank'),
     )
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringContaining('0382228888'),
+      expect.stringContaining('9812723359'),
+    )
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('LE QUANG MINH'),
+    )
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('Trụ sở CN Ba Đình'),
     )
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('AK129K9999'),
@@ -526,5 +534,49 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
         body: expect.stringContaining('"packId":"credits_50"'),
       }),
     )
+  })
+
+  it('toggles between dynamic VietQR and original Vietcombank QR views', async () => {
+    act(() => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          paymentCode: 'AK129K5555',
+        }),
+      )
+    })
+
+    // Initially shows dynamic QR
+    const dynamicImg = document.body.querySelector('img[alt="VietQR AK129K5555"]') as HTMLImageElement | null
+    expect(dynamicImg).not.toBeNull()
+    expect(dynamicImg?.src).toContain('https://img.vietqr.io/image/VCB-9812723359-compact2.png')
+
+    // Click original QR tab button
+    const originalTabBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Ảnh QR Vietcombank gốc'),
+    )
+    expect(originalTabBtn).toBeDefined()
+
+    await act(async () => {
+      originalTabBtn?.click()
+    })
+
+    const originalImg = document.body.querySelector('img[alt="Ảnh QR Vietcombank gốc LE QUANG MINH"]') as HTMLImageElement | null
+    expect(originalImg).not.toBeNull()
+    expect(originalImg?.src).toContain('/images/qr-lequangminh-vcb.png')
+
+    // Click dynamic QR tab button to switch back
+    const dynamicTabBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Mã QR tự động (Napas 24/7)'),
+    )
+    expect(dynamicTabBtn).toBeDefined()
+
+    await act(async () => {
+      dynamicTabBtn?.click()
+    })
+
+    const switchedBackImg = document.body.querySelector('img[alt="VietQR AK129K5555"]') as HTMLImageElement | null
+    expect(switchedBackImg).not.toBeNull()
   })
 })
