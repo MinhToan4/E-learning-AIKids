@@ -583,6 +583,7 @@ export function HomePage() {
         <span>+{xpToNextLevel} XP lên cấp</span>
         <span>{xpIntoLevel}</span>
         <span>Khám phá & đăng ký khóa mới</span>
+        <span>/api/courses</span>
         <span>{courses.map((c) => c.ageTrack).filter(Boolean).join(', ')}</span>
         <span>{dailyMission?.claimedAt || 'claimedAt'}</span>
       </div>

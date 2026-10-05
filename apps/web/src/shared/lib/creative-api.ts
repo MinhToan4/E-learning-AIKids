@@ -46,32 +46,48 @@ function outputUrls(value: Job['outputUrls']): string[] {
   }
 }
 
-async function waitForJob(jobId: string): Promise<Job> {
-  try {
-    return await waitForJobStream(jobId)
-  } catch {
-    // SSE can be interrupted by proxies or a deploy. Fall back to bounded,
-    // progressively slower polling instead of the old fixed 1.5s loop.
-  }
-  const delays = [1_000, 1_500, 2_000, 2_500, 3_000]
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    const res = await api<any>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
-    const job = (res?.data ?? res) as Job
-    const status = String(job.status ?? '').toLowerCase()
-    if (['done', 'success', 'completed'].includes(status)) return job
-    if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
-      throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
+async function pollJob(jobId: string, signal: AbortSignal): Promise<Job> {
+  while (!signal.aborted) {
+    let job: Job | null = null
+    try {
+      const res = await api<any>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
+      job = (res?.data ?? res) as Job
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('StoryMee không hoàn thành')) throw err
     }
-    await new Promise((resolve) =>
-      window.setTimeout(resolve, delays[Math.min(attempt, delays.length - 1)]),
-    )
+
+    if (job) {
+      const status = String(job.status ?? '').toLowerCase()
+      if (['done', 'success', 'completed'].includes(status)) return job
+      if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
+        throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
+      }
+    }
+
+    if (signal.aborted) break
+    await new Promise((r) => {
+      const timer = window.setTimeout(r, 1500)
+      signal.addEventListener(
+        'abort',
+        () => {
+          window.clearTimeout(timer)
+          r(undefined)
+        },
+        { once: true },
+      )
+    })
   }
-  throw new Error('StoryMee đang xử lý lâu hơn dự kiến. Thử lại sau nhé.')
+  throw new Error('Polling aborted')
 }
 
-async function waitForJobStream(jobId: string): Promise<Job> {
+async function waitForJobStream(jobId: string, signal?: AbortSignal): Promise<Job> {
   const controller = new AbortController()
-  const timeout = window.setTimeout(() => controller.abort(), 5 * 60_000)
+  const onParentAbort = () => controller.abort()
+  if (signal) {
+    if (signal.aborted) controller.abort()
+    else signal.addEventListener('abort', onParentAbort, { once: true })
+  }
+  const timeout = window.setTimeout(() => controller.abort(), 120_000)
   try {
     const response = await openAuthorizedStream(
       `/api/v1/jobs/${encodeURIComponent(jobId)}/events`,
@@ -102,12 +118,51 @@ async function waitForJobStream(jobId: string): Promise<Job> {
           return job
         }
         if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
-          throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
+          const err = new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
+          ;(err as any).isJobError = true
+          throw err
         }
       }
     }
   } finally {
     window.clearTimeout(timeout)
+    if (signal) {
+      signal.removeEventListener('abort', onParentAbort)
+    }
+    controller.abort()
+  }
+}
+
+async function waitForJob(jobId: string): Promise<Job> {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => {
+    controller.abort()
+  }, 120_000)
+
+  // Bọc stream để nếu SSE gặp sự cố kết nối/proxy ngắt, pollJob vẫn tiếp tục kiểm tra
+  const streamPromise = waitForJobStream(jobId, controller.signal).catch((err) => {
+    if (
+      (err as any)?.isJobError ||
+      (err instanceof Error && err.message.includes('StoryMee không hoàn thành'))
+    ) {
+      throw err
+    }
+    console.warn('[CreativeAPI] SSE stream interrupted, continuing with polling:', err)
+    return new Promise<Job>(() => {})
+  })
+
+  try {
+    return await Promise.race([
+      streamPromise,
+      pollJob(jobId, controller.signal),
+    ])
+  } catch (err) {
+    if (controller.signal.aborted) {
+      throw new Error('Thời gian vẽ tranh kéo dài hơn dự kiến (120s). Bé vui lòng thử lại nhé!')
+    }
+    throw err
+  } finally {
+    window.clearTimeout(timeoutId)
     controller.abort()
   }
 }
@@ -144,24 +199,34 @@ export async function generateCreativeImage(input: {
   const references: string[] = []
 
   if (input.imageDataUrl) {
-    const [header, encoded = ''] = input.imageDataUrl.split(',', 2)
-    const mime = header.match(/^data:([^;]+)/)?.[1] ?? 'image/png'
-    const binary = atob(encoded)
-    const bytes = new Uint8Array(binary.length)
-    for (let index = 0; index < binary.length; index += 1) {
-      bytes[index] = binary.charCodeAt(index)
+    try {
+      const [header, encoded = ''] = input.imageDataUrl.split(',', 2)
+      const mime = header.match(/^data:([^;]+)/)?.[1] ?? 'image/png'
+      const binary = atob(encoded)
+      const bytes = new Uint8Array(binary.length)
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index)
+      }
+      const blob = new Blob([bytes], { type: mime })
+      const form = new FormData()
+      form.append('file', blob, 'aikids-reference.png')
+      form.append('temporary', '1')
+      form.append('assetType', 'aikids-reference')
+      const uploaded = await api<{ url?: string; imageUrl?: string }>(
+        '/api/v1/media/upload?temporary=1&assetType=aikids-reference',
+        { method: 'POST', body: form },
+      )
+      const url = uploaded.url ?? uploaded.imageUrl
+      if (url) {
+        const origin = typeof window !== 'undefined'
+          ? (window.location.origin.includes('localhost') ? 'https://dev-hub.storymee.com' : window.location.origin)
+          : 'https://dev-hub.storymee.com'
+        const absoluteUrl = url.startsWith('http') ? url : `${origin}${url}`
+        references.push(absoluteUrl)
+      }
+    } catch (err) {
+      console.warn('[CreativeAPI] Failed to upload canvas imageDataUrl to media CDN:', err)
     }
-    const blob = new Blob([bytes], { type: mime })
-    const form = new FormData()
-    form.append('file', blob, 'aikids-reference.png')
-    form.append('temporary', '1')
-    form.append('assetType', 'aikids-reference')
-    const uploaded = await api<{ url?: string; imageUrl?: string }>(
-      '/api/v1/media/upload?temporary=1&assetType=aikids-reference',
-      { method: 'POST', body: form },
-    )
-    const url = uploaded.url ?? uploaded.imageUrl
-    if (url) references.push(url)
   }
 
   // Xử lý refImageUrl: Nếu là URL cục bộ (e.g. /assets/...), tải lên media CDN để AI Worker có thể truy cập
@@ -180,16 +245,23 @@ export async function generateCreativeImage(input: {
           { method: 'POST', body: form },
         )
         const url = uploaded.url ?? uploaded.imageUrl
-        if (url) references.push(url)
+        if (url) {
+          const origin = typeof window !== 'undefined'
+            ? (window.location.origin.includes('localhost') ? 'https://dev-hub.storymee.com' : window.location.origin)
+            : 'https://dev-hub.storymee.com'
+          const absoluteUrl = url.startsWith('http') ? url : `${origin}${url}`
+          references.push(absoluteUrl)
+        }
       } catch (err) {
         console.warn('[CreativeAPI] Failed to upload local refImageUrl to media CDN:', err)
       }
     }
   }
 
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('Creative generation timeout (60s)')), 60000)
-  )
+  // QUAN TRỌNG NHẤT: Luôn đưa cả input.imageDataUrl (chuỗi data:image/png;base64,...) vào đầu danh sách references
+  if (input.imageDataUrl) {
+    references.unshift(input.imageDataUrl)
+  }
 
   let safePrompt = (input.prompt || '').trim()
   const pLower = safePrompt.toLowerCase()
@@ -217,6 +289,14 @@ export async function generateCreativeImage(input: {
   }
 
   console.log('[CreativeAPI] Creating image job with params:', jobParams)
+
+  // Bắt đầu tính timeout 120s ngay khi createJob bắt đầu, tránh bị hết giờ sớm do upload ảnh
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(
+      () => reject(new Error('Thời gian vẽ tranh kéo dài hơn dự kiến (120s). Bé vui lòng thử lại nhé!')),
+      120000,
+    ),
+  )
 
   const job = await Promise.race([
     createJob('image', jobParams, input.ipId),
