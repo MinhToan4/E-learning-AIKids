@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router'
 import {
   Brush,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Circle,
   Download,
   Eraser,
@@ -10,7 +12,6 @@ import {
   Pipette,
   RotateCcw,
   RotateCw,
-  Sparkles,
   Square,
   Trash2,
   Upload,
@@ -85,6 +86,14 @@ export function WorkshopCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const stylesScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollStyles = (direction: 'left' | 'right') => {
+    if (stylesScrollRef.current) {
+      const offset = direction === 'left' ? -220 : 220
+      stylesScrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+    }
+  }
 
   // Style state: Default is Soft Clay ('clay')
   const [activeStyle, setActiveStyle] = useState<string>(() => {
@@ -460,21 +469,48 @@ export function WorkshopCanvas({
   return (
     <div className="flex flex-col gap-4 sm:gap-5 w-full">
       {/* ── 1. KHỐI CHỌN PHONG CÁCH VẼ TRỰC QUAN (TOÀN BỘ 4 CARD HIỂN THỊ ĐẦY ĐỦ 100%) ── */}
+      {/* ── 1. KHỐI CHỌN PHONG CÁCH VẼ TRỰC QUAN (14 PHONG CÁCH CUỘN NGANG) ── */}
       <section
-        className="rounded-3xl border-2 border-orange-200/90 bg-gradient-to-r from-orange-50/70 via-amber-50/60 to-yellow-50/70 p-3 sm:p-3.5 shadow-clay flex flex-col gap-2.5"
+        className="rounded-3xl border-2 border-orange-200/90 bg-gradient-to-r from-orange-50/70 via-amber-50/60 to-yellow-50/70 p-3 sm:p-3.5 shadow-clay flex flex-col gap-2.5 overflow-hidden"
         aria-label="Chọn phong cách vẽ"
       >
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs sm:text-sm font-black text-orange-950 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🎨 Chọn phong cách vẽ:</span>
-          </span>
-          <span className="text-[11px] font-bold text-orange-700 bg-white/90 px-2.5 py-0.5 rounded-full border border-orange-200/80 shadow-2xs">
-            Đang chọn: <span className="text-orange-950 font-black">{currentStyleObj.label}</span>
-          </span>
+        <div className="flex items-center justify-between px-1 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs sm:text-sm font-black text-orange-950 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+              <span>🎨 Chọn phong cách vẽ:</span>
+            </span>
+            <span className="text-[11px] font-bold text-orange-700 bg-white/90 px-2.5 py-0.5 rounded-full border border-orange-200/80 shadow-2xs truncate">
+              Đang chọn: <span className="text-orange-950 font-black">{currentStyleObj.label}</span>
+            </span>
+          </div>
+
+          {/* 2 nút cuộn trái / phải nhỏ nhắn ở góc thanh tiêu đề */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => scrollStyles('left')}
+              aria-label="Cuộn sang trái"
+              title="Xem các phong cách trước"
+              className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl border border-orange-200/90 bg-white text-orange-800 shadow-2xs transition hover:bg-orange-50 hover:border-orange-300 active:scale-90 cursor-pointer"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollStyles('right')}
+              aria-label="Cuộn sang phải"
+              title="Xem thêm phong cách"
+              className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl border border-orange-200/90 bg-white text-orange-800 shadow-2xs transition hover:bg-orange-50 hover:border-orange-300 active:scale-90 cursor-pointer"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
+        {/* Dải thẻ cuộn ngang mượt mà */}
         <div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
+          ref={stylesScrollRef}
+          className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none snap-x touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role="radiogroup"
           aria-label="Danh sách phong cách vẽ"
         >
@@ -486,44 +522,38 @@ export function WorkshopCanvas({
                 type="button"
                 role="radio"
                 aria-checked={isSelected}
-                aria-label={`Phong cách ${style.label}: ${style.desc}`}
+                aria-label={`Phong cách ${style.label}`}
                 onClick={() => setActiveStyle(style.id)}
                 className={cn(
-                  'flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-2xl border-2 transition-all cursor-pointer select-none text-left active:scale-95 relative overflow-hidden',
+                  'w-24 sm:w-28 shrink-0 snap-start flex flex-col items-center gap-1.5 p-2 rounded-2xl border-2 transition-all cursor-pointer select-none text-center relative overflow-hidden',
                   isSelected
-                    ? 'border-orange-500 bg-white text-orange-950 font-black shadow-clay ring-2 ring-orange-300 scale-[1.01]'
-                    : 'border-orange-200/80 bg-white/80 hover:bg-white text-slate-700 hover:border-orange-300 font-bold shadow-2xs',
+                    ? 'border-orange-500 bg-white ring-4 ring-orange-200 shadow-clay scale-[1.03] text-orange-950 font-black'
+                    : 'border-orange-200/80 bg-white/90 hover:bg-white text-slate-700 hover:border-orange-300 font-bold shadow-2xs hover:scale-[1.01]',
                 )}
               >
                 <img
                   src={style.img}
                   alt={style.label}
-                  className="w-8 h-8 rounded-xl object-cover border border-white shadow-2xs shrink-0"
+                  loading="lazy"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover shadow-2xs border border-white/80 shrink-0"
                 />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span
-                    className={cn(
-                      'text-xs sm:text-sm font-black leading-tight truncate',
-                      isSelected ? 'text-orange-950' : 'text-slate-800',
-                    )}
-                  >
-                    {style.label}
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-500 leading-tight truncate">
-                    {style.desc}
-                  </span>
-                </div>
+                <span
+                  className={cn(
+                    'text-xs sm:text-sm font-black text-center leading-tight truncate w-full px-0.5',
+                    isSelected ? 'text-orange-950' : 'text-slate-800',
+                  )}
+                >
+                  {style.label}
+                </span>
+
                 {isSelected ? (
                   <span
-                    className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-xs shrink-0"
+                    className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-xs text-[10px] font-black"
                     aria-hidden="true"
-                  />
-                ) : (
-                  <span
-                    className="w-2.5 h-2.5 rounded-full bg-orange-100 shrink-0"
-                    aria-hidden="true"
-                  />
-                )}
+                  >
+                    ✓
+                  </span>
+                ) : null}
               </button>
             )
           })}
@@ -704,8 +734,8 @@ export function WorkshopCanvas({
           {/* GỢI Ý Ý TƯỞNG ("Bé muốn vẽ điều gì?") */}
           <div className="rounded-3xl border-2 border-amber-200/90 bg-white p-4 shadow-clay flex flex-col gap-2.5">
             <h2 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center justify-between">
-              <span>✨ Bé muốn vẽ điều gì?</span>
-              <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full">
+              <span>Bé muốn vẽ điều gì?</span>
+              <span className="text-[11px] text-orange-700 font-bold bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200/80">
                 {currentStyleObj.label}
               </span>
             </h2>
@@ -750,16 +780,20 @@ export function WorkshopCanvas({
             </div>
           </div>
 
-          {/* NÚT HÀNH ĐỘNG CHÍNH: Tương thích động theo từng phong cách */}
+          {/* NÚT HÀNH ĐỘNG CHÍNH: Biến hình tranh vẽ chuẩn Hallmark Soft-Clay */}
           <button
             type="button"
             onClick={generateAI}
             disabled={aiState === 'loading'}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-sm sm:text-base shadow-clay hover:scale-[1.01] active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
-            aria-label={currentStyleObj.buttonActionText}
+            className="w-full flex flex-col items-center justify-center py-3 sm:py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 active:scale-[0.98] text-white font-black shadow-clay transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none border-2 border-orange-400/50"
+            aria-label={`Biến hình tranh vẽ theo phong cách ${currentStyleObj.label}`}
           >
-            <Sparkles className="w-5 h-5 shrink-0" />
-            <span>{currentStyleObj.buttonActionText}</span>
+            <span className="text-base sm:text-lg font-black tracking-wide drop-shadow-xs">
+              Biến hình tranh vẽ
+            </span>
+            <span className="text-[11px] sm:text-xs font-bold text-orange-100 opacity-95">
+              theo phong cách {currentStyleObj.label}
+            </span>
           </button>
 
           {/* KHUNG TRẠNG THÁI & KẾT QUẢ AI */}
@@ -780,29 +814,43 @@ export function WorkshopCanvas({
                   </p>
                   <p className="text-xs text-slate-500 font-semibold max-w-xs mt-1">
                     Bé vẽ phác thảo ở khung bên trái rồi bấm nút{' '}
-                    <strong className="text-orange-600">“{currentStyleObj.buttonActionText}”</strong> nhé!
+                    <strong className="text-orange-600">“Biến hình tranh vẽ”</strong> nhé!
                   </p>
                 </div>
               </div>
             )}
 
-            {/* TRẠNG THÁI LOADING (Animation Soft Clay vui nhộn) */}
+            {/* TRẠNG THÁI LOADING (Hoạt ảnh Soft Clay chuẩn Montessori - Mèo đứng riêng, thanh tiến độ độc lập) */}
             {aiState === 'loading' && (
-              <div className="flex flex-col items-center gap-3.5 p-4 text-center">
-                <div className="relative w-20 h-20 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3.5 p-4 text-center w-full">
+                {/* Mèo Aiki ngộ nghĩnh đứng riêng ở trên, nhún nhảy đáng yêu */}
+                <div className="w-16 h-16 flex items-center justify-center">
                   <img
                     src={designerAssets.catPoses.guide}
-                    alt="Mèo Aiki đang vung cọ vẽ"
+                    alt="Mèo Aiki đang tô màu"
                     className="w-16 h-16 object-contain animate-bounce drop-shadow-md"
                   />
-                  <div className="absolute inset-0 rounded-full border-4 border-orange-200 border-t-orange-500 animate-spin" />
                 </div>
+
+                {/* Dải 3 chấm nảy mềm mại (Bouncing dots) */}
+                <div className="flex items-center gap-1.5 my-0.5" aria-hidden="true">
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-400 animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-bounce" />
+                </div>
+
+                {/* Thanh tiến độ Soft Clay (Pill Progress Bar) độc lập bên dưới */}
+                <div className="h-3 w-48 sm:w-56 rounded-full bg-orange-100 overflow-hidden shadow-inner p-0.5 border border-orange-200/70">
+                  <div className="h-full rounded-full bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 animate-pulse w-full" />
+                </div>
+
+                {/* Thông điệp thân thiện */}
                 <div>
                   <p className="font-display text-base sm:text-lg font-black text-orange-600">
-                    Mèo Aiki đang vung cọ vẽ... Bé chờ xíu nhé!
+                    Mèo Aiki đang tô màu tranh cho bé...
                   </p>
                   <p className="text-xs text-slate-500 font-bold mt-1">
-                    Phép thuật AI đang hoàn thiện kiệt tác theo phong cách {currentStyleObj.label}...
+                    Bé chờ một xíu nhé, bức tranh sắp hoàn thành rồi!
                   </p>
                 </div>
               </div>

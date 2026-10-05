@@ -50,37 +50,93 @@ export interface AiStudioStyle {
   label: string
   buttonActionText: string
   img: string
-  desc: string
+  desc?: string
 }
 
 export const AI_STUDIO_STYLES: AiStudioStyle[] = [
   {
     id: 'clay',
-    label: 'Đất Nặn 3D',
-    buttonActionText: '🎨 Vẽ theo phong cách Đất Nặn 3D',
+    label: 'Đất Nặn',
+    buttonActionText: 'Vẽ theo phong cách Đất Nặn',
     img: '/assets/optimized/art-style-clay.webp',
-    desc: 'Khối đất nặn tròn xoe, ấm áp, ngộ nghĩnh',
   },
   {
     id: 'watercolor',
-    label: 'Màu Nước Pastel',
-    buttonActionText: '🎨 Vẽ theo phong cách Màu Nước Pastel',
+    label: 'Màu Nước',
+    buttonActionText: 'Vẽ theo phong cách Màu Nước',
     img: '/assets/optimized/art-style-watercolor.webp',
-    desc: 'Màu loang trong trẻo, êm dịu trên giấy vẽ',
   },
   {
     id: 'cartoon',
-    label: 'Hoạt Hình 3D',
-    buttonActionText: '🎨 Vẽ theo phong cách Hoạt Hình 3D',
+    label: 'Hoạt Hình',
+    buttonActionText: 'Vẽ theo phong cách Hoạt Hình',
     img: '/assets/optimized/art-style-cartoon.webp',
-    desc: 'Nét vẽ hoạt hình sống động, màu sắc tươi vui',
+  },
+  {
+    id: 'crayon',
+    label: 'Bút Sáp',
+    buttonActionText: 'Vẽ theo phong cách Bút Sáp',
+    img: '/assets/optimized/art-style-crayon.webp',
   },
   {
     id: 'sketch',
-    label: 'Tranh Chì Màu',
-    buttonActionText: '🎨 Vẽ theo phong cách Tranh Chì Màu',
+    label: 'Tranh Chì',
+    buttonActionText: 'Vẽ theo phong cách Tranh Chì',
     img: '/assets/optimized/art-style-sketch.webp',
-    desc: 'Nét phác chì mộc mạc, đáng yêu và gần gũi',
+  },
+  {
+    id: 'chibi',
+    label: 'Chibi',
+    buttonActionText: 'Vẽ theo phong cách Chibi',
+    img: '/assets/optimized/art-style-chibi.webp',
+  },
+  {
+    id: '3d',
+    label: '3D Sống Động',
+    buttonActionText: 'Vẽ theo phong cách 3D Sống Động',
+    img: '/assets/optimized/art-style-3D.webp',
+  },
+  {
+    id: 'anime',
+    label: 'Anime',
+    buttonActionText: 'Vẽ theo phong cách Anime',
+    img: '/assets/optimized/art-style-anime.webp',
+  },
+  {
+    id: 'comic',
+    label: 'Truyện Tranh',
+    buttonActionText: 'Vẽ theo phong cách Truyện Tranh',
+    img: '/assets/optimized/art-style-comic.webp',
+  },
+  {
+    id: 'pixel',
+    label: 'Pixel Art',
+    buttonActionText: 'Vẽ theo phong cách Pixel Art',
+    img: '/assets/optimized/art-style-pixel.webp',
+  },
+  {
+    id: 'fabric',
+    label: 'Vải Nỉ',
+    buttonActionText: 'Vẽ theo phong cách Vải Nỉ',
+    img: '/assets/optimized/art-style-farbic.webp',
+  },
+  {
+    id: 'manhwa',
+    label: 'Manhwa',
+    buttonActionText: 'Vẽ theo phong cách Manhwa',
+    img: '/assets/optimized/art-style-manhwa.webp',
+  },
+  {
+    id: 'manga',
+    label: 'Manga',
+    buttonActionText: 'Vẽ theo phong cách Manga',
+    img: '/assets/optimized/art-style-manga.webp',
+  },
+  {
+    id: 'semirealistic',
+    label: 'Bán Tả Thực',
+    buttonActionText: 'Vẽ theo phong cách Bán Tả Thực',
+    img: '/assets/optimized/art-style-semirealistic.webp',
   },
 ]
 

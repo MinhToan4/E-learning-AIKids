@@ -75,7 +75,7 @@ describe('CreativePage (AI Studio)', () => {
     container.remove()
   })
 
-  it('renders 4 child-friendly art styles directly on the drawing screen', async () => {
+  it('renders all 14 child-friendly art styles directly on the drawing screen', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -88,10 +88,20 @@ describe('CreativePage (AI Studio)', () => {
       )
     })
 
-    expect(container.textContent).toContain('Đất Nặn 3D')
-    expect(container.textContent).toContain('Màu Nước Pastel')
-    expect(container.textContent).toContain('Hoạt Hình 3D')
-    expect(container.textContent).toContain('Tranh Chì Màu')
+    expect(container.textContent).toContain('Đất Nặn')
+    expect(container.textContent).toContain('Màu Nước')
+    expect(container.textContent).toContain('Hoạt Hình')
+    expect(container.textContent).toContain('Bút Sáp')
+    expect(container.textContent).toContain('Tranh Chì')
+    expect(container.textContent).toContain('Chibi')
+    expect(container.textContent).toContain('3D Sống Động')
+    expect(container.textContent).toContain('Anime')
+    expect(container.textContent).toContain('Truyện Tranh')
+    expect(container.textContent).toContain('Pixel Art')
+    expect(container.textContent).toContain('Vải Nỉ')
+    expect(container.textContent).toContain('Manhwa')
+    expect(container.textContent).toContain('Manga')
+    expect(container.textContent).toContain('Bán Tả Thực')
 
     act(() => root.unmount())
     container.remove()
@@ -110,41 +120,42 @@ describe('CreativePage (AI Studio)', () => {
       )
     })
 
-    // Default is Soft Clay ("Đất Nặn 3D")
-    expect(container.textContent).toContain('🎨 Vẽ theo phong cách Đất Nặn 3D')
+    // Default is Soft Clay ("Đất Nặn")
+    expect(container.textContent).toContain('Biến hình tranh vẽ')
+    expect(container.textContent).toContain('theo phong cách Đất Nặn')
 
-    // Switch to Màu Nước Pastel
+    // Switch to Màu Nước
     const watercolorBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Màu Nước Pastel'),
+      b.getAttribute('aria-label') === 'Phong cách Màu Nước' || b.textContent?.trim() === 'Màu Nước',
     )
     expect(watercolorBtn).toBeDefined()
 
     await act(async () => {
       watercolorBtn?.click()
     })
-    expect(container.textContent).toContain('🎨 Vẽ theo phong cách Màu Nước Pastel')
+    expect(container.textContent).toContain('theo phong cách Màu Nước')
 
-    // Switch to Hoạt Hình 3D
+    // Switch to Hoạt Hình
     const cartoonBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Hoạt Hình 3D'),
+      b.getAttribute('aria-label') === 'Phong cách Hoạt Hình' || b.textContent?.trim() === 'Hoạt Hình',
     )
     expect(cartoonBtn).toBeDefined()
 
     await act(async () => {
       cartoonBtn?.click()
     })
-    expect(container.textContent).toContain('🎨 Vẽ theo phong cách Hoạt Hình 3D')
+    expect(container.textContent).toContain('theo phong cách Hoạt Hình')
 
-    // Switch to Tranh Chì Màu
+    // Switch to Tranh Chì
     const sketchBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Tranh Chì Màu'),
+      b.getAttribute('aria-label') === 'Phong cách Tranh Chì' || b.textContent?.trim() === 'Tranh Chì',
     )
     expect(sketchBtn).toBeDefined()
 
     await act(async () => {
       sketchBtn?.click()
     })
-    expect(container.textContent).toContain('🎨 Vẽ theo phong cách Tranh Chì Màu')
+    expect(container.textContent).toContain('theo phong cách Tranh Chì')
 
     act(() => root.unmount())
     container.remove()
@@ -212,7 +223,7 @@ describe('CreativePage (AI Studio)', () => {
     })
 
     const createBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Vẽ theo phong cách'),
+      b.textContent?.includes('Biến hình tranh vẽ'),
     )
     expect(createBtn).toBeDefined()
 
@@ -270,7 +281,7 @@ describe('CreativePage (AI Studio)', () => {
     })
 
     const createBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Vẽ theo phong cách'),
+      b.textContent?.includes('Biến hình tranh vẽ'),
     )
     expect(createBtn).toBeDefined()
 
