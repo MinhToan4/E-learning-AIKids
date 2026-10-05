@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { KeyRound, Languages, ShieldCheck } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -7,12 +7,15 @@ import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
-import type { ParentProfileData } from '@/features/parent/types/parent.types'
+import { SetParentPinModal } from '@/features/parent/components/SetParentPinModal'
+import type { ParentPinStatus, ParentProfileData } from '@/features/parent/types/parent.types'
 
 export function ParentProfileTab() {
   const user = useAuth((s) => s.user)
   const updateAccountPassword = useAuth((s) => s.changePassword)
   const [profile, setProfile] = useState<ParentProfileData | null>(null)
+  const [pinStatus, setPinStatus] = useState<ParentPinStatus | null>(null)
+  const [showPinModal, setShowPinModal] = useState(false)
   const [phone, setPhone] = useState('')
   const [lang, setLang] = useState('vi')
   const [saving, setSaving] = useState(false)
@@ -21,19 +24,40 @@ export function ParentProfileTab() {
   const [newPw, setNewPw] = useState('')
   const { toasts, showToast, dismissToast } = useToast()
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await api<{ profile: ParentProfileData }>('/api/parent/profile')
-        setProfile(data.profile)
-        setPhone(data.profile.phone ?? '')
-        setLang(data.profile.preferredLanguage)
-      } catch {
-        /* silent */
+  const load = useCallback(async () => {
+    try {
+      const [profData, pinData] = await Promise.allSettled([
+        api<{ profile: ParentProfileData }>('/api/parent/profile'),
+        api<ParentPinStatus>('/api/parent/pin-status'),
+      ])
+      if (profData.status === 'fulfilled') {
+        setProfile(profData.value.profile)
+        setPhone(profData.value.profile.phone ?? '')
+        setLang(profData.value.profile.preferredLanguage)
       }
+      if (pinData.status === 'fulfilled') {
+        setPinStatus(pinData.value)
+      }
+    } catch {
+      /* silent */
     }
-    void load()
   }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  useEffect(() => {
+    try {
+      if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('aikids.suggest_pin_setup') === '1') {
+        sessionStorage.removeItem('aikids.suggest_pin_setup')
+        setShowPinModal(true)
+        showToast('Vui lòng thiết lập mã PIN mới cho tài khoản Ba / Mẹ nhé!', 'info')
+      }
+    } catch {
+      /* silent */
+    }
+  }, [showToast])
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault()
@@ -204,6 +228,58 @@ export function ParentProfileTab() {
           </form>
         )}
       </div>
+
+      {/* Parent PIN management */}
+      <div className="ui-card p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="flex items-center gap-2 font-display text-lg font-bold text-slate-900">
+                <ShieldCheck size={20} className="text-brand-600" />
+                Mã PIN Ba / Mẹ
+              </h3>
+              {pinStatus?.hasParentPin ? (
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-black text-emerald-700 border border-emerald-200">
+                  Đã kích hoạt
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-black text-amber-700 border border-amber-200">
+                  Chưa kích hoạt
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-xs sm:text-sm text-muted">
+              {pinStatus?.hasParentPin
+                ? `Mã PIN 4 số giúp Ba / Mẹ mở Cổng phụ huynh nhanh chóng khi nhận lại máy từ con.${
+                    pinStatus.updatedAt
+                      ? ` Cập nhật lần cuối: ${new Date(pinStatus.updatedAt).toLocaleDateString('vi-VN')}`
+                      : ''
+                  }`
+                : 'Chưa cài đặt mã PIN 4 chữ số. Thiết lập ngay để mở Cổng phụ huynh nhanh chóng và an toàn.'}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant={pinStatus?.hasParentPin ? 'secondary' : 'primary'}
+            onClick={() => setShowPinModal(true)}
+            className="shrink-0 self-start sm:self-auto rounded-2xl cursor-pointer"
+          >
+            {pinStatus?.hasParentPin ? 'Đổi mã PIN' : 'Cài đặt mã PIN'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Set / Change Parent PIN Modal */}
+      <SetParentPinModal
+        open={showPinModal}
+        isChange={Boolean(pinStatus?.hasParentPin)}
+        onClose={() => setShowPinModal(false)}
+        onSuccess={() => {
+          setPinStatus({ hasParentPin: true, updatedAt: new Date().toISOString() })
+          showToast('Đã lưu mã PIN Ba / Mẹ thành công!', 'success')
+          void load()
+        }}
+      />
     </div>
   )
 }

@@ -121,3 +121,8 @@ export type CoursePaymentState = {
   publicId: string
   status: 'pending' | 'succeeded' | 'failed' | 'unknown'
 }
+
+export type ParentPinStatus = {
+  hasParentPin: boolean
+  updatedAt: string | null
+}

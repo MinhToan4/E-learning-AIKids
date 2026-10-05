@@ -21,6 +21,7 @@ import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
 import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
+import { SetParentPinModal } from '@/features/parent/components/SetParentPinModal'
 import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
 import {
   getDashboardCache,
@@ -37,6 +38,7 @@ export function ParentKidsTab() {
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
+  const [showPinModal, setShowPinModal] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -437,10 +439,22 @@ export function ParentKidsTab() {
         referenceChildId={kids[0]?.id}
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
+          const isCreating = editTarget === null
           setEditTarget(undefined)
-          showToast(editTarget ? 'Đã cập nhật hồ sơ con!' : 'Đã tạo tài khoản con!', 'success')
+          showToast(isCreating ? 'Đã tạo tài khoản con!' : 'Đã cập nhật hồ sơ con!', 'success')
           invalidateParentCache()
           await loadKids()
+
+          if (isCreating) {
+            try {
+              const pinRes = await api<{ hasParentPin: boolean }>('/api/parent/pin-status')
+              if (!pinRes.hasParentPin) {
+                setShowPinModal(true)
+              }
+            } catch {
+              // silent
+            }
+          }
         }}
         onError={(e) => showToast(e, 'error')}
       />
@@ -450,6 +464,15 @@ export function ParentKidsTab() {
         child={qrModalTarget}
         isOpen={qrModalTarget !== null}
         onClose={() => setQrModalTarget(null)}
+      />
+
+      {/* SetParentPinModal — gợi ý cài đặt PIN sau khi tạo profile con */}
+      <SetParentPinModal
+        open={showPinModal}
+        onClose={() => setShowPinModal(false)}
+        onSuccess={() => {
+          showToast('Đã thiết lập mã PIN Ba / Mẹ thành công!', 'success')
+        }}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, LogOut, Plus, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, KeyRound, LogOut, Plus, Sparkles, Users } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
@@ -11,6 +11,7 @@ import { cn } from '@/shared/lib/cn'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
+import { SetParentPinModal } from '@/features/parent/components/SetParentPinModal'
 
 type ChildCard = {
   id: string
@@ -39,20 +40,31 @@ export function ChildPickerPage() {
   const [kids, setKids] = useState<ChildCard[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
+  const [hasParentPin, setHasParentPin] = useState<boolean | null>(null)
+  const [showSetPinModal, setShowSetPinModal] = useState(false)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await api<{ children: ChildCard[] }>('/api/parent/children')
-      setKids(data.children.filter((c) => c.active !== false))
-    } catch (e) {
-      showToast(
-        e instanceof Error
-          ? e.message
-          : 'Chưa tải được danh sách. Ba / Mẹ đăng nhập lại giúp nhé.',
-        'error',
-      )
+      const [childrenData, pinData] = await Promise.allSettled([
+        api<{ children: ChildCard[] }>('/api/parent/children'),
+        api<{ hasParentPin: boolean; updatedAt: string | null }>('/api/parent/pin-status'),
+      ])
+      if (childrenData.status === 'fulfilled') {
+        setKids(childrenData.value.children.filter((c) => c.active !== false))
+      } else {
+        showToast(
+          childrenData.reason instanceof Error
+            ? childrenData.reason.message
+            : 'Chưa tải được danh sách. Ba / Mẹ đăng nhập lại giúp nhé.',
+          'error',
+        )
+      }
+      if (pinData.status === 'fulfilled') {
+        setHasParentPin(pinData.value.hasParentPin)
+      }
     } finally {
       setLoading(false)
     }
@@ -147,6 +159,41 @@ export function ChildPickerPage() {
             </p>
           </div>
         </div>
+
+        {/* Suggest Parent PIN Setup Banner */}
+        {hasParentPin === false && !bannerDismissed && (
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-3xl border-2 border-amber-300 bg-amber-50/95 p-4 sm:p-5 shadow-clay">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-400 text-white shadow-soft">
+                <KeyRound size={22} />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-display text-base font-black text-amber-950">
+                  Bảo vệ khu vực Ba / Mẹ
+                </h3>
+                <p className="text-xs sm:text-sm font-semibold text-amber-800 leading-snug">
+                  Ba / Mẹ chưa cài đặt mã PIN 4 số. Hãy thiết lập ngay để bảo vệ tài khoản và không gian quản trị trước khi giao máy cho con nhé!
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setBannerDismissed(true)}
+                className="rounded-xl px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-100/60 transition cursor-pointer"
+              >
+                Để sau
+              </button>
+              <Button
+                type="button"
+                onClick={() => setShowSetPinModal(true)}
+                className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white font-extrabold shadow-soft text-xs sm:text-sm !min-h-10 px-4 border-none cursor-pointer whitespace-nowrap"
+              >
+                Cài đặt mã PIN ngay
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Kids Grid or Empty State */}
         {kids.length === 0 && !loading ? (
@@ -275,6 +322,15 @@ export function ChildPickerPage() {
           </button>
         </footer>
       </div>
+
+      <SetParentPinModal
+        open={showSetPinModal}
+        onClose={() => setShowSetPinModal(false)}
+        onSuccess={() => {
+          setHasParentPin(true)
+          showToast('Đã thiết lập mã PIN Ba / Mẹ thành công!', 'success')
+        }}
+      />
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
