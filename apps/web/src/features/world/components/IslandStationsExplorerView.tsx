@@ -18,6 +18,7 @@ import { type QuestProgress } from '@/shared/lib/api'
 import { prefetchRoute, prefetchRouteImmediately } from '@/app/route-prefetch'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { CourseCertificateModal } from '@/features/lesson/components/CourseCertificateModal'
+import { FlatClayTrophy } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { playInstantSound } from '@/features/lesson/components/LessonInteractiveSidebar'
 
 export type IslandCourseSummary = {
@@ -856,7 +857,7 @@ export function IslandStationsExplorerView({
                     className="mt-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white font-display font-black text-sm sm:text-base shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2 animate-bounce-subtle"
                   >
                     <Sparkles className="w-4 h-4 text-yellow-200" />
-                    <span>Tiến Lên Đảo Tiếp Theo ➔</span>
+                    <span>Tiến Lên Đảo Tiếp Theo</span>
                   </button>
                 ) : (
                   <button
@@ -864,7 +865,7 @@ export function IslandStationsExplorerView({
                     onClick={() => setIsCertModalOpen(true)}
                     className="mt-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-900 font-display font-black text-base sm:text-lg shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5 animate-pulse-subtle ring-4 ring-amber-200/70"
                   >
-                    <span>🎓</span>
+                    <FlatClayTrophy size={20} className="shrink-0" />
                     <span>Nhận Giấy Chứng Nhận Tốt Nghiệp</span>
                     <Sparkles className="w-5 h-5 text-amber-900" />
                   </button>
@@ -902,7 +903,7 @@ export function IslandStationsExplorerView({
       <CourseCertificateModal
         isOpen={isCertModalOpen}
         onClose={() => setIsCertModalOpen(false)}
-        courseTitle="Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)"
+        courseTitle="Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 30 Trạm)"
         islandTitle="Tốt Nghiệp Xuất Sắc Toàn Khóa"
         stars={meta.totalStars || 30}
         xp={meta.completedCount * 50 || 1500}

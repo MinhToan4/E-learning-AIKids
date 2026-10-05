@@ -196,7 +196,7 @@ export function ParentSubscriptionCheckoutModal({
   open,
   onClose,
   onSuccess,
-  defaultPlanId: _defaultPlanId = 'aikids_official_129k',
+  defaultPlanId = 'aikids_official_129k',
   paymentCode: initialPaymentCode,
   publicId: initialPublicId,
   initialMode = 'sub',
@@ -219,6 +219,8 @@ export function ParentSubscriptionCheckoutModal({
   const [overpayBonusCredits, setOverpayBonusCredits] = useState<number | null>(null)
   const [timeLeft, setTimeLeft] = useState(COUNTDOWN_SECONDS)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [serverPublicId, setServerPublicId] = useState<string | null>(null)
+  const [serverPaymentCode, setServerPaymentCode] = useState<string | null>(null)
 
   // Find currently selected credit pack
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
@@ -235,8 +237,8 @@ export function ParentSubscriptionCheckoutModal({
     return productMode === 'credits' ? `AKCRE${randomDigits}` : `AK129K${randomDigits}`
   }, [open, productMode, refreshKey])
 
-  const activePaymentCode = initialPaymentCode || generatedCode
-  const activePublicId = initialPublicId || `pi_${activePaymentCode.toLowerCase()}`
+  const activePaymentCode = initialPaymentCode || serverPaymentCode || generatedCode
+  const activePublicId = initialPublicId || serverPublicId || `pi_${activePaymentCode.toLowerCase()}`
 
   // Reset state when opening or when props change
   useEffect(() => {
@@ -248,9 +250,64 @@ export function ParentSubscriptionCheckoutModal({
       setCopiedField(null)
       setPartialPayment(null)
       setOverpayBonusCredits(null)
+      setServerPublicId(null)
+      setServerPaymentCode(null)
       setTimeLeft(COUNTDOWN_SECONDS)
     }
   }, [open, initialMode, initialPackId])
+
+  // Initialize real backend order when opening modal or changing configuration
+  useEffect(() => {
+    if (!open) return
+
+    let isMounted = true
+
+    async function initCheckoutOrder() {
+      try {
+        if (productMode === 'sub') {
+          const res = await api<{
+            checkout?: { publicId?: string; paymentCode?: string }
+            data?: { publicId?: string; metadata?: { paymentCode?: string } }
+          }>('/api/v1/billing/me/checkout', {
+            method: 'POST',
+            body: JSON.stringify({
+              plan: defaultPlanId || 'aikids_official_129k',
+              provider: 'manual',
+              paymentCode: generatedCode,
+            }),
+          })
+          if (!isMounted) return
+          const pubId = res?.checkout?.publicId || res?.data?.publicId
+          const code = res?.checkout?.paymentCode || res?.data?.metadata?.paymentCode
+          if (pubId) setServerPublicId(pubId)
+          if (code) setServerPaymentCode(code)
+        } else if (productMode === 'credits') {
+          const res = await api<{
+            checkout?: { publicId?: string }
+            data?: { paymentIntent?: { publicId?: string } }
+          }>('/api/v1/billing/me/credit-packs/checkout', {
+            method: 'POST',
+            body: JSON.stringify({
+              packId: selectedPackId,
+              provider: 'manual',
+              idempotencyKey: 'credit-pack-' + selectedPackId + '-' + Date.now(),
+            }),
+          })
+          if (!isMounted) return
+          const pubId = res?.checkout?.publicId || res?.data?.paymentIntent?.publicId
+          if (pubId) setServerPublicId(pubId)
+        }
+      } catch {
+        // Safe try/catch: fallback to generatedCode to avoid disrupting UI
+      }
+    }
+
+    void initCheckoutOrder()
+
+    return () => {
+      isMounted = false
+    }
+  }, [open, productMode, selectedPackId, refreshKey, defaultPlanId, generatedCode])
 
   // Lock body scroll when open
   useEffect(() => {
@@ -374,9 +431,19 @@ export function ParentSubscriptionCheckoutModal({
   }, [open, isSuccess, activePublicId, handlePaymentResponse])
 
   // Handle manual transfer confirmation
-  const handleManualConfirm = useCallback(() => {
+  const handleManualConfirm = useCallback(async () => {
     setManualSubmitted(true)
-  }, [])
+    try {
+      if (activePublicId) {
+        await api(`/api/v1/billing/payment-intents/${activePublicId}/customer-confirm`, {
+          method: 'POST',
+        })
+      }
+    } catch {
+      // Safe fallback: continue without blocking confirmation UI
+    }
+    void checkPaymentStatus()
+  }, [activePublicId, checkPaymentStatus])
 
   // VietQR URL with dynamically computed amount (using remaining amountDue if partially paid)
   const vietQrUrl = `https://img.vietqr.io/image/MB-0382228888-compact2.png?amount=${effectiveAmount}&addInfo=${encodeURIComponent(activePaymentCode)}&accountName=${encodeURIComponent('CONG TY AI KIDS')}`

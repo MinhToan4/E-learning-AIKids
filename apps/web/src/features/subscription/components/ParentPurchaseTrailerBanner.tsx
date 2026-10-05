@@ -254,14 +254,14 @@ export const ParentPurchaseTrailerBanner: React.FC<ParentPurchaseTrailerBannerPr
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs sm:text-sm font-black text-amber-950 truncate">
-                  👑 Tài khoản đã mở khóa Full Access
+                  Tài khoản đã mở khóa Full Access
                 </span>
                 <span className="px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
                   VIP
                 </span>
               </div>
               <p className="text-[11px] font-medium text-zinc-600 truncate">
-                Bé thỏa sức học trọn bộ 6 Đảo &amp; 32 Trạm, vẽ tranh AI không giới hạn!
+                Bé thỏa sức học trọn bộ 6 Đảo &amp; 30 Trạm, vẽ tranh AI không giới hạn!
               </p>
             </div>
           </div>
@@ -289,7 +289,7 @@ export const ParentPurchaseTrailerBanner: React.FC<ParentPurchaseTrailerBannerPr
               Gói Thám Hiểm Toàn Diện 6 Đảo
             </h3>
             <p className="text-xs text-zinc-600 font-medium leading-relaxed">
-              🎁 <strong>Đảo 1:</strong> Học Thử Miễn Phí • 🔒 <strong>Đảo 2 - 6:</strong> Mở khóa trọn bộ 32 Trạm &amp; Xưởng vẽ tranh AI không giới hạn.
+              <strong>Đảo 1:</strong> Học Thử Miễn Phí • <strong>Đảo 2 - 6:</strong> Mở khóa trọn bộ 30 Trạm &amp; Xưởng vẽ tranh AI không giới hạn.
             </p>
           </div>
 

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Check, Sparkles } from 'lucide-react'
+import { Check, Flame, Sparkles } from 'lucide-react'
+import { FlatClayStar } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { cn } from '@/shared/lib/cn'
 import type { HomeActiveStation } from '../lib/home-active-station'
 
@@ -120,8 +121,9 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
             <span className="text-[11px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full inline-block border border-orange-200 shadow-2xs">
               TRẠM CHỈ HUY THÁM HIỂM
             </span>
-            <div className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-50/90 border border-amber-300 text-amber-900 text-xs font-black shadow-2xs">
-              <span>🔥 {streakDays} ngày chăm chỉ</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-50/90 border border-amber-300 text-amber-900 text-xs font-black shadow-2xs">
+              <Flame size={14} className="text-amber-500 fill-amber-400 shrink-0" aria-hidden="true" />
+              <span>{streakDays} ngày chăm chỉ</span>
             </div>
           </div>
 
@@ -147,7 +149,8 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
                   <span>Nhiệm vụ hôm nay:</span>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-900 bg-amber-200/80 rounded-full px-2 py-0.5 shrink-0 border border-amber-300/60">
-                  +{rewardXp} XP 🎁
+                  <span>+{rewardXp} XP</span>
+                  <FlatClayStar size={13} className="shrink-0" />
                 </span>
               </div>
               <p className="text-xs font-bold text-slate-800 leading-snug">

@@ -346,6 +346,8 @@ export type PendingIntent = {
   paymentCode: string | null
   courseTitle: string | null
   createdAt: string
+  customerConfirmed?: boolean
+  customerConfirmedAt?: string | null
 }
 
 export type LoginLogItem = {

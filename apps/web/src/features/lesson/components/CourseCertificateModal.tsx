@@ -29,7 +29,7 @@ export function CourseCertificateModal({
   onClose,
   courseId = OFFICIAL_COURSE_CERTIFICATE_ID,
   studentName = 'Nhà Sáng Tạo Nhí AIKI',
-  courseTitle = 'Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 32 Trạm)',
+  courseTitle = 'Khóa Học Sáng Tạo Nội Dung Cùng AIKids (6 Đảo • 30 Trạm)',
   islandTitle = 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
   issuedDate,
   stars = 18,

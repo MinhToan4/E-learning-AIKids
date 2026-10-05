@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, CheckCircle2, Film, Lock, Map as MapIcon, Play, Star } from 'lucide-react'
+import { Check, CheckCircle2, Film, Lock, Play, Star } from 'lucide-react'
 import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { designerAssets } from '@/shared/config/assets'
 import { avatarImage } from '@/shared/config/avatars'
 import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
+import { KidCreativeImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -16,6 +17,8 @@ import { useProgression } from '@/shared/lib/progression-query'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
 import { ParentTrailerModal } from '@/features/subscription/components/ParentPurchaseTrailerBanner'
+import { ParentSubscriptionCheckoutModal } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
+import { FlatClayCompass, FlatClaySparkles, FlatClayShield } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import {
   HeroProgressCard,
@@ -271,12 +274,13 @@ export function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showTrailerModal, setShowTrailerModal] = useState(false)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
   const { officialPlan, priceFormatted: officialPriceFormatted } = useOfficialBillingPlan()
 
   const handleUnlockFullCourse = () => {
     setShowTrailerModal(false)
-    navigate('/parent/plan')
+    setIsCheckoutOpen(true)
   }
   const { data: progression } = useProgression(user)
   const explorerLevel = progression?.level ?? user?.level ?? 1
@@ -285,7 +289,7 @@ export function HomePage() {
 
   const completedStationsCount = courses.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
   const totalStarsCount = courses.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
-  const totalStationsCount = courses.reduce((sum, course) => sum + getCourseStationCount(course), 0)
+  const totalStationsCount = 30
   const courseOverallProgressPct = totalStationsCount > 0
     ? Math.min(100, Math.round((completedStationsCount / totalStationsCount) * 100))
     : 0
@@ -472,12 +476,23 @@ export function HomePage() {
     (course) => course.enrolled && getAikiIslandSortOrder(course) > 1,
   )
 
+  const tienQuyetCourse = courses.find((c) => {
+    const key = `${c.courseKey ?? ''} ${c.id ?? ''} ${(c as any).slug ?? ''}`.toLowerCase()
+    return OFFICIAL_SIX_ISLANDS[0].searchKeys.some((sk) => key.includes(sk))
+  }) || courses[0]
+
   const [devPurchasedOverride, setDevPurchasedOverride] = useState<boolean | null>(() => {
     if (typeof window === 'undefined') return null
     const params = new URLSearchParams(window.location.search)
     if (params.get('purchased') === 'true') return true
-    if (params.get('purchased') === 'false') return false
-    const stored = localStorage.getItem('aikids.dev_purchased')
+    let stored: string | null = null
+    try {
+      if (typeof localStorage !== 'undefined') {
+        stored = localStorage.getItem('aikids.dev_purchased')
+      }
+    } catch {
+      stored = null
+    }
     if (stored === 'true') return true
     if (stored === 'false') return false
     return null
@@ -597,7 +612,7 @@ export function HomePage() {
           {/* DEV SWITCHER (CHỈ HIỂN THỊ Ở LOCAL / DEV ĐỂ TEST CẢ 2 TRẠNG THÁI) */}
           {import.meta.env.DEV && (
             <div className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-2xl bg-slate-900 text-white text-xs font-bold shadow-md">
-              <span className="text-slate-300 text-[11px]">🔧 Dev Sandbox:</span>
+              <span className="text-slate-300 text-[11px] font-bold">Dev Sandbox:</span>
               <button
                 type="button"
                 onClick={() => {
@@ -605,14 +620,56 @@ export function HomePage() {
                   localStorage.setItem('aikids.dev_purchased', String(nextVal))
                   setDevPurchasedOverride(nextVal)
                 }}
-                className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-black text-xs transition-all cursor-pointer active:scale-95 border border-slate-700"
+                className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-black text-xs transition-all cursor-pointer active:scale-95 border border-slate-700 inline-flex items-center gap-1.5"
               >
-                {effectivePurchased
-                  ? '🟢 Đang test: Đã mở khóa (Click đổi sang Chưa mua)'
-                  : '🟠 Đang test: Chưa mua (Click đổi sang Đã mở khóa)'}
+                <span className={`w-2 h-2 rounded-full ${effectivePurchased ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span>
+                  {effectivePurchased
+                    ? 'Đang test: Đã mở khóa (Click đổi sang Chưa mua)'
+                    : 'Đang test: Chưa mua (Click đổi sang Đã mở khóa)'}
+                </span>
               </button>
             </div>
           )}
+
+          {/* ── BANNER / ĐIỂM CHẠM NHANH: AI STUDIO (XƯỞNG VẼ SÁNG TẠO) ── */}
+          <section
+            onClick={() => navigate('/creative')}
+            className="w-full rounded-3xl border-2 border-orange-200/90 bg-gradient-to-r from-orange-50/90 via-amber-50/80 to-yellow-50/90 p-3.5 sm:p-5 shadow-clay hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-between gap-3 sm:gap-4 group"
+            role="region"
+            aria-label="Khám phá AI Studio"
+          >
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-white border-2 border-orange-200 shadow-soft flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <KidCreativeImageIcon size={32} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-[10px] font-black uppercase tracking-wider border border-orange-200 shadow-2xs">
+                    MỚI RA MẮT
+                  </span>
+                  <span className="text-[11px] font-extrabold text-amber-700">
+                    Xưởng Sáng Tạo Nhí
+                  </span>
+                </div>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">
+                  AI Studio · Xưởng Vẽ Sáng Tạo
+                </h2>
+                <p className="text-xs text-slate-600 font-semibold line-clamp-1">
+                  Vẽ tranh tự do, biến hóa nét vẽ cùng AI và cất vào Ba Lô!
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/creative"
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-clay active:scale-95 transition-all"
+              aria-label="Vào AI Studio vẽ tranh ngay"
+            >
+              <span>🎨 Vào vẽ ngay</span>
+            </Link>
+          </section>
 
           {/* ── 2. SINGLE UNIFIED OFFICIAL COURSE STAGE (TÂM ĐIỂM KHÓA HỌC CHÍNH THỨC) ── */}
           <section
@@ -734,17 +791,18 @@ export function HomePage() {
                     <div className="flex flex-col gap-2 mt-3">
                       <button
                         type="button"
-                        onClick={() => setShowTrailerModal(true)}
-                        className="w-full flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
+                        onClick={() => setIsCheckoutOpen(true)}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
                       >
-                        🚀 Mở khóa {officialPlan.name} · {officialPriceFormatted}
+                        <FlatClaySparkles size={18} className="shrink-0" />
+                        <span>Mở khóa {officialPlan.name} · {officialPriceFormatted}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => navigate(OFFICIAL_SIX_ISLANDS[0].defaultRoute)}
                         className="w-full flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-orange-50/80 rounded-xl transition-all cursor-pointer"
                       >
-                        Hoặc học miễn phí Đảo Tiên Quyết ({courses[0]?.completedCount || 0}/{courses[0]?.questCount || OFFICIAL_SIX_ISLANDS[0].defaultQuestCount} trạm)
+                        Hoặc học miễn phí Đảo Tiên Quyết ({tienQuyetCourse?.completedCount || courses[0]?.completedCount || 0}/10 trạm)
                       </button>
                     </div>
                   </div>
@@ -767,8 +825,9 @@ export function HomePage() {
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-slate-800 text-[11px] font-black shadow-xs border border-white">
                       Đang thám hiểm: {activeStation.islandTitle || 'Đảo 1'}
                     </span>
-                    <span className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-amber-400 text-amber-950 text-[11px] font-black shadow-xs border border-amber-300">
-                      ⭐ {totalStarsCount} Sao · Cấp {explorerLevel}
+                    <span className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-amber-400 text-amber-950 text-[11px] font-black shadow-xs border border-amber-300 flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-amber-950 text-amber-950 shrink-0" />
+                      <span>{totalStarsCount} Sao · Cấp {explorerLevel}</span>
                     </span>
                   </div>
 
@@ -806,15 +865,16 @@ export function HomePage() {
             <div className="pt-2 border-t border-orange-100/80">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-black uppercase tracking-[0.12em] text-slate-600 flex items-center gap-1.5">
-                  <span>🗺️</span> Hành trình 6 đảo sáng tạo ({totalStationsCount} trạm)
+                  <FlatClayCompass size={20} className="shrink-0" />
+                  <span>Hành trình 6 đảo sáng tạo ({totalStationsCount} trạm)</span>
                 </h3>
                 <button
                   type="button"
                   onClick={() => navigate('/world/program/aikid_official')}
-                  className="inline-flex items-center gap-1 text-xs font-black text-brand-600 hover:text-brand-700 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-xs font-black text-amber-900 border border-amber-200/90 shadow-2xs hover:scale-102 active:scale-95 transition-all cursor-pointer"
                 >
-                  <MapIcon className="w-3.5 h-3.5" />
-                  Xem bản đồ đảo
+                  <FlatClayCompass size={14} className="shrink-0" />
+                  <span>Xem bản đồ đảo</span>
                 </button>
               </div>
 
@@ -881,7 +941,7 @@ export function HomePage() {
                             ) : isCompleted ? (
                               <Check className="h-3.5 w-3.5" />
                             ) : index === 0 ? (
-                              '🛡️'
+                              <FlatClayShield size={14} />
                             ) : (
                               index.toString()
                             )}
@@ -924,6 +984,18 @@ export function HomePage() {
         onClose={() => setShowTrailerModal(false)}
         onUnlock={handleUnlockFullCourse}
         plan={officialPlan}
+      />
+      <ParentSubscriptionCheckoutModal
+        open={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onSuccess={() => {
+          setIsCheckoutOpen(false)
+          void load()
+        }}
+        initialMode="sub"
+        defaultPlanId={(officialPlan as any)?.code || officialPlan?.id || 'aikids_official_129k'}
+        planAmount={officialPlan?.amountMinor ?? 129000}
+        planName={officialPlan?.name || 'Khóa học Khám phá & Sáng tạo AIKid'}
       />
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </PageMotion>

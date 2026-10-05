@@ -632,6 +632,78 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(onViewDetail).toHaveBeenCalledWith(mockIntent)
   })
 
+  it('AdminBillingPos displays customerConfirmed badge and sorts confirmed orders first', () => {
+    const unconfirmedIntent: PendingIntent = {
+      id: 'pi-1',
+      publicId: 'pi_unconfirmed',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-1',
+      userEmail: 'user1@storymee.vn',
+      userName: 'Khách Chưa Báo',
+      paymentCode: 'UNCONF123',
+      courseTitle: null,
+      createdAt: '2026-10-01T10:00:00.000Z',
+      customerConfirmed: false,
+    }
+    const confirmedIntent: PendingIntent = {
+      id: 'pi-2',
+      publicId: 'pi_confirmed',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-2',
+      userEmail: 'user2@storymee.vn',
+      userName: 'Khách Đã Báo CK',
+      paymentCode: 'CONF999',
+      courseTitle: null,
+      createdAt: '2026-10-02T10:00:00.000Z',
+      customerConfirmed: true,
+      customerConfirmedAt: '2026-10-02T10:05:00.000Z',
+    }
+    const props = {
+      billingAdminMode: 'checkout' as const,
+      setBillingAdminMode: vi.fn(),
+      paymentMethod: 'transfer' as const,
+      setPaymentMethod: vi.fn(),
+      grantForm: { userEmail: '', planId: 'starter', durationMonths: 1, reason: '' },
+      setGrantForm: vi.fn(),
+      grantLoading: false,
+      grantSelectedUser: null,
+      setGrantSelectedUser: vi.fn(),
+      grantUserResults: [],
+      setGrantUserResults: vi.fn(),
+      grantUserSearching: false,
+      searchGrantUser: vi.fn(),
+      availablePlans: [],
+      planLabels: {},
+      planBadgeColors: {},
+      roleLabels: {},
+      handlePosSubmit: vi.fn(),
+      generateSuggestedReason: vi.fn().mockReturnValue(''),
+      pendingIntents: [unconfirmedIntent, confirmedIntent],
+      onConfirmPendingIntent: vi.fn(),
+      onViewPendingIntentDetail: vi.fn(),
+    }
+
+    act(() => {
+      root.render(<AdminBillingPos {...props} />)
+    })
+
+    // Check customerConfirmed badge exists
+    expect(container.textContent).toContain('Khách báo đã CK')
+
+    // Check order cards in DOM: confirmedIntent (CONF999) should be first, unconfirmedIntent (UNCONF123) should be second
+    const codes = Array.from(container.querySelectorAll('.font-mono')).map((el) => el.textContent?.trim())
+    expect(codes[0]).toBe('CONF999')
+    expect(codes[1]).toBe('UNCONF123')
+  })
+
   it('AdminClassesTab renders Official Core Program by default and switches to Electives & Console', async () => {
     mockApi.mockImplementation((url: string) => {
       if (url === '/api/schedule') {

@@ -174,6 +174,11 @@ export function mapUser(raw: Record<string, unknown>): User {
 
   const nameVal = unwrapped.name ?? unwrapped.nickname ?? unwrapped.childName ?? unwrapped.loginUsername ?? raw.name ?? raw.nickname
   const nameStr = nameVal ? String(nameVal) : null
+  const consent = (unwrapped.parentalConsent && typeof unwrapped.parentalConsent === 'object'
+    ? unwrapped.parentalConsent
+    : unwrapped.consent && typeof unwrapped.consent === 'object'
+      ? unwrapped.consent
+      : {}) as Record<string, unknown>
 
   return {
     id: String(unwrapped.id ?? unwrapped.userId ?? raw.id ?? raw.userId ?? ''),
@@ -188,6 +193,9 @@ export function mapUser(raw: Record<string, unknown>): User {
     goal: unwrapped.goal ? String(unwrapped.goal) : raw.goal ? String(raw.goal) : null,
     parentId: unwrapped.parentId ? String(unwrapped.parentId) : raw.parentId ? String(raw.parentId) : null,
     classId: unwrapped.organizationId ? String(unwrapped.organizationId) : raw.organizationId ? String(raw.organizationId) : null,
+    allowAiCreate: (unwrapped.allowAiCreate ?? consent.allowAiCreate ?? (role === 'student' ? true : undefined)) as boolean | undefined,
+    allowPhoto: (unwrapped.allowPhoto ?? consent.allowPhoto ?? (role === 'student' ? true : undefined)) as boolean | undefined,
+    allowExport: (unwrapped.allowExport ?? consent.allowExport ?? (role === 'student' ? true : undefined)) as boolean | undefined,
   }
 }
 

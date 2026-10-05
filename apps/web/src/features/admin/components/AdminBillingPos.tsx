@@ -121,11 +121,22 @@ export function AdminBillingPos({
   const durationFactor = productType === 'credits' ? 1 : grantForm.durationMonths
   const totalAmount = unitPrice * durationFactor
 
+  // Sắp xếp đơn chờ thanh toán: đưa các đơn khách báo đã chuyển khoản lên đầu
+  const sortedPendingIntents = React.useMemo(() => {
+    return [...pendingIntents].sort((a, b) => {
+      const aConfirmed = Boolean(a.customerConfirmed)
+      const bConfirmed = Boolean(b.customerConfirmed)
+      if (aConfirmed && !bConfirmed) return -1
+      if (!aConfirmed && bConfirmed) return 1
+      return 0
+    })
+  }, [pendingIntents])
+
   return (
     <div id="billing-grant-form" className="grid gap-6 xl:grid-cols-12 items-start">
       {/* ── 1. PHÂN VÙNG DUYỆT ĐƠN CHỜ THANH TOÁN (PENDING TRANSACTIONS) ── */}
       <div className="xl:col-span-5 flex flex-col gap-4">
-        {pendingIntents.length > 0 ? (
+        {sortedPendingIntents.length > 0 ? (
           <div className="rounded-3xl border-2 border-amber-300 bg-amber-50/80 p-4 shadow-clay">
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2">
@@ -133,7 +144,7 @@ export function AdminBillingPos({
                   <Clock size={16} />
                 </span>
                 <p className="text-xs font-black uppercase tracking-wider text-amber-900">
-                  1. Duyệt đơn chờ thanh toán ({pendingIntents.length})
+                  1. Duyệt đơn chờ thanh toán ({sortedPendingIntents.length})
                 </p>
               </div>
               <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[10px] font-black text-amber-900">
@@ -142,7 +153,7 @@ export function AdminBillingPos({
             </div>
 
             <div className="max-h-[600px] overflow-y-auto p-1 space-y-2.5">
-              {pendingIntents.map((pi) => (
+              {sortedPendingIntents.map((pi) => (
                 <div
                   key={pi.id}
                   role="button"
@@ -170,6 +181,11 @@ export function AdminBillingPos({
                       <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-900">
                         {pi.paymentCode ?? pi.id.slice(0, 8)}
                       </span>
+                      {pi.customerConfirmed && (
+                        <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-black border border-emerald-300">
+                          Khách báo đã CK
+                        </span>
+                      )}
                       <span className="text-xs font-black text-amber-900 ml-auto mr-1">
                         {Number(pi.amountMinor).toLocaleString('vi-VN')}₫
                       </span>

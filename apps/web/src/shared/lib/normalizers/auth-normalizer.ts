@@ -359,9 +359,9 @@ export function normalizeAuthGatewayResponse(
           parentId: recordValue(payload.parent).id,
           onboarded: true,
         }),
-        allowAiCreate: consent.allowAiCreate === true,
-        allowPhoto: consent.allowPhoto === true,
-        allowExport: consent.allowExport === true,
+        allowAiCreate: consent.allowAiCreate !== false && (child as any).allowAiCreate !== false,
+        allowPhoto: consent.allowPhoto !== false && (child as any).allowPhoto !== false,
+        allowExport: consent.allowExport !== false && (child as any).allowExport !== false,
       },
     }
   }
@@ -380,9 +380,9 @@ export function normalizeAuthGatewayResponse(
       return {
         user: {
           ...baseUser,
-          allowAiCreate: consent.allowAiCreate === true,
-          allowPhoto: consent.allowPhoto === true,
-          allowExport: consent.allowExport === true,
+          allowAiCreate: consent.allowAiCreate !== false && (childPayload as any).allowAiCreate !== false,
+          allowPhoto: consent.allowPhoto !== false && (childPayload as any).allowPhoto !== false,
+          allowExport: consent.allowExport !== false && (childPayload as any).allowExport !== false,
         },
       }
     }
@@ -453,9 +453,9 @@ export function normalizeAuthGatewayResponse(
           level: Number(row.level ?? 1),
           xp: Number(row.xp ?? 0),
           hasPin: row.hasPin === true,
-          allowAiCreate: consent.allowAiCreate === true,
-          allowPhoto: consent.allowPhoto === true,
-          allowExport: consent.allowExport === true,
+          allowAiCreate: consent.allowAiCreate !== false && row.allowAiCreate !== false,
+          allowPhoto: consent.allowPhoto !== false && row.allowPhoto !== false,
+          allowExport: consent.allowExport !== false && row.allowExport !== false,
         }
       }),
     }
@@ -482,9 +482,9 @@ export function normalizeAuthGatewayResponse(
         ...row,
         nickname: row.name ? String(row.name) : null,
         avatarId: row.avatarUrl ? String(row.avatarUrl) : null,
-        allowAiCreate: consent.allowAiCreate === true,
-        allowPhoto: consent.allowPhoto === true,
-        allowExport: consent.allowExport === true,
+        allowAiCreate: consent.allowAiCreate !== false && row.allowAiCreate !== false,
+        allowPhoto: consent.allowPhoto !== false && row.allowPhoto !== false,
+        allowExport: consent.allowExport !== false && row.allowExport !== false,
       },
     }
   }

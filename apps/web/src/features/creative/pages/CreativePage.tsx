@@ -1,90 +1,52 @@
-﻿import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ART_STYLES } from '../lib/workshop-types'
-import type { WorkshopStep } from '../lib/workshop-types'
-import { WorkshopHub } from '../components/WorkshopHub'
-import { WorkshopStylePicker } from '../components/WorkshopStylePicker'
-import { WorkshopCanvas } from '../components/WorkshopCanvas'
-import { WorkshopStory } from '../components/WorkshopStory'
-import { WorkshopCharacter } from '../components/WorkshopCharacter'
+import { PageMotion } from '@/shared/components/ui/PageMotion'
+import { KidCreativeImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { ConsentGate } from '@/shared/components/ConsentGate'
+import { WorkshopCanvas } from '../components/WorkshopCanvas'
+// Retained reference for subcomponents: WorkshopCharacter
 
-// WHY: ConsentGate checks user.allowAiCreate from auth store.
-// When parent disables AI creative studio, students see a friendly lock screen.
-// Non-student sessions (parent reviewing) are always allowed through.
 export function CreativePage() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<WorkshopStep>('hub')
-  const [selectedStyle, setSelectedStyle] = useState(ART_STYLES[0]!.id)
-
-  const isCanvas = step === 'canvas'
-
-  function goTo(s: WorkshopStep) { setStep(s) }
-  function handleSaved() { navigate('/backpack') }
 
   return (
     <ConsentGate cap="allowAiCreate">
-      <div
-        aria-label="Xưởng Sáng Tạo"
-        className="flex flex-col"
-        style={{
-          height: 'calc(100dvh - 64px)',
-          // Canvas must not scroll — child needs known height for h-full to work
-          overflow: isCanvas ? 'hidden' : 'auto',
-        }}
+      <PageMotion
+        aria-label="AI Studio · Xưởng Vẽ Sáng Tạo"
+        className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-[1024px] w-full px-3 sm:px-4 md:px-6 py-4 sm:py-6 pb-32 sm:pb-36 flex-col gap-4 sm:gap-6"
       >
-
-
-        {/* ── Main content ── */}
-        {step === 'hub' && (
-          <div className="flex-1 p-4 sm:p-6">
-            <WorkshopHub onGo={goTo} />
+        {/* ── Thẻ Header Soft Clay ── */}
+        <header className="aikid-flat-panel p-4 sm:p-5 rounded-3xl shadow-clay flex items-center justify-between gap-3 border border-orange-200/80 bg-white/95 backdrop-blur-md">
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            <span className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-amber-100 to-orange-100 border border-orange-200/90 shadow-2xs shrink-0">
+              <KidCreativeImageIcon size={28} />
+            </span>
+            <div>
+              <h1 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                AI Studio · Xưởng Vẽ Sáng Tạo
+              </h1>
+              <p className="hidden sm:block text-[11px] font-bold text-slate-500 mt-0.5">
+                Phác họa nét vẽ, chọn phong cách &amp; biến hóa tác phẩm cùng AI
+              </p>
+            </div>
           </div>
-        )}
 
-        {step === 'style' && (
-          <div className="flex-1 p-4 sm:p-5">
-            <WorkshopStylePicker
-              selectedStyle={selectedStyle}
-              onSelect={setSelectedStyle}
-              onContinue={goTo}
-              onBack={() => goTo('hub')}
-            />
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200/90 shadow-2xs text-xs font-black transition-all cursor-pointer active:scale-95 shrink-0"
+            aria-label="Quay lại Trang chủ"
+          >
+            <span>← Trang chủ</span>
+          </button>
+        </header>
 
-        {/* Canvas: no padding, overflow:hidden so flex-1/h-full work correctly inside */}
-        {isCanvas && (
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <WorkshopCanvas
-              selectedStyle={selectedStyle}
-              onBack={goTo}
-              onSaved={handleSaved}
-            />
-          </div>
-        )}
-
-        {step === 'character' && (
-          <div className="flex-1 p-4 sm:p-5">
-            <WorkshopCharacter onBack={goTo} onSaved={handleSaved} />
-          </div>
-        )}
-
-        {(step === 'story-mode' || step === 'story-genre' || step === 'story-idea' || step === 'story-library') && (
-          <div className="flex-1 p-4 sm:p-5">
-            <WorkshopStory
-              initialStep={
-                step === 'story-mode' ? 'mode'
-                : step === 'story-idea' ? 'idea'
-                : step === 'story-library' ? 'result'
-                : 'genre'
-              }
-              onBack={goTo}
-              onSaved={handleSaved}
-            />
-          </div>
-        )}
-      </div>
+        {/* ── Khung Box Canvas chuẩn 1024px ── */}
+        <main className="aikid-flat-panel p-3 sm:p-5 md:p-6 rounded-3xl shadow-clay border border-orange-200/80 bg-white/95 backdrop-blur-md overflow-hidden">
+          <WorkshopCanvas onSaved={() => navigate('/profile')} />
+        </main>
+      </PageMotion>
     </ConsentGate>
   )
 }
+
+export default CreativePage

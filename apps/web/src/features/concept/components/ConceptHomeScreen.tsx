@@ -4,6 +4,7 @@ import { designerAssets } from '@/shared/config/assets'
 import {
   ParentTrailerModal,
 } from '@/features/subscription/components/ParentPurchaseTrailerBanner'
+import { ParentSubscriptionCheckoutModal } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 import {
   HeroProgressCard,
   DailyMissionBanner,
@@ -39,9 +40,11 @@ export const ConceptHomeScreen: React.FC<ConceptHomeScreenProps> = ({
   // allowing a browser flag to simulate a paid subscription.
   const isPurchased = false
   const [showTrailerModal, setShowTrailerModal] = useState<boolean>(false)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false)
 
   const handleUnlockFullCourse = () => {
     setShowTrailerModal(false)
+    setIsCheckoutOpen(true)
   }
 
   return (
@@ -165,6 +168,16 @@ export const ConceptHomeScreen: React.FC<ConceptHomeScreenProps> = ({
         isOpen={showTrailerModal}
         onClose={() => setShowTrailerModal(false)}
         onUnlock={handleUnlockFullCourse}
+      />
+
+      <ParentSubscriptionCheckoutModal
+        open={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onSuccess={() => setIsCheckoutOpen(false)}
+        initialMode="sub"
+        defaultPlanId="aikids_official_129k"
+        planAmount={129000}
+        planName="Khóa học Khám phá & Sáng tạo AIKid"
       />
 
       {/* Hidden static markers to guarantee backward compatibility */}

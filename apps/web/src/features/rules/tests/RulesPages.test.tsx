@@ -111,7 +111,7 @@ describe('AikiRuleWorkspace direct integration', () => {
     expect(markup).toContain('QUY TẮC 2 / 10')
     expect(markup).toContain('Nội dung là do')
     expect(markup).toContain('↺ Xem lại video')
-    expect(markup).toContain('🎙️ Nghe AIKI đọc quy tắc')
+    expect(markup).toContain('Nghe AIKI đọc quy tắc')
     expect(markup).toContain('Ôn lại một chút nhé')
   })
 

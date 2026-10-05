@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router'
 import { ArrowLeft, CheckCircle2, Lock, Star, Award, Printer } from 'lucide-react'
+import { FlatClayShield } from '@/features/asmo/components/AsmoFlatClayIcons'
+import { designerAssets } from '@/shared/config/assets'
 import { AIKI_RULES_DATA } from '../data/rules-data'
 import { useRulesProgress } from '../hooks/useRulesProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -111,8 +113,9 @@ export function RulesRoadmapContent({
           <div className="space-y-6 lg:col-span-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-black uppercase tracking-wider mb-2">
-                  🛡️ 10 Quy Tắc Vàng
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-black uppercase tracking-wider mb-2 border border-purple-200">
+                  <FlatClayShield size={14} className="shrink-0" />
+                  <span>10 Quy Tắc Vàng</span>
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   Lộ trình 10 Quy Tắc Vàng
@@ -207,8 +210,9 @@ export function RulesRoadmapContent({
                             )}
 
                             {isCompleted && (
-                              <span className="rounded-full bg-mint-100 border border-mint-200 px-2.5 py-0.5 text-[10px] font-bold text-mint-800">
-                                Đúng 2/2 câu · +3 ⭐
+                              <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 border border-mint-200 px-2.5 py-0.5 text-[10px] font-bold text-mint-800">
+                                <span>Đúng 2/2 câu · +3</span>
+                                <Star size={11} className="fill-amber-400 text-amber-500 shrink-0 inline -mt-0.5" />
                               </span>
                             )}
                           </div>
@@ -302,7 +306,11 @@ export function RulesRoadmapContent({
             {/* Card 1: AIKI Nhắn Con */}
             <div className="relative overflow-hidden rounded-3xl border border-border bg-white p-5 sm:p-6 shadow-clay clay-card-subtle [--clay-shadow:rgba(0,0,0,0.06)] text-text">
               <div className="flex items-center gap-2.5 text-brand-700">
-                <span className="text-2xl">🐱</span>
+                <img
+                  src={designerAssets.catPoses.guide}
+                  alt="Mèo AIKI"
+                  className="w-8 h-8 object-contain shrink-0"
+                />
                 <h2 className="font-display text-base font-extrabold uppercase tracking-wide text-brand-900">
                   AIKI Nhắn Con
                 </h2>

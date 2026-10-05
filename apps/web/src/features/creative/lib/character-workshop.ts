@@ -62,6 +62,6 @@ export function buildCharacterPrompt(idea: string, answers: CharacterAnswers): s
     idea.trim() ? `Core idea: ${idea.trim()}.` : '',
     details ? `Character details: ${details}.` : '',
     'Friendly expressive pose, simple pastel background, consistent anatomy, polished children’s animation concept art.',
-    'Child-safe and wholesome for ages 6-15; no violence, frightening imagery, adult content, text or watermark.',
+    'Child-safe, peaceful and wholesome for ages 6-15; cheerful friendly mood; gentle storybook art, clean composition, textless, watermark-free.',
   ].filter(Boolean).join(' ')
 }

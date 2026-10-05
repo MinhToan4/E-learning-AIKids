@@ -155,15 +155,15 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
             </div>
             <div className="flex flex-col gap-0.5 -mt-0.5 z-10">
               <div className="px-1.5 py-0.2 rounded-md bg-orange-400 text-white text-[7px] font-black shadow-2xs transform -rotate-3">
-                Đảo 2 ➔
+                Đảo 2
               </div>
               <div className="px-1.5 py-0.2 rounded-md bg-emerald-500 text-white text-[7px] font-black shadow-2xs transform rotate-2">
-                ← Đảo 1
+                Đảo 1
               </div>
             </div>
             <div className="w-1 h-5 bg-amber-800/70 rounded-full -mt-0.5" />
             <span className="text-[8px] font-black text-purple-950 bg-white/80 px-1 py-0.2 rounded-full mt-0.5 shadow-2xs">
-              Biển Chỉ Đường Robot
+              Biển Chỉ Đường Aiki
             </span>
           </div>
 
@@ -171,7 +171,6 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-0.5 px-2 py-0.5 rounded-full bg-white text-zinc-800 text-[10px] font-black shadow-xs flex items-center gap-1 animate-bounce-subtle">
               <span>Mee chào con!</span>
-              <span className="text-xs">👋</span>
               <div className="absolute -bottom-1 right-4 w-1.5 h-1.5 bg-white transform rotate-45" />
             </div>
 

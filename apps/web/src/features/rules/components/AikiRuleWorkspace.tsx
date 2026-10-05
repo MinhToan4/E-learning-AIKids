@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Play,
   Pause,
+  Trophy,
 } from 'lucide-react'
+import { FlatClayTrophy } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { AIKI_RULES_DATA } from '../data/rules-data'
 import { useRulesProgress } from '../hooks/useRulesProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -351,7 +353,7 @@ export function AikiRuleWorkspace({
                   className="inline-flex items-center gap-1.5 rounded-2xl border border-brand-300 bg-brand-100 px-3.5 py-2 text-xs font-black text-brand-800 hover:bg-brand-200 shadow-2xs transition-all cursor-pointer"
                 >
                   <Mic size={14} />
-                  <span>🎙️ Nghe AIKI đọc quy tắc</span>
+                  <span>Nghe AIKI đọc quy tắc</span>
                 </button>
               </div>
 
@@ -373,8 +375,8 @@ export function AikiRuleWorkspace({
                 <div className="space-y-6 py-2 text-center animate-pop">
                   {/* Pháo hoa chúc mừng */}
                   <div>
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f59e0b] text-3xl clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] animate-bounce">
-                      🎉
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-400 text-amber-950 clay-card-subtle [--clay-shadow:rgba(245,158,11,0.25)] animate-bounce shadow-clay">
+                      <FlatClayTrophy size={36} />
                     </div>
                     <h2 className="mt-3 font-display text-2xl font-black text-text">
                       Con nhớ Quy tắc {rule.id} rồi!
@@ -409,8 +411,9 @@ export function AikiRuleWorkspace({
                       alt={`Poster Quy tắc ${rule.id}`}
                       className="mx-auto max-h-40 rounded-xl object-contain shadow-xs"
                     />
-                    <div className="mt-2 text-[11px] font-black text-amber-800">
-                      📜 Đã thêm Poster số {rule.id} vào Bộ Sưu Tập!
+                    <div className="mt-2 text-[11px] font-black text-amber-800 flex items-center justify-center gap-1.5">
+                      <Award size={14} className="text-amber-600 shrink-0" />
+                      <span>Đã thêm Poster số {rule.id} vào Bộ Sưu Tập!</span>
                     </div>
                   </div>
 
@@ -425,9 +428,10 @@ export function AikiRuleWorkspace({
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border-2 border-mint-200 bg-mint-50 p-3.5 text-center">
+                    <div className="rounded-2xl border-2 border-mint-200 bg-mint-50 p-3.5 text-center flex items-center justify-center gap-2">
+                      <Trophy size={16} className="text-amber-600 shrink-0" />
                       <span className="text-xs font-black text-mint-800">
-                        🏆 CHÚC MỪNG CON ĐÃ HOÀN THÀNH TOÀN BỘ 10 QUY TẮC VÀNG!
+                        CHÚC MỪNG CON ĐÃ HOÀN THÀNH TOÀN BỘ 10 QUY TẮC VÀNG!
                       </span>
                     </div>
                   )}
@@ -593,7 +597,7 @@ export function AikiRuleWorkspace({
                         <span>✓ Con chọn đúng rồi!</span>
                       </div>
                       <p className="mt-1 font-medium leading-relaxed">
-                        🎉 Giỏi quá con ơi! {currentQuestion.successFeedback}
+                        Giỏi quá con ơi! {currentQuestion.successFeedback}
                       </p>
                     </div>
                   )}
@@ -605,7 +609,7 @@ export function AikiRuleWorkspace({
                         <span>✕ Con vừa chọn ô này</span>
                       </div>
                       <p className="mt-1 font-medium leading-relaxed">
-                        🐱 Gần đúng rồi đó! {currentQuestion.retryFeedback}
+                        Gần đúng rồi đó! {currentQuestion.retryFeedback}
                       </p>
                     </div>
                   )}

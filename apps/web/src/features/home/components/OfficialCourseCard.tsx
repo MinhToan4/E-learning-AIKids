@@ -108,7 +108,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
 
           <div className="mt-3 rounded-2xl bg-white/85 p-3 ring-1 ring-orange-100">
             <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
-              <span>{completedStationsCount}/32 trạm hoàn thành</span>
+              <span>{completedStationsCount}/30 trạm hoàn thành</span>
               <span className="text-orange-700">{overallProgressPct}%</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-orange-100">

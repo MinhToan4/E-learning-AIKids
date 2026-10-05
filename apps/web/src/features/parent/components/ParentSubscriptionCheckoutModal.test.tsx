@@ -116,8 +116,10 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(qrImage?.src).toContain('addInfo=AK129K8888')
   })
 
-  it('handles manual transfer confirmation and sends notification to CSKH', () => {
-    act(() => {
+  it('handles manual transfer confirmation and sends notification to CSKH', async () => {
+    const mockedApi = vi.mocked(api)
+
+    await act(async () => {
       root.render(
         createElement(ParentSubscriptionCheckoutModal, {
           open: true,
@@ -134,12 +136,16 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     const confirmBtn = buttons.find((b) => b.textContent?.includes('Tôi đã chuyển khoản xong'))
     expect(confirmBtn).toBeDefined()
 
-    act(() => {
+    await act(async () => {
       confirmBtn?.click()
     })
 
     // Feedback message appears
     expect(document.body.textContent).toContain('Đã gửi thông báo ưu tiên tới bộ phận CSKH & Admin')
+    expect(mockedApi).toHaveBeenCalledWith(
+      '/api/v1/billing/payment-intents/pi_ak129k1234/customer-confirm',
+      { method: 'POST' },
+    )
   })
 
   it('copies payment code and account number to clipboard', async () => {
@@ -469,5 +475,56 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     // Resets to 15:00
     expect(document.body.textContent).toContain('15:00')
     expect(document.body.textContent).not.toContain('Mã thanh toán sắp hết hạn')
+  })
+
+  it('initializes checkout on backend when opened in sub and credits modes', async () => {
+    const mockedApi = vi.mocked(api)
+    mockedApi.mockResolvedValueOnce({
+      checkout: { publicId: 'pi_server_sub_123', paymentCode: 'AK129K9999' },
+    })
+
+    await act(async () => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          defaultPlanId: 'aikids_official_129k',
+        }),
+      )
+    })
+
+    expect(mockedApi).toHaveBeenCalledWith(
+      '/api/v1/billing/me/checkout',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"plan":"aikids_official_129k"'),
+      }),
+    )
+
+    // Render in credits mode
+    mockedApi.mockClear()
+    mockedApi.mockResolvedValueOnce({
+      checkout: { publicId: 'pi_server_cred_456' },
+      data: { paymentIntent: { publicId: 'pi_server_cred_456' } },
+    })
+
+    await act(async () => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          initialMode: 'credits',
+          initialPackId: 'credits_50',
+        }),
+      )
+    })
+
+    expect(mockedApi).toHaveBeenCalledWith(
+      '/api/v1/billing/me/credit-packs/checkout',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"packId":"credits_50"'),
+      }),
+    )
   })
 })

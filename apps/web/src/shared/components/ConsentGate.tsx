@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Lock } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 
@@ -40,12 +40,11 @@ export function ConsentGate({ cap, children, mode = 'overlay' }: Props) {
   // Non-child sessions (parent/teacher/admin) → always allow
   if (!user || user.role !== 'student') return <>{children}</>
 
-  const granted = user[cap]
-
   // Gate logic:
-  // allowAiCreate, allowPhoto: true = bật, false/undefined = tắt → block if !granted
-  // allowExport: allowExport=false in DB = sharing HIDDEN → block if !granted (i.e. user[cap]===false)
-  if (granted) return <>{children}</>
+  // Only block when parent explicitly turned it off (user[cap] === false).
+  // If true or undefined (default allowed for student), allow through.
+  const isBlocked = user[cap] === false
+  if (!isBlocked) return <>{children}</>
 
   const label = CAP_LABELS[cap]
 
@@ -60,9 +59,9 @@ export function ConsentGate({ cap, children, mode = 'overlay' }: Props) {
           alignItems: 'center',
           gap: 6,
           fontSize: 12,
-          color: '#6d5efc',
-          background: '#f0eeff',
-          border: '1px solid #ddd9ff',
+          color: '#d97706',
+          background: '#fffbeb',
+          border: '1px solid #fde68a',
           borderRadius: 8,
           padding: '4px 10px',
           cursor: 'default',
@@ -74,57 +73,33 @@ export function ConsentGate({ cap, children, mode = 'overlay' }: Props) {
     )
   }
 
-  // mode === 'overlay' — full page lock screen
+  // mode === 'overlay' — full page lock screen with Soft Clay card
   return (
-    <div
-      role="alert"
-      aria-live="polite"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 320,
-        gap: 16,
-        padding: '40px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div style={{
-        width: 72,
-        height: 72,
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #f0eeff 0%, #e2dcff 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 4px 20px rgba(109,94,252,0.15)',
-      }}>
-        <Lock size={30} color="#6d5efc" aria-hidden="true" />
-      </div>
+    <div className="w-full flex-1 flex items-center justify-center p-4">
+      <div
+        role="alert"
+        aria-live="polite"
+        className="aikid-flat-panel mx-auto my-auto flex max-w-lg flex-col items-center justify-center gap-4 rounded-3xl border-2 border-orange-200/80 bg-white/95 p-8 text-center shadow-clay backdrop-blur-md"
+      >
+        <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-100 to-orange-100 border border-orange-200 shadow-soft flex items-center justify-center">
+          <Lock size={28} className="text-orange-500" aria-hidden="true" />
+        </div>
 
-      <div>
-        <p style={{ fontWeight: 800, fontSize: 16, color: '#2d2558', marginBottom: 6 }}>
-          {label.name} chưa được bật
-        </p>
-        <p style={{ fontSize: 13.5, color: '#7a6ea8', lineHeight: 1.55, maxWidth: 300 }}>
-          {label.desc}
+        <div>
+          <h2 className="font-display font-black text-xl text-slate-800 mb-1">
+            {label.name} chưa được bật
+          </h2>
+          <p className="text-xs sm:text-sm font-bold text-slate-600 max-w-xs leading-relaxed">
+            {label.desc}
+          </p>
+        </div>
+
+        <p className="text-xs font-semibold text-slate-500 bg-orange-50/80 border border-orange-200/90 rounded-2xl p-3 leading-relaxed">
+          📱 Nhờ <strong className="text-orange-600 font-black">Ba / Mẹ</strong> vào{' '}
+          <em>Góc Phụ Huynh → Con của tôi → Quyền an toàn của con</em>{' '}
+          để bật tính năng này nhé!
         </p>
       </div>
-
-      <p style={{
-        fontSize: 12,
-        color: '#a09bc4',
-        background: '#fafafe',
-        border: '1px solid #ede9ff',
-        borderRadius: 10,
-        padding: '8px 14px',
-        lineHeight: 1.5,
-      }}>
-        📱 Nhờ <strong style={{ color: '#6d5efc' }}>Ba / Mẹ</strong> vào{' '}
-        <em>Góc Phụ Huynh → Con của tôi → Quyền an toàn của con</em>{' '}
-        để bật tính năng này.
-      </p>
     </div>
   )
 }

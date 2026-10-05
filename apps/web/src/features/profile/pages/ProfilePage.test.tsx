@@ -67,6 +67,8 @@ describe('ProfilePage helpers', () => {
 })
 
 describe('ProfilePage Component', () => {
+  let apiSpy: ReturnType<typeof vi.spyOn>
+
   beforeEach(() => {
     mockStorage = {}
     useAuth.getState().setUser({
@@ -80,28 +82,10 @@ describe('ProfilePage Component', () => {
       nickname: 'Minh Thám Hiểm',
     })
 
-    vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
+    apiSpy = vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
       if (endpoint.startsWith('/api/v1/aikids/profile-overview?')) {
         return {
           streak: { current: 5 },
-          achievements: {
-            achievements: [
-              {
-                type: 'first_lesson',
-                title: 'Bước Chân Đầu Tiên',
-                description: 'Hoàn thành bài học đầu tiên.',
-                unlocked: true,
-                icon: '🏆',
-              },
-              {
-                type: 'streak_3',
-                title: 'Ngọn Lửa Chăm Chỉ',
-                description: 'Học 3 ngày liên tiếp.',
-                unlocked: true,
-                icon: '🔥',
-              },
-            ],
-          },
           projects: {
             items: [
               {
@@ -112,34 +96,21 @@ describe('ProfilePage Component', () => {
                 thumbnail: '/assets/paco.jpg',
                 shareStatus: 'approved',
               },
+              {
+                id: 'p-clean-2',
+                title: 'Bức tranh Chú Cún Nhỏ',
+                kind: 'drawing',
+                creativeKind: 'drawing',
+                thumbnail: '/assets/dog.jpg',
+                shareStatus: 'approved',
+              },
             ],
           },
           appearance: { slug: 'be-minh' },
-          storybook: { equipment: [] },
           pathway: await learningApiModule.learningApi.getPathway(),
         } as any
       }
       if (endpoint === '/api/gamification/streak') return { current: 5 } as any
-      if (endpoint === '/api/gamification/achievements') {
-        return {
-          achievements: [
-            {
-              type: 'first_lesson',
-              title: 'Bước Chân Đầu Tiên',
-              description: 'Hoàn thành bài học đầu tiên.',
-              unlocked: true,
-              icon: '🏆',
-            },
-            {
-              type: 'streak_3',
-              title: 'Ngọn Lửa Chăm Chỉ',
-              description: 'Học 3 ngày liên tiếp.',
-              unlocked: true,
-              icon: '🔥',
-            },
-          ],
-        } as any
-      }
       if (endpoint === '/api/projects') {
         return {
           projects: [
@@ -150,7 +121,14 @@ describe('ProfilePage Component', () => {
               thumbnail: '/assets/paco.jpg',
               shareStatus: 'approved',
             },
-            // The corrupted junk file from the user's issue
+            {
+              id: 'p-clean-2',
+              title: 'Bức tranh Chú Cún Nhỏ',
+              kind: 'drawing',
+              thumbnail: '/assets/dog.jpg',
+              shareStatus: 'approved',
+            },
+            // Corrupted junk file
             {
               id: 'p-junk-1',
               title: 'storyPlot comic 1785830218476',
@@ -163,8 +141,6 @@ describe('ProfilePage Component', () => {
       }
       if (endpoint === '/api/backpack') return { assets: [] } as any
       if (endpoint === '/api/gamification/profile') return { totalXp: 450, level: 3 } as any
-      if (endpoint === '/api/profile/settings') return { slug: 'be-minh' } as any
-      if (endpoint === '/api/gamification/storybook') return { equipment: [] } as any
       return {} as any
     })
 
@@ -196,7 +172,7 @@ describe('ProfilePage Component', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders 6 Soft Clay Floating Pill Tabs and defaults to progress tab', async () => {
+  it('renders 2 Soft Clay Floating Pill Tabs and defaults to works tab ("Ảnh đã tạo")', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -205,7 +181,7 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
     })
 
@@ -213,40 +189,43 @@ describe('ProfilePage Component', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Navigation tab list with 5 tabs
+    // Navigation tab list with exactly 2 tabs: 'works' and 'certificates'
     const nav = container.querySelector('nav[role="tablist"]')
     expect(nav).not.toBeNull()
     const tabs = Array.from(nav?.querySelectorAll('button[role="tab"]') ?? [])
-    expect(tabs).toHaveLength(5)
-    expect(tabs[0].textContent).toContain('Tiến độ')
+    expect(tabs).toHaveLength(2)
+    expect(tabs[0].textContent).toContain('Ảnh đã tạo')
     expect(tabs[1].textContent).toContain('Bằng khen')
-    expect(tabs[2].textContent).toContain('Sổ kỷ niệm')
-    expect(tabs[3].textContent).toContain('Thành tích')
-    expect(tabs[4].textContent).toContain('Trang trí')
 
-    // Active tab is progress by default
+    // Default active tab is 'works'
     expect(tabs[0].getAttribute('aria-selected')).toBe('true')
     expect(tabs[1].getAttribute('aria-selected')).toBe('false')
 
-    // 4 Core Progress Cards
-    expect(container.textContent).toContain('Chuỗi học tập')
-    expect(container.textContent).toContain('Chăm chỉ giữ lửa học tập!')
-    expect(container.textContent).toContain('Thời lượng rèn luyện')
-    expect(container.textContent).toContain('Tích lũy học & sáng tạo')
-    expect(container.textContent).toContain('Hành trình 6 Đảo')
-    expect(container.textContent).toContain('30 Trạm')
-    expect(container.textContent).toContain('Tiến độ khám phá')
-    expect(container.textContent).toContain('Ngôi sao tri thức')
-    expect(container.textContent).toContain('Tích lũy qua bài học')
+    // Verifies obsolete tabs are completely gone
+    expect(container.querySelector('#tab-storybook')).toBeNull()
+    expect(container.querySelector('#tab-memories')).toBeNull()
+    expect(container.querySelector('#tab-customize')).toBeNull()
+    expect(container.querySelector('#tab-progress')).toBeNull()
 
-    // Zero-truncation check: ensure no truncate class exists within the 4 cards
+    // 3 Core Progress Cards in ProfileStatsGrid
+    expect(container.textContent).toContain('Hành trình 6 Đảo')
+    expect(container.textContent).toContain('Sao tích lũy')
+    expect(container.textContent).toContain('Ảnh đã tạo')
+
+    // Zero-truncation check within stats section
     const coreCardsSection = container.querySelector('section[aria-label="Ba dấu ấn hành trình của con"]')
     expect(coreCardsSection).not.toBeNull()
     expect(coreCardsSection?.querySelector('.truncate')).toBeNull()
 
-    // Streamlined 6 Island Voyages in progress tab
-    expect(container.textContent).toContain('Hải Trình 6 Đảo Của Con')
-    expect(container.textContent).not.toContain('Nhịp học tập tuần này')
+    // Filter buttons in works tab
+    expect(container.querySelector('#filter-works-all')).not.toBeNull()
+    expect(container.querySelector('#filter-works-drawing')).not.toBeNull()
+    expect(container.querySelector('#filter-works-comic')).not.toBeNull()
+
+    // Displays clean projects, eliminates junk files
+    expect(container.textContent).toContain('Truyện tranh Vẹt Paco')
+    expect(container.textContent).toContain('Bức tranh Chú Cún Nhỏ')
+    expect(container.textContent).not.toContain('storyPlot comic 1785830218476')
 
     act(() => root.unmount())
     container.remove()
@@ -257,10 +236,6 @@ describe('ProfilePage Component', () => {
     mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-1'] = '3'
     mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-2'] = 'true'
     mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-2'] = '3'
-    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-3'] = 'true'
-    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-3'] = '3'
-    mockStorage['aikids:test-student-1:aikids_lesson_completed_rule-4'] = 'true'
-    mockStorage['aikids:test-student-1:aikids_lesson_stars_rule-4'] = '3'
 
     const container = document.createElement('div')
     document.body.appendChild(container)
@@ -275,8 +250,7 @@ describe('ProfilePage Component', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // The mocked Hub pathway owns this value (3 stations, 9 stars). Local
-    // completion keys are an offline transport detail, never the profile SSOT.
+    // The authoritative pathway snapshot owns this value (3 stations, 9 stars)
     expect(container.textContent).toContain('3 / 30 Trạm')
     expect(container.textContent).toContain('9 Sao')
 
@@ -284,7 +258,7 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('renders streamlined 6 island voyages in progress tab without clutter', async () => {
+  it('filters works by category (all, drawing, comic) in works tab', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -293,25 +267,47 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    expect(container.textContent).toContain('Hải Trình 6 Đảo Của Con')
-    expect(container.textContent).toContain('30 trạm bài học sáng tạo qua 6 hòn đảo kỳ thú cùng Mèo Aiki.')
-    expect(container.textContent).toContain('Mở Bản Đồ Khám Phá')
-    expect(container.textContent).not.toContain('Kho Báu Thành Tựu Của Con')
-    expect(container.textContent).not.toContain('Nhịp học tập tuần này')
+    // Initially "all" shows both comic and drawing
+    expect(container.textContent).toContain('Truyện tranh Vẹt Paco')
+    expect(container.textContent).toContain('Bức tranh Chú Cún Nhỏ')
+
+    // Click "Tranh vẽ" filter
+    const drawingFilter = container.querySelector('#filter-works-drawing') as HTMLButtonElement
+    expect(drawingFilter).not.toBeNull()
+    await act(async () => {
+      drawingFilter.click()
+    })
+    expect(container.textContent).toContain('Bức tranh Chú Cún Nhỏ')
+    expect(container.textContent).not.toContain('Truyện tranh Vẹt Paco')
+
+    // Click "Truyện tranh" filter
+    const comicFilter = container.querySelector('#filter-works-comic') as HTMLButtonElement
+    expect(comicFilter).not.toBeNull()
+    await act(async () => {
+      comicFilter.click()
+    })
+    expect(container.textContent).toContain('Truyện tranh Vẹt Paco')
+    expect(container.textContent).not.toContain('Bức tranh Chú Cún Nhỏ')
+
+    // Click "Tất cả" filter
+    const allFilter = container.querySelector('#filter-works-all') as HTMLButtonElement
+    expect(allFilter).not.toBeNull()
+    await act(async () => {
+      allFilter.click()
+    })
+    expect(container.textContent).toContain('Truyện tranh Vẹt Paco')
+    expect(container.textContent).toContain('Bức tranh Chú Cún Nhỏ')
 
     act(() => root.unmount())
     container.remove()
   })
 
-  it('verifies competencies tab is removed and does not exist in navigation', async () => {
+  it('opens image lightbox modal when clicking a project in works tab and allows download and close', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -320,17 +316,39 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    const competenciesTab = container.querySelector('#tab-competencies')
-    expect(competenciesTab).toBeNull()
-    expect(container.textContent).not.toContain('Vườn Kỹ Năng Sáng Tạo Của Con')
+    // Find first project card
+    const projectCard = container.querySelector('article')
+    expect(projectCard).not.toBeNull()
+
+    // Click on project card to open lightbox modal
+    await act(async () => {
+      projectCard?.click()
+    })
+
+    // Lightbox modal should be present
+    const modal = document.body.querySelector('[role="dialog"]')
+    expect(modal).not.toBeNull()
+    expect(modal?.textContent).toContain('Truyện tranh Vẹt Paco')
+    expect(modal?.textContent).toContain('Tải ảnh về máy')
+    expect(modal?.textContent).toContain('Đóng')
+
+    // Click close button
+    const closeBtn = Array.from(modal?.querySelectorAll('button') ?? []).find(
+      (b) => b.textContent?.includes('Đóng') || b.getAttribute('aria-label') === 'Đóng',
+    )
+    expect(closeBtn).toBeDefined()
+
+    await act(async () => {
+      closeBtn?.click()
+    })
+
+    // Modal should be closed
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
 
     act(() => root.unmount())
     container.remove()
@@ -345,11 +363,8 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
@@ -366,15 +381,56 @@ describe('ProfilePage Component', () => {
     expect(container.textContent).toContain('Bằng Khen Tốt Nghiệp Khóa Học')
     expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
-    // Trường hợp 3: Khi chưa xong 30 trạm, KHÔNG có banner chúc mừng nhận bằng nào, chỉ có thẻ tiến độ
+    // Filter buttons in certificates tab
+    expect(container.querySelector('#filter-certs-all')).not.toBeNull()
+    expect(container.querySelector('#filter-certs-claimed')).not.toBeNull()
+    expect(container.querySelector('#filter-certs-in-progress')).not.toBeNull()
+
+    // Progress card for unfinished course (< 30 stations)
     expect(container.textContent).not.toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP')
-    expect(container.textContent).not.toContain('Chúc mừng con đã tốt nghiệp')
     expect(container.textContent).toContain(
-      'Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!'
+      'Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!',
     )
-    expect(container.textContent).not.toContain('AIKids')
     expect(container.textContent).toContain('Tiến độ toàn khóa')
     expect(container.textContent).toContain('trạm nữa để tốt nghiệp khóa học!')
+
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it('filters certificates by category (all, claimed, in_progress)', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Switch to certificates tab
+    const certsTab = container.querySelector('#tab-certificates') as HTMLButtonElement
+    await act(async () => {
+      certsTab.click()
+    })
+
+    // Click "Đã lưu vào Ba lô" when none claimed
+    const claimedFilter = container.querySelector('#filter-certs-claimed') as HTMLButtonElement
+    await act(async () => {
+      claimedFilter.click()
+    })
+    expect(container.textContent).toContain('Chưa có bằng khen nào trong Ba lô')
+
+    // Click "Đang chinh phục"
+    const inProgressFilter = container.querySelector('#filter-certs-in-progress') as HTMLButtonElement
+    await act(async () => {
+      inProgressFilter.click()
+    })
+    expect(container.textContent).toContain('Tiến độ toàn khóa')
 
     act(() => root.unmount())
     container.remove()
@@ -386,12 +442,12 @@ describe('ProfilePage Component', () => {
       {
         id: 'cert-course-aikid-official',
         courseId: 'cert-course-aikid-official',
-        courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)',
+        courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)',
         islandTitle: 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
         studentName: 'Minh Thám Hiểm',
         issuedDate: '25/09/2026',
-        stars: 96,
-        xp: 3200,
+        stars: 90,
+        xp: 3000,
         claimedAt: Date.now(),
       },
     ])
@@ -404,29 +460,24 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
     // Click on Bằng khen tab
     const certsTab = container.querySelector('#tab-certificates') as HTMLButtonElement
-    expect(certsTab).not.toBeNull()
-
     await act(async () => {
       certsTab.click()
     })
 
     expect(container.textContent).toContain('1 Bằng khen trong Ba lô')
     expect(container.textContent).toContain('Đã lưu trong Ba lô')
-    expect(container.textContent).toContain('Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)')
+    expect(container.textContent).toContain('Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)')
     expect(container.textContent).toContain('Tốt Nghiệp Xuất Sắc Toàn Khóa')
 
     const reviewBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Xem lại bằng khen')
+      b.textContent?.includes('Xem lại bằng khen'),
     )
     expect(reviewBtn).toBeDefined()
 
@@ -443,7 +494,7 @@ describe('ProfilePage Component', () => {
   })
 
   it('renders Graduation Honors banner on certificates tab when student achieves 30/30 stations and opens CourseCertificateModal', async () => {
-    // Mock pathway with 30+ completed stations
+    // Mock pathway with 30 completed stations
     vi.spyOn(learningApiModule.learningApi, 'getPathway').mockResolvedValue({
       student: { nickname: 'Minh Thám Hiểm', ageBand: '6-8' },
       policy: null,
@@ -490,9 +541,9 @@ describe('ProfilePage Component', () => {
           coverImage: null,
           enrolled: true,
           enrollmentId: 'e-3',
-          questCount: 6,
-          completedCount: 6,
-          totalStars: 18,
+          questCount: 4,
+          completedCount: 4,
+          totalStars: 12,
         },
         {
           id: 'dao-4',
@@ -505,9 +556,9 @@ describe('ProfilePage Component', () => {
           coverImage: null,
           enrolled: true,
           enrollmentId: 'e-4',
-          questCount: 6,
-          completedCount: 6,
-          totalStars: 18,
+          questCount: 4,
+          completedCount: 4,
+          totalStars: 12,
         },
         {
           id: 'dao-5',
@@ -520,9 +571,24 @@ describe('ProfilePage Component', () => {
           coverImage: null,
           enrolled: true,
           enrollmentId: 'e-5',
-          questCount: 6,
-          completedCount: 6,
-          totalStars: 18,
+          questCount: 4,
+          completedCount: 4,
+          totalStars: 12,
+        },
+        {
+          id: 'dao-6',
+          title: 'Đảo 6: Đấu Trường Trò Chơi',
+          shortTitle: 'Đảo 6',
+          status: 'completed',
+          reasonCode: '',
+          completionPercent: 100,
+          missingPrerequisites: [],
+          coverImage: null,
+          enrolled: true,
+          enrollmentId: 'e-6',
+          questCount: 4,
+          completedCount: 4,
+          totalStars: 12,
         },
       ],
     } as any)
@@ -535,30 +601,26 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
     // Click on Bằng khen tab
     const certsTab = container.querySelector('#tab-certificates') as HTMLButtonElement
-    expect(certsTab).not.toBeNull()
-
     await act(async () => {
       certsTab.click()
     })
 
-    // Graduation banner & Claim to Backpack flow with non-AI text
+    // Graduation banner & Claim to Backpack flow
     expect(container.textContent).toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!')
-    expect(container.textContent).toContain('Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.')
+    expect(container.textContent).toContain(
+      'Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.',
+    )
     expect(container.textContent).toContain('Nhận Bằng Khen & Cất Vào Ba Lô')
-    expect(container.textContent).toContain('0 Bằng khen trong Ba lô')
 
-    const gradBanner = Array.from(container.querySelectorAll('[role="region"]')).find((el) =>
-      el.getAttribute('aria-label') === 'Vinh danh tốt nghiệp khóa học'
+    const gradBanner = Array.from(container.querySelectorAll('[role="region"]')).find(
+      (el) => el.getAttribute('aria-label') === 'Vinh danh tốt nghiệp khóa học',
     )
     expect(gradBanner).toBeDefined()
     const certBtn = gradBanner?.querySelector('button')
@@ -577,7 +639,7 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('switches to storybook tab and renders Full Storybook with BookSpread, sticker canvas and navigation rail', async () => {
+  it('guarantees zero API calls to /api/gamification/storybook, /api/gamification/achievements, and loadProfileAppearance', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -586,50 +648,30 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
+      await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-    })
+    // Verify all invoked endpoints
+    const calledEndpoints = apiSpy.mock.calls.map((call) => call[0])
 
-    // Click on Sổ kỷ niệm tab
-    const storybookTab = container.querySelector('#tab-storybook') as HTMLButtonElement
-    expect(storybookTab).not.toBeNull()
+    // Must NOT call achievements or storybook
+    expect(calledEndpoints).not.toContain('/api/gamification/achievements')
+    expect(calledEndpoints).not.toContain('/api/gamification/storybook')
+    expect(calledEndpoints).not.toContain('/api/profile/settings')
 
-    await act(async () => {
-      storybookTab.click()
-      await new Promise((resolve) => setTimeout(resolve, 300))
-    })
-
-    // Storybook header
-    expect(container.textContent).toContain('Sổ Kỷ Niệm Huyền Thoại')
-    expect(container.textContent).toContain('Nhật Ký Phiêu Lưu Cùng Paco')
-    expect(container.textContent).toContain('Mọi trang sách đều mở sẵn để con khám phá câu chuyện')
-    expect(container.textContent).toContain('Nhãn dán đã mở')
-
-    // Full Storybook component BookSpread elements
-    const book = container.querySelector('.storybook-book')
-    expect(book).not.toBeNull()
-    const leftPage = container.querySelector('.storybook-page-left')
-    expect(leftPage).not.toBeNull()
-    const rightPage = container.querySelector('.storybook-page-right')
-    expect(rightPage).not.toBeNull()
-    const stickerCanvas = container.querySelector('.storybook-sticker-canvas')
-    expect(stickerCanvas).not.toBeNull()
-    const rail = container.querySelector('.storybook-chapter-rail')
-    expect(rail).not.toBeNull()
-
-    // No old 4 SVG preview cards
-    expect(container.textContent).not.toContain('Sổ Tay Nhật Ký Khám Phá')
-    expect(container.textContent).not.toContain('Sổ Da Soft Clay 3D')
+    // Must call overview with includeAppearance=false and includeStorybook=false
+    const overviewCall = calledEndpoints.find((ep) => typeof ep === 'string' && ep.startsWith('/api/v1/aikids/profile-overview?'))
+    expect(overviewCall).toBeDefined()
+    expect(overviewCall).not.toContain('storybook')
+    expect(overviewCall).not.toContain('appearance')
 
     act(() => root.unmount())
     container.remove()
   })
 
-  it('switches to memories tab and renders Achievements and Showcase Works without old SVG preview cards', async () => {
+  it('ensures 100% zero arrow characters and zero tech AI buzzwords across both tabs', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -638,112 +680,12 @@ describe('ProfilePage Component', () => {
       root.render(
         <MemoryRouter>
           <ProfilePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       )
-    })
-
-    await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
     })
 
-    // Click on Thành tích tab
-    const memoriesTab = container.querySelector('#tab-memories') as HTMLButtonElement
-    expect(memoriesTab).not.toBeNull()
-
-    await act(async () => {
-      memoriesTab.click()
-    })
-
-    // 1. Achievements Showcase
-    expect(container.textContent).toContain('Bục Vinh Danh Thành Tích')
-    expect(container.textContent).toContain('Huy Hiệu & Cúp Danh Dự')
-    expect(container.textContent).toContain('Ghi nhận từng cột mốc nỗ lực vượt bậc của con trong suốt hành trình rèn luyện và khám phá.')
-    expect(container.textContent).toContain('2 / 45 Huy hiệu đã mở')
-    expect(container.textContent).toContain('Mở Kho Báu Huy Hiệu')
-    expect(container.textContent).toContain('Bước Chân Đầu Tiên')
-    expect(container.textContent).toContain('Ngọn Lửa Chăm Chỉ')
-
-    // 2. Showcase Works
-    expect(container.textContent).toContain('Tác phẩm tiêu biểu')
-    expect(container.textContent).toContain('Truyện tranh Vẹt Paco')
-    expect(container.textContent).not.toContain('storyPlot comic 1785830218476')
-
-    // 3. Old 4 preview cards should NOT be here
-    expect(container.textContent).not.toContain('Sổ Tay Nhật Ký Khám Phá')
-    expect(container.textContent).not.toContain('Sổ Da Soft Clay 3D')
-
-    act(() => root.unmount())
-    container.remove()
-  })
-
-  it('switches to customize tab and allows returning to progress tab', async () => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-
-    await act(async () => {
-      root.render(
-        <MemoryRouter>
-          <ProfilePage />
-        </MemoryRouter>
-      )
-    })
-
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50))
-    })
-
-    // Click on Trang trí tab
-    const customizeTab = container.querySelector('#tab-customize') as HTMLButtonElement
-    expect(customizeTab).not.toBeNull()
-
-    await act(async () => {
-      customizeTab.click()
-    })
-
-    expect(container.textContent).toContain('Chỉnh phong cách hồ sơ')
-    expect(container.textContent).toContain('Tạo avatar của con')
-    expect(container.textContent).toContain('Mở Avatar Studio')
-
-    // Click on Quay lại hồ sơ button
-    const backBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Quay lại hồ sơ')
-    )
-    expect(backBtn).toBeDefined()
-
-    await act(async () => {
-      backBtn?.click()
-    })
-
-    // Should return to progress tab
-    const progressTab = container.querySelector('#tab-progress') as HTMLButtonElement
-    expect(progressTab.getAttribute('aria-selected')).toBe('true')
-    expect(container.textContent).toContain('Chuỗi học tập')
-    expect(container.textContent).toContain('Thời lượng rèn luyện')
-
-    act(() => root.unmount())
-    container.remove()
-  })
-
-  it('ensures 100% zero arrow characters and zero tech AI buzzwords across all tabs', async () => {
-    const container = document.createElement('div')
-    document.body.appendChild(container)
-    const root = createRoot(container)
-
-    await act(async () => {
-      root.render(
-        <MemoryRouter>
-          <ProfilePage />
-        </MemoryRouter>
-      )
-    })
-
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50))
-    })
-
-    // Check all tabs sequentially for arrows
-    const tabIds: ProfileTabSection[] = ['progress', 'certificates', 'storybook', 'memories', 'customize']
+    const tabIds: ProfileTabSection[] = ['works', 'certificates']
 
     for (const tabId of tabIds) {
       const tabBtn = container.querySelector(`#tab-${tabId}`) as HTMLButtonElement

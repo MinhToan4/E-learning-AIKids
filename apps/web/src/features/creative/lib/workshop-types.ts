@@ -44,3 +44,51 @@ export const STORY_GENRES = [
   { id: 'scifi', label: '🚀 Khoa học viễn tưởng', desc: 'Robot, không gian và công nghệ tương lai' },
   { id: 'nature', label: '🌿 Thiên nhiên', desc: 'Động vật, rừng và đại dương' },
 ]
+
+export interface AiStudioStyle {
+  id: string
+  label: string
+  buttonActionText: string
+  img: string
+  desc: string
+}
+
+export const AI_STUDIO_STYLES: AiStudioStyle[] = [
+  {
+    id: 'clay',
+    label: 'Đất Nặn 3D',
+    buttonActionText: '🎨 Vẽ theo phong cách Đất Nặn 3D',
+    img: '/assets/optimized/art-style-clay.webp',
+    desc: 'Khối đất nặn tròn xoe, ấm áp, ngộ nghĩnh',
+  },
+  {
+    id: 'watercolor',
+    label: 'Màu Nước Pastel',
+    buttonActionText: '🎨 Vẽ theo phong cách Màu Nước Pastel',
+    img: '/assets/optimized/art-style-watercolor.webp',
+    desc: 'Màu loang trong trẻo, êm dịu trên giấy vẽ',
+  },
+  {
+    id: 'cartoon',
+    label: 'Hoạt Hình 3D',
+    buttonActionText: '🎨 Vẽ theo phong cách Hoạt Hình 3D',
+    img: '/assets/optimized/art-style-cartoon.webp',
+    desc: 'Nét vẽ hoạt hình sống động, màu sắc tươi vui',
+  },
+  {
+    id: 'sketch',
+    label: 'Tranh Chì Màu',
+    buttonActionText: '🎨 Vẽ theo phong cách Tranh Chì Màu',
+    img: '/assets/optimized/art-style-sketch.webp',
+    desc: 'Nét phác chì mộc mạc, đáng yêu và gần gũi',
+  },
+]
+
+export const AI_STUDIO_IDEA_SUGGESTIONS = [
+  'Mèo Aiki phiêu lưu',
+  'Khu rừng kỳ diệu',
+  'Lâu đài trên mây',
+  'Robot thám hiểm',
+  'Ngôi nhà bánh kẹo',
+] as const
+

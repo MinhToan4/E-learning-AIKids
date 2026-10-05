@@ -222,7 +222,8 @@ export async function generateCreativeImage(input: {
     createJob('image', jobParams, input.ipId),
     timeoutPromise,
   ])
-  const url = outputUrls(job.outputUrls)[0]
+  const rawUrls = job.outputUrls ?? (job as any).output_urls ?? (job as any).imageUrl ?? (job as any).url
+  const url = outputUrls(rawUrls)[0]
   if (!url) throw new Error('StoryMee chưa trả về ảnh.')
   return url
 }
@@ -236,4 +237,42 @@ export async function generateCreativeStory(prompt: string): Promise<string> {
 
 export async function fetchCreativeDownload(url: string): Promise<Blob> {
   return fetchRemoteBlob(url)
+}
+
+export async function saveCreativeArt(params: {
+  title?: string
+  url: string
+  kind?: string
+  creativeKind?: string
+}): Promise<{ id?: string; url: string }> {
+  const { title = 'Bức tranh của con', url, kind = 'art', creativeKind = 'art' } = params
+
+  // 1. Promote media: Gọi /api/media/promote để lưu vĩnh viễn
+  try {
+    await api('/api/media/promote', {
+      method: 'POST',
+      body: JSON.stringify({ url, purpose: 'creative_workshop', creativeKind }),
+    })
+  } catch (err) {
+    console.warn('[CreativeAPI] Media promote warning:', err)
+  }
+
+  // 2. Tự động lưu vào /api/projects để lập tức xuất hiện trong tab "Ảnh đã tạo" của Hồ sơ học sinh (ProfilePage)
+  let projectRes: any
+  try {
+    projectRes = await api('/api/projects', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        thumbnail: url,
+        url,
+        kind,
+        creativeKind,
+      }),
+    })
+  } catch (err) {
+    console.warn('[CreativeAPI] /api/projects save warning:', err)
+  }
+
+  return { id: projectRes?.id ?? projectRes?.project?.id, url }
 }

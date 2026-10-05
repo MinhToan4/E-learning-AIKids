@@ -93,6 +93,7 @@ function useMediaQuery(query: string) {
 function studentFeatureTone(pathname: string): StudentFeatureTone {
   if (pathname.startsWith('/rules')) return 'sun'
   if (pathname.startsWith('/asmo')) return 'sky'
+  if (pathname.startsWith('/creative')) return 'sun'
   if (pathname.startsWith('/lab/mee-cat') || pathname.startsWith('/mee-cat-studio')) return 'sky'
   if (pathname.startsWith('/world') || pathname.startsWith('/course') || pathname.startsWith('/lesson')) return 'sky'
   if (pathname.startsWith('/progress') || pathname.startsWith('/leaderboard')) return 'mint'
@@ -180,17 +181,18 @@ function MobileLogoutButton() {
 
 // ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav: StudentNavItem[] = [
-  { to: '/home',     label: 'Trang Chủ', icon: KidHomeImageIcon,     tone: 'brand' },
-  { to: '/world',    label: 'Bản Đồ',    icon: KidWorldImageIcon,    tone: 'sky' },
-  { to: '/profile',  label: 'Hồ Sơ',     icon: KidProfileAvatarIcon, tone: 'brand' },
+  { to: '/home',     label: 'Trang Chủ',  icon: KidHomeImageIcon,     tone: 'brand' },
+  { to: '/world',    label: 'Bản Đồ',     icon: KidWorldImageIcon,    tone: 'sky' },
+  { to: '/creative', label: 'AI Studio',  icon: KidCreativeImageIcon, tone: 'sun' },
+  { to: '/profile',  label: 'Hồ Sơ',      icon: KidProfileAvatarIcon, tone: 'brand' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
   // Tạm thời ẩn Olympic 3D, Sự kiện, Cộng đồng để phát triển trên localhost
   // { to: '/asmo',         label: 'Olympic 3D',  icon: KidBadgeImageIcon,     tone: 'sky' },
   // { to: '/events',       label: 'Sự kiện',      icon: KidEventImageIcon,     tone: 'coral' },
-  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
+  // { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
   // { to: '/community',    label: 'Cộng đồng',   icon: KidProfileImageIcon,   tone: 'mint' },
-  { to: '/achievements', label: 'Huy hiệu',    icon: KidBadgeImageIcon,     tone: 'sun' },
+  // { to: '/achievements', label: 'Huy hiệu',    icon: KidBadgeImageIcon,     tone: 'sun' },
   { to: '/backpack',     label: 'Ba lô',       icon: KidBackpackImageIcon,  tone: 'sun' },
   { to: '/profile',      label: 'Hồ sơ',       icon: KidProfileAvatarIcon,  tone: 'brand' },
 ]
@@ -228,6 +230,7 @@ function KidProfileAvatarIcon({ size = 24, className = '' }: { size?: number; cl
 const STUDENT_DOCK_ITEMS: RoleNavItem[] = [
   { to: '/home', label: 'Trang Chủ', icon: KidHomeImageIcon, end: true },
   { to: '/world', label: 'Bản Đồ', icon: KidWorldImageIcon },
+  { to: '/creative', label: 'AI Studio', icon: KidCreativeImageIcon },
   { to: '/profile', label: 'Hồ Sơ', icon: KidProfileAvatarIcon },
 ]
 
@@ -937,12 +940,13 @@ export function AppShell() {
                   ? location.pathname === '/home' || location.pathname === '/'
                   : to === '/world'
                     ? location.pathname.startsWith('/world') ||
-                      location.pathname.startsWith('/course') ||
-                      location.pathname.startsWith('/creative')
-                    : location.pathname.startsWith('/progress') ||
-                      location.pathname.startsWith('/achievements') ||
-                      location.pathname.startsWith('/backpack') ||
-                      location.pathname.startsWith('/profile')
+                      location.pathname.startsWith('/course')
+                    : to === '/creative'
+                      ? location.pathname.startsWith('/creative')
+                      : location.pathname.startsWith('/progress') ||
+                        location.pathname.startsWith('/achievements') ||
+                        location.pathname.startsWith('/backpack') ||
+                        location.pathname.startsWith('/profile')
 
               return (
                 <NavLink

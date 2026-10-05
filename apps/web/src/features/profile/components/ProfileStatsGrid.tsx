@@ -12,6 +12,7 @@ export interface ProfileStatsGridProps {
   studyHoursFormatted?: string
   certificatesCount?: number
   achievementsCount?: number
+  worksCount?: number
 }
 
 export function ProfileStatsGrid({
@@ -21,6 +22,7 @@ export function ProfileStatsGrid({
   studyHoursFormatted,
   certificatesCount = 0,
   achievementsCount = 0,
+  worksCount,
 }: ProfileStatsGridProps) {
   // Chuẩn hóa 30 trạm
   const displayStations = Math.min(30, Math.max(0, completedStations))
@@ -112,38 +114,60 @@ export function ProfileStatsGrid({
         </div>
       </div>
 
-      {/* Thẻ 3: Bằng Khen & Huy Hiệu (Icon Award cam hổ phách) */}
+      {/* Thẻ 3: Tác phẩm sáng tạo / Bằng khen & Huy hiệu (Icon Award cam hổ phách) */}
       <div className="relative flex min-w-0 overflow-hidden flex-col justify-between rounded-3xl border-2 border-orange-300 bg-gradient-to-br from-[#ffe8d2] via-white to-[#ffdfc5] p-4 sm:p-5 shadow-[0_7px_0_#fed7aa] transition-transform hover:-translate-y-1">
         <span className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-orange-200/45" aria-hidden="true" />
-        <span className="mb-2 w-fit rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white">Tủ huy hiệu</span>
+        <span className="mb-2 w-fit rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white">
+          {worksCount !== undefined ? 'Tủ tác phẩm' : 'Tủ huy hiệu'}
+        </span>
         <div className="flex items-center gap-3">
           <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center select-none">
             <FlatClayTrophy size={62} />
           </div>
           <div className="min-w-0 flex-1">
             <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-              <span className="text-3xl sm:text-4xl">{totalHonors}</span><span className="text-base text-orange-700"> dấu ấn</span>
+              {worksCount !== undefined ? (
+                <>
+                  <span className="text-3xl sm:text-4xl">{worksCount}</span><span className="text-base text-orange-700"> tranh</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-3xl sm:text-4xl">{totalHonors}</span><span className="text-base text-orange-700"> dấu ấn</span>
+                </>
+              )}
             </span>
             <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
-              Bằng khen &amp; Huy hiệu
+              {worksCount !== undefined ? 'Ảnh đã tạo' : 'Bằng khen & Huy hiệu'}
             </span>
           </div>
         </div>
         <div className="mt-3.5 space-y-1.5">
           <div className="flex h-3 items-center gap-1" aria-hidden="true">
-            {Array.from({ length: 5 }, (_, index) => (
-              <span
-                key={index}
-                className={`h-2.5 flex-1 rounded-full border ${index < Math.min(5, totalHonors) ? 'border-orange-400 bg-orange-400' : 'border-orange-200 bg-orange-100'}`}
-              />
-            ))}
+            {Array.from({ length: 5 }, (_, index) => {
+              const activeCount = worksCount !== undefined ? worksCount : totalHonors
+              return (
+                <span
+                  key={index}
+                  className={`h-2.5 flex-1 rounded-full border ${index < Math.min(5, activeCount) ? 'border-orange-400 bg-orange-400' : 'border-orange-200 bg-orange-100'}`}
+                />
+              )
+            })}
           </div>
           <div className="text-[11px] sm:text-xs font-bold leading-snug text-orange-900">
-            Mỗi ô sáng là một chiến tích của con
+            {worksCount !== undefined ? 'Mỗi ô sáng là một kiệt tác của con' : 'Mỗi ô sáng là một chiến tích của con'}
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-orange-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-orange-900 border border-orange-200/60">
-          <span><strong>Trưng bày:</strong> {totalHonors > 0 ? 'Chọn danh hiệu con tự hào nhất' : 'Danh hiệu đầu tiên đang chờ con'}</span>
+          <span>
+            <strong>Trưng bày:</strong>{' '}
+            {worksCount !== undefined
+              ? worksCount > 0
+                ? 'Lưu giữ những khoảnh khắc đẹp'
+                : 'Bức tranh đầu tiên đang chờ con'
+              : totalHonors > 0
+                ? 'Chọn danh hiệu con tự hào nhất'
+                : 'Danh hiệu đầu tiên đang chờ con'}
+          </span>
         </div>
       </div>
 

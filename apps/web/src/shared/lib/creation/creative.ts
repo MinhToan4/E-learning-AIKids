@@ -63,13 +63,15 @@ export function getArtStyle(id: ArtStyleId): ArtStyleDef {
   return ART_STYLES.find((s) => s.id === id)!
 }
 
-export function buildArtGenerationPrompt(id: ArtStyleId): string {
+export function buildArtGenerationPrompt(id: ArtStyleId, userIdea?: string): string {
   const style = getArtStyle(id)
+  const ideaText = userIdea?.trim()
+  const ideaClause = ideaText ? `depicting ${ideaText}.` : 'based on the child’s drawing.'
   return [
-    'Study the child-provided reference sketch and identify its main subjects, approximate composition, colors and story.',
+    `Study the child-provided reference sketch and create a wonderful children's illustration ${ideaClause}`,
     `Recreate that same idea as a polished ${style.promptDescriptor}.`,
-    'Keep the subjects and composition recognizable while improving clarity, detail and finish like a skilled children’s-book illustrator.',
-    'Child-safe and wholesome for ages 6-15; friendly mood; no violence, frightening imagery, adult content, text, watermark or border.',
+    'Keep the subjects and composition recognizable while improving clarity, vibrant warm pastel colors, detail and finish like a skilled children’s-book illustrator.',
+    'Child-safe, peaceful and wholesome for ages 6-15; cheerful friendly mood; gentle storybook art, clean composition, textless, watermark-free, borderless.',
   ].join(' ')
 }
 
