@@ -11,11 +11,42 @@ vi.mock('@/shared/lib/api', () => ({
   api: vi.fn(),
 }))
 
+let mockStorage: Record<string, string> = {}
+const mockLocalStorage = {
+  getItem: (key: string) => mockStorage[key] ?? null,
+  setItem: (key: string, value: string) => {
+    mockStorage[key] = String(value)
+  },
+  removeItem: (key: string) => {
+    delete mockStorage[key]
+  },
+  clear: () => {
+    mockStorage = {}
+  },
+  get length() {
+    return Object.keys(mockStorage).length
+  },
+  key: (i: number) => Object.keys(mockStorage)[i] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+  configurable: true,
+})
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: mockLocalStorage,
+    writable: true,
+    configurable: true,
+  })
+}
+
 describe('ParentSubscriptionCheckoutModal Component', () => {
   let container: HTMLDivElement
   let root: Root
 
   beforeEach(() => {
+    mockStorage = {}
     vi.useRealTimers()
     container = document.createElement('div')
     document.body.appendChild(container)
@@ -578,5 +609,53 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
 
     const switchedBackImg = document.body.querySelector('img[alt="VietQR AK129K5555"]') as HTMLImageElement | null
     expect(switchedBackImg).not.toBeNull()
+  })
+
+  it('supports SePay PG mode when configured via localStorage', async () => {
+    localStorage.setItem('aikids_payment_provider_mode', 'sepay')
+    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+    act(() => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          paymentCode: 'SEPAYTEST88',
+        }),
+      )
+    })
+
+    // Provider switcher should be visible
+    expect(document.body.textContent).toContain('Quét mã QR Vietcombank')
+    expect(document.body.textContent).toContain('Cổng SePay Tự Động')
+
+    // Click SePay tab
+    const sepayTab = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Cổng SePay Tự Động'),
+    )
+    expect(sepayTab).toBeDefined()
+    await act(async () => {
+      sepayTab?.click()
+    })
+
+    // Should display SePay hero
+    expect(document.body.textContent).toContain('Cổng Thanh Toán Tự Động SePay PG')
+    expect(document.body.textContent).toContain('Thanh toán qua Cổng SePay')
+    expect(document.body.textContent).toContain('SP-TEST-LQ79A795')
+
+    // Click "Thanh toán qua Cổng SePay" button
+    const payBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Thanh toán qua Cổng SePay'),
+    )
+    expect(payBtn).toBeDefined()
+    await act(async () => {
+      payBtn?.click()
+    })
+
+    expect(windowOpenSpy).toHaveBeenCalledWith(
+      expect.stringContaining('https://checkout.sepay.vn/pay?merchant=SP-TEST-LQ79A795'),
+      '_blank',
+    )
+    localStorage.removeItem('aikids_payment_provider_mode')
   })
 })

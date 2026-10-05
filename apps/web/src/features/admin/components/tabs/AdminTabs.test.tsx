@@ -16,6 +16,7 @@ import { AdminClassesTab } from './AdminClassesTab'
 import { AdminPage } from '../../pages/AdminPage'
 import { AdminBillingPos, AI_CREDIT_PACKS } from '../AdminBillingPos'
 import { PendingIntentDetailModal } from '../PendingIntentDetailModal'
+import { AdminBillingTab } from './AdminBillingTab'
 import { groupUsersByFamilyList, type AdminUser, type PendingIntent } from '../../types'
 
 const mockApi = vi.fn()
@@ -23,11 +24,42 @@ vi.mock('@/shared/lib/api', () => ({
   api: (...args: unknown[]) => mockApi(...args),
 }))
 
+let mockStorage: Record<string, string> = {}
+const mockLocalStorage = {
+  getItem: (key: string) => mockStorage[key] ?? null,
+  setItem: (key: string, value: string) => {
+    mockStorage[key] = String(value)
+  },
+  removeItem: (key: string) => {
+    delete mockStorage[key]
+  },
+  clear: () => {
+    mockStorage = {}
+  },
+  get length() {
+    return Object.keys(mockStorage).length
+  },
+  key: (i: number) => Object.keys(mockStorage)[i] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+  configurable: true,
+})
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: mockLocalStorage,
+    writable: true,
+    configurable: true,
+  })
+}
+
 describe('Admin Domain Tabs & POS Refactor', () => {
   let container: HTMLDivElement
   let root: Root
 
   beforeEach(() => {
+    mockStorage = {}
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
@@ -575,6 +607,175 @@ describe('Admin Domain Tabs & POS Refactor', () => {
       confirmBtn?.click()
     })
     expect(onConfirm).toHaveBeenCalledWith(mockIntent)
+  })
+
+  it('PendingIntentDetailModal triggers onCancelIntent when clicking Hủy đơn này button', async () => {
+    const mockIntent: PendingIntent = {
+      id: 'pi-cancel-modal',
+      publicId: 'pi_cancel_modal_123',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-1',
+      userEmail: 'mother@storymee.vn',
+      userName: 'Mẹ Thu Hằng',
+      paymentCode: 'AIKIDS888',
+      courseTitle: null,
+      createdAt: '2026-09-18T10:00:00.000Z',
+    }
+    const onCancel = vi.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+
+    act(() => {
+      root.render(
+        <PendingIntentDetailModal
+          intent={mockIntent}
+          isOpen={true}
+          onClose={onClose}
+          onConfirm={vi.fn()}
+          onCancelIntent={onCancel}
+        />,
+      )
+    })
+
+    const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Hủy đơn này'),
+    )
+    expect(cancelBtn).toBeDefined()
+    await act(async () => {
+      cancelBtn?.click()
+    })
+    expect(onCancel).toHaveBeenCalledWith(mockIntent)
+  })
+
+  it('AdminBillingPos triggers onCancelPendingIntent when clicking Hủy đơn button', () => {
+    const onCancel = vi.fn()
+    const mockIntent: PendingIntent = {
+      id: 'pi-cancel-test',
+      publicId: 'pi_cancel123',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-99',
+      userEmail: 'cancel@storymee.vn',
+      userName: 'Khách Cần Hủy',
+      paymentCode: 'HUYDON123',
+      courseTitle: null,
+      createdAt: '2026-10-01T10:00:00.000Z',
+    }
+    const props = {
+      billingAdminMode: 'checkout' as const,
+      setBillingAdminMode: vi.fn(),
+      paymentMethod: 'transfer' as const,
+      setPaymentMethod: vi.fn(),
+      grantForm: { userEmail: '', planId: 'starter', durationMonths: 1, reason: '' },
+      setGrantForm: vi.fn(),
+      grantLoading: false,
+      grantSelectedUser: null,
+      setGrantSelectedUser: vi.fn(),
+      grantUserResults: [],
+      setGrantUserResults: vi.fn(),
+      grantUserSearching: false,
+      searchGrantUser: vi.fn(),
+      availablePlans: [],
+      planLabels: {},
+      planBadgeColors: {},
+      roleLabels: {},
+      handlePosSubmit: vi.fn(),
+      generateSuggestedReason: vi.fn().mockReturnValue(''),
+      pendingIntents: [mockIntent],
+      onCancelPendingIntent: onCancel,
+      onConfirmPendingIntent: vi.fn(),
+      onViewPendingIntentDetail: vi.fn(),
+    }
+
+    act(() => {
+      root.render(<AdminBillingPos {...props} />)
+    })
+
+    const cancelBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Hủy đơn'),
+    )
+    expect(cancelBtn).toBeDefined()
+    act(() => {
+      cancelBtn?.click()
+    })
+    expect(onCancel).toHaveBeenCalledWith(mockIntent)
+  })
+
+  it('AdminBillingTab renders Payment Provider switcher and compact plan catalog with inactive badge', async () => {
+    localStorage.removeItem('aikids_payment_provider_mode')
+    mockApi.mockImplementation((url: string) => {
+      if (url === '/api/admin/billing/subscriptions/stats') {
+        return Promise.resolve({
+          stats: { totalPaid: 10, totalFree: 5, totalPending: 1, totalExpired: 0 },
+          plans: [],
+        })
+      }
+      if (url === '/api/admin/billing/subscriptions') {
+        return Promise.resolve([])
+      }
+      if (url === '/api/admin/billing/subscriptions/pending-intents') {
+        return Promise.resolve([])
+      }
+      if (url === '/api/admin/billing/plans') {
+        return Promise.resolve([
+          {
+            id: 'starter',
+            name: 'Gói Starter Trải Nghiệm',
+            price: 69000,
+            isActive: false,
+            currency: 'VND',
+            billingCycle: 'monthly',
+            features: ['5 dự án vẽ'],
+          },
+        ])
+      }
+      if (url === '/api/parent/plans') {
+        return Promise.resolve({ plans: [] })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <AdminBillingTab />
+        </MemoryRouter>,
+      )
+    })
+
+    // 1. Switch to Gói Dịch Vụ & Bảng Giá (Catalog)
+    const plansViewBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Catalog gói cước & Package Builder'),
+    )
+    expect(plansViewBtn).toBeDefined()
+    await act(async () => {
+      plansViewBtn?.click()
+    })
+
+    // 2. Check Cấu hình Cổng Thanh Toán Khách Hàng panel
+    expect(container.textContent).toContain('Cấu hình Cổng Thanh Toán Khách Hàng')
+    expect(container.textContent).toContain('Chuyển khoản Thủ công (Mặc định)')
+    expect(container.textContent).toContain('Cổng Tự động SePay')
+
+    // 3. Click SePay provider radio button
+    const sepayBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Cổng Tự động SePay'),
+    )
+    expect(sepayBtn).toBeDefined()
+    await act(async () => {
+      sepayBtn?.click()
+    })
+    expect(localStorage.getItem('aikids_payment_provider_mode')).toBe('sepay')
+
+    // 4. Inactive plan badge and reopen button
+    expect(container.textContent).toContain('ĐÃ TẠM ẨN KHỎI KHÁCH HÀNG')
+    expect(container.textContent).toContain('Mở bán lại')
   })
 
   it('AdminBillingPos calls onViewPendingIntentDetail when clicking the pending intent card', () => {

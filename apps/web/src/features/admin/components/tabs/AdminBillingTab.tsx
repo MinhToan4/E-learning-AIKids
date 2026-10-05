@@ -131,6 +131,50 @@ export function AdminBillingTab() {
   const [selectedDetailIntent, setSelectedDetailIntent] = useState<PendingIntent | null>(null)
   const [detailConfirming, setDetailConfirming] = useState(false)
 
+  // Payment Provider Mode: manual (default) or sepay
+  const [paymentProviderMode, setPaymentProviderMode] = useState<'manual' | 'sepay'>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return (localStorage.getItem('aikids_payment_provider_mode') as 'manual' | 'sepay') || 'manual'
+    }
+    return 'manual'
+  })
+
+  function handlePaymentProviderModeChange(mode: 'manual' | 'sepay') {
+    setPaymentProviderMode(mode)
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('aikids_payment_provider_mode', mode)
+    }
+    showToast(
+      mode === 'sepay'
+        ? 'Đã chuyển sang Cổng Thanh toán Tự động SePay'
+        : 'Đã chuyển sang Thanh toán Chuyển khoản Thủ công Vietcombank',
+      'success',
+    )
+  }
+
+  async function handleCancelPendingIntent(intent: PendingIntent) {
+    const code = intent.paymentCode || intent.publicId || intent.id
+    if (!window.confirm(`Bạn có chắc chắn muốn hủy đơn ${code}?`)) return
+    try {
+      await api(
+        `/api/v1/billing/admin/subscriptions/intents/${encodeURIComponent(intent.publicId || intent.id)}/cancel`,
+        { method: 'POST' },
+      )
+      setPendingIntents((prev) =>
+        prev.filter((p) => (p.publicId || p.id) !== (intent.publicId || intent.id)),
+      )
+      showToast('Đã hủy đơn chờ thanh toán thành công', 'success')
+      if (
+        selectedDetailIntent &&
+        (selectedDetailIntent.publicId || selectedDetailIntent.id) === (intent.publicId || intent.id)
+      ) {
+        setSelectedDetailIntent(null)
+      }
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi khi hủy đơn', 'error')
+    }
+  }
+
   const recordBillingLog = useCallback(
     (log: Omit<BillingTransactionLog, 'id' | 'timestamp'>) => {
       const newEntry: BillingTransactionLog = {
@@ -544,7 +588,7 @@ export function AdminBillingTab() {
     const nextActive = plan.isActive === false
     try {
       const res = await api<{ message?: string }>(
-        `/api/admin/billing/plans/${encodeURIComponent(plan.id)}/toggle`,
+        `/api/v1/billing/admin/plans/${encodeURIComponent(plan.id)}/toggle`,
         { method: 'PATCH' },
       )
       showToast(res?.message || `Đã thay đổi trạng thái gói ${plan.name}`, 'success')
@@ -834,6 +878,100 @@ export function AdminBillingTab() {
           {/* Catalog Gói Bán & Tùy biến (Package Builder) */}
           {billingPlanView === 'plans' && (
             <div className="flex flex-col gap-4">
+              {/* ⚙️ Cấu hình Cổng Thanh Toán Khách Hàng (Soft Clay Panel) */}
+              <div className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-r from-brand-50/50 via-white to-amber-50/40 p-4 sm:p-5 shadow-clay">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">⚙️</span>
+                      <h3 className="font-display text-base sm:text-lg font-black text-text">
+                        Cấu hình Cổng Thanh Toán Khách Hàng
+                      </h3>
+                      <span className="rounded-full bg-brand-100 text-brand-700 px-2 py-0.5 text-[10px] font-black border border-brand-200">
+                        {paymentProviderMode === 'sepay' ? 'SePay PG' : 'Thủ công Vietcombank'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted mt-0.5">
+                      Chọn phương thức xử lý cổng thanh toán khi phụ huynh bấm nâng cấp gói hoặc mua lượt AI trên app.
+                    </p>
+                  </div>
+
+                  {/* 2 Lựa chọn: Radio / Button Tab */}
+                  <div className="flex rounded-2xl bg-white p-1 border-2 border-brand-200/70 shadow-sm shrink-0 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handlePaymentProviderModeChange('manual')}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer',
+                        paymentProviderMode === 'manual'
+                          ? 'bg-brand-600 text-white shadow-clay font-black'
+                          : 'text-stone-600 hover:text-text hover:bg-stone-50',
+                      )}
+                    >
+                      <span>🏦 Chuyển khoản Thủ công (Mặc định)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePaymentProviderModeChange('sepay')}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer',
+                        paymentProviderMode === 'sepay'
+                          ? 'bg-brand-600 text-white shadow-clay font-black'
+                          : 'text-stone-600 hover:text-text hover:bg-stone-50',
+                      )}
+                    >
+                      <span>⚡ Cổng Tự động SePay</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2.5 sm:grid-cols-2 text-xs">
+                  <div
+                    onClick={() => handlePaymentProviderModeChange('manual')}
+                    className={cn(
+                      'rounded-2xl p-3 border-2 transition cursor-pointer flex items-start gap-2.5',
+                      paymentProviderMode === 'manual'
+                        ? 'border-brand-400 bg-brand-50/70 shadow-sm'
+                        : 'border-border/60 bg-white/70 hover:border-brand-200 opacity-70',
+                    )}
+                  >
+                    <div className="h-4 w-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 border-brand-600">
+                      {paymentProviderMode === 'manual' && (
+                        <div className="h-2 w-2 rounded-full bg-brand-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-text">Thanh toán Chuyển khoản Thủ công (Mặc định)</p>
+                      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+                        Vietcombank LE QUANG MINH 9812723359, khách báo đã chuyển khoản → Admin duyệt 1-Click.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => handlePaymentProviderModeChange('sepay')}
+                    className={cn(
+                      'rounded-2xl p-3 border-2 transition cursor-pointer flex items-start gap-2.5',
+                      paymentProviderMode === 'sepay'
+                        ? 'border-brand-400 bg-brand-50/70 shadow-sm'
+                        : 'border-border/60 bg-white/70 hover:border-brand-200 opacity-70',
+                    )}
+                  >
+                    <div className="h-4 w-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 border-brand-600">
+                      {paymentProviderMode === 'sepay' && (
+                        <div className="h-2 w-2 rounded-full bg-brand-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-text">Cổng Thanh toán Tự động SePay</p>
+                      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+                        Tích hợp SePay PG (Merchant SP-TEST-LQ79A795). Tự động khớp mã và kích hoạt gói tức thì.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay">
                 <div>
                   <div className="flex items-center gap-2">
@@ -870,14 +1008,21 @@ export function AdminBillingTab() {
                     <div
                       key={plan.id}
                       className={cn(
-                        'ui-card flex flex-col gap-3 p-5 transition hover:shadow-md',
+                        'ui-card flex flex-col gap-2.5 p-3.5 sm:p-4 transition hover:shadow-md',
                         plan.id !== 'free' ? 'border-2' : 'border border-dashed border-border',
-                        !isPlanActive && 'opacity-75 bg-page/50',
+                        !isPlanActive &&
+                          'border-2 border-dashed border-stone-300 bg-stone-100/70 opacity-70 grayscale-[25%]',
                       )}
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      {!isPlanActive && (
+                        <div className="rounded-lg bg-stone-200/90 text-stone-700 px-2 py-0.5 text-[11px] font-black tracking-wide border border-stone-300 flex items-center gap-1.5 w-fit">
+                          <span>🔒 ĐÃ TẠM ẨN KHỎI KHÁCH HÀNG</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-start justify-between gap-2.5">
                         <div>
-                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                             <span
                               className={cn(
                                 'inline-block rounded-full px-2.5 py-0.5 text-xs font-extrabold',
@@ -887,67 +1032,78 @@ export function AdminBillingTab() {
                               {plan.id.toUpperCase()}
                             </span>
                             {plan.badge && (
-                              <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-black text-amber-800 border border-amber-300">
+                              <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800 border border-amber-300">
                                 {plan.badge}
                               </span>
                             )}
-                            <span className="inline-block rounded-full bg-border/60 px-2 py-0.5 text-[10px] font-bold text-muted">
+                            <span className="inline-block rounded-full bg-border/60 px-2 py-0.5 text-[9px] font-bold text-muted">
                               v{plan.version ?? 1}
                             </span>
                           </div>
-                          <h4 className="font-display text-lg text-text font-bold">{plan.name}</h4>
+                          <h4 className="font-display text-base sm:text-lg text-text font-bold">{plan.name}</h4>
                           {plan.tagline && (
-                            <p className="text-xs text-muted line-clamp-1">{plan.tagline}</p>
+                            <p className="text-xs text-muted line-clamp-1 mt-0.5">{plan.tagline}</p>
                           )}
-                          <p className="text-2xl font-black text-brand-600 mt-1">
+                          <p className="text-xl sm:text-2xl font-black text-brand-600 mt-0.5">
                             {formatVnd(plan.amountMinor)}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="font-display text-2xl text-text font-black">{userCount}</p>
-                          <p className="text-xs text-muted">phụ huynh</p>
+                          <p className="font-display text-xl text-text font-black">{userCount}</p>
+                          <p className="text-[11px] text-muted">phụ huynh</p>
                           <div className="mt-1">
                             <span
                               className={cn(
                                 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black',
                                 isPlanActive
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-stone-100 text-stone-600 border border-stone-200',
+                                  : 'bg-stone-200/90 text-stone-700 border border-stone-300',
                               )}
                             >
-                              <span>{isPlanActive ? '🟢' : '⚪'}</span>
-                              <span>{isPlanActive ? 'Đang mở bán' : 'Tạm ẩn'}</span>
+                              <span>{isPlanActive ? '🟢' : '🔒'}</span>
+                              <span>{isPlanActive ? 'Đang mở bán' : 'Đã tạm ẩn'}</span>
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2.5 rounded-2xl bg-brand-50/70 border border-brand-100/80 p-3 text-center">
-                        <div className="rounded-xl bg-white/80 p-2 shadow-sm">
-                          <p className="font-display text-xl font-black text-brand-700">{plan.monthlyCreateCredits}</p>
-                          <p className="text-xs font-bold text-slate-600 mt-0.5">lượt AI/tháng</p>
+                      {/* Thu gọn 3 chỉ số (Lượt AI, Hồ sơ con, Khóa/trẻ) thành 1 hàng ngang compact */}
+                      <div className="grid grid-cols-3 gap-2 bg-stone-50 p-2 rounded-xl text-center text-xs border border-stone-200/60">
+                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
+                          <p className="font-display text-base font-black text-brand-700 leading-tight">
+                            {plan.monthlyCreateCredits}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">lượt AI/tháng</p>
                         </div>
-                        <div className="rounded-xl bg-white/80 p-2 shadow-sm">
-                          <p className="font-display text-xl font-black text-brand-700">{plan.maxChildren}</p>
-                          <p className="text-xs font-bold text-slate-600 mt-0.5">hồ sơ trẻ</p>
+                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
+                          <p className="font-display text-base font-black text-brand-700 leading-tight">
+                            {plan.maxChildren}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">hồ sơ trẻ</p>
                         </div>
-                        <div className="rounded-xl bg-white/80 p-2 shadow-sm">
-                          <p className="font-display text-xl font-black text-brand-700">
+                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
+                          <p className="font-display text-base font-black text-brand-700 leading-tight">
                             {plan.maxOpenCoursesPerChild === 999
                               ? '∞'
                               : (plan.maxOpenCoursesPerChild ?? '?')}
                           </p>
-                          <p className="text-xs font-bold text-slate-600 mt-0.5">khóa/trẻ</p>
+                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">khóa/trẻ</p>
                         </div>
                       </div>
 
-                      <ul className="flex flex-col gap-2">
-                        {plan.features.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs sm:text-sm font-medium text-slate-700">
-                            <span className="text-emerald-600 font-black text-sm shrink-0">✓</span>
-                            <span>{f}</span>
+                      {/* Thu gọn danh sách tính năng: 2-3 tính năng gạch đầu dòng ngắn gọn */}
+                      <ul className="flex flex-col gap-1 text-xs">
+                        {plan.features.slice(0, 3).map((f, i) => (
+                          <li key={i} className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 truncate" title={f}>
+                            <span className="text-emerald-600 font-black text-xs shrink-0">✓</span>
+                            <span className="truncate">{f}</span>
                           </li>
                         ))}
+                        {plan.features.length > 3 && (
+                          <li className="text-[10px] text-muted font-bold pl-4">
+                            +{plan.features.length - 3} tính năng khác
+                          </li>
+                        )}
                       </ul>
 
                       <div className="mt-auto pt-3 border-t border-border/60 flex flex-col gap-2.5">
@@ -975,20 +1131,20 @@ export function AdminBillingTab() {
                               plan.id === 'free'
                                 ? 'Không được phép ẩn gói miễn phí (free)'
                                 : isPlanActive
-                                  ? 'Ẩn gói khỏi danh mục'
+                                  ? 'Tạm ẩn gói khỏi danh mục khách hàng'
                                   : 'Mở bán lại gói này'
                             }
                             className={cn(
-                              'inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-border/80 bg-surface px-3 py-1.5 text-xs font-black shadow-sm transition active:scale-95 cursor-pointer',
+                              'inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-black shadow-sm transition active:scale-95 cursor-pointer',
                               plan.id === 'free'
-                                ? 'opacity-40 cursor-not-allowed text-muted'
+                                ? 'opacity-40 cursor-not-allowed text-muted border-border/80 bg-surface'
                                 : isPlanActive
-                                  ? 'text-stone-700 hover:bg-stone-100 hover:border-stone-300'
-                                  : 'text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300',
+                                  ? 'bg-stone-200 hover:bg-stone-300 text-stone-700 border-stone-300'
+                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-clay',
                             )}
                           >
-                            <span>👁️</span>
-                            <span>{isPlanActive ? 'Ẩn gói' : 'Hiện gói'}</span>
+                            <span>{isPlanActive ? '🔒' : '👁️'}</span>
+                            <span>{isPlanActive ? 'Tạm ẩn gói' : 'Mở bán lại'}</span>
                           </button>
                         </div>
                       </div>
@@ -1190,6 +1346,7 @@ export function AdminBillingTab() {
               generateSuggestedReason={generateSuggestedReason}
               pendingIntents={pendingIntents}
               onConfirmPendingIntent={(intent) => setBillingConfirmIntent(intent)}
+              onCancelPendingIntent={handleCancelPendingIntent}
               onViewPendingIntentDetail={(intent) => setSelectedDetailIntent(intent)}
             />
           )}
@@ -1221,6 +1378,7 @@ export function AdminBillingTab() {
             setDetailConfirming(false)
           }
         }}
+        onCancelIntent={handleCancelPendingIntent}
       />
 
       {/* VietQR Modal */}

@@ -79,6 +79,7 @@ export type AdminBillingPosProps = {
   ) => string
   pendingIntents?: PendingIntent[]
   onConfirmPendingIntent?: (intent: PendingIntent) => void
+  onCancelPendingIntent?: (intent: PendingIntent) => void
   onViewPendingIntentDetail?: (intent: PendingIntent) => void
 }
 
@@ -104,6 +105,7 @@ export function AdminBillingPos({
   generateSuggestedReason,
   pendingIntents = [],
   onConfirmPendingIntent,
+  onCancelPendingIntent,
   onViewPendingIntentDetail,
 }: AdminBillingPosProps) {
   // Toggle between Monthly Plans (129k, Premium, Pro) and AI Refill Packs (5 packs)
@@ -193,18 +195,33 @@ export function AdminBillingPos({
                     <p className="text-[11px] text-muted truncate mt-0.5">{pi.userEmail}</p>
                   </div>
 
-                  {(onConfirmPendingIntent || onViewPendingIntentDetail) && (
-                    <Button
-                      className="shrink-0 text-xs font-bold !bg-amber-600 hover:!bg-amber-700 !text-white shadow-sm !py-1.5 !px-2.5 rounded-xl cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onConfirmPendingIntent ? onConfirmPendingIntent(pi) : onViewPendingIntentDetail?.(pi)
-                      }}
-                    >
-                      <CheckCircle2 size={13} className="mr-1" />
-                      Duyệt 1-Click
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {onCancelPendingIntent && (
+                      <Button
+                        variant="ghost"
+                        className="shrink-0 text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 shadow-sm !py-1.5 !px-2.5 rounded-xl cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onCancelPendingIntent?.(pi)
+                        }}
+                      >
+                        <X size={13} className="mr-1" />
+                        Hủy đơn
+                      </Button>
+                    )}
+                    {(onConfirmPendingIntent || onViewPendingIntentDetail) && (
+                      <Button
+                        className="shrink-0 text-xs font-bold !bg-amber-600 hover:!bg-amber-700 !text-white shadow-sm !py-1.5 !px-2.5 rounded-xl cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onConfirmPendingIntent ? onConfirmPendingIntent(pi) : onViewPendingIntentDetail?.(pi)
+                        }}
+                      >
+                        <CheckCircle2 size={13} className="mr-1" />
+                        Duyệt 1-Click
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

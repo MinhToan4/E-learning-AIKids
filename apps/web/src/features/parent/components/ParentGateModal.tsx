@@ -372,6 +372,16 @@ export function ParentGateModal({
                   })}
                 </div>
 
+                {/* Dòng chỉ dẫn thân thiện mã PIN mặc định 0000 */}
+                <div className="my-2.5 mx-auto max-w-[280px] rounded-2xl bg-amber-50 border border-amber-200/90 px-3.5 py-2 text-center shadow-2xs">
+                  <p className="text-xs font-black text-amber-900 flex items-center justify-center gap-1.5">
+                    <span>💡 Mã PIN mặc định là 0000</span>
+                  </p>
+                  <p className="text-[11px] font-semibold text-amber-700 mt-0.5">
+                    Nhập 0000 để mở khóa. Ba / Mẹ có thể đổi PIN trong Cài đặt.
+                  </p>
+                </div>
+
                 {/* Error message */}
                 {error && (
                   <p className="mt-2 text-center text-xs sm:text-sm font-bold text-rose-500 leading-snug">

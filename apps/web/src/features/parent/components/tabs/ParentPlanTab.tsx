@@ -254,62 +254,97 @@ export function ParentPlanTab({
           </div>
         </section>
       ) : (
-        /* Trạng thái CHƯA MUA: Gói Khởi Đầu (Miễn Phí) */
-        <section className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-br from-purple-50/60 via-white to-amber-50/40 p-5 sm:p-6 shadow-clay">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-brand-100/70 pb-5">
-            <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 shadow-2xs">
-                GÓI KHỞI ĐẦU (MIỄN PHÍ)
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
-                Tài khoản Khởi Đầu
+        /* Trạng thái CHƯA MUA: Thẻ Gói AI Kid Chính Thức To, Đẹp, Nổi Bật Nhất */
+        <section className="rounded-3xl border-3 border-amber-300 bg-gradient-to-br from-amber-50/80 via-white to-purple-50/50 p-6 sm:p-8 shadow-clay">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-amber-100 pb-6">
+            <div className="space-y-2.5 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 bg-amber-100 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs">
+                  ⭐ GÓI TOÀN DIỆN KHUYÊN DÙNG
+                </span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                {officialName}
               </h2>
-              <p className="text-sm font-bold text-slate-700">
-                Con được học miễn phí Đảo Tiên Quyết (10 Quy tắc vàng).
-              </p>
-              <p className="text-xs text-muted">
-                vùng học mở cùng lúc / con: 1 vùng · Nâng cấp để mở khóa trọn bộ 5 Đảo Sáng Tạo cho con.
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black text-brand-600">
+                  {officialPriceFormatted}
+                </span>
+                <span className="text-sm sm:text-base font-bold text-slate-500">
+                  /tháng
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                vùng học mở cùng lúc / con: trọn bộ 5 đảo · Nâng cấp để mở khóa đầy đủ hành trình cho các con.
               </p>
             </div>
 
-            <div className="shrink-0">
+            <div className="shrink-0 flex flex-col items-center sm:items-start lg:items-end gap-2">
               <Button
                 variant="primary"
-                className="w-full sm:w-auto gap-2 !text-sm font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-2xl py-3 px-6 h-auto cursor-pointer"
+                className="w-full sm:w-auto flex flex-col items-center justify-center gap-1 !text-base font-black shadow-clay bg-gradient-to-r from-amber-500 via-orange-500 to-brand-500 hover:opacity-95 text-white rounded-2xl py-3.5 px-8 h-auto cursor-pointer"
                 onClick={() => onOpenCheckout?.('sub', officialPlan?.code || 'aikids_official_129k', officialPrice, officialName)}
               >
-                <span>Kích hoạt {officialName} · {officialPriceFormatted}</span>
+                <span className="text-base sm:text-lg font-black flex items-center gap-2">
+                  💳 Nâng cấp ngay bằng VietQR
+                </span>
+                <span className="text-xs font-semibold opacity-95">
+                  Kích hoạt {officialName} · {officialPriceFormatted}
+                </span>
               </Button>
+              <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                <span>Quét mã VietQR tiện lợi qua mọi app ngân hàng</span>
+              </p>
             </div>
           </div>
 
-          {/* 3 Đặc quyền cốt lõi */}
-          <div className="mt-5">
-            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-700 mb-3">
-              Đặc quyền cốt lõi của Gói AI Kid Chính Thức
+          {/* 3 Đặc quyền cốt lõi dễ hiểu */}
+          <div className="mt-6">
+            <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3.5">
+              3 Đặc quyền cốt lõi cho con:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="flex items-start gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-3.5 shadow-2xs">
-                <div>
-                  <p className="font-display text-sm font-black text-slate-900">Trọn bộ 5 Đảo Sáng Tạo</p>
-                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {/* Đặc quyền 1 */}
+              <div className="flex items-start gap-3.5 rounded-2xl border border-amber-200/90 bg-amber-50/70 p-4 shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-400 text-white text-xl shadow-soft">
+                  🌟
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-display text-sm sm:text-base font-black text-slate-900">
+                    Trọn bộ 5 Đảo Sáng Tạo
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                     Mở khóa trọn bộ 5 Đảo Sáng Tạo (30 trạm học chuẩn Olympic).
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-3.5 shadow-2xs">
-                <div>
-                  <p className="font-display text-sm font-black text-slate-900">{officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI</p>
-                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
+
+              {/* Đặc quyền 2 */}
+              <div className="flex items-start gap-3.5 rounded-2xl border border-purple-200/90 bg-purple-50/70 p-4 shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-500 text-white text-xl shadow-soft">
+                  🎨
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-display text-sm sm:text-base font-black text-slate-900">
+                    {officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                     {officialPlan?.monthlyCreateCredits ?? 50} lượt tạo ảnh AI mỗi tháng.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5 shadow-2xs">
-                <div>
-                  <p className="font-display text-sm font-black text-slate-900">Báo cáo & Bằng khen</p>
-                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                    Báo cáo năng lực Montessori & Bằng khen tốt nghiệp.
+
+              {/* Đặc quyền 3 */}
+              <div className="flex items-start gap-3.5 rounded-2xl border border-emerald-200/90 bg-emerald-50/70 p-4 shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-white text-xl shadow-soft">
+                  👨‍👩‍👧
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-display text-sm sm:text-base font-black text-slate-900">
+                    Dùng chung cho các bé trong gia đình
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    Được dùng chung cho các bé trong gia đình cùng học.
                   </p>
                 </div>
               </div>

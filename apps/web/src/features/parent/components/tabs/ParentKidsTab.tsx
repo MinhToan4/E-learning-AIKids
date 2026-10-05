@@ -5,23 +5,22 @@ import {
   BookOpen,
   Pencil,
   Plus,
-  QrCode,
   ShieldCheck,
+  Sparkles,
   Trash2,
-  UserCheck,
   Users,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
+import { useAuth } from '@/shared/store/auth'
 import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { EditChildModal, avatarEmoji } from '@/features/parent/components/EditChildModal'
-import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
+import { avatarImage } from '@/shared/config/avatars'
 import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
-import { SetParentPinModal } from '@/features/parent/components/SetParentPinModal'
 import type { Approval, Child, HouseholdSub } from '@/features/parent/types/parent.types'
 import {
   getDashboardCache,
@@ -37,10 +36,9 @@ export function ParentKidsTab() {
   const [loading, setLoading] = useState(!cachedDash)
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
-  const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
-  const [showPinModal, setShowPinModal] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
   const navigate = useNavigate()
+  const enterAsChild = useAuth((s) => s.enterAsChild)
   const [searchParams, setSearchParams] = useSearchParams()
 
   const loadKids = useCallback(async (silent = false) => {
@@ -142,6 +140,18 @@ export function ParentKidsTab() {
     }
   }
 
+  async function handleEnterAsChild(childId: string) {
+    try {
+      const next = await enterAsChild(childId)
+      navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
+    } catch (e) {
+      showToast(
+        e instanceof Error ? e.message : 'Chưa vào được hồ sơ này. Ba / Mẹ thử lại nhé.',
+        'error',
+      )
+    }
+  }
+
   if (loading) return <LoadingSkeleton count={3} />
 
   return (
@@ -169,9 +179,9 @@ export function ParentKidsTab() {
             <Button
               onClick={() => setEditTarget(null)}
               disabled={seatsLeft <= 0}
-              className="!text-xs h-11 px-4 font-black shadow-clay whitespace-nowrap"
+              className="!text-xs sm:!text-sm h-11 px-5 font-black shadow-clay whitespace-nowrap bg-brand-500 hover:bg-brand-600 text-white rounded-2xl cursor-pointer"
             >
-              + Thêm con
+              + Thêm bé mới
             </Button>
           </div>
         </div>
@@ -248,17 +258,31 @@ export function ParentKidsTab() {
               {/* Card Body: Hàng 2 (Avatar + Khối thông tin rộng rãi) */}
               <div className="flex items-center gap-3.5 pt-1">
                 <div className="relative shrink-0">
-                  <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-b from-sun-100 to-cream-100 text-3xl shadow-soft border-2 border-cream-200">
-                    {avatarEmoji(k.avatarId)}
+                  <div className="flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-b from-sun-100 to-cream-100 text-3xl sm:text-4xl shadow-soft border-2 border-cream-200 overflow-hidden">
+                    {avatarImage(k.avatarId) ? (
+                      <img
+                        src={avatarImage(k.avatarId)}
+                        alt={k.nickname ?? 'Avatar'}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      avatarEmoji(k.avatarId)
+                    )}
                   </div>
-                  <span className="absolute -bottom-1.5 -right-1.5 rounded-full border-2 border-white bg-amber-400 px-1.5 py-0.2 text-[9px] font-black text-amber-950 shadow-soft">
+                  <span className="absolute -bottom-1 -right-1 rounded-full border-2 border-white bg-amber-400 px-1.5 py-0.5 text-[9px] font-black text-amber-950 shadow-soft">
                     Lv.{k.level || 1}
                   </span>
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <h3 className="font-display text-lg font-black text-text leading-snug break-words">{k.nickname}</h3>
-                  <p className="text-xs text-muted font-bold mt-0.5">{k.ageBand || 'Nhóm 8-11 tuổi'}</p>
+                  <p className="text-xs text-muted font-bold mt-0.5">
+                    {k.ageBand === '6-8'
+                      ? 'Lớp 1-2 (6-8 tuổi)'
+                      : k.ageBand === '13-15' || k.ageBand === '12-15'
+                        ? 'Lớp 6-9 (12-15 tuổi)'
+                        : 'Lớp 3-5 (9-11 tuổi)'}
+                  </p>
 
                   {/* Level XP Bar */}
                   <div className="mt-1.5 flex items-center gap-2">
@@ -367,35 +391,24 @@ export function ParentKidsTab() {
                 </div>
               </div>
 
-              {/* 3 Main Action Buttons: Touch-friendly */}
-              <div className="mt-auto pt-2 flex flex-col gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-brand-500 py-2 px-3 text-xs font-black text-white shadow-clay transition hover:bg-brand-600 active:scale-95 text-center whitespace-nowrap"
-                  >
-                    <BookOpen size={14} className="shrink-0" />
-                    <span>Xem học tập</span>
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() => navigate('/kids')}
-                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border-2 border-brand-200 bg-brand-50/70 py-2 px-3 text-xs font-black text-brand-700 shadow-soft transition hover:bg-brand-100 active:scale-95 text-center whitespace-nowrap"
-                  >
-                    <UserCheck size={14} className="shrink-0" />
-                    <span>Đổi sang bé</span>
-                  </button>
-                </div>
-
+              {/* Action Buttons: Nút to nổi bật "Vào học ngay" 1 chạm */}
+              <div className="mt-auto pt-3 flex flex-col gap-2">
                 <button
                   type="button"
-                  onClick={() => setQrModalTarget(k)}
-                  className="w-full flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-cream-300 bg-white py-2 px-3 text-xs font-black text-slate-700 shadow-soft transition hover:text-text hover:bg-cream-50 active:scale-95 whitespace-nowrap"
+                  onClick={() => void handleEnterAsChild(k.id)}
+                  className="w-full flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 via-purple-600 to-brand-600 hover:opacity-95 text-white font-extrabold text-sm sm:text-base shadow-clay active:scale-95 transition cursor-pointer"
                 >
-                  <QrCode size={14} className="shrink-0 text-brand-600" />
-                  <span>Thẻ QR học sinh</span>
+                  <Sparkles size={18} className="text-amber-300 animate-pulse" />
+                  <span>Vào học ngay</span>
                 </button>
+
+                <Link
+                  to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                  className="w-full flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs transition active:scale-98"
+                >
+                  <BookOpen size={14} className="text-brand-600" />
+                  <span>Xem lộ trình & hoạt động</span>
+                </Link>
               </div>
             </div>
           )
@@ -413,8 +426,11 @@ export function ParentKidsTab() {
             <p className="text-xs text-muted mb-4 leading-relaxed px-4 max-w-xs">
               Thêm hồ sơ cho bé tiếp theo trong gia đình để cùng tham gia lộ trình học tập.
             </p>
-            <Button onClick={() => setEditTarget(null)} className="!text-xs font-black shadow-clay">
-              + Thêm con ngay
+            <Button
+              onClick={() => setEditTarget(null)}
+              className="!text-xs sm:!text-sm font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-2xl px-5 h-11 cursor-pointer"
+            >
+              + Thêm bé mới
             </Button>
           </div>
         )}
@@ -444,35 +460,8 @@ export function ParentKidsTab() {
           showToast(isCreating ? 'Đã tạo tài khoản con!' : 'Đã cập nhật hồ sơ con!', 'success')
           invalidateParentCache()
           await loadKids()
-
-          if (isCreating) {
-            try {
-              const pinRes = await api<{ hasParentPin: boolean }>('/api/parent/pin-status')
-              if (!pinRes.hasParentPin) {
-                setShowPinModal(true)
-              }
-            } catch {
-              // silent
-            }
-          }
         }}
         onError={(e) => showToast(e, 'error')}
-      />
-
-      {/* StudentQrCardModal — hiển thị thẻ học sinh & mã QR đăng nhập nhanh */}
-      <StudentQrCardModal
-        child={qrModalTarget}
-        isOpen={qrModalTarget !== null}
-        onClose={() => setQrModalTarget(null)}
-      />
-
-      {/* SetParentPinModal — gợi ý cài đặt PIN sau khi tạo profile con */}
-      <SetParentPinModal
-        open={showPinModal}
-        onClose={() => setShowPinModal(false)}
-        onSuccess={() => {
-          showToast('Đã thiết lập mã PIN Ba / Mẹ thành công!', 'success')
-        }}
       />
     </div>
   )

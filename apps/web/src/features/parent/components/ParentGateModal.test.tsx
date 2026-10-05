@@ -58,6 +58,8 @@ describe('ParentGateModal', () => {
     expect(dialog?.textContent).toContain('Hoặc dùng mật khẩu tài khoản')
     expect(dialog?.textContent).toContain('Quên mã PIN?')
     expect(dialog?.textContent).toContain('Đăng xuất khỏi thiết bị này')
+    expect(dialog?.textContent).toContain('Mã PIN mặc định là 0000')
+    expect(dialog?.textContent).toContain('Nhập 0000 để mở khóa')
 
     // On-screen numpad contains buttons for 0-9
     const buttons = dialog?.querySelectorAll('button')
@@ -65,6 +67,49 @@ describe('ParentGateModal', () => {
     for (let i = 0; i <= 9; i++) {
       expect(buttonTexts).toContain(String(i))
     }
+  })
+
+  it('suggests and automatically verifies default PIN 0000 when entered', async () => {
+    const mockApi = vi.mocked(api)
+    mockApi.mockResolvedValueOnce({
+      status: 'success',
+      user: { id: 'parent-1', role: 'parent', email: 'parent@aikid.vn' },
+      token: 'jwt-parent-token',
+    })
+
+    const replaceMock = vi.fn()
+    Object.defineProperty(window, 'location', {
+      value: { replace: replaceMock },
+      writable: true,
+    })
+
+    await act(async () => {
+      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
+    })
+
+    const dialog = document.querySelector('[role="dialog"]')
+    expect(dialog?.textContent).toContain('Mã PIN mặc định là 0000')
+
+    const getBtn = (text: string) => {
+      const allButtons = Array.from(dialog?.querySelectorAll('button') ?? [])
+      return allButtons.find((b) => b.textContent?.trim() === text)
+    }
+
+    // Click 0 four times
+    for (let i = 0; i < 4; i++) {
+      await act(async () => {
+        getBtn('0')?.click()
+      })
+    }
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 60))
+    })
+
+    expect(mockApi).toHaveBeenCalledWith('/api/parent/gate/verify', {
+      method: 'POST',
+      body: JSON.stringify({ pin: '0000' }),
+    })
+    expect(replaceMock).toHaveBeenCalledWith('/parent')
   })
 
   it('automatically verifies PIN when 4 digits are entered', async () => {

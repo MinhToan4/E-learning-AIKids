@@ -6,6 +6,7 @@ import {
   Clock,
   Copy,
   Download,
+  ExternalLink,
   Palette,
   RefreshCw,
   Send,
@@ -224,6 +225,13 @@ export function ParentSubscriptionCheckoutModal({
   const [serverPublicId, setServerPublicId] = useState<string | null>(null)
   const [serverPaymentCode, setServerPaymentCode] = useState<string | null>(null)
   const [qrViewMode, setQrViewMode] = useState<'dynamic' | 'original'>('dynamic')
+  const [providerMode, setProviderMode] = useState<'manual' | 'sepay'>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return (localStorage.getItem('aikids_payment_provider_mode') as 'manual' | 'sepay') || 'manual'
+    }
+    return 'manual'
+  })
+  const [activePaymentMethod, setActivePaymentMethod] = useState<'vietqr' | 'sepay'>('vietqr')
 
   // Find currently selected credit pack
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
@@ -243,9 +251,22 @@ export function ParentSubscriptionCheckoutModal({
   const activePaymentCode = initialPaymentCode || serverPaymentCode || generatedCode
   const activePublicId = initialPublicId || serverPublicId || `pi_${activePaymentCode.toLowerCase()}`
 
+  const handleOpenSepayCheckout = useCallback(() => {
+    const sepayUrl = `https://checkout.sepay.vn/pay?merchant=SP-TEST-LQ79A795&amount=${effectiveAmount}&orderCode=${encodeURIComponent(activePaymentCode)}&description=${encodeURIComponent('AIKids ' + activePaymentCode)}`
+    if (typeof window !== 'undefined') {
+      window.open(sepayUrl, '_blank')
+    }
+  }, [effectiveAmount, activePaymentCode])
+
   // Reset state when opening or when props change
   useEffect(() => {
     if (open) {
+      const mode =
+        (typeof window !== 'undefined' &&
+          (window.localStorage?.getItem('aikids_payment_provider_mode') as 'manual' | 'sepay')) ||
+        'manual'
+      setProviderMode(mode)
+      setActivePaymentMethod('vietqr')
       setProductMode(initialMode)
       setSelectedPackId(initialPackId ?? 'credits_50')
       setIsSuccess(false)
@@ -812,9 +833,126 @@ export function ParentSubscriptionCheckoutModal({
                 </div>
               )}
 
-              {/* CENTRALIZED VIETQR & ESSENTIAL PAYMENT INFO */}
-              <div
-                id="vietqr-payment-hero"
+              {/* Cổng Thanh Toán Switcher (chỉ hiện khi Admin cấu hình mode 'sepay') */}
+              {providerMode === 'sepay' && (
+                <div
+                  role="tablist"
+                  aria-label="Chọn cổng thanh toán"
+                  className="grid grid-cols-2 gap-2 rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-1.5 shadow-soft"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    id="provider-tab-vietqr"
+                    aria-selected={activePaymentMethod === 'vietqr'}
+                    onClick={() => setActivePaymentMethod('vietqr')}
+                    className={cn(
+                      'flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition whitespace-nowrap cursor-pointer',
+                      activePaymentMethod === 'vietqr'
+                        ? 'bg-white text-brand-700 shadow-clay'
+                        : 'text-muted hover:text-text',
+                    )}
+                  >
+                    <span>Quét mã QR Vietcombank</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="tab"
+                    id="provider-tab-sepay"
+                    aria-selected={activePaymentMethod === 'sepay'}
+                    onClick={() => setActivePaymentMethod('sepay')}
+                    className={cn(
+                      'flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-xs sm:text-sm font-black transition whitespace-nowrap cursor-pointer',
+                      activePaymentMethod === 'sepay'
+                        ? 'bg-brand-600 text-white shadow-clay'
+                        : 'text-muted hover:text-text',
+                    )}
+                  >
+                    <span>⚡ Cổng SePay Tự Động</span>
+                  </button>
+                </div>
+              )}
+
+              {activePaymentMethod === 'sepay' ? (
+                <div
+                  id="sepay-payment-hero"
+                  className="rounded-3xl border-2 border-brand-300 bg-gradient-to-b from-brand-50/50 via-white to-amber-50/30 p-4 sm:p-6 shadow-clay space-y-4 text-center"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="h-14 w-14 rounded-3xl bg-brand-100 text-brand-700 flex items-center justify-center text-2xl font-black mb-2 shadow-soft">
+                      ⚡
+                    </div>
+                    <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-0.5 text-xs font-black">
+                      Cổng Thanh Toán Tự Động SePay PG
+                    </span>
+                    <h3 className="font-display text-base sm:text-lg font-black text-text mt-2">
+                      Thanh toán Tự Động qua Cổng SePay
+                    </h3>
+                    <p className="text-xs text-muted max-w-sm mt-1">
+                      Hệ thống tự động kích hoạt tài khoản ngay sau khi thanh toán thành công qua Cổng SePay (Merchant ID: SP-TEST-LQ79A795).
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white p-4 border border-brand-100 text-xs text-left space-y-2.5 shadow-sm">
+                    <div className="flex justify-between items-center pb-2 border-b border-cream-200">
+                      <span className="text-muted font-bold">Số tiền thanh toán:</span>
+                      <span className="font-display text-base sm:text-lg font-black text-brand-600">
+                        {effectiveAmountFormatted}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-cream-200">
+                      <span className="text-muted font-bold">Mã đơn hàng:</span>
+                      <span className="font-mono font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-lg border border-amber-300">
+                        {activePaymentCode}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted font-bold">Cổng kết nối:</span>
+                      <span className="font-mono text-xs font-bold text-slate-700">
+                        SePay PG Sandbox (SP-TEST-LQ79A795)
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={handleOpenSepayCheckout}
+                    className="w-full !py-3.5 !bg-brand-600 hover:!bg-brand-700 !text-white rounded-2xl text-sm font-black shadow-clay cursor-pointer inline-flex items-center justify-center gap-2"
+                  >
+                    <span>Thanh toán qua Cổng SePay</span>
+                    <ExternalLink size={16} />
+                  </Button>
+
+                  <p className="text-[11px] text-muted font-medium">
+                    Sau khi hoàn tất thanh toán trên SePay, màn hình này sẽ tự động cập nhật và kích hoạt gói cho bé.
+                  </p>
+
+                  {/* Radar signal auto-check bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl bg-emerald-50/80 p-3 border border-emerald-200/80 shadow-soft text-left">
+                    <div className="flex items-center gap-2 text-xs font-bold text-emerald-900">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                      </span>
+                      <span>Đang chờ tín hiệu thanh toán SePay...</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => checkPaymentStatus()}
+                      disabled={isPolling}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black text-emerald-800 shadow-soft hover:bg-emerald-100 active:scale-95 disabled:opacity-50 transition whitespace-nowrap shrink-0"
+                    >
+                      <RefreshCw size={13} className={cn(isPolling && 'animate-spin')} />
+                      {isPolling ? 'Đang kiểm tra...' : 'Kiểm tra ngay'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* CENTRALIZED VIETQR & ESSENTIAL PAYMENT INFO */
+                <div
+                  id="vietqr-payment-hero"
                 className="rounded-3xl border-2 border-cream-300 bg-gradient-to-b from-cream-50/40 via-white to-cream-50/20 p-3.5 sm:p-5 shadow-clay space-y-4"
               >
                 {/* QR Section & Countdown Timer Centered */}
@@ -1102,6 +1240,7 @@ export function ParentSubscriptionCheckoutModal({
                   </div>
                 </div>
               </div>
+            )}
             </>
           )}
         </div>

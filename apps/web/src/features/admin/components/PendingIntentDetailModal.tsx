@@ -19,6 +19,7 @@ export type PendingIntentDetailModalProps = {
   isOpen: boolean
   onClose: () => void
   onConfirm: (intent: PendingIntent) => Promise<void> | void
+  onCancelIntent?: (intent: PendingIntent) => Promise<void> | void
   confirming?: boolean
 }
 
@@ -33,6 +34,7 @@ export function PendingIntentDetailModal({
   isOpen,
   onClose,
   onConfirm,
+  onCancelIntent,
   confirming = false,
 }: PendingIntentDetailModalProps) {
   const [copiedCode, setCopiedCode] = useState(false)
@@ -281,6 +283,19 @@ export function PendingIntentDetailModal({
           >
             Đóng
           </Button>
+          {onCancelIntent && (
+            <Button
+              variant="ghost"
+              disabled={confirming}
+              onClick={async () => {
+                await onCancelIntent(intent)
+              }}
+              className="w-full sm:w-auto h-11 px-4 !text-rose-600 hover:!bg-rose-50 border border-rose-200 rounded-xl font-bold inline-flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
+            >
+              <X size={16} />
+              <span>Hủy đơn này</span>
+            </Button>
+          )}
           <Button
             className="w-full sm:w-auto h-11 px-5 !bg-emerald-600 hover:!bg-emerald-700 !text-white rounded-xl font-black shadow-clay inline-flex items-center justify-center gap-2 whitespace-nowrap"
             disabled={confirming}
