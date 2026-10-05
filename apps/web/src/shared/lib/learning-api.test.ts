@@ -113,3 +113,14 @@ describe('learning API facade', () => {
     )
   })
 })
+
+it('does not reuse a lesson-start result across learner sessions', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockImplementation(() => Promise.resolve(response({ progress: { stars: 0 } }))))
+  clearAccessToken()
+  await learningApi.startLesson('same-lesson')
+  await learningApi.startLesson('same-lesson')
+  expect(fetch).toHaveBeenCalledTimes(1)
+  clearAccessToken()
+  await learningApi.startLesson('same-lesson')
+  expect(fetch).toHaveBeenCalledTimes(2)
+})

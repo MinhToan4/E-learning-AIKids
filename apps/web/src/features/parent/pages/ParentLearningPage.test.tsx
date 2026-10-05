@@ -8,7 +8,7 @@ import { MemoryRouter } from 'react-router'
 import { ParentLearningPage } from './ParentLearningPage'
 import { api } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
-import { invalidateParentCache, setChildLearningCache } from '@/features/parent/lib/parent-cache'
+import { getChildLearningCache, invalidateParentCache, setChildLearningCache } from '@/features/parent/lib/parent-cache'
 
 vi.mock('@/shared/lib/api', () => ({
   api: vi.fn(),
@@ -61,6 +61,21 @@ describe('ParentLearningPage Component', () => {
     root = createRoot(container)
     vi.clearAllMocks()
     invalidateParentCache()
+
+    vi.mocked(learningApi.getPathway).mockResolvedValue({
+      recommendedCourseId: 'course-1',
+      courses: [
+        {
+          id: 'course-1',
+          title: 'Khám Phá AI Vui Nhộn',
+          shortTitle: 'AI Vui Nhộn',
+          status: 'active',
+          reasonCode: 'current',
+          completionPercent: 40,
+          missingPrerequisites: [],
+        },
+      ],
+    })
 
     const mockedApi = vi.mocked(api)
     mockedApi.mockImplementation((path: string) => {
@@ -475,4 +490,29 @@ describe('ParentLearningPage Component', () => {
     expect(text).toContain('Lộ trình')
     expect(text).toContain('Nhận xét')
   })
+  it('shows critical progress while credentials are pending and ignores an old child response', async () => {
+    let releaseA!: (value: unknown) => void
+    const progress = (completed: number) => ({ courseId: null, courses: [], summary: { completed, total: 30, totalStars: completed * 3, currentPhase: 'learn' }, quests: [] })
+    vi.mocked(api).mockImplementation((path: string) => {
+      if (path === '/api/parent/children') return Promise.resolve({ children: [
+        { id: 'child-a', nickname: 'Child A', level: 1 }, { id: 'child-b', nickname: 'Child B', level: 1 },
+      ] })
+      if (path.includes('/credentials')) return new Promise(() => {})
+      if (path.includes('child-a/progress')) return new Promise((resolve) => { releaseA = resolve })
+      if (path.includes('/progress')) return Promise.resolve(progress(2))
+      if (path.includes('/courses')) return Promise.resolve({ courses: [] })
+      if (path.includes('/subscription')) return Promise.resolve({ subscription: { status: 'free', maxOpenCoursesPerChild: 1 } })
+      return Promise.resolve({ status: 'configuration_required', frameworks: [], policy: null })
+    })
+    await act(async () => { root.render(createElement(MemoryRouter, null, createElement(ParentLearningPage))) })
+    const childB = document.querySelector('button[aria-label="Child B"]') as HTMLButtonElement
+    expect(childB).not.toBeNull()
+    await act(async () => { childB.click() })
+    expect(getChildLearningCache<any>('child-b')?.progress.summary.completed).toBe(2)
+    expect(document.body.textContent).toContain('Khóa Học AIKid Chính Thức (30 Trạm Học)')
+    await act(async () => { releaseA(progress(30)) })
+    expect(getChildLearningCache('child-a')).toBeNull()
+    expect(getChildLearningCache<any>('child-b')?.progress.summary.completed).toBe(2)
+  })
+
 })

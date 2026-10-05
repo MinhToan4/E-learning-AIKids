@@ -1,3 +1,4 @@
+import { readParentResource } from '@/features/parent/lib/parent-read'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import {
@@ -48,7 +49,7 @@ export function ParentKidsTab() {
     }
     try {
       const [childrenData, approvalsData] = await Promise.allSettled([
-        api<{
+        readParentResource<{
           children: Child[]
           subscription: HouseholdSub
         }>('/api/parent/children'),

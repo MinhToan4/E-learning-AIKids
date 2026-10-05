@@ -1134,7 +1134,7 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/media/gallery/share-requests?status=pending',
       'https://dev-hub.storymee.com/api/v1/account/parent-profile',
       'https://dev-hub.storymee.com/api/v1/account/family/gate-verify',
-      'https://dev-hub.storymee.com/api/v1/system/aikids/admin/summary',
+      'https://dev-hub.storymee.com/api/v1/system/aikids/admin/summary?view=system',
       'https://dev-hub.storymee.com/api/v1/account/admin/users',
       'https://dev-hub.storymee.com/api/v1/lms/aikids/admin/courses',
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',

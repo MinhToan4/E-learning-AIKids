@@ -113,7 +113,7 @@ export function prefetchProgression(userId: string): Promise<ProgressionSnapshot
   return appQueryClient.fetchQuery({
     queryKey: progressionQueryKey(userId),
     queryFn: () => fetchProgressionSnapshot(userId),
-    staleTime: 0,
+    staleTime: 15_000,
   })
 }
 
@@ -134,8 +134,9 @@ export function useProgression(user: User | null) {
     queryKey: progressionQueryKey(userId ?? 'anonymous'),
     queryFn: () => fetchProgressionSnapshot(userId!),
     enabled: Boolean(userId),
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 15_000,
+    refetchOnMount: true,
+    retry: (count, error) => !(error instanceof ApiError && [401, 403].includes(error.status)) && count < 1,
   }, client)
 
   useEffect(() => {

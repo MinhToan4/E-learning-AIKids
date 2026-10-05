@@ -74,7 +74,8 @@ function RouteContentFallback() {
 }
 
 function RouteOutlet() {
-  return <Suspense fallback={<RouteContentFallback />}><Outlet /></Suspense>
+  const identity = useAuth((state) => `${state.user?.id ?? 'anonymous'}:${state.activeContext?.id ?? state.user?.role ?? ''}`)
+  return <Suspense key={identity} fallback={<RouteContentFallback />}><Outlet /></Suspense>
 }
 
 function useMediaQuery(query: string) {

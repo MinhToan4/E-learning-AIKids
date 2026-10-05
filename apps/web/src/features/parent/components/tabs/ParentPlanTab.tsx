@@ -38,14 +38,17 @@ export function ParentPlanTab({
     try {
       const [p, s, family] = await Promise.all([
         api<{ plans: PlanRow[] }>('/api/parent/plans'),
-        api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
+        api<{ subscription?: HouseholdSub; data?: HouseholdSub }>('/api/parent/subscription'),
         api<{ children: Child[] }>('/api/parent/children'),
       ])
       setPlans(p.plans)
+      const subData = s.subscription || (s as any).data || {}
+      const maxChildren = subData.maxChildren ?? 2
       setSub({
-        ...s.subscription,
+        ...subData,
+        maxChildren,
         childCount: family.children.length,
-        seatsRemaining: Math.max(0, s.subscription.maxChildren - family.children.length),
+        seatsRemaining: Math.max(0, maxChildren - family.children.length),
       })
       const childUsage = await Promise.all(
         family.children.map(async (child) => {
@@ -94,7 +97,8 @@ export function ParentPlanTab({
           refCode: getAffiliateRef() || undefined,
         }),
       })
-      if (data.subscription) setSub(data.subscription)
+      const subUpdated = data.subscription || (data as any).data
+      if (subUpdated) setSub(subUpdated)
       const rawPayUrl = data.checkout?.payUrl ?? null
       let payUrl: string | null = null
       if (rawPayUrl) {

@@ -17,7 +17,7 @@ import {
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
 import { clearStudentProgressionCache } from '@/shared/lib/query-client'
-import { advanceSessionScope } from '@/shared/lib/session-scope'
+import { advanceSessionScope, setSessionOwner } from '@/shared/lib/session-scope'
 
 const PARENT_HANDOFF_SESSION_KEY = 'aikids.parent-handoff'
 
@@ -510,6 +510,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 useAuth.subscribe((state, previous) => {
   if (state.user?.id !== previous.user?.id || state.user?.role !== previous.user?.role ||
       state.activeContext?.id !== previous.activeContext?.id) {
+    setSessionOwner(state.user?.id ?? null)
     advanceSessionScope()
     clearApiCache()
     clearStudentProgressionCache(previous.user?.id)

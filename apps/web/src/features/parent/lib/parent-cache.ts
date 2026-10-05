@@ -1,4 +1,5 @@
 import type { Approval, Child, HouseholdSub } from '../types/parent.types'
+import { queryClient } from '@/shared/lib/query-client'
 import { sessionGeneration } from '@/shared/lib/session-scope'
 
 export interface DashboardCacheData {
@@ -79,6 +80,7 @@ export function setChildLearningCache<T = unknown>(childId: string, data: T): vo
  * (khi thanh toán, thêm/xóa/đổi dữ liệu con).
  */
 export function invalidateParentCache(): void {
+  queryClient.removeQueries({ queryKey: ['parent-read'] })
   dashboardCache = null
   childLearningCache.clear()
 }

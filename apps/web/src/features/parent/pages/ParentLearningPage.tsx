@@ -1,3 +1,4 @@
+import { readParentResource } from '@/features/parent/lib/parent-read'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import {
@@ -27,17 +28,14 @@ import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { ApiError, api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
+import { sessionGeneration } from '@/shared/lib/session-scope'
 import { cn } from '@/shared/lib/cn'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import { useAuth } from '@/shared/store/auth'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 import { designerAssets, programArtworkHint } from '@/shared/config/assets'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
-import {
-  getChildOverallLocalStats,
-  getIslandLocalProgress,
-  getLocalProgress,
-} from '@/shared/lib/learning-sync-store'
+
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
@@ -153,13 +151,7 @@ type ChildProgress = {
     xpEarned: number
   }>
 }
-type LearningData = {
-  competency: CompetencyMap
-  credentials: Credential[]
-  pathway: Pathway
-  courses: Course[]
-  progress: ChildProgress
-  subscription: {
+type HouseholdLearningSubscription = {
     status: string
     maxOpenCoursesPerChild: number
     planName?: string
@@ -167,6 +159,12 @@ type LearningData = {
     aiCreditsRemaining?: number
     monthlyCreateCredits?: number
   }
+type LearningData = {
+  competency: CompetencyMap
+  credentials: Credential[]
+  pathway: Pathway
+  courses: Course[]
+  progress: ChildProgress
   ageExperience: {
     status: 'ready' | 'configuration_required'
     policy: AgeExperiencePolicy | null
@@ -283,6 +281,10 @@ export function ParentLearningPage() {
   const [section, setSection] = useState<Section>('overview')
   const activeSection = section === 'growth' ? 'overview' : section
   const [data, setData] = useState<LearningData | null>(initialCachedData)
+  const [subscription, setSubscription] = useState<HouseholdLearningSubscription>({ status: 'unknown', maxOpenCoursesPerChild: 0 })
+  const [panelErrors, setPanelErrors] = useState<string[]>([])
+  const requestVersion = useRef(0)
+  const activeController = useRef<AbortController | null>(null)
   const dataRef = useRef<LearningData | null>(initialCachedData)
   useEffect(() => {
     dataRef.current = data
@@ -334,7 +336,7 @@ export function ParentLearningPage() {
     if (cachedDash?.kids?.length) {
       setChildren(cachedDash.kids as Child[])
     }
-    void api<{ children: Child[] }>('/api/parent/children')
+    void readParentResource<{ children: Child[] }>('/api/parent/children')
       .then((response) => {
         setChildren(response.children)
         const requestedChildId = searchParams.get('childId')
@@ -358,6 +360,7 @@ export function ParentLearningPage() {
   }, [searchParams])
 
   const selectChild = useCallback((childId: string) => {
+    requestVersion.current += 1
     setStudentId(childId)
     const cached = getChildLearningCache<LearningData>(childId)
     dataRef.current = cached
@@ -377,144 +380,87 @@ export function ParentLearningPage() {
   }, [setSearchParams])
 
   const load = useCallback(async () => {
-    if (!studentId) {
-      setLoading(false)
-      return
-    }
-    const cached = getChildLearningCache<LearningData>(studentId)
-    const existingData = dataRef.current || cached
-    if (!existingData) {
-      setLoading(true)
-    } else {
-      setIsRevalidating(true)
-    }
-    setError(null)
-
+    if (!studentId) { setLoading(false); return }
+    activeController.current?.abort()
     const controller = new AbortController()
-    const timeoutId = window.setTimeout(() => {
-      controller.abort()
-    }, 3500)
-
-    try {
-      const query = `studentId=${encodeURIComponent(studentId)}`
-      const fetchOpts: RequestInit = { signal: controller.signal }
-      const [
-        competencyResult,
-        credentialsResult,
-        pathwayResult,
-        ageExperienceResult,
-        coursesResult,
-        progressResult,
-        subscriptionResult,
-      ] = await Promise.allSettled([
-        api<CompetencyMap>(`/api/competency-map?${query}`, fetchOpts),
-        api<{ credentials: Credential[] }>(`/api/credentials?${query}`, fetchOpts),
-        learningApi.getPathway(studentId),
-        api<{
-          status: 'ready' | 'configuration_required'
-          policy: AgeExperiencePolicy | null
-        }>(`/api/v1/lms/me/age-policy?${query}`, fetchOpts),
-        api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`, fetchOpts),
-        api<ChildProgress>(`/api/parent/children/${studentId}/progress`, fetchOpts),
-        api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription', fetchOpts),
-      ])
-
-      const allRejected = [
-        competencyResult,
-        credentialsResult,
-        pathwayResult,
-        ageExperienceResult,
-        coursesResult,
-        progressResult,
-        subscriptionResult,
-      ].every((r) => r.status === 'rejected')
-
-      if (allRejected) {
-        if (!existingData) {
-          const firstReason = [
-            competencyResult,
-            credentialsResult,
-            pathwayResult,
-            ageExperienceResult,
-            coursesResult,
-            progressResult,
-            subscriptionResult,
-          ].find((r): r is PromiseRejectedResult => r.status === 'rejected')?.reason
-          setError(friendlyError(firstReason))
-        }
-        return
-      }
-
-      const competency: CompetencyMap =
-        competencyResult.status === 'fulfilled' && competencyResult.value
-          ? competencyResult.value
-          : (existingData?.competency ?? { status: 'configuration_required', frameworks: [] })
-
-      const credentials: Credential[] =
-        credentialsResult.status === 'fulfilled' && credentialsResult.value?.credentials
-          ? credentialsResult.value.credentials
-          : (existingData?.credentials ?? [])
-
-      const pathway: Pathway =
-        pathwayResult.status === 'fulfilled' && pathwayResult.value
-          ? pathwayResult.value
-          : (existingData?.pathway ?? { recommendedCourseId: null, courses: [] })
-
-      const ageExperience: {
-        status: 'ready' | 'configuration_required'
-        policy: AgeExperiencePolicy | null
-      } =
-        ageExperienceResult.status === 'fulfilled' && ageExperienceResult.value
-          ? ageExperienceResult.value
-          : (existingData?.ageExperience ?? { status: 'ready', policy: null })
-
-      const courses: Course[] =
-        coursesResult.status === 'fulfilled' && coursesResult.value?.courses
-          ? coursesResult.value.courses
-          : (existingData?.courses ?? [])
-
-      const progress: ChildProgress =
-        progressResult.status === 'fulfilled' && progressResult.value
-          ? progressResult.value
-          : (existingData?.progress ?? {
-              courseId: null,
-              courses: [],
-              summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null },
-              quests: [],
-            })
-
-      const subscription: LearningData['subscription'] =
-        subscriptionResult.status === 'fulfilled' && subscriptionResult.value?.subscription
-          ? subscriptionResult.value.subscription
-          : (existingData?.subscription ?? {
-              status: 'active',
-              maxOpenCoursesPerChild: 5,
-              planName: 'AI Kid Chính Thức',
-              planCode: 'aikids_official_129k',
-            })
-
-      const freshLearningData: LearningData = {
-        competency,
-        credentials,
-        pathway,
-        courses,
-        progress,
-        subscription,
-        ageExperience,
-      }
-
-      dataRef.current = freshLearningData
-      setData(freshLearningData)
-      setChildLearningCache(studentId, freshLearningData)
-    } catch (cause) {
-      if (!existingData) {
-        setError(friendlyError(cause))
-      }
-    } finally {
-      window.clearTimeout(timeoutId)
-      setLoading(false)
-      setIsRevalidating(false)
+    activeController.current = controller
+    const version = ++requestVersion.current
+    const scope = sessionGeneration
+    const isCurrent = () => version === requestVersion.current && scope === sessionGeneration
+    const cached = getChildLearningCache<LearningData>(studentId)
+    let snapshot: LearningData = cached ?? {
+      competency: { status: 'configuration_required', frameworks: [] },
+      credentials: [], pathway: { recommendedCourseId: null, courses: [] }, courses: [],
+      progress: { courseId: null, courses: [], summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null }, quests: [] },
+      ageExperience: { status: 'configuration_required', policy: null },
     }
+    setLoading(!cached)
+    setIsRevalidating(Boolean(cached))
+    setError(null)
+    setPanelErrors([])
+    let denied = false
+    let coreReady = false
+    const commit = () => {
+      if (!isCurrent() || denied || !coreReady) return
+      dataRef.current = snapshot
+      setData(snapshot)
+      setChildLearningCache(studentId, snapshot)
+    }
+    const fail = (cause: unknown, panel: string) => {
+      if (!isCurrent()) return
+      if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
+        denied = true
+        invalidateParentCache()
+        setSubscription({ status: 'unknown', maxOpenCoursesPerChild: 0 })
+        setData(null)
+        dataRef.current = null
+        setError(friendlyError(cause))
+      } else {
+        setPanelErrors((current) => [...current, panel])
+      }
+    }
+    const timeout = window.setTimeout(() => controller.abort(), 10_000)
+    const opts = { signal: controller.signal }
+    const query = `studentId=${encodeURIComponent(studentId)}`
+    const critical = Promise.all([
+      learningApi.getPathway(studentId, opts),
+      api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`, opts),
+      api<ChildProgress>(`/api/parent/children/${studentId}/progress`, opts),
+    ]).then(([pathway, courses, progress]) => {
+      if (!Array.isArray(pathway?.courses) || !Array.isArray(courses?.courses) || !progress?.summary) {
+        throw new Error('Chưa nhận được dữ liệu tiến độ hợp lệ.')
+      }
+      snapshot = { ...snapshot, pathway, courses: courses.courses, progress }
+      coreReady = true
+      commit()
+    }).catch((cause) => {
+      fail(cause, 'Tiến độ học tập')
+      if (isCurrent() && !cached) setError(friendlyError(cause))
+    }).finally(() => { if (isCurrent()) setLoading(false) })
+    const auxiliary = [
+      api<CompetencyMap>(`/api/competency-map?${query}`, opts).then((competency) => {
+        if (!Array.isArray(competency?.frameworks)) throw new Error('Năng lực chưa sẵn sàng')
+        snapshot = { ...snapshot, competency }; commit()
+      }).catch((cause) => fail(cause, 'Năng lực')),
+      api<{ credentials: Credential[] }>(`/api/credentials?${query}`, opts).then(({ credentials }) => {
+        if (!Array.isArray(credentials)) throw new Error('Chứng nhận chưa sẵn sàng')
+        snapshot = { ...snapshot, credentials }; commit()
+      }).catch((cause) => fail(cause, 'Chứng nhận')),
+      api<LearningData['ageExperience']>(`/api/v1/lms/me/age-policy?${query}`, opts).then((ageExperience) => {
+        if (!ageExperience?.status) throw new Error('Chính sách chưa sẵn sàng')
+        snapshot = { ...snapshot, ageExperience }; commit()
+      }).catch((cause) => fail(cause, 'Chính sách độ tuổi')),
+      readParentResource<{ subscription: HouseholdLearningSubscription }>('/api/parent/subscription').then((result) => {
+        if (!result?.subscription) throw new Error('Gói học chưa sẵn sàng')
+        if (isCurrent() && !denied) setSubscription(result.subscription)
+      }).catch((cause) => {
+        if (isCurrent()) setSubscription({ status: 'unknown', maxOpenCoursesPerChild: 0 })
+        fail(cause, 'Gói học gia đình')
+      }),
+    ]
+    await Promise.allSettled([critical, ...auxiliary])
+    window.clearTimeout(timeout)
+    if (isCurrent()) setIsRevalidating(false)
   }, [studentId])
 
   const toggleProgram = useCallback(async (courses: Course[], enroll: boolean) => {
@@ -539,6 +485,7 @@ export function ParentLearningPage() {
 
   useEffect(() => {
     void load()
+    return () => { requestVersion.current += 1; activeController.current?.abort() }
   }, [load])
 
   async function handleEnterChild(childId: string) {
@@ -581,20 +528,8 @@ export function ParentLearningPage() {
   }, [load, showToast])
 
   const selectedChild = children.find((c) => c.id === studentId) ?? children[0] ?? null
-  const localStats = getChildOverallLocalStats(studentId)
-  const xpForCalculation = (selectedChild?.xp || 0) > 0
-    ? (selectedChild?.xp || 0)
-    : Math.max(0, ((selectedChild?.level || 1) - 1) * 100)
-  const totalStars = Math.max(
-    selectedChild?.totalStars ?? 0,
-    localStats.totalStars,
-    Math.min(30, Math.floor(xpForCalculation / 100)),
-  )
-  const completedQuests = Math.max(
-    selectedChild?.completedQuests ?? 0,
-    localStats.completedCount,
-    Math.min(32, Math.floor(totalStars / 3)),
-  )
+  const totalStars = data?.progress.summary.totalStars ?? selectedChild?.totalStars ?? 0
+  const completedQuests = data?.progress.summary.completed ?? selectedChild?.completedQuests ?? 0
 
   return (
     <div className="flex flex-col gap-5">
@@ -613,9 +548,7 @@ export function ParentLearningPage() {
                 const isActive = studentId === child.id
                 const img = avatarImage(child.avatarId)
                 const av = getAvatar(child.avatarId)
-                const cStats = getChildOverallLocalStats(child.id)
-                const cXp = (child.xp || 0) > 0 ? (child.xp || 0) : Math.max(0, ((child.level || 1) - 1) * 100)
-                const cStars = Math.max(child.totalStars ?? 0, cStats.totalStars, Math.min(30, Math.floor(cXp / 100)))
+                const cStars = child.totalStars ?? 0
 
                 return (
                   <button
@@ -716,6 +649,9 @@ export function ParentLearningPage() {
         ))}
       </div>
 
+      {panelErrors.length > 0 && !error && (
+        <p role="status" className="text-sm text-muted">Chưa tải được: {panelErrors.join(', ')}. <button type="button" onClick={() => void load()}>Thử lại</button></p>
+      )}
       {/* ── Nội dung chính theo từng Tab ─────────────────────── */}
       {children.length === 0 && !loading ? (
         <EmptyState
@@ -735,7 +671,7 @@ export function ParentLearningPage() {
           credentials={data.credentials}
           totalStars={totalStars}
           completedQuests={completedQuests}
-          aiCredits={data.subscription.aiCreditsRemaining ?? data.subscription.monthlyCreateCredits ?? 50}
+          aiCredits={subscription.aiCreditsRemaining ?? subscription.monthlyCreateCredits ?? 0}
           hasNewFeedback={feedbackBadge.byChild[studentId] ?? false}
           onOpenFeedback={() => setSection('feedback')}
           onOpenCredentials={() => setSection('credentials')}
@@ -756,7 +692,7 @@ export function ParentLearningPage() {
           <PathwaySection pathway={data.pathway} />
           <CourseSelectionSection
             courses={data.courses}
-            subscription={data.subscription}
+            subscription={subscription}
             busy={busy}
             onToggleProgram={toggleProgram}
             onUpgrade={() => handleOpenUpgrade('sub')}
@@ -1453,7 +1389,7 @@ function CourseSelectionSection({
   onUpgrade,
 }: {
   courses: Course[]
-  subscription: LearningData['subscription']
+  subscription: HouseholdLearningSubscription
   busy: boolean
   onToggleProgram: (courses: Course[], enroll: boolean) => Promise<void>
   onUpgrade?: () => void

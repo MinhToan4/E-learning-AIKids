@@ -203,4 +203,113 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
       expect(document.body.textContent).toContain('129.000 đ')
     }
   })
+
+  it('HomePage: unlocks all 6 islands, shows emerald header badge, and renders celebratory Hero Card when user has active subscription', async () => {
+    mockApi.mockImplementation((url: string) => {
+      if (url === '/api/courses') {
+        return Promise.resolve({ courses: [] })
+      }
+      if (url === '/api/gamification/daily-mission') {
+        return Promise.resolve({ mission: null })
+      }
+      if (url === '/api/v1/billing/me/subscription') {
+        return Promise.resolve({
+          status: 'success',
+          data: {
+            plan: 'aikids_official_129k',
+            status: 'active',
+          },
+        })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(createElement(HomePage))
+      await Promise.resolve()
+    })
+
+    // Header badge displays "ĐÃ MỞ KHÓA TOÀN BỘ (CHÍNH THỨC)"
+    expect(document.body.textContent).toContain('ĐÃ MỞ KHÓA TOÀN BỘ (CHÍNH THỨC)')
+    expect(document.body.textContent).not.toContain('Học miễn phí Đảo Tiên Quyết')
+
+    // Celebratory Soft Clay Hero Card is rendered
+    expect(document.body.textContent).toContain('🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa')
+    expect(document.body.textContent).toContain(
+      'Bé đã sẵn sàng khám phá trọn vẹn lộ trình 30 trạm học chuẩn Quốc tế và 50 lượt tạo ảnh AI mỗi tháng.',
+    )
+
+    // Button "🚀 Tiến Vào Học Ngay" is present and navigates on click
+    const enterCourseBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('🚀 Tiến Vào Học Ngay'),
+    )
+    expect(enterCourseBtn).toBeDefined()
+
+    await act(async () => {
+      enterCourseBtn?.click()
+    })
+
+    expect(mockNavigate).toHaveBeenCalledWith('/world/program/aikid_official?island=dao-1-nha-tham-hiem-ai')
+  })
+
+  it('HomePage: ParentSubscriptionCheckoutModal onSuccess displays celebratory toast', async () => {
+    vi.useFakeTimers()
+    mockApi.mockImplementation((url: string) => {
+      if (url === '/api/courses') {
+        return Promise.resolve({ courses: [] })
+      }
+      if (url === '/api/gamification/daily-mission') {
+        return Promise.resolve({ mission: null })
+      }
+      if (url === '/api/v1/billing/me/subscription') {
+        return Promise.resolve({
+          status: 'success',
+          data: { plan: 'free', status: 'active' },
+        })
+      }
+      if (url.includes('/payment-intents')) {
+        return Promise.resolve({
+          status: 'succeeded',
+          paymentIntent: { status: 'succeeded', publicId: 'pi_home_129k' },
+        })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(createElement(HomePage))
+      await Promise.resolve()
+    })
+
+    // Open checkout modal
+    const ctaButton = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Mở khóa Khóa học Khám phá & Sáng tạo AIKid'),
+    )
+    await act(async () => {
+      ctaButton?.click()
+    })
+
+    expect(document.body.textContent).toContain('Thanh toán an toàn cho phụ huynh')
+
+    // Advance 3s for polling
+    await act(async () => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    // Celebratory screen in modal is shown
+    expect(document.body.textContent).toContain('Chúc Mừng Ba Mẹ & Bé!')
+
+    // Parent clicks "Bắt Đầu Học Ngay"
+    const startBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Bắt Đầu Học Ngay'),
+    )
+    expect(startBtn).toBeDefined()
+    await act(async () => {
+      startBtn?.click()
+    })
+
+    // Modal closes and toast is displayed on HomePage
+    expect(document.body.textContent).toContain('🎉 Chúc mừng! Khóa học AI Kid Chính Thức đã được kích hoạt thành công!')
+    vi.useRealTimers()
+  })
 })

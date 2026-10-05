@@ -1,3 +1,4 @@
+import { advanceSessionScope } from '@/shared/lib/session-scope'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   getDashboardCache,
@@ -95,4 +96,14 @@ describe('parent-cache module', () => {
     expect(getDashboardCache()).toBeNull()
     expect(getChildLearningCache('c1')).toBeNull()
   })
+})
+
+it('does not expose household or learner cache after a session transition', () => {
+  invalidateParentCache()
+  setDashboardCache({ kids: [], approvals: [], sub: null })
+  setChildLearningCache('child-a', { progress: 99 })
+  advanceSessionScope()
+  expect(getDashboardCache()).toBeNull()
+  expect(getChildLearningCache('child-a')).toBeNull()
+  expect(getChildLearningCache('child-b')).toBeNull()
 })

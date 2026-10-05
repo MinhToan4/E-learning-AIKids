@@ -92,3 +92,13 @@ describe('authoritative browser API reads', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 })
+
+it('rejects a read that completes after the session changes', async () => {
+  let release!: (value: Response) => void
+  vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((resolve) => { release = resolve })))
+  const oldRead = api('/api/projects')
+  const assertion = expect(oldRead).rejects.toMatchObject({ name: 'AbortError' })
+  clearAccessToken()
+  release(ok())
+  await assertion
+})

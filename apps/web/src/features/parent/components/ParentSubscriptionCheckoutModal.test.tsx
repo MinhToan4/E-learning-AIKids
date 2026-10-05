@@ -304,12 +304,23 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     })
 
     expect(mockedApi).toHaveBeenCalledWith('/api/v1/billing/payment-intents/pi_test_129k')
-    expect(onSuccess).toHaveBeenCalledTimes(1)
+    // Does NOT close or trigger onSuccess immediately so parents can read the celebratory screen
+    expect(onSuccess).not.toHaveBeenCalled()
 
     // Displays celebration and activated benefits
     expect(document.body.textContent).toContain('Chúc Mừng Ba Mẹ & Bé!')
     expect(document.body.textContent).toContain('Gói AI Kid 129K đã được kích hoạt thành công')
     expect(document.body.textContent).toContain('Bắt Đầu Học Ngay')
+
+    // Clicking "Bắt Đầu Học Ngay" triggers onSuccess
+    const startBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Bắt Đầu Học Ngay'),
+    )
+    expect(startBtn).toBeDefined()
+    await act(async () => {
+      startBtn?.click()
+    })
+    expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('renders credit packs and switches between 129k plan and AI credits mode', async () => {
@@ -452,12 +463,20 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
       vi.advanceTimersByTime(3000)
     })
 
-    expect(onSuccess).toHaveBeenCalledTimes(1)
+    expect(onSuccess).not.toHaveBeenCalled()
     expect(document.body.textContent).toContain('Chúc Mừng Ba Mẹ & Bé!')
     expect(document.body.textContent).toContain('Quà Tặng Thêm Cho Bé')
     expect(document.body.textContent).toContain(
       'Đặc biệt: Khoản tiền thừa của Ba Mẹ đã được tự động tặng thêm 10 lượt tạo ảnh AI cho bé sáng tạo!',
     )
+
+    // Clicking close button (X) on success screen triggers onSuccess
+    const closeBtn = document.body.querySelector('button[aria-label="Đóng"]') as HTMLButtonElement
+    expect(closeBtn).toBeDefined()
+    await act(async () => {
+      closeBtn?.click()
+    })
+    expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('downloads QR code and copies full payment info correctly', async () => {

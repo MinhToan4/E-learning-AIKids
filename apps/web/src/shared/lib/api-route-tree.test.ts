@@ -40,7 +40,7 @@ describe('API route tree', () => {
     ['/api/admin/reward-mappings/map-1', '/api/v1/gamification/admin/reward-mappings/map-1'],
     ['/api/gamification/achievements', '/api/v1/gamification/me/achievements'],
     ['/api/media/upload', '/api/v1/media/upload?permanent=1&assetType=aikids'],
-    ['/api/admin/system', '/api/v1/system/aikids/admin/summary'],
+    ['/api/admin/system', '/api/v1/system/aikids/admin/summary?view=system'],
     ['/api/parent/pin', '/api/v1/account/family/parent-pin'],
     ['/api/parent/pin-status', '/api/v1/account/family/parent-pin-status'],
     ['/api/parent/gate/verify', '/api/v1/account/family/gate-verify'],

@@ -1,3 +1,4 @@
+import { readParentResource } from '@/features/parent/lib/parent-read'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
@@ -28,7 +29,6 @@ import { LoadingSkeleton } from '@/features/parent/components/ParentStatCard'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
 import { EditChildModal } from '@/features/parent/components/EditChildModal'
 import { StudentQrCardModal } from '@/features/parent/components/StudentQrCardModal'
-import { getChildOverallLocalStats } from '@/shared/lib/learning-sync-store'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import type { CheckoutProductMode } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
@@ -79,9 +79,9 @@ export function ParentDashboardTab({
     setError('')
     try {
       const [childrenData, approvalsData, subData] = await Promise.allSettled([
-        api<{ children: Child[] }>('/api/parent/children'),
+        readParentResource<{ children: Child[] }>('/api/parent/children'),
         api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
-        api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
+        readParentResource<{ subscription: HouseholdSub }>('/api/parent/subscription'),
       ])
       if (childrenData.status === 'rejected') {
         if (!hasCache) {
@@ -120,19 +120,7 @@ export function ParentDashboardTab({
   }, [load])
 
   const getDerivedStats = (k: Child) => {
-    const localStats = getChildOverallLocalStats(k.id)
-    const xpForCalculation = (k.xp || 0) > 0 ? (k.xp || 0) : Math.max(0, ((k.level || 1) - 1) * 100)
-    const totalStars = Math.max(
-      k.totalStars ?? 0,
-      localStats.totalStars,
-      Math.min(30, Math.floor(xpForCalculation / 100)),
-    )
-    const completedQuests = Math.max(
-      k.completedQuests ?? 0,
-      localStats.completedCount,
-      Math.min(32, Math.floor(totalStars / 3)),
-    )
-    return { totalStars, completedQuests }
+    return { totalStars: k.totalStars ?? 0, completedQuests: k.completedQuests ?? 0 }
   }
 
   async function handleEnterChild(childId: string) {

@@ -13,6 +13,7 @@ export const queryClient = new QueryClient({
 })
 
 export function clearStudentProgressionCache(userId?: string): void {
+  queryClient.removeQueries({ queryKey: ['parent-read'] })
   if (!userId) return
   queryClient.removeQueries({ queryKey: ['progression', userId] })
 }

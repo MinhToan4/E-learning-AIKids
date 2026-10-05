@@ -49,7 +49,7 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
 
   // System & Admin core fallbacks
   if (path === '/api/admin/system' || path === '/api/admin/analytics') {
-    return { path: '/api/v1/system/aikids/admin/summary', options }
+    return { path: `/api/v1/system/aikids/admin/summary${path === '/api/admin/system' ? '?view=system' : ''}`, options }
   }
 
   throw new ApiError(

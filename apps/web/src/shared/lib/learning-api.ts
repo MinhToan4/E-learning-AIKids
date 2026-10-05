@@ -5,7 +5,7 @@ import {
   type QuestDetail,
   type QuestProgress,
 } from './api'
-import { sessionGeneration } from './session-scope'
+import { sessionGeneration, sessionOwnerId } from './session-scope'
 
 export type LearningPathwayCourse = {
   id: string
@@ -92,7 +92,7 @@ function cachedLessonDetail(lessonId: string) {
 }
 
 function dedupedLessonStart(lessonId: string) {
-  const key = `${sessionGeneration}:${lessonId}`
+  const key = `${sessionGeneration}:${sessionOwnerId ?? 'anonymous'}:${lessonId}`
   const now = Date.now()
   const cached = lessonStartRequests.get(key)
   if (cached && cached.expiresAt > now) return cached.request

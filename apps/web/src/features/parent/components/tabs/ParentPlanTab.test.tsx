@@ -211,4 +211,61 @@ describe('ParentPlanTab Component', () => {
       'Gói AI Kid VIP',
     )
   })
+
+  it('safely parses subscription response when backend returns { status: "success", data: { ... } } structure', async () => {
+    const mockedApi = vi.mocked(api)
+    mockedApi.mockImplementation((path: string) => {
+      if (path === '/api/parent/plans') {
+        return Promise.resolve({
+          plans: [
+            {
+              code: 'aikids_official_129k',
+              name: 'Gói AI Kid Chính Thức',
+              tagline: 'Lộ trình toàn diện',
+              maxChildren: 2,
+              maxOpenCoursesPerChild: 999,
+              priceMonthly: 129000,
+              currency: 'vnd',
+              features: ['Trọn bộ 5 đảo'],
+              monthlyCreateCredits: 50,
+            },
+          ],
+        })
+      }
+      if (path === '/api/parent/subscription') {
+        // Backend returns data object instead of subscription wrapper
+        return Promise.resolve({
+          status: 'success',
+          data: {
+            planCode: 'aikids_official_129k',
+            planName: 'Gói AI Kid Chính Thức',
+            status: 'active',
+            maxChildren: 2,
+            maxOpenCoursesPerChild: 5,
+            monthlyCreateCredits: 50,
+            aiCreditsRemaining: 42,
+          },
+        })
+      }
+      if (path === '/api/parent/children') {
+        return Promise.resolve({
+          children: [{ id: 'child-1', nickname: 'Bé Tít' }],
+        })
+      }
+      if (path.includes('/courses')) {
+        return Promise.resolve({ courses: [{ enrolled: true }] })
+      }
+      return Promise.resolve({})
+    })
+
+    await act(async () => {
+      root.render(createElement(ParentPlanTab, {}))
+    })
+
+    // Should render active plan without throwing
+    expect(document.body.textContent).toContain('GÓI ĐANG HOẠT ĐỘNG')
+    expect(document.body.textContent).toContain('Gói AI Kid Chính Thức')
+    expect(document.body.textContent).toContain('1/2 ghế')
+    expect(document.body.textContent).toContain('Còn 42 lượt')
+  })
 })

@@ -12,7 +12,9 @@ import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { createFallbackPathway, getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
+import { ToastContainer } from '@/shared/components/ui/Toast'
+import { useToast } from '@/shared/hooks/useToast'
+import { getAikiCourseSortOrder } from '@/shared/lib/course-sort-order'
 import { useProgression } from '@/shared/lib/progression-query'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
@@ -24,11 +26,10 @@ import {
   HeroProgressCard,
   OfficialCourseCard,
 } from '@/features/home/components'
-import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
-import {
-  flushPendingSyncQueue,
-} from '@/shared/lib/learning-sync-store'
-import { resolveNextActiveStation } from '../lib/home-active-station'
+import { mapCourse } from '@/shared/lib/normalizers/common'
+import { sessionGeneration } from '@/shared/lib/session-scope'
+const flushPendingSyncQueue = (ownerId?: string) => import('@/shared/lib/learning-sync-store').then((module) => module.flushPendingSyncQueue(ownerId))
+import { resolveNextActiveStation } from '../lib/home-server-station'
 
 type EnrollmentSummary = {
   courseId: string
@@ -234,24 +235,17 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
 
 async function fetchPathwaySafely(): Promise<{ courses: Array<LearningPathwayCourse | any>; [key: string]: any }> {
   const isDevPreview =
-    typeof window !== 'undefined' &&
+    import.meta.env.DEV && typeof window !== 'undefined' &&
     (window.location.search.includes('preview') ||
       window.location.search.includes('guest') ||
       (typeof localStorage !== 'undefined' && localStorage.getItem('aikids.dev_preview') === 'true'))
 
   if (isDevPreview) {
+    const { createFallbackPathway } = await import('@/features/world/lib/world-pathway-mapper')
     return createFallbackPathway()
   }
 
-  try {
-    const pathway = await learningApi.getPathway()
-    if (pathway && Array.isArray(pathway.courses) && pathway.courses.length > 0) {
-      return pathway
-    }
-    return createFallbackPathway()
-  } catch {
-    return createFallbackPathway()
-  }
+  return learningApi.getPathway()
 }
 
 // Profile decoration, achievements and inventory are loaded by their owning routes.
@@ -273,6 +267,8 @@ export function HomePage() {
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userSubscription, setUserSubscription] = useState<{ plan?: string; planCode?: string; status?: string } | null>(null)
+  const { toasts, showToast, dismissToast } = useToast()
   const [showTrailerModal, setShowTrailerModal] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
@@ -300,13 +296,19 @@ export function HomePage() {
     setLoading(true)
     setError(null)
 
-    const coursesPromise = api<{ courses: CourseSummary[] }>('/api/courses').catch(() => ({ courses: [] }))
+    const scope = sessionGeneration
     const pathwayPromise = fetchPathwaySafely()
     const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
       .catch(() => ({ mission: null }))
+    const subPromise = api<{
+      status?: string
+      data?: { plan?: string; planCode?: string; status?: string }
+      subscription?: { plan?: string; planCode?: string; status?: string }
+    }>('/api/v1/billing/me/subscription').catch(() => null)
 
     try {
-      const [coursesRes, pathway] = await Promise.all([coursesPromise, pathwayPromise])
+      const pathway = await pathwayPromise
+      if (scope !== sessionGeneration) return
       const pathwayList = (pathway?.courses ?? []) as Array<LearningPathwayCourse | any>
       const pathwayCourses: EnrollmentSummary[] = pathwayList.map(
         (course) => ({
@@ -318,7 +320,12 @@ export function HomePage() {
           totalStars: course.totalStars,
         }),
       )
-      const baseCourses = coursesWithEnrollments(coursesRes?.courses ?? [], pathwayCourses)
+      const baseCourses = coursesWithEnrollments(pathwayList.map((course) => ({
+        ...mapCourse(course),
+        status: course.status,
+        enrolled: course.enrolled === true,
+        quests: course.stations ?? [],
+      })), pathwayCourses)
       const canonicalCourses: CourseSummary[] = [...baseCourses]
 
       // Đồng bộ mảng canonicalCourses sao cho luôn chứa đầy đủ 6 hành trình đảo chính thức AI Kids với tiến trình thực
@@ -352,7 +359,7 @@ export function HomePage() {
         const completedCount = pathwayItem ? serverCompleted : (existing?.completedCount ?? 0)
         const totalStars = pathwayItem ? serverStars : (existing?.totalStars ?? 0)
         const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
-        const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || index === 0 || existing?.enrolled)
+        const enrolled = pathwayItem?.enrolled ?? (pathwayItem?.status === 'active' || pathwayItem?.status === 'completed' || existing?.enrolled)
 
         if (foundIndex >= 0 && existing) {
           canonicalCourses[foundIndex] = {
@@ -361,7 +368,7 @@ export function HomePage() {
             completedCount,
             totalStars,
             progressPct,
-            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : (existing.status || 'open')),
+            status: pathwayItem?.status ?? 'locked',
             enrolled: Boolean(existing.enrolled || enrolled),
           }
         } else {
@@ -380,7 +387,7 @@ export function HomePage() {
             courseKey: island.slug,
             durationLabel: `${questCount} trạm`,
             productLabel: 'Khóa học AI Kid',
-            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : 'open'),
+            status: pathwayItem?.status ?? 'locked',
             recommended: index === 0,
             skills: [],
             questCount,
@@ -396,53 +403,16 @@ export function HomePage() {
       setCourses(canonicalCourses)
       setLoading(false)
     } catch (e) {
+      if (scope !== sessionGeneration) return
       const msg = e instanceof Error ? e.message : 'Lỗi tải khóa học'
-      if (msg.includes('JWT') || msg.includes('Unauthorized') || msg.includes('401')) {
-        const fallbackPathway = createFallbackPathway()
-        const pathwayList = fallbackPathway.courses
-        const fallbackCourses: CourseSummary[] = []
-        OFFICIAL_SIX_ISLANDS.forEach((island, index) => {
-          const p = pathwayList[index]
-          const questCount = p?.questCount ?? island.defaultQuestCount
-          const completedCount = p?.completedCount ?? 0
-          const totalStars = p?.totalStars ?? 0
-          const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
-          fallbackCourses.push({
-            id: island.slug,
-            title: island.title,
-            shortTitle: island.title,
-            tagline: island.description,
-            description: island.description,
-            coverFrom: '#fff',
-            coverTo: '#fff',
-            accent: island.tone,
-            coverImage: island.scene,
-            ageLabel: '9–12 tuổi',
-            ageTrack: 'L2',
-            courseKey: island.slug,
-            durationLabel: `${questCount} trạm`,
-            productLabel: 'Khóa học AI Kid',
-            status: progressPct >= 100 ? 'completed' : (completedCount > 0 ? 'active' : 'open'),
-            recommended: index === 0,
-            skills: [],
-            questCount,
-            enrolled: p?.enrolled ?? true,
-            completedCount,
-            totalStars,
-            progressPct,
-            quests: [],
-          } as CourseSummary)
-        })
-        setCourses(fallbackCourses)
-        setError(null)
-      } else {
-        setError(msg)
-      }
+      setCourses([])
+      setError(msg)
       setLoading(false)
     }
 
     try {
       const missionRes = await missionPromise
+      if (scope !== sessionGeneration) return
       if (missionRes.mission) {
         setDailyMission(missionRes.mission)
       } else {
@@ -450,6 +420,17 @@ export function HomePage() {
       }
     } catch {
       // Gamification error is non-blocking
+    }
+
+    try {
+      const subRes = await subPromise
+      if (scope !== sessionGeneration) return
+      const subData = subRes?.data || subRes?.subscription || (subRes as any)
+      if (subData?.status) {
+        setUserSubscription(subData)
+      }
+    } catch {
+      // Subscription error is non-blocking
     }
   }, [user?.id])
 
@@ -472,8 +453,16 @@ export function HomePage() {
     }
   }, [load, user?.id])
 
-  const isPurchased = courses.some(
-    (course) => course.enrolled && getAikiIslandSortOrder(course) > 1,
+  const activePlanName = userSubscription?.plan || (userSubscription as any)?.planCode
+  const isPlanActive = Boolean(
+    userSubscription &&
+    userSubscription.status === 'active' &&
+    activePlanName &&
+    activePlanName !== 'free',
+  )
+
+  const isPurchased = isPlanActive || courses.some(
+    (course) => (course.enrolled || (course as any).entitled) && getAikiIslandSortOrder(course) > 1,
   )
 
   const tienQuyetCourse = courses.find((c) => {
@@ -683,13 +672,15 @@ export function HomePage() {
                   <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider border border-orange-200 shadow-2xs">
                     CHƯƠNG TRÌNH CHÍNH THỨC AIKID
                   </span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs ${
-                    effectivePurchased
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                      : 'bg-amber-100 text-amber-800 border-amber-200'
-                  }`}>
-                    {effectivePurchased ? 'Đã mở khóa' : 'Học miễn phí Đảo Tiên Quyết'}
-                  </span>
+                  {effectivePurchased ? (
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                      ĐÃ MỞ KHÓA TOÀN BỘ (CHÍNH THỨC)
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                      Học miễn phí Đảo Tiên Quyết
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                   Khóa học Khám phá &amp; Sáng tạo AIKid
@@ -808,56 +799,59 @@ export function HomePage() {
                   </div>
                 </>
               ) : (
-                <>
-                  {/* 1. ĐÃ MỞ KHÓA - HERO SHOWCASE HẢI TRÌNH CỦA BÉ (THAY THẾ VIDEO TRAILER) */}
-                  <div className="md:col-span-5 relative w-full h-full min-h-[240px] rounded-2xl overflow-hidden bg-sky-100 border-2 border-emerald-200/90 shadow-clay flex items-center justify-center group">
-                    <img
-                      src="/assets/aikid-ui/showcase/island_hero_bright.jpg"
-                      alt="Hải trình của bé"
-                      className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    <img
-                      src={designerAssets.catPoses.guide}
-                      alt="Mèo AIKI"
-                      className="absolute bottom-0 right-3 w-28 sm:w-32 h-auto object-contain drop-shadow-xl"
-                    />
-                    <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-slate-800 text-[11px] font-black shadow-xs border border-white">
-                      Đang thám hiểm: {activeStation.islandTitle || 'Đảo 1'}
-                    </span>
-                    <span className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-amber-400 text-amber-950 text-[11px] font-black shadow-xs border border-amber-300 flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-amber-950 text-amber-950 shrink-0" />
-                      <span>{totalStarsCount} Sao · Cấp {explorerLevel}</span>
-                    </span>
-                  </div>
-
-                  {/* 2. ĐÃ MỞ KHÓA - ĐƯỜNG RAY BÀI HỌC TIẾP THEO (QUICK ACTION) */}
-                  <div className="md:col-span-7 flex flex-col justify-between gap-3 p-4 rounded-2xl bg-white/95 border border-orange-100/90 shadow-2xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 shrink-0 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-2xs overflow-hidden">
-                        <img src={designerAssets.catPoses.guide} alt="Mèo AIKI" className="w-10 h-10 object-contain" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-black text-orange-600 uppercase tracking-wider">Trạm thám hiểm tiếp theo</p>
-                        <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug">
-                          “<span className="text-brand-600">{childDisplayName} ơi!</span> {activeStation.stationTitle}”
-                        </p>
-                      </div>
+                <div className="col-span-12 relative overflow-hidden rounded-3xl border-2 border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/50 p-5 sm:p-7 shadow-clay flex flex-col md:flex-row items-center justify-between gap-5 group">
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-black uppercase tracking-wider shadow-2xs flex items-center gap-1.5">
+                        <FlatClaySparkles size={14} className="text-emerald-600" />
+                        <span>Đặc Quyền Khóa Học Chính Thức</span>
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-black shadow-2xs flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
+                        <span>{totalStarsCount} Sao · Cấp {explorerLevel}</span>
+                      </span>
                     </div>
 
-                    <p className="text-xs text-slate-500 font-medium line-clamp-2">
-                      {activeStation.stationDesc}
-                    </p>
+                    <div>
+                      <h3 className="font-display text-lg sm:text-2xl font-black text-slate-900 leading-snug">
+                        🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa
+                      </h3>
+                      <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-2xl">
+                        Bé đã sẵn sàng khám phá trọn vẹn lộ trình 30 trạm học chuẩn Quốc tế và 50 lượt tạo ảnh AI mỗi tháng.
+                      </p>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => navigate(activeStation.route)}
-                      className="w-full flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all shrink-0 cursor-pointer"
-                    >
-                      {hasLearningActivity ? 'Học tiếp' : 'Bắt đầu'} {activeStation.stationLabel}: {activeStation.stationTitle}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate(
+                            (activeStation as any).url ||
+                              (activeStation.islandSlug
+                                ? activeStation.route
+                                : OFFICIAL_SIX_ISLANDS[1]?.targetRoute || activeStation.route),
+                          )
+                        }
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-brand-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <span>🚀 Tiến Vào Học Ngay</span>
+                      </button>
+                      <span className="text-xs font-bold text-slate-500">
+                        Trạm tiếp theo: <strong className="text-slate-800">{activeStation.stationLabel}: {activeStation.stationTitle}</strong>
+                      </span>
+                    </div>
                   </div>
-                </>
+
+                  <div className="relative shrink-0 flex items-center justify-center">
+                    <div className="w-28 sm:w-36 h-28 sm:h-36 rounded-3xl bg-gradient-to-tr from-emerald-100 to-amber-100 border-2 border-white shadow-soft flex items-center justify-center overflow-hidden">
+                      <img
+                        src={designerAssets.catPoses.celebrate || designerAssets.catPoses.guide}
+                        alt="Mèo AIKI Chúc Mừng"
+                        className="w-24 sm:w-32 h-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -990,6 +984,7 @@ export function HomePage() {
         onClose={() => setIsCheckoutOpen(false)}
         onSuccess={() => {
           setIsCheckoutOpen(false)
+          showToast('🎉 Chúc mừng! Khóa học AI Kid Chính Thức đã được kích hoạt thành công!', 'success')
           void load()
         }}
         initialMode="sub"
@@ -998,6 +993,7 @@ export function HomePage() {
         planName={officialPlan?.name || 'Khóa học Khám phá & Sáng tạo AIKid'}
       />
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </PageMotion>
   )
 }
