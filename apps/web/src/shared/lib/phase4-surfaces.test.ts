@@ -172,7 +172,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     }
     expect(shell).toContain('<ParentHomeIcon size={24} />')
     expect(shell).toContain('<ParentHomeIcon size={28} />')
-    expect(parentGate).toContain('<ParentHomeIcon size={42} />')
+    expect(parentGate).toContain('<ParentHomeIcon size={28} />')
     expect(parentGate).not.toContain('<House')
     expect(parentHomeIcon).toContain('🏠')
     expect(parentHomeIcon).not.toContain('🔒')

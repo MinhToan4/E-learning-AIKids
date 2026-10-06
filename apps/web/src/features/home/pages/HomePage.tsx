@@ -1,6 +1,7 @@
+import { readHouseholdSubscription } from '@/shared/lib/household-billing-api'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, CheckCircle2, Film, Lock, Play, Star } from 'lucide-react'
+import { Check, CheckCircle2, Film, Lock, Play, Star, ShieldCheck } from 'lucide-react'
 import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
@@ -17,10 +18,10 @@ import { useToast } from '@/shared/hooks/useToast'
 import { getAikiCourseSortOrder } from '@/shared/lib/course-sort-order'
 import { useProgression } from '@/shared/lib/progression-query'
 import { getCourseStationCount } from '@/shared/lib/course-station-count'
-import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
+import { clearSessionLearningCache, learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
 import { ParentTrailerModal } from '@/features/subscription/components/ParentPurchaseTrailerBanner'
 import { ParentSubscriptionCheckoutModal } from '@/features/parent/components/ParentSubscriptionCheckoutModal'
-import { FlatClayCompass, FlatClaySparkles, FlatClayShield } from '@/features/asmo/components/AsmoFlatClayIcons'
+import { FlatClayCompass, FlatClayShield } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import {
   HeroProgressCard,
@@ -122,6 +123,7 @@ function streakState(current: number, lastActivityDate: string | null) {
 export function clearHomePageCache(): void {
   // Kept as a compatibility hook for callers. Home data is server-owned and
   // no longer persisted in a module-level browser cache.
+  clearSessionLearningCache()
 }
 
 export interface OfficialHomeIslandConfig {
@@ -211,7 +213,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
     pose: 'thinking',
     tone: '#db2777',
     progressTone: 'violet',
-    defaultQuestCount: 4,
+    defaultQuestCount: 5,
     targetRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
     defaultRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
     searchKeys: ['dao-4', 'truyen-tranh', 'truyện tranh'],
@@ -226,7 +228,7 @@ export const OFFICIAL_SIX_ISLANDS: OfficialHomeIslandConfig[] = [
     pose: 'celebrate',
     tone: 'var(--color-brand-600)',
     progressTone: 'coral',
-    defaultQuestCount: 4,
+    defaultQuestCount: 5,
     targetRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
     defaultRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
     searchKeys: ['dao-5', 'tro-choi', 'trò chơi', 'phát minh'],
@@ -285,7 +287,7 @@ export function HomePage() {
 
   const completedStationsCount = courses.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
   const totalStarsCount = courses.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
-  const totalStationsCount = 30
+  const totalStationsCount = OFFICIAL_SIX_ISLANDS.reduce((sum, island) => sum + island.defaultQuestCount, 0)
   const courseOverallProgressPct = totalStationsCount > 0
     ? Math.min(100, Math.round((completedStationsCount / totalStationsCount) * 100))
     : 0
@@ -300,11 +302,7 @@ export function HomePage() {
     const pathwayPromise = fetchPathwaySafely()
     const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
       .catch(() => ({ mission: null }))
-    const subPromise = api<{
-      status?: string
-      data?: { plan?: string; planCode?: string; status?: string }
-      subscription?: { plan?: string; planCode?: string; status?: string }
-    }>('/api/v1/billing/me/subscription').catch(() => null)
+    const subPromise = readHouseholdSubscription().catch(() => null)
 
     try {
       const pathway = await pathwayPromise
@@ -426,9 +424,7 @@ export function HomePage() {
       const subRes = await subPromise
       if (scope !== sessionGeneration) return
       const subData = subRes?.data || subRes?.subscription || (subRes as any)
-      if (subData?.status) {
-        setUserSubscription(subData)
-      }
+      setUserSubscription(subData?.status ? subData : null)
     } catch {
       // Subscription error is non-blocking
     }
@@ -446,9 +442,11 @@ export function HomePage() {
       void load()
     }
     window.addEventListener('aikids:lesson-completed', onLessonCompleted)
+    window.addEventListener('aikids:progression-updated', onLessonCompleted)
     window.addEventListener('online', onOnline)
     return () => {
       window.removeEventListener('aikids:lesson-completed', onLessonCompleted)
+      window.removeEventListener('aikids:progression-updated', onLessonCompleted)
       window.removeEventListener('online', onOnline)
     }
   }, [load, user?.id])
@@ -471,7 +469,7 @@ export function HomePage() {
   }) || courses[0]
 
   const [devPurchasedOverride, setDevPurchasedOverride] = useState<boolean | null>(() => {
-    if (typeof window === 'undefined') return null
+    if (!import.meta.env.DEV || typeof window === 'undefined') return null
     const params = new URLSearchParams(window.location.search)
     if (params.get('purchased') === 'true') return true
     let stored: string | null = null
@@ -643,10 +641,10 @@ export function HomePage() {
                   </span>
                 </div>
                 <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">
-                  AI Studio · Xưởng Vẽ Sáng Tạo
+                  Xưởng Vẽ Sáng Tạo Nhí
                 </h2>
                 <p className="text-xs text-slate-600 font-semibold line-clamp-1">
-                  Vẽ tranh tự do, biến hóa nét vẽ cùng AI và cất vào Ba Lô!
+                  Vẽ tranh tự do, biến hóa nét vẽ kỳ diệu và cất vào Ba Lô!
                 </p>
               </div>
             </div>
@@ -655,7 +653,7 @@ export function HomePage() {
               to="/creative"
               onClick={(e) => e.stopPropagation()}
               className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm shadow-clay active:scale-95 transition-all"
-              aria-label="Vào AI Studio vẽ tranh ngay"
+              aria-label="Vào Xưởng Vẽ Sáng Tạo ngay"
             >
               <span>🎨 Vào vẽ ngay</span>
             </Link>
@@ -786,7 +784,6 @@ export function HomePage() {
                         onClick={() => setIsCheckoutOpen(true)}
                         className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
                       >
-                        <FlatClaySparkles size={18} className="shrink-0" />
                         <span>Mở khóa {officialPlan.name} · {officialPriceFormatted}</span>
                       </button>
                       <button
@@ -804,7 +801,7 @@ export function HomePage() {
                   <div className="flex-1 min-w-0 space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-black uppercase tracking-wider shadow-2xs flex items-center gap-1.5">
-                        <FlatClaySparkles size={14} className="text-emerald-600" />
+                        <ShieldCheck size={14} className="text-emerald-600" />
                         <span>Đặc Quyền Khóa Học Chính Thức</span>
                       </span>
                       <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-black shadow-2xs flex items-center gap-1">
@@ -818,7 +815,7 @@ export function HomePage() {
                         🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa
                       </h3>
                       <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-2xl">
-                        Bé đã sẵn sàng khám phá trọn vẹn lộ trình 30 trạm học chuẩn Quốc tế và 50 lượt tạo ảnh AI mỗi tháng.
+                        Bé đã sẵn sàng khám phá trọn vẹn lộ trình {totalStationsCount} trạm học chuẩn Quốc tế và 50 lượt vẽ tranh sáng tạo mỗi tháng.
                       </p>
                     </div>
 
@@ -884,7 +881,7 @@ export function HomePage() {
                       return island.searchKeys.some((sk) => combined.includes(sk))
                     })
 
-                    const isLocked = !effectivePurchased && index > 0
+                    const isLocked = !matched || matched.status === 'locked'
                     const questCount = island.defaultQuestCount
                     const rawTotal = matched?.questCount ?? questCount
                     const rawCompleted = matched?.completedCount ?? 0

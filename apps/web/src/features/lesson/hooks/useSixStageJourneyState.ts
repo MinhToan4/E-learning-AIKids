@@ -219,16 +219,13 @@ export function useSixStageJourneyState({
     if (isRuleLesson) {
       return extractRuleNumber({ id: lessonId, title: lessonTitle }) === 10
     }
-    const rewardStageDef = stages.find((s) => s.type === 'REWARD')
-    const rewardConfig = (rewardStageDef?.config as RewardStageConfig | undefined) ?? journey?.stage6_completion
     if (matchedCurriculum) {
       const num = String(matchedCurriculum.lessonNumber || '')
-      if (['1.4', '2.4', '3.4', '4.5', '5.5'].includes(num)) return true
-      if (!rewardConfig?.nextLessonSlug) return true
-      return false
+      // Mỗi chương trình chỉ trao 1 bằng khen tốt nghiệp chuẩn tại trạm cuối cùng của toàn bộ chương trình (5.5)
+      return num === '5.5'
     }
-    return !rewardConfig?.nextLessonSlug
-  }, [isFinalStationProp, isRuleLesson, lessonId, lessonTitle, matchedCurriculum, stages, journey])
+    return false
+  }, [isFinalStationProp, isRuleLesson, lessonId, lessonTitle, matchedCurriculum])
 
   const isCompletedLesson = Boolean(isCompleted || (previousStars != null && previousStars >= 3))
 

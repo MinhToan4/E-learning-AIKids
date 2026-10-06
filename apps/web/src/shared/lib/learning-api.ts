@@ -5,7 +5,7 @@ import {
   type QuestDetail,
   type QuestProgress,
 } from './api'
-import { sessionGeneration, sessionOwnerId } from './session-scope'
+import { registerSessionResetHandler, sessionGeneration, sessionOwnerId } from './session-scope'
 
 export type LearningPathwayCourse = {
   id: string
@@ -87,6 +87,11 @@ type LessonCheckInput = {
 const LESSON_START_DEDUPE_MS = 5_000
 const lessonStartRequests = new Map<string, { expiresAt: number; request: Promise<{ progress: LessonProgress }> }>()
 
+const LESSON_OPEN_DEDUPE_MS = 3_000
+const lessonOpenRequests = new Map<string, { expiresAt: number; request: Promise<{ quest: QuestDetail; progress: LessonProgress }> }>()
+
+const advanceInflightRequests = new Map<string, Promise<{ progress: LessonProgress }>>()
+
 function cachedLessonDetail(lessonId: string) {
   return api<{ quest: QuestDetail }>(`/api/v1/lms/compat/quests/${encodeURIComponent(lessonId)}`)
 }
@@ -110,6 +115,80 @@ function dedupedLessonStart(lessonId: string) {
   return request
 }
 
+async function rawOpenLesson(lessonId: string): Promise<{ quest: QuestDetail; progress: LessonProgress }> {
+  try {
+    return await api<{ quest: QuestDetail; progress: LessonProgress }>(
+      `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/open`,
+      { method: 'POST' },
+    )
+  } catch (error) {
+    // Rolling deploy compatibility: older Hub/LMS versions do not expose
+    // the aggregate route yet. Keep the app usable until backend catches up.
+    if (!(error instanceof ApiError) || (error.status !== 404 && error.status !== 405)) throw error
+    const [lesson, started] = await Promise.all([
+      cachedLessonDetail(lessonId),
+      dedupedLessonStart(lessonId),
+    ])
+    return { quest: lesson.quest, progress: started.progress }
+  }
+}
+
+function dedupedLessonOpen(lessonId: string) {
+  const key = `${sessionGeneration}:${sessionOwnerId ?? 'anonymous'}:${lessonId}`
+  const now = Date.now()
+  const cached = lessonOpenRequests.get(key)
+  if (cached && cached.expiresAt > now) return cached.request
+  const request = rawOpenLesson(lessonId)
+  lessonOpenRequests.set(key, { expiresAt: now + LESSON_OPEN_DEDUPE_MS, request })
+  globalThis.setTimeout(() => {
+    if (lessonOpenRequests.get(key)?.request === request) lessonOpenRequests.delete(key)
+  }, LESSON_OPEN_DEDUPE_MS)
+  void request.catch(() => {
+    if (lessonOpenRequests.get(key)?.request === request) lessonOpenRequests.delete(key)
+  })
+  return request
+}
+
+const PATHWAY_DEDUPE_MS = 2_500
+const pathwayRequests = new Map<string, { expiresAt: number; request: Promise<LearningPathway> }>()
+
+export function clearSessionLearningCache(): void {
+  pathwayRequests.clear()
+  lessonStartRequests.clear()
+  lessonOpenRequests.clear()
+  advanceInflightRequests.clear()
+}
+
+registerSessionResetHandler(() => {
+  clearSessionLearningCache()
+})
+
+if (typeof window !== 'undefined') {
+  const onInvalidate = () => {
+    clearSessionLearningCache()
+  }
+  window.addEventListener('aikids:lesson-completed', onInvalidate)
+  window.addEventListener('aikids:progression-updated', onInvalidate)
+}
+
+function dedupedPathway(studentId?: string, options: RequestInit = {}): Promise<LearningPathway> {
+  const key = `${sessionGeneration}:${sessionOwnerId ?? 'anonymous'}${studentId ? `:${studentId}` : ''}`
+  const now = Date.now()
+  const cached = pathwayRequests.get(key)
+  if (cached && cached.expiresAt > now) return cached.request
+
+  const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : ''
+  const request = api<LearningPathway>(`/api/v1/lms/compat/pathway${query}`, options)
+  pathwayRequests.set(key, { expiresAt: now + PATHWAY_DEDUPE_MS, request })
+  globalThis.setTimeout(() => {
+    if (pathwayRequests.get(key)?.request === request) pathwayRequests.delete(key)
+  }, PATHWAY_DEDUPE_MS)
+  void request.catch(() => {
+    if (pathwayRequests.get(key)?.request === request) pathwayRequests.delete(key)
+  })
+  return request
+}
+
 /**
  * Learning is the public frontend boundary. Route compatibility and future
  * canonical migration stay inside this adapter, so child-facing components
@@ -118,9 +197,10 @@ function dedupedLessonStart(lessonId: string) {
  * Hub routing: /api/v1/lms/* → /internal/v1/lms/* → core-lms-api:4509
  */
 export const learningApi = {
+  clearSessionLearningCache,
+
   getPathway(studentId?: string, options: RequestInit = {}) {
-    const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : ''
-    return api<LearningPathway>(`/api/v1/lms/compat/pathway${query}`, options)
+    return dedupedPathway(studentId, options)
   },
 
   getCourse<T = { course: CourseSummary }>(courseId: string) {
@@ -145,29 +225,27 @@ export const learningApi = {
     return dedupedLessonStart(lessonId)
   },
 
-  async openLesson(lessonId: string) {
-    try {
-      return await api<{ quest: QuestDetail; progress: LessonProgress }>(
-        `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/open`,
-        { method: 'POST' },
-      )
-    } catch (error) {
-      // Rolling deploy compatibility: older Hub/LMS versions do not expose
-      // the aggregate route yet. Keep the app usable until backend catches up.
-      if (!(error instanceof ApiError) || (error.status !== 404 && error.status !== 405)) throw error
-      const [lesson, started] = await Promise.all([
-        cachedLessonDetail(lessonId),
-        dedupedLessonStart(lessonId),
-      ])
-      return { quest: lesson.quest, progress: started.progress }
-    }
+  openLesson(lessonId: string) {
+    return dedupedLessonOpen(lessonId)
   },
 
   advanceLesson(lessonId: string, input: LessonAdvanceInput) {
-    return api<{ progress: LessonProgress }>(
+    const key = `${sessionGeneration}:${sessionOwnerId ?? 'anonymous'}:${lessonId}:${JSON.stringify(input)}`
+    const inflight = advanceInflightRequests.get(key)
+    if (inflight) return inflight
+
+    const request = api<{ progress: LessonProgress }>(
       `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/advance`,
       { method: 'POST', body: JSON.stringify(input), keepalive: true },
     )
+    advanceInflightRequests.set(key, request)
+    const cleanup = () => {
+      if (advanceInflightRequests.get(key) === request) {
+        advanceInflightRequests.delete(key)
+      }
+    }
+    void request.then(cleanup, cleanup)
+    return request
   },
 
   saveResume(

@@ -283,11 +283,11 @@ describe('ParentLearningPage Component', () => {
     expect(text).toContain('Đã đạt chuẩn an toàn AI')
     expect(text).not.toContain('Xem Bằng Khen 🏆')
 
-    // 6. Overview stat "Chứng nhận": 0 when < 30 stations
-    expect(text).toContain('Cần hoàn thành 30/30 trạm để tốt nghiệp')
+    // 6. Overview stat "Chứng nhận": 0 when < 32 stations
+    expect(text).toContain('Cần hoàn thành 32/32 trạm để tốt nghiệp')
   })
 
-  it('renders CredentialsShowcase with 30-station requirement, progress bar, preview badge, and download unlock logic', async () => {
+  it('renders CredentialsShowcase with 32-station requirement, progress bar, preview badge, and download unlock logic', async () => {
     const mockedApi = vi.mocked(api)
     mockedApi.mockImplementation((path: string) => {
       if (path === '/api/parent/children') {
@@ -313,7 +313,7 @@ describe('ParentLearningPage Component', () => {
         return Promise.resolve({
           courseId: 'muoi-quy-tac-xuong-sang-tao',
           courses: [],
-          summary: { completed: 10, total: 30, totalStars: 30, currentPhase: 'learn' },
+          summary: { completed: 10, total: 32, totalStars: 30, currentPhase: 'learn' },
           quests: [],
         })
       }
@@ -348,29 +348,29 @@ describe('ParentLearningPage Component', () => {
 
     // Title & subtitle
     expect(text).toContain('Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid')
-    expect(text).toContain('Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid là chứng chỉ vinh dự cao nhất khi học sinh hoàn thành trọn bộ 30 trạm học của cả 6 đảo.')
+    expect(text).toContain('Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid là chứng chỉ vinh dự cao nhất khi học sinh hoàn thành trọn bộ 32 trạm học của cả 6 đảo.')
 
-    // Progress bar for 10/30 stations
-    expect(text).toContain('Tiến độ tốt nghiệp: 10 / 30 trạm (33%)')
+    // Progress bar for 10/32 stations (10/32 = 31%)
+    expect(text).toContain('Tiến độ tốt nghiệp: 10 / 32 trạm (31%)')
 
-    // Message for parent when < 30
-    expect(text).toContain('Con cần hoàn thành đủ 30 trạm của Khóa học AIKid Chính Thức để nhận Giấy chứng nhận tốt nghiệp danh dự. Hiện tại con đã tích lũy 10/30 trạm.')
+    // Message for parent when < 32
+    expect(text).toContain('Con cần hoàn thành đủ 32 trạm của Khóa học AIKid Chính Thức để nhận Giấy chứng nhận tốt nghiệp danh dự. Hiện tại con đã tích lũy 10/32 trạm.')
 
     // Preview badge
-    expect(text).toContain('Bản xem trước chứng nhận · Mở khi hoàn thành 30 trạm')
+    expect(text).toContain('Bản xem trước chứng nhận · Mở khi hoàn thành 32 trạm')
 
     // Locked download button
-    expect(text).toContain('🔒 Mở khóa tải về khi hoàn thành 30/30 trạm')
+    expect(text).toContain('🔒 Mở khóa tải về khi hoàn thành 32/32 trạm')
     expect(text).not.toContain('Tải Bằng Khen (.SVG)')
   })
 
-  it('unlocks graduation certificate download when child completes all 30/30 stations', async () => {
+  it('unlocks graduation certificate download when child completes all 32/32 stations', async () => {
     const mockedApi = vi.mocked(api)
     mockedApi.mockImplementation((path: string) => {
       if (path === '/api/parent/children') {
         return Promise.resolve({
           children: [
-            { id: 'child-bo-graduated', nickname: 'Bo', avatarId: 'avatar-1', level: 31, totalStars: 90, completedQuests: 30 },
+            { id: 'child-bo-graduated', nickname: 'Bo', avatarId: 'avatar-1', level: 31, totalStars: 96, completedQuests: 32 },
           ],
         })
       }
@@ -390,7 +390,7 @@ describe('ParentLearningPage Component', () => {
         return Promise.resolve({
           courseId: 'dao-5-nha-phat-minh-tro-choi-ai',
           courses: [],
-          summary: { completed: 30, total: 30, totalStars: 90, currentPhase: 'learn' },
+          summary: { completed: 32, total: 32, totalStars: 96, currentPhase: 'learn' },
           quests: [],
         })
       }
@@ -426,10 +426,10 @@ describe('ParentLearningPage Component', () => {
     })
 
     const text = document.body.textContent ?? ''
-    expect(text).toContain('Tiến độ tốt nghiệp: 30 / 30 trạm (100%)')
+    expect(text).toContain('Tiến độ tốt nghiệp: 32 / 32 trạm (100%)')
     expect(text).toContain('🟢 Đã đủ điều kiện')
     expect(text).toContain('Tải Bằng Khen (.SVG)')
-    expect(text).not.toContain('Bản xem trước chứng nhận · Mở khi hoàn thành 30 trạm')
+    expect(text).not.toContain('Bản xem trước chứng nhận · Mở khi hoàn thành 32 trạm')
   })
 
   it('does not display ungrounded "Năng lực & Nhận xét" tab or artificial metric scores', async () => {

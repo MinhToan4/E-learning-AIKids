@@ -1,3 +1,4 @@
+import { advanceSessionScope } from './session-scope'
 // @vitest-environment jsdom
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import {
@@ -62,6 +63,24 @@ describe('learning-sync-store', () => {
     it('returns namespaced item if it exists', () => {
       localStorage.setItem('aikids:child-1:my_key', 'val-1')
       expect(getStoredItemWithFallback('my_key', 'child-1')).toBe('val-1')
+    })
+
+    it('stops replay on profile transition and reuses the retry key', async () => {
+      const submitSpy = vi.spyOn(learningApi, 'submitCheck').mockImplementationOnce(async () => {
+        advanceSessionScope()
+        throw new Error('connection interrupted during profile switch')
+      }).mockResolvedValue({ stars: 1, message: 'ok', nextQuestId: null })
+      queuePendingSync({ lessonId: 'first', answers: [], childId: 'child-a' })
+      queuePendingSync({ lessonId: 'second', answers: [], childId: 'child-a' })
+      await flushPendingSyncQueue('child-a')
+      expect(submitSpy).toHaveBeenCalledTimes(1)
+      expect(getPendingSyncQueue()).toHaveLength(2)
+      const firstKey = submitSpy.mock.calls[0][2]
+      await flushPendingSyncQueue('child-b')
+      expect(submitSpy).toHaveBeenCalledTimes(1)
+      await flushPendingSyncQueue('child-a')
+      expect(submitSpy.mock.calls[1][2]).toBe(firstKey)
+      expect(getPendingSyncQueue()).toHaveLength(0)
     })
 
     it('quarantines legacy data instead of assigning it to the current child', () => {
@@ -204,7 +223,7 @@ describe('learning-sync-store', () => {
 
       expect(submitSpy).toHaveBeenCalledWith('bai-1-2', {
         answers: [{ questionId: 'q1', optionIndex: 2 }],
-      })
+      }, expect.stringMatching(/^child-1:/))
       expect(getPendingSyncQueue().length).toBe(0)
       expect(eventSpy).toHaveBeenCalled()
 
@@ -239,7 +258,7 @@ describe('learning-sync-store', () => {
       await flushPendingSyncQueue('child-b')
 
       expect(submitSpy).toHaveBeenCalledTimes(1)
-      expect(submitSpy).toHaveBeenCalledWith('lesson-b', { answers: [] })
+      expect(submitSpy).toHaveBeenCalledWith('lesson-b', { answers: [] }, expect.stringMatching(/^child-b:/))
       expect(getPendingSyncQueue().map((item) => item.childId)).toEqual(['child-a'])
     })
 

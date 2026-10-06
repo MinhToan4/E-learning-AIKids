@@ -138,4 +138,44 @@ describe('shared progression snapshot', () => {
     await expect(fetchProgressionSnapshot('child-bo')).rejects.toMatchObject({ status: 503 })
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
+
+  it('uses session-scoped negative cache to bypass 404 progression endpoint on subsequent calls', async () => {
+    clearAccessToken()
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/api/v1/gamification/me/progression')) {
+        return Promise.resolve(new Response(JSON.stringify({ status: 'fail', message: 'Route not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }))
+      }
+      if (url.includes('/api/v1/gamification/me')) {
+        return Promise.resolve(new Response(JSON.stringify({
+          status: 'success',
+          data: { totalXp: 500, level: 5, xpIntoLevel: 10, xpToNextLevel: 90 },
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }))
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`))
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    // Call 1: hits /progression (404), then falls back to /me (total 2 fetch calls)
+    const snap1 = await fetchProgressionSnapshot('child-bo')
+    expect(snap1.level).toBe(5)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    // Call 2 in same session: negative cache active, directly calls /me (total 3 fetch calls, not 4)
+    const snap2 = await fetchProgressionSnapshot('child-bo')
+    expect(snap2.level).toBe(5)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[2][0]).toContain('/api/v1/gamification/me')
+    expect(fetchMock.mock.calls[2][0]).not.toContain('/api/v1/gamification/me/progression')
+
+    // Advance session (new session generation): negative cache invalidated, tries /progression again
+    clearAccessToken()
+    await fetchProgressionSnapshot('child-bo')
+    expect(fetchMock).toHaveBeenCalledTimes(5) // tried progression (404) + me (200)
+  })
 })

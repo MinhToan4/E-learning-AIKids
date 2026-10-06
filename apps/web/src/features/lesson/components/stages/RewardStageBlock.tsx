@@ -218,7 +218,7 @@ export function RewardStageBlock({
               </button>
             ) : null}
 
-            {onOpenCertificate && (isFinalStation ?? !config?.nextLessonSlug) && (
+            {onOpenCertificate && isFinalStation && (
               <button
                 type="button"
                 className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#FD7D2E] hover:bg-[#ea6a1f] text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
@@ -228,7 +228,7 @@ export function RewardStageBlock({
               </button>
             )}
 
-            {onOpenCourse && (isFinalStation ?? !config?.nextLessonSlug) && (
+            {onOpenCourse && isFinalStation && (
               <button
                 type="button"
                 className="w-full min-h-[48px] py-3 text-sm sm:text-base font-black rounded-2xl bg-[#18181b] hover:bg-black text-white flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"

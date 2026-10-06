@@ -746,36 +746,48 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
             "instruction": "Kiểm tra tranh và bấm nộp bài"
           }
         ],
-        "sampleUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+        "sampleUrl": "/assets/aiki-doctor/doctor_hand_cured_v1.webp",
         "creativeEngineMode": "prompt-doctor",
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Ca 1: Tay sáu ngón",
-            "icon": "✋",
-            "emoji": "✋",
-            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp"
+            "title": "Cách 1: Nhìn nghiêng tì bàn",
+            "icon": "✍️",
+            "emoji": "✍️",
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp",
+            "curedImageUrl": "/assets/aiki-doctor/doctor_hand_cured_side_desk.webp",
+            "sampleResultUrl": "/assets/aiki-doctor/doctor_hand_cured_side_desk.webp",
+            "cureText": "một bàn tay năm ngón đang cầm bút chì, nhìn nghiêng từ bên phải, cổ tay tì lên mặt bàn gỗ"
           },
           {
             "partNumber": 2,
-            "title": "Ca 2: Mất cái mũ",
-            "icon": "🧢",
-            "emoji": "🧢",
-            "iconImage": "/assets/aiki-doctor/doctor_kid_broken_nohat.webp"
+            "title": "Cách 2: Hướng xuống giấy",
+            "icon": "📝",
+            "emoji": "📝",
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp",
+            "curedImageUrl": "/assets/aiki-doctor/doctor_hand_cured_paper_down.webp",
+            "sampleResultUrl": "/assets/aiki-doctor/doctor_hand_cured_paper_down.webp",
+            "cureText": "một bàn tay năm ngón tách rời rõ cầm bút chì đầu nhọn hướng xuống trang giấy trắng"
           },
           {
             "partNumber": 3,
-            "title": "Ca 3: Thừa ba con chim",
-            "icon": "🐦",
-            "emoji": "🐦",
-            "iconImage": "/assets/aiki-doctor/doctor_cat_floating_v1.webp"
+            "title": "Cách 3: Giơ bút nhìn ngang",
+            "icon": "✏️",
+            "emoji": "✏️",
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp",
+            "curedImageUrl": "/assets/aiki-doctor/doctor_hand_cured_raised_up.webp",
+            "sampleResultUrl": "/assets/aiki-doctor/doctor_hand_cured_raised_up.webp",
+            "cureText": "một bàn tay năm ngón đang giơ bút chì lên nhìn ngang trên nền trơn"
           },
           {
             "partNumber": 4,
-            "title": "Ca 4: Nhìn sai hướng",
-            "icon": "👀",
-            "emoji": "👀",
-            "iconImage": "/assets/aiki-doctor/doctor_clutter_broken_v1.webp"
+            "title": "Cách 4: Năm ngón chuẩn",
+            "icon": "✋",
+            "emoji": "✋",
+            "iconImage": "/assets/aiki-doctor/doctor_hand_broken_6fingers.webp",
+            "curedImageUrl": "/assets/aiki-doctor/doctor_hand_cured_v1.webp",
+            "sampleResultUrl": "/assets/aiki-doctor/doctor_hand_cured_v1.webp",
+            "cureText": "một bàn tay năm ngón chuẩn chỉnh đang cầm bút chì viết bài rõ từng ngón"
           }
         ],
         "promptDoctorCase": {
@@ -783,7 +795,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
           "symptom": "Một bạn nhỏ đang vẫy tay nhưng bàn tay có tận 6 ngón tay!",
           "originalPrompt": "Một bạn nhỏ đang vẫy tay chào vui vẻ",
           "refImageUrl": "/assets/aiki-doctor/doctor_hand_broken_v1.webp",
-          "curedImageUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
+          "curedImageUrl": "/assets/aiki-doctor/doctor_hand_cured_v1.webp",
           "cureCards": [
             "Đúng một bàn tay năm ngón rõ ràng",
             "Thêm đồng hồ đeo tay màu xanh lá",

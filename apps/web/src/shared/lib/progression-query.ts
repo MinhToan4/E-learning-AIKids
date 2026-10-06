@@ -1,9 +1,12 @@
 import { useEffect } from 'react'
 import { useQuery, type QueryClient } from '@tanstack/react-query'
 import { api, ApiError, type User } from './api'
+import { sessionGeneration } from './session-scope'
 import { xpRequiredForLevel } from './creation/xp-levels'
 import { useAuth } from '@/shared/store/auth'
 import { queryClient as appQueryClient } from './query-client'
+
+export let lastFailedProgressionEpoch: number = -1
 
 export type ProgressionSnapshot = {
   playerId: string
@@ -90,14 +93,22 @@ function requireProgressionResponse(value: unknown, source: string): Progression
 export async function fetchProgressionSnapshot(userId: string): Promise<ProgressionSnapshot> {
   let response: unknown
   let source = 'progression-projection'
-  try {
-    response = await api<unknown>('/api/gamification/profile')
-  } catch (error) {
-    if (error instanceof ApiError && (error.status === 404 || error.status === 501)) {
-      source = 'legacy-gamification-profile'
-      response = await api<unknown>('/api/gamification/profile-legacy')
-    } else {
-      throw error
+  if (lastFailedProgressionEpoch === sessionGeneration) {
+    source = 'legacy-gamification-profile'
+    response = await api<unknown>('/api/gamification/profile-legacy')
+  } else {
+    try {
+      response = await api<unknown>('/api/gamification/profile')
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 404 || error.status === 501)) {
+        if (error.status === 404) {
+          lastFailedProgressionEpoch = sessionGeneration
+        }
+        source = 'legacy-gamification-profile'
+        response = await api<unknown>('/api/gamification/profile-legacy')
+      } else {
+        throw error
+      }
     }
   }
   const snapshot = normalizeProgression(userId, requireProgressionResponse(response, source))

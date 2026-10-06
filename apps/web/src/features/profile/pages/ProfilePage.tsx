@@ -339,9 +339,11 @@ export function ProfilePage() {
     return displayableProjects
   }, [displayableProjects, workFilter])
 
-  // Chuẩn hóa 30 trạm
+  const TOTAL_OFFICIAL_STATIONS = 32
+
+  // Chuẩn hóa 32 trạm
   const displayStations = useMemo(
-    () => Math.min(30, Math.max(0, completedStations)),
+    () => Math.min(TOTAL_OFFICIAL_STATIONS, Math.max(0, completedStations)),
     [completedStations],
   )
 
@@ -350,7 +352,7 @@ export function ProfilePage() {
     [starsCollected],
   )
 
-  const stationPercent = Math.min(100, Math.round((displayStations / 30) * 100))
+  const stationPercent = Math.min(100, Math.round((displayStations / TOTAL_OFFICIAL_STATIONS) * 100))
 
   const totalStudyMinutes = useMemo(() => {
     return displayStations * 20 + displayableProjects.length * 15 + streak * 25
@@ -363,22 +365,22 @@ export function ProfilePage() {
   }, [totalStudyMinutes])
 
   // Bằng khen tốt nghiệp khóa học
-  const isGraduated = stationPercent === 100 || displayStations >= 30
+  const isGraduated = stationPercent === 100 || displayStations >= TOTAL_OFFICIAL_STATIONS
 
   const courseCertificate: CertificateItem = useMemo(() => {
     return {
       id: 'cert-course-aikid-official',
       title: 'Bằng Khen Tốt Nghiệp Khóa Học Sáng Tạo',
-      courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)',
+      courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)',
       islandTitle: 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
-      stationsCount: 30,
-      completedStations: Math.min(30, displayStations),
+      stationsCount: TOTAL_OFFICIAL_STATIONS,
+      completedStations: Math.min(TOTAL_OFFICIAL_STATIONS, displayStations),
       stars: displayStars,
       xp: explorerXp,
       isUnlocked: isGraduated,
       statusText: isGraduated
         ? 'Đã tốt nghiệp khóa học'
-        : `Đang học (${displayStations}/30 trạm)`,
+        : `Đang học (${displayStations}/${TOTAL_OFFICIAL_STATIONS} trạm)`,
     }
   }, [displayStations, displayStars, explorerXp, isGraduated])
 
@@ -731,7 +733,7 @@ export function ProfilePage() {
               </button>
             </div>
 
-            {/* TRƯỜNG HỢP 1: Con ĐÃ HOÀN THÀNH XONG KHÓA HỌC (30/30 trạm) và CHƯA NHẬN BẰNG KHEN */}
+            {/* TRƯỜNG HỢP 1: Con ĐÃ HOÀN THÀNH XONG KHÓA HỌC (32/32 trạm) và CHƯA NHẬN BẰNG KHEN */}
             {isGraduated && !hasClaimedCertificate && (certFilter === 'all' || certFilter === 'in_progress') && (
               <div
                 role="region"
@@ -760,8 +762,7 @@ export function ProfilePage() {
                         CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ &amp; SÁNG TẠO!
                       </h3>
                       <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
-                        Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
-                        <span className="sr-only">32/32 Trạm Học</span>
+                        Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-xl bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-900 border border-amber-200 shadow-2xs">
@@ -883,8 +884,8 @@ export function ProfilePage() {
                             title: cert.courseTitle || courseCertificate.title,
                             courseTitle: cert.courseTitle || courseCertificate.courseTitle,
                             islandTitle: cert.islandTitle || courseCertificate.islandTitle,
-                            stationsCount: 30,
-                            completedStations: 30,
+                            stationsCount: TOTAL_OFFICIAL_STATIONS,
+                            completedStations: TOTAL_OFFICIAL_STATIONS,
                             stars: cert.stars || courseCertificate.stars,
                             xp: cert.xp || courseCertificate.xp,
                             isUnlocked: true,
@@ -901,7 +902,7 @@ export function ProfilePage() {
               </div>
             )}
 
-            {/* TRƯỜNG HỢP 3: Con CHƯA HOÀN THÀNH XONG KHÓA HỌC (< 30 trạm) */}
+            {/* TRƯỜNG HỢP 3: Con CHƯA HOÀN THÀNH XONG KHÓA HỌC (< 32 trạm) */}
             {!isGraduated && !hasClaimedCertificate && (certFilter === 'all' || certFilter === 'in_progress') && (
               <div className="relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-amber-50/60 via-white to-amber-100/30 p-5 sm:p-6 shadow-soft">
                 <div className="flex flex-col sm:flex-row items-center gap-5">
@@ -913,14 +914,14 @@ export function ProfilePage() {
                       Bằng Khen Tốt Nghiệp Khóa Học
                     </h3>
                     <p className="mt-1 text-xs sm:text-sm font-bold text-slate-600 leading-relaxed max-w-2xl">
-                      Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá &amp; Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!
+                      Hoàn thành trọn vẹn 32/32 trạm của Khóa Học Khám Phá &amp; Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!
                     </p>
 
                     <div className="mt-4 rounded-2xl bg-white/90 border border-amber-200/80 p-3 sm:p-4 shadow-2xs max-w-xl">
                       <div className="flex items-center justify-between text-xs font-black text-amber-900 mb-1.5">
                         <span>Tiến độ toàn khóa</span>
                         <span>
-                          {displayStations}/30 trạm ({stationPercent}%)
+                          {displayStations}/32 trạm ({stationPercent}%)
                         </span>
                       </div>
                       <div className="h-3 w-full rounded-full bg-amber-100 overflow-hidden">
@@ -930,7 +931,7 @@ export function ProfilePage() {
                         />
                       </div>
                       <p className="mt-2 text-xs font-bold text-slate-500">
-                        Còn {Math.max(0, 30 - displayStations)} trạm nữa để tốt nghiệp khóa học!
+                        Còn {Math.max(0, TOTAL_OFFICIAL_STATIONS - displayStations)} trạm nữa để tốt nghiệp khóa học!
                       </p>
                     </div>
                   </div>
@@ -945,7 +946,7 @@ export function ProfilePage() {
                   Chưa có bằng khen nào trong Ba lô
                 </p>
                 <p className="mt-1 text-xs sm:text-sm font-bold text-muted max-w-md">
-                  Hãy hoàn thành trọn vẹn 30 trạm bài học để nhận Bằng Khen Tốt Nghiệp danh dự nhé!
+                  Hãy hoàn thành trọn vẹn 32 trạm bài học để nhận Bằng Khen Tốt Nghiệp danh dự nhé!
                 </p>
               </div>
             )}

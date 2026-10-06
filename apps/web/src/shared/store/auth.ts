@@ -16,6 +16,7 @@ import {
 } from '@/shared/lib/firebase-client'
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 import { clearApiCache } from '@/shared/lib/api-cache'
+import { clearSessionLearningCache } from '@/shared/lib/learning-api'
 import { clearStudentProgressionCache } from '@/shared/lib/query-client'
 import { advanceSessionScope, setSessionOwner } from '@/shared/lib/session-scope'
 
@@ -247,6 +248,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     clearStudentProgressionCache(get().user?.id)
     clearAccessToken()
     clearApiCache()
+    clearSessionLearningCache()
     void clearPreviousLearnerData()
     void disconnectFirebase()
     void Promise.resolve(api('/api/auth/logout', { method: 'POST' })).catch(() => undefined)
@@ -473,6 +475,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await clearPreviousLearnerData()
       clearAccessToken()
       clearApiCache()
+      clearSessionLearningCache()
       set({ user: null, access: null, activeContext: null, enteredFromParent: false })
     }
   },
@@ -513,6 +516,7 @@ useAuth.subscribe((state, previous) => {
     setSessionOwner(state.user?.id ?? null)
     advanceSessionScope()
     clearApiCache()
+    clearSessionLearningCache()
     clearStudentProgressionCache(previous.user?.id)
   }
 })

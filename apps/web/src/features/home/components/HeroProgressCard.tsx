@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, Flame, Sparkles } from 'lucide-react'
+import { Check, Flame, Target } from 'lucide-react'
 import { FlatClayStar } from '@/features/asmo/components/AsmoFlatClayIcons'
 import { cn } from '@/shared/lib/cn'
 import type { HomeActiveStation } from '../lib/home-active-station'
@@ -145,7 +145,7 @@ export const HeroProgressCard: React.FC<HeroProgressCardProps> = ({
             <div className="rounded-2xl border border-amber-300/80 bg-amber-50/90 p-2.5 sm:p-3 shadow-2xs space-y-1">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
+                  <Target className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
                   <span>Nhiệm vụ hôm nay:</span>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-900 bg-amber-200/80 rounded-full px-2 py-0.5 shrink-0 border border-amber-300/60">

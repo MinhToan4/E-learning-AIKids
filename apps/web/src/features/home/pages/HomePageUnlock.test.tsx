@@ -204,7 +204,7 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
     }
   })
 
-  it('HomePage: unlocks all 6 islands, shows emerald header badge, and renders celebratory Hero Card when user has active subscription', async () => {
+  it('HomePage: shows purchased presentation but keeps islands without LMS access locked', async () => {
     mockApi.mockImplementation((url: string) => {
       if (url === '/api/courses') {
         return Promise.resolve({ courses: [] })
@@ -236,8 +236,15 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
     // Celebratory Soft Clay Hero Card is rendered
     expect(document.body.textContent).toContain('🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa')
     expect(document.body.textContent).toContain(
-      'Bé đã sẵn sàng khám phá trọn vẹn lộ trình 30 trạm học chuẩn Quốc tế và 50 lượt tạo ảnh AI mỗi tháng.',
+      'Bé đã sẵn sàng khám phá trọn vẹn lộ trình 32 trạm học chuẩn Quốc tế và 50 lượt vẽ tranh sáng tạo mỗi tháng.',
     )
+
+    // A household purchase cannot manufacture missing learner access in Home.
+    const islandLinks = Array.from(container.querySelectorAll('a')).filter((link) =>
+      link.className.includes('min-w-0 flex-col'),
+    )
+    expect(islandLinks).toHaveLength(6)
+    expect(islandLinks.every((link) => link.getAttribute('href') === '#')).toBe(true)
 
     // Button "🚀 Tiến Vào Học Ngay" is present and navigates on click
     const enterCourseBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>

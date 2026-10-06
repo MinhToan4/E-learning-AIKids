@@ -263,4 +263,34 @@ Mọi trang đều phải tuân theo cấu trúc Header 3 tầng trực quan:
   - Chiều cao touch targets luôn $\ge 44\text{px} - 48\text{px}$.
   - Tiêu đề co giãn tự nhiên: `text-2xl sm:text-3xl font-black`.
 
+---
 
+## 10. KỶ LUẬT THÉP: LOẠI BỎ 100% CÁC NÚT SVG ICON DẤU HIỆU AI (ANTI-AI MARKERS & NATURAL PEDAGOGY SSOT)
+
+AI Kids là hệ thống giáo dục trực quan nhân văn Montessori, hướng tới khơi dậy tư duy tự nhiên, sáng tạo nghệ thuật và sự tự tin của trẻ nhỏ. Các biểu tượng công nghệ AI rập khuôn là dấu hiệu của "AI Slop" (công nghệ giả cầy, phô trương), làm xao nhãng và phá vỡ không gian học tập ấm áp của trẻ.
+
+### 10.1. Cấm Tuyệt Đối Các Biểu Tượng Dấu Hiệu AI (Blacklist)
+* **CẤM 100%** sử dụng icon Sparkles (`✨`, `Sparkles`, `FlatClaySparkles`), Magic Wand (gậy phép `Wand`, `Wand2`), Robot/Bot (`Bot`, `BrainCircuit`, chip não điện tử) trên:
+  - Các nút bấm hành động (Action Buttons, CTA, Link Buttons).
+  - Thẻ danh hiệu, Eyebrow Pills, nhãn đặc quyền (Perk Badges).
+  - Tiêu đề trang, Banner và Khung chứng chỉ tốt nghiệp.
+* **CẤM** các hiệu ứng viền ma thuật lấp lánh (pulsing magic glow), viền laser cyberpunk hoặc hạt bụi sao nhân tạo.
+
+### 10.2. Quy Chuẩn Icon Thay Thế Chuẩn Montessori / Hallmark Craft (Whitelist)
+Mọi icon tương tác phải bắt nguồn từ thế giới thực và sư phạm trực quan:
+
+| Ngữ Cảnh Sử Dụng | ❌ Icon AI Cấm Dùng | ✔️ Icon Chuẩn Thay Thế | Ý Nghĩa Sư Phạm |
+| :--- | :--- | :--- | :--- |
+| **Đặc quyền, Bảo chứng, Đã mở khóa** | `Sparkles`, `Wand` | `<ShieldCheck />`, `<Shield />` | Bảo vệ an toàn, uy tín, chứng thực |
+| **Vinh danh, Bằng khen, Học viện** | `Sparkles`, `Bot` | `<Award />`, `<Trophy />`, `<Crown />` | Vinh danh thành quả thực tế của trẻ |
+| **Vẽ tranh, Xưởng sáng tạo** | `Sparkles`, `BrainCircuit` | `<Palette />`, `<Paintbrush />`, bút vẽ | Dụng cụ vẽ mộc mạc, gần gũi |
+| **Cấp độ, Điểm số, Sao** | `Sparkles` | `<Star />` (vàng), `<Zap />` (năng lượng) | Động lực học tập trực quan |
+| **Bạn đồng hành** | Robot icon, AI icon | Thần thú Mèo Mee (Mascot Vector) | Tình bạn ấm áp, an toàn tâm lý |
+
+### 10.3. Quy Chuẩn Ngôn Từ Thiếu Nhi Thuần Khiết (Kid-Friendly Copywriting)
+* **BỎ TRIỆT ĐỂ** các từ ngữ công nghệ AI máy móc:
+  - ❌ *"AI Studio"* ➔ ✔️ *"Xưởng Vẽ Sáng Tạo"* hoặc *"Xưởng Sáng Tạo Nhí"*
+  - ❌ *"tạo ảnh AI"*, *"lượt tạo ảnh AI"* ➔ ✔️ *"vẽ tranh sáng tạo"*, *"lượt vẽ tranh"*
+  - ❌ *"biến hóa nét vẽ cùng AI"* ➔ ✔️ *"biến hóa nét vẽ kỳ diệu"*
+  - ❌ *"công nghệ AI sinh"* ➔ ✔️ *"công cụ sáng tạo thông minh"*
+  - ❌ *"bác sĩ AI"* ➔ ✔️ *"bác sĩ câu lệnh"* hoặc *"kỹ sư tí hon"*

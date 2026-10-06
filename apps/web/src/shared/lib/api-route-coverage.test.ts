@@ -41,6 +41,7 @@ describe('application API route coverage', () => {
       'shared/lib/asmo-api.ts',
       'shared/lib/creative-api.ts',
       'shared/lib/learning-api.ts',
+      'shared/lib/household-billing-api.ts',
       'shared/lib/media-api.ts',
       'features/profile/profile-overview-api.ts',
       // These are already canonical contracts; move them into the matching

@@ -129,12 +129,17 @@ type Pathway = {
   recommendedCourseId: string | null
   courses: Array<{
     id: string
+    slug?: string
     title: string
     shortTitle: string
     status: 'completed' | 'active' | 'available' | 'locked'
     reasonCode: string
     completionPercent: number
     missingPrerequisites: string[]
+    enrolled?: boolean
+    completedCount?: number
+    totalStars?: number
+    questCount?: number
   }>
 }
 type ChildProgress = {
@@ -219,8 +224,8 @@ export const SIX_ISLANDS = [
     id: 'dao-4-vuong-quoc-truyen-tranh-ai',
     title: 'Đảo 4: Tác giả truyện tranh AI',
     subtitle: 'Cốt truyện 3 hồi & Storyboard 8 ô truyện',
-    totalStations: 4,
-    totalStars: 12,
+    totalStations: 5,
+    totalStars: 15,
     sticker: designerAssets.islandStickers.truyenTranh,
     sceneImage: designerAssets.worldScenes.storyIsland,
   },
@@ -229,8 +234,8 @@ export const SIX_ISLANDS = [
     id: 'dao-5-nha-phat-minh-tro-choi-ai',
     title: 'Đảo 5: Nhà sáng tạo Game thẻ bài',
     subtitle: 'Luật chơi ngũ hành & Đấu trường thẻ bài',
-    totalStations: 4,
-    totalStars: 12,
+    totalStations: 5,
+    totalStars: 15,
     sticker: designerAssets.islandStickers.troChoi,
     sceneImage: designerAssets.worldScenes.gameArena,
   },
@@ -528,8 +533,19 @@ export function ParentLearningPage() {
   }, [load, showToast])
 
   const selectedChild = children.find((c) => c.id === studentId) ?? children[0] ?? null
-  const totalStars = data?.progress.summary.totalStars ?? selectedChild?.totalStars ?? 0
-  const completedQuests = data?.progress.summary.completed ?? selectedChild?.completedQuests ?? 0
+  const hasCourseProgress = Boolean(
+    data?.pathway?.courses &&
+    data.pathway.courses.length > 0 &&
+    data.pathway.courses.some((c) => typeof c.completedCount === 'number')
+  )
+  const pathwayQuests = hasCourseProgress
+    ? data?.pathway?.courses?.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
+    : undefined
+  const pathwayStars = hasCourseProgress
+    ? data?.pathway?.courses?.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
+    : undefined
+  const totalStars = pathwayStars ?? data?.progress.summary.totalStars ?? selectedChild?.totalStars ?? 0
+  const completedQuests = pathwayQuests ?? data?.progress.summary.completed ?? selectedChild?.completedQuests ?? 0
 
   return (
     <div className="flex flex-col gap-5">
@@ -637,9 +653,9 @@ export function ParentLearningPage() {
           >
             <Icon size={18} aria-hidden="true" />
             <span>{label}</span>
-            {key === 'credentials' && ((completedQuests >= 30 ? 1 : 0) + (data?.credentials.length ?? 0) > 0) && (
+            {key === 'credentials' && ((completedQuests >= 32 ? 1 : 0) + (data?.credentials.length ?? 0) > 0) && (
               <span className="rounded-full bg-amber-400 text-amber-950 px-1.5 py-0.2 text-[10px] font-black">
-                {(completedQuests >= 30 ? 1 : 0) + (data?.credentials.length ?? 0)}
+                {(completedQuests >= 32 ? 1 : 0) + (data?.credentials.length ?? 0)}
               </span>
             )}
             {key === 'feedback' && feedbackBadge.byChild[studentId] && (
@@ -762,11 +778,11 @@ function LearningOverview({
         <OverviewStat
           icon={Award}
           label="Chứng nhận"
-          value={completedQuests >= 30 ? 1 : 0}
+          value={completedQuests >= 32 ? 1 : 0}
           subtext={
-            completedQuests >= 30
+            completedQuests >= 32
               ? 'Đã tốt nghiệp Khóa học AIKid'
-              : 'Cần hoàn thành 30/30 trạm để tốt nghiệp'
+              : 'Cần hoàn thành 32/32 trạm để tốt nghiệp'
           }
           tone="sun"
           onClick={onOpenCredentials}
@@ -823,20 +839,34 @@ function LearningOverview({
             let islandStars = 0
             let islandStatus: 'completed' | 'active' | 'locked' = 'locked'
 
-            if (island.index === 0) {
-              islandCompleted = completedQuests >= 10 ? 10 : Math.min(10, completedQuests)
-              islandStars = completedQuests >= 10 ? 30 : Math.min(30, totalStars)
-              islandStatus = completedQuests >= 10 ? 'completed' : 'active'
-            } else if (island.index === 1) {
-              if (completedQuests >= 10) {
-                islandStatus = 'active'
-                islandCompleted = Math.min(4, Math.max(0, completedQuests - 10))
-                islandStars = Math.max(0, totalStars - 30)
+            const course = pathway?.courses?.find((c) =>
+              c.id === island.id ||
+              c.slug === island.id ||
+              c.slug?.includes(island.id)
+            )
+
+            if (course) {
+              islandCompleted = course.completedCount ?? (course.status === 'completed' ? island.totalStations : 0)
+              islandStars = course.totalStars ?? 0
+              islandStatus = course.status === 'completed'
+                ? 'completed'
+                : (course.enrolled || course.status === 'active' ? 'active' : 'locked')
+            } else {
+              if (island.index === 0) {
+                islandCompleted = completedQuests >= 10 ? 10 : Math.min(10, completedQuests)
+                islandStars = completedQuests >= 10 ? 30 : Math.min(30, totalStars)
+                islandStatus = completedQuests >= 10 ? 'completed' : 'active'
+              } else if (island.index === 1) {
+                if (completedQuests >= 10) {
+                  islandStatus = completedQuests >= 14 ? 'completed' : 'active'
+                  islandCompleted = Math.min(island.totalStations, Math.max(0, completedQuests - 10))
+                  islandStars = Math.max(0, totalStars - 30)
+                } else {
+                  islandStatus = 'locked'
+                }
               } else {
                 islandStatus = 'locked'
               }
-            } else {
-              islandStatus = 'locked'
             }
 
             const pct = Math.round((islandCompleted / island.totalStations) * 100)
@@ -1006,8 +1036,8 @@ function CredentialsShowcase({
   onDownload: (credential: Credential) => void
 }) {
   const childName = child?.nickname ?? 'Con'
-  const isGraduated = completedQuests >= 30
-  const progressPercent = Math.min(100, Math.round((completedQuests / 30) * 100))
+  const isGraduated = completedQuests >= 32
+  const progressPercent = Math.min(100, Math.round((completedQuests / 32) * 100))
 
   return (
     <div className="grid gap-6">
@@ -1024,7 +1054,7 @@ function CredentialsShowcase({
             Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1 max-w-lg">
-            Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid là chứng chỉ vinh dự cao nhất khi học sinh hoàn thành trọn bộ 30 trạm học của cả 6 đảo.
+            Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid là chứng chỉ vinh dự cao nhất khi học sinh hoàn thành trọn bộ 32 trạm học của cả 6 đảo.
           </p>
 
           <div className="flex items-center gap-2 my-3">
@@ -1036,9 +1066,9 @@ function CredentialsShowcase({
           {/* Thanh tiến độ tốt nghiệp trực quan */}
           <div className="w-full max-w-md my-3 rounded-2xl bg-white/90 p-3.5 border border-amber-200 shadow-soft">
             <div className="flex items-center justify-between text-xs font-black text-slate-700 mb-1.5">
-              <span>Tiến độ tốt nghiệp: {completedQuests} / 30 trạm ({progressPercent}%)</span>
+              <span>Tiến độ tốt nghiệp: {completedQuests} / 32 trạm ({progressPercent}%)</span>
               <span className={cn(isGraduated ? 'text-emerald-700' : 'text-amber-700')}>
-                {isGraduated ? '🟢 Đã đủ điều kiện' : `Còn ${Math.max(0, 30 - completedQuests)} trạm`}
+                {isGraduated ? '🟢 Đã đủ điều kiện' : `Còn ${Math.max(0, 32 - completedQuests)} trạm`}
               </span>
             </div>
             <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
@@ -1052,10 +1082,10 @@ function CredentialsShowcase({
             </div>
           </div>
 
-          {/* Thông báo tiến độ cho phụ huynh nếu chưa hoàn thành 30 trạm */}
+          {/* Thông báo tiến độ cho phụ huynh nếu chưa hoàn thành 32 trạm */}
           {!isGraduated && (
             <div className="my-2 w-full max-w-md rounded-2xl bg-amber-50 border border-amber-200 p-3 text-xs font-bold text-amber-900 leading-relaxed text-left sm:text-center">
-              Con cần hoàn thành đủ 30 trạm của Khóa học AIKid Chính Thức để nhận Giấy chứng nhận tốt nghiệp danh dự. Hiện tại con đã tích lũy {completedQuests}/30 trạm.
+              Con cần hoàn thành đủ 32 trạm của Khóa học AIKid Chính Thức để nhận Giấy chứng nhận tốt nghiệp danh dự. Hiện tại con đã tích lũy {completedQuests}/32 trạm.
             </div>
           )}
 
@@ -1063,7 +1093,7 @@ function CredentialsShowcase({
           <div className="relative my-4 flex flex-col items-center justify-center w-full max-w-[320px] sm:max-w-[360px] rounded-2xl overflow-hidden border-2 border-amber-300 shadow-clay bg-amber-50/50 p-2">
             {!isGraduated && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap rounded-full bg-slate-900/85 px-3 py-1 text-[11px] font-black text-amber-300 shadow-md backdrop-blur-xs border border-amber-400/40">
-                Bản xem trước chứng nhận · Mở khi hoàn thành 30 trạm
+                Bản xem trước chứng nhận · Mở khi hoàn thành 32 trạm
               </div>
             )}
             <img
@@ -1084,8 +1114,8 @@ function CredentialsShowcase({
 
           <p className="text-xs sm:text-sm font-bold text-slate-600 mt-2 max-w-md">
             {isGraduated
-              ? 'Đã xuất sắc hoàn thành trọn bộ 30/30 trạm học của 6 đảo Khóa học AIKid Chính Thức, làm chủ kiến thức và kỹ năng sáng tạo AI toàn diện.'
-              : `Hiện đang tham gia Khóa học AIKid Chính Thức (đã hoàn thành ${completedQuests}/30 trạm).`}
+              ? 'Đã xuất sắc hoàn thành trọn bộ 32/32 trạm học của 6 đảo Khóa học AIKid Chính Thức, làm chủ kiến thức và kỹ năng sáng tạo AI toàn diện.'
+              : `Hiện đang tham gia Khóa học AIKid Chính Thức (đã hoàn thành ${completedQuests}/32 trạm).`}
           </p>
 
           {/* Achievement Stats Badges */}
@@ -1101,7 +1131,7 @@ function CredentialsShowcase({
                   : 'bg-slate-100 text-slate-800 border-slate-300',
               )}
             >
-              🎯 {completedQuests} / 30 Trạm Hoàn Thành
+              🎯 {completedQuests} / 32 Trạm Hoàn Thành
             </span>
           </div>
 
@@ -1119,7 +1149,7 @@ function CredentialsShowcase({
               </a>
             ) : (
               <div className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-500 font-black text-xs sm:text-sm px-6 py-3 cursor-not-allowed select-none">
-                <span>🔒 Mở khóa tải về khi hoàn thành 30/30 trạm</span>
+                <span>🔒 Mở khóa tải về khi hoàn thành 32/32 trạm</span>
               </div>
             )}
           </div>

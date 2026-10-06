@@ -143,7 +143,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
       id: 'island-comic',
       slug: 'dao-4-vuong-quoc-truyen-tranh-ai',
       badge: 'ĐẢO 4',
-      defaultQuestCount: 4,
+      defaultQuestCount: 5,
       targetRoute: '/world/program/aikid_official?island=dao-4-vuong-quoc-truyen-tranh-ai',
       description: 'Storyboard 8 ô — Phân khung và xuất bản truyện tranh.',
     })
@@ -152,7 +152,7 @@ describe('OFFICIAL_SIX_ISLANDS', () => {
       id: 'island-game',
       slug: 'dao-5-nha-phat-minh-tro-choi-ai',
       badge: 'ĐẢO 5',
-      defaultQuestCount: 4,
+      defaultQuestCount: 5,
       targetRoute: '/world/program/aikid_official?island=dao-5-nha-phat-minh-tro-choi-ai',
       description: 'Đấu trường thẻ bài — Bộ thẻ và luật chơi công bằng.',
     })

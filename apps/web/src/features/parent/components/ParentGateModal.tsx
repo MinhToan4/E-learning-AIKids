@@ -299,22 +299,22 @@ export function ParentGateModal({
         }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 px-6 pb-5 pt-7 text-center shrink-0 relative">
+        <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 px-6 pb-3 pt-4 sm:pb-4 sm:pt-5 text-center shrink-0 relative">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"
             aria-label="Đóng"
           >
-            <X size={18} />
+            <X size={17} />
           </button>
 
-          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 shadow-inner backdrop-blur-xs">
-            <ParentHomeIcon size={42} />
+          <div className="mx-auto mb-2 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl sm:rounded-3xl bg-white/20 shadow-inner backdrop-blur-xs">
+            <ParentHomeIcon size={28} />
           </div>
 
-          <h2 className="text-2xl font-black text-white tracking-tight">Ba / Mẹ ơi!</h2>
-          <p className="mt-1 text-xs sm:text-sm font-semibold text-white/90">
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">Ba / Mẹ ơi!</h2>
+          <p className="mt-0.5 text-xs sm:text-sm font-semibold text-white/90">
             {mode === 'pin' && 'Nhập mã PIN Ba / Mẹ gồm 4 chữ số'}
             {mode === 'password' && 'Nhập mật khẩu đăng nhập của Ba / Mẹ'}
             {mode === 'recovery' && 'Khôi phục quyền truy cập Ba / Mẹ'}
@@ -322,7 +322,7 @@ export function ParentGateModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 flex-1 min-h-0 flex flex-col justify-between overflow-y-auto">
+        <div className="px-5 py-3 sm:px-6 sm:py-4 flex-1 min-h-0 flex flex-col justify-between overflow-y-auto">
           {mode === 'pin' && (
             <>
               {/* Hidden input for physical keyboard and mobile numeric virtual keyboard */}
@@ -346,9 +346,9 @@ export function ParentGateModal({
               />
 
               {/* 4 PIN display dots / boxes */}
-              <div className="mb-3">
+              <div className="mb-2 sm:mb-2.5">
                 <div
-                  className="flex items-center justify-center gap-3.5 my-2"
+                  className="flex items-center justify-center gap-2.5 sm:gap-3.5 my-1.5 sm:my-2"
                   onClick={() => hiddenPinInputRef.current?.focus()}
                 >
                   {[0, 1, 2, 3].map((i) => {
@@ -358,7 +358,7 @@ export function ParentGateModal({
                       <div
                         key={i}
                         className={cn(
-                          'flex h-13 w-12 sm:h-15 sm:w-14 items-center justify-center rounded-2xl border-2 text-2xl sm:text-3xl font-black transition-all select-none',
+                          'flex h-11 w-10 sm:h-12 sm:w-11 items-center justify-center rounded-2xl border-2 text-xl sm:text-2xl font-black transition-all select-none',
                           isFilled
                             ? 'border-amber-500 bg-amber-50 text-slate-800 shadow-soft scale-105'
                             : isActive
@@ -373,37 +373,37 @@ export function ParentGateModal({
                 </div>
 
                 {/* Dòng chỉ dẫn thân thiện mã PIN mặc định 0000 */}
-                <div className="my-2.5 mx-auto max-w-[280px] rounded-2xl bg-amber-50 border border-amber-200/90 px-3.5 py-2 text-center shadow-2xs">
-                  <p className="text-xs font-black text-amber-900 flex items-center justify-center gap-1.5">
+                <div className="my-1.5 sm:my-2 mx-auto max-w-[280px] rounded-xl sm:rounded-2xl bg-amber-50 border border-amber-200/90 px-3 py-1.5 text-center shadow-2xs">
+                  <p className="text-[11px] sm:text-xs font-black text-amber-900 flex items-center justify-center gap-1">
                     <span>💡 Mã PIN mặc định là 0000</span>
                   </p>
-                  <p className="text-[11px] font-semibold text-amber-700 mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-amber-700 mt-0.5 leading-tight">
                     Nhập 0000 để mở khóa. Ba / Mẹ có thể đổi PIN trong Cài đặt.
                   </p>
                 </div>
 
                 {/* Error message */}
                 {error && (
-                  <p className="mt-2 text-center text-xs sm:text-sm font-bold text-rose-500 leading-snug">
+                  <p className="mt-1.5 text-center text-xs sm:text-sm font-bold text-rose-500 leading-snug">
                     {error}
                   </p>
                 )}
                 {!error && (
-                  <p className="mt-1.5 text-center text-xs text-muted">
+                  <p className="mt-1 text-center text-[11px] sm:text-xs text-muted">
                     {loading ? 'Đang kiểm tra mã PIN…' : 'Chạm các phím số bên dưới hoặc gõ bàn phím'}
                   </p>
                 )}
               </div>
 
               {/* On-screen Soft-Clay Numpad */}
-              <div className="grid grid-cols-3 gap-2 w-full max-w-[280px] mx-auto select-none">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full max-w-[280px] mx-auto select-none">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                   <button
                     key={n}
                     type="button"
                     disabled={loading}
                     onClick={() => handlePinDigit(String(n))}
-                    className="flex h-12 sm:h-13 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-xl sm:text-2xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                    className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-lg sm:text-xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                   >
                     {n}
                   </button>
@@ -414,17 +414,17 @@ export function ParentGateModal({
                   type="button"
                   disabled={loading || pin.length === 0}
                   onClick={handlePinDelete}
-                  className="flex h-12 sm:h-13 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-100 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 active:scale-95 text-slate-600 shadow-2xs transition-all cursor-pointer disabled:opacity-30"
+                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-100 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 active:scale-95 text-slate-600 shadow-2xs transition-all cursor-pointer disabled:opacity-30"
                   aria-label="Xóa 1 số"
                 >
-                  <Delete size={20} />
+                  <Delete size={18} />
                 </button>
 
                 <button
                   type="button"
                   disabled={loading}
                   onClick={() => handlePinDigit('0')}
-                  className="flex h-12 sm:h-13 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-xl sm:text-2xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-lg sm:text-xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                 >
                   0
                 </button>
@@ -433,20 +433,20 @@ export function ParentGateModal({
                   type="button"
                   disabled={loading || pin.length !== 4}
                   onClick={() => void verifyPin(pin)}
-                  className="flex h-12 sm:h-13 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 active:scale-95 text-white font-bold shadow-soft transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 active:scale-95 text-white font-bold shadow-soft transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                   aria-label="Xác nhận"
                 >
-                  <Check size={20} />
+                  <Check size={18} />
                 </button>
               </div>
 
               {/* Alternate options */}
-              <div className="mt-4 flex flex-col items-center gap-2 pt-2 border-t border-slate-100">
+              <div className="mt-2.5 sm:mt-3 flex flex-col items-center gap-1 sm:gap-1.5 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setMode('password')}
                   disabled={loading}
-                  className="text-xs sm:text-sm font-bold text-slate-600 hover:text-amber-600 transition-colors cursor-pointer"
+                  className="text-xs font-bold text-slate-600 hover:text-amber-600 transition-colors cursor-pointer"
                 >
                   Hoặc dùng mật khẩu tài khoản
                 </button>
@@ -455,7 +455,7 @@ export function ParentGateModal({
                   type="button"
                   onClick={() => setMode('recovery')}
                   disabled={loading}
-                  className="text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
+                  className="text-[11px] sm:text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
                 >
                   Quên mã PIN?
                 </button>
@@ -587,11 +587,11 @@ export function ParentGateModal({
           )}
 
           {/* Emergency Exit Button */}
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+          <div className="mt-2.5 sm:mt-3 pt-2 border-t border-slate-100 text-center">
             <button
               type="button"
               onClick={() => void handleEmergencyLogout()}
-              className="text-xs font-semibold text-slate-400 hover:text-rose-600 hover:underline transition-colors cursor-pointer"
+              className="text-[11px] sm:text-xs font-semibold text-slate-400 hover:text-rose-600 hover:underline transition-colors cursor-pointer"
             >
               Đăng xuất khỏi thiết bị này
             </button>

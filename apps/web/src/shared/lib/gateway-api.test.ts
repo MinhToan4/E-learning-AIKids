@@ -165,10 +165,9 @@ describe('StoryMee Gateway adapter', () => {
     const secondRequest = fetchMock.mock.calls[1]
     expect((secondRequest[1].headers as Headers).get('Authorization')).toBeNull()
     expect(secondRequest[1].credentials).toBe('include')
-    // The deployed Hub currently does not whitelist X-Request-ID in its
-    // cross-origin preflight response, so the browser must not send it here.
+    // Requests use the same-origin /api proxy; correlation does not add a CORS hop.
     expect((secondRequest[1].headers as Headers).get('X-Request-ID'))
-      .toBeNull()
+      .toMatch(/^[a-zA-Z0-9-]{8,128}$/)
   })
 
   it('normalizes a direct Hub course-detail payload with its lecture catalog', async () => {

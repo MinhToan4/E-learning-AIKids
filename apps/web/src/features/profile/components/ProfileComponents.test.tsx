@@ -207,7 +207,7 @@ describe('ProfileStatsGrid Component', () => {
     expect(container.textContent).toContain('Tích lũy học & sáng tạo')
 
     // Card 3: Stations
-    expect(container.textContent).toContain('16 / 30 Trạm')
+    expect(container.textContent).toContain('16 / 32 Trạm')
     expect(container.textContent).toContain('Trạm hoàn thành')
     expect(container.textContent).toContain('Hành trình 6 Đảo')
 

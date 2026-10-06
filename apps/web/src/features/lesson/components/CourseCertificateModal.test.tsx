@@ -170,4 +170,56 @@ describe('CourseCertificateModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
     vi.useRealTimers()
   })
+
+  it('generates dynamic SVG download link with personalized studentName and course info', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <CourseCertificateModal
+          isOpen={true}
+          onClose={vi.fn()}
+          studentName="Nguyễn Hoàng Nam"
+          courseTitle="Khóa Học Siêu Nhí AI"
+        />
+      )
+    })
+
+    const downloadLink = container.querySelector('a[download]') as HTMLAnchorElement | null
+    expect(downloadLink).not.toBeNull()
+    expect(downloadLink?.getAttribute('download')).toContain('Nguyễn-Hoàng-Nam')
+
+
+    const href = downloadLink?.getAttribute('href') || ''
+    expect(href).toContain('data:image/svg+xml')
+    const decodedSvg = decodeURIComponent(href)
+    expect(decodedSvg).toContain('Nguyễn Hoàng Nam')
+    expect(decodedSvg).toContain('Khóa Học Siêu Nhí AI')
+    expect(decodedSvg).toContain('OFFICIAL CERTIFIED')
+  })
+
+  it('calls window.print when clicking In Giấy Khen button', () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <CourseCertificateModal
+          isOpen={true}
+          onClose={vi.fn()}
+          studentName="Bé Mai"
+        />
+      )
+    })
+
+    const printBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('In Giấy Khen')
+    )
+    expect(printBtn).toBeDefined()
+
+    act(() => {
+      printBtn?.click()
+    })
+
+    expect(printSpy).toHaveBeenCalledTimes(1)
+    printSpy.mockRestore()
+  })
 })

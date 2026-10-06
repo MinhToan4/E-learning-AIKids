@@ -251,7 +251,7 @@ describe('ProfilePage Component', () => {
     })
 
     // The authoritative pathway snapshot owns this value (3 stations, 9 stars)
-    expect(container.textContent).toContain('3 / 30 Trạm')
+    expect(container.textContent).toContain('3 / 32 Trạm')
     expect(container.textContent).toContain('9 Sao')
 
     act(() => root.unmount())
@@ -354,7 +354,7 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('switches to certificates tab and renders progress card when course is not yet completed (< 30 stations)', async () => {
+  it('switches to certificates tab and renders progress card when course is not yet completed (< 32 stations)', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)
     const root = createRoot(container)
@@ -386,10 +386,10 @@ describe('ProfilePage Component', () => {
     expect(container.querySelector('#filter-certs-claimed')).not.toBeNull()
     expect(container.querySelector('#filter-certs-in-progress')).not.toBeNull()
 
-    // Progress card for unfinished course (< 30 stations)
+    // Progress card for unfinished course (< 32 stations)
     expect(container.textContent).not.toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP')
     expect(container.textContent).toContain(
-      'Hoàn thành trọn vẹn 30/30 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!',
+      'Hoàn thành trọn vẹn 32/32 trạm của Khóa Học Khám Phá & Sáng Tạo để nhận Bằng Khen Tốt Nghiệp danh dự từ Ban Cố Vấn và cất vào Ba Lô!',
     )
     expect(container.textContent).toContain('Tiến độ toàn khóa')
     expect(container.textContent).toContain('trạm nữa để tốt nghiệp khóa học!')
@@ -442,7 +442,7 @@ describe('ProfilePage Component', () => {
       {
         id: 'cert-course-aikid-official',
         courseId: 'cert-course-aikid-official',
-        courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)',
+        courseTitle: 'Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)',
         islandTitle: 'Tốt Nghiệp Xuất Sắc Toàn Khóa',
         studentName: 'Minh Thám Hiểm',
         issuedDate: '25/09/2026',
@@ -473,7 +473,7 @@ describe('ProfilePage Component', () => {
 
     expect(container.textContent).toContain('1 Bằng khen trong Ba lô')
     expect(container.textContent).toContain('Đã lưu trong Ba lô')
-    expect(container.textContent).toContain('Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 30 Trạm)')
+    expect(container.textContent).toContain('Khóa Học Khám Phá & Sáng Tạo Nhí (6 Đảo • 32 Trạm)')
     expect(container.textContent).toContain('Tốt Nghiệp Xuất Sắc Toàn Khóa')
 
     const reviewBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -493,8 +493,8 @@ describe('ProfilePage Component', () => {
     container.remove()
   })
 
-  it('renders Graduation Honors banner on certificates tab when student achieves 30/30 stations and opens CourseCertificateModal', async () => {
-    // Mock pathway with 30 completed stations
+  it('renders Graduation Honors banner on certificates tab when student achieves 32/32 stations and opens CourseCertificateModal', async () => {
+    // Mock pathway with 32 completed stations
     vi.spyOn(learningApiModule.learningApi, 'getPathway').mockResolvedValue({
       student: { nickname: 'Minh Thám Hiểm', ageBand: '6-8' },
       policy: null,
@@ -571,9 +571,9 @@ describe('ProfilePage Component', () => {
           coverImage: null,
           enrolled: true,
           enrollmentId: 'e-5',
-          questCount: 4,
-          completedCount: 4,
-          totalStars: 12,
+          questCount: 5,
+          completedCount: 5,
+          totalStars: 15,
         },
         {
           id: 'dao-6',
@@ -586,9 +586,9 @@ describe('ProfilePage Component', () => {
           coverImage: null,
           enrolled: true,
           enrollmentId: 'e-6',
-          questCount: 4,
-          completedCount: 4,
-          totalStars: 12,
+          questCount: 5,
+          completedCount: 5,
+          totalStars: 15,
         },
       ],
     } as any)
@@ -615,7 +615,7 @@ describe('ProfilePage Component', () => {
     // Graduation banner & Claim to Backpack flow
     expect(container.textContent).toContain('CHÚC MỪNG CON ĐÃ TỐT NGHIỆP KHÓA HỌC KHÁM PHÁ & SÁNG TẠO!')
     expect(container.textContent).toContain(
-      'Con đã xuất sắc hoàn thành trọn vẹn 30/30 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.',
+      'Con đã xuất sắc hoàn thành trọn vẹn 32/32 Trạm Học trên 6 Đảo Khám Phá! Ban Cố Vấn Học Viện chính thức trao tặng Bằng Khen Danh Dự cho con.',
     )
     expect(container.textContent).toContain('Nhận Bằng Khen & Cất Vào Ba Lô')
 

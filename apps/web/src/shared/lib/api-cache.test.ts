@@ -33,6 +33,23 @@ describe('authoritative browser API reads', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
+  it('correlates each wire request without changing explicit retry or trace keys', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => ok())
+    vi.stubGlobal('fetch', fetchMock)
+    await api('/api/backpack')
+    await api('/api/backpack')
+    const first = new Headers(fetchMock.mock.calls[0][1].headers).get('X-Request-Id')
+    const second = new Headers(fetchMock.mock.calls[1][1].headers).get('X-Request-Id')
+    expect(first).toBeTruthy()
+    expect(second).not.toBe(first)
+    await api('/api/projects', { method: 'POST', headers: {
+      'X-Request-Id': 'explicit-trace-123', 'Idempotency-Key': 'stable-retry-key',
+    }, body: '{}' })
+    const headers = new Headers(fetchMock.mock.calls[2][1].headers)
+    expect(headers.get('X-Request-Id')).toBe('explicit-trace-123')
+    expect(headers.get('Idempotency-Key')).toBe('stable-retry-key')
+  })
+
   it('coalesces only concurrent identical GET requests', async () => {
     let release!: () => void
     const gate = new Promise<void>((resolve) => { release = resolve })

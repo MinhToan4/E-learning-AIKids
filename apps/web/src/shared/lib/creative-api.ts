@@ -1,3 +1,4 @@
+import { environment } from '@/shared/config/environment'
 import { api, fetchRemoteBlob, openAuthorizedStream } from './api'
 
 type Job = {
@@ -218,9 +219,7 @@ export async function generateCreativeImage(input: {
       )
       const url = uploaded.url ?? uploaded.imageUrl
       if (url) {
-        const origin = typeof window !== 'undefined'
-          ? (window.location.origin.includes('localhost') ? 'https://dev-hub.storymee.com' : window.location.origin)
-          : 'https://dev-hub.storymee.com'
+        const origin = environment.mediaWorkerOrigin
         const absoluteUrl = url.startsWith('http') ? url : `${origin}${url}`
         references.push(absoluteUrl)
       }
@@ -246,9 +245,7 @@ export async function generateCreativeImage(input: {
         )
         const url = uploaded.url ?? uploaded.imageUrl
         if (url) {
-          const origin = typeof window !== 'undefined'
-            ? (window.location.origin.includes('localhost') ? 'https://dev-hub.storymee.com' : window.location.origin)
-            : 'https://dev-hub.storymee.com'
+          const origin = environment.mediaWorkerOrigin
           const absoluteUrl = url.startsWith('http') ? url : `${origin}${url}`
           references.push(absoluteUrl)
         }

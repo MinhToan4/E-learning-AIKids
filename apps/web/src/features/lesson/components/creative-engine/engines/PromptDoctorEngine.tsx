@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Stethoscope, CheckCircle2, AlertTriangle, Sparkles, X } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { playInstantSound } from '../../LessonInteractiveSidebar'
 import type { EngineProps, CreativeBlock } from '../types'
 import { CURE_BLOCKS } from '../data/creative-blocks-dataset'
 
-interface ClinicCase {
+export interface ClinicCase {
   id: string
   title: string
   patientName: string
@@ -24,7 +24,7 @@ export interface PromptDoctorEngineProps extends EngineProps {
   onCaseChange?: (index: number) => void
 }
 
-const CLINIC_CASES: ClinicCase[] = [
+export const CLINIC_CASES: ClinicCase[] = [
   {
     id: 'case-hand',
     title: 'Tay sáu ngón',
@@ -239,8 +239,18 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
   activePartIndex,
   onPartChange,
 }) => {
-  // Trích xuất danh sách ca bệnh từ practiceParts (DB) hoặc fallback sang CLINIC_CASES
-  const cases = React.useMemo<ClinicCase[]>(() => {
+  // Nhận biết xem practiceParts có phải là 4 cách chữa bệnh của 1 ca duy nhất không
+  const isSingleCaseCureMode = useMemo(() => {
+    if (!practiceParts || practiceParts.length === 0) return false
+    return practiceParts.some((p) => p.title.toLowerCase().startsWith('cách'))
+  }, [practiceParts])
+
+  // Trích xuất danh sách ca bệnh
+  const cases = useMemo<ClinicCase[]>(() => {
+    if (isSingleCaseCureMode) {
+      // 1 ca bệnh duy nhất: Bàn tay sáu ngón
+      return [CLINIC_CASES[0]]
+    }
     if (practiceParts && practiceParts.length > 0) {
       return practiceParts.map((p, idx) => {
         const fallback = CLINIC_CASES[idx % CLINIC_CASES.length]
@@ -260,27 +270,61 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
       })
     }
     return CLINIC_CASES
-  }, [practiceParts])
+  }, [practiceParts, isSingleCaseCureMode])
 
   const [internalCaseIndex, setInternalCaseIndex] = useState(0)
   const effectiveCaseIndex =
-    activePartIndex !== undefined
+    isSingleCaseCureMode
+      ? 0
+      : activePartIndex !== undefined
       ? activePartIndex
       : propActiveCaseIndex !== undefined
       ? propActiveCaseIndex
       : internalCaseIndex
 
   const currentCase = cases[effectiveCaseIndex] || cases[0]
-  const currentCures = CASE_CURES[currentCase.id] || CASE_CURES[CLINIC_CASES[0].id] || CURE_BLOCKS
+
+  // Trích xuất 4 options thuốc chữa bệnh
+  const currentCures = useMemo<CreativeBlock[]>(() => {
+    if (isSingleCaseCureMode && practiceParts && practiceParts.length > 0) {
+      return practiceParts.map((p, idx) => {
+        const cureText =
+          (p as any).cureText ||
+          CASE_CURES['case-hand'][0]?.text ||
+          'một bàn tay năm ngón đang cầm bút chì'
+        return {
+          id: `cure-hand-opt-${idx + 1}`,
+          label: p.title,
+          text: cureText,
+          category: 'cure',
+          icon: p.icon || p.emoji || '✍️',
+          colorScheme: (['indigo', 'rose', 'mint', 'amber'] as const)[idx % 4],
+          hint: p.title,
+        }
+      })
+    }
+    return CASE_CURES[currentCase.id] || CASE_CURES[CLINIC_CASES[0].id] || CURE_BLOCKS
+  }, [isSingleCaseCureMode, practiceParts, currentCase.id])
 
   const [curesByCase, setCuresByCase] = useState<Record<string, CreativeBlock | null>>({})
-  const selectedCure = curesByCase[currentCase.id] || null
-  const isCured = selectedCure?.id === currentCase.expectedCureId
+
+  // Nếu ở mode single-case có activePartIndex, tự động chọn thuốc tương ứng
+  const selectedCure = useMemo(() => {
+    if (isSingleCaseCureMode && activePartIndex !== undefined && activePartIndex >= 0 && activePartIndex < currentCures.length) {
+      return currentCures[activePartIndex]
+    }
+    return curesByCase[currentCase.id] || null
+  }, [isSingleCaseCureMode, activePartIndex, currentCures, curesByCase, currentCase.id])
+
+  // Ở single-case mode, cả 4 options đều là thuốc chữa hợp lệ
+  const isCured = isSingleCaseCureMode
+    ? Boolean(selectedCure)
+    : selectedCure?.id === currentCase.expectedCureId
 
   const [isDragOver, setIsDragOver] = useState(false)
   const [zoomRef, setZoomRef] = useState(false)
 
-  // Tự động đồng bộ refImageUrl ngầm cho media API
+  // Đồng bộ refImageUrl ngầm cho media API
   useEffect(() => {
     onRefImageChange?.(currentCase.refImageUrl)
   }, [currentCase.refImageUrl, onRefImageChange])
@@ -318,32 +362,39 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
         ...prev,
         [currentCase.id]: null,
       }))
+      if (isSingleCaseCureMode) {
+        onPartChange?.(-1)
+      }
       return
     }
 
-    const isCorrect = cure.id === currentCase.expectedCureId
-    if (isCorrect) {
-      playInstantSound('correct')
-    } else {
-      playInstantSound('click')
-    }
+    playInstantSound(isSingleCaseCureMode || cure.id === currentCase.expectedCureId ? 'correct' : 'click')
     setCuresByCase((prev) => ({
       ...prev,
       [currentCase.id]: cure,
     }))
+
+    if (isSingleCaseCureMode) {
+      const idx = currentCures.findIndex((c) => c.id === cure.id)
+      if (idx >= 0) {
+        onPartChange?.(idx)
+      }
+    }
   }
 
   const handleDropCure = (cure: CreativeBlock) => {
-    const isCorrect = cure.id === currentCase.expectedCureId
-    if (isCorrect) {
-      playInstantSound('correct')
-    } else {
-      playInstantSound('click')
-    }
+    playInstantSound(isSingleCaseCureMode || cure.id === currentCase.expectedCureId ? 'correct' : 'click')
     setCuresByCase((prev) => ({
       ...prev,
       [currentCase.id]: cure,
     }))
+
+    if (isSingleCaseCureMode) {
+      const idx = currentCures.findIndex((c) => c.id === cure.id)
+      if (idx >= 0) {
+        onPartChange?.(idx)
+      }
+    }
   }
 
   const handleRemoveCure = () => {
@@ -352,6 +403,9 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
       ...prev,
       [currentCase.id]: null,
     }))
+    if (isSingleCaseCureMode) {
+      onPartChange?.(-1)
+    }
   }
 
   const handleSwitchCase = (idx: number) => {
@@ -363,7 +417,7 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
 
   return (
     <div data-testid="prompt-doctor-engine" className="flex flex-col gap-2.5 text-left">
-      {/* ── BƯỚC 1: 🩺 CHỌN CA BỆNH (CHỦ THỂ BỊ LỖI) ── */}
+      {/* ── BƯỚC 1: 🩺 BỆNH VIỆN CÂU LỆNH AIKIDS ── */}
       <div className="bg-linear-to-r from-emerald-50 via-teal-50 to-sky-50 rounded-2xl border-2 border-emerald-300 p-2.5 sm:p-3 shadow-2xs flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
@@ -380,57 +434,58 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
           </span>
         </div>
 
-        {/* Lưới 4 Card ca bệnh nhỏ gọn, vừa vặn không bị scroll */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-          {cases.map((c, idx) => {
-            const isSelected = effectiveCaseIndex === idx
-            return (
-              <button
-                key={c.id}
-                type="button"
-                data-testid={`clinic-case-button-${c.id}`}
-                onClick={() => handleSwitchCase(idx)}
-                className={cn(
-                  'p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center gap-2.5 select-none min-h-[54px] group',
-                  isSelected
-                    ? 'bg-emerald-50/80 border-emerald-600 shadow-clay-xs ring-2 ring-emerald-300 scale-[1.01]'
-                    : 'bg-white/95 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 text-slate-700 shadow-2xs'
-                )}
-              >
-                <div
+        {/* Lưới chọn ca bệnh: Ẩn khi chỉ có 1 ca bệnh (Single Case Mode) */}
+        {!isSingleCaseCureMode && cases.length > 1 && (
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+            {cases.map((c, idx) => {
+              const isSelected = effectiveCaseIndex === idx
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  data-testid={`clinic-case-button-${c.id}`}
+                  onClick={() => handleSwitchCase(idx)}
                   className={cn(
-                    'size-9 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-105',
-                    isSelected ? 'bg-emerald-100 text-emerald-900 shadow-2xs' : 'bg-slate-100 text-slate-700'
+                    'p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center gap-2.5 select-none min-h-[54px] group',
+                    isSelected
+                      ? 'bg-emerald-50/80 border-emerald-600 shadow-clay-xs ring-2 ring-emerald-300 scale-[1.01]'
+                      : 'bg-white/95 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 text-slate-700 shadow-2xs'
                   )}
                 >
-                  {c.icon}
-                </div>
-                <div className="min-w-0 flex-1">
                   <div
                     className={cn(
-                      'text-xs font-black leading-tight break-words line-clamp-2',
-                      isSelected ? 'text-emerald-950' : 'text-slate-800'
+                      'size-9 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-105',
+                      isSelected ? 'bg-emerald-100 text-emerald-900 shadow-2xs' : 'bg-slate-100 text-slate-700'
                     )}
                   >
-                    Ca {idx + 1}: {c.patientName}
+                    {c.icon}
                   </div>
-                  <div className="text-[10px] font-bold text-slate-400 leading-tight break-words line-clamp-1">
-                    Bệnh án {idx + 1}
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className={cn(
+                        'text-xs font-black leading-tight break-words line-clamp-2',
+                        isSelected ? 'text-emerald-950' : 'text-slate-800'
+                      )}
+                    >
+                      Ca {idx + 1}: {c.patientName}
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400 leading-tight break-words line-clamp-1">
+                      Bệnh án {idx + 1}
+                    </div>
                   </div>
-                </div>
-                {isSelected && (
-                  <div className="size-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
-                    ✓
-                  </div>
-                )}
-              </button>
-            )
-          })}
-        </div>
+                  {isSelected && (
+                    <div className="size-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                      ✓
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* ── BƯỚC 2: 🚨 SOI BỆNH ÁN TRANH LỖI (ẢNH REF) ── */}
         <div className="bg-white rounded-2xl p-2.5 sm:p-3 border-2 border-rose-200 shadow-2xs flex flex-col sm:flex-row items-center gap-3">
-          {/* Thumbnail Ảnh Bệnh Án Có Thể Phóng To */}
           <div
             data-testid="doctor-patient-frame"
             onClick={() => setZoomRef(true)}
@@ -451,7 +506,7 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
           <div className="flex-1 min-w-0 text-left">
             <div className="flex items-center gap-1.5 text-xs font-black text-rose-700 uppercase tracking-wide mb-1 flex-wrap">
               <span className="flex size-4 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black shrink-0">
-                2
+                {isSingleCaseCureMode ? '1' : '2'}
               </span>
               <AlertTriangle size={15} className="shrink-0" />
               <span>🏥 BỆNH VIỆN TRANH LỖI · ẢNH BỆNH NHÂN CẦN KHÁM</span>
@@ -469,19 +524,19 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
         </div>
       </div>
 
-      {/* ── BƯỚC 3: 💊 KÊ ĐƠN THUỐC ĐẶC TRỊ ── */}
+      {/* ── BƯỚC 3: 💊 ĐƠN THUỐC ĐẶC TRỊ CHO TRANH ── */}
       <div className="bg-white rounded-2xl border-2 border-slate-200 p-2.5 sm:p-3 shadow-2xs flex flex-col gap-2">
         <div className="flex items-center justify-between flex-wrap gap-1.5">
           <div className="flex items-center gap-1.5">
             <span className="flex size-5 items-center justify-center rounded-full bg-emerald-600 text-white text-[11px] font-black">
-              3
+              {isSingleCaseCureMode ? '2' : '3'}
             </span>
             <span className="font-black text-xs sm:text-sm text-slate-800">
               💊 ĐƠN THUỐC ĐẶC TRỊ CHO TRANH (KÊ 1 LIỀU DUY NHẤT)
             </span>
           </div>
           {selectedCure && (
-            selectedCure.id === currentCase.expectedCureId ? (
+            isCured ? (
               <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full animate-bounce">
                 <CheckCircle2 size={13} strokeWidth={3} />
                 🎉 ĐÃ BỐC ĐÚNG THUỐC ĐẶC TRỊ! TRANH SẼ HẾT LỖI!
@@ -519,7 +574,7 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
             isDragOver && 'border-2 border-emerald-500 bg-emerald-100/90 ring-4 ring-emerald-300 scale-101 shadow-md p-3',
             !isDragOver && (!selectedCure
               ? 'border-2 border-dashed border-rose-300/80 rounded-2xl p-4 text-center bg-white/70'
-              : selectedCure.id === currentCase.expectedCureId
+              : isCured
               ? 'border-2 border-emerald-400 bg-emerald-50/70 p-2.5 sm:p-3 shadow-2xs'
               : 'border-2 border-amber-400 bg-amber-50/70 p-2.5 sm:p-3 shadow-2xs')
           )}
@@ -532,7 +587,7 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
             </div>
           ) : (
             <div className="flex flex-col gap-2 w-full">
-              {selectedCure.id !== currentCase.expectedCureId && (
+              {!isCured && (
                 <div className="text-[11px] sm:text-xs font-bold text-amber-900 bg-amber-100/90 px-3 py-1.5 rounded-xl border border-amber-300/80 flex items-center gap-1.5">
                   <AlertTriangle size={13} className="text-amber-600 shrink-0" />
                   <span>
@@ -543,9 +598,7 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
               <div
                 className={cn(
                   'flex items-center justify-between gap-3 bg-white px-3.5 py-2 rounded-xl border shadow-2xs text-left',
-                  selectedCure.id === currentCase.expectedCureId
-                    ? 'border-emerald-300'
-                    : 'border-amber-300'
+                  isCured ? 'border-emerald-300' : 'border-amber-300'
                 )}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -575,11 +628,15 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
         </div>
       </div>
 
-      {/* Tủ Thuốc Câu Lệnh (To bản, dễ nhìn, Drag & Drop siêu mượt) */}
+      {/* Tủ Thuốc Câu Lệnh */}
       <div className="bg-slate-50 rounded-2xl border-2 border-slate-200 p-2.5 sm:p-3 shadow-2xs flex flex-col gap-2">
         <div className="flex items-center gap-1.5 font-black text-xs text-slate-700">
           <Sparkles size={14} className="text-amber-500" />
-          <span>Tủ Thuốc Thần Kỳ (Kéo thả hoặc chạm thẻ thuốc để nạp vào đơn)</span>
+          <span>
+            {isSingleCaseCureMode
+              ? 'Tủ Thuốc Thần Kỳ (4 Phương Án Kê Đơn Chữa Bệnh Cho Bàn Tay)'
+              : 'Tủ Thuốc Thần Kỳ (Kéo thả hoặc chạm thẻ thuốc để nạp vào đơn)'}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
@@ -679,4 +736,3 @@ export const PromptDoctorEngine: React.FC<PromptDoctorEngineProps> = ({
     </div>
   )
 }
-

@@ -1,3 +1,4 @@
+import { sessionGeneration } from './session-scope'
 import { ISLAND_CURRICULUM_LESSONS } from '@/features/lesson/data/island-curriculum-registry'
 import { learningApi } from '@/shared/lib/learning-api'
 
@@ -338,16 +339,18 @@ export async function flushPendingSyncQueue(activeChildId?: string | null): Prom
   const ownedQueue = queue.filter((item) => item.childId === normalizedChildId)
   if (ownedQueue.length === 0) return
 
+  const scope = sessionGeneration
   isFlushing = true
   const successfulIds = new Set<string>()
   let anySuccess = false
 
   try {
     for (const item of ownedQueue) {
+      if (scope !== sessionGeneration) break
       const syncId = item.id || `${item.lessonId}-${item.timestamp}`
       try {
         if (item.answers && Array.isArray(item.answers)) {
-          await learningApi.submitCheck(item.lessonId, { answers: item.answers })
+          await learningApi.submitCheck(item.lessonId, { answers: item.answers }, `${normalizedChildId}:${syncId}`)
           successfulIds.add(syncId)
           anySuccess = true
         } else if (item.fromPhase) {
@@ -355,7 +358,7 @@ export async function flushPendingSyncQueue(activeChildId?: string | null): Prom
           successfulIds.add(syncId)
           anySuccess = true
         } else {
-          await learningApi.submitCheck(item.lessonId, { answers: item.answers ?? [] })
+          await learningApi.submitCheck(item.lessonId, { answers: item.answers ?? [] }, `${normalizedChildId}:${syncId}`)
           successfulIds.add(syncId)
           anySuccess = true
         }
@@ -369,12 +372,12 @@ export async function flushPendingSyncQueue(activeChildId?: string | null): Prom
     const freshQueue = getPendingSyncQueue()
     const remaining = freshQueue.filter((item) => {
       const syncId = item.id || `${item.lessonId}-${item.timestamp}`
-      return !successfulIds.has(syncId)
+      return item.childId !== normalizedChildId || !successfulIds.has(syncId)
     })
     savePendingSyncQueue(remaining)
     isFlushing = false
 
-    if (anySuccess && typeof window !== 'undefined') {
+    if (anySuccess && scope === sessionGeneration && typeof window !== 'undefined') {
       try {
         window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
       } catch {

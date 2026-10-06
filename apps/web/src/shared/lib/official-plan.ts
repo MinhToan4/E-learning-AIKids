@@ -9,6 +9,67 @@ import { api } from '@/shared/lib/api'
 
 export const AIKIDS_OFFICIAL_PLAN_ID = 'aikids_official_129k'
 
+const PLANS_CACHE_TTL_MS = 60_000
+export let cachedPlansPromise: Promise<PlanDef[]> | null = null
+export let cachedPlansTimestamp: number = 0
+
+async function fetchBillingPlansFromServer(): Promise<PlanDef[]> {
+  try {
+    const res = await api<PlanDef[] | { plans?: PlanDef[] }>('/api/admin/billing/plans')
+    const rawList = Array.isArray(res) ? res : res?.plans
+    if (Array.isArray(rawList) && rawList.length > 0) {
+      const normalized = rawList.map(normalizePlanDef)
+      try {
+        localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(normalized))
+      } catch {
+        /* ignore */
+      }
+      return normalized
+    }
+  } catch {
+    // Fallback silently to cached / parent plans
+    try {
+      const parentRes = await api<{ plans?: PlanDef[] }>('/api/parent/plans')
+      if (Array.isArray(parentRes?.plans) && parentRes.plans.length > 0) {
+        const normalized = parentRes.plans.map(normalizePlanDef)
+        return normalized
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return getCachedBillingPlans()
+}
+
+export function fetchLatestOfficialPlans(): Promise<PlanDef[]> {
+  const now = Date.now()
+  if (cachedPlansPromise && now - cachedPlansTimestamp < PLANS_CACHE_TTL_MS) {
+    return cachedPlansPromise
+  }
+
+  const promise = fetchBillingPlansFromServer()
+    .then((result) => {
+      cachedPlansTimestamp = Date.now()
+      return result
+    })
+    .catch((err) => {
+      cachedPlansPromise = null
+      cachedPlansTimestamp = 0
+      throw err
+    })
+
+  cachedPlansPromise = promise
+  cachedPlansTimestamp = now
+  return promise
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('aikids:billing-plans-updated', () => {
+    cachedPlansTimestamp = 0
+    cachedPlansPromise = null
+  })
+}
+
 /**
  * Format minor amount (VND) to display string (e.g. 129.000đ)
  */
@@ -67,28 +128,12 @@ export function useOfficialBillingPlan() {
     let isMounted = true
     const fetchLatest = async () => {
       try {
-        const res = await api<PlanDef[] | { plans?: PlanDef[] }>('/api/admin/billing/plans')
-        const rawList = Array.isArray(res) ? res : res?.plans
-        if (Array.isArray(rawList) && rawList.length > 0 && isMounted) {
-          const normalized = rawList.map(normalizePlanDef)
+        const normalized = await fetchLatestOfficialPlans()
+        if (isMounted && normalized.length > 0) {
           setPlans(normalized)
-          try {
-            localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(normalized))
-          } catch {
-            /* ignore */
-          }
         }
       } catch {
-        // Fallback silently to cached / parent plans
-        try {
-          const parentRes = await api<{ plans?: PlanDef[] }>('/api/parent/plans')
-          if (Array.isArray(parentRes?.plans) && parentRes.plans.length > 0 && isMounted) {
-            const normalized = parentRes.plans.map(normalizePlanDef)
-            setPlans(normalized)
-          }
-        } catch {
-          /* ignore */
-        }
+        /* ignore */
       }
     }
 
@@ -96,12 +141,16 @@ export function useOfficialBillingPlan() {
 
     // 2. Listen to custom event when Admin saves a plan in PlanEditorModal
     const handlePlanUpdated = () => {
+      cachedPlansTimestamp = 0
+      cachedPlansPromise = null
       syncPlans()
     }
 
     // 3. Listen to localStorage storage events across browser tabs
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'aikids_admin_billing_plans') {
+        cachedPlansTimestamp = 0
+        cachedPlansPromise = null
         syncPlans()
       }
     }

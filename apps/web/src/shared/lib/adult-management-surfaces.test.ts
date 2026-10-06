@@ -34,7 +34,7 @@ describe('adult management surfaces', () => {
     expect(learning).toContain('Đã đăng ký')
     expect(learning).toContain("`/api/parent/children/${studentId}/courses`")
     expect(learning).toContain("`/api/parent/children/${studentId}/progress`")
-    expect(learning).toContain('learningApi.getPathway(studentId)')
+    expect(learning).toContain('learningApi.getPathway(studentId, opts)')
     expect(learning).not.toContain('const courses = [')
   })
 

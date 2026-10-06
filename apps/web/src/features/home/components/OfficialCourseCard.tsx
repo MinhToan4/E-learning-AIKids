@@ -12,6 +12,7 @@ export interface OfficialCourseCardProps {
   actionLabel?: string
   overallProgressPct?: number
   completedStationsCount?: number
+  totalStationsCount?: number
   totalStarsCount?: number
   isMobileFrame?: boolean
   className?: string
@@ -26,6 +27,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
   actionLabel,
   overallProgressPct = 0,
   completedStationsCount = 0,
+  totalStationsCount = 32,
   totalStarsCount = 0,
   className,
   children,
@@ -108,7 +110,7 @@ export const OfficialCourseCard: React.FC<OfficialCourseCardProps> = ({
 
           <div className="mt-3 rounded-2xl bg-white/85 p-3 ring-1 ring-orange-100">
             <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
-              <span>{completedStationsCount}/30 trạm hoàn thành</span>
+              <span>{completedStationsCount}/{totalStationsCount} trạm hoàn thành</span>
               <span className="text-orange-700">{overallProgressPct}%</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-orange-100">

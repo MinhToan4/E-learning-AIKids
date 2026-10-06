@@ -24,9 +24,10 @@ export function ProfileStatsGrid({
   achievementsCount = 0,
   worksCount,
 }: ProfileStatsGridProps) {
-  // Chuẩn hóa 30 trạm
-  const displayStations = Math.min(30, Math.max(0, completedStations))
-  const stationPercent = Math.min(100, Math.round((displayStations / 30) * 100))
+  const TOTAL_OFFICIAL_STATIONS = 32
+  // Chuẩn hóa 32 trạm
+  const displayStations = Math.min(TOTAL_OFFICIAL_STATIONS, Math.max(0, completedStations))
+  const stationPercent = Math.min(100, Math.round((displayStations / TOTAL_OFFICIAL_STATIONS) * 100))
 
   // Thời lượng fallback nếu không truyền vào
   const fallbackMinutes = displayStations * 20 + streakDays * 25
@@ -35,9 +36,9 @@ export function ProfileStatsGrid({
     `${Math.floor(fallbackMinutes / 60)}h ${fallbackMinutes % 60}m`
 
   const totalHonors = (achievementsCount ?? 0) + (certificatesCount ?? 0)
-  const nextStationMilestone = displayStations >= 30
-    ? 30
-    : Math.min(30, Math.ceil((displayStations + 1) / 5) * 5)
+  const nextStationMilestone = displayStations >= TOTAL_OFFICIAL_STATIONS
+    ? TOTAL_OFFICIAL_STATIONS
+    : Math.min(TOTAL_OFFICIAL_STATIONS, Math.ceil((displayStations + 1) / 5) * 5)
   const stationsToMilestone = Math.max(0, nextStationMilestone - displayStations)
   const starsInMilestone = Math.max(0, totalStars % 15)
   const starsToMilestone = starsInMilestone === 0 && totalStars > 0 ? 15 : 15 - starsInMilestone
@@ -58,7 +59,7 @@ export function ProfileStatsGrid({
           </div>
           <div className="min-w-0 flex-1">
             <span className="block font-display text-xl sm:text-2xl font-black text-slate-900 leading-none break-words">
-              <span className="text-3xl sm:text-4xl">{displayStations}</span><span className="text-base text-teal-700"> / 30 Trạm</span>
+              <span className="text-3xl sm:text-4xl">{displayStations}</span><span className="text-base text-teal-700"> / 32 Trạm</span>
             </span>
             <span className="mt-1 block text-[11px] sm:text-xs font-black uppercase tracking-normal leading-tight whitespace-normal text-slate-700 break-words">
               Hành trình 6 Đảo
@@ -77,7 +78,7 @@ export function ProfileStatsGrid({
           </div>
         </div>
         <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-teal-100/70 px-2.5 py-1 text-[11px] sm:text-xs font-bold leading-snug whitespace-normal break-words text-teal-900 border border-teal-200/60">
-          <span><strong>Nhiệm vụ:</strong> {displayStations >= 30 ? 'Chinh phục trọn hành trình' : `Thêm ${stationsToMilestone} trạm để chạm mốc ${nextStationMilestone}`}</span>
+          <span><strong>Nhiệm vụ:</strong> {displayStations >= TOTAL_OFFICIAL_STATIONS ? 'Chinh phục trọn hành trình' : `Thêm ${stationsToMilestone} trạm để chạm mốc ${nextStationMilestone}`}</span>
         </div>
       </div>
 

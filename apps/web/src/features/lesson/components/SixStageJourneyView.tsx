@@ -22,6 +22,7 @@ import { isValidImageUrl, parseGoalCard, GOAL_CARD_STYLES } from '../lib/stage-v
 import { STAGE_REGISTRY } from './stages'
 import type { JourneyStageDefinition, ParsedGoalCard } from '../types/stage-schema'
 import { StageStepperBar } from './StageStepperBar'
+import { useAuth } from '@/shared/store/auth'
 import {
   useSixStageJourneyState,
   type LessonCompletionSummary,
@@ -87,6 +88,9 @@ export function SixStageJourneyView(props: SixStageJourneyViewProps) {
   } = props
 
   const state = useSixStageJourneyState(props)
+  const user = useAuth((s) => s.user)
+  const studentName = user?.nickname || user?.name || user?.email?.split('@')[0] || 'Nhà Sáng Tạo Nhí'
+  const studentId = user?.id
 
   // Lookup Component from Schema Registry
   const StageComp = STAGE_REGISTRY[state.currentStageDef?.type]
@@ -340,6 +344,8 @@ export function SixStageJourneyView(props: SixStageJourneyViewProps) {
         islandTitle={state.stationInfo.islandName}
         stars={state.effectiveStars}
         xp={state.effectiveRewardXp}
+        studentName={studentName}
+        studentId={studentId}
       />
     </div>
   )

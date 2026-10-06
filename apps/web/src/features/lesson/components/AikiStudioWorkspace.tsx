@@ -823,7 +823,10 @@ export function AikiStudioWorkspace({
 
     // Lấy ảnh mẫu cho bước hiện tại làm fallback
     const currentStepConfig = effectiveWorkflowSteps[currentWorkflowStep]
-    const partCuratedArtwork = getStudioAIArtwork(illustrationType, lessonId, rawPrompt || activePartSubject || effectiveCharacterName)
+    const partCuratedArtwork =
+      effectiveMode === 'prompt-doctor' && ((currentPartDef as any)?.curedImageUrl || (currentPartDef as any)?.sampleResultUrl)
+        ? ((currentPartDef as any)?.curedImageUrl || (currentPartDef as any)?.sampleResultUrl)
+        : getStudioAIArtwork(illustrationType, lessonId, rawPrompt || activePartSubject || effectiveCharacterName)
     const sampleUrl =
       partCuratedArtwork ||
       currentStepConfig?.sampleResultUrl ||
@@ -835,12 +838,16 @@ export function AikiStudioWorkspace({
     if (isInstantFallback) {
       // Chế độ ảnh tạo sẵn tức thì (350ms để mô phỏng nhịp thở phép thuật AIKI)
       await new Promise((resolve) => setTimeout(resolve, 350))
-      const fallbackUrl = resolveExactComboImage({
+      let fallbackUrl = resolveExactComboImage({
         blockIds: activeBlockIds,
         prompt: rawPrompt || activePartSubject || effectiveCharacterName,
         lastImageUrl: lastGeneratedUrl,
         engineMode: effectiveMode,
       })
+      if (effectiveMode === 'prompt-doctor') {
+        const curedUrl = (currentPartDef as any)?.curedImageUrl || (currentPartDef as any)?.sampleResultUrl
+        if (curedUrl) fallbackUrl = curedUrl
+      }
       resultImageUrl = fallbackUrl || sampleUrl
       setLastGeneratedUrl(resultImageUrl)
       isFallback = true
@@ -848,10 +855,11 @@ export function AikiStudioWorkspace({
       try {
         // 3. Gọi generateCreativeImage với prompt đã được ép phong cách 3D hoạt hình / Soft Clay AI Kids
         const cartoonPrompt = formatAikiCartoonPrompt(rawPrompt, effectiveMode)
+        const finalPrompt = effectiveMode === 'prompt-doctor' ? rawPrompt : cartoonPrompt
         const generatedUrl = await generateCreativeImage({
-          prompt: cartoonPrompt,
+          prompt: finalPrompt,
           aspectRatio: '4:3',
-          refImageUrl: activeRefImageUrl,
+          refImageUrl: activeRefImageUrl || (currentPartDef as any)?.iconImage,
         })
         if (generatedUrl) {
           resultImageUrl = generatedUrl
@@ -861,12 +869,16 @@ export function AikiStudioWorkspace({
         // 4. Cơ chế Graceful Fallback khi gặp lỗi kết nối hoặc worker bận
         console.warn('Gateway Google Flow connection error or worker busy, falling back gracefully to curated sample:', error)
         isFallback = true
-        const fallbackUrl = resolveExactComboImage({
+        let fallbackUrl = resolveExactComboImage({
           blockIds: activeBlockIds,
           prompt: rawPrompt || activePartSubject || effectiveCharacterName,
           lastImageUrl: lastGeneratedUrl,
           engineMode: effectiveMode,
         })
+        if (effectiveMode === 'prompt-doctor') {
+          const curedUrl = (currentPartDef as any)?.curedImageUrl || (currentPartDef as any)?.sampleResultUrl
+          if (curedUrl) fallbackUrl = curedUrl
+        }
         resultImageUrl = fallbackUrl || sampleUrl
         setLastGeneratedUrl(resultImageUrl)
       }
@@ -1225,18 +1237,22 @@ export function AikiStudioWorkspace({
   const livePreviewUrl = useMemo(() => {
     if (displayedPartImage) return null
     if (activeBlockIds.length > 0 || currentPrompt) {
-      const resolved = resolveExactComboImage({
+      let resolved = resolveExactComboImage({
         blockIds: activeBlockIds,
         prompt: currentPrompt || activePartSubject || effectiveCharacterName,
         lastImageUrl: lastGeneratedUrl,
         engineMode: effectiveMode,
       })
-      if (resolved && resolved.startsWith('/assets/pregenerated-combos/')) {
+      if (effectiveMode === 'prompt-doctor') {
+        const curedUrl = (currentPartDef as any)?.curedImageUrl || (currentPartDef as any)?.sampleResultUrl
+        if (curedUrl) resolved = curedUrl
+      }
+      if (resolved && (resolved.startsWith('/assets/pregenerated-combos/') || resolved.startsWith('/assets/aiki-doctor/'))) {
         return resolved
       }
     }
     return null
-  }, [displayedPartImage, activeBlockIds, currentPrompt, activePartSubject, effectiveCharacterName, lastGeneratedUrl, effectiveMode])
+  }, [displayedPartImage, activeBlockIds, currentPrompt, activePartSubject, effectiveCharacterName, lastGeneratedUrl, effectiveMode, currentPartDef])
 
   const previewCanvasColumn = (
     <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">

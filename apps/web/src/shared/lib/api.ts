@@ -79,7 +79,7 @@ export async function downloadAuthorizedBlob(
       signal,
     } satisfies RequestInit,
   }
-  const headers = new Headers(request.options.headers)
+  const headers = withRequestId(request.options.headers)
   const token = getAccessToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
@@ -376,8 +376,8 @@ async function verifySessionDead(signal?: AbortSignal | null): Promise<boolean> 
   const token = getAccessToken()
   sessionVerifyPromise = (async () => {
     try {
-      const headers: Record<string, string> = {}
-      if (token) headers['Authorization'] = `Bearer ${token}`
+      const headers = withRequestId()
+      if (token) headers.set('Authorization', `Bearer ${token}`)
       const checkRes = await fetch(`${API_BASE}/api/auth/me`, {
         credentials: 'include',
         headers,
@@ -393,13 +393,25 @@ async function verifySessionDead(signal?: AbortSignal | null): Promise<boolean> 
   return sessionVerifyPromise
 }
 
+// Correlation only: random per wire request, never an identity or retry key.
+function withRequestId(input?: HeadersInit): Headers {
+  const headers = new Headers(input)
+  if (!headers.has('X-Request-Id')) {
+    const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `req-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    headers.set('X-Request-Id', id)
+  }
+  return headers
+}
+
 async function executeApi<T>(
   path: string,
   options: RequestInit,
 ): Promise<T> {
   const request = normalizeGatewayRequest(path, options)
   const requestSessionGeneration = sessionGeneration
-  const headers = new Headers(request.options.headers)
+  const headers = withRequestId(request.options.headers)
   const token = getAccessToken()
   if (request.options.body &&
       !(request.options.body instanceof FormData) &&
@@ -506,7 +518,7 @@ export async function openAuthorizedStream(
   path: string,
   signal?: AbortSignal,
 ): Promise<Response> {
-  const headers = new Headers({ Accept: 'text/event-stream' })
+  const headers = withRequestId({ Accept: 'text/event-stream' })
   const token = getAccessToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
   const response = await fetch(gatewayUrl(path), { headers, signal, credentials: 'include' })
@@ -813,6 +825,9 @@ export interface SixStagePracticePartDef {
   icon?: string
   iconImage?: string
   emoji?: string
+  curedImageUrl?: string
+  sampleResultUrl?: string
+  cureText?: string
 }
 
 export interface SixStageFourKeysOptions {

@@ -50,5 +50,11 @@ export const environment = Object.freeze({
   storagePublicUrl: configuredStorageUrl
     ? normalizeOrigin(configuredStorageUrl, 'storagePublicUrl')
     : '',
+  // Public media URLs must also resolve when a worker consumes them outside the browser.
+  mediaWorkerOrigin: configuredApiUrl
+    ? normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
+    : typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? window.location.origin
+      : 'https://dev-hub.storymee.com',
   affiliateApiUrl: (import.meta.env.VITE_AFFILIATE_API_URL as string | undefined) || '',
 })

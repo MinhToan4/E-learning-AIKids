@@ -303,6 +303,7 @@ export function AdminBillingTab() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      if (document.visibilityState === 'hidden') return
       void fetchBillingData()
     }, 10000)
     return () => clearInterval(interval)
