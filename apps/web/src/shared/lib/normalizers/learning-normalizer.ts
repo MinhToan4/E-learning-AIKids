@@ -937,6 +937,8 @@ export function normalizeLearningGatewayResponse(
           questCount: stations.length > 0
             ? stations.length
             : Number(course.questCount ?? mapped.questCount ?? 0),
+          completedCount: Number(course.completedCount ?? 0),
+          totalStars: Number(course.totalStars ?? 0),
           stations,
         }
       }),

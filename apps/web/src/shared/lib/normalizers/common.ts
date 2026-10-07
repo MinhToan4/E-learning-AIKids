@@ -1,5 +1,6 @@
 import { environment } from '@/shared/config/environment'
 import { createUuid } from '../uuid'
+import { clampStationStars } from '../star-progress'
 import { ApiError, clearAccessToken, setAccessToken, type User, type CourseSummary } from '../api'
 
 export type GatewayRequest = { path: string; options: RequestInit }
@@ -255,12 +256,16 @@ export function mapCourse(raw: Record<string, unknown>): CourseSummary {
     questCount: Math.max(lessons.length, declaredQuestCount),
     enrolled: false,
     quests: lessons.map((lesson, index) => ({
-      id: String(lesson.id ?? ''),
+      id: String(lesson.id ?? lesson.lessonId ?? ''),
       order: Number(lesson.order ?? lesson.position ?? index + 1),
       title: String(lesson.title ?? ''),
       accent: String(metadata.accent ?? '#7c3aed'),
-      practiceKind: String(lesson.lessonType ?? 'lesson'),
-      stage: 'learn',
+      practiceKind: String(lesson.lessonType ?? (lesson as any).practiceKind ?? 'lesson'),
+      stage: String((lesson as any).stage ?? 'learn'),
+      status: String(lesson.status ?? 'locked'),
+      stars: clampStationStars(lesson.stars),
+      xpEarned: Number(lesson.xpEarned ?? 0),
+      phase: String(lesson.phase ?? 'learn'),
       slug: (lesson as any).slug ? String((lesson as any).slug) : undefined,
       access: (lesson as any).access ?? ((lesson as any).metadata as any)?.access,
     })),
