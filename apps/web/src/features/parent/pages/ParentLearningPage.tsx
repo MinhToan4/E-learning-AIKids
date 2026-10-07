@@ -398,7 +398,7 @@ export function ParentLearningPage() {
       competency: { status: 'configuration_required', frameworks: [] },
       credentials: [], pathway: { recommendedCourseId: null, courses: [] }, courses: [],
       progress: { courseId: null, courses: [], summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null }, quests: [] },
-      ageExperience: { status: 'configuration_required', policy: null },
+      ageExperience: { status: 'ready', policy: null },
     }
     setLoading(!cached)
     setIsRevalidating(Boolean(cached))
@@ -452,10 +452,6 @@ export function ParentLearningPage() {
         if (!Array.isArray(credentials)) throw new Error('Chứng nhận chưa sẵn sàng')
         snapshot = { ...snapshot, credentials }; commit()
       }).catch((cause) => fail(cause, 'Chứng nhận')),
-      api<LearningData['ageExperience']>(`/api/v1/lms/me/age-policy?${query}`, opts).then((ageExperience) => {
-        if (!ageExperience?.status) throw new Error('Chính sách chưa sẵn sàng')
-        snapshot = { ...snapshot, ageExperience }; commit()
-      }).catch((cause) => fail(cause, 'Chính sách độ tuổi')),
       readParentResource<{ subscription: HouseholdLearningSubscription }>('/api/parent/subscription').then((result) => {
         if (!result?.subscription) throw new Error('Gói học chưa sẵn sàng')
         if (isCurrent() && !denied) setSubscription(result.subscription)
