@@ -3,6 +3,7 @@ import { Plus, Trash2, Layers } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type { StageBlockItem, LearnCardDraft } from '../../lib/authoring'
 import { StageBlockItemCard } from '../StageBlockItemCard'
+import { UnifiedGoalBlockCard } from '../stage-block-editors'
 import { AVAILABLE_MODULES, inputStyle, textareaStyle } from './lecture-drawer-constants'
 import { QuickBlockPickerModal } from './QuickBlockPickerModal'
 
@@ -175,55 +176,29 @@ export function StageBlocksCanvas({
       {card &&
         (() => {
           type RenderGroup =
+            | { type: 'unified-goal' }
             | { type: 'single'; block: StageBlockItem; index: number }
             | { type: 'confirm-options'; items: { block: StageBlockItem; index: number }[] }
-            | {
-                type: 'goal-layout'
-                layoutMode: '2-column' | '3-column'
-                imageItem?: { block: StageBlockItem; index: number }
-                textItem?: { block: StageBlockItem; index: number }
-                keysItem?: { block: StageBlockItem; index: number }
-              }
 
           const renderGroups: RenderGroup[] = []
 
-          // Xử lý bố cục linh hoạt cho Chặng 1 (Mục Tiêu): 1 cột (Dọc), 2 cột (Song song) hoặc 3 cột (Lưới 3)
-          const goalLayoutMode: '1-column' | '2-column' | '3-column' = card?.layoutMode || '2-column'
-
+          // Hướng A: Gom Chặng 1 thành 1 Khối Mục Tiêu Hợp Nhất trong Block Stream
           if (stageIndex === 0) {
-            if (goalLayoutMode === '1-column') {
-              // 1 Cột: Xếp dọc toàn chiều rộng tuần tự, không nhóm vào lưới
+            const imageIdx = stageBlocks.findIndex((b) => b.type === 'images' || b.id.startsWith('course-goal-image'))
+            const textIdx = stageBlocks.findIndex((b) => b.type === 'text' || b.id.startsWith('course-goal-text'))
+            const keysIdx = stageBlocks.findIndex((b) => b.type === 'layout-four-keys' || b.id.startsWith('course-goal-four-keys'))
+
+            if (imageIdx !== -1 || textIdx !== -1 || keysIdx !== -1) {
+              const consumedIndices = new Set<number>()
+              if (imageIdx !== -1) consumedIndices.add(imageIdx)
+              if (textIdx !== -1) consumedIndices.add(textIdx)
+              if (keysIdx !== -1) consumedIndices.add(keysIdx)
+
+              renderGroups.push({ type: 'unified-goal' })
+
               for (let i = 0; i < stageBlocks.length; i++) {
-                renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
-              }
-            } else {
-              // 2 Cột hoặc 3 Cột: Nhóm ảnh, mục tiêu và chìa khóa vào lưới
-              const imageIdx = stageBlocks.findIndex((b) => b.type === 'images' || b.id.startsWith('course-goal-image'))
-              const textIdx = stageBlocks.findIndex((b) => b.type === 'text' || b.id.startsWith('course-goal-text'))
-              const keysIdx = stageBlocks.findIndex((b) => b.type === 'layout-four-keys' || b.id.startsWith('course-goal-four-keys'))
-
-              if (imageIdx !== -1 || textIdx !== -1) {
-                const consumedIndices = new Set<number>()
-                const imageItem = imageIdx !== -1 ? { block: stageBlocks[imageIdx], index: imageIdx } : undefined
-                const textItem = textIdx !== -1 ? { block: stageBlocks[textIdx], index: textIdx } : undefined
-                const keysItem = keysIdx !== -1 ? { block: stageBlocks[keysIdx], index: keysIdx } : undefined
-
-                if (imageIdx !== -1) consumedIndices.add(imageIdx)
-                if (textIdx !== -1) consumedIndices.add(textIdx)
-                if (keysIdx !== -1) consumedIndices.add(keysIdx)
-
-                renderGroups.push({
-                  type: 'goal-layout',
-                  layoutMode: goalLayoutMode,
-                  imageItem,
-                  textItem,
-                  keysItem,
-                })
-
-                for (let i = 0; i < stageBlocks.length; i++) {
-                  if (!consumedIndices.has(i)) {
-                    renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
-                  }
+                if (!consumedIndices.has(i)) {
+                  renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
                 }
               }
             }
@@ -294,67 +269,23 @@ export function StageBlocksCanvas({
               />
             )
 
-            if (group.type === 'goal-layout') {
-              if (group.layoutMode === '3-column') {
-                return (
-                  <div key="goal-3col-layout" className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-                    {/* CỘT 1 (Ảnh Mục Tiêu) */}
-                    <div className="min-w-0 space-y-3">
-                      <div className="flex items-center gap-1.5 px-1">
-                        <span className="text-xs font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-xl border border-emerald-300">
-                          🖼️ Cột 1: Ảnh Mục Tiêu
-                        </span>
-                      </div>
-                      {group.imageItem && renderItemCard(group.imageItem)}
-                    </div>
-
-                    {/* CỘT 2 (Mục Tiêu Cốt Lõi) */}
-                    <div className="min-w-0 space-y-3">
-                      <div className="flex items-center gap-1.5 px-1">
-                        <span className="text-xs font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2.5 py-1 rounded-xl border border-purple-300">
-                          🎯 Cột 2: Mục Tiêu Cốt Lõi
-                        </span>
-                      </div>
-                      {group.textItem && renderItemCard(group.textItem)}
-                    </div>
-
-                    {/* CỘT 3 (Chìa Khóa Vàng & Thẻ Trọng Tâm) */}
-                    <div className="min-w-0 space-y-3">
-                      <div className="flex items-center gap-1.5 px-1">
-                        <span className="text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl border border-amber-300">
-                          🔑 Cột 3: Chìa Khóa &amp; Ghi Nhớ
-                        </span>
-                      </div>
-                      {group.keysItem && renderItemCard(group.keysItem)}
-                    </div>
-                  </div>
-                )
-              }
-
-              // group.layoutMode === '2-column'
+            if (group.type === 'unified-goal') {
               return (
-                <div key="goal-2col-layout" className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                  {/* CỘT TRÁI (Ảnh Mục Tiêu) - 5 cột trên lg, tự co 1 cột trên màn hình nhỏ */}
-                  <div className="lg:col-span-5 min-w-0 space-y-3">
-                    <div className="flex items-center gap-1.5 px-1">
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-xl border border-emerald-300">
-                        🖼️ Cột Trái: Ảnh Mục Tiêu (Hero Image)
-                      </span>
-                    </div>
-                    {group.imageItem && renderItemCard(group.imageItem)}
-                  </div>
-
-                  {/* CỘT PHẢI (Box Mục Đích & Box 4 Chìa Khóa Vàng) - 7 cột trên lg */}
-                  <div className="lg:col-span-7 min-w-0 space-y-4">
-                    <div className="flex items-center gap-1.5 px-1">
-                      <span className="text-xs font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2.5 py-1 rounded-xl border border-purple-300">
-                        🎯 Cột Phải: Mục Tiêu Cốt Lõi &amp; Chìa Khóa Vàng
-                      </span>
-                    </div>
-                    {group.textItem && renderItemCard(group.textItem)}
-                    {group.keysItem && renderItemCard(group.keysItem)}
-                  </div>
-                </div>
+                <UnifiedGoalBlockCard
+                  key="unified-goal-block"
+                  card={card}
+                  stageBlocks={stageBlocks}
+                  readOnly={readOnly}
+                  updateBlockItem={updateBlockItem}
+                  updateLearnCard={updateLearnCard}
+                  uploadingStageMedia={uploadingStageMedia}
+                  setUploadingStageMedia={setUploadingStageMedia}
+                  uploadLearnCardMedia={uploadLearnCardMedia}
+                  courseId={courseId}
+                  inputStyle={inputStyle}
+                  textareaStyle={textareaStyle}
+                  showToast={showToast}
+                />
               )
             }
 

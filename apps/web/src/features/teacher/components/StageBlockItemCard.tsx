@@ -72,9 +72,9 @@ export function getBlockIcon(type: ContentBlockType): string {
 
 export function getBlockTitle(type: ContentBlockType, customTitle?: string, stageIndex?: number, blockId?: string): string {
   if (stageIndex === 0) {
-    if (type === 'images' || blockId?.startsWith('course-goal-image')) return customTitle || 'ẢNH MỤC TIÊU (CỘT TRÁI)'
-    if (type === 'text' || blockId?.startsWith('course-goal-text')) return customTitle || 'MỤC TIÊU CỐT LÕI (CỘT PHẢI)'
-    if (type === 'layout-four-keys' || blockId?.startsWith('course-goal-four-keys')) return customTitle || 'BỐN CHIẾC CHÌA KHÓA VÀNG (CỘT PHẢI)'
+    if (type === 'images' || blockId?.startsWith('course-goal-image')) return customTitle || 'ẢNH MỤC TIÊU'
+    if (type === 'text' || blockId?.startsWith('course-goal-text')) return customTitle || 'MỤC TIÊU CỐT LÕI'
+    if (type === 'layout-four-keys' || blockId?.startsWith('course-goal-four-keys')) return customTitle || 'BỐN CHIẾC CHÌA KHÓA VÀNG'
   }
 
   switch (type) {
