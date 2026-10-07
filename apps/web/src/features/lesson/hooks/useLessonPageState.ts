@@ -717,7 +717,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       progressId ||
       questId
 
-    if (stageIndex >= 1 && effectiveLessonIdForResume && !hasAdvancedFromLearnRef.current[effectiveLessonIdForResume]) {
+    if (phase === 'learn' && stageIndex >= 1 && effectiveLessonIdForResume && !hasAdvancedFromLearnRef.current[effectiveLessonIdForResume]) {
       hasAdvancedFromLearnRef.current[effectiveLessonIdForResume] = true
       void learningApi.advanceLesson(effectiveLessonIdForResume, { fromPhase: 'learn' }).catch(() => {
         // Phase may have already advanced or already completed
@@ -738,7 +738,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         sectionId: `stage-${stageIndex + 1}`,
       })
     })
-  }, [quest?.id, questId, authoritativeLessonId])
+  }, [quest?.id, questId, authoritativeLessonId, phase])
 
   const handleVideoCompleted = useCallback(() => {
     setLiveStars((prev) => Math.max(prev, 1))
