@@ -346,9 +346,27 @@ export function useSixStageJourneyState({
       if (isVideoPassed) {
         setIsVideoCompleted(true)
       }
+      const quizIdx = stages.findIndex((s) => s.type === 'QUIZ')
+      if (quizIdx >= 0 && resumedStage > quizIdx) {
+        const currentStored = readLessonStorage<number>(`aikids_lesson_stars_${lessonId}`, 0)
+        if (currentStored < 2) {
+          writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
+          saveLocalLessonProgress(lessonId, 2, false, currentChildId)
+          if ((matchedCurriculum as any)?.id && (matchedCurriculum as any).id !== lessonId) {
+            saveLocalLessonProgress((matchedCurriculum as any).id, 2, false, currentChildId)
+          }
+          if ((matchedCurriculum as any)?.slug && (matchedCurriculum as any).slug !== lessonId) {
+            saveLocalLessonProgress((matchedCurriculum as any).slug, 2, false, currentChildId)
+          }
+          if (matchedCurriculum?.lessonNumber) {
+            saveLocalLessonProgress(matchedCurriculum.lessonNumber, 2, false, currentChildId)
+          }
+          clearWorldPageCache()
+        }
+      }
     }
     setCurrentStage((current) => Math.max(current, resumedStage))
-  }, [initialStageIndex, stages.length, lessonId, isCompletedLesson, stages])
+  }, [initialStageIndex, stages.length, lessonId, isCompletedLesson, stages, currentChildId, matchedCurriculum])
 
   const hasNotifiedVideoDoneRef = useRef(false)
   useEffect(() => {
