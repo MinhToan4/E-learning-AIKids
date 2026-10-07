@@ -72,6 +72,8 @@ export interface ConfirmStageConfig {
   correctIndex: number
   explanation: string
   speech?: string
+  visualUrl?: string
+  layoutMode?: 'cards' | 'split' | 'list'
 }
 
 export interface VideoTimestampItem {
@@ -108,6 +110,8 @@ export interface QuizQuestionItem {
   hint?: string
   retryFeedback?: string
   visualUrl?: string
+  layoutMode?: 'cards' | 'split' | 'list'
+  optionImages?: string[]
 }
 
 export interface QuizStageConfig {

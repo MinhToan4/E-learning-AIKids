@@ -55,6 +55,13 @@ export function ConfirmStageBlock({
     })
   }, [config.options, failedOptionImages])
 
+  const isSplitLayout =
+    !config.hasKeyOptions &&
+    (config.layoutMode === 'split' ||
+      (Boolean(config.visualUrl) && config.layoutMode !== 'cards' && config.layoutMode !== 'list'))
+
+  const isListLayout = !config.hasKeyOptions && config.layoutMode === 'list'
+
   const handleChoose = (idx: number) => {
     onSelectOption?.(idx)
     const correct = idx === config.correctIndex
@@ -85,7 +92,7 @@ export function ConfirmStageBlock({
         </div>
       </div>
 
-      {/* Tùy biến giao diện theo loại options: Có keyItems (3 Bộ chìa khoá A/B/C) hoặc Cards A & B thông thường */}
+      {/* Tùy biến giao diện theo layoutMode: split (ảnh trái - câu hỏi phải), list (danh sách dọc) hoặc cards (thẻ card) */}
       {config.hasKeyOptions ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 max-w-5xl w-full mx-auto my-2">
           {config.options.map((option, idx) => {
@@ -242,6 +249,163 @@ export function ConfirmStageBlock({
                     ? 'Chưa mở được'
                     : 'Bấm để chọn bộ này'}
                 </div>
+              </button>
+            )
+          })}
+        </div>
+      ) : isSplitLayout ? (
+        <div className="grid w-full grid-cols-1 items-start gap-4 xl:grid-cols-2 xl:gap-6 my-2">
+          {/* CỘT TRÁI: Ảnh tình huống */}
+          <div className="flex min-h-0 w-full flex-col justify-start">
+            <div className="group relative flex aspect-[16/10] w-full max-w-3xl mx-auto max-h-[280px] sm:max-h-[320px] xl:max-h-[420px] items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-50/90 p-1.5 shadow-clay-sm">
+              <img
+                loading="lazy"
+                decoding="async"
+                src={config.visualUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'}
+                alt={config.question}
+                className="w-full h-full object-contain cursor-pointer group-hover:scale-102 transition-transform duration-300"
+                onClick={() => {
+                  onImageClick?.({
+                    url: config.visualUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                    title: config.question,
+                  })
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  onImageClick?.({
+                    url: config.visualUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                    title: config.question,
+                  })
+                }}
+                className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1.5 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                title="Xem ảnh phóng to"
+              >
+                <ZoomIn size={13} className="text-white" />
+                <span>Phóng to</span>
+              </button>
+            </div>
+          </div>
+
+          {/* CỘT PHẢI: Danh sách các lựa chọn */}
+          <div className="flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 sm:p-4 shadow-2xs w-full gap-2.5">
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                Lựa chọn phương án đúng nhất:
+              </span>
+              <div className="flex flex-col gap-2">
+                {config.options.map((option, idx) => {
+                  const optKey = option.id || `opt-${idx}`
+                  const isSelected = selectedOption === idx
+                  const isThisOptionCorrect = idx === config.correctIndex
+
+                  let optClass =
+                    'border-slate-200 bg-white hover:bg-amber-50/70 text-slate-700 hover:border-brand-300'
+                  if (isSelected) {
+                    if (isThisOptionCorrect) {
+                      optClass =
+                        'border-mint-600 bg-mint-50 text-mint-950 font-bold ring-2 ring-inset ring-mint-300 shadow-clay-xs'
+                    } else {
+                      optClass =
+                        'border-rose-500 bg-rose-50 text-rose-950 font-medium ring-2 ring-inset ring-rose-200'
+                    }
+                  } else if (selectedOption !== null) {
+                    optClass =
+                      'border-slate-200 bg-white/95 text-slate-700 opacity-80 hover:opacity-100 hover:border-brand-300'
+                  }
+
+                  return (
+                    <button
+                      key={optKey}
+                      type="button"
+                      onClick={() => handleChoose(idx)}
+                      className={cn(
+                        'p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-left text-xs sm:text-sm font-bold text-slate-800 transition-all flex items-center gap-3 min-h-[44px] shadow-2xs cursor-pointer',
+                        optClass
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'w-7 h-7 sm:w-8 sm:h-8 rounded-xl border flex items-center justify-center text-xs sm:text-sm font-black flex-shrink-0 shadow-2xs transition-colors',
+                          isSelected
+                            ? isThisOptionCorrect
+                              ? 'bg-mint-500 text-white border-mint-400'
+                              : 'bg-rose-500 text-white border-rose-400'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                        )}
+                      >
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                      <span className="flex-1 leading-snug">{option.text}</span>
+                      {isSelected && isThisOptionCorrect && (
+                        <CheckCircle2 size={20} className="text-mint-600 flex-shrink-0" />
+                      )}
+                      {isSelected && !isThisOptionCorrect && (
+                        <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0">
+                          ✕
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : isListLayout ? (
+        <div className="flex flex-col gap-2.5 max-w-3xl w-full mx-auto my-3">
+          {config.options.map((option, idx) => {
+            const optKey = option.id || `opt-${idx}`
+            const isSelected = selectedOption === idx
+            const isThisOptionCorrect = idx === config.correctIndex
+
+            let optClass =
+              'border-slate-200 bg-white hover:bg-amber-50/70 text-slate-700 hover:border-brand-300'
+            if (isSelected) {
+              if (isThisOptionCorrect) {
+                optClass =
+                  'border-mint-600 bg-mint-50 text-mint-950 font-bold ring-2 ring-inset ring-mint-300 shadow-clay-xs'
+              } else {
+                optClass =
+                  'border-rose-500 bg-rose-50 text-rose-950 font-medium ring-2 ring-inset ring-rose-200'
+              }
+            } else if (selectedOption !== null) {
+              optClass =
+                'border-slate-200 bg-white/95 text-slate-700 opacity-80 hover:opacity-100 hover:border-brand-300'
+            }
+
+            return (
+              <button
+                key={optKey}
+                type="button"
+                onClick={() => handleChoose(idx)}
+                className={cn(
+                  'p-3.5 sm:p-4 rounded-2xl border-2 text-left text-sm sm:text-base font-bold text-slate-800 transition-all flex items-center gap-3.5 min-h-[48px] shadow-clay-xs cursor-pointer',
+                  optClass
+                )}
+              >
+                <span
+                  className={cn(
+                    'w-8 h-8 rounded-xl border flex items-center justify-center text-sm font-black flex-shrink-0 shadow-2xs transition-colors',
+                    isSelected
+                      ? isThisOptionCorrect
+                        ? 'bg-mint-500 text-white border-mint-400'
+                        : 'bg-rose-500 text-white border-rose-400'
+                      : 'bg-slate-100 text-slate-700 border-slate-200'
+                  )}
+                >
+                  {String.fromCharCode(65 + idx)}
+                </span>
+                <span className="flex-1 leading-snug">{option.text}</span>
+                {isSelected && isThisOptionCorrect && (
+                  <CheckCircle2 size={20} className="text-mint-600 flex-shrink-0" />
+                )}
+                {isSelected && !isThisOptionCorrect && (
+                  <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0">
+                    ✕
+                  </span>
+                )}
               </button>
             )
           })}

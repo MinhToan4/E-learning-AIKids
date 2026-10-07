@@ -783,6 +783,8 @@ export interface SixStageConfirmGoal {
   correctIndex: number
   explanation: string
   speech: string
+  visualUrl?: string
+  layoutMode?: 'cards' | 'split' | 'list'
 }
 
 export interface SixStageVideoTimestamp {
@@ -808,6 +810,8 @@ export interface SixStageQuizQuestion {
   correctIndex: number
   explanation: string
   visualUrl?: string
+  layoutMode?: 'cards' | 'split' | 'list'
+  optionImages?: string[]
 }
 
 export interface SixStageQuiz {

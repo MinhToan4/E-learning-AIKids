@@ -200,6 +200,8 @@ export function adaptSixStageJourneyToStages(
     correctIndex: journey.stage2_confirmGoal?.correctIndex ?? 0,
     explanation: journey.stage2_confirmGoal?.explanation || '',
     speech: journey.stage2_confirmGoal?.speech || 'Bé hãy chọn phương án chính xác nhất để chuẩn bị bước vào xem video nhé!',
+    visualUrl: journey.stage2_confirmGoal?.visualUrl,
+    layoutMode: journey.stage2_confirmGoal?.layoutMode,
   }
 
   // Stage 2: Video
@@ -264,6 +266,8 @@ export function adaptSixStageJourneyToStages(
     correctIndex: q.correctIndex,
     explanation: q.explanation,
     visualUrl: q.visualUrl,
+    layoutMode: q.layoutMode,
+    optionImages: q.optionImages,
   }))
 
   const quizConfig: QuizStageConfig = {

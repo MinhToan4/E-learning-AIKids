@@ -224,4 +224,93 @@ describe('QuizStageBlock', () => {
     expect(bottomBar.textContent).toContain('Xem lại video')
     expect(bottomBar.textContent).toContain('Nộp bài kiểm tra')
   })
+
+  it('renders question in cards layout mode with individual option images', () => {
+    const mockCardsStage: JourneyStageDefinition<QuizStageConfig> = {
+      ...mockQuizStage,
+      config: {
+        ...mockQuizStage.config,
+        questions: [
+          {
+            id: 'q-cards',
+            prompt: 'Bé hãy chọn bạn nhỏ đang vẽ bức tranh mùa thu?',
+            options: ['Bạn An', 'Bạn Bình', 'Bạn Chi'],
+            correctIndex: 1,
+            layoutMode: 'cards',
+            optionImages: [
+              '/assets/aiki-test/opt-a.jpg',
+              '/assets/aiki-test/opt-b.jpg',
+              '/assets/aiki-test/opt-c.jpg',
+            ],
+            explanation: 'Bạn Bình vẽ lá vàng mùa thu rất đẹp!',
+          },
+        ],
+      },
+    }
+
+    const onSelectQuizAnswer = vi.fn()
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <QuizStageBlock
+          stage={mockCardsStage}
+          activeQuizQuestionIdx={0}
+          quizAnswers={{}}
+          checkedQuestions={{}}
+          onSelectQuizAnswer={onSelectQuizAnswer}
+        />
+      )
+    })
+
+    const section = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(section?.textContent).toContain('Bé hãy chọn bạn nhỏ đang vẽ bức tranh mùa thu?')
+
+    // Verify option images are rendered in card grid
+    const optionImgs = section?.querySelectorAll('img[alt^="Bạn"]')
+    expect(optionImgs?.length).toBe(3)
+    expect((optionImgs?.[0] as HTMLImageElement).src).toContain('/assets/aiki-test/opt-a.jpg')
+
+    // Click option B (index 1)
+    const cardButtons = section?.querySelectorAll('button[class*="rounded-xl sm:rounded-2xl"]')
+    expect(cardButtons?.length).toBe(3)
+    act(() => {
+      (cardButtons?.[1] as HTMLButtonElement).click()
+    })
+    expect(onSelectQuizAnswer).toHaveBeenCalledWith(0, 1)
+  })
+
+  it('renders question in list layout mode', () => {
+    const mockListStage: JourneyStageDefinition<QuizStageConfig> = {
+      ...mockQuizStage,
+      config: {
+        ...mockQuizStage.config,
+        questions: [
+          {
+            id: 'q-list',
+            prompt: 'Chìa khóa nào quan trọng nhất?',
+            options: ['Chìa Cái Gì', 'Chìa Ở Đâu'],
+            correctIndex: 0,
+            layoutMode: 'list',
+          },
+        ],
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <QuizStageBlock
+          stage={mockListStage}
+          activeQuizQuestionIdx={0}
+          quizAnswers={{}}
+          checkedQuestions={{}}
+        />
+      )
+    })
+
+    const section = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(section?.textContent).toContain('Chìa khóa nào quan trọng nhất?')
+    expect(section?.textContent).toContain('Chìa Cái Gì')
+    expect(section?.textContent).toContain('Chìa Ở Đâu')
+  })
 })
