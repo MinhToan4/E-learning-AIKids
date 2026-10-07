@@ -424,20 +424,39 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
           {isInteractiveQuestionBlock ? (
             (() => {
               const hasMulti = Array.isArray(block.quizQuestions) && block.quizQuestions.length > 0
-              const questions = hasMulti
-                ? block.quizQuestions!
+
+              const resolvedOptionImages = (() => {
+                const fromOpts = block.questionOptions?.map((o) => o.imageUrl || '')
+                if (fromOpts && fromOpts.some(Boolean)) return fromOpts
+                if (block.optionImages && block.optionImages.some(Boolean)) return block.optionImages
+                if (card?.optionImages && card.optionImages.some(Boolean)) return card.optionImages
+                return ['', '']
+              })()
+
+              const hasAnyOptImgs = resolvedOptionImages.some(Boolean)
+              const singleLayoutMode: 'cards' | 'split' | 'list' = block.layoutMode === 'cards' || hasAnyOptImgs
+                ? 'cards'
+                : ((block.layoutMode as 'cards' | 'split' | 'list') || 'split')
+
+              type QuizQuestionItem = {
+                id: string
+                prompt: string
+                layoutMode?: 'cards' | 'split' | 'list'
+                visualUrl?: string
+                options: string[]
+                correctIndex: number
+                explanation?: string
+                optionImages?: string[]
+              }
+
+              const questions: QuizQuestionItem[] = hasMulti
+                ? (block.quizQuestions as QuizQuestionItem[])
                 : [
                     {
                       id: block.id,
                       prompt: block.questionPrompt || block.title || '',
-                      layoutMode: block.layoutMode || (
-                        (Array.isArray(block.questionOptions) && block.questionOptions.some((o) => Boolean(o.imageUrl))) ||
-                        (Array.isArray(block.choiceItems) && block.choiceItems.some((ci) => Boolean(ci.imageUrl))) ||
-                        (Array.isArray(block.optionImages) && block.optionImages.some(Boolean))
-                          ? 'cards'
-                          : 'split'
-                      ),
-                      visualUrl: block.visualUrl || block.imageUrl || card?.imageUrl || '',
+                      layoutMode: singleLayoutMode,
+                      visualUrl: singleLayoutMode === 'cards' ? '' : (block.visualUrl || block.imageUrl || (card?.imageUrl || '')),
                       options: (Array.isArray(block.questionOptions) && block.questionOptions.length > 0)
                         ? block.questionOptions.map((o) => o.text)
                         : (Array.isArray(block.optionLabels) && block.optionLabels.length > 0)
@@ -445,7 +464,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                           : ['Phương án A (Đáp án đúng)', 'Phương án B'],
                       correctIndex: typeof block.correctIndex === 'number' ? block.correctIndex : 0,
                       explanation: block.explanation || block.tip || '',
-                      optionImages: block.questionOptions?.map((o) => o.imageUrl || '') || block.optionImages || ['', ''],
+                      optionImages: resolvedOptionImages,
                     },
                   ]
 
@@ -472,12 +491,12 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               }
 
               const handleAddQuestion = () => {
-                const nextQs = [...questions]
+                const nextQs: QuizQuestionItem[] = [...questions]
                 const newNum = nextQs.length + 1
-                const newQ = {
+                const newQ: QuizQuestionItem = {
                   id: `q-${Date.now()}-${newNum}`,
                   prompt: `Câu hỏi ${newNum}?`,
-                  layoutMode: 'split' as const,
+                  layoutMode: 'split',
                   visualUrl: card?.imageUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
                   options: ['Phương án A (Đáp án đúng)', 'Phương án B'],
                   correctIndex: 0,
@@ -505,7 +524,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
 
               const handleRemoveQuestion = (delIdx: number) => {
                 if (questions.length <= 1) return
-                const nextQs = questions.filter((_, i) => i !== delIdx)
+                const nextQs: QuizQuestionItem[] = questions.filter((_, i) => i !== delIdx)
                 const nextActiveIdx = Math.max(0, delIdx > 0 ? delIdx - 1 : 0)
                 const nextActiveQ = nextQs[nextActiveIdx]
                 updateBlockItem(stageIndex, block.id, {
@@ -592,12 +611,12 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                     question={{
                       id: currentQ.id,
                       prompt: currentQ.prompt,
-                      layoutMode: currentQ.layoutMode || (
+                      layoutMode: (currentQ.layoutMode || (
                         (Array.isArray(currentQ.options) && currentQ.options.some((o: any) => typeof o !== 'string' && Boolean(o.imageUrl))) ||
                         (Array.isArray(currentQ.optionImages) && currentQ.optionImages.some(Boolean))
                           ? 'cards'
                           : 'split'
-                      ),
+                      )) as 'cards' | 'split' | 'list',
                       visualUrl: currentQ.visualUrl || (currentQ.layoutMode === 'split' ? (card?.imageUrl || '') : ''),
                       options: (Array.isArray(currentQ.options) && currentQ.options.length > 0)
                         ? currentQ.options.map((opt: any, oIdx: number) => ({
@@ -613,9 +632,9 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                       explanation: currentQ.explanation || '',
                     }}
                     onChange={(patch) => {
-                      const nextQs = [...questions]
+                      const nextQs: QuizQuestionItem[] = [...questions]
                       const cur = nextQs[activeIdx] || { ...currentQ }
-                      const updated: any = { ...cur }
+                      const updated: QuizQuestionItem = { ...cur }
                       if (patch.prompt !== undefined) updated.prompt = patch.prompt
                       if (patch.layoutMode !== undefined) updated.layoutMode = patch.layoutMode
                       if (patch.visualUrl !== undefined) updated.visualUrl = patch.visualUrl

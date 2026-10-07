@@ -14,6 +14,7 @@ import {
   serializeLectureGameConfig,
   slugifyAuthoringId,
   getStageBlocks,
+  buildCourseConfirmBlocks,
   type StageBlockItem,
   type LectureDraft,
 } from './authoring'
@@ -713,5 +714,52 @@ describe('authoring ids and readiness', () => {
     expect(norm10.videoUrl).toBe(rule10Data.videoUrl)
     expect(norm10.hook).toBe(rule10Data.goal)
     expect(norm10.sixStageJourney?.stage6_completion.rewardBadge.name).toBe(`Huy hiệu ${rule10Data.code}: ${rule10Data.shortTitle}`)
+  })
+
+  it('buildCourseConfirmBlocks merges option images and enforces cards layout without redundant visualUrl', () => {
+    const journeyWithOptImgs: any = {
+      stage1_goal: { id: 's1', title: 'Mục tiêu', goalText: '', imageUrl: '', speech: '', keyPoints: [] },
+      stage2_confirmGoal: {
+        id: 's2',
+        question: 'Câu lệnh nào giúp AI vẽ đúng chú mèo?',
+        options: [
+          { id: 'opt-a', text: 'Gõ một từ ngắn', imageUrl: '/assets/opt_a.jpg' },
+          { id: 'opt-b', text: 'Gõ đủ 5 chi tiết', imageUrl: '/assets/opt_b.jpg' },
+        ],
+        correctIndex: 1,
+        explanation: 'Tả càng rõ vẽ càng đúng',
+        speech: '',
+        layoutMode: 'split' as const,
+        visualUrl: '/assets/opt_a.jpg',
+      },
+      stage3_video: { id: 's3', title: 'Video', videoUrl: '', posterUrl: '', durationSec: 180, timestamps: [] },
+      stage4_quiz: { id: 's4', title: 'Quiz', passScore: 2, questions: [] },
+      stage5_practice: { id: 's5', title: 'Practice', subjectName: '', badge: '', illustrationType: '', lockedFeatures: [], akiMotto: '', maxAttempts: 3, workflowSteps: [] },
+      stage6_completion: { id: 's6', title: 'Completion', congratsMessage: '', rewardBadge: { name: '', iconUrl: '', stars: 3, xp: 50 }, nextLessonSlug: '' },
+    }
+
+    // Existing block with text options but missing image URLs
+    const existingBlock: StageBlockItem = {
+      id: 'course-confirm-quiz',
+      type: 'layout-confirm-option',
+      title: 'Câu hỏi xác nhận mục tiêu',
+      questionPrompt: 'Câu lệnh nào giúp AI vẽ đúng chú mèo?',
+      layoutMode: 'split',
+      visualUrl: '/assets/opt_a.jpg',
+      questionOptions: [
+        { id: 'opt-1', text: 'Gõ một từ ngắn', imageUrl: '' },
+        { id: 'opt-2', text: 'Gõ đủ 5 chi tiết', imageUrl: '' },
+      ],
+      correctIndex: 1,
+      explanation: 'Tả càng rõ vẽ càng đúng',
+    }
+
+    const blocks = buildCourseConfirmBlocks(journeyWithOptImgs, [existingBlock])
+    expect(blocks).toHaveLength(1)
+    const unified = blocks[0]
+    expect(unified.layoutMode).toBe('cards')
+    expect(unified.visualUrl).toBe('')
+    expect(unified.questionOptions?.[0].imageUrl).toBe('/assets/opt_a.jpg')
+    expect(unified.questionOptions?.[1].imageUrl).toBe('/assets/opt_b.jpg')
   })
 })

@@ -104,7 +104,7 @@ export function InteractiveQuestionBlockEditor({
             <button
               type="button"
               disabled={readOnly}
-              onClick={() => onChange({ layoutMode: 'cards' })}
+              onClick={() => onChange({ layoutMode: 'cards', visualUrl: '' })}
               className={cn(
                 'px-2.5 py-1 rounded-lg text-[11px] font-black transition cursor-pointer select-none',
                 layoutMode === 'cards'

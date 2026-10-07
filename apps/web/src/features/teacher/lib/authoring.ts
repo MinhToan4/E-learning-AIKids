@@ -1313,8 +1313,28 @@ export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existin
   )
 
   if (existingUnified) {
-    const existingHasOptImgs = existingUnified.questionOptions?.some((o) => Boolean(o.imageUrl))
-    const isActuallyCards = existingUnified.layoutMode === 'cards' || (existingHasOptImgs && (!existingUnified.visualUrl || existingUnified.visualUrl === existingUnified.questionOptions?.[0]?.imageUrl))
+    const rawOptions = (existingUnified.questionOptions && existingUnified.questionOptions.length > 0)
+      ? existingUnified.questionOptions
+      : (journey.stage2_confirmGoal?.options?.map((opt, idx) => ({
+          id: opt.id || `opt-${idx + 1}`,
+          text: opt.text,
+          imageUrl: opt.imageUrl || '',
+        })) || [
+          { id: 'opt-1', text: 'Phương án A', imageUrl: '' },
+          { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+        ])
+
+    // Merge imageUrl nếu option trong existing bị thiếu mà journey có
+    const mergedOptions = rawOptions.map((opt, idx) => {
+      const journeyOpt = journey.stage2_confirmGoal?.options?.[idx]
+      return {
+        ...opt,
+        imageUrl: opt.imageUrl || journeyOpt?.imageUrl || '',
+      }
+    })
+
+    const hasOptImgs = mergedOptions.some((o) => Boolean(o.imageUrl))
+    const isActuallyCards = existingUnified.layoutMode === 'cards' || hasOptImgs || (existingUnified.visualUrl === mergedOptions[0]?.imageUrl)
     const resolvedLayout = isActuallyCards ? 'cards' : (existingUnified.layoutMode || journey.stage2_confirmGoal?.layoutMode || 'cards')
 
     return [
@@ -1326,16 +1346,7 @@ export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existin
         questionPrompt: existingUnified.questionPrompt || existingUnified.title || journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
         layoutMode: resolvedLayout,
         visualUrl: resolvedLayout === 'cards' ? '' : (existingUnified.visualUrl || journey.stage2_confirmGoal?.visualUrl || ''),
-        questionOptions: (existingUnified.questionOptions && existingUnified.questionOptions.length > 0)
-          ? existingUnified.questionOptions
-          : (journey.stage2_confirmGoal?.options?.map((opt, idx) => ({
-              id: opt.id || `opt-${idx + 1}`,
-              text: opt.text,
-              imageUrl: opt.imageUrl || '',
-            })) || [
-              { id: 'opt-1', text: 'Phương án A', imageUrl: '' },
-              { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
-            ]),
+        questionOptions: mergedOptions,
         correctIndex: typeof existingUnified.correctIndex === 'number'
           ? existingUnified.correctIndex
           : (journey.stage2_confirmGoal?.correctIndex ?? 0),
@@ -1363,8 +1374,8 @@ export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existin
     type: 'layout-confirm-option',
     title: 'Câu hỏi xác nhận mục tiêu',
     questionPrompt: journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
-    layoutMode: journey.stage2_confirmGoal?.layoutMode || (hasOptImgs ? 'cards' : (journey.stage2_confirmGoal?.visualUrl ? 'split' : 'cards')),
-    visualUrl: journey.stage2_confirmGoal?.visualUrl || '',
+    layoutMode: hasOptImgs ? 'cards' : (journey.stage2_confirmGoal?.layoutMode || (journey.stage2_confirmGoal?.visualUrl ? 'split' : 'cards')),
+    visualUrl: hasOptImgs ? '' : (journey.stage2_confirmGoal?.visualUrl || ''),
     questionOptions: defaultOptions,
     correctIndex: journey.stage2_confirmGoal?.correctIndex ?? 0,
     explanation: journey.stage2_confirmGoal?.explanation || 'Tuyệt vời! Bé đã nắm rất vững mục tiêu bài học.',
