@@ -6,6 +6,8 @@ import {
   Plus,
   Clapperboard,
   Image as ImageIcon,
+  CheckCircle2,
+  Lightbulb,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
@@ -41,37 +43,47 @@ export function LayoutBlocksEditor({
     <>
       {/* ── 1. BLOCK: Đoạn văn bản (text / layout-text) ── */}
       {(block.type === 'text' || block.type === 'layout-text') && (
-        <div className="mt-3.5 space-y-3">
-          <label className="block text-xs font-extrabold text-text">Tiêu đề đoạn văn bản
+        <div className="mt-3.5 space-y-3.5 rounded-2xl border-2 border-brand-100 bg-brand-50/20 p-4">
+          <label className="block space-y-1.5">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+              Tiêu đề đoạn văn bản
+            </span>
             <input
               readOnly={readOnly}
               value={block.title ?? ''}
               onChange={(event) => updateBlockItem(stageIndex, block.id, { title: event.target.value })}
-              style={{ ...inputStyle, marginTop: '0.35rem' }}
+              className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 shadow-2xs outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
               placeholder={`VD: ${stageInfo.title}`}
             />
           </label>
 
-          <label className="block text-xs font-extrabold text-text">Nội dung đoạn văn bản *
+          <label className="block space-y-1.5">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+              Nội dung đoạn văn bản *
+            </span>
             <textarea
               readOnly={readOnly}
               value={block.body ?? ''}
               onChange={(event) => updateBlockItem(stageIndex, block.id, { body: event.target.value })}
               rows={4}
-              style={{ ...textareaStyle, marginTop: '0.35rem' }}
+              className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-sm font-medium text-slate-800 leading-relaxed shadow-2xs outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition resize-y"
               placeholder="Nội dung chính hướng dẫn học sinh đọc hoặc xem..."
             />
           </label>
 
-          <label className="block text-xs font-extrabold text-text">Câu ghi nhớ (tùy chọn)
+          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-3.5 space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-900">
+              <Lightbulb size={15} className="text-amber-600 shrink-0" />
+              <span>Câu ghi nhớ / Bí kíp bỏ túi (tùy chọn)</span>
+            </label>
             <input
               readOnly={readOnly}
               value={block.tip ?? ''}
               onChange={(event) => updateBlockItem(stageIndex, block.id, { tip: event.target.value })}
-              style={{ ...inputStyle, marginTop: '0.35rem' }}
+              className="w-full rounded-xl border border-amber-200 bg-white px-3.5 py-2 text-sm font-bold text-amber-950 placeholder:text-amber-400/80 shadow-2xs outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
               placeholder="Một câu ngắn để học sinh nhớ ý chính của đoạn này"
             />
-          </label>
+          </div>
         </div>
       )}
 
@@ -240,20 +252,27 @@ export function LayoutBlocksEditor({
 
       {/* ── 4B. BLOCK: Phương Án Xác Nhận Mục Tiêu (layout-confirm-option) ── */}
       {isConfirmOption && (
-        <div className="mt-3.5 space-y-3.5 rounded-2xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-50/40 to-white p-4">
-          <label className="block text-xs font-extrabold text-slate-800">
-            Tiêu đề phương án
-            <input
-              readOnly={readOnly}
-              value={block.title ?? ''}
-              onChange={(e) => updateBlockItem(stageIndex, block.id, { title: e.target.value })}
-              style={{ ...inputStyle, marginTop: '0.35rem' }}
-              placeholder={`VD: Bộ chìa khoá ${optionLetter || 'A'}`}
-            />
-          </label>
+        <div className={cn(
+          "mt-3.5 space-y-3.5 rounded-3xl border-2 p-4 sm:p-5 shadow-clay-xs transition-all",
+          block.isCorrect
+            ? "border-emerald-500 bg-gradient-to-b from-emerald-50/40 to-white ring-2 ring-emerald-200/80"
+            : "border-slate-200 bg-white hover:border-slate-300"
+        )}>
+          {/* Header thẻ phương án */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <span className="rounded-xl bg-emerald-600 text-white px-3 py-1 text-xs font-black shadow-xs">
+              PHƯƠNG ÁN {optionLetter || 'A'}
+            </span>
+            {block.isCorrect && (
+              <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-black text-emerald-800 flex items-center gap-1 shadow-2xs">
+                <CheckCircle2 size={13} className="text-emerald-600" />
+                Đáp án đúng
+              </span>
+            )}
+          </div>
 
-          {/* Vùng upload ảnh thật trực quan */}
-          <div className="rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50/50 p-4">
+          {/* Vùng upload ảnh trực quan */}
+          <div className="rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50/40 p-3.5">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-xs font-black uppercase tracking-wider text-sky-900 flex items-center gap-1.5">
                 <ImageIcon size={15} className="text-sky-600" />
@@ -271,8 +290,8 @@ export function LayoutBlocksEditor({
             </div>
 
             {block.imageUrl ? (
-              <div className="relative group overflow-hidden rounded-2xl border-2 border-sky-300 bg-white shadow-sm">
-                <div className="aspect-[16/10] sm:aspect-[2/1] w-full max-h-[300px] bg-slate-100 flex items-center justify-center overflow-hidden">
+              <div className="relative group overflow-hidden rounded-2xl border-2 border-sky-300 bg-white shadow-2xs">
+                <div className="aspect-[16/10] sm:aspect-[2/1] w-full max-h-[260px] bg-slate-100 flex items-center justify-center overflow-hidden">
                   <img
                     src={block.imageUrl}
                     alt={block.title || `Phương án ${optionLetter}`}
@@ -331,12 +350,12 @@ export function LayoutBlocksEditor({
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-6 px-4 text-center rounded-xl bg-white border border-sky-200">
-                <div className="grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-700 mb-2">
+              <div className="flex flex-col items-center justify-center py-6 px-4 text-center rounded-2xl bg-white border-2 border-dashed border-sky-300">
+                <div className="grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-700 mb-2 shadow-2xs">
                   <Upload size={22} />
                 </div>
-                <p className="text-xs font-bold text-slate-700 mb-1">Tải ảnh từ máy tính lên</p>
-                <p className="text-[11px] font-semibold text-slate-400 mb-3">Hỗ trợ PNG, JPG, WEBP</p>
+                <p className="text-xs font-black text-slate-800 mb-0.5">Tải ảnh minh họa phương án</p>
+                <p className="text-[11px] font-semibold text-slate-500 mb-3">Hỗ trợ PNG, JPG, WEBP</p>
                 {!readOnly && (
                   <label className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 text-xs font-black shadow-xs cursor-pointer active:scale-95 transition shrink-0 whitespace-nowrap">
                     <Upload size={14} className="shrink-0" />
@@ -378,17 +397,42 @@ export function LayoutBlocksEditor({
             )}
           </div>
 
-          {/* Nội dung văn bản (Text / Mô tả) */}
-          <label className="block text-xs font-extrabold text-slate-800">
-            Nội dung chữ của phương án (kết hợp Chữ + Ảnh hoặc chỉ dùng Chữ)
-            <textarea
+          {/* Ô nhập nội dung phương án */}
+          <label className="block space-y-1">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+              Nội dung chữ của phương án *
+            </span>
+            <input
               readOnly={readOnly}
-              value={block.body ?? ''}
-              onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value })}
-              rows={3}
-              style={{ ...textareaStyle, marginTop: '0.35rem' }}
-              placeholder="Nhập nội dung phương án cho học sinh lựa chọn..."
+              value={block.body ?? block.title ?? ''}
+              onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value, title: e.target.value })}
+              className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 shadow-2xs outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
+              placeholder={`VD: Phương án ${optionLetter || 'A'}...`}
             />
+          </label>
+
+          {/* Nút chọn đáp án đúng to bản chuẩn Hallmark */}
+          <label
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black transition cursor-pointer select-none border shadow-2xs",
+              block.isCorrect
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-clay-xs"
+                : "border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-400 hover:bg-emerald-50/60"
+            )}
+            title="Chọn phương án này làm đáp án đúng"
+          >
+            <input
+              type="radio"
+              name={`course-confirm-correct-${stageIndex}`}
+              checked={Boolean(block.isCorrect)}
+              disabled={readOnly}
+              onChange={() => {
+                updateBlockItem(stageIndex, block.id, { isCorrect: true })
+              }}
+              className="accent-white size-3.5 cursor-pointer"
+            />
+            <span>{block.isCorrect ? '✓ ĐÂY LÀ ĐÁP ÁN ĐÚNG' : 'Chọn làm đáp án đúng'}</span>
           </label>
         </div>
       )}

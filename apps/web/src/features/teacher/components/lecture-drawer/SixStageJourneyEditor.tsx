@@ -135,6 +135,11 @@ export function SixStageJourneyEditor({
     const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
     const islandCard = draft.learnCards[stageIndex]
     const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
+    // Ở Chặng 2 (stageIndex === 1), ConfirmBlockEditor đã quản lý câu hỏi xác nhận & các phương án.
+    // Lọc bỏ các block course-confirm-* để tránh hiển thị trùng lặp câu hỏi dạng form thô trong Canvas.
+    const filteredIslandBlocks = stageIndex === 1
+      ? islandBlocks.filter((b) => !b.id.startsWith('course-confirm-') && b.type !== 'layout-confirm-option')
+      : islandBlocks
 
     const stageIcons = [Target, HelpCircle, Clapperboard, BrainCircuit, Palette, Trophy]
     const StageIcon = stageIcons[stageIndex] || Target
@@ -309,7 +314,7 @@ export function SixStageJourneyEditor({
           <StageBlocksCanvas
             stageIndex={stageIndex}
             card={islandCard}
-            stageBlocks={islandBlocks}
+            stageBlocks={filteredIslandBlocks}
             readOnly={readOnly}
             stageInfo={{ title: ISLAND_6_STAGE_NAMES[stageIndex], icon: Target, desc: 'Nội dung bổ sung của chặng' }}
             isIslandCourse={true}

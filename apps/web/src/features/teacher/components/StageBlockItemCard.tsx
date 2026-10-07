@@ -165,7 +165,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
 }: StageBlockItemCardProps) {
   const isDraggingThis = draggingBlockIdx === bIdx
   const isDragOverThis = dragOverBlockIdx === bIdx
-  const [expanded, setExpanded] = React.useState(bIdx === 0)
+  const [expanded, setExpanded] = React.useState(true)
 
   const isConfirmOption = block.type === 'layout-confirm-option' || block.id.startsWith('course-confirm-option-')
   const confirmOptionIndex = isConfirmOption
@@ -219,8 +219,13 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
         setDragOverBlockIdx(null)
       }}
       className={cn(
-        "rounded-2xl border-2 bg-white p-4 shadow-sm transition-all duration-150",
-        isDragOverThis ? "border-brand-500 ring-4 ring-brand-200/60 scale-[1.01]" : "border-slate-200 hover:border-slate-300",
+        "rounded-3xl border-2 p-4 sm:p-5 shadow-clay-xs transition-all duration-150",
+        isConfirmOption
+          ? block.isCorrect
+            ? "border-emerald-500 bg-emerald-50/25 ring-2 ring-emerald-300"
+            : "border-slate-200 bg-white hover:border-emerald-300"
+          : "border-slate-200 bg-white hover:border-brand-300",
+        isDragOverThis ? "border-brand-500 ring-4 ring-brand-200/60 scale-[1.01]" : "",
         isDraggingThis ? "opacity-40 scale-[0.99]" : "opacity-100"
       )}
     >
@@ -237,16 +242,16 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
           )}
           {isConfirmOption ? (
             <>
-              <span className="rounded-lg bg-brand-100 text-brand-800 px-2.5 py-1 text-xs font-black shrink-0 whitespace-nowrap">
+              <span className="rounded-xl bg-emerald-600 text-white px-3 py-1 text-xs font-black shrink-0 whitespace-nowrap shadow-xs">
                 Phương án {optionLetter || bIdx + 1}
               </span>
               <label
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer select-none border shrink-0 whitespace-nowrap",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer select-none border shrink-0 whitespace-nowrap shadow-2xs",
                   block.isCorrect
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-300"
-                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    ? "border-emerald-600 bg-emerald-600 text-white ring-2 ring-emerald-200"
+                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/50"
                 )}
                 title="Chọn phương án này làm đáp án đúng"
               >
@@ -263,9 +268,9 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                         : item.isCorrect,
                     })))
                   }}
-                  className="accent-emerald-600 size-3.5 cursor-pointer"
+                  className="accent-white size-3.5 cursor-pointer"
                 />
-                <span>{block.isCorrect ? '✅ Đáp án đúng' : '🔘 Đáp án đúng'}</span>
+                <span>{block.isCorrect ? '✓ Đáp án đúng' : '🔘 Đáp án đúng'}</span>
               </label>
               <span
                 className="text-xs font-bold text-slate-700 truncate min-w-0 flex-1"
@@ -276,11 +281,13 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
             </>
           ) : (
             <>
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-700 shrink-0 whitespace-nowrap">
+              <span className="rounded-xl bg-slate-100 border border-slate-200 px-2.5 py-1 text-xs font-black text-slate-700 shrink-0 whitespace-nowrap">
                 Khối {bIdx + 1}
               </span>
-              <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                <span className="text-base shrink-0">{getBlockIcon(block.type)}</span>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-700 border border-brand-200 text-sm shrink-0 shadow-2xs">
+                  {getBlockIcon(block.type)}
+                </span>
                 <h4
                   className="text-xs font-black uppercase tracking-wider text-slate-900 truncate min-w-0 flex-1"
                   title={getBlockTitle(block.type, block.title)}
@@ -297,7 +304,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
           <button
             type="button"
             onClick={() => setExpanded((value) => !value)}
-            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-extrabold text-slate-700 hover:bg-slate-100 shrink-0 whitespace-nowrap cursor-pointer transition active:scale-95"
+            className="inline-flex min-h-8 items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-700 hover:bg-slate-100 shrink-0 whitespace-nowrap cursor-pointer transition active:scale-95 shadow-2xs"
             aria-expanded={expanded}
           >
             {expanded ? <ChevronDown size={14} className="shrink-0" /> : <ChevronRight size={14} className="shrink-0" />}
@@ -309,24 +316,24 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                 type="button"
                 disabled={bIdx === 0}
                 onClick={() => moveBlock(stageIndex, bIdx, -1)}
-                className="grid size-7 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="grid size-8 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer shadow-2xs"
                 title="Di chuyển lên trên"
               >
-                <ArrowUp size={13} />
+                <ArrowUp size={14} />
               </button>
               <button
                 type="button"
                 disabled={bIdx === totalBlocks - 1}
                 onClick={() => moveBlock(stageIndex, bIdx, 1)}
-                className="grid size-7 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="grid size-8 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer shadow-2xs"
                 title="Di chuyển xuống dưới"
               >
-                <ArrowDown size={13} />
+                <ArrowDown size={14} />
               </button>
               <button
                 type="button"
                 onClick={() => removeBlock(stageIndex, block.id)}
-                className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-coral-600 hover:bg-coral-50 transition cursor-pointer ml-0.5 shrink-0 whitespace-nowrap"
+                className="inline-flex min-h-8 items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-700 hover:bg-rose-100 transition cursor-pointer ml-0.5 shrink-0 whitespace-nowrap shadow-2xs"
                 title="Xóa khối"
               >
                 <Trash2 size={13} className="shrink-0" /> Xóa khối
@@ -337,11 +344,30 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
       </div>
 
       {!expanded && (
-        <p className="mt-2 truncate text-xs font-semibold text-slate-500">
-          {isConfirmOption
-            ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}${block.imageUrl ? ' (Đã có ảnh)' : ''}`
-            : block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
-        </p>
+        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-2.5">
+          {block.imageUrl ? (
+            <img
+              src={block.imageUrl}
+              alt={block.title || 'Preview'}
+              className="size-12 rounded-xl object-cover border border-slate-200 shrink-0"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+          ) : (
+            <span className="grid size-10 place-items-center rounded-xl bg-white border border-slate-200 text-slate-400 shrink-0 text-base">
+              {getBlockIcon(block.type)}
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-bold text-slate-800">
+              {isConfirmOption
+                ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}`
+                : block.title || getBlockTitle(block.type)}
+            </p>
+            <p className="truncate text-[11px] font-medium text-slate-500">
+              {block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
+            </p>
+          </div>
+        </div>
       )}
 
       {expanded && (

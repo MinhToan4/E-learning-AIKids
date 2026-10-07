@@ -167,59 +167,167 @@ export function StageBlocksCanvas({
         </div>
       )}
 
-      {/* Danh sách các block kèm In-between Inserters kiểu Gutenberg */}
+      {/* Danh sách các block kèm In-between Inserters kiểu Gutenberg & Lưới Thẻ Phương Án */}
       {card &&
-        stageBlocks.map((block, blockIndex) => (
-          <React.Fragment key={block.id}>
-            {/* Đường phân cách chèn khối ở giữa (In-between divider) */}
-            {blockIndex > 0 && !readOnly && (
-              <div className="relative group/divider py-0.5 flex items-center justify-center">
-                <div className="absolute inset-x-0 h-0.5 bg-transparent group-hover/divider:bg-brand-300 transition-colors" />
-                <button
-                  type="button"
-                  onClick={() => handleOpenPicker(blockIndex)}
-                  className="relative z-10 size-6 rounded-full bg-white border-2 border-slate-200 text-slate-400 opacity-0 group-hover/divider:opacity-100 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 transition-all flex items-center justify-center shadow-xs cursor-pointer scale-90 hover:scale-110"
-                  title="Chèn khối vào giữa vị trí này"
-                >
-                  <Plus size={12} strokeWidth={3} />
-                </button>
-              </div>
-            )}
+        (() => {
+          type RenderGroup =
+            | { type: 'single'; block: StageBlockItem; index: number }
+            | { type: 'confirm-options'; items: { block: StageBlockItem; index: number }[] }
 
-            <StageBlockItemCard
-              block={block}
-              bIdx={blockIndex}
-              totalBlocks={stageBlocks.length}
-              stageIndex={stageIndex}
-              card={card}
-              stageBlocks={stageBlocks}
-              readOnly={readOnly}
-              draggingBlockIdx={draggingBlockIdx}
-              dragOverBlockIdx={dragOverBlockIdx}
-              setDraggingBlockIdx={setDraggingBlockIdx}
-              setDragOverBlockIdx={setDragOverBlockIdx}
-              setIsTrashDragOver={setIsTrashDragOver}
-              moveBlock={moveBlock}
-              removeBlock={removeBlock}
-              updateStageBlocks={updateStageBlocks}
-              updateBlockItem={updateBlockItem}
-              updateLearnCard={updateLearnCard}
-              uploadingStageMedia={uploadingStageMedia}
-              setUploadingStageMedia={setUploadingStageMedia}
-              uploadLearnCardMedia={uploadLearnCardMedia}
-              uploadAdditionalImageItem={uploadAdditionalImageItem}
-              previewAikiVoice={previewAikiVoice}
-              previewSpeakingIndex={previewSpeakingIndex}
-              speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
-              courseId={courseId}
-              handleAddModule={handleAddModule}
-              stageInfo={stageInfo}
-              inputStyle={inputStyle}
-              textareaStyle={textareaStyle}
-              showToast={showToast}
-            />
-          </React.Fragment>
-        ))}
+          const renderGroups: RenderGroup[] = []
+          for (let i = 0; i < stageBlocks.length; i++) {
+            const b = stageBlocks[i]
+            const isOpt = b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-')
+            if (isOpt) {
+              const lastGroup = renderGroups[renderGroups.length - 1]
+              if (lastGroup && lastGroup.type === 'confirm-options') {
+                lastGroup.items.push({ block: b, index: i })
+              } else {
+                renderGroups.push({ type: 'confirm-options', items: [{ block: b, index: i }] })
+              }
+            } else {
+              renderGroups.push({ type: 'single', block: b, index: i })
+            }
+          }
+
+          return renderGroups.map((group, groupIndex) => {
+            if (group.type === 'single') {
+              const { block, index: blockIndex } = group
+              return (
+                <React.Fragment key={block.id}>
+                  {/* Đường phân cách chèn khối ở giữa (In-between divider) */}
+                  {groupIndex > 0 && !readOnly && (
+                    <div className="relative group/divider py-0.5 flex items-center justify-center">
+                      <div className="absolute inset-x-0 h-0.5 bg-transparent group-hover/divider:bg-brand-300 transition-colors" />
+                      <button
+                        type="button"
+                        onClick={() => handleOpenPicker(blockIndex)}
+                        className="relative z-10 size-6 rounded-full bg-white border-2 border-slate-200 text-slate-400 opacity-0 group-hover/divider:opacity-100 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 transition-all flex items-center justify-center shadow-xs cursor-pointer scale-90 hover:scale-110"
+                        title="Chèn khối vào giữa vị trí này"
+                      >
+                        <Plus size={12} strokeWidth={3} />
+                      </button>
+                    </div>
+                  )}
+
+                  <StageBlockItemCard
+                    block={block}
+                    bIdx={blockIndex}
+                    totalBlocks={stageBlocks.length}
+                    stageIndex={stageIndex}
+                    card={card}
+                    stageBlocks={stageBlocks}
+                    readOnly={readOnly}
+                    draggingBlockIdx={draggingBlockIdx}
+                    dragOverBlockIdx={dragOverBlockIdx}
+                    setDraggingBlockIdx={setDraggingBlockIdx}
+                    setDragOverBlockIdx={setDragOverBlockIdx}
+                    setIsTrashDragOver={setIsTrashDragOver}
+                    moveBlock={moveBlock}
+                    removeBlock={removeBlock}
+                    updateStageBlocks={updateStageBlocks}
+                    updateBlockItem={updateBlockItem}
+                    updateLearnCard={updateLearnCard}
+                    uploadingStageMedia={uploadingStageMedia}
+                    setUploadingStageMedia={setUploadingStageMedia}
+                    uploadLearnCardMedia={uploadLearnCardMedia}
+                    uploadAdditionalImageItem={uploadAdditionalImageItem}
+                    previewAikiVoice={previewAikiVoice}
+                    previewSpeakingIndex={previewSpeakingIndex}
+                    speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                    courseId={courseId}
+                    handleAddModule={handleAddModule}
+                    stageInfo={stageInfo}
+                    inputStyle={inputStyle}
+                    textareaStyle={textareaStyle}
+                    showToast={showToast}
+                  />
+                </React.Fragment>
+              )
+            }
+
+            // Group các phương án lựa chọn: hiển thị dạng lưới thẻ trực quan (Card Grid 2-3 cột)
+            return (
+              <div key={`confirm-group-${groupIndex}`} className="space-y-3 rounded-3xl border-2 border-emerald-200/80 bg-emerald-50/20 p-4 sm:p-5 shadow-clay-xs">
+                <div className="flex items-center justify-between gap-2 border-b border-emerald-100 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-8 place-items-center rounded-xl bg-emerald-600 text-white shadow-xs text-sm">
+                      🔘
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-950">
+                        Các Thẻ Phương Án Trả Lời ({group.items.length} thẻ — tích chọn thẻ đúng)
+                      </h4>
+                      <p className="text-[11px] font-semibold text-emerald-800">
+                        Lưới thẻ trực quan WYSIWYG khớp 100% với giao diện màn hình học sinh
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-white border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-emerald-800 shadow-2xs">
+                    {group.items.length} phương án
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 items-stretch">
+                  {group.items.map(({ block: itemBlock, index: itemIdx }) => (
+                    <StageBlockItemCard
+                      key={itemBlock.id}
+                      block={itemBlock}
+                      bIdx={itemIdx}
+                      totalBlocks={stageBlocks.length}
+                      stageIndex={stageIndex}
+                      card={card}
+                      stageBlocks={stageBlocks}
+                      readOnly={readOnly}
+                      draggingBlockIdx={draggingBlockIdx}
+                      dragOverBlockIdx={dragOverBlockIdx}
+                      setDraggingBlockIdx={setDraggingBlockIdx}
+                      setDragOverBlockIdx={setDragOverBlockIdx}
+                      setIsTrashDragOver={setIsTrashDragOver}
+                      moveBlock={moveBlock}
+                      removeBlock={removeBlock}
+                      updateStageBlocks={updateStageBlocks}
+                      updateBlockItem={updateBlockItem}
+                      updateLearnCard={updateLearnCard}
+                      uploadingStageMedia={uploadingStageMedia}
+                      setUploadingStageMedia={setUploadingStageMedia}
+                      uploadLearnCardMedia={uploadLearnCardMedia}
+                      uploadAdditionalImageItem={uploadAdditionalImageItem}
+                      previewAikiVoice={previewAikiVoice}
+                      previewSpeakingIndex={previewSpeakingIndex}
+                      speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                      courseId={courseId}
+                      handleAddModule={handleAddModule}
+                      stageInfo={stageInfo}
+                      inputStyle={inputStyle}
+                      textareaStyle={textareaStyle}
+                      showToast={showToast}
+                    />
+                  ))}
+
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
+                      className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-emerald-300 bg-white/70 p-4 text-center transition hover:border-emerald-500 hover:bg-emerald-50/50 cursor-pointer group active:scale-95 shadow-2xs"
+                    >
+                      <span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-700 group-hover:scale-110 transition-transform shadow-xs">
+                        <Plus size={20} strokeWidth={2.5} />
+                      </span>
+                      <span className="text-xs font-black text-emerald-900">
+                        Thêm Phương Án Lựa Chọn
+                      </span>
+                      <span className="text-[11px] font-medium text-emerald-600">
+                        Hỗ trợ 2-4 phương án A/B/C/D
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })
+        })()
+      }
 
       {/* Vùng thả rác để xóa khối khi đang kéo */}
       {draggingBlockIdx !== null && (
