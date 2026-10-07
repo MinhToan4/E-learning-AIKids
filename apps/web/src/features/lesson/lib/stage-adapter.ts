@@ -1,6 +1,7 @@
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import type {
   JourneyStageDefinition,
+  StageType,
   GoalStageConfig,
   ConfirmStageConfig,
   VideoStageConfig,
@@ -385,6 +386,95 @@ export function adaptSixStageJourneyToStages(
     if (index === 3) return 2
     if (index === 4) return 3
     return undefined
+  }
+
+  // Hỗ trợ Hải trình tùy biến (Custom Stages từ 3 đến 7 chặng)
+  const rawCustomStages =
+    (journey as any)?.customStages ||
+    (journey as any)?.customJourneyStages ||
+    (info as any)?.customStages ||
+    (matchedCurriculum as any)?.journey?.customStages
+
+  if (Array.isArray(rawCustomStages) && rawCustomStages.length >= 3) {
+    const configMap: Record<
+      string,
+      {
+        type: StageType
+        icon: string
+        mascotRole: string
+        instruction: string
+        speech?: string
+        config: any
+      }
+    > = {
+      GOAL: {
+        type: 'GOAL',
+        icon: '🎯',
+        mascotRole: 'Mèo AIKI',
+        instruction: 'Khám phá mục tiêu bài học và công thức thẻ tranh.',
+        speech: goalConfig.speech,
+        config: goalConfig,
+      },
+      CONFIRM: {
+        type: 'CONFIRM',
+        icon: '❓',
+        mascotRole: 'Mèo AIKI',
+        instruction: 'Quan sát tranh minh họa và chọn phương án chuẩn xác nhất.',
+        speech: confirmConfig.speech,
+        config: confirmConfig,
+      },
+      VIDEO: {
+        type: 'VIDEO',
+        icon: '🎬',
+        mascotRole: 'Thầy Giáo AIKI',
+        instruction: 'Theo dõi video bài giảng và nắm chắc các mốc phân đoạn.',
+        speech: videoConfig.speech,
+        config: videoConfig,
+      },
+      QUIZ: {
+        type: 'QUIZ',
+        icon: '📝',
+        mascotRole: 'Giám Khảo AIKI',
+        instruction: 'Hoàn thành các câu hỏi trắc nghiệm để mở khóa xưởng vẽ.',
+        speech: quizConfig.speech,
+        config: quizConfig,
+      },
+      PRACTICE: {
+        type: 'PRACTICE',
+        icon: '🎨',
+        mascotRole: 'Bậc Thầy AIKI',
+        instruction: 'Thực hành tạo tranh bằng câu lệnh và nộp bài vào Balo.',
+        speech: practiceConfig.speech,
+        config: practiceConfig,
+      },
+      REWARD: {
+        type: 'REWARD',
+        icon: '🏆',
+        mascotRole: 'Thần Đèn AIKI',
+        instruction: 'Chiêm ngưỡng cúp vàng, tác phẩm và sẵn sàng bài học mới!',
+        speech: rewardConfig.speech,
+        config: rewardConfig,
+      },
+    }
+
+    return rawCustomStages.slice(0, 7).map((st: any, idx: number) => {
+      const normalizedType = String(
+        st.type || (idx === 0 ? 'GOAL' : idx === 1 ? 'CONFIRM' : idx === 2 ? 'VIDEO' : idx === 3 ? 'QUIZ' : idx === 4 ? 'PRACTICE' : 'REWARD')
+      ).toUpperCase()
+      const base = configMap[normalizedType] || configMap.GOAL
+      return {
+        id: st.id || `custom-stage-${idx}`,
+        type: base.type,
+        title: st.shortTitle || st.title || `Chặng ${idx + 1}`,
+        stepNumber: idx + 1,
+        icon: st.icon || base.icon,
+        mascotRole: st.mascotRole || base.mascotRole,
+        instruction: st.desc || st.instruction || base.instruction,
+        speech: st.speech || base.speech,
+        awardsStar: typeof st.awardsStar === 'number' ? st.awardsStar : getStarForStage(idx),
+        config: base.config,
+      }
+    })
   }
 
   return [

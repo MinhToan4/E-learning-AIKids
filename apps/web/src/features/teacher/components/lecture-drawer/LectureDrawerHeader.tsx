@@ -21,6 +21,7 @@ import {
   ChevronRight,
   PanelRightClose,
   PanelRightOpen,
+  Compass,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type { LessonFormat, LectureDraft, JourneyStageDefinition } from '../../lib/authoring'
@@ -114,6 +115,7 @@ export interface LectureDrawerHeaderProps {
   sectionStatus: (section: Section) => boolean
   sectionMissing: (section: Section) => string[]
   customJourneyStages?: JourneyStageDefinition[]
+  onOpenCustomStagesModal?: () => void
 }
 
 export function LectureDrawerHeader({
@@ -141,6 +143,7 @@ export function LectureDrawerHeader({
   sectionStatus,
   sectionMissing,
   customJourneyStages,
+  onOpenCustomStagesModal,
 }: LectureDrawerHeaderProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const activeTabRef = useRef<HTMLButtonElement | null>(null)
@@ -426,23 +429,38 @@ export function LectureDrawerHeader({
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Cấu trúc:</span>
             <select
-              disabled={readOnly || isIslandCourse}
-              value={lessonFormat}
-              onChange={(e) => onFormatChange(e.target.value as LessonFormat)}
+              disabled={readOnly}
+              value={hasCustomStages ? 'custom' : lessonFormat}
+              onChange={(e) => {
+                const val = e.target.value
+                if (val === 'custom') {
+                  onOpenCustomStagesModal?.()
+                } else {
+                  onFormatChange(val as LessonFormat)
+                }
+              }}
               className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-2.5 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 truncate max-w-[280px] sm:max-w-[360px]"
             >
-              {isIslandCourse ? (
-                <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
-              ) : (
-                <>
-                  <option value="aiki-island-6steps">Khóa học 6 chặng (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
-                  <option value="aiki-rule-3steps">Quy tắc 3 bước (Bài học, Kiểm tra, Hoàn thành)</option>
-                  <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
-                  <option value="standard">Khám phá tiêu chuẩn</option>
-                </>
-              )}
+              <option value="aiki-island-6steps">Khóa học 6 chặng chuẩn (Mục tiêu, Khởi động, Video, Trắc nghiệm, Thực hành, Kết thúc)</option>
+              <option value="custom">Tùy biến các bước (Hải trình 3 – 7 chặng)</option>
+              <option value="aiki-rule-3steps">Quy tắc 3 bước (Bài học, Kiểm tra, Hoàn thành)</option>
+              <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước (cũ)</option>
+              <option value="standard">Khám phá tiêu chuẩn</option>
             </select>
           </div>
+
+          {/* Nút Tùy biến các bước */}
+          {onOpenCustomStagesModal && (
+            <button
+              type="button"
+              onClick={onOpenCustomStagesModal}
+              title="Tùy biến số lượng, thứ tự và loại các bước học (3–7 chặng)"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs border bg-brand-50 border-brand-300 text-brand-800 hover:bg-brand-100 hover:border-brand-400 active:scale-95 shrink-0"
+            >
+              <Compass size={13} className="text-brand-600 shrink-0" />
+              <span>⚙️ Tùy biến các bước ({displaySections.length} chặng)</span>
+            </button>
+          )}
 
           {/* Nút riêng biệt Thông tin trạm - Tách độc lập khỏi Stepper 6 chặng */}
           <button
@@ -488,7 +506,9 @@ export function LectureDrawerHeader({
             </span>
           </div>
           <span className="hidden md:inline text-slate-300">|</span>
-          <span className="hidden md:inline text-slate-500">Hải trình 6 chặng chuẩn sư phạm AIKids</span>
+          <span className="hidden md:inline text-slate-500">
+            {hasCustomStages ? `Hải trình ${displaySections.length} chặng tùy chỉnh` : 'Hải trình 6 chặng chuẩn sư phạm AIKids'}
+          </span>
         </div>
       </div>
 
@@ -670,6 +690,19 @@ export function LectureDrawerHeader({
             </div>
           )}
         </div>
+
+        {/* Nút Tùy biến bước học nhanh */}
+        {onOpenCustomStagesModal && (
+          <button
+            type="button"
+            onClick={onOpenCustomStagesModal}
+            className="ml-2 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-brand-800 bg-white hover:bg-brand-50 border border-dashed border-slate-300 hover:border-brand-400 transition cursor-pointer shadow-2xs shrink-0 select-none whitespace-nowrap"
+            title="Mở bảng quản lý & tùy biến các bước học"
+          >
+            <Compass size={13} className="text-brand-600 shrink-0" />
+            <span className="hidden sm:inline">Tùy biến bước</span>
+          </button>
+        )}
 
         {/* Nút mũi tên cuộn phải khi tràn mép */}
         {canScrollRight && (

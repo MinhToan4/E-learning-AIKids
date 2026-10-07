@@ -39,6 +39,7 @@ import {
   QuizBlockEditor,
   RewardBlockEditor,
 } from './stage-editors'
+import { DynamicStagesEditor } from './DynamicStagesEditor'
 
 export interface SixStageJourneyEditorProps {
   draft: LectureDraft
@@ -127,7 +128,8 @@ export function SixStageJourneyEditor({
   setIsTrashDragOver,
 }: SixStageJourneyEditorProps) {
   // ── 1. ĐẢO AIKIDS 6 CHẶNG ──
-  const isIsland6Steps = (isIslandCourse || lessonFormat === 'aiki-island-6steps' || Boolean(draft.id && /^bai-\d+-\d+/i.test(draft.id))) && lessonFormat !== 'aiki-rule-3steps'
+  const hasCustom = Boolean(draft.customJourneyStages && draft.customJourneyStages.length >= 3)
+  const isIsland6Steps = !hasCustom && (isIslandCourse || lessonFormat === 'aiki-island-6steps' || Boolean(draft.id && /^bai-\d+-\d+/i.test(draft.id))) && lessonFormat !== 'aiki-rule-3steps'
   if (isIsland6Steps) {
     const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
     const islandCard = draft.learnCards[stageIndex]
@@ -331,19 +333,11 @@ export function SixStageJourneyEditor({
                 Chặng tiếp theo: {ISLAND_6_STAGE_NAMES[stageIndex + 1]}
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={onSave}
-                disabled={saving || !readiness.complete}
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate',
-                  readiness.complete
-                    ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer'
-                    : 'bg-slate-300 cursor-not-allowed opacity-70'
-                )}
-              >
-                {saving ? 'Đang lưu...' : 'Hoàn thành và lưu trạm học'}
-              </button>
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 shrink-0">
+                <span className="text-emerald-600 font-extrabold">✓ Đã đến chặng cuối (6/6)</span>
+                <span className="hidden sm:inline text-slate-300">|</span>
+                <span className="hidden sm:inline text-slate-600 font-semibold">Nhấn &quot;Lưu trạm học&quot; ở thanh dưới để lưu</span>
+              </div>
             )}
           </div>
         </div>
@@ -456,7 +450,78 @@ export function SixStageJourneyEditor({
               </span>
             </div>
           </div>
+
+          {/* Bộ chọn tặng sao cho chặng custom / quy tắc */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2.5 border-t border-brand-200/60">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                disabled={readOnly}
+                onClick={() => {
+                  const currentAllocation = draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]
+                  const isAllocated = currentAllocation.includes(stageIndex)
+                  if (isAllocated) {
+                    const next = currentAllocation.filter((idx) => idx !== stageIndex)
+                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                    showToast?.(`Đã bỏ tặng sao ở Chặng ${stageIndex + 1}`, 'info')
+                  } else {
+                    if (currentAllocation.length >= 3) {
+                      showToast?.(
+                        `Bài học tối đa 3 Sao. Đang chọn ở Chặng ${currentAllocation.map((s) => s + 1).join(', ')}. Hãy bỏ bớt 1 chặng trước nhé!`,
+                        'error'
+                      )
+                      return
+                    }
+                    const next = [...currentAllocation, stageIndex].sort((a, b) => a - b)
+                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                    showToast?.(`⭐ Chặng ${stageIndex + 1} sẽ trao 1 Sao cho bé khi hoàn thành!`, 'success')
+                  }
+                }}
+                className={cn(
+                  'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 shadow-2xs',
+                  (draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                    ? 'bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-clay-xs font-black'
+                    : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-amber-300 hover:bg-amber-50/60'
+                )}
+              >
+                <Star
+                  size={14}
+                  className={cn(
+                    (draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                      ? 'fill-amber-950 text-amber-950'
+                      : 'text-slate-400'
+                  )}
+                />
+                <span>
+                  {(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                    ? '⭐ Chặng này được tặng 1 Sao (+1)'
+                    : '+ Bấm để tặng 1 Sao ở chặng này'}
+                </span>
+              </button>
+
+              <span className="text-[11px] font-bold text-brand-900 bg-brand-100/70 border border-brand-200 px-2.5 py-1 rounded-lg">
+                (Đã chọn {(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).length}/3 Sao: Chặng {(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).map((s) => s + 1).join(', ')})
+              </span>
+            </div>
+
+            <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline">
+              Học sinh nhận tối đa 3 Sao cho toàn bài học
+            </span>
+          </div>
         </div>
+
+        {/* Dynamic Stages Editor cho các chặng tùy biến (Custom Stages) */}
+        {hasCustom && (
+          <DynamicStagesEditor
+            stageType={(stageDef as any)?.type || (stageIndex === 0 ? 'GOAL' : stageIndex === 1 ? 'CONFIRM' : stageIndex === 2 ? 'VIDEO' : stageIndex === 3 ? 'QUIZ' : stageIndex === 4 ? 'PRACTICE' : 'REWARD')}
+            journey={draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)}
+            updateSixStage={updateSixStage}
+            readOnly={readOnly}
+            questId={draft.id}
+            previewAikiVoice={previewAikiVoice}
+            showToast={showToast}
+          />
+        )}
 
         {/* Form soạn thảo Quy tắc AIKI 3 bước */}
         {lessonFormat === 'aiki-rule-3steps' && stageIndex === 0 && (
@@ -584,17 +649,11 @@ export function SixStageJourneyEditor({
               Chặng tiếp theo: {customStages[stageIndex + 1]?.shortTitle || AIKI_STAGE_NAMES[stageIndex + 1] || `Chặng ${stageIndex + 2}`}
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={saving || !readiness.complete}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95 shrink-0 whitespace-nowrap max-w-[50%] truncate',
-                readiness.complete ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer' : 'bg-slate-300 cursor-not-allowed opacity-70'
-              )}
-            >
-              {saving ? 'Đang lưu...' : 'Hoàn thành và lưu trạm học'}
-            </button>
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 shrink-0">
+              <span className="text-emerald-600 font-extrabold">✓ Đã đến chặng cuối ({totalStages}/{totalStages})</span>
+              <span className="hidden sm:inline text-slate-300">|</span>
+              <span className="hidden sm:inline text-slate-600 font-semibold">Nhấn &quot;Lưu trạm học&quot; ở thanh dưới để lưu</span>
+            </div>
           )}
         </div>
       </div>

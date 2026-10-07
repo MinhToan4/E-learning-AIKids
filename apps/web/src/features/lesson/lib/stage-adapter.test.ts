@@ -75,4 +75,51 @@ describe('adaptSixStageJourneyToStages - star allocation', () => {
     expect(stages[4].awardsStar).toBeUndefined()
     expect(stages[5].awardsStar).toBe(3)
   })
+
+  it('adapts custom stages dynamically from customStages array (e.g. 4 stages)', () => {
+    const custom4Journey: LessonSixStageJourney = {
+      ...baseJourney,
+      customStages: [
+        { id: 'cs-1', index: 0, title: '1. Mục tiêu mới', shortTitle: 'Mục tiêu', type: 'GOAL', iconName: 'Target' },
+        { id: 'cs-2', index: 1, title: '2. Video bài giảng', shortTitle: 'Video', type: 'VIDEO', iconName: 'Film' },
+        { id: 'cs-3', index: 2, title: '3. Thử tài phản xạ', shortTitle: 'Trắc nghiệm', type: 'QUIZ', iconName: 'MessageCircleQuestion' },
+        { id: 'cs-4', index: 3, title: '4. Kết thúc xuất sắc', shortTitle: 'Kết thúc', type: 'REWARD', iconName: 'Trophy' },
+      ],
+      stageStarAllocation: [1, 2, 3],
+    }
+
+    const stages = adaptSixStageJourneyToStages(custom4Journey)
+    expect(stages).toHaveLength(4)
+    expect(stages[0].type).toBe('GOAL')
+    expect(stages[0].title).toBe('Mục tiêu')
+    expect(stages[0].awardsStar).toBeUndefined()
+
+    expect(stages[1].type).toBe('VIDEO')
+    expect(stages[1].title).toBe('Video')
+    expect(stages[1].awardsStar).toBe(1)
+
+    expect(stages[2].type).toBe('QUIZ')
+    expect(stages[2].title).toBe('Trắc nghiệm')
+    expect(stages[2].awardsStar).toBe(2)
+
+    expect(stages[3].type).toBe('REWARD')
+    expect(stages[3].title).toBe('Kết thúc')
+    expect(stages[3].awardsStar).toBe(3)
+  })
+
+  it('clamps custom stages to maximum 7 stages', () => {
+    const custom8Journey: LessonSixStageJourney = {
+      ...baseJourney,
+      customStages: Array.from({ length: 9 }, (_, i) => ({
+        id: `cs-${i}`,
+        index: i,
+        title: `Chặng ${i + 1}`,
+        shortTitle: `C${i + 1}`,
+        type: i === 0 ? 'GOAL' : i === 1 ? 'VIDEO' : i === 2 ? 'QUIZ' : i === 3 ? 'PRACTICE' : 'REWARD',
+      })),
+    }
+
+    const stages = adaptSixStageJourneyToStages(custom8Journey)
+    expect(stages).toHaveLength(7)
+  })
 })

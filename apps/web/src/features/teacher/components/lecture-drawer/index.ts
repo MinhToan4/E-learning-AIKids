@@ -9,4 +9,5 @@ export { DynamicStagesEditor, type DynamicStagesEditorProps } from './DynamicSta
 export { LectureDrawerStandardContent, type LectureDrawerStandardContentProps } from './LectureDrawerStandardContent'
 export { FullStationPreview } from './FullStationPreview'
 export { QuickBlockPickerModal, type QuickBlockPickerModalProps } from './QuickBlockPickerModal'
+export { CustomStagesManagerModal, type CustomStagesManagerModalProps } from './CustomStagesManagerModal'
 export * from './stage-editors'

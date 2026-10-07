@@ -14,6 +14,7 @@ import {
   type LessonFormat, type LectureDraft, type LessonAccessConfig,
   getActiveModules, normalizeLectureDraft, ISLAND_6_STAGE_NAMES,
   COURSE_GOAL_BLOCK_PREFIX, COURSE_CONFIRM_BLOCK_PREFIX, defaultLearnCards,
+  STANDARD_ISLAND_6_STAGES, type JourneyStageDefinition,
 } from '../lib/authoring'
 import { QuestionBankPicker } from './QuestionBankPicker'
 import type { EditableQuestion } from './QuizQuestionBuilder'
@@ -21,6 +22,7 @@ import { isAikiRuleJourney } from '@/features/lesson/lib/rule-journey-identifier
 import {
   LectureDrawerHeader, LectureDrawerBasicsForm, SixStageJourneyEditor,
   LectureDrawerStandardContent, FullStationPreview, type Section,
+  CustomStagesManagerModal,
 } from './lecture-drawer'
 import { useLectureAuthoring } from './lecture-drawer/useLectureAuthoring'
 import { FullStationPreviewModal } from './lecture-drawer/FullStationPreviewModal'
@@ -107,6 +109,55 @@ export function LectureDrawer({
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [showInlinePreview, setShowInlinePreview] = useState(false)
   const [previewStageIndex, setPreviewStageIndex] = useState<number>(0)
+  const [showCustomStagesModal, setShowCustomStagesModal] = useState(false)
+
+  const handleApplyCustomStages = useCallback((newStages: JourneyStageDefinition[], newStarAllocation: number[]) => {
+    setDraft((prev) => {
+      let nextCards = [...prev.learnCards]
+      while (nextCards.length < newStages.length) {
+        const idx = nextCards.length
+        nextCards.push({
+          id: newStages[idx]?.id || `custom-stage-${idx + 1}`,
+          title: newStages[idx]?.title || `Chặng ${idx + 1}`,
+          body: '',
+          tip: '',
+          kind: idx === 0 ? 'concept' : idx === 1 ? 'example' : idx === 2 ? 'storyboard' : idx === 3 ? 'steps' : idx === 4 ? 'compare' : 'remember',
+          layout: 'text',
+          visualItems: [],
+          contentBlocks: [],
+        })
+      }
+      const clampedCards = nextCards.slice(0, newStages.length)
+
+      const prevJourney = prev.sixStageJourney || resolveIslandSixStageJourney(prev as any)
+      const nextJourney = {
+        ...prevJourney,
+        customStages: newStages,
+        stageStarAllocation: newStarAllocation,
+      }
+
+      return {
+        ...prev,
+        customJourneyStages: newStages,
+        learnCards: clampedCards,
+        sixStageJourney: nextJourney,
+        metadata: {
+          ...prev.metadata,
+          customJourneyStages: newStages,
+          sixStageJourney: nextJourney,
+        },
+      }
+    })
+
+    if (activeSection.startsWith('stage-')) {
+      const currentIdx = parseInt(activeSection.replace('stage-', ''), 10)
+      if (currentIdx >= newStages.length) {
+        setActiveSection('stage-0')
+      }
+    }
+
+    showToast(`✅ Đã cập nhật cấu trúc ${newStages.length} chặng học!`, 'success')
+  }, [activeSection, showToast])
 
   useEffect(() => {
     const handleOpen = (e: any) => {
@@ -389,6 +440,11 @@ export function LectureDrawer({
         }
       }
 
+      const finalCustomStages = draft.customJourneyStages && draft.customJourneyStages.length >= 3 ? draft.customJourneyStages : undefined
+      if (finalJourney && finalCustomStages) {
+        finalJourney.customStages = finalCustomStages
+      }
+
       const rewardName = finalJourney?.stage6_completion?.rewardBadge?.name?.trim() || draft.reward?.trim() || ('Huy hiệu ' + draft.title).trim()
       const payload = {
         courseId, id: draft.id, slug: (draft as any).slug || draft.id, title: draft.title, skill: draft.skill || draft.title,
@@ -396,8 +452,9 @@ export function LectureDrawer({
         concept: draft.concept, example: draft.example, learnCards: serializeLearnCardsForHub(draft.learnCards),
         videoUrl: isIslandCourse ? (finalJourney?.stage3_video?.videoUrl || draft.videoUrl || null) : (draft.videoUrl || null),
         reward: rewardName, duration: draft.duration, practiceKind: draft.practiceKind, lessonFormat: isIslandCourse ? 'aiki-island-6steps' : lessonFormat,
-        sixStageJourney: finalJourney, metadata: { ...(draft as any).metadata, reward: rewardName, slug: (draft as any).slug || draft.id, sixStageJourney: finalJourney, access: draft.access },
-        gameType: draft.gameType, gameConfig: { ...gameConfig, lessonFormat: isIslandCourse ? 'aiki-island-6steps' : lessonFormat, sixStageJourney: finalJourney },
+        sixStageJourney: finalJourney, customJourneyStages: finalCustomStages,
+        metadata: { ...(draft as any).metadata, reward: rewardName, slug: (draft as any).slug || draft.id, sixStageJourney: finalJourney, access: draft.access, customJourneyStages: finalCustomStages },
+        gameType: draft.gameType, gameConfig: { ...gameConfig, lessonFormat: isIslandCourse ? 'aiki-island-6steps' : lessonFormat, sixStageJourney: finalJourney, customJourneyStages: finalCustomStages },
         checkQuestions: draft.checkQuestions,
       }
       if (isEdit) await api(`/api/teacher/lectures/${lecture.id}`, { method: 'PATCH', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } })
@@ -419,6 +476,7 @@ export function LectureDrawer({
         lessonFormat={lessonFormat} customJourneyStages={draft.customJourneyStages} activeSection={activeSection}
         readiness={readiness} showInlinePreview={showInlinePreview} recovery={recovery} draftStorageKey={draftStorageKey}
         onRestore={onRestore} onArchive={onArchive} onRequestClose={requestClose}
+        onOpenCustomStagesModal={() => setShowCustomStagesModal(true)}
         onShowFullPreview={() => {
           const currentIdx = activeSection.startsWith('stage-')
             ? parseInt(activeSection.replace('stage-', ''), 10)
@@ -497,6 +555,15 @@ export function LectureDrawer({
       {showBankPicker && <QuestionBankPicker selectedIds={quizQuestions.map((q) => q.id)} onSelect={(nq) => setQuizQuestions((p) => [...p, ...nq])} onClose={() => setShowBankPicker(false)} />}
       <ConfirmDialog open={confirmClose} title="Bỏ các thay đổi chưa lưu?" description="Nội dung vừa chỉnh trong trạm sẽ bị mất." confirmLabel="Bỏ thay đổi" cancelLabel="Tiếp tục soạn" danger onCancel={() => setConfirmClose(false)} onConfirm={() => { window.sessionStorage.removeItem(draftStorageKey); setConfirmClose(false); onDirtyChange?.(false); onClose() }} />
       <FullStationPreviewModal open={showFullPreview} onClose={() => setShowFullPreview(false)} draft={draft} lessonFormat={lessonFormat} gameConfig={buildLectureGameConfig(draft)} isIslandCourse={isIslandCourse} initialStageIndex={previewStageIndex} />
+      <CustomStagesManagerModal
+        isOpen={showCustomStagesModal}
+        onClose={() => setShowCustomStagesModal(false)}
+        currentStages={draft.customJourneyStages && draft.customJourneyStages.length >= 3 ? draft.customJourneyStages : (draft.sixStageJourney?.customStages && draft.sixStageJourney.customStages.length >= 3 ? draft.sixStageJourney.customStages : STANDARD_ISLAND_6_STAGES)}
+        starAllocation={draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]}
+        onApply={handleApplyCustomStages}
+        readOnly={readOnly}
+        showToast={showToast}
+      />
     </div>
   )
 

@@ -526,6 +526,51 @@ describe('LectureDrawerHeader Section Navigation Stepper', () => {
     expect(buttons.some((b) => b.textContent?.includes('5. Thực hành'))).toBe(true)
     expect(buttons.some((b) => b.textContent?.includes('6. Kết thúc'))).toBe(true)
   })
+
+  it('renders custom stages button and triggers onOpenCustomStagesModal when clicked', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    const handleOpenModal = vi.fn()
+
+    act(() => {
+      root?.render(
+        <LectureDrawerHeader
+          uid="test"
+          draft={mockDraft}
+          isEdit={true}
+          isIslandCourse={true}
+          lessonFormat="aiki-island-6steps"
+          activeSection="stage-0"
+          readiness={{ completed: 1, total: 6, complete: false }}
+          showInlinePreview={false}
+          recovery={null}
+          draftStorageKey="key"
+          onRequestClose={vi.fn()}
+          onShowFullPreview={vi.fn()}
+          onToggleInlinePreview={vi.fn()}
+          onFormatChange={vi.fn()}
+          onSelectSection={vi.fn()}
+          onDiscardRecovery={vi.fn()}
+          onApplyRecovery={vi.fn()}
+          sectionStatus={vi.fn().mockReturnValue(true)}
+          sectionMissing={vi.fn().mockReturnValue([])}
+          onOpenCustomStagesModal={handleOpenModal}
+        />
+      )
+    })
+
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const customStagesBtn = buttons.find((b) => b.textContent?.includes('Tùy biến các bước'))
+    expect(customStagesBtn).toBeDefined()
+
+    act(() => {
+      customStagesBtn?.click()
+    })
+
+    expect(handleOpenModal).toHaveBeenCalledTimes(1)
+  })
 })
 
 

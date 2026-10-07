@@ -973,6 +973,17 @@ export interface LessonSixStageJourney {
   stageBlockEditorVersion?: number
   /** Indices of stages (0-5) that award stars, sorted ascending. Max 3 stars. Defaults to [2, 3, 5] if omitted */
   stageStarAllocation?: number[]
+  /** Optional custom stage definitions (3-7 stages) */
+  customStages?: Array<{
+    id: string
+    index: number
+    title: string
+    shortTitle: string
+    iconName?: string
+    desc?: string
+    type?: string
+    awardsStar?: 1 | 2 | 3
+  }>
 }
 
 
