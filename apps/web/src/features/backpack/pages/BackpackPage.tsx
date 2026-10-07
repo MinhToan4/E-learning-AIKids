@@ -48,6 +48,10 @@ import {
   SoftClayTrophyIcon,
   SoftClayStarIcon,
 } from '@/features/leaderboard/components/ProgressPassportIcons'
+import {
+  readLocalBackpackWorks,
+  mergeBackpackWorks,
+} from '@/features/backpack/lib/backpack-works'
 
 export const PROJECT_FILTERS = [
   { id: 'all', label: 'Tác phẩm của con' },
@@ -379,54 +383,7 @@ function AchievementBadgeCard({ achievement, idx }: { achievement: AchievementRo
   )
 }
 
-function readLocalBackpackWorks(): Project[] {
-  let works: Project[] = []
-  if (typeof window === 'undefined' || !window.localStorage) return works
-
-  try {
-    const raw = localStorage.getItem('aiki_backpack_saved_works')
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed)) {
-        works = parsed.map((item: any) => ({
-          id: item.id || `bp-${Date.now()}-${Math.random()}`,
-          title: item.title || 'Tác phẩm tranh vẽ',
-          kind: item.kind || 'image',
-          thumbnail: item.url || item.thumbnail || '',
-          content: item.prompt || item.content || '',
-          shareStatus: item.shareStatus || 'private',
-          questId: item.lessonId || item.stationLabel || null,
-        }))
-      }
-    }
-  } catch {}
-
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key.startsWith('aiki_backpack_items_')) {
-        const rawItems = localStorage.getItem(key)
-        if (rawItems) {
-          const parsed = JSON.parse(rawItems)
-          if (Array.isArray(parsed)) {
-            const lessonWorks = parsed.map((it: any) => ({
-              id: it.id || `lesson-item-${Math.random()}`,
-              title: it.lessonTitle ? `Bài học: ${it.lessonTitle}` : 'Ghi chú bài học',
-              kind: it.category === 'notebook' ? 'story' : 'image',
-              thumbnail: it.url || '',
-              content: it.prompt || '',
-              shareStatus: 'private',
-              questId: it.lessonId || 'lesson',
-            }))
-            works = [...works, ...lessonWorks.filter((lw) => !works.some((w) => w.id === lw.id))]
-          }
-        }
-      }
-    }
-  } catch {}
-
-  return works
-}
+export { readLocalBackpackWorks }
 
 export function BackpackPage() {
   const user = useAuth((state) => state.user)
@@ -515,10 +472,7 @@ export function BackpackPage() {
       const remoteAssets = (backpack.assets ?? []).filter(isCleanBackpackProject)
       const remoteProjects = (backpack.projects ?? []).filter(isCleanBackpackProject)
       const localProjects = readLocalBackpackWorks().filter(isCleanBackpackProject)
-      const mergedProjects = [
-        ...localProjects,
-        ...remoteProjects.filter((remote) => !localProjects.some((local) => local.id === remote.id)),
-      ].filter(isCleanBackpackProject)
+      const mergedProjects = mergeBackpackWorks(localProjects, remoteProjects).filter(isCleanBackpackProject)
 
       backpackCacheRef.current.creations = {
         assets: remoteAssets,

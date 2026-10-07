@@ -422,6 +422,28 @@ export function WorkshopCanvas({
         creativeKind: 'art',
       })
 
+      // Also persist to aiki_backpack_saved_works in localStorage
+      try {
+        if (typeof localStorage !== 'undefined') {
+          const raw = localStorage.getItem('aiki_backpack_saved_works')
+          const current = raw ? JSON.parse(raw) : []
+          const list = Array.isArray(current) ? current : []
+          const newWork = {
+            id: `art-${Date.now()}`,
+            title,
+            url: aiUrl,
+            thumbnail: aiUrl,
+            kind: 'art',
+            shareStatus: 'private',
+            createdAt: Date.now(),
+          }
+          localStorage.setItem(
+            'aiki_backpack_saved_works',
+            JSON.stringify([newWork, ...list.filter((x: any) => x.url !== aiUrl)].slice(0, 50))
+          )
+        }
+      } catch {}
+
       setSaveSuccess(true)
       onSaved?.(aiUrl)
     } catch (err) {

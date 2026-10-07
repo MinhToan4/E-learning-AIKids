@@ -28,6 +28,11 @@ import {
 } from '@/features/backpack/lib/backpack-certificates'
 import { learningApi, type LearningPathwayCourse } from '@/shared/lib/learning-api'
 import { flushPendingSyncQueue } from '@/shared/lib/learning-sync-store'
+import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
+import {
+  readLocalBackpackWorks,
+  mergeBackpackWorks,
+} from '@/features/backpack/lib/backpack-works'
 
 export interface CertificateItem {
   id: string
@@ -165,7 +170,9 @@ export function ProfilePage() {
 
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
   const [streak, setStreak] = useState(0)
-  const [projects, setProjects] = useState<ShowcaseProject[]>([])
+  const [projects, setProjects] = useState<ShowcaseProject[]>(() =>
+    readLocalBackpackWorks().filter(isCleanDisplayableWork),
+  )
   const [completedStations, setCompletedStations] = useState(0)
   const [starsCollected, setStarsCollected] = useState(0)
   const [_pathwayCourses, setPathwayCourses] = useState<LearningPathwayCourse[]>([])
@@ -202,8 +209,10 @@ export function ProfilePage() {
       .then((overview) => {
         if (!active) return
         setStreak(overview.streak)
-        const cleanProjects = (overview.projects ?? []).filter(isCleanDisplayableWork)
-        setProjects(cleanProjects)
+        const cleanServerProjects = (overview.projects ?? []).filter(isCleanDisplayableWork)
+        const localProjects = readLocalBackpackWorks().filter(isCleanDisplayableWork)
+        const mergedProjects = mergeBackpackWorks(localProjects, cleanServerProjects)
+        setProjects(mergedProjects)
         setAvatarChoices(
           overview.avatarChoices
             .filter((asset) => asset.thumbnail)
@@ -252,9 +261,12 @@ export function ProfilePage() {
           if (streakRes.status === 'fulfilled' && streakRes.value?.current !== undefined) {
             setStreak(Number(streakRes.value.current))
           }
-          if (projRes.status === 'fulfilled' && Array.isArray(projRes.value?.projects)) {
-            setProjects(projRes.value.projects.filter(isCleanDisplayableWork))
-          }
+          const serverProjects = (projRes.status === 'fulfilled' && Array.isArray(projRes.value?.projects))
+            ? projRes.value.projects.filter(isCleanDisplayableWork)
+            : []
+          const localProjects = readLocalBackpackWorks().filter(isCleanDisplayableWork)
+          const mergedProjects = mergeBackpackWorks(localProjects, serverProjects)
+          setProjects(mergedProjects)
           if (pathwayRes.status === 'fulfilled' && pathwayRes.value?.courses) {
             applyPathwayData(pathwayRes.value.courses)
           }
@@ -430,28 +442,30 @@ export function ProfilePage() {
         worksCount={displayableProjects.length}
       />
 
-      {/* Khối liên kết xem Hành trình cấp độ (Contextual level journey link) */}
+      {/* Khối lối vào Ba Lô Của Con (Backpack Entry Card) */}
       <Link
-        to="/level"
-        className="aikid-flat-panel group flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl shadow-clay border-2 border-amber-200/80 bg-white/95 hover:bg-amber-50/40 transition-colors"
-        aria-label={`Xem hành trình Cấp ${explorerLevel}`}
+        to="/backpack"
+        className="aikid-flat-panel group flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl shadow-clay border-2 border-amber-200/80 bg-white/95 hover:bg-amber-50/40 transition-all hover:scale-[1.01]"
+        aria-label="Mở Ba Lô Của Con"
       >
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 font-black text-xl shrink-0">
-            ⭐
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 shadow-inner">
+            <KidBackpackImageIcon size={26} />
           </div>
           <div>
-            <h3 className="font-display text-base font-black text-slate-900">
-              Hành trình cấp độ · Cấp {explorerLevel}
+            <h3 className="font-display text-base font-black text-slate-900 flex items-center gap-2">
+              Ba Lô Của Con
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-extrabold">
+                {displayableProjects.length} tác phẩm
+              </span>
             </h3>
             <p className="text-xs font-bold text-slate-500">
-              {xpToNextLevel > 0 ? `Còn ${xpToNextLevel} XP để lên Cấp ${explorerLevel + 1}` : 'Con đã sẵn sàng cho cấp tiếp theo'}
+              Nơi cất giữ kỷ vật, tranh vẽ từ bài học, xưởng sáng tạo và bằng khen
             </p>
-            <span className="sr-only">Xem quà sắp mở và các mốc cấp tiếp theo.</span>
           </div>
         </div>
-        <span className="shrink-0 px-4 py-2 rounded-xl bg-amber-500 text-white font-extrabold text-xs shadow-2xs group-hover:bg-amber-600 transition-colors">
-          Xem hành trình cấp độ
+        <span className="shrink-0 px-5 py-2.5 rounded-2xl bg-amber-500 text-white font-black text-xs shadow-clay group-hover:bg-amber-600 transition-colors flex items-center gap-1.5">
+          <KidBackpackImageIcon size={16} /> Mở Ba Lô
         </span>
       </Link>
 

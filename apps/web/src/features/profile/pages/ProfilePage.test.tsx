@@ -714,4 +714,64 @@ describe('ProfilePage Component', () => {
     act(() => root.unmount())
     container.remove()
   })
+
+  it('loads and displays locally created studio works immediately in works list', async () => {
+    mockStorage['aikids_studio_recent_creations'] = JSON.stringify([
+      {
+        id: 'creation-studio-99',
+        url: '/assets/studio-elephant.png',
+        title: 'Tranh Voi Con Vui Vẻ',
+        styleName: 'Đất sét Soft Clay',
+        createdAt: Date.now(),
+      },
+    ])
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    expect(container.textContent).toContain('Tranh Voi Con Vui Vẻ')
+
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it('renders the Ba Lô Của Con link card to /backpack and completely eliminates any link to /level', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Ba Lô Của Con card is present and links to /backpack
+    const backpackLink = container.querySelector('a[href="/backpack"]')
+    expect(backpackLink).not.toBeNull()
+    expect(backpackLink?.textContent).toContain('Ba Lô Của Con')
+    expect(backpackLink?.textContent).toContain('Mở Ba Lô')
+
+    // /level is 100% removed
+    const levelLink = container.querySelector('a[href="/level"]')
+    expect(levelLink).toBeNull()
+    expect(container.textContent).not.toContain('Xem hành trình cấp độ')
+    expect(container.textContent).not.toContain('Hành trình cấp độ')
+
+    act(() => root.unmount())
+    container.remove()
+  })
 })

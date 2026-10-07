@@ -155,6 +155,43 @@ describe('BackpackPage', () => {
     container.remove()
   })
 
+  it('loads recent studio creations from aikids_studio_recent_creations into projects', async () => {
+    const recentCreations = [
+      {
+        id: 'creation-studio-456',
+        url: '/assets/studio-space-cat.png',
+        title: 'Mèo Phi Hành Gia',
+        styleName: 'Đất sét',
+        createdAt: Date.now(),
+      },
+    ]
+
+    localStorage.setItem('aikids_studio_recent_creations', JSON.stringify(recentCreations))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <BackpackPage />
+        </MemoryRouter>
+      )
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    expect(container.textContent).toContain('Mèo Phi Hành Gia')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
   it('loads creations first and fetches each optional compartment only when opened', async () => {
     const apiSpy = vi.spyOn(apiModule, 'api').mockImplementation(async (endpoint: string) => {
       if (endpoint === '/api/backpack/overview') return {
