@@ -507,7 +507,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [drawerLecture, setDrawerLecture] = useState<Lecture | null>(null)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('aikids_teacher_sidebar_collapsed') === 'true'
+      const saved = localStorage.getItem('aikids_teacher_sidebar_collapsed')
+      if (saved !== null) return saved === 'true'
+      if (typeof window !== 'undefined' && window.innerWidth < 1536) return true
+      return false
     } catch {
       return false
     }

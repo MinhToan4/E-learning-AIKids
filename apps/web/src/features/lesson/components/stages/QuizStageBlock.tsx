@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, X, Star, ZoomIn, Palette, RotateCcw, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, X, Star, ZoomIn, Palette, RotateCcw, Lightbulb, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import { isValidImageUrl } from '../../lib/stage-view-utils'
@@ -326,7 +326,7 @@ export function QuizStageBlock({
                                 ) : (
                                   <>
                                     <span className="sr-only">💡</span>
-                                    <Sparkles size={14} className="text-rose-600" />
+                                    <Lightbulb size={14} className="text-rose-600" />
                                   </>
                                 )}
                               </span>

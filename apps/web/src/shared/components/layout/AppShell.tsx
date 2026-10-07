@@ -816,6 +816,7 @@ export function AppShell() {
 
       // 🎓 ĐÀO TẠO & KHÓA HỌC
       { to: '/admin/classes', label: 'Danh mục Lớp học & Phân công', icon: CmsClassesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
+      { to: '/teacher', label: 'Không gian Giảng viên', icon: CmsOverviewIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
       { to: '/admin/courses', label: 'Xưởng Soạn Trạm Học', icon: CmsLecturesIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
       { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon, group: '🎓 ĐÀO TẠO & KHÓA HỌC' },
 

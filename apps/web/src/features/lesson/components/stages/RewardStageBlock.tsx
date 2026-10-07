@@ -1,5 +1,5 @@
 import React from 'react'
-import { BookOpen, Sparkles, Star } from 'lucide-react'
+import { BookOpen, Award, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/components/ui/Button'
 import completionCelebrationUrl from '@/assets/lesson/aiki-completion-celebration.webp'
@@ -168,7 +168,7 @@ export function RewardStageBlock({
                 data-testid="stage6-trophy-xp-badge"
                 className="absolute -top-1.5 -right-2 bg-brand-500 text-white text-[11px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-clay-xs flex items-center gap-0.5 z-10"
               >
-                <Sparkles size={11} />
+                <Award size={11} />
                 +{effectiveRewardXp} XP
               </div>
             </div>

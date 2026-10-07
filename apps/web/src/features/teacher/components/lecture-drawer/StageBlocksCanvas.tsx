@@ -135,15 +135,6 @@ export function StageBlocksCanvas({
               <Plus size={14} className="shrink-0" /> + Thêm khối
             </button>
           )}
-          {stageIndex === 1 && isIslandCourse && !readOnly && (
-            <button
-              type="button"
-              onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-            >
-              <Plus size={14} className="shrink-0" /> + Thêm phương án
-            </button>
-          )}
           <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800 shrink-0 whitespace-nowrap">
             {stageBlocks.length} block
           </span>
@@ -229,18 +220,6 @@ export function StageBlocksCanvas({
             />
           </React.Fragment>
         ))}
-
-      {stageIndex === 1 && isIslandCourse && !readOnly && stageBlocks.length > 0 && (
-        <div className="flex justify-center pt-2">
-          <button
-            type="button"
-            onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
-            className="inline-flex items-center gap-2 rounded-2xl border-2 border-dashed border-brand-400 bg-white/90 px-5 py-3 text-xs font-black text-brand-800 hover:bg-brand-50 hover:border-brand-500 shadow-xs transition active:scale-95 cursor-pointer"
-          >
-            <Plus size={16} /> + Thêm phương án lựa chọn mới (A, B, C...)
-          </button>
-        </div>
-      )}
 
       {/* Vùng thả rác để xóa khối khi đang kéo */}
       {draggingBlockIdx !== null && (
