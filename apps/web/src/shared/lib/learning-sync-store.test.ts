@@ -138,6 +138,30 @@ describe('learning-sync-store', () => {
       expect(progress.lessonStars['bai-1-1']).toBe(3)
     })
 
+    it('strictly prevents star and completion degradation when called with lower stars or isCompleted=false', () => {
+      // 1. Learner earns 2 stars on Station 2.1 quiz
+      saveLocalLessonProgress('bai-2-1', 2, false, 'child-bo')
+      let progress = getLocalProgress('child-bo')
+      expect(progress.lessonStars['bai-2-1']).toBe(2)
+
+      // 2. Video completion or resume callback fires with 1 star: MUST NOT downgrade to 1 star!
+      saveLocalLessonProgress('bai-2-1', 1, false, 'child-bo')
+      progress = getLocalProgress('child-bo')
+      expect(progress.lessonStars['bai-2-1']).toBe(2)
+
+      // 3. Learner completes lesson with 3 stars: MUST upgrade to 3 stars and mark completed
+      saveLocalLessonProgress('bai-2-1', 3, true, 'child-bo')
+      progress = getLocalProgress('child-bo')
+      expect(progress.lessonStars['bai-2-1']).toBe(3)
+      expect(progress.completedLessonIds.has('bai-2-1')).toBe(true)
+
+      // 4. Stale callback with 1 or 2 stars must not un-complete or downgrade 3 stars
+      saveLocalLessonProgress('bai-2-1', 1, false, 'child-bo')
+      progress = getLocalProgress('child-bo')
+      expect(progress.lessonStars['bai-2-1']).toBe(3)
+      expect(progress.completedLessonIds.has('bai-2-1')).toBe(true)
+    })
+
     it('does not attribute ownerless legacy progress to a new child', () => {
       // Setup legacy storage (before namespacing existed)
       localStorage.setItem('aikids_lesson_completed_rule-2', 'true')

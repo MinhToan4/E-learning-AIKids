@@ -21,6 +21,7 @@ export type LessonCompletionSummary = {
   nextLessonSlug?: string
   answers?: Array<{ questionId: string; optionIndex: number }>
   keepalive?: boolean
+  practicePromise?: Promise<any>
 }
 
 export interface UseSixStageJourneyStateProps {
@@ -500,7 +501,7 @@ export function useSixStageJourneyState({
       writeLessonStorage(`aikids_lesson_stage_${lessonId}`, nextStage)
       onStageChange?.(nextStage)
 
-      if (stages[nextStage]?.type === 'REWARD' || nextStage === stages.length - 1) {
+      if (!hasAutoFinishedRef.current && (stages[nextStage]?.type === 'REWARD' || nextStage === stages.length - 1)) {
         hasAutoFinishedRef.current = true
         // Tự động lưu hoàn thành bài học ngay khi học sinh chạm tới chặng Thưởng
         const hasPractice = indices.practiceIdx >= 0
@@ -754,17 +755,19 @@ export function useSixStageJourneyState({
   const handleVideoCompleted = useCallback(() => {
     setIsVideoCompleted(true)
     writeLessonStorage(`aikids_video_done_${lessonId}`, true)
-    writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 1)
-    saveLocalLessonProgress(lessonId, 1, false, currentChildId)
+    const currentStars = readLessonStorage<number>(`aikids_lesson_stars_${lessonId}`, 0)
+    const nextStars = Math.max(currentStars, 1)
+    writeLessonStorage(`aikids_lesson_stars_${lessonId}`, nextStars)
+    saveLocalLessonProgress(lessonId, nextStars, false, currentChildId)
     if ((matchedCurriculum as any)?.id && (matchedCurriculum as any).id !== lessonId) {
-      saveLocalLessonProgress((matchedCurriculum as any).id, 1, false, currentChildId)
+      saveLocalLessonProgress((matchedCurriculum as any).id, nextStars, false, currentChildId)
     }
     if ((matchedCurriculum as any)?.slug && (matchedCurriculum as any).slug !== lessonId) {
-      saveLocalLessonProgress((matchedCurriculum as any).slug, 1, false, currentChildId)
+      saveLocalLessonProgress((matchedCurriculum as any).slug, nextStars, false, currentChildId)
     }
     clearWorldPageCache()
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('aikids:xp-updated', { detail: { stars: 1 } }))
+      window.dispatchEvent(new CustomEvent('aikids:xp-updated', { detail: { stars: nextStars } }))
       window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
     }
     onVideoCompletedProp?.()
@@ -876,23 +879,31 @@ export function useSixStageJourneyState({
     if ((matchedCurriculum as any)?.id && (matchedCurriculum as any).id !== lessonId) {
       saveLocalLessonProgress((matchedCurriculum as any).id, 3, true, currentChildId)
     }
-    void learningApi.savePractice(lessonId, {
-      kind: 'studio',
-      payload: {
-        selectedImage: typeof selectedImage === 'string' ? selectedImage : (selectedImage?.url || ''),
-        prompt: prompt || '',
-        isSubmitted: true,
-        ...(practiceState || selectedImage?.practiceState || {}),
-      },
-    }).then(() => {
-      return learningApi.advanceLesson(lessonId, { fromPhase: 'practice' }).catch(() => null)
-    }).catch(() => null)
+    hasAutoFinishedRef.current = true
+
+    const practicePromise = (async () => {
+      try {
+        await learningApi.savePractice(lessonId, {
+          kind: 'studio',
+          payload: {
+            selectedImage: typeof selectedImage === 'string' ? selectedImage : (selectedImage?.url || ''),
+            prompt: prompt || '',
+            isSubmitted: true,
+            ...(practiceState || selectedImage?.practiceState || {}),
+          },
+        })
+        await learningApi.advanceLesson(lessonId, { fromPhase: 'practice' }).catch(() => null)
+      } catch (err) {
+        console.warn('Practice sync failed:', err)
+      }
+    })()
 
     void onFinishLesson?.({
       stars: 3,
       xp: effectiveRewardXp || 50,
       answers: submittedQuizAnswers,
       keepalive: true,
+      practicePromise,
     })
     advanceToStage(indices.rewardIdx >= 0 ? indices.rewardIdx : stages.length - 1)
   }, [advanceToStage, currentChildId, effectiveRewardXp, indices.practiceIdx, indices.rewardIdx, lessonId, matchedCurriculum, onFinishLesson, stages.length, submittedQuizAnswers])

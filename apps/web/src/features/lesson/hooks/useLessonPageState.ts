@@ -521,6 +521,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     xp?: number
     nextLessonSlug?: string
     keepalive?: boolean
+    practicePromise?: Promise<any>
   }) {
     if (checkResult) return true
     if (finishLessonPromiseRef.current) return finishLessonPromiseRef.current
@@ -547,13 +548,20 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     const finishPromise = (async () => {
       setBusy(true)
       try {
+        if (customSummary?.practicePromise) {
+          await customSummary.practicePromise.catch(() => null)
+        }
         const lessonIdForSubmit =
           authoritativeLessonId ||
           quest.id ||
           questId
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => null)
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
-        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
+        if (phase === 'learn') {
+          await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => null)
+        } else if (phase === 'game') {
+          await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
+        } else if (phase === 'practice' && !customSummary?.practicePromise) {
+          await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
+        }
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
         const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
         const celebrationMsg = isIslandJourney
@@ -753,12 +761,9 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         sessionStorage.setItem(`aikids_video_done_${questId}`, 'true')
         localStorage.setItem(`aikids_video_done_${progressId}`, 'true')
         localStorage.setItem(`aikids_video_done_${questId}`, 'true')
-        localStorage.setItem(`aikids_lesson_stars_${progressId}`, '1')
-        localStorage.setItem(`aikids_lesson_stars_${questId}`, '1')
         if (authoritativeLessonId) {
           sessionStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
           localStorage.setItem(`aikids_video_done_${authoritativeLessonId}`, 'true')
-          localStorage.setItem(`aikids_lesson_stars_${authoritativeLessonId}`, '1')
         }
       }
     } catch {
@@ -771,7 +776,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
       progressId ||
       questId
 
-    if (effectiveId && navigator.onLine) {
+    if (effectiveId && navigator.onLine && phase === 'learn' && !hasAdvancedFromLearnRef.current[effectiveId]) {
       hasAdvancedFromLearnRef.current[effectiveId] = true
       void learningApi.advanceLesson(effectiveId, { fromPhase: 'learn' }).then(() => {
         clearWorldPageCache()
@@ -781,7 +786,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
       }).catch(() => null)
     }
-  }, [authoritativeLessonId, quest?.id, questId, user?.id])
+  }, [authoritativeLessonId, phase, quest?.id, questId, user?.id])
 
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
@@ -1108,9 +1113,13 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     setBusy(true)
     setError(null)
     try {
-      await learningApi.advanceLesson(questId, { fromPhase: 'learn' }).catch(() => null)
-      await learningApi.advanceLesson(questId, { fromPhase: 'game' }).catch(() => null)
-      await learningApi.advanceLesson(questId, { fromPhase: 'practice' }).catch(() => null)
+      if (phase === 'learn') {
+        await learningApi.advanceLesson(questId, { fromPhase: 'learn' }).catch(() => null)
+      } else if (phase === 'game') {
+        await learningApi.advanceLesson(questId, { fromPhase: 'game' }).catch(() => null)
+      } else if (phase === 'practice') {
+        await learningApi.advanceLesson(questId, { fromPhase: 'practice' }).catch(() => null)
+      }
 
       const res = await learningApi.submitCheck(questId, {
         answers: quest.check.map((q) => ({

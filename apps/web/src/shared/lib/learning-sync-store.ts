@@ -223,9 +223,6 @@ export function saveLocalLessonProgress(
   if (!lessonId) return
 
   const clampedStars = Math.max(0, Math.min(3, stars))
-  const isDone = isCompleted || clampedStars >= 3
-  const completedStr = isDone ? 'true' : 'false'
-  const starsStr = String(clampedStars)
 
   const keysToSave = new Set<string>([lessonId])
 
@@ -246,6 +243,22 @@ export function saveLocalLessonProgress(
       if (matchedLesson.lessonNumber) keysToSave.add(matchedLesson.lessonNumber)
     }
   }
+
+  // Đảm bảo không tụt sao hay mất trạng thái hoàn thành nếu trước đó đã đạt mức cao hơn
+  let maxExistingStars = 0
+  let anyExistingDone = false
+  for (const id of keysToSave) {
+    const compKey = `aikids_lesson_completed_${id}`
+    const starKey = `aikids_lesson_stars_${id}`
+    const s = Number(getStoredItemWithFallback(starKey, childId) || 0)
+    if (s > maxExistingStars) maxExistingStars = s
+    if (getStoredItemWithFallback(compKey, childId) === 'true') anyExistingDone = true
+  }
+
+  const effectiveStars = Math.max(maxExistingStars, clampedStars)
+  const isDone = isCompleted || anyExistingDone || effectiveStars >= 3
+  const completedStr = isDone ? 'true' : 'false'
+  const starsStr = String(effectiveStars)
 
   for (const id of keysToSave) {
     const compKey = `aikids_lesson_completed_${id}`
