@@ -71,6 +71,13 @@ export function FullStationPreviewModal({
 
   // Danh sách các chặng theo cấu trúc bài học
   const stagesList = useMemo(() => {
+    if (draft.customJourneyStages && draft.customJourneyStages.length >= 3) {
+      return draft.customJourneyStages.map((s, index) => ({
+        index,
+        label: s.title || s.shortTitle || `Chặng ${index + 1}`,
+        shortName: s.shortTitle || s.title || `${index + 1}`,
+      }))
+    }
     if (isIsland) {
       const shortLabels = ['Mục tiêu', 'Khởi động', 'Video', 'Trắc nghiệm', 'Thực hành', 'Về đích']
       return ISLAND_6_STAGE_NAMES.map((name, index) => ({
@@ -161,9 +168,9 @@ export function FullStationPreviewModal({
             </button>
           </div>
 
-          {/* Hàng dưới: Thanh chọn nhanh 6 chặng */}
+          {/* Hàng dưới: Thanh chọn nhanh chặng */}
           <nav
-            className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 px-3 py-2 bg-brand-50/50 border-t border-brand-100/60"
+            className="flex items-center gap-1.5 px-3 py-2 bg-brand-50/50 border-t border-brand-100/60 overflow-x-auto custom-scrollbar"
             aria-label="Chọn chặng xem trước"
           >
             {stagesList.map((stage) => {
@@ -174,7 +181,7 @@ export function FullStationPreviewModal({
                   type="button"
                   onClick={() => setActiveStage(stage.index)}
                   className={cn(
-                    'inline-flex items-center justify-center gap-1 px-1.5 sm:px-2 py-1 rounded-xl text-[11px] font-black transition cursor-pointer shadow-2xs w-full min-w-0',
+                    'inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black transition cursor-pointer shadow-2xs shrink-0 flex-1 min-w-[64px]',
                     isSelected
                       ? 'bg-brand-600 text-white shadow-xs font-black'
                       : 'bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-900 border border-slate-200/80 hover:border-brand-200',

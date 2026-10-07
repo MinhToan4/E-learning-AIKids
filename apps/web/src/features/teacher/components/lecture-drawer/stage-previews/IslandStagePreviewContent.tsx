@@ -121,67 +121,81 @@ export function IslandStagePreviewContent({
         </>
       ) : (
         <>
-          {stageIndex === 0 && stages[0] && (
-            <GoalStageBlock
-              stage={stages[0] as StageSchemaDefinition<GoalStageConfig>}
-              onImageClick={onImageClick}
-            />
-          )}
+          {(() => {
+            const currentStageDef = stages[stageIndex]
+            if (!currentStageDef) return null
+            const stageType = currentStageDef.type || (stageIndex === 0 ? 'GOAL' : stageIndex === 1 ? 'CONFIRM' : stageIndex === 2 ? 'VIDEO' : stageIndex === 3 ? 'QUIZ' : stageIndex === 4 ? 'PRACTICE' : 'REWARD')
 
-          {stageIndex === 1 && stages[1] && (
-            <ConfirmStageBlock
-              stage={stages[1] as StageSchemaDefinition<ConfirmStageConfig>}
-              selectedOption={previewConfirmOption}
-              isCorrect={
-                previewConfirmOption ===
-                (stages[1]?.config as ConfirmStageConfig)?.correctIndex
-              }
-              onSelectOption={onSelectConfirmOption}
-              onImageClick={onImageClick}
-            />
-          )}
-
-          {stageIndex === 2 && stages[2] && (
-            <VideoStageBlock
-              stage={stages[2] as StageSchemaDefinition<VideoStageConfig>}
-              isVideoCompleted={true}
-              videoSeekSec={previewVideoSeekSec}
-              onSeekVideo={onSeekVideo}
-            />
-          )}
-
-          {stageIndex === 3 && stages[3] && (
-            <QuizStageBlock
-              stage={stages[3] as StageSchemaDefinition<QuizStageConfig>}
-              activeQuizQuestionIdx={previewQuizQuestionIdx}
-              quizAnswers={previewQuizAnswers}
-              checkedQuestions={previewCheckedQuestions}
-              onSelectQuizAnswer={onSelectQuizAnswer}
-              onCheckAnswer={onCheckAnswer}
-              onRetryQuestion={onRetryQuestion}
-              onSetActiveQuizQuestion={onSetActiveQuizQuestion}
-              onImageClick={onImageClick}
-            />
-          )}
-
-          {stageIndex === 4 && stages[4] && (
-            <PracticeStageBlock
-              stage={stages[4] as StageSchemaDefinition<PracticeStageConfig>}
-              lessonId={card?.id}
-              lessonTitle={card?.title}
-              activePracticePartIndex={previewPracticePartIndex}
-              onPartChange={onPracticePartChange}
-            />
-          )}
-
-          {stageIndex === 5 && stages[5] && (
-            <RewardStageBlock
-              stage={stages[5] as StageSchemaDefinition<RewardStageConfig>}
-              effectiveStars={effectiveJourney.stage6_completion?.rewardBadge?.stars ?? 3}
-              effectiveRewardXp={effectiveJourney.stage6_completion?.rewardBadge?.xp ?? 50}
-              onImageClick={onImageClick}
-            />
-          )}
+            if (stageType === 'GOAL') {
+              return (
+                <GoalStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<GoalStageConfig>}
+                  onImageClick={onImageClick}
+                />
+              )
+            }
+            if (stageType === 'CONFIRM') {
+              return (
+                <ConfirmStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<ConfirmStageConfig>}
+                  selectedOption={previewConfirmOption}
+                  isCorrect={
+                    previewConfirmOption ===
+                    (currentStageDef.config as ConfirmStageConfig)?.correctIndex
+                  }
+                  onSelectOption={onSelectConfirmOption}
+                  onImageClick={onImageClick}
+                />
+              )
+            }
+            if (stageType === 'VIDEO') {
+              return (
+                <VideoStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<VideoStageConfig>}
+                  isVideoCompleted={true}
+                  videoSeekSec={previewVideoSeekSec}
+                  onSeekVideo={onSeekVideo}
+                />
+              )
+            }
+            if (stageType === 'QUIZ') {
+              return (
+                <QuizStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<QuizStageConfig>}
+                  activeQuizQuestionIdx={previewQuizQuestionIdx}
+                  quizAnswers={previewQuizAnswers}
+                  checkedQuestions={previewCheckedQuestions}
+                  onSelectQuizAnswer={onSelectQuizAnswer}
+                  onCheckAnswer={onCheckAnswer}
+                  onRetryQuestion={onRetryQuestion}
+                  onSetActiveQuizQuestion={onSetActiveQuizQuestion}
+                  onImageClick={onImageClick}
+                />
+              )
+            }
+            if (stageType === 'PRACTICE') {
+              return (
+                <PracticeStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<PracticeStageConfig>}
+                  lessonId={card?.id}
+                  lessonTitle={card?.title}
+                  activePracticePartIndex={previewPracticePartIndex}
+                  onPartChange={onPracticePartChange}
+                />
+              )
+            }
+            if (stageType === 'REWARD') {
+              return (
+                <RewardStageBlock
+                  stage={currentStageDef as StageSchemaDefinition<RewardStageConfig>}
+                  effectiveStars={effectiveJourney.stage6_completion?.rewardBadge?.stars ?? 3}
+                  effectiveRewardXp={effectiveJourney.stage6_completion?.rewardBadge?.xp ?? 50}
+                  onImageClick={onImageClick}
+                />
+              )
+            }
+            return null
+          })()}
         </>
       )}
 
