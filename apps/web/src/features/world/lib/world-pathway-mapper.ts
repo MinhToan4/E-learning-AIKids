@@ -413,14 +413,20 @@ export function mergeQuestsWithLocalProgress<
         (isRuleCourse && typeof quest.order === 'number' && localProgress.completedLessonIds.has(`rule-${quest.order}`)) ||
         (isRuleCourse && typeof quest.order === 'number' && localProgress.completedLessonIds.has(`bai-0-${quest.order}`))
 
+      const localStar =
+        localProgress.lessonStars[quest.id] ||
+        (quest.slug ? localProgress.lessonStars[quest.slug] : 0) ||
+        (isRuleCourse && typeof quest.order === 'number' ? localProgress.lessonStars[`rule-${quest.order}`] : 0) ||
+        0
+
       if (isCompleted) {
         status = 'completed'
-        const localStar =
-          localProgress.lessonStars[quest.id] ||
-          (quest.slug ? localProgress.lessonStars[quest.slug] : 0) ||
-          (isRuleCourse && typeof quest.order === 'number' ? localProgress.lessonStars[`rule-${quest.order}`] : 0) ||
-          3
+        stars = Math.max(stars, clampStationStars(localStar || 3))
+      } else if (localStar > 0) {
         stars = Math.max(stars, clampStationStars(localStar))
+        if (status === 'locked') {
+          status = 'available'
+        }
       }
     }
 
@@ -477,13 +483,18 @@ export function enrichCoursesWithLocalProgress(
       let islandCompleted = 0
       let islandStars = 0
       for (const st of course.stations) {
-        if (
+        const isDone =
           localProgress.completedLessonIds.has(st.id) ||
-          (st.slug && localProgress.completedLessonIds.has(st.slug))
-        ) {
+          (Boolean(st.slug) && localProgress.completedLessonIds.has(st.slug!))
+        const s = Math.max(
+          localProgress.lessonStars[st.id] || 0,
+          st.slug ? (localProgress.lessonStars[st.slug] || 0) : 0,
+          isDone ? 3 : 0,
+        )
+        if (isDone) {
           islandCompleted++
-          islandStars += Math.max(localProgress.lessonStars[st.id] || 0, 3)
         }
+        islandStars += s
       }
       const nextCompleted = Math.max(course.completedCount ?? 0, islandCompleted)
       return {

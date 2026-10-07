@@ -96,15 +96,15 @@ describe('StoryMee Gateway adapter', () => {
     })
   })
 
-  it('translates nickname + PIN child login without a family code and relies on HttpOnly session cookie', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(response({
-      token: 'storymee-jwt',
-      user: { id: 'u1', actor: 'child', name: 'Bé Mây' },
-    }))
+  it.each([
+    '/api/auth/login/student',
+    '/api/v1/account/family/child-login',
+  ])('blocks disabled student PIN login before any network request: %s', async (path) => {
+    const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
 
-    const result = await api<{ user: { role: string } }>(
-      '/api/auth/login/student',
+    await expect(api(
+      path,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -112,22 +112,11 @@ describe('StoryMee Gateway adapter', () => {
           pin: '424242',
         }),
       },
-    )
-
-    expect(result.user.role).toBe('student')
-    expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/account/family/child-login',
-      expect.objectContaining({
-        method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify({
-          nickname: 'Bé Mây',
-          pin: '424242',
-        }),
-      }),
-    )
-    expect(getAccessToken()).toBeNull()
-    expect(localStorage.getItem('storymee.access_token')).toBeNull()
+    )).rejects.toMatchObject({
+      status: 410,
+      code: 'STUDENT_PIN_LOGIN_DISABLED',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('uses the HttpOnly session cookie and maps LMS catalog responses for the existing UI', async () => {
@@ -683,7 +672,7 @@ describe('StoryMee Gateway adapter', () => {
     )
   })
 
-  it('maps child creation PIN to the Account credential required for its users row', async () => {
+  it('never sends a legacy PIN when creating a parent-owned child profile', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       status: 'success',
       data: {
@@ -720,21 +709,16 @@ describe('StoryMee Gateway adapter', () => {
       allowAiCreate: true,
       allowPhoto: true,
       allowExport: true,
-      pin: '424242',
     })
     expect(payload.password).not.toBe('424242')
+    expect(payload).not.toHaveProperty('pin')
   })
 
-  it('keeps child profile age-band updates separate from the parent-owned PIN endpoint', async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(response({
+  it('keeps PIN out of child updates and blocks the legacy PIN endpoint', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({
       status: 'success',
       data: { child: { id: 'child-1', name: 'Bé Mây', ageBand: '8-11' } },
-      }))
-      .mockResolvedValueOnce(response({
-        status: 'success',
-        data: { child: { id: 'child-1', name: 'Bé Mây', ageBand: '8-11' } },
-      }))
+    }))
     vi.stubGlobal('fetch', fetchMock)
 
     await api('/api/parent/children/child-1', {
@@ -746,10 +730,10 @@ describe('StoryMee Gateway adapter', () => {
         pin: '424242',
       }),
     })
-    await api('/api/parent/children/child-1/pin', {
+    await expect(api('/api/parent/children/child-1/pin', {
       method: 'POST',
       body: JSON.stringify({ pin: '424242' }),
-    })
+    })).rejects.toMatchObject({ code: 'PIN_MANAGEMENT_DISABLED', status: 410 })
 
     expect(fetchMock.mock.calls[0][0]).toBe(
       'https://dev-hub.storymee.com/api/v1/account/family/children/child-1',
@@ -762,13 +746,7 @@ describe('StoryMee Gateway adapter', () => {
         ageBand: '8-11',
       }),
     }))
-    expect(fetchMock.mock.calls[1][0]).toBe(
-      'https://dev-hub.storymee.com/api/v1/account/family/children/child-1/pin',
-    )
-    expect(fetchMock.mock.calls[1][1]).toEqual(expect.objectContaining({
-      method: 'POST',
-      body: JSON.stringify({ pin: '424242' }),
-    }))
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('routes teacher classroom and authoring calls to core LMS', async () => {

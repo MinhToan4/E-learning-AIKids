@@ -12,7 +12,7 @@ export function UserManagementNav({ activeTab }: UserManagementNavProps) {
       to: '/admin/users',
       title: 'Học sinh & Phụ huynh',
       icon: Users,
-      subtitle: 'Cây gia đình, hồ sơ con & mã PIN',
+      subtitle: 'Cây gia đình & hồ sơ con',
     },
     {
       id: 'staff',

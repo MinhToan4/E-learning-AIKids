@@ -15,6 +15,6 @@
     "typecheck": "npm run typecheck -w @aikids/web"
   },
   "engines": {
-    "node": ">=22.22"
+    "node": "22.x"
   }
 }

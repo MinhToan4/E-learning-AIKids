@@ -41,8 +41,6 @@ describe('API route tree', () => {
     ['/api/gamification/achievements', '/api/v1/gamification/me/achievements'],
     ['/api/media/upload', '/api/v1/media/upload?permanent=1&assetType=aikids'],
     ['/api/admin/system', '/api/v1/system/aikids/admin/summary?view=system'],
-    ['/api/parent/pin', '/api/v1/account/family/parent-pin'],
-    ['/api/parent/pin-status', '/api/v1/account/family/parent-pin-status'],
     ['/api/parent/gate/verify', '/api/v1/account/family/gate-verify'],
     ['/api/parent/gate/verify-google', '/api/v1/account/family/gate-verify-google'],
   ])('resolves %s to canonical route %s', (legacyPath, canonicalPath) => {

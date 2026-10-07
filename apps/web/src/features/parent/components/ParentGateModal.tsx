@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Check,
-  Delete,
   Eye,
   EyeOff,
   KeyRound,
@@ -12,16 +10,16 @@ import {
 import { useAuth } from '@/shared/store/auth'
 import { api, ApiError, setAccessToken, type User } from '@/shared/lib/api'
 import { firebaseApp } from '@/shared/lib/firebase-client'
+import { signInWithFirebasePassword } from '@/shared/lib/firebase-client'
 import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
-import { cn } from '@/shared/lib/cn'
 
-type GateMode = 'pin' | 'password' | 'recovery'
+type GateMode = 'password' | 'recovery'
 
 /**
  * ParentGateModal — child taps "Ba / Mẹ ơi!" to hand device back to parent.
  *
- * Parent PIN or password is verified by Core Account before the student session is
- * replaced. Child PIN is never accepted by this adult boundary.
+ * The owning parent's password or Google identity is verified before the student
+ * session is replaced. A device/default PIN is never accepted at this boundary.
  *
  * Session swap happens BEFORE navigation, so Guard sees correct role.
  */
@@ -39,34 +37,29 @@ export function ParentGateModal({
   const logout = useAuth((s) => s.logout)
   const completeFirebaseSignIn = useAuth((s) => s.completeFirebaseSignIn)
 
-  const [mode, setMode] = useState<GateMode>('pin')
-  const [pin, setPin] = useState('')
+  const [mode, setMode] = useState<GateMode>('password')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [shake, setShake] = useState(false)
-  const hiddenPinInputRef = useRef<HTMLInputElement>(null)
   const passwordInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (open) {
-      setMode('pin')
-      setPin('')
+      setMode('password')
       setPassword('')
       setError(null)
       setLoading(false)
       setLoadingGoogle(false)
       setShowPw(false)
-      setTimeout(() => hiddenPinInputRef.current?.focus(), 150)
+      setTimeout(() => passwordInputRef.current?.focus(), 150)
     }
   }, [open])
 
   useEffect(() => {
-    if (mode === 'pin') {
-      setTimeout(() => hiddenPinInputRef.current?.focus(), 100)
-    } else if (mode === 'password') {
+    if (mode === 'password') {
       setTimeout(() => passwordInputRef.current?.focus(), 100)
     }
     setError(null)
@@ -93,68 +86,6 @@ export function ParentGateModal({
     [setUser, onClose, redirectTo],
   )
 
-  const verifyPin = useCallback(
-    async (pinToVerify: string) => {
-      if (loading || loadingGoogle) return
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await api<{ status: string; user: User; token?: string }>(
-          '/api/parent/gate/verify',
-          {
-            method: 'POST',
-            body: JSON.stringify({ pin: pinToVerify }),
-          },
-        )
-        onAuthSuccess(res.user, res.token)
-      } catch (e: unknown) {
-        if (e instanceof ApiError) {
-          if (e.code === 'INVALID_PARENT_PIN' || e.status === 401) {
-            setError('Mã PIN chưa đúng, thử lại nhé!')
-          } else if (e.code === 'NO_PARENT_PIN_SET' || e.status === 400) {
-            setError(
-              'Chưa cài đặt mã PIN Ba / Mẹ. Hãy dùng mật khẩu hoặc Google để vào thiết lập mã PIN nhé!',
-            )
-          } else {
-            setError(e.message ?? 'Mã PIN chưa đúng, thử lại nhé!')
-          }
-        } else {
-          setError('Có lỗi xảy ra, thử lại nhé!')
-        }
-        triggerShake()
-        setPin('')
-        setTimeout(() => hiddenPinInputRef.current?.focus(), 50)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [loading, loadingGoogle, onAuthSuccess],
-  )
-
-  const handlePinDigit = useCallback(
-    (digit: string) => {
-      if (loading || loadingGoogle) return
-      setError(null)
-      setPin((prev) => {
-        if (prev.length < 4) {
-          const next = prev + digit
-          if (next.length === 4) {
-            setTimeout(() => void verifyPin(next), 0)
-          }
-          return next
-        }
-        return prev
-      })
-    },
-    [loading, loadingGoogle, verifyPin],
-  )
-
-  const handlePinDelete = useCallback(() => {
-    if (loading || loadingGoogle) return
-    setError(null)
-    setPin((prev) => prev.slice(0, -1))
-  }, [loading, loadingGoogle])
-
   const handlePasswordSubmit = useCallback(async () => {
     if (!password.trim()) {
       setError('Nhập mật khẩu của Ba / Mẹ nhé!')
@@ -163,6 +94,15 @@ export function ParentGateModal({
     setLoading(true)
     setError(null)
     try {
+      // Firebase-created parents intentionally have no local password hash.
+      // Re-authenticate the known owning parent with Firebase instead of
+      // asking Account to scan unrelated password hashes.
+      if (user?.parentEmail) {
+        const idToken = await signInWithFirebasePassword(user.parentEmail, password)
+        const authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
+        onAuthSuccess(authedUser)
+        return
+      }
       const res = await api<{ status: string; user: User; token?: string }>(
         '/api/parent/gate/verify',
         {
@@ -181,7 +121,7 @@ export function ParentGateModal({
     } finally {
       setLoading(false)
     }
-  }, [password, onAuthSuccess])
+  }, [completeFirebaseSignIn, password, user?.parentEmail, onAuthSuccess])
 
   const handleGoogleVerify = useCallback(async () => {
     setLoadingGoogle(true)
@@ -218,11 +158,6 @@ export function ParentGateModal({
         authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
       }
 
-      try {
-        sessionStorage.setItem('aikids.suggest_pin_setup', '1')
-      } catch {
-        // ignore
-      }
       onAuthSuccess(authedUser, token)
     } catch (e: unknown) {
       const code =
@@ -255,27 +190,17 @@ export function ParentGateModal({
     }
   }, [logout, onClose])
 
-  // Global keyboard shortcuts for modal
+  // Escape closes the adult boundary without changing identity.
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose()
-        return
-      }
-      if (mode === 'pin') {
-        if (e.key >= '0' && e.key <= '9') {
-          handlePinDigit(e.key)
-        } else if (e.key === 'Backspace') {
-          handlePinDelete()
-        } else if (e.key === 'Enter' && pin.length === 4) {
-          void verifyPin(pin)
-        }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, mode, pin, onClose, handlePinDigit, handlePinDelete, verifyPin])
+  }, [open, onClose])
 
   if (!open) return null
 
@@ -293,10 +218,7 @@ export function ParentGateModal({
           maxHeight: 'min(95dvh, 700px)',
           ...(shake ? { animation: 'shake 0.4s ease-in-out' } : {}),
         }}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (mode === 'pin') hiddenPinInputRef.current?.focus()
-        }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 px-6 pb-3 pt-4 sm:pb-4 sm:pt-5 text-center shrink-0 relative">
@@ -315,7 +237,6 @@ export function ParentGateModal({
 
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">Ba / Mẹ ơi!</h2>
           <p className="mt-0.5 text-xs sm:text-sm font-semibold text-white/90">
-            {mode === 'pin' && 'Nhập mã PIN Ba / Mẹ gồm 4 chữ số'}
             {mode === 'password' && 'Nhập mật khẩu đăng nhập của Ba / Mẹ'}
             {mode === 'recovery' && 'Khôi phục quyền truy cập Ba / Mẹ'}
           </p>
@@ -323,146 +244,6 @@ export function ParentGateModal({
 
         {/* Body */}
         <div className="px-5 py-3 sm:px-6 sm:py-4 flex-1 min-h-0 flex flex-col justify-between overflow-y-auto">
-          {mode === 'pin' && (
-            <>
-              {/* Hidden input for physical keyboard and mobile numeric virtual keyboard */}
-              <input
-                ref={hiddenPinInputRef}
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={4}
-                value={pin}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-                  setPin(val)
-                  if (val.length === 4) {
-                    void verifyPin(val)
-                  }
-                }}
-                className="sr-only opacity-0 absolute pointer-events-none"
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-
-              {/* 4 PIN display dots / boxes */}
-              <div className="mb-2 sm:mb-2.5">
-                <div
-                  className="flex items-center justify-center gap-2.5 sm:gap-3.5 my-1.5 sm:my-2"
-                  onClick={() => hiddenPinInputRef.current?.focus()}
-                >
-                  {[0, 1, 2, 3].map((i) => {
-                    const isFilled = i < pin.length
-                    const isActive = i === pin.length
-                    return (
-                      <div
-                        key={i}
-                        className={cn(
-                          'flex h-11 w-10 sm:h-12 sm:w-11 items-center justify-center rounded-2xl border-2 text-xl sm:text-2xl font-black transition-all select-none',
-                          isFilled
-                            ? 'border-amber-500 bg-amber-50 text-slate-800 shadow-soft scale-105'
-                            : isActive
-                              ? 'border-amber-400 bg-white ring-2 ring-amber-300 ring-offset-2 animate-pulse'
-                              : 'border-slate-200 bg-slate-50 text-slate-300',
-                        )}
-                      >
-                        {isFilled ? '•' : ''}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {/* Dòng chỉ dẫn thân thiện mã PIN mặc định 0000 */}
-                <div className="my-1.5 sm:my-2 mx-auto max-w-[280px] rounded-xl sm:rounded-2xl bg-amber-50 border border-amber-200/90 px-3 py-1.5 text-center shadow-2xs">
-                  <p className="text-[11px] sm:text-xs font-black text-amber-900 flex items-center justify-center gap-1">
-                    <span>💡 Mã PIN mặc định là 0000</span>
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] font-semibold text-amber-700 mt-0.5 leading-tight">
-                    Nhập 0000 để mở khóa. Ba / Mẹ có thể đổi PIN trong Cài đặt.
-                  </p>
-                </div>
-
-                {/* Error message */}
-                {error && (
-                  <p className="mt-1.5 text-center text-xs sm:text-sm font-bold text-rose-500 leading-snug">
-                    {error}
-                  </p>
-                )}
-                {!error && (
-                  <p className="mt-1 text-center text-[11px] sm:text-xs text-muted">
-                    {loading ? 'Đang kiểm tra mã PIN…' : 'Chạm các phím số bên dưới hoặc gõ bàn phím'}
-                  </p>
-                )}
-              </div>
-
-              {/* On-screen Soft-Clay Numpad */}
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full max-w-[280px] mx-auto select-none">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => handlePinDigit(String(n))}
-                    className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-lg sm:text-xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    {n}
-                  </button>
-                ))}
-
-                {/* Bottom row: Delete, 0, Enter */}
-                <button
-                  type="button"
-                  disabled={loading || pin.length === 0}
-                  onClick={handlePinDelete}
-                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-100 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 active:scale-95 text-slate-600 shadow-2xs transition-all cursor-pointer disabled:opacity-30"
-                  aria-label="Xóa 1 số"
-                >
-                  <Delete size={18} />
-                </button>
-
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => handlePinDigit('0')}
-                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 active:scale-95 text-lg sm:text-xl font-black text-slate-800 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-                >
-                  0
-                </button>
-
-                <button
-                  type="button"
-                  disabled={loading || pin.length !== 4}
-                  onClick={() => void verifyPin(pin)}
-                  className="flex h-10 sm:h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 active:scale-95 text-white font-bold shadow-soft transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-                  aria-label="Xác nhận"
-                >
-                  <Check size={18} />
-                </button>
-              </div>
-
-              {/* Alternate options */}
-              <div className="mt-2.5 sm:mt-3 flex flex-col items-center gap-1 sm:gap-1.5 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setMode('password')}
-                  disabled={loading}
-                  className="text-xs font-bold text-slate-600 hover:text-amber-600 transition-colors cursor-pointer"
-                >
-                  Hoặc dùng mật khẩu tài khoản
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setMode('recovery')}
-                  disabled={loading}
-                  className="text-[11px] sm:text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
-                >
-                  Quên mã PIN?
-                </button>
-              </div>
-            </>
-          )}
-
           {mode === 'password' && (
             <div className="flex flex-col justify-between h-full">
               <div className="mb-4">
@@ -506,21 +287,12 @@ export function ParentGateModal({
                 )}
               </div>
 
-              {/* Confirm / Cancel */}
-              <div className="mb-4 flex gap-3 w-full">
-                <button
-                  type="button"
-                  onClick={() => setMode('pin')}
-                  disabled={loading}
-                  className="flex-1 rounded-2xl border-2 border-gray-200 py-3 min-h-[44px] text-sm font-bold text-gray-500 transition hover:bg-gray-50 disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
-                >
-                  ← Dùng mã PIN
-                </button>
+              <div className="mb-4 flex w-full">
                 <button
                   type="button"
                   onClick={() => void handlePasswordSubmit()}
                   disabled={loading || !password.trim()}
-                  className="flex-1 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 py-3 min-h-[44px] text-sm font-black text-white shadow-soft transition-all hover:opacity-90 disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
+                  className="w-full rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 py-3 min-h-[44px] text-sm font-black text-white shadow-soft transition-all hover:opacity-90 disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
                 >
                   {loading ? '…' : 'Xác nhận'}
                 </button>
@@ -532,7 +304,7 @@ export function ParentGateModal({
                   onClick={() => setMode('recovery')}
                   className="text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
                 >
-                  Quên mã PIN hoặc mật khẩu?
+                  Quên mật khẩu hoặc muốn dùng Google?
                 </button>
               </div>
             </div>
@@ -577,10 +349,10 @@ export function ParentGateModal({
               <div className="mt-3 text-center">
                 <button
                   type="button"
-                  onClick={() => setMode('pin')}
+                  onClick={() => setMode('password')}
                   className="text-xs sm:text-sm font-bold text-amber-600 hover:underline cursor-pointer"
                 >
-                  ← Quay lại nhập mã PIN Ba / Mẹ
+                  ← Quay lại nhập mật khẩu Ba / Mẹ
                 </button>
               </div>
             </div>

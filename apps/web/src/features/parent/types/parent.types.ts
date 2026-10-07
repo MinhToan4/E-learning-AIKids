@@ -15,7 +15,6 @@ export type Child = {
   level: number
   xp: number
   active: boolean
-  hasPin?: boolean
   allowAiCreate?: boolean
   allowPhoto?: boolean
   allowExport?: boolean
@@ -120,9 +119,4 @@ export type CourseItem = {
 export type CoursePaymentState = {
   publicId: string
   status: 'pending' | 'succeeded' | 'failed' | 'unknown'
-}
-
-export type ParentPinStatus = {
-  hasParentPin: boolean
-  updatedAt: string | null
 }

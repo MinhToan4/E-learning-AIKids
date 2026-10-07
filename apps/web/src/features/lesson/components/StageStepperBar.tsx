@@ -84,14 +84,14 @@ export function StageStepperBar({
 
   const handleBackToMap = () => {
     if (!onBackToMap) return
-    // Chỉ gửi completion nếu bài học ĐÃ THỰC SỰ HOÀN THÀNH hoặc là Rule Lesson từ stage 1 trở đi (hoặc quiz đã nộp)
-    if (
-      (isRuleLesson && currentStage >= 1) ||
-      quizSubmitted ||
+    // Chỉ gửi completion nếu bài học ĐÃ THỰC SỰ HOÀN THÀNH hoặc là Rule Lesson từ stage 1 trở đi
+    const isActuallyComplete =
       isCompletedLesson ||
       currentStageDef?.type === 'REWARD' ||
-      currentStage === stages.length - 1
-    ) {
+      currentStage === stages.length - 1 ||
+      (isRuleLesson && (quizSubmitted || currentStage >= 1))
+
+    if (isActuallyComplete) {
       const completionSummary: LessonCompletionSummary = {
         stars: isRuleLesson && currentStage >= 1 ? 3 : (effectiveStars || 3),
         xp: effectiveRewardXp || 50,

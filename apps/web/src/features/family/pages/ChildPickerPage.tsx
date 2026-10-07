@@ -21,7 +21,6 @@ type ChildCard = {
   totalStars?: number
   completedQuests?: number
   active?: boolean
-  hasPin?: boolean
 }
 
 /**
@@ -78,8 +77,8 @@ export function ChildPickerPage() {
   async function confirmEnter(child: ChildCard) {
     setBusy(true)
     try {
-      // The authenticated parent already owns this child profile. Child PIN is
-      // reserved for a child signing in directly, not for a parent hand-off.
+      // The authenticated parent already owns this child profile; the server
+      // verifies ownership before replacing the parent session.
       const next = await enterAsChild(child.id)
       navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
     } catch (e) {

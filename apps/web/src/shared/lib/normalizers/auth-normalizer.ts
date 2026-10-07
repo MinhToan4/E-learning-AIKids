@@ -47,17 +47,6 @@ export function normalizeAuthGatewayRequest(
     return { path: direct[path], options }
   }
 
-  if (path === '/api/auth/login/student') {
-    return {
-      path: '/api/v1/account/family/child-login',
-      options: withJson(options, {
-        familyCode: body.familyCode,
-        nickname: body.nickname,
-        pin: body.pin,
-      }),
-    }
-  }
-
   if (path === '/api/auth/google/config') {
     return { path: '/api/v1/account/auth/google/config', options }
   }
@@ -195,7 +184,6 @@ export function normalizeAuthGatewayRequest(
   }
 
   if (path === '/api/parent/children') {
-    const childPin = typeof body.pin === 'string' ? body.pin.trim() : ''
     return {
       path: '/api/v1/account/family/children',
       options: options.method === 'POST'
@@ -208,7 +196,6 @@ export function normalizeAuthGatewayRequest(
           allowPhoto: true,
           allowExport: true,
           password: createUuid(),
-          ...(childPin ? { pin: childPin } : {}),
         })
         : options,
     }
@@ -220,14 +207,6 @@ export function normalizeAuthGatewayRequest(
 
   if (path === '/api/parent/profile') {
     return { path: '/api/v1/account/parent-profile', options }
-  }
-
-  if (path === '/api/parent/pin') {
-    return { path: '/api/v1/account/family/parent-pin', options }
-  }
-
-  if (path === '/api/parent/pin-status') {
-    return { path: '/api/v1/account/family/parent-pin-status', options }
   }
 
   if (path === '/api/parent/gate/verify') {
@@ -261,14 +240,6 @@ export function normalizeAuthGatewayRequest(
           ageBand: body.ageBand,
         })
         : options,
-    }
-  }
-
-  const childPin = path.match(/^\/api\/parent\/children\/([^/?]+)\/pin$/)
-  if (childPin) {
-    return {
-      path: `/api/v1/account/family/children/${encodeURIComponent(childPin[1])}/pin`,
-      options,
     }
   }
 
@@ -329,7 +300,6 @@ export function normalizeAuthGatewayResponse(
     path.startsWith('/api/account') ||
     path.startsWith('/api/parent/profile') ||
     path.startsWith('/api/parent/gate') ||
-    path.startsWith('/api/parent/pin') ||
     path.startsWith('/api/parent/family') ||
     path.startsWith('/api/parent/course-checkout') ||
     path.startsWith('/api/parent/plans') ||
@@ -358,6 +328,7 @@ export function normalizeAuthGatewayResponse(
   if (path === '/api/auth/login/child-profile') {
     markSessionTransition()
     const child = recordValue(payload.child)
+    const parent = recordValue(payload.parent)
     const consent = (child.parentalConsent && typeof child.parentalConsent === 'object'
       ? child.parentalConsent
       : child.consent && typeof child.consent === 'object'
@@ -369,12 +340,13 @@ export function normalizeAuthGatewayResponse(
           ...child,
           actor: 'child',
           name: child.name,
-          parentId: recordValue(payload.parent).id,
+          parentId: parent.id,
           onboarded: true,
         }),
         allowAiCreate: consent.allowAiCreate !== false && (child as any).allowAiCreate !== false,
         allowPhoto: consent.allowPhoto !== false && (child as any).allowPhoto !== false,
         allowExport: consent.allowExport !== false && (child as any).allowExport !== false,
+        parentEmail: parent.email ? String(parent.email) : null,
       },
     }
   }
@@ -436,21 +408,6 @@ export function normalizeAuthGatewayResponse(
     }
   }
 
-  if (path === '/api/parent/pin-status') {
-    return {
-      hasParentPin: Boolean(payload.hasParentPin),
-      updatedAt: payload.updatedAt ? String(payload.updatedAt) : null,
-    }
-  }
-
-  if (path === '/api/parent/pin') {
-    return {
-      status: String(payload.status ?? 'success'),
-      message: String(payload.message ?? 'Cài đặt mã PIN Ba / Mẹ thành công'),
-      hasParentPin: true,
-    }
-  }
-
   if (path === '/api/parent/profile') {
     return {
       profile: {
@@ -482,21 +439,11 @@ export function normalizeAuthGatewayResponse(
           active: true,
           level: Number(row.level ?? 1),
           xp: Number(row.xp ?? 0),
-          hasPin: row.hasPin === true,
           allowAiCreate: consent.allowAiCreate !== false && row.allowAiCreate !== false,
           allowPhoto: consent.allowPhoto !== false && row.allowPhoto !== false,
           allowExport: consent.allowExport !== false && row.allowExport !== false,
         }
       }),
-    }
-  }
-
-  const childPinMatch = path.match(/^\/api\/parent\/children\/([^/?]+)\/pin$/)
-  if (childPinMatch) {
-    return {
-      id: childPinMatch[1],
-      pinSet: true,
-      message: 'Mã PIN đã được cập nhật thành công.',
     }
   }
 

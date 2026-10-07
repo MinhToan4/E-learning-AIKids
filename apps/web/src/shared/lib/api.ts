@@ -541,6 +541,8 @@ export type User = {
   onboarded: boolean
   goal: string | null
   parentId: string | null
+  /** Parent email returned only for an authenticated parent-to-child handoff. */
+  parentEmail?: string | null
   classId: string | null
   /** Consent capabilities — populated from JWT for child sessions only.
    * For non-child sessions these are always undefined (treat as unrestricted). */

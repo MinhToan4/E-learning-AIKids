@@ -9,7 +9,7 @@ import {
 import { ShieldLockIcon } from '@/shared/components/icons/ParentIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
-import { api, type CourseSummary } from '@/shared/lib/api'
+import { api, ApiError, type CourseSummary } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { courseCoverHint } from '@/shared/config/assets'
 
@@ -25,6 +25,29 @@ type CourseDetail = CourseSummary & {
     disclaimer: string
   }
   quests: Array<{ id: string; order: number; title: string; practiceKind: string }>
+}
+
+export function courseSkills(value: { skills?: string[] | null }): string[] {
+  return value.skills?.length
+    ? value.skills
+    : ['An toàn và trách nhiệm khi sáng tạo với AI']
+}
+
+type CourseEnrollment = { courseId: string; status: string }
+
+export function hasActiveCourseEnrollment(
+  enrollments: CourseEnrollment[],
+  course: Pick<CourseDetail, 'id'>,
+): boolean {
+  return enrollments.some((item) =>
+    item.courseId === course.id && ['active', 'completed'].includes(item.status))
+}
+
+export function courseStartError(error: unknown): string {
+  if (error instanceof ApiError && error.code === 'PARENT_SELECTION_REQUIRED') {
+    return 'Ba / Mẹ cần thêm khóa học này vào lộ trình của con trước khi bắt đầu.'
+  }
+  return error instanceof Error ? error.message : 'Chưa ghi danh được'
 }
 
 export function CourseIntroPage() {
@@ -45,11 +68,10 @@ export function CourseIntroPage() {
       try {
         const [data, enrollmentData] = await Promise.all([
           learningApi.getCourse<{ course: CourseDetail }>(courseId),
-          api<{ enrollments: Array<{ courseId: string; status: string }> }>('/api/enrollments'),
+          api<{ enrollments: CourseEnrollment[] }>('/api/enrollments'),
         ])
         setCourse(data.course)
-        setEnrolled(enrollmentData.enrollments.some((item) =>
-          item.courseId === courseId && ['active', 'completed'].includes(item.status)))
+        setEnrolled(hasActiveCourseEnrollment(enrollmentData.enrollments, data.course))
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được khóa học')
       }
@@ -82,7 +104,7 @@ export function CourseIntroPage() {
         navigate(`/world/${course.id}`)
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Chưa ghi danh được')
+      setError(courseStartError(e))
     } finally {
       setBusy(false)
     }
@@ -122,6 +144,7 @@ export function CourseIntroPage() {
         ]
 
   const sortedQuests = [...(course.quests ?? [])].sort((a, b) => a.order - b.order)
+  const skills = courseSkills(course)
   const primaryActionLabel = busy
     ? 'Đang mở…'
     : enrolled || progress?.completedCount
@@ -207,7 +230,7 @@ export function CourseIntroPage() {
             Con sẽ khám phá
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            {course.skills.map((skill, index) => (
+            {skills.map((skill, index) => (
               <li key={skill} className="flex min-h-20 items-center gap-3 rounded-2xl bg-brand-50 p-3 font-bold text-text">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white font-display text-xl text-brand-700 shadow-soft">{index + 1}</span>
                 <span className="leading-snug">{skill}</span>

@@ -37,7 +37,7 @@ export const API_ROUTE_TREE: readonly ApiRouteBranch[] = [
     gatewayPrefix: '/api/v1/account', audiences: ['public', 'authenticated'], adapter: 'api', owner: 'core-account', status: 'compatibility',
     children: [
       { id: 'account-public-profile', label: 'Hồ sơ công khai', legacyPrefixes: ['/api/public/profiles', '/api/public/profile-shares', '/api/public/workspaces'], gatewayPrefix: '/api/v1/account', audiences: ['public'], adapter: 'profileOverviewApi', owner: 'core-account', status: 'compatibility' },
-      { id: 'account-family', label: 'Tài khoản gia đình & phê duyệt', legacyPrefixes: ['/api/parent/approvals', '/api/parent/profile', '/api/parent/profile-shares', '/api/parent/family-login-code', '/api/parent/gate', '/api/parent/pin', '/api/parent/pin-status'], gatewayPrefix: '/api/v1/account/family', audiences: ['parent'], adapter: 'api', owner: 'core-account', status: 'compatibility' },
+      { id: 'account-family', label: 'Tài khoản gia đình & phê duyệt', legacyPrefixes: ['/api/parent/approvals', '/api/parent/profile', '/api/parent/profile-shares', '/api/parent/family-login-code', '/api/parent/gate'], gatewayPrefix: '/api/v1/account/family', audiences: ['parent'], adapter: 'api', owner: 'core-account', status: 'compatibility' },
       { id: 'account-admin', label: 'Quản trị tài khoản', legacyPrefixes: ['/api/admin/users', '/api/admin/login-logs'], gatewayPrefix: '/api/v1/account/admin', audiences: ['admin'], adapter: 'api', owner: 'core-account', status: 'compatibility' },
     ],
   },

@@ -1649,10 +1649,10 @@ export const AiKidCourseDemoPage: React.FC = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => triggerToast('Cài đặt phụ huynh: Giới hạn 30 phút/ngày, mã PIN an toàn.')}
+                      onClick={() => triggerToast('Cài đặt phụ huynh: Giới hạn 30 phút/ngày và xác thực tài khoản an toàn.')}
                       className="px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-900 font-bold text-xs hover:bg-amber-100 transition-all"
                     >
-                      Cài Đặt PIN ⚙️
+                      Cài Đặt Phụ Huynh ⚙️
                     </button>
                   </div>
 

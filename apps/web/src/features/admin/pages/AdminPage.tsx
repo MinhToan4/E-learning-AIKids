@@ -166,7 +166,7 @@ const TAB_METADATA: Record<AdminTab, TabMeta> = {
     group: '👥 NGƯỜI DÙNG & PHÂN QUYỀN',
     title: 'Học sinh & Phụ huynh',
     breadcrumb: ['Quản trị', 'Người dùng & Phân quyền', 'Học sinh & Phụ huynh'],
-    description: 'Cấu trúc cây gia đình (Phụ huynh - Con), liên kết tài khoản con, mã PIN học sinh và phân bổ quyền học tập.',
+    description: 'Cấu trúc cây gia đình (Phụ huynh - Con), liên kết hồ sơ con và phân bổ quyền học tập.',
     badgeCls: 'bg-purple-50 text-purple-700 border-purple-200',
   },
   staff: {

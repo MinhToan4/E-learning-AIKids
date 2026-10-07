@@ -29,6 +29,26 @@ export * from './normalizers/asmo-normalizer'
 
 /** Exposed for route-map diagnostics and contract tests; network calls still use api(). */
 export function normalizeGatewayRequest(path: string, options: RequestInit = {}): GatewayRequest {
+  const isStudentPinLogin = (
+    path === '/api/auth/login/student' ||
+    path === '/api/v1/account/family/child-login'
+  )
+  const isPinManagement = (
+    path === '/api/parent/pin' ||
+    path === '/api/parent/pin-status' ||
+    /^\/api\/parent\/children\/[^/?]+\/pin(?:\/unlock)?$/.test(path) ||
+    /^\/api\/v1\/account\/family\/children\/[^/?]+\/pin(?:\/unlock)?$/.test(path)
+  )
+  if (isStudentPinLogin || isPinManagement) {
+    throw new ApiError(
+      410,
+      isStudentPinLogin
+        ? 'Đăng nhập học sinh bằng mã PIN đã bị tắt. Phụ huynh cần đăng nhập và chọn hồ sơ con.'
+        : 'Quản lý mã PIN đã bị tắt vì hệ thống chỉ dùng phiên phụ huynh đã xác thực.',
+      { code: isStudentPinLogin ? 'STUDENT_PIN_LOGIN_DISABLED' : 'PIN_MANAGEMENT_DISABLED' },
+    )
+  }
+
   if (path.startsWith('/api/v1/')) return { path, options }
 
   // 1. ASMO domain

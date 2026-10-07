@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { closeAudioContext, getAudioContext, playInstantSound } from './lesson-sound'
 
 describe('lesson-sound Web Audio helper', () => {
@@ -39,7 +39,20 @@ describe('lesson-sound Web Audio helper', () => {
       close: vi.fn().mockResolvedValue(undefined),
     }
 
-    vi.stubGlobal('AudioContext', vi.fn().mockImplementation(() => mockContext))
+    const MockAudioContext = vi.fn(function MockAudioContext() {
+      return mockContext
+    })
+    vi.stubGlobal('AudioContext', MockAudioContext)
+    Object.defineProperty(window, 'AudioContext', {
+      configurable: true,
+      writable: true,
+      value: MockAudioContext,
+    })
+  })
+
+  afterEach(() => {
+    closeAudioContext()
+    vi.unstubAllGlobals()
   })
 
   it('initializes and returns AudioContext', () => {
@@ -91,6 +104,11 @@ describe('lesson-sound Web Audio helper', () => {
 
   it('handles environment without AudioContext gracefully without throwing', () => {
     vi.stubGlobal('AudioContext', undefined)
+    Object.defineProperty(window, 'AudioContext', {
+      configurable: true,
+      writable: true,
+      value: undefined,
+    })
     expect(() => playInstantSound('click')).not.toThrow()
   })
 })

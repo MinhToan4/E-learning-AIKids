@@ -64,7 +64,6 @@ type AuthState = {
   enteredFromParent: boolean
   bootstrap: () => Promise<void>
   refreshMe: () => Promise<User | null>
-  loginStudent: (nickname: string, second?: string | undefined) => Promise<User>
   /** Parent hands device to an owned child profile (ends parent session). */
   enterAsChild: (childId: string) => Promise<User>
   loginAdult: (login: string, password: string, role?: 'parent' | 'teacher') => Promise<User>
@@ -337,23 +336,6 @@ export const useAuth = create<AuthState>((set, get) => ({
     const { user } = await api<{ user: User }>('/api/auth/me')
     // A late response must never replace a session that changed meanwhile.
     if (get().user?.id === current.id && user.id === current.id) set({ user })
-    return user
-  },
-
-  loginStudent: async (nickname) => {
-    set({ error: null })
-    writeParentHandoff(false)
-    const { user } = await api<{ user: User }>('/api/auth/login/student', {
-      method: 'POST',
-      body: JSON.stringify({ nickname }),
-    })
-    if (get().user?.id !== user.id) {
-      clearStudentProgressionCache(get().user?.id)
-      await clearPreviousLearnerData()
-      clearApiCache()
-    }
-    // WHY: loginStudent là con tự đăng nhập — KHÔNG phải từ phụ huynh chuyển sang
-    set({ user, access: null, activeContext: null, error: null, enteredFromParent: false })
     return user
   },
 

@@ -288,7 +288,7 @@ export function AdminUsersTab() {
   const [userSearch, setUserSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
-  const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local' | 'pin'>('')
+  const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local'>('')
   const [groupByFamily, setGroupByFamily] = useState(false)
 
   // Modals & form
@@ -360,8 +360,6 @@ export function AdminUsersTab() {
       )
     } else if (userAuthFilter === 'local') {
       list = list.filter((u) => u.loginUsername || (!u.isFirebaseLinked && !u.firebaseUid))
-    } else if (userAuthFilter === 'pin') {
-      list = list.filter((u) => u.role === 'student' || u.authProviders?.includes('pin'))
     }
 
     // Chỉ hiển thị học sinh và phụ huynh
@@ -569,14 +567,13 @@ export function AdminUsersTab() {
             className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold bg-white"
             value={userAuthFilter}
             onChange={(e) =>
-              setUserAuthFilter(e.target.value as '' | 'firebase' | 'google' | 'local' | 'pin')
+              setUserAuthFilter(e.target.value as '' | 'firebase' | 'google' | 'local')
             }
           >
             <option value="">Tất cả nguồn</option>
             <option value="firebase">Đã lên Firebase</option>
             <option value="google">Dùng Google</option>
             <option value="local">Nội bộ / Alias</option>
-            <option value="pin">Học sinh PIN</option>
           </select>
 
           <button
@@ -983,7 +980,7 @@ export function AdminUsersTab() {
               </label>
 
               <label className="flex flex-col gap-1.5 text-sm font-bold">
-                {createForm.role === 'parent' ? 'Mật khẩu (tối thiểu 8 ký tự)' : 'Mật khẩu / Mã PIN (tối thiểu 6 ký tự)'}
+                {createForm.role === 'parent' ? 'Mật khẩu (tối thiểu 8 ký tự)' : 'Mật khẩu nội bộ (tối thiểu 6 ký tự)'}
                 <input
                   type="password"
                   required

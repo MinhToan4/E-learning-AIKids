@@ -45,14 +45,26 @@ export function getStoredItemWithFallback(baseKey: string, childId?: string | nu
       const namespacedVal = localStorage.getItem(namespacedKey)
       if (namespacedVal !== null) return namespacedVal
 
+      // Check current tab session storage
+      try {
+        const sessionVal = sessionStorage.getItem(namespacedKey)
+        if (sessionVal !== null) return sessionVal
+      } catch {
+        // ignore
+      }
+
       return null
     }
 
     // Trường hợp anonymous / không có childId cụ thể
     const namespacedVal = localStorage.getItem(namespacedKey)
     if (namespacedVal !== null) return namespacedVal
-    // Anonymous preview data may use the old key, but authenticated learners
-    // never consume it.
+    try {
+      const sessionVal = sessionStorage.getItem(namespacedKey) ?? sessionStorage.getItem(baseKey)
+      if (sessionVal !== null) return sessionVal
+    } catch {
+      // ignore
+    }
     return localStorage.getItem(baseKey)
   } catch {
     return null
@@ -244,6 +256,14 @@ export function saveLocalLessonProgress(
       const namespacedStarKey = getNamespacedKey(starKey, childId)
       localStorage.setItem(namespacedCompKey, completedStr)
       localStorage.setItem(namespacedStarKey, starsStr)
+      try {
+        sessionStorage.setItem(namespacedCompKey, completedStr)
+        sessionStorage.setItem(namespacedStarKey, starsStr)
+        sessionStorage.setItem(compKey, completedStr)
+        sessionStorage.setItem(starKey, starsStr)
+      } catch {
+        // ignore
+      }
       if (childId && childId.trim() && childId.trim() !== 'anonymous') {
         const currentMigrated = localStorage.getItem(LEGACY_MIGRATED_CHILD_ID_KEY)
         if (!currentMigrated) {

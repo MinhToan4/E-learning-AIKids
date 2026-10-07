@@ -7,7 +7,9 @@ import {
 import {
   type PathwayCourse,
   enrichCoursesWithLocalProgress,
+  mergeQuestsWithLocalProgress,
 } from './world-pathway-mapper'
+import { saveLocalLessonProgress } from '@/shared/lib/learning-sync-store'
 import { type QuestProgress } from '@/shared/lib/api'
 
 describe('Thứ tự trạm học tuần tự (Strict Sequential Station Order)', () => {
@@ -211,5 +213,46 @@ describe('Khóa học tiên quyết (Prerequisite Course & Island Gatekeeping)',
 
     // Đảo 2 ĐƯỢC MỞ KHÓA!
     expect(['available', 'active', 'in_progress']).toContain(processed[2].status)
+  })
+})
+
+describe('Lưu tiến trình và hiển thị sao khi đang làm trạm (In-Progress Station Stars)', () => {
+  it('Trạm 2.1 làm tới thực hành đạt 2/3 sao thì bản đồ hiển thị đúng 2/3 sao và tổng sao đảo cập nhật đúng', () => {
+    const childId = 'child-bo-test'
+    // Bé Bo làm trạm 2.1 đạt 2 sao (làm tới thực hành) nhưng chưa hoàn thành bài (isCompleted = false)
+    saveLocalLessonProgress('bai-2-1', 2, false, childId)
+    saveLocalLessonProgress('a91cd798-40a9-435b-a850-8e827293a26f', 2, false, childId)
+
+    const rawStations: QuestProgress[] = [
+      { id: 'a91cd798-40a9-435b-a850-8e827293a26f', slug: 'bai-2-1', order: 1, title: 'Trạm 2.1: Bức tranh biết nói', status: 'available', stars: 0, xpEarned: 0, phase: 'practice' },
+      { id: 'station-2-2', slug: 'bai-2-2', order: 2, title: 'Trạm 2.2', status: 'locked', stars: 0, xpEarned: 0, phase: 'learn' },
+    ]
+
+    const merged = mergeQuestsWithLocalProgress(rawStations, false, undefined, undefined, childId)
+    // Trạm 2.1 phải hiển thị 2 sao trên bản đồ, không bị reset về 0 sao!
+    expect(merged[0].stars).toBe(2)
+    expect(merged[0].status).toBe('available')
+
+    // Tổng sao của Đảo 2 cũng phải cộng dồn 2 sao từ trạm đang làm dở
+    const course: PathwayCourse = {
+      id: 'dao-2-hoa-si-ai',
+      slug: 'dao-2-hoa-si-ai',
+      title: 'Tớ là hoạ sĩ AI!',
+      shortTitle: 'Đảo 2',
+      status: 'available',
+      reasonCode: 'available',
+      completionPercent: 0,
+      missingPrerequisites: [],
+      coverImage: null,
+      enrolled: true,
+      completedCount: 0,
+      questCount: 4,
+      totalStars: 0,
+      stations: merged,
+    }
+
+    const enriched = enrichCoursesWithLocalProgress([course], undefined, undefined, childId)
+    expect(enriched[0].totalStars).toBe(2)
+    expect(enriched[0].completedCount).toBe(0)
   })
 })

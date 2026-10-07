@@ -164,7 +164,8 @@ describe('Hải Trình 5 Mắt Xích: Đảo Tiên Quyết Trạm 10 -> Paywall 
 
     // Xuất hiện Parent Gate Modal để đảm bảo an toàn cho học sinh
     expect(document.body.textContent).toContain('Ba / Mẹ ơi!')
-    expect(document.body.textContent).toContain('Nhập mã PIN Ba / Mẹ gồm 4 chữ số')
+    expect(document.body.textContent).toContain('Nhập mật khẩu đăng nhập của Ba / Mẹ')
+    expect(document.body.textContent).not.toContain('Mã PIN mặc định là 0000')
   })
 
   it('Mắt xích 4: ParentPage với query ?upgrade=aikids_official_129k tự động chuyển sang tab Plan và bật Checkout Modal VietQR', () => {

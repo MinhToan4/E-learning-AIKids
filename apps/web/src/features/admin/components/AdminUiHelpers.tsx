@@ -163,7 +163,7 @@ export function OutcomeBadge({ outcome }: { outcome: string }) {
 
 // ── User authentication badges ────────────────────────────────
 export function UserAuthBadges({ user }: { user: AdminUser }) {
-  const isStudent = user.role === 'student' || user.role === 'child' || Boolean(user.authProviders?.includes('pin'))
+  const isStudent = user.role === 'student' || user.role === 'child'
   const hasFirebase = Boolean(user.isFirebaseLinked || user.firebaseUid || user.authProviders?.includes('firebase'))
   const hasGoogle = Boolean(user.isGoogleLinked || user.googleSub || user.authProviders?.includes('google') || user.authProviders?.includes('google.com') || user.authProviders?.includes('firebase_google'))
   const hasLocal = !isStudent && Boolean(user.loginUsername || !hasFirebase)
@@ -196,10 +196,10 @@ export function UserAuthBadges({ user }: { user: AdminUser }) {
       )}
       {isStudent && (
         <span
-          title="Đăng nhập bằng mã PIN học sinh"
+          title="Hồ sơ học sinh do phụ huynh quản lý"
           className="inline-flex items-center gap-1 rounded-full border border-sun-200 bg-sun-100 px-2 py-0.5 text-xs font-bold text-sun-800 shadow-sm"
         >
-          <span>🟡</span> {user.loginUsername ? `Mã PIN (${user.loginUsername})` : 'Mã PIN'}
+          <span>🟡</span> {user.loginUsername ? `Hồ sơ con (${user.loginUsername})` : 'Hồ sơ con'}
         </span>
       )}
     </div>

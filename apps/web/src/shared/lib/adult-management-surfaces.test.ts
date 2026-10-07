@@ -72,6 +72,19 @@ describe('adult management surfaces', () => {
     expect(picker).toContain('enterAsChild(child.id)')
   })
 
+  it('does not expose or send legacy PIN credentials from active management surfaces', () => {
+    const profile = read('features/parent/components/tabs/ParentProfileTab.tsx')
+    const admin =
+      read('features/admin/components/AdminUiHelpers.tsx') +
+      read('features/admin/components/tabs/AdminUsersTab.tsx')
+    const normalizer = read('shared/lib/normalizers/auth-normalizer.ts')
+
+    expect(profile).not.toMatch(/PIN|\/api\/parent\/pin/i)
+    expect(admin).not.toMatch(/Học sinh PIN|Mã PIN/i)
+    expect(normalizer).not.toContain('body.pin')
+    expect(normalizer).not.toContain('pin: childPin')
+  })
+
   it('keeps implemented admin configuration surfaces reachable and consolidates learning configuration', () => {
     const app = read('app/routing/admin-routes.tsx')
     const shell = read('shared/components/layout/AppShell.tsx')

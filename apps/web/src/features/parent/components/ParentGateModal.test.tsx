@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client'
 import { ParentGateModal } from './ParentGateModal'
 import { api, ApiError } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
+import { signInWithFirebasePassword } from '@/shared/lib/firebase-client'
 
 vi.mock('@/shared/lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/shared/lib/api')>()
@@ -16,6 +17,11 @@ vi.mock('@/shared/lib/api', async (importOriginal) => {
     setAccessToken: vi.fn(),
   }
 })
+
+vi.mock('@/shared/lib/firebase-client', () => ({
+  firebaseApp: vi.fn(),
+  signInWithFirebasePassword: vi.fn(),
+}))
 
 describe('ParentGateModal', () => {
   let container: HTMLDivElement
@@ -32,6 +38,10 @@ describe('ParentGateModal', () => {
       error: null,
       activeContext: null,
     })
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { replace: vi.fn() },
+    })
   })
 
   afterEach(async () => {
@@ -46,157 +56,7 @@ describe('ParentGateModal', () => {
     }
   })
 
-  it('renders in PIN mode by default with 4 PIN slots and Soft-Clay numpad', async () => {
-    await act(async () => {
-      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
-    })
-
-    const dialog = document.querySelector('[role="dialog"]')
-    expect(dialog).not.toBeNull()
-    expect(dialog?.textContent).toContain('Ba / Mẹ ơi!')
-    expect(dialog?.textContent).toContain('Nhập mã PIN Ba / Mẹ gồm 4 chữ số')
-    expect(dialog?.textContent).toContain('Hoặc dùng mật khẩu tài khoản')
-    expect(dialog?.textContent).toContain('Quên mã PIN?')
-    expect(dialog?.textContent).toContain('Đăng xuất khỏi thiết bị này')
-    expect(dialog?.textContent).toContain('Mã PIN mặc định là 0000')
-    expect(dialog?.textContent).toContain('Nhập 0000 để mở khóa')
-
-    // On-screen numpad contains buttons for 0-9
-    const buttons = dialog?.querySelectorAll('button')
-    const buttonTexts = Array.from(buttons ?? []).map((b) => b.textContent?.trim())
-    for (let i = 0; i <= 9; i++) {
-      expect(buttonTexts).toContain(String(i))
-    }
-  })
-
-  it('suggests and automatically verifies default PIN 0000 when entered', async () => {
-    const mockApi = vi.mocked(api)
-    mockApi.mockResolvedValueOnce({
-      status: 'success',
-      user: { id: 'parent-1', role: 'parent', email: 'parent@aikid.vn' },
-      token: 'jwt-parent-token',
-    })
-
-    const replaceMock = vi.fn()
-    Object.defineProperty(window, 'location', {
-      value: { replace: replaceMock },
-      writable: true,
-    })
-
-    await act(async () => {
-      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
-    })
-
-    const dialog = document.querySelector('[role="dialog"]')
-    expect(dialog?.textContent).toContain('Mã PIN mặc định là 0000')
-
-    const getBtn = (text: string) => {
-      const allButtons = Array.from(dialog?.querySelectorAll('button') ?? [])
-      return allButtons.find((b) => b.textContent?.trim() === text)
-    }
-
-    // Click 0 four times
-    for (let i = 0; i < 4; i++) {
-      await act(async () => {
-        getBtn('0')?.click()
-      })
-    }
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 60))
-    })
-
-    expect(mockApi).toHaveBeenCalledWith('/api/parent/gate/verify', {
-      method: 'POST',
-      body: JSON.stringify({ pin: '0000' }),
-    })
-    expect(replaceMock).toHaveBeenCalledWith('/parent')
-  })
-
-  it('automatically verifies PIN when 4 digits are entered', async () => {
-    const mockApi = vi.mocked(api)
-    mockApi.mockResolvedValueOnce({
-      status: 'success',
-      user: { id: 'parent-1', role: 'parent', email: 'parent@aikid.vn' },
-      token: 'jwt-parent-token',
-    })
-
-    // Mock window.location.replace
-    const replaceMock = vi.fn()
-    Object.defineProperty(window, 'location', {
-      value: { replace: replaceMock },
-      writable: true,
-    })
-
-    await act(async () => {
-      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
-    })
-
-    const dialog = document.querySelector('[role="dialog"]')
-    expect(dialog).not.toBeNull()
-
-    const getBtn = (text: string) => {
-      const allButtons = Array.from(dialog?.querySelectorAll('button') ?? [])
-      return allButtons.find((b) => b.textContent?.trim() === text)
-    }
-
-    // Click 1, 2, 3, 4 sequentially
-    await act(async () => {
-      getBtn('1')?.click()
-    })
-    await act(async () => {
-      getBtn('2')?.click()
-    })
-    await act(async () => {
-      getBtn('3')?.click()
-    })
-    await act(async () => {
-      getBtn('4')?.click()
-    })
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 60))
-    })
-
-    expect(mockApi).toHaveBeenCalledWith('/api/parent/gate/verify', {
-      method: 'POST',
-      body: JSON.stringify({ pin: '1234' }),
-    })
-  })
-
-  it('displays friendly error when PIN is incorrect (INVALID_PARENT_PIN)', async () => {
-    const mockApi = vi.mocked(api)
-    const err = new ApiError(401, 'Mã PIN chưa đúng, thử lại nhé!', { code: 'INVALID_PARENT_PIN' })
-    mockApi.mockRejectedValueOnce(err)
-
-    await act(async () => {
-      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
-    })
-
-    const dialog = document.querySelector('[role="dialog"]')
-    const getBtn = (text: string) => {
-      const allButtons = Array.from(dialog?.querySelectorAll('button') ?? [])
-      return allButtons.find((b) => b.textContent?.trim() === text)
-    }
-
-    await act(async () => {
-      getBtn('9')?.click()
-    })
-    await act(async () => {
-      getBtn('9')?.click()
-    })
-    await act(async () => {
-      getBtn('9')?.click()
-    })
-    await act(async () => {
-      getBtn('9')?.click()
-    })
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 60))
-    })
-
-    expect(dialog?.textContent).toContain('Mã PIN chưa đúng, thử lại nhé!')
-  })
-
-  it('switches to password mode and verifies parent password', async () => {
+  it('renders password verification by default without a device/default PIN bypass', async () => {
     const mockApi = vi.mocked(api)
     mockApi.mockResolvedValueOnce({
       status: 'success',
@@ -208,16 +68,10 @@ describe('ParentGateModal', () => {
     })
 
     const dialog = document.querySelector('[role="dialog"]')
-    const switchBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) =>
-      b.textContent?.includes('Hoặc dùng mật khẩu tài khoản'),
-    )
-
-    await act(async () => {
-      switchBtn?.click()
-    })
-
     expect(dialog?.textContent).toContain('Nhập mật khẩu đăng nhập của Ba / Mẹ')
     expect(dialog?.textContent).toContain('Mật khẩu tài khoản Ba / Mẹ')
+    expect(dialog?.textContent).not.toContain('0000')
+    expect(dialog?.textContent).not.toContain('Dùng mã PIN')
 
     const pwInput = dialog?.querySelector('#parent-gate-pw') as HTMLInputElement
     expect(pwInput).not.toBeNull()
@@ -247,14 +101,64 @@ describe('ParentGateModal', () => {
     })
   })
 
-  it('switches to recovery mode on "Quên mã PIN?" click', async () => {
+  it('re-authenticates Firebase parents without calling the legacy password gate', async () => {
+    const completeFirebaseSignIn = vi.fn().mockResolvedValue({
+      id: 'parent-1',
+      role: 'parent',
+      email: 'parent@example.test',
+    })
+    useAuth.setState({
+      user: {
+        id: 'child-1',
+        role: 'student',
+        nickname: 'Bé',
+        parentId: 'parent-1',
+        parentEmail: 'parent@example.test',
+      },
+      completeFirebaseSignIn,
+    })
+    vi.mocked(signInWithFirebasePassword).mockResolvedValueOnce('firebase-id-token')
+
+    await act(async () => {
+      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
+    })
+    const dialog = document.querySelector('[role="dialog"]')
+    const input = dialog?.querySelector('#parent-gate-pw') as HTMLInputElement
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value',
+      )?.set
+      setter?.call(input, 'Secret123!')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    await act(async () => {
+      Array.from(dialog?.querySelectorAll('button') ?? [])
+        .find((button) => button.textContent?.trim() === 'Xác nhận')
+        ?.click()
+      await Promise.resolve()
+    })
+
+    expect(signInWithFirebasePassword).toHaveBeenCalledWith(
+      'parent@example.test',
+      'Secret123!',
+    )
+    expect(completeFirebaseSignIn).toHaveBeenCalledWith(
+      'firebase-id-token',
+      { role: 'parent' },
+    )
+    expect(api).not.toHaveBeenCalledWith('/api/parent/gate/verify', expect.anything())
+  })
+
+  it('switches to Google/password recovery mode', async () => {
     await act(async () => {
       root?.render(<ParentGateModal open={true} onClose={() => {}} />)
     })
 
     const dialog = document.querySelector('[role="dialog"]')
     const forgotBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) =>
-      b.textContent?.includes('Quên mã PIN?'),
+      b.textContent?.includes('Quên mật khẩu hoặc muốn dùng Google?'),
     )
 
     await act(async () => {
@@ -264,6 +168,6 @@ describe('ParentGateModal', () => {
     expect(dialog?.textContent).toContain('Khôi phục quyền truy cập Ba / Mẹ')
     expect(dialog?.textContent).toContain('Mở khóa nhanh bằng Google')
     expect(dialog?.textContent).toContain('Nhập mật khẩu tài khoản Ba / Mẹ')
-    expect(dialog?.textContent).toContain('Quay lại nhập mã PIN Ba / Mẹ')
+    expect(dialog?.textContent).toContain('Quay lại nhập mật khẩu Ba / Mẹ')
   })
 })

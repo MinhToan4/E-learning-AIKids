@@ -71,7 +71,13 @@ export function resolveInitialLessonProgress(openedProgress: any, authLessonId: 
       Number(getStoredItemWithFallback(`aikids_lesson_stars_${authLessonId}`, childId) || 0) >= 3 ||
       Number(getStoredItemWithFallback(`aikids_lesson_stars_${questId}`, childId) || 0) >= 3)
   const status = isLocallyCompleted ? 'completed' : openedProgress?.status
-  const stars = isLocallyCompleted ? 3 : clampStationStars(openedProgress?.stars)
+
+  const localStars = Math.max(
+    Number(getStoredItemWithFallback(`aikids_lesson_stars_${authLessonId}`, childId) || 0),
+    Number(getStoredItemWithFallback(`aikids_lesson_stars_${questId}`, childId) || 0),
+    isLocallyCompleted ? 3 : 0,
+  )
+  const stars = isLocallyCompleted ? 3 : Math.max(localStars, clampStationStars(openedProgress?.stars))
   let cachedLocalStage = 0
   try {
     const raw = sessionStorage.getItem(`aikids_stage_${questId}`)
@@ -545,6 +551,9 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
           authoritativeLessonId ||
           quest.id ||
           questId
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'learn' }).catch(() => null)
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'game' }).catch(() => null)
+        await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
         const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
         const celebrationMsg = isIslandJourney
@@ -588,6 +597,9 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
           } catch {
             // ignore storage failure
           }
+          clearApiCache()
+          clearWorldPageCache()
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
         }
 
         window.dispatchEvent(new CustomEvent('aikids:xp-updated', {
@@ -645,6 +657,9 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
           window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
         } else {
           setLiveStars(confirmedStars)
+          clearApiCache()
+          clearWorldPageCache()
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
         }
         void queryClient.invalidateQueries({ queryKey: ['progression'] })
         void queryClient.invalidateQueries({ queryKey: ['pathway'] })
@@ -730,6 +745,10 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     const progressId = authoritativeLessonId || quest?.id || questId
     try {
       if (typeof window !== 'undefined') {
+        saveLocalLessonProgress(progressId, 1, false, user?.id)
+        if (quest?.id && quest.id !== progressId) saveLocalLessonProgress(quest.id, 1, false, user?.id)
+        if (questId && questId !== progressId) saveLocalLessonProgress(questId, 1, false, user?.id)
+        if (authoritativeLessonId && authoritativeLessonId !== progressId) saveLocalLessonProgress(authoritativeLessonId, 1, false, user?.id)
         sessionStorage.setItem(`aikids_video_done_${progressId}`, 'true')
         sessionStorage.setItem(`aikids_video_done_${questId}`, 'true')
         localStorage.setItem(`aikids_video_done_${progressId}`, 'true')
@@ -762,7 +781,7 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         void queryClient.invalidateQueries({ queryKey: ['course-progress'] })
       }).catch(() => null)
     }
-  }, [authoritativeLessonId, quest?.id, questId])
+  }, [authoritativeLessonId, quest?.id, questId, user?.id])
 
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
@@ -1402,5 +1421,6 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     currentLearnVideoTitle,
     questId,
     routeCourseId,
+    hasAdvancedFromLearnRef,
   }
 }
