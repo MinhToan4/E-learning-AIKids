@@ -53,6 +53,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      },
       proxy: {
         '/api': {
           // The browser only talks to the local StoryMee gateway.

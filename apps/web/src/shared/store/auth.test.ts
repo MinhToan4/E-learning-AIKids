@@ -317,6 +317,41 @@ describe('auth store', () => {
     expect(mocks.api).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
   })
 
+  it('skips querying /api/auth/me on /login when no session hint exists on device', async () => {
+    window.history.pushState({}, '', '/login')
+    localStorage.removeItem('aikids.has_session')
+    sessionStorage.removeItem('aikids.has_session')
+
+    try {
+      await useAuth.getState().bootstrap()
+
+      expect(mocks.api).not.toHaveBeenCalled()
+      expect(useAuth.getState().user).toBeNull()
+      expect(useAuth.getState().loading).toBe(false)
+      expect(useAuth.getState().error).toBeNull()
+    } finally {
+      window.history.pushState({}, '', '/')
+    }
+  })
+
+  it('queries /api/auth/me on /login when a session hint exists on device', async () => {
+    window.history.pushState({}, '', '/login')
+    localStorage.setItem('aikids.has_session', '1')
+
+    try {
+      mocks.api.mockRejectedValueOnce(new ApiError(401, 'Expired'))
+
+      await useAuth.getState().bootstrap()
+
+      expect(mocks.api).toHaveBeenCalledWith('/api/auth/me')
+      expect(useAuth.getState().user).toBeNull()
+      expect(useAuth.getState().loading).toBe(false)
+      expect(localStorage.getItem('aikids.has_session')).toBeNull()
+    } finally {
+      window.history.pushState({}, '', '/')
+    }
+  })
+
   it('clears an invalid session when bootstrap receives 401 without reporting session expiration', async () => {
     mocks.api.mockRejectedValueOnce(new ApiError(401, 'Expired'))
 
