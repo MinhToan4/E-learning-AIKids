@@ -8,4 +8,5 @@ export { SixStageJourneyEditor, type SixStageJourneyEditorProps } from './SixSta
 export { DynamicStagesEditor, type DynamicStagesEditorProps } from './DynamicStagesEditor'
 export { LectureDrawerStandardContent, type LectureDrawerStandardContentProps } from './LectureDrawerStandardContent'
 export { FullStationPreview } from './FullStationPreview'
+export { QuickBlockPickerModal, type QuickBlockPickerModalProps } from './QuickBlockPickerModal'
 export * from './stage-editors'

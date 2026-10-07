@@ -1,9 +1,10 @@
-import React from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Plus, Trash2, Layers } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type { StageBlockItem, LearnCardDraft } from '../../lib/authoring'
 import { StageBlockItemCard } from '../StageBlockItemCard'
 import { AVAILABLE_MODULES, inputStyle, textareaStyle } from './lecture-drawer-constants'
+import { QuickBlockPickerModal } from './QuickBlockPickerModal'
 
 export interface StageBlocksCanvasProps {
   stageIndex: number
@@ -42,7 +43,8 @@ export interface StageBlocksCanvasProps {
 }
 
 /**
- * StageBlocksCanvas — Vùng canvas kéo-thả các khối chức năng mở rộng cho từng chặng học.
+ * StageBlocksCanvas — Vùng canvas khối bài giảng phong cách WordPress Gutenberg / Notion.
+ * Hỗ trợ kéo-thả, chèn khối một chạm (Quick Block Inserter) và bố cục dòng chảy trực quan.
  */
 export function StageBlocksCanvas({
   stageIndex,
@@ -75,6 +77,20 @@ export function StageBlocksCanvas({
   isTrashDragOver,
   setIsTrashDragOver,
 }: StageBlocksCanvasProps) {
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [targetInsertIdx, setTargetInsertIdx] = useState<number | undefined>(undefined)
+
+  const handleOpenPicker = (insertIdx?: number) => {
+    if (readOnly) return
+    setTargetInsertIdx(insertIdx)
+    setPickerOpen(true)
+  }
+
+  const handleSelectBlockFromPicker = (blockId: string) => {
+    handleAddModule(blockId, stageIndex, targetInsertIdx)
+    setPickerOpen(false)
+  }
+
   return (
     <div
       onDragOver={(event) => {
@@ -98,14 +114,27 @@ export function StageBlocksCanvas({
           : 'border-sky-200 bg-sky-50/40'
       )}
     >
+      {/* Header Canvas */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h4 className="text-sm font-black text-sky-950">Canvas nội dung của chặng</h4>
+          <h4 className="text-sm font-black text-sky-950 flex items-center gap-1.5">
+            <Layers size={16} className="text-brand-600" />
+            <span>Dòng chảy khối bài giảng (Block Stream)</span>
+          </h4>
           <p className="text-xs font-semibold text-sky-800">
-            Kéo block từ thư viện, thả vào đúng vị trí và sắp xếp theo thứ tự học sinh sẽ học.
+            Sắp xếp theo thứ tự học sinh học. Bấm <strong>+ Thêm khối</strong> hoặc kéo-thả để đổi vị trí.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => handleOpenPicker()}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-xs font-black text-white shadow-2xs transition cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+            >
+              <Plus size={14} className="shrink-0" /> + Thêm khối
+            </button>
+          )}
           {stageIndex === 1 && isIslandCourse && !readOnly && (
             <button
               type="button"
@@ -121,66 +150,84 @@ export function StageBlocksCanvas({
         </div>
       </div>
 
+      {/* Trạng thái trống (Empty State) */}
       {stageBlocks.length === 0 && (
-        <div className="rounded-xl border border-dashed border-sky-300 bg-white p-5 text-center">
-          <p className="text-sm font-bold text-slate-700">Chặng này chưa có block nội dung bổ sung.</p>
+        <div className="rounded-2xl border-2 border-dashed border-sky-300 bg-white p-6 text-center space-y-3">
+          <div className="size-12 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center mx-auto text-xl shadow-2xs">
+            🧩
+          </div>
+          <div>
+            <p className="text-sm font-black text-slate-800">Chặng này chưa có khối nội dung bổ sung</p>
+            <p className="text-xs font-medium text-slate-500 mt-0.5">
+              Thêm các đoạn văn bản, hình ảnh, lời thoại hoặc bảng so sánh để bài học sinh động hơn.
+            </p>
+          </div>
           {!readOnly && (
-            <button
-              type="button"
-              onClick={() =>
-                handleAddModule(
-                  stageIndex === 1 && isIslandCourse
-                    ? 'layout-confirm-option'
-                    : stageIndex === 2
-                    ? 'video'
-                    : 'layout-text',
-                  stageIndex
-                )
-              }
-              className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100 cursor-pointer shrink-0 whitespace-nowrap"
-            >
-              <Plus size={14} className="shrink-0" />{' '}
-              {stageIndex === 1 && isIslandCourse ? 'Tạo phương án đầu tiên' : 'Tạo block đầu tiên'}
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => handleOpenPicker()}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-brand-500 hover:bg-brand-600 px-5 text-xs font-black text-white shadow-clay-xs hover:scale-[1.02] active:scale-95 transition cursor-pointer"
+              >
+                <Plus size={15} /> Khám phá thư viện khối...
+              </button>
+            </div>
           )}
         </div>
       )}
 
+      {/* Danh sách các block kèm In-between Inserters kiểu Gutenberg */}
       {card &&
         stageBlocks.map((block, blockIndex) => (
-          <StageBlockItemCard
-            key={block.id}
-            block={block}
-            bIdx={blockIndex}
-            totalBlocks={stageBlocks.length}
-            stageIndex={stageIndex}
-            card={card}
-            stageBlocks={stageBlocks}
-            readOnly={readOnly}
-            draggingBlockIdx={draggingBlockIdx}
-            dragOverBlockIdx={dragOverBlockIdx}
-            setDraggingBlockIdx={setDraggingBlockIdx}
-            setDragOverBlockIdx={setDragOverBlockIdx}
-            setIsTrashDragOver={setIsTrashDragOver}
-            moveBlock={moveBlock}
-            removeBlock={removeBlock}
-            updateStageBlocks={updateStageBlocks}
-            updateBlockItem={updateBlockItem}
-            updateLearnCard={updateLearnCard}
-            uploadingStageMedia={uploadingStageMedia}
-            setUploadingStageMedia={setUploadingStageMedia}
-            uploadLearnCardMedia={uploadLearnCardMedia}
-            uploadAdditionalImageItem={uploadAdditionalImageItem}
-            previewAikiVoice={previewAikiVoice}
-            previewSpeakingIndex={previewSpeakingIndex}
-            speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
-            courseId={courseId}
-            handleAddModule={handleAddModule}
-            stageInfo={stageInfo}
-            inputStyle={inputStyle}
-            textareaStyle={textareaStyle}
-            showToast={showToast}
-          />
+          <React.Fragment key={block.id}>
+            {/* Đường phân cách chèn khối ở giữa (In-between divider) */}
+            {blockIndex > 0 && !readOnly && (
+              <div className="relative group/divider py-0.5 flex items-center justify-center">
+                <div className="absolute inset-x-0 h-0.5 bg-transparent group-hover/divider:bg-brand-300 transition-colors" />
+                <button
+                  type="button"
+                  onClick={() => handleOpenPicker(blockIndex)}
+                  className="relative z-10 size-6 rounded-full bg-white border-2 border-slate-200 text-slate-400 opacity-0 group-hover/divider:opacity-100 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 transition-all flex items-center justify-center shadow-xs cursor-pointer scale-90 hover:scale-110"
+                  title="Chèn khối vào giữa vị trí này"
+                >
+                  <Plus size={12} strokeWidth={3} />
+                </button>
+              </div>
+            )}
+
+            <StageBlockItemCard
+              block={block}
+              bIdx={blockIndex}
+              totalBlocks={stageBlocks.length}
+              stageIndex={stageIndex}
+              card={card}
+              stageBlocks={stageBlocks}
+              readOnly={readOnly}
+              draggingBlockIdx={draggingBlockIdx}
+              dragOverBlockIdx={dragOverBlockIdx}
+              setDraggingBlockIdx={setDraggingBlockIdx}
+              setDragOverBlockIdx={setDragOverBlockIdx}
+              setIsTrashDragOver={setIsTrashDragOver}
+              moveBlock={moveBlock}
+              removeBlock={removeBlock}
+              updateStageBlocks={updateStageBlocks}
+              updateBlockItem={updateBlockItem}
+              updateLearnCard={updateLearnCard}
+              uploadingStageMedia={uploadingStageMedia}
+              setUploadingStageMedia={setUploadingStageMedia}
+              uploadLearnCardMedia={uploadLearnCardMedia}
+              uploadAdditionalImageItem={uploadAdditionalImageItem}
+              previewAikiVoice={previewAikiVoice}
+              previewSpeakingIndex={previewSpeakingIndex}
+              speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+              courseId={courseId}
+              handleAddModule={handleAddModule}
+              stageInfo={stageInfo}
+              inputStyle={inputStyle}
+              textareaStyle={textareaStyle}
+              showToast={showToast}
+            />
+          </React.Fragment>
         ))}
 
       {stageIndex === 1 && isIslandCourse && !readOnly && stageBlocks.length > 0 && (
@@ -231,57 +278,58 @@ export function StageBlocksCanvas({
         </div>
       )}
 
-      {/* Quick Add block bar */}
-      {!readOnly && (
-        <div
-          onDragOver={(e) => {
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'copy'
-            if (!isDragOver) setIsDragOver(true)
-          }}
-          onDragLeave={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragOver(false)
-          }}
-          onDrop={(e) => {
-            e.preventDefault()
-            setIsDragOver(false)
-            const blockId = e.dataTransfer.getData('text/plain')
-            if (blockId) handleAddModule(blockId, stageIndex)
-          }}
-          className={cn(
-            'rounded-2xl border-2 border-dashed p-4 transition-all duration-200 text-center',
-            isDragOver
-              ? 'border-brand-500 bg-brand-50/90 ring-4 ring-brand-300/40'
-              : 'border-sky-200 bg-sky-50/50 hover:border-brand-300 hover:bg-sky-50/80'
-          )}
-        >
-          <p className="text-xs font-bold text-sky-900">
-            {isDragOver
-              ? 'Thả để thêm khối vào cuối chặng'
-              : 'Thêm khối vào chặng này (kéo từ menu trái hoặc bấm nhanh):'}
-          </p>
-          <div className="mt-2.5 flex flex-wrap justify-center gap-2">
-            {AVAILABLE_MODULES.map((mod) => (
+      {/* Thanh Quick-Add ở chân Canvas (kiểu WordPress Gutenberg Inserter) */}
+      {!readOnly && stageBlocks.length > 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-sky-300 bg-white/95 p-3.5 transition-all text-center space-y-2 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+              <span>➕</span>
+              <span>Chèn thêm khối vào bài học:</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => handleOpenPicker()}
+              className="text-xs font-black text-brand-600 hover:text-brand-800 underline decoration-brand-300 underline-offset-2 cursor-pointer"
+            >
+              Mở tất cả khối →
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {AVAILABLE_MODULES.slice(0, 5).map((mod) => (
               <button
                 key={mod.id}
                 type="button"
-                draggable={!readOnly}
-                onDragStart={(event) => {
-                  event.dataTransfer.setData('text/plain', mod.id)
-                  event.dataTransfer.effectAllowed = 'copy'
-                }}
-                disabled={readOnly}
                 onClick={() => handleAddModule(mod.id, stageIndex)}
-                className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 transition cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-brand-900 transition cursor-pointer active:scale-95"
                 title={mod.desc}
               >
                 <Plus size={11} className="text-brand-600" />
                 <span>{mod.label}</span>
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => handleOpenPicker()}
+              className="flex items-center gap-1.5 rounded-xl border-2 border-brand-400 bg-brand-50 hover:bg-brand-100 px-3.5 py-1.5 text-xs font-black text-brand-800 transition cursor-pointer active:scale-95 shadow-2xs"
+            >
+              <Plus size={13} />
+              <span>Thêm khối khác...</span>
+            </button>
           </div>
         </div>
       )}
+
+      {/* Modal chọn khối nhanh kiểu WordPress */}
+      <QuickBlockPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelectBlock={handleSelectBlockFromPicker}
+        insertPositionLabel={
+          typeof targetInsertIdx === 'number'
+            ? `Vị trí thứ ${targetInsertIdx + 1}`
+            : 'Cuối chặng học'
+        }
+      />
     </div>
   )
 }

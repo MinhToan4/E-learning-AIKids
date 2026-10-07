@@ -1,3 +1,5 @@
 export * from './StudioTopicIllustrations'
 export * from './StudioImageInspectModal'
 export * from './StudioSubmitArtworkModal'
+export * from './Lesson1_1SideBySideCanvas'
+export * from './StudioCanvasView'

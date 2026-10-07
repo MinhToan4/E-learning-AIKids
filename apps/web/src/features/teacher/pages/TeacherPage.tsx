@@ -142,6 +142,11 @@ import { CurriculumBreadcrumbs, type CurriculumLevel } from '../components/Curri
 import { CurriculumProgramList } from '../components/CurriculumProgramList'
 import { CurriculumRegionList } from '../components/CurriculumRegionList'
 import { ClassManagementConsole } from '../components/ClassManagementConsole'
+import { TeacherStatsTab } from '../components/TeacherStatsTab'
+import {
+  TeacherFocusStudioSidebar,
+  CurriculumWorkspaceRoadmapView,
+} from '../components/curriculum-workspace'
 
 // Lazy-loaded heavy authoring components (Code Splitting)
 const LectureDrawer = lazy(() =>
@@ -441,53 +446,6 @@ function formatActivity(value: string | null): string {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value))
 }
 
-// ── Sub-components ────────────────────────────────────────────
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: ReactNode }) {
-  return (
-    <div className="rounded-2xl bg-sky-50 p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
-        <span aria-hidden="true">{icon}</span>
-      </div>
-      <p className="font-display text-3xl text-sky-600">{value}</p>
-    </div>
-  )
-}
-
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold',
-      status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning'
-    )}>
-      {status === 'open' ? 'Đang mở' : 'Đang ẩn'}
-    </span>
-  )
-}
-
-const MINI_RAIL_CATEGORIES: Array<{
-  name: string
-  icon: typeof Columns2
-  color: string
-  short: string
-  alias?: string
-}> = [
-  { name: 'Bố Cục & Cột Nội Dung', icon: Columns2, color: 'text-sky-600', short: 'Bố cục' },
-  { name: 'Hình Ảnh & Đa Phương Tiện', icon: Image, color: 'text-purple-600', short: 'Media' },
-  { name: 'Khối Tương Tác & Sư Phạm', icon: BookOpen, color: 'text-amber-600', short: 'Tương tác' },
-]
-
-function getCategorySvgIcon(categoryName: string, size = 14) {
-  switch (categoryName) {
-    case 'Bố Cục & Cột Nội Dung':
-      return <Columns2 size={size} className="text-sky-600" />
-    case 'Hình Ảnh & Đa Phương Tiện':
-      return <Image size={size} className="text-purple-600" />
-    case 'Khối Tương Tác & Sư Phạm':
-      return <BookOpen size={size} className="text-amber-600" />
-    default:
-      return <BookOpen size={size} className="text-brand-600" />
-  }
-}
 
 // WHY: ErrorPanel dùng thay toast cho lỗi API nghiêm trọng —
 // toast tự biến mất trong 3s, user không kịp đọc khi tab trống.
@@ -721,9 +679,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // ── Load data ────────────────────────────────────────────
   const loadClass = useCallback(async () => {
-    const data = await api<{ class: { id: string; name: string; code: string } | null; students: StudentRow[] }>('/api/teacher/class')
-    setClassInfo(data.class)
-    setStudents(data.students)
+    try {
+      const data = await api<{ class: { id: string; name: string; code: string } | null; students: StudentRow[] }>('/api/teacher/class')
+      if (data) {
+        setClassInfo(data.class)
+        setStudents(data.students ?? [])
+      }
+    } catch {
+      // Resilient fallback
+    }
   }, [])
 
   const loadLectures = useCallback(async () => {
@@ -780,8 +744,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   }, [searchParams, setSearchParams, selectedProgramId, selectedCourseId])
 
   const loadStats = useCallback(async () => {
-    const data = await api<{ stats: ClassStats | null }>('/api/teacher/class/stats')
-    setStats(data.stats)
+    try {
+      const data = await api<{ stats: ClassStats | null }>('/api/teacher/class/stats')
+      if (data) setStats(data.stats)
+    } catch {
+      // Resilient fallback
+    }
   }, [])
 
   const runLoad = useCallback(async () => {
@@ -1079,315 +1047,43 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
         {/* CẤP 3: Bản đồ Trạm học (Station Roadmap) */}
         {currentLevel === 3 && activeCourse && (
-          <div className="flex flex-col gap-5">
-            {/* Header tóm tắt Vùng đang chọn */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
-              <div className="flex items-center gap-3">
-                <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-600 text-xs font-black text-white shadow-2xs">
-                  3
-                </span>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-display text-base font-black text-slate-900">
-                      {activeCourse.shortTitle || activeCourse.title}
-                    </h3>
-                    <StatusBadge status={activeCourse.status} />
-                  </div>
-                  <p className="text-xs text-muted font-bold mt-0.5">
-                    {focusedProgram ? `${focusedProgram.title} · ` : ''}
-                    {lectures.filter((l) => !l.archived).length} trạm học đang hoạt động
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {!activeCourse.readOnly && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCourseModalMode('edit')
-                      setCourseModalCourse(activeCourse)
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
-                  >
-                    <span>Sửa thông tin vùng</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Dải cuộn nhanh các Vùng thuộc cùng chương trình */}
-            {focusedProgram && focusedProgram.regions.length > 1 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5">
-                <span className="text-[11px] font-black text-slate-500 whitespace-nowrap pl-1">
-                  Đổi vùng nhanh:
-                </span>
-                {focusedProgram.regions.map((region, rIdx) => {
-                  const isSelected = region.id === selectedCourseId
-                  const stationCount = region.lectures.filter((l) => !l.archived).length
-                  return (
-                    <button
-                      key={region.id}
-                      type="button"
-                      onClick={() => handleSelectRegion(region.id)}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer whitespace-nowrap border',
-                        isSelected
-                          ? 'border-emerald-500 bg-emerald-600 text-white shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300'
-                      )}
-                    >
-                      <span>Vùng {rIdx + 1}: {region.shortTitle || region.title}</span>
-                      <span className={cn('rounded-full px-1.5 py-0.2 text-[10px] font-black', isSelected ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600')}>
-                        {stationCount}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-
-            {/* Banner Đảo Tiên Quyết Quy Tắc Vàng nếu là khóa học quy tắc */}
-            {isCurrentCourseRule && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-sm animate-pop">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-200 text-amber-900 shadow-2xs">
-                    <Shield size={20} className="text-amber-800" />
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-black text-amber-950">
-                      Đảo Tiên Quyết: Mười Quy Tắc Vàng của Xưởng sáng tạo
-                    </h3>
-                    <p className="text-xs font-semibold text-amber-800 mt-0.5">
-                      Vùng 1 cửa ngõ bắt buộc. Bấm vào từng trạm bên dưới để mở Focus Studio biên soạn trạm quy tắc.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <CourseVisualRoadmap
-              courseTitle={activeCourse.shortTitle || activeCourse.title}
-              courseDescription={activeCourse.description}
-              stations={lectures}
-              readOnly={!!activeCourse.readOnly}
-              onSelectStation={(stationId) => {
-                const target = lectures.find((l) => l.id === stationId)
-                if (target) {
-                  runLectureAction(() => {
-                    setDrawerMode('edit')
-                    setDrawerLecture(target)
-                  })
-                }
-              }}
-              onAddStation={() => {
-                runLectureAction(() => {
-                  setDrawerMode('create')
-                  setDrawerLecture(null)
-                })
-              }}
-              onToggleArchiveStation={(station) => {
-                if (station.archived) {
-                  void restoreLecture(station.id)
-                } else {
-                  setArchiveTarget(station)
-                }
-              }}
-              onMoveStation={(stationId, dir) => {
-                void moveLecture(stationId, dir)
-              }}
-              onOpenScriptGenerator={() => setShowScriptModal(true)}
-            />
-
-            {!activeCourse.readOnly && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-white p-4 shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={activeCourse.status} />
-                  <span className="text-xs font-bold text-muted">
-                    {activeCourse.status === 'open' ? 'Học sinh đang có thể truy cập lộ trình này' : 'Lộ trình đang được ẩn với học sinh'}
-                  </span>
-                </div>
-                <Button
-                  variant="secondary"
-                  className="text-xs font-extrabold cursor-pointer"
-                  disabled={checkingCourse || lectures.filter((lecture) => !lecture.archived).length === 0}
-                  onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
-                >
-                  {checkingCourse ? 'Đang kiểm tra...' : activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
-                </Button>
-              </div>
-            )}
-          </div>
+          <CurriculumWorkspaceRoadmapView
+            activeCourse={activeCourse}
+            focusedProgram={focusedProgram}
+            lectures={lectures}
+            isCurrentCourseRule={isCurrentCourseRule}
+            selectedCourseId={selectedCourseId}
+            handleSelectRegion={handleSelectRegion}
+            setCourseModalMode={setCourseModalMode}
+            setCourseModalCourse={setCourseModalCourse}
+            runLectureAction={runLectureAction}
+            setDrawerMode={setDrawerMode}
+            setDrawerLecture={setDrawerLecture}
+            restoreLecture={restoreLecture}
+            setArchiveTarget={setArchiveTarget}
+            moveLecture={moveLecture}
+            setShowScriptModal={setShowScriptModal}
+            checkingCourse={checkingCourse}
+            patchCourseStatus={patchCourseStatus}
+          />
         )}
 
         {/* CẤP 4: Focus Studio Soạn Trạm (Áp dụng Lazy Loading LectureDrawer) */}
         {currentLevel === 4 && selectedCourseId && (
           <div className={cn("grid items-start gap-4 transition-all duration-300 w-full min-w-0 overflow-x-hidden", isSidebarCollapsed ? "md:grid-cols-[56px_minmax(0,1fr)]" : "md:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]")}>
             {/* Sidebar Trái: Khối tính năng */}
-            <aside className={cn("shrink-0 sticky top-20 h-[calc(100vh-6rem)] flex flex-col rounded-3xl border-2 border-brand-200/80 bg-white/95 shadow-clay-xs backdrop-blur-xs overflow-hidden transition-all duration-300", isSidebarCollapsed ? "w-14 min-w-[56px] max-w-[56px]" : "w-72 min-w-[280px] max-w-[280px] xl:w-[300px] xl:max-w-[300px]")} aria-label="Thanh công cụ Focus Studio">
-              {isSidebarCollapsed ? (
-                <div className="flex flex-col items-center py-3 gap-2.5 h-full bg-brand-50/50">
-                  <button
-                    type="button"
-                    onClick={toggleSidebarCollapsed}
-                    className="p-2 rounded-xl bg-white border border-brand-200 text-brand-700 hover:bg-brand-50 shadow-2xs transition cursor-pointer"
-                    title="Mở rộng menu Khối Tính Năng"
-                    aria-label="Mở rộng menu Khối Tính Năng"
-                  >
-                    <PanelLeftOpen size={16} />
-                  </button>
-                  <div className="w-8 h-px bg-border/80 my-0.5" />
-                  <div className="flex flex-col items-center gap-2 w-full px-1">
-                    {MINI_RAIL_CATEGORIES.map((cat) => {
-                      const Icon = cat.icon
-                      return (
-                        <button
-                          key={cat.name}
-                          type="button"
-                          onClick={() => {
-                            setOpenCategories((prev) => ({
-                              ...prev,
-                              [cat.name]: true,
-                              ...(cat.alias ? { [cat.alias]: true } : {}),
-                            }))
-                            setIsSidebarCollapsed(false)
-                          }}
-                          className="group relative flex size-9 items-center justify-center rounded-xl bg-white border border-border/80 shadow-2xs hover:border-brand-300 hover:bg-brand-50/80 hover:scale-105 transition cursor-pointer"
-                          title={`${cat.name} (Click để mở rộng)`}
-                          aria-label={cat.name}
-                        >
-                          <Icon size={16} className={cn(cat.color, "transition group-hover:scale-110")} />
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="border-b border-border bg-brand-50/60 px-3.5 py-2.5 shrink-0 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="grid size-7 place-items-center rounded-lg bg-brand-600 text-white shadow-2xs shrink-0">
-                        <Puzzle size={15} />
-                      </span>
-                      <h3 className="font-extrabold text-xs text-brand-950 truncate tracking-wide">
-                        Khối nội dung
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={toggleSidebarCollapsed}
-                      className="p-1.5 rounded-xl text-slate-500 hover:text-brand-800 hover:bg-white border border-transparent hover:border-border transition cursor-pointer shrink-0 shadow-2xs"
-                      title="Thu gọn menu khối tính năng"
-                      aria-label="Thu gọn menu khối tính năng"
-                    >
-                      <PanelLeftClose size={16} />
-                    </button>
-                  </div>
-
-                  {/* Thư viện khối tính năng kéo thả */}
-                  <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-2.5 p-2 custom-scrollbar" aria-label="Thư viện khối tính năng">
-                  <div className="rounded-lg border border-brand-200 bg-brand-50/70 p-2 text-xs text-brand-900 shadow-2xs shrink-0">
-                    <p className="font-extrabold flex items-center gap-1 text-[10px] uppercase tracking-wider text-brand-900">
-                      Kéo thả khối nội dung
-                    </p>
-                    <p className="mt-0.5 text-[10px] leading-tight text-brand-800">
-                      Kéo thẻ hoặc click <strong>+ Thêm</strong> để chèn vào chặng.
-                    </p>
-                  </div>
-
-                  {FEATURE_BLOCKS_CATEGORIES.map((category) => {
-                    const isOpen = openCategories[category.category] ?? true
-                    const visibleItems = category.items
-                    return (
-                      <div key={category.category} className="rounded-xl border border-border/80 bg-white/80 overflow-hidden shadow-2xs">
-                        <button
-                          type="button"
-                          onClick={() => toggleCategory(category.category)}
-                          className="w-full flex items-center justify-between gap-1.5 px-2.5 py-1.5 text-left bg-slate-50 hover:bg-slate-100/90 transition cursor-pointer border-b border-border/40"
-                        >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="shrink-0">{getCategorySvgIcon(category.category, 14)}</span>
-                            <span className="text-[10px] font-black text-slate-800 uppercase tracking-wide truncate">
-                              {category.category}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1 shrink-0 text-muted">
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 bg-white rounded-full border border-border/70 text-slate-600">
-                              {visibleItems.length}
-                            </span>
-                            {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-                          </div>
-                        </button>
-
-                        {isOpen && (
-                          <div className="p-1.5 flex flex-col gap-1.5 bg-slate-50/40">
-                            {visibleItems.map((item) => (
-                              <div
-                                key={item.id}
-                                draggable
-                                onDragStart={(e) => {
-                                  setHoveredBlock(null)
-                                  e.dataTransfer.setData('text/plain', item.id)
-                                  e.dataTransfer.effectAllowed = 'copy'
-                                }}
-                                onMouseEnter={(e) => {
-                                  setHoveredBlock({
-                                    item,
-                                    rect: e.currentTarget.getBoundingClientRect(),
-                                    category: category.category,
-                                  })
-                                }}
-                                onMouseLeave={() => setHoveredBlock(null)}
-                                className={cn(
-                                  "group min-h-[46px] py-1.5 px-2.5 rounded-xl border flex items-center justify-between gap-2 hover:shadow-xs transition cursor-grab active:cursor-grabbing hover:scale-[1.01]",
-                                  item.color
-                                )}
-                                title={`Kéo thả hoặc click + Thêm: ${item.name} (${item.desc})`}
-                              >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <span className="text-base shrink-0">{renderFeatureBlockIcon(item.id, 16)}</span>
-                                  <div className="flex flex-col min-w-0 flex-1">
-                                    <span className="text-xs font-black leading-snug break-words line-clamp-2">
-                                      {item.name}
-                                    </span>
-                                    {item.badge && (
-                                      <span className="w-fit mt-0.5 rounded bg-white/90 border border-current px-1 py-0 text-[8px] font-black uppercase tracking-wider">
-                                        {item.badge}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    window.dispatchEvent(
-                                      new CustomEvent('aikids:add-feature-block', { detail: { blockId: item.id } })
-                                    )
-                                  }}
-                                  className="shrink-0 flex items-center gap-0.5 rounded-lg bg-white/90 hover:bg-white border border-current px-2 py-1 text-[10px] font-black shadow-2xs transition active:scale-95 cursor-pointer"
-                                  title={`Thêm ${item.name} vào chặng`}
-                                >
-                                  <Plus size={11} />
-                                  <span>Thêm</span>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-
-              {/* Card xem trước bố cục mini và hướng dẫn sư phạm khi hover vào khối tính năng */}
-              <FeatureBlockHoverPreview
-                block={hoveredBlock?.item ?? null}
-                anchorRect={hoveredBlock?.rect ?? null}
-                categoryName={hoveredBlock?.category}
-              />
-            </>
-          )}
-        </aside>
+            <TeacherFocusStudioSidebar
+              isSidebarCollapsed={isSidebarCollapsed}
+              toggleSidebarCollapsed={toggleSidebarCollapsed}
+              setIsSidebarCollapsed={setIsSidebarCollapsed}
+              openCategories={openCategories}
+              setOpenCategories={setOpenCategories}
+              toggleCategory={toggleCategory}
+              categories={FEATURE_BLOCKS_CATEGORIES}
+              renderIcon={renderFeatureBlockIcon}
+              hoveredBlock={hoveredBlock}
+              setHoveredBlock={setHoveredBlock}
+            />
 
             {/* Nội dung chính Focus Studio */}
             <main className="min-w-0 flex flex-col gap-3">
@@ -1552,96 +1248,19 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // ── Tab: Thống kê ─────────────────────────────────────────
   function renderStats() {
     return (
-      <div className="ui-card min-w-0 p-3 sm:p-5">
-      <h2 className="font-display mb-4 text-xl">Thống kê lớp học</h2>
-      {!stats ? (
-        <EmptyState
-          title="Chưa có dữ liệu thống kê"
-          description="Hãy tạo lớp học và thêm học sinh để xem thống kê tiến trình tại đây."
-        />
-      ) : (
-        <>
-          <p className="mb-4 font-bold">{stats.className} · <span className="font-mono text-sky-600">{stats.code}</span></p>
-          <div className="mb-5 grid gap-3 sm:grid-cols-4">
-            <StatCard label="Học sinh" value={stats.studentCount} icon={<CmsUsersIcon />} />
-            <StatCard label="Trạm hoàn thành" value={stats.totalCompletedQuests} icon={<CmsAnalyticsIcon />} />
-            <StatCard label="Bài học đang mở" value={stats.openQuestCount} icon={<CmsLecturesIcon />} />
-            <StatCard label="Sản phẩm" value={stats.projectCount} icon={<CmsCoursesIcon />} />
-          </div>
-          {/* Stats search + support filter */}
-          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="relative w-full min-w-0 flex-1 sm:min-w-[200px]">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
-                <Search size={17} aria-hidden="true" />
-              </span>
-              <input
-                type="search"
-                aria-label="Tìm học sinh trong thống kê"
-                placeholder="Tìm học sinh..."
-                value={statsSearch}
-                onChange={(e) => setStatsSearch(e.target.value)}
-                className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
-              />
-            </div>
-            <select
-              aria-label="Lọc học sinh cần hỗ trợ"
-              className="min-h-11 w-full rounded-xl border-2 border-border bg-white px-3 text-sm font-bold sm:w-auto"
-              value={statsSupportFilter}
-              onChange={(e) => setStatsSupportFilter(e.target.value as '' | 'needs' | 'ok')}
-            >
-              <option value="">Tất cả</option>
-              <option value="needs">Cần hỗ trợ</option>
-              <option value="ok">Tiến triển tốt</option>
-            </select>
-            {(statsSearch || statsSupportFilter) && (
-              <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredStatStudents.length} / {statStudents.length} học sinh</span>
-            )}
-            {(statsSearch || statsSupportFilter) && (
-              <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setStatsSearch(''); setStatsSupportFilter('') }}>Xóa bộ lọc</button>
-            )}
-          </div>
-          <div className="hidden overflow-x-auto rounded-2xl border border-border sm:block">
-            <table className="min-w-[860px] w-full text-left text-sm">
-              <thead className="border-b border-border bg-sky-50/60">
-                <tr>
-                  <th className="px-3 py-2 font-extrabold">Học sinh</th>
-                  <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
-                  <th className="px-3 py-2 font-extrabold">Đang học</th>
-                  <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
-                  <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {statsPag.slice.map((s) => (
-                  <tr key={s.id} className={cn('border-b border-border/40 transition hover:bg-gray-50/40', s.needsSupport && 'bg-sun-50/30')}>
-                    <td className="px-4 py-3 font-bold">{s.nickname}</td>
-                    <td className="px-4 py-3 text-center text-muted">{s.completedQuests}</td>
-                    <td className="px-4 py-3">
-                      <span className="block font-medium">{s.currentQuest ?? '—'}</span>
-                      {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
-                    <td className="px-4 py-3">
-                      {s.needsSupport
-                        ? <button type="button" className="rounded-lg border border-warning/20 bg-white px-3 py-1 text-xs font-bold text-warning shadow-sm hover:bg-warning/10" onClick={() => void viewProgress(s.id)}>Cần xem</button>
-                        : <span className="px-2 text-xs font-semibold text-success">Ổn</span>}
-                      {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="border-t border-border p-2">
-            <Paginator
-              page={statsPag.page} totalPages={statsPag.totalPages}
-              totalItems={filteredStatStudents.length} pageSize={15}
-              onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
-            />
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+      <TeacherStatsTab
+        stats={stats}
+        statsSearch={statsSearch}
+        setStatsSearch={setStatsSearch}
+        statsSupportFilter={statsSupportFilter}
+        setStatsSupportFilter={setStatsSupportFilter}
+        filteredStatStudents={filteredStatStudents}
+        statStudents={statStudents}
+        statsPag={statsPag}
+        viewProgress={viewProgress}
+        formatActivity={formatActivity}
+        phaseLabels={PHASE_LABELS}
+      />
     )
   }
 

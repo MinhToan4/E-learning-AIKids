@@ -160,7 +160,7 @@ export function TeacherOverviewPage() {
     try {
       const [classRes, statsRes, lecturesRes] = await Promise.allSettled([
         api<{
-          class: { id?: string; name: string; code: string } | null
+          class: { id: string; name: string; code: string } | null
           students: Array<{
             id: string
             nickname: string | null
@@ -169,7 +169,7 @@ export function TeacherOverviewPage() {
             xp: number
             completedQuests: number
           }>
-        }>('/api/teacher/class'),
+        }>('/api/teacher/class').catch(() => null),
         api<{
           stats: {
             studentCount: number
@@ -188,12 +188,12 @@ export function TeacherOverviewPage() {
               lastActiveAt?: string | null
             }>
           } | null
-        }>('/api/teacher/class/stats'),
-        api<{ courses: Array<{ id: string; lectures: unknown[] }> }>('/api/teacher/lectures'),
+        }>('/api/teacher/class/stats').catch(() => null),
+        api<{ courses: Array<{ id: string; lectures: unknown[] }> }>('/api/teacher/lectures').catch(() => null),
       ])
 
       const classData = classRes.status === 'fulfilled' ? classRes.value : null
-      const statsData = statsRes.status === 'fulfilled' ? statsRes.value.stats : null
+      const statsData = statsRes.status === 'fulfilled' ? statsRes.value?.stats ?? null : null
       const lecturesData = lecturesRes.status === 'fulfilled' ? lecturesRes.value : null
 
       const students = classData?.students ?? []

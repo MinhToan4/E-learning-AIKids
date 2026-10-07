@@ -93,7 +93,7 @@ export function useLectureAuthoring({
     showToast('Đã xóa khối nội dung!', 'info')
   }, [draft.learnCards, readOnly, showToast, updateStageBlocks])
 
-  const handleAddModule = useCallback((blockId: string, explicitStageIndex?: number) => {
+  const handleAddModule = useCallback((blockId: string, explicitStageIndex?: number, insertIndex?: number) => {
     if (readOnly) return
     const targetIdx =
       explicitStageIndex !== undefined
@@ -114,8 +114,32 @@ export function useLectureAuthoring({
       newBlock = { id: `blk-text-${ts}`, type: 'text', title: `Đoạn văn bản ${stageBlocks.length + 1}`, body: '' }
     } else if (blockId === 'layout-four-keys') {
       newBlock = createFourKeysBlock(`blk-four-keys-${ts}`)
+    } else if (blockId === 'layout-callout') {
+      newBlock = { id: `blk-callout-${ts}`, type: 'layout-callout', title: 'Hộp ghi nhớ AIKI', body: '', tip: 'Mẹo học tập' }
+    } else if (blockId === 'dialogue') {
+      newBlock = { id: `blk-dialogue-${ts}`, type: 'dialogue', title: 'Kịch bản phân vai', dialogueLines: [] }
+    } else if (blockId === 'versus-ab') {
+      newBlock = { id: `blk-versus-${ts}`, type: 'versus-ab', title: '2 Tranh đối đầu A/B' }
+    } else if (blockId === 'compare') {
+      newBlock = { id: `blk-compare-${ts}`, type: 'compare', title: 'Bảng đối chiếu 2 cột' }
+    } else if (blockId === 'video') {
+      newBlock = { id: `blk-video-${ts}`, type: 'video', title: 'Video bài giảng' }
+    } else if (blockId === 'voice') {
+      newBlock = { id: `blk-voice-${ts}`, type: 'voice', title: 'Giọng đọc & lời thoại' }
+    } else if (blockId === 'layout-split') {
+      newBlock = { id: `blk-split-${ts}`, type: 'layout-split', title: '2 Cột: Chữ + Ảnh', body: '' }
+    } else if (blockId === 'layout-confirm-option') {
+      newBlock = { id: `course-confirm-option-${ts}`, type: 'layout-confirm-option', title: 'Phương án lựa chọn', isCorrect: false }
     }
-    updateStageBlocks(targetIdx, [...stageBlocks, newBlock])
+
+    const nextBlocks = [...stageBlocks]
+    if (typeof insertIndex === 'number' && insertIndex >= 0 && insertIndex <= nextBlocks.length) {
+      nextBlocks.splice(insertIndex, 0, newBlock)
+    } else {
+      nextBlocks.push(newBlock)
+    }
+
+    updateStageBlocks(targetIdx, nextBlocks)
     showToast('Đã thêm khối nội dung!', 'success')
   }, [activeSection, draft.learnCards, readOnly, showToast, updateStageBlocks])
 

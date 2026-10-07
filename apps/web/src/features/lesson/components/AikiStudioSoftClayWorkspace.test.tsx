@@ -838,4 +838,94 @@ describe('AikiStudioSoftClayWorkspace - Bài 1.1 Một từ hay năm từ', () =
     })
     container.remove()
   })
+
+  it('renders dynamic subject and turns in confirmation modal for Lesson 1.1', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    const dbPracticeState = {
+      attemptsLeft: 0,
+      turn1Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_one_word_v1.webp', prompt: 'con mèo' },
+      },
+      turn2Artworks: {
+        0: { url: '/assets/pregenerated-fallback/magic-keys/cat_full_details_v1.webp', prompt: 'con mèo · lông màu trắng · đang nằm · nhắm mắt · ở trước sân' },
+      },
+      completedParts: [0],
+      turnByPart: { 0: 2 } as Record<number, 1 | 2>,
+    }
+
+    await act(async () => {
+      root.render(
+        <AikiStudioSoftClayWorkspace
+          lessonId="bai-1-1"
+          initialPracticeState={dbPracticeState}
+        />
+      )
+    })
+
+    // Click submit button to open modal
+    const submitBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement
+    expect(submitBtn).toBeDefined()
+    await act(async () => {
+      submitBtn.click()
+    })
+
+    const text = container.textContent || ''
+    expect(text).toContain('Nộp Tranh Vào Balo Nghệ Thuật?')
+    expect(text).toContain('Bé đã hoàn thành xuất sắc 2 lượt vẽ cho con mèo!')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('renders dynamic subject and turns in confirmation modal for Lesson 1.2 switching between items', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(<AikiStudioSoftClayWorkspace lessonId="bai-1-2" />)
+    })
+
+    // Open submit modal for first item (Con cún)
+    let submitBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement
+    await act(async () => {
+      submitBtn.click()
+    })
+
+    let text = container.textContent || ''
+    expect(text).toContain('Nộp Tranh Vào Balo Nghệ Thuật?')
+    expect(text).toContain('Bé đã hoàn thành kiệt tác Con cún trong 1 lượt vẽ xuất sắc!')
+
+    // Close modal
+    const closeBtn = Array.from(container.querySelectorAll('button')).find((b) => b.textContent?.includes('Ngắm thêm chút'))
+    await act(async () => {
+      closeBtn?.click()
+    })
+
+    // Switch to Part 2: Cái xe đạp
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const bikeBtn = buttons.find((b) => b.textContent?.includes('Cái xe đạp'))
+    await act(async () => {
+      bikeBtn?.click()
+    })
+
+    // Reopen modal for second item
+    submitBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement
+    await act(async () => {
+      submitBtn.click()
+    })
+
+    text = container.textContent || ''
+    expect(text).toContain('Bé đã hoàn thành kiệt tác Cái xe đạp trong 1 lượt vẽ xuất sắc!')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })

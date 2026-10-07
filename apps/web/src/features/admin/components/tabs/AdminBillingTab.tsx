@@ -1,6 +1,4 @@
 import React, { lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react'
-import { Search, RotateCcw, History, Trash2 } from 'lucide-react'
-import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
@@ -9,10 +7,12 @@ import { cn } from '@/shared/lib/cn'
 import { AdminBillingPos } from '../AdminBillingPos'
 import { AdminInvoiceManager } from './AdminInvoiceManager'
 import { PendingIntentDetailModal } from '../PendingIntentDetailModal'
+import { AdminSubscribersView } from '../billing/AdminSubscribersView'
+import { AdminPlansCatalogView } from '../billing/AdminPlansCatalogView'
+import { AdminBillingLogsView, type BillingTransactionLog } from '../billing/AdminBillingLogsView'
 import type { VietQrModalData } from '../VietQrModal'
 import {
   ROLE_LABELS,
-  DEFAULT_CATALOG_PLANS,
   getCachedBillingPlans,
   normalizePlanDef,
   type AdminUser,
@@ -21,6 +21,8 @@ import {
   type PlanDef,
   type SubscriptionRow,
 } from '../../types'
+
+export type { BillingTransactionLog } from '../billing/AdminBillingLogsView'
 
 const VietQrModal = lazy(() =>
   import('../VietQrModal').then((m) => ({ default: m.VietQrModal })),
@@ -42,21 +44,6 @@ const PURPOSE_LABELS: Record<string, string> = {
   credit_pack: 'Gói lượt AI',
   course_purchase: 'Mua khóa học',
 }
-
-export type BillingTransactionLog = {
-  id: string
-  timestamp: string
-  userEmail: string
-  userName?: string
-  type: 'checkout_paid' | 'vietqr_intent' | 'grant_scholarship' | 'intent_confirmed'
-  typeLabel: string
-  planId: string
-  planName: string
-  amount: number
-  paymentMethod: string
-  note?: string
-}
-
 const BILLING_TX_LOGS_KEY = 'aikids_billing_tx_logs'
 
 function getStoredBillingLogs(): BillingTransactionLog[] {
@@ -80,10 +67,6 @@ function saveBillingLogs(logs: BillingTransactionLog[]): void {
   }
 }
 
-function formatVnd(minor: number) {
-  return minor === 0 ? 'Miễn phí' : `${minor.toLocaleString('vi-VN')}₫/tháng`
-}
-
 export function AdminBillingTab() {
   const { toasts, showToast, dismissToast } = useToast()
 
@@ -100,9 +83,7 @@ export function AdminBillingTab() {
 
   // Sub-nav view: subscribers, pos_orders, plans, invoices, or logs
   const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'pos_orders' | 'plans' | 'invoices' | 'logs'>('subscribers')
-  const [billingSubSearch, setBillingSubSearch] = useState('')
-  const [selectedPlanFilter, setSelectedPlanFilter] = useState<string>('all')
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'paid' | 'free' | 'expired'>('all')
+
 
   // Transaction logs state
   const [txLogs, setTxLogs] = useState<BillingTransactionLog[]>(getStoredBillingLogs)
@@ -308,33 +289,6 @@ export function AdminBillingTab() {
     }, 10000)
     return () => clearInterval(interval)
   }, [fetchBillingData])
-
-  const filteredBillingSubs = useMemo(() => {
-    return billingSubs.filter((s) => {
-      // 1. Text search
-      if (billingSubSearch.trim()) {
-        const q = billingSubSearch.toLowerCase()
-        const matchesEmail = (s.email ?? '').toLowerCase().includes(q)
-        const matchesName = (s.name ?? '').toLowerCase().includes(q)
-        if (!matchesEmail && !matchesName) return false
-      }
-      // 2. Plan filter
-      if (selectedPlanFilter !== 'all') {
-        if (s.plan !== selectedPlanFilter) return false
-      }
-      // 3. Status filter
-      if (selectedStatusFilter !== 'all') {
-        const now = new Date()
-        const isExpired = s.expiresAt ? new Date(s.expiresAt) <= now : false
-        if (selectedStatusFilter === 'free' && s.plan !== 'free') return false
-        if (selectedStatusFilter === 'expired' && !isExpired) return false
-        if (selectedStatusFilter === 'paid') {
-          if (s.plan === 'free' || isExpired) return false
-        }
-      }
-      return true
-    })
-  }, [billingSubs, billingSubSearch, selectedPlanFilter, selectedStatusFilter])
 
   function generateSuggestedReason(
     mode: 'checkout' | 'vietqr' | 'grant',
@@ -733,458 +687,33 @@ export function AdminBillingTab() {
         <div className="flex flex-col gap-5">
           {/* Danh sách thuê bao */}
           {billingPlanView === 'subscribers' && (
-            <div className="ui-card overflow-hidden shadow-sm">
-              <div className="flex flex-wrap items-center gap-2.5 border-b border-border/60 px-4 py-3 bg-brand-50/20">
-                <div className="relative flex-1 min-w-[200px]">
-                  <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
-                    <Search size={16} aria-hidden="true" />
-                  </span>
-                  <input
-                    type="search"
-                    aria-label="Tìm tài khoản trong danh sách thuê bao"
-                    placeholder="Tìm tên hoặc email..."
-                    value={billingSubSearch}
-                    onChange={(e) => setBillingSubSearch(e.target.value)}
-                    className="w-full min-h-10 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
-                  />
-                </div>
-
-                {/* Bộ lọc gói cước */}
-                <div className="flex items-center gap-1">
-                  <select
-                    value={selectedPlanFilter}
-                    onChange={(e) => setSelectedPlanFilter(e.target.value)}
-                    aria-label="Lọc theo gói cước"
-                    className="min-h-10 rounded-xl border-2 border-border bg-white px-3 py-1.5 text-xs font-bold text-text outline-none transition focus:border-brand-400 cursor-pointer shadow-sm"
-                  >
-                    <option value="all">Tất cả gói cước</option>
-                    {billingPlans.length > 0 ? (
-                      billingPlans.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} {p.amountMinor ? `(${p.amountMinor.toLocaleString('vi-VN')}₫)` : ''}
-                        </option>
-                      ))
-                    ) : (
-                      <>
-                        <option value="free">Miễn Phí</option>
-                        <option value="starter">Starter (69K)</option>
-                        <option value="aikids_official_129k">AI Kid Chính Thức (129K)</option>
-                        <option value="premium_family">Premium Gia Đình (149K)</option>
-                        <option value="pro">Pro (349K)</option>
-                      </>
-                    )}
-                  </select>
-                </div>
-
-                {/* Bộ lọc trạng thái */}
-                <div className="flex items-center gap-1">
-                  <select
-                    value={selectedStatusFilter}
-                    onChange={(e) => setSelectedStatusFilter(e.target.value as 'all' | 'paid' | 'free' | 'expired')}
-                    aria-label="Lọc theo trạng thái"
-                    className="min-h-10 rounded-xl border-2 border-border bg-white px-3 py-1.5 text-xs font-bold text-text outline-none transition focus:border-brand-400 cursor-pointer shadow-sm"
-                  >
-                    <option value="all">Tất cả trạng thái</option>
-                    <option value="paid">Đang trả phí</option>
-                    <option value="free">Miễn phí</option>
-                    <option value="expired">Đã hết hạn</option>
-                  </select>
-                </div>
-
-                {(billingSubSearch || selectedPlanFilter !== 'all' || selectedStatusFilter !== 'all') && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBillingSubSearch('')
-                      setSelectedPlanFilter('all')
-                      setSelectedStatusFilter('all')
-                    }}
-                    className="inline-flex items-center gap-1 rounded-xl bg-slate-100 hover:bg-slate-200 px-2.5 py-2 text-xs font-bold text-slate-700 transition cursor-pointer"
-                    title="Xóa bộ lọc"
-                  >
-                    <RotateCcw size={13} />
-                    <span>Đặt lại</span>
-                  </button>
-                )}
-
-                <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-700 border border-brand-200">
-                  {filteredBillingSubs.length}/{billingSubs.length} thuê bao
-                </span>
-
-                <Button variant="secondary" onClick={() => void fetchBillingData()} className="rounded-xl">
-                  Làm mới
-                </Button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[600px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-border/40 bg-brand-50/60 text-xs">
-                      <th className="px-4 py-2.5 font-extrabold">Tài khoản</th>
-                      <th className="px-4 py-2.5 font-extrabold">Vai trò</th>
-                      <th className="px-4 py-2.5 font-extrabold">Gói hiện tại</th>
-                      <th className="px-4 py-2.5 font-extrabold">Lượt AI còn</th>
-                      <th className="px-4 py-2.5 font-extrabold">Hết hạn</th>
-                      <th className="px-4 py-2.5 font-extrabold text-right">Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading && billingSubs.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center text-muted">
-                          Đang tải dữ liệu thuê bao...
-                        </td>
-                      </tr>
-                    ) : filteredBillingSubs.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center text-muted">
-                          Chưa có dữ liệu thuê bao
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredBillingSubs.map((s) => (
-                        <tr
-                          key={s.userId}
-                          className="group border-b border-border/30 hover:bg-brand-50/30 transition"
-                        >
-                          <td className="px-4 py-3">
-                            <p className="font-bold">{s.name ?? '—'}</p>
-                            <p className="text-xs text-muted font-mono">{s.email ?? s.userId.slice(0, 14)}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
-                              {ROLE_LABELS[s.role] ?? s.role}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={cn(
-                                'rounded-full px-2.5 py-0.5 text-xs font-extrabold',
-                                PLAN_BADGE_COLORS[s.plan] ?? 'bg-brand-50 text-brand-600',
-                              )}
-                            >
-                              {planLabels[s.plan] ?? s.plan}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={cn(
-                                'font-mono text-sm font-bold',
-                                s.remainingCreateCredits === 0 ? 'text-danger' : 'text-text',
-                              )}
-                            >
-                              {s.remainingCreateCredits}
-                            </span>
-                            <span className="text-xs text-muted">/{s.monthlyCreateCredits}</span>
-                          </td>
-                          <td className="px-4 py-3 text-xs">
-                            {s.expiresAt ? (
-                              <span
-                                className={cn(
-                                  new Date(s.expiresAt) < new Date() ? 'text-danger font-bold' : 'text-muted',
-                                )}
-                              >
-                                {new Date(s.expiresAt).toLocaleDateString('vi-VN')}
-                              </span>
-                            ) : (
-                              <span className="text-success font-bold">Không hết hạn</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <Button
-                              variant="secondary"
-                              className="text-xs py-1 px-3 shadow-sm"
-                              onClick={() => quickGrant(s)}
-                            >
-                              Cấp gói mới
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AdminSubscribersView
+              billingSubs={billingSubs}
+              billingPlans={billingPlans}
+              loading={loading}
+              planLabels={planLabels}
+              planBadgeColors={PLAN_BADGE_COLORS}
+              roleLabels={ROLE_LABELS}
+              onRefresh={() => void fetchBillingData()}
+              onQuickGrant={quickGrant}
+            />
           )}
 
           {/* Catalog Gói Bán & Tùy biến (Package Builder) */}
           {billingPlanView === 'plans' && (
             <div className="flex flex-col gap-4">
-              {/* ⚙️ Cấu hình Cổng Thanh Toán Khách Hàng (Soft Clay Panel) */}
-              <div className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-r from-brand-50/50 via-white to-amber-50/40 p-4 sm:p-5 shadow-clay">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">⚙️</span>
-                      <h3 className="font-display text-base sm:text-lg font-black text-text">
-                        Cấu hình Cổng Thanh Toán Khách Hàng
-                      </h3>
-                      <span className="rounded-full bg-brand-100 text-brand-700 px-2 py-0.5 text-[10px] font-black border border-brand-200">
-                        {paymentProviderMode === 'sepay' ? 'SePay PG' : 'Thủ công Vietcombank'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted mt-0.5">
-                      Chọn phương thức xử lý cổng thanh toán khi phụ huynh bấm nâng cấp gói hoặc mua lượt AI trên app.
-                    </p>
-                  </div>
-
-                  {/* 2 Lựa chọn: Radio / Button Tab */}
-                  <div className="flex rounded-2xl bg-white p-1 border-2 border-brand-200/70 shadow-sm shrink-0 gap-1">
-                    <button
-                      type="button"
-                      onClick={() => handlePaymentProviderModeChange('manual')}
-                      className={cn(
-                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer',
-                        paymentProviderMode === 'manual'
-                          ? 'bg-brand-600 text-white shadow-clay font-black'
-                          : 'text-stone-600 hover:text-text hover:bg-stone-50',
-                      )}
-                    >
-                      <span>🏦 Chuyển khoản Thủ công (Mặc định)</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handlePaymentProviderModeChange('sepay')}
-                      className={cn(
-                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer',
-                        paymentProviderMode === 'sepay'
-                          ? 'bg-brand-600 text-white shadow-clay font-black'
-                          : 'text-stone-600 hover:text-text hover:bg-stone-50',
-                      )}
-                    >
-                      <span>⚡ Cổng Tự động SePay</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid gap-2.5 sm:grid-cols-2 text-xs">
-                  <div
-                    onClick={() => handlePaymentProviderModeChange('manual')}
-                    className={cn(
-                      'rounded-2xl p-3 border-2 transition cursor-pointer flex items-start gap-2.5',
-                      paymentProviderMode === 'manual'
-                        ? 'border-brand-400 bg-brand-50/70 shadow-sm'
-                        : 'border-border/60 bg-white/70 hover:border-brand-200 opacity-70',
-                    )}
-                  >
-                    <div className="h-4 w-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 border-brand-600">
-                      {paymentProviderMode === 'manual' && (
-                        <div className="h-2 w-2 rounded-full bg-brand-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-text">Thanh toán Chuyển khoản Thủ công (Mặc định)</p>
-                      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
-                        Vietcombank LE QUANG MINH 9812723359, khách báo đã chuyển khoản → Admin duyệt 1-Click.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => handlePaymentProviderModeChange('sepay')}
-                    className={cn(
-                      'rounded-2xl p-3 border-2 transition cursor-pointer flex items-start gap-2.5',
-                      paymentProviderMode === 'sepay'
-                        ? 'border-brand-400 bg-brand-50/70 shadow-sm'
-                        : 'border-border/60 bg-white/70 hover:border-brand-200 opacity-70',
-                    )}
-                  >
-                    <div className="h-4 w-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 border-brand-600">
-                      {paymentProviderMode === 'sepay' && (
-                        <div className="h-2 w-2 rounded-full bg-brand-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-text">Cổng Thanh toán Tự động SePay</p>
-                      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
-                        Tích hợp SePay PG (Merchant SP-TEST-LQ79A795). Tự động khớp mã và kích hoạt gói tức thì.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">📦</span>
-                    <h3 className="font-display text-lg font-black text-text">
-                      Quản trị danh mục gói bán & Tùy biến (Package Builder)
-                    </h3>
-                  </div>
-                  <p className="text-xs text-muted mt-1">
-                    Tùy chỉnh định mức lượt tạo AI, giới hạn tài khoản con, chính sách bảo toàn quyền lợi và
-                    trạng thái mở bán.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingPlan(null)
-                    setIsPlanEditorOpen(true)
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 active:scale-95 px-4 py-2.5 text-sm font-black text-white shadow-clay transition shrink-0 cursor-pointer"
-                >
-                  <span className="text-lg leading-none">+</span>
-                  <span>Tạo gói bán mới</span>
-                </button>
-              </div>
-
-              {/* Grid cards */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                {(billingPlans.length > 0 ? billingPlans : DEFAULT_CATALOG_PLANS).map((plan) => {
-                  const userCount =
-                    plan.activeSubscribers ?? billingSubs.filter((s) => s.plan === plan.id).length
-                  const isPlanActive = plan.isActive !== false
-                  return (
-                    <div
-                      key={plan.id}
-                      className={cn(
-                        'ui-card flex flex-col gap-2.5 p-3.5 sm:p-4 transition hover:shadow-md',
-                        plan.id !== 'free' ? 'border-2' : 'border border-dashed border-border',
-                        !isPlanActive &&
-                          'border-2 border-dashed border-stone-300 bg-stone-100/70 opacity-70 grayscale-[25%]',
-                      )}
-                    >
-                      {!isPlanActive && (
-                        <div className="rounded-lg bg-stone-200/90 text-stone-700 px-2 py-0.5 text-[11px] font-black tracking-wide border border-stone-300 flex items-center gap-1.5 w-fit">
-                          <span>🔒 ĐÃ TẠM ẨN KHỎI KHÁCH HÀNG</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-start justify-between gap-2.5">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                            <span
-                              className={cn(
-                                'inline-block rounded-full px-2.5 py-0.5 text-xs font-extrabold',
-                                PLAN_BADGE_COLORS[plan.id] ?? 'bg-brand-50 text-brand-600',
-                              )}
-                            >
-                              {plan.id.toUpperCase()}
-                            </span>
-                            {plan.badge && (
-                              <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800 border border-amber-300">
-                                {plan.badge}
-                              </span>
-                            )}
-                            <span className="inline-block rounded-full bg-border/60 px-2 py-0.5 text-[9px] font-bold text-muted">
-                              v{plan.version ?? 1}
-                            </span>
-                          </div>
-                          <h4 className="font-display text-base sm:text-lg text-text font-bold">{plan.name}</h4>
-                          {plan.tagline && (
-                            <p className="text-xs text-muted line-clamp-1 mt-0.5">{plan.tagline}</p>
-                          )}
-                          <p className="text-xl sm:text-2xl font-black text-brand-600 mt-0.5">
-                            {formatVnd(plan.amountMinor)}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-display text-xl text-text font-black">{userCount}</p>
-                          <p className="text-[11px] text-muted">phụ huynh</p>
-                          <div className="mt-1">
-                            <span
-                              className={cn(
-                                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black',
-                                isPlanActive
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-stone-200/90 text-stone-700 border border-stone-300',
-                              )}
-                            >
-                              <span>{isPlanActive ? '🟢' : '🔒'}</span>
-                              <span>{isPlanActive ? 'Đang mở bán' : 'Đã tạm ẩn'}</span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Thu gọn 3 chỉ số (Lượt AI, Hồ sơ con, Khóa/trẻ) thành 1 hàng ngang compact */}
-                      <div className="grid grid-cols-3 gap-2 bg-stone-50 p-2 rounded-xl text-center text-xs border border-stone-200/60">
-                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
-                          <p className="font-display text-base font-black text-brand-700 leading-tight">
-                            {plan.monthlyCreateCredits}
-                          </p>
-                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">lượt AI/tháng</p>
-                        </div>
-                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
-                          <p className="font-display text-base font-black text-brand-700 leading-tight">
-                            {plan.maxChildren}
-                          </p>
-                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">hồ sơ trẻ</p>
-                        </div>
-                        <div className="rounded-lg bg-white p-1.5 shadow-2xs">
-                          <p className="font-display text-base font-black text-brand-700 leading-tight">
-                            {plan.maxOpenCoursesPerChild === 999
-                              ? '∞'
-                              : (plan.maxOpenCoursesPerChild ?? '?')}
-                          </p>
-                          <p className="text-[10px] font-bold text-slate-500 mt-0.5">khóa/trẻ</p>
-                        </div>
-                      </div>
-
-                      {/* Thu gọn danh sách tính năng: 2-3 tính năng gạch đầu dòng ngắn gọn */}
-                      <ul className="flex flex-col gap-1 text-xs">
-                        {plan.features.slice(0, 3).map((f, i) => (
-                          <li key={i} className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 truncate" title={f}>
-                            <span className="text-emerald-600 font-black text-xs shrink-0">✓</span>
-                            <span className="truncate">{f}</span>
-                          </li>
-                        ))}
-                        {plan.features.length > 3 && (
-                          <li className="text-[10px] text-muted font-bold pl-4">
-                            +{plan.features.length - 3} tính năng khác
-                          </li>
-                        )}
-                      </ul>
-
-                      <div className="mt-auto pt-3 border-t border-border/60 flex flex-col gap-2.5">
-                        <p className="text-xs text-muted">
-                          {plan.requiresPayment ? '💳 Yêu cầu thanh toán' : '🎁 Miễn phí, tự động kích hoạt'}
-                        </p>
-
-                        <div className="flex items-center gap-2 pt-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingPlan(plan)
-                              setIsPlanEditorOpen(true)
-                            }}
-                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-border/80 bg-surface px-3 py-1.5 text-xs font-black text-text shadow-sm transition hover:bg-brand-50 hover:border-brand-300 hover:text-brand-700 active:scale-95 cursor-pointer"
-                          >
-                            <span>✏️</span>
-                            <span>Chỉnh sửa gói</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void handleTogglePlan(plan)}
-                            disabled={plan.id === 'free'}
-                            title={
-                              plan.id === 'free'
-                                ? 'Không được phép ẩn gói miễn phí (free)'
-                                : isPlanActive
-                                  ? 'Tạm ẩn gói khỏi danh mục khách hàng'
-                                  : 'Mở bán lại gói này'
-                            }
-                            className={cn(
-                              'inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-black shadow-sm transition active:scale-95 cursor-pointer',
-                              plan.id === 'free'
-                                ? 'opacity-40 cursor-not-allowed text-muted border-border/80 bg-surface'
-                                : isPlanActive
-                                  ? 'bg-stone-200 hover:bg-stone-300 text-stone-700 border-stone-300'
-                                  : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-clay',
-                            )}
-                          >
-                            <span>{isPlanActive ? '🔒' : '👁️'}</span>
-                            <span>{isPlanActive ? 'Tạm ẩn gói' : 'Mở bán lại'}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <AdminPlansCatalogView
+                paymentProviderMode={paymentProviderMode}
+                onPaymentProviderModeChange={handlePaymentProviderModeChange}
+                billingPlans={billingPlans}
+                billingSubs={billingSubs}
+                planBadgeColors={PLAN_BADGE_COLORS}
+                onEditPlan={(plan) => {
+                  setEditingPlan(plan)
+                  setIsPlanEditorOpen(true)
+                }}
+                onTogglePlan={(plan) => void handleTogglePlan(plan)}
+              />
 
               {/* Plan Editor Modal */}
               {isPlanEditorOpen && (
@@ -1231,129 +760,18 @@ export function AdminBillingTab() {
 
           {/* Lịch sử cấp & bán gói (Logs) */}
           {billingPlanView === 'logs' && (
-            <div className="ui-card overflow-hidden shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-5 py-4 bg-brand-50/30">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-100 text-brand-700 font-bold">
-                    <History size={18} />
-                  </span>
-                  <div>
-                    <h3 className="font-display text-base sm:text-lg font-black text-text">
-                      Lịch sử Cấp & Bán Gói (Transaction Logs)
-                    </h3>
-                    <p className="text-xs text-muted">
-                      Lưu trữ nhật ký giao dịch thu tiền trực tiếp, tạo VietQR, duyệt đơn đối soát và cấp học bổng.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-black text-brand-700">
-                    {txLogs.length} giao dịch
-                  </span>
-                  {txLogs.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ nhật ký giao dịch hiển thị?')) {
-                          setTxLogs([])
-                          saveBillingLogs([])
-                          showToast('Đã xóa nhật ký giao dịch', 'success')
-                        }
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-danger hover:bg-rose-50 transition cursor-pointer shadow-sm"
-                    >
-                      <Trash2 size={13} />
-                      <span>Xóa lịch sử</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[700px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-border/40 bg-brand-50/60 text-xs">
-                      <th className="px-4 py-3 font-extrabold">Thời gian</th>
-                      <th className="px-4 py-3 font-extrabold">Khách hàng</th>
-                      <th className="px-4 py-3 font-extrabold">Loại giao dịch</th>
-                      <th className="px-4 py-3 font-extrabold">Gói cước</th>
-                      <th className="px-4 py-3 font-extrabold">Số tiền</th>
-                      <th className="px-4 py-3 font-extrabold">Hình thức</th>
-                      <th className="px-4 py-3 font-extrabold">Ghi chú / Đối soát</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {txLogs.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-16 text-center text-muted">
-                          <p className="font-bold text-sm text-text">Chưa có nhật ký giao dịch nào</p>
-                          <p className="text-xs text-muted mt-1">
-                            Các giao dịch lên gói tại POS hoặc duyệt đơn VietQR sẽ tự động ghi vào đây.
-                          </p>
-                        </td>
-                      </tr>
-                    ) : (
-                      txLogs.map((log) => {
-                        const isScholarship = log.type === 'grant_scholarship'
-                        const isConfirmed = log.type === 'intent_confirmed'
-                        const isVietQr = log.type === 'vietqr_intent'
-
-                        return (
-                          <tr
-                            key={log.id}
-                            className="border-b border-border/30 hover:bg-brand-50/30 transition text-xs"
-                          >
-                            <td className="px-4 py-3 text-muted whitespace-nowrap font-medium">
-                              {new Date(log.timestamp).toLocaleString('vi-VN')}
-                            </td>
-                            <td className="px-4 py-3">
-                              <p className="font-bold text-text">{log.userName || 'Khách hàng'}</p>
-                              <p className="text-muted font-mono text-[11px]">{log.userEmail}</p>
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              <span
-                                className={cn(
-                                  'rounded-full px-2.5 py-0.5 font-extrabold text-[11px]',
-                                  isScholarship
-                                    ? 'bg-violet-100 text-violet-800'
-                                    : isConfirmed
-                                      ? 'bg-emerald-100 text-emerald-800'
-                                      : isVietQr
-                                        ? 'bg-amber-100 text-amber-800'
-                                        : 'bg-sky-100 text-sky-800',
-                                )}
-                              >
-                                {log.typeLabel}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 font-bold text-text">{log.planName}</td>
-                            <td className="px-4 py-3 whitespace-nowrap font-display font-black text-sm">
-                              {log.amount === 0 ? (
-                                <span className="text-violet-700">0₫ (Học bổng)</span>
-                              ) : (
-                                <span className="text-brand-700">
-                                  {log.amount.toLocaleString('vi-VN')}₫
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700">
-                                {log.paymentMethod}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-muted max-w-xs truncate" title={log.note}>
-                              {log.note || '—'}
-                            </td>
-                          </tr>
-                        )
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AdminBillingLogsView
+              txLogs={txLogs}
+              onClearLogs={() => {
+                if (confirm('Bạn có chắc chắn muốn xóa toàn bộ nhật ký giao dịch hiển thị?')) {
+                  setTxLogs([])
+                  saveBillingLogs([])
+                  showToast('Đã xóa nhật ký giao dịch', 'success')
+                }
+              }}
+            />
           )}
+
 
           {/* ─── TAB: TRUNG TÂM LÊN GÓI & ĐƠN THANH TOÁN (ADMIN POS) ─── */}
           {billingPlanView === 'pos_orders' && (

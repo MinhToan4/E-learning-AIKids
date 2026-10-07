@@ -1,0 +1,8 @@
+export * from './types'
+export { ClassStudentsTab } from './ClassStudentsTab'
+export { ClassStatsTab } from './ClassStatsTab'
+export { ClassGuideTab } from './ClassGuideTab'
+export { AddStudentModal } from './AddStudentModal'
+export { ClassSettingsModal } from './ClassSettingsModal'
+export { RemoveStudentModal } from './RemoveStudentModal'
+export { StudentProgressModal } from './StudentProgressModal'
