@@ -255,7 +255,70 @@ export function LectureDrawer({
       const questionsForSave = quizQuestions.length > 0 ? quizQuestions.map((q) => ({ id: q.id, prompt: q.prompt, options: q.options, answer: q.answer, why: q.explanation })) : undefined
       const gameConfig = buildLectureGameConfig(draft, questionsForSave)
       const baseJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
-      const finalJourney = baseJourney ? { ...baseJourney, stageBlockEditorVersion: 3 } : undefined
+      let finalJourney = baseJourney ? { ...baseJourney, stageBlockEditorVersion: 3 } : undefined
+      if (finalJourney) {
+        const confirmBlock = draft.learnCards[1]?.contentBlocks?.find(
+          (b) =>
+            b.id === 'course-confirm-quiz' ||
+            b.type === 'layout-confirm-option' ||
+            b.type === 'quiz-question' ||
+            b.id.startsWith('course-confirm-') ||
+            Boolean(b.questionPrompt)
+        )
+        if (confirmBlock) {
+          finalJourney.stage2_confirmGoal = {
+            ...finalJourney.stage2_confirmGoal,
+            id: confirmBlock.id,
+            question: confirmBlock.questionPrompt || confirmBlock.title || finalJourney.stage2_confirmGoal?.question || '',
+            options: (confirmBlock.questionOptions && confirmBlock.questionOptions.length > 0)
+              ? confirmBlock.questionOptions.map((o, optIdx) => ({ id: o.id || `opt-${optIdx + 1}`, text: o.text, imageUrl: o.imageUrl }))
+              : (finalJourney.stage2_confirmGoal?.options || []),
+
+            correctIndex: typeof confirmBlock.correctIndex === 'number'
+              ? confirmBlock.correctIndex
+              : (finalJourney.stage2_confirmGoal?.correctIndex ?? 0),
+            explanation: confirmBlock.explanation || confirmBlock.tip || finalJourney.stage2_confirmGoal?.explanation || '',
+            visualUrl: confirmBlock.visualUrl || confirmBlock.imageUrl || finalJourney.stage2_confirmGoal?.visualUrl || '',
+            layoutMode: confirmBlock.layoutMode || finalJourney.stage2_confirmGoal?.layoutMode || 'cards',
+          }
+        }
+
+        const quizBlocks = draft.learnCards[3]?.contentBlocks?.filter(
+          (b) =>
+            b.type === 'quiz-question' ||
+            b.id.startsWith('course-quiz-') ||
+            b.id.startsWith('blk-quiz-') ||
+            Boolean(b.questionPrompt)
+        )
+        if (quizBlocks && quizBlocks.length > 0) {
+          finalJourney.stage4_quiz = {
+            ...finalJourney.stage4_quiz,
+            questions: quizBlocks.map((b, qIdx) => ({
+              id: b.id.replace('course-quiz-', ''),
+              prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
+              options: (b.questionOptions && b.questionOptions.length > 0)
+                ? b.questionOptions.map((o) => o.text)
+                : (b.optionLabels || ['Phương án A', 'Phương án B']),
+              correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
+              explanation: b.explanation || b.tip || '',
+              visualUrl: b.visualUrl || b.imageUrl || '',
+              layoutMode: b.layoutMode || 'cards',
+              optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
+            })),
+          }
+        }
+
+        finalJourney.stageContentBlocks = {
+          ...(finalJourney.stageContentBlocks || {}),
+          'stage-0': draft.learnCards[0]?.contentBlocks || [],
+          'stage-1': draft.learnCards[1]?.contentBlocks || [],
+          'stage-2': draft.learnCards[2]?.contentBlocks || [],
+          'stage-3': draft.learnCards[3]?.contentBlocks || [],
+          'stage-4': draft.learnCards[4]?.contentBlocks || [],
+          'stage-5': draft.learnCards[5]?.contentBlocks || [],
+        }
+      }
+
       const rewardName = finalJourney?.stage6_completion?.rewardBadge?.name?.trim() || draft.reward?.trim() || ('Huy hiệu ' + draft.title).trim()
       const payload = {
         courseId, id: draft.id, slug: (draft as any).slug || draft.id, title: draft.title, skill: draft.skill || draft.title,

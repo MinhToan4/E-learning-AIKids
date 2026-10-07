@@ -177,7 +177,16 @@ export function StageBlocksCanvas({
           const renderGroups: RenderGroup[] = []
           for (let i = 0; i < stageBlocks.length; i++) {
             const b = stageBlocks[i]
-            const isOpt = b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-')
+            const isInteractiveBlock =
+              b.type === 'quiz-question' ||
+              Boolean(b.questionPrompt) ||
+              Boolean(b.layoutMode) ||
+              Boolean(b.questionOptions?.length) ||
+              b.id.startsWith('course-quiz-') ||
+              b.id.startsWith('blk-quiz-') ||
+              b.id === 'course-confirm-quiz'
+
+            const isOpt = !isInteractiveBlock && (b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-'))
             if (isOpt) {
               const lastGroup = renderGroups[renderGroups.length - 1]
               if (lastGroup && lastGroup.type === 'confirm-options') {

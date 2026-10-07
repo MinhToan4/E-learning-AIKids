@@ -764,8 +764,17 @@ export function useSixStageJourneyState({
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
-      ?.filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-'))
+      ?.filter(
+        (block) =>
+          !block.id.startsWith('course-goal-') &&
+          !block.id.startsWith('course-confirm-') &&
+          !block.id.startsWith('course-quiz-') &&
+          !block.id.startsWith('blk-quiz-') &&
+          block.type !== 'quiz-question' &&
+          block.type !== 'layout-confirm-option'
+      )
     if (!Array.isArray(blocks) || blocks.length === 0) return null
+
     return {
       id: `island-stage-${currentStage + 1}`,
       title: stages[currentStage]?.title || `Chặng ${currentStage + 1}`,

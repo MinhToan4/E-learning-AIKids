@@ -38,14 +38,81 @@ export function useLectureAuthoring({
         )
       }
       const nextCards = cards.map((c, i) => (i === index ? { ...c, ...patch } : c))
+      let nextSixStage = prev.sixStageJourney
+
+      // Auto 2-Way Sync cho Six Stage Journey
+      if (nextSixStage && patch.contentBlocks) {
+        if (index === 1) {
+          const confirmBlock = patch.contentBlocks.find(
+            (b) =>
+              b.id === 'course-confirm-quiz' ||
+              b.type === 'layout-confirm-option' ||
+              b.type === 'quiz-question' ||
+              b.id.startsWith('course-confirm-') ||
+              Boolean(b.questionPrompt)
+          )
+          if (confirmBlock) {
+            nextSixStage = {
+              ...nextSixStage,
+              stage2_confirmGoal: {
+                ...nextSixStage.stage2_confirmGoal,
+                id: confirmBlock.id,
+                question: confirmBlock.questionPrompt || confirmBlock.title || nextSixStage.stage2_confirmGoal?.question || '',
+                options: (confirmBlock.questionOptions && confirmBlock.questionOptions.length > 0)
+                  ? confirmBlock.questionOptions.map((o, optIdx) => ({ id: o.id || `opt-${optIdx + 1}`, text: o.text, imageUrl: o.imageUrl }))
+                  : (nextSixStage.stage2_confirmGoal?.options || []),
+
+                correctIndex: typeof confirmBlock.correctIndex === 'number'
+                  ? confirmBlock.correctIndex
+                  : (nextSixStage.stage2_confirmGoal?.correctIndex ?? 0),
+                explanation: confirmBlock.explanation || confirmBlock.tip || nextSixStage.stage2_confirmGoal?.explanation || '',
+                visualUrl: confirmBlock.visualUrl || confirmBlock.imageUrl || nextSixStage.stage2_confirmGoal?.visualUrl || '',
+                layoutMode: confirmBlock.layoutMode || nextSixStage.stage2_confirmGoal?.layoutMode || 'cards',
+              },
+            }
+          }
+        } else if (index === 3) {
+          const quizBlocks = patch.contentBlocks.filter(
+            (b) =>
+              b.type === 'quiz-question' ||
+              b.id.startsWith('course-quiz-') ||
+              b.id.startsWith('blk-quiz-') ||
+              Boolean(b.questionPrompt)
+          )
+          if (quizBlocks.length > 0) {
+            const mappedQuestions = quizBlocks.map((b, qIdx) => ({
+              id: b.id.replace('course-quiz-', ''),
+              prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
+              options: (b.questionOptions && b.questionOptions.length > 0)
+                ? b.questionOptions.map((o) => o.text)
+                : (b.optionLabels || ['Phương án A', 'Phương án B']),
+              correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
+              explanation: b.explanation || b.tip || '',
+              visualUrl: b.visualUrl || b.imageUrl || '',
+              layoutMode: b.layoutMode || 'cards',
+              optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
+            }))
+            nextSixStage = {
+              ...nextSixStage,
+              stage4_quiz: {
+                ...nextSixStage.stage4_quiz,
+                questions: mappedQuestions,
+              },
+            }
+          }
+        }
+      }
+
       return {
         ...prev,
         learnCards: nextCards,
+        sixStageJourney: nextSixStage,
         concept: nextCards.find((c) => c.kind === 'concept')?.body ?? prev.concept,
         example: nextCards.find((c) => c.kind === 'example')?.body ?? prev.example,
       }
     })
   }, [lessonFormat, readOnly, setDraft])
+
 
   const updateStageBlocks = useCallback((stageIndex: number, newBlocks: StageBlockItem[]) => {
     if (readOnly) return

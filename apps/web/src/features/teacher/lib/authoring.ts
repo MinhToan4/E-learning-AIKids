@@ -1159,6 +1159,7 @@ export const ISLAND_6_STAGE_NAMES = [
 
 export const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
 export const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
+export const COURSE_QUIZ_BLOCK_PREFIX = 'course-quiz-'
 
 export const FOUR_KEYS_METADATA = [
   { label: 'CÁI GÌ', sub: 'Ai, đồ vật gì', tone: 'sky' as const, keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
@@ -1257,37 +1258,139 @@ export function confirmKeyItems(option: LessonSixStageJourney['stage2_confirmGoa
 }
 
 export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
-  if (journey.stageBlockEditorVersion === 3 && existing.length > 0) {
-    return existing.map((block) => {
-      if (block.type === 'layout-four-keys' && (block.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX) || block.id.includes('option'))) {
-        return {
-          ...block,
-          type: 'layout-confirm-option' as const,
-          visualItems: [],
-        }
-      }
-      return block
-    })
+  // Tìm block interactive confirm trong existing
+  const existingUnified = existing.find(
+    (b) =>
+      b.id === `${COURSE_CONFIRM_BLOCK_PREFIX}quiz` ||
+      (b.type === 'layout-confirm-option' && !b.id.startsWith('course-confirm-option-')) ||
+      (b.type === 'quiz-question' && b.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX))
+  )
+
+  const authoredExtras = existing.filter(
+    (b) =>
+      b !== existingUnified &&
+      !b.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX) &&
+      b.type !== 'voice'
+  )
+
+  if (existingUnified) {
+    return [
+      {
+        ...existingUnified,
+        id: existingUnified.id || `${COURSE_CONFIRM_BLOCK_PREFIX}quiz`,
+        type: 'layout-confirm-option',
+        title: existingUnified.title || 'Câu hỏi xác nhận mục tiêu',
+        questionPrompt: existingUnified.questionPrompt || existingUnified.title || journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
+        layoutMode: existingUnified.layoutMode || journey.stage2_confirmGoal?.layoutMode || 'cards',
+        visualUrl: existingUnified.visualUrl || journey.stage2_confirmGoal?.visualUrl || '',
+        questionOptions: (existingUnified.questionOptions && existingUnified.questionOptions.length > 0)
+          ? existingUnified.questionOptions
+          : (journey.stage2_confirmGoal?.options?.map((opt, idx) => ({
+              id: opt.id || `opt-${idx + 1}`,
+              text: opt.text,
+              imageUrl: opt.imageUrl || '',
+            })) || [
+              { id: 'opt-1', text: 'Phương án A', imageUrl: '' },
+              { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+            ]),
+        correctIndex: typeof existingUnified.correctIndex === 'number'
+          ? existingUnified.correctIndex
+          : (journey.stage2_confirmGoal?.correctIndex ?? 0),
+        explanation: existingUnified.explanation || journey.stage2_confirmGoal?.explanation || '',
+      },
+      ...authoredExtras,
+    ]
   }
-  return [
-    {
-      id: `${COURSE_CONFIRM_BLOCK_PREFIX}question`,
-      type: 'text',
-      title: 'Câu hỏi xác nhận',
-      body: journey.stage2_confirmGoal.question,
-      tip: journey.stage2_confirmGoal.explanation,
-    },
-    ...journey.stage2_confirmGoal.options.map((option, index) => ({
-      id: `${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`,
-      type: 'layout-confirm-option' as const,
-      title: option.text.split(':')[0]?.trim() || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
-      body: option.text.includes(':') ? option.text.split(':')[1]?.trim() : (option.text || `Phương án ${String.fromCharCode(65 + index)}`),
-      imageUrl: option.imageUrl || '',
-      isCorrect: journey.stage2_confirmGoal.correctIndex === index,
-      visualItems: [],
-    })),
-  ]
+
+  // Khởi tạo khối unified mới từ journey.stage2_confirmGoal
+  const defaultOptions = (journey.stage2_confirmGoal?.options && journey.stage2_confirmGoal.options.length > 0)
+    ? journey.stage2_confirmGoal.options.map((option, index) => ({
+        id: option.id || `opt-${index + 1}`,
+        text: option.text.includes(':') ? option.text.split(':')[1]?.trim() || option.text : option.text,
+        imageUrl: option.imageUrl || '',
+      }))
+    : [
+        { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+        { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+      ]
+
+  const unifiedConfirmBlock: StageBlockItem = {
+    id: `${COURSE_CONFIRM_BLOCK_PREFIX}quiz`,
+    type: 'layout-confirm-option',
+    title: 'Câu hỏi xác nhận mục tiêu',
+    questionPrompt: journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
+    layoutMode: journey.stage2_confirmGoal?.layoutMode || (defaultOptions.some((o) => o.imageUrl) ? 'split' : 'cards'),
+    visualUrl: journey.stage2_confirmGoal?.visualUrl || defaultOptions.find((o) => o.imageUrl)?.imageUrl || '',
+    questionOptions: defaultOptions,
+    correctIndex: journey.stage2_confirmGoal?.correctIndex ?? 0,
+    explanation: journey.stage2_confirmGoal?.explanation || 'Tuyệt vời! Bé đã nắm rất vững mục tiêu bài học.',
+    readText: journey.stage2_confirmGoal?.speech || '',
+  }
+
+  return [unifiedConfirmBlock, ...authoredExtras]
 }
+
+export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  const existingQuizBlocks = existing.filter(
+    (b) =>
+      b.type === 'quiz-question' ||
+      b.id.startsWith(COURSE_QUIZ_BLOCK_PREFIX) ||
+      b.id.startsWith('blk-quiz-') ||
+      Boolean(b.questionPrompt)
+  )
+  const authoredExtras = existing.filter(
+    (b) => !existingQuizBlocks.includes(b) && b.type !== 'voice'
+  )
+
+  if (existingQuizBlocks.length > 0) {
+    return [...existingQuizBlocks, ...authoredExtras]
+  }
+
+  const questions = journey.stage4_quiz?.questions || []
+  if (questions.length === 0) {
+    return [
+      {
+        id: `${COURSE_QUIZ_BLOCK_PREFIX}1`,
+        type: 'quiz-question',
+        title: 'Câu hỏi trắc nghiệm 1',
+        questionPrompt: 'Bé hãy chọn câu trả lời đúng nhất nhé!',
+        layoutMode: 'cards',
+        visualUrl: '',
+        questionOptions: [
+          { id: 'opt-1', text: 'Phương án A (Chính xác)', imageUrl: '' },
+          { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+        ],
+        correctIndex: 0,
+        explanation: 'Chúc mừng bé đã trả lời đúng!',
+      },
+      ...authoredExtras,
+    ]
+  }
+
+  const hydratedBlocks: StageBlockItem[] = questions.map((q, idx) => ({
+    id: `${COURSE_QUIZ_BLOCK_PREFIX}${q.id || idx + 1}`,
+    type: 'quiz-question',
+    title: q.prompt ? (q.prompt.length > 40 ? q.prompt.slice(0, 40) + '...' : q.prompt) : `Câu hỏi ${idx + 1}`,
+    questionPrompt: q.prompt || '',
+    layoutMode: q.layoutMode || (q.visualUrl ? 'split' : 'cards'),
+    visualUrl: q.visualUrl || '',
+    questionOptions: (Array.isArray(q.options) && q.options.length > 0)
+      ? q.options.map((opt: any, oIdx: number) => ({
+          id: typeof opt === 'string' ? `opt-${oIdx + 1}` : (opt.id || `opt-${oIdx + 1}`),
+          text: typeof opt === 'string' ? opt : (opt.text || ''),
+          imageUrl: typeof opt === 'string' ? (q.optionImages?.[oIdx] || '') : (opt.imageUrl || q.optionImages?.[oIdx] || ''),
+        }))
+      : [
+          { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+          { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+        ],
+    correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+    explanation: q.explanation || '',
+  }))
+
+  return [...hydratedBlocks, ...authoredExtras]
+}
+
 
 export function isLegacyAikiCourseResidue(card: LearnCardDraft, encodedItem?: LearnVisualItemDraft) {
   return Boolean(encodedItem) ||
@@ -1692,9 +1795,11 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
           ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland && index === 1 && sixStageJourney
             ? buildCourseConfirmBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 3 && sixStageJourney
+            ? buildCourseQuizBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland
               ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
-              : encoded.contentBlocks ?? card.contentBlocks)),
+              : encoded.contentBlocks ?? card.contentBlocks))),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: isIsland && index === 0 && sixStageJourney
           ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }

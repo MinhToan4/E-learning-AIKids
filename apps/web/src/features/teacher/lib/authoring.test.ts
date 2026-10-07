@@ -224,10 +224,11 @@ describe('authoring ids and readiness', () => {
       'island-stage-4', 'island-stage-5', 'island-stage-6',
     ])
     expect(migratedCourseLesson.learnCards[1].contentBlocks?.map((block) => block.type)).toEqual([
-      'text', 'layout-confirm-option', 'layout-confirm-option', 'layout-confirm-option',
+      'layout-confirm-option',
     ])
-    expect(migratedCourseLesson.learnCards[1].contentBlocks?.filter((block) => block.isCorrect)).toHaveLength(1)
-    expect(migratedCourseLesson.learnCards.slice(2).every((card) => card.contentBlocks?.length === 0)).toBe(true)
+    expect(migratedCourseLesson.learnCards[1].contentBlocks?.[0].questionOptions).toHaveLength(3)
+    expect(migratedCourseLesson.learnCards[3].contentBlocks?.every((block) => block.type === 'quiz-question')).toBe(true)
+    expect(migratedCourseLesson.learnCards[3].contentBlocks?.length).toBeGreaterThan(0)
     expect(migratedCourseLesson.learnCards.some((card) => card.title.includes('Câu đố của AIKI'))).toBe(false)
 
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__

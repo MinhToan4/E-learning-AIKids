@@ -135,11 +135,8 @@ export function SixStageJourneyEditor({
     const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
     const islandCard = draft.learnCards[stageIndex]
     const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
-    // Ở Chặng 2 (stageIndex === 1), ConfirmBlockEditor đã quản lý câu hỏi xác nhận & các phương án.
-    // Lọc bỏ các block course-confirm-* để tránh hiển thị trùng lặp câu hỏi dạng form thô trong Canvas.
-    const filteredIslandBlocks = stageIndex === 1
-      ? islandBlocks.filter((b) => !b.id.startsWith('course-confirm-') && b.type !== 'layout-confirm-option')
-      : islandBlocks
+    // Chặng 2 & Chặng 4 quản lý câu hỏi trực tiếp qua Block Stream Canvas
+    const filteredIslandBlocks = islandBlocks
 
     const stageIcons = [Target, HelpCircle, Clapperboard, BrainCircuit, Palette, Trophy]
     const StageIcon = stageIcons[stageIndex] || Target
@@ -249,35 +246,12 @@ export function SixStageJourneyEditor({
             />
           )}
 
-          {stageIndex === 1 && (
-            <ConfirmBlockEditor
-              confirmGoal={currentJourney.stage2_confirmGoal}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, ...patch } }))
-              }
-              readOnly={readOnly}
-              questId={draft.id}
-              showToast={showToast}
-            />
-          )}
-
+          {/* Stage 1 (Xác nhận) & Stage 3 (Trắc nghiệm) được quản lý trực tiếp và trọn vẹn trong StageBlocksCanvas bên dưới */}
           {stageIndex === 2 && (
             <VideoBlockEditor
               video={currentJourney.stage3_video}
               onChange={(patch) =>
                 updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, ...patch } }))
-              }
-              readOnly={readOnly}
-              questId={draft.id}
-              showToast={showToast}
-            />
-          )}
-
-          {stageIndex === 3 && (
-            <QuizBlockEditor
-              quiz={currentJourney.stage4_quiz}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage4_quiz: { ...j.stage4_quiz, ...patch } }))
               }
               readOnly={readOnly}
               questId={draft.id}
