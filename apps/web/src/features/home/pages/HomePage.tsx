@@ -1,7 +1,7 @@
 import { readHouseholdSubscription } from '@/shared/lib/household-billing-api'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, CheckCircle2, Film, Lock, Play, Star, ShieldCheck } from 'lucide-react'
+import { Check, CheckCircle2, Film, Lock, Play, Star } from 'lucide-react'
 import { useOfficialBillingPlan } from '@/shared/lib/official-plan'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
@@ -797,29 +797,32 @@ export function HomePage() {
                   </div>
                 </>
               ) : (
-                <div className="col-span-12 relative overflow-hidden rounded-3xl border-2 border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/50 p-5 sm:p-7 shadow-clay flex flex-col md:flex-row items-center justify-between gap-5 group">
-                  <div className="flex-1 min-w-0 space-y-3">
+                <div className="col-span-12 relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 p-5 sm:p-7 shadow-clay flex flex-col md:flex-row items-center justify-between gap-6 group">
+                  <div className="flex-1 min-w-0 space-y-3.5">
+                    {/* 1. Badges: Phiêu lưu & Tiến độ thực tế */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-black uppercase tracking-wider shadow-2xs flex items-center gap-1.5">
-                        <ShieldCheck size={14} className="text-emerald-600" />
-                        <span>Đặc Quyền Khóa Học Chính Thức</span>
+                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-black shadow-2xs flex items-center gap-1.5 select-none">
+                        <FlatClayCompass size={14} className="shrink-0" />
+                        <span>Hành Trình 6 Đảo Sáng Tạo</span>
                       </span>
-                      <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-black shadow-2xs flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
-                        <span>{totalStarsCount} Sao · Cấp {explorerLevel}</span>
+                      <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-950 border border-orange-200/90 text-xs font-black shadow-2xs flex items-center gap-1.5 select-none">
+                        <span className="text-amber-500">⭐</span>
+                        <span>{totalStarsCount} Sao · {completedStationsCount}/{totalStationsCount} Trạm đã qua</span>
                       </span>
                     </div>
 
+                    {/* 2. Lời gọi phiêu lưu ấm áp & Mô tả khơi gợi trí tò mò */}
                     <div>
-                      <h3 className="font-display text-lg sm:text-2xl font-black text-slate-900 leading-snug">
-                        🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa
+                      <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                        Sẵn sàng ra khơi cùng Mèo AIKI thôi nào, {childDisplayName}! 🌊
                       </h3>
                       <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-2xl">
-                        Bé đã sẵn sàng khám phá trọn vẹn lộ trình {totalStationsCount} trạm học chuẩn Quốc tế và 50 lượt vẽ tranh sáng tạo mỗi tháng.
+                        Mỗi trạm học là một hòn đảo kỳ thú! Con sẽ cùng Mèo AIKI giải mã những bí mật thú vị, vẽ tranh thỏa thích và sáng tác nên những câu chuyện tuyệt vời của riêng mình.
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                    {/* 3. Nhiệm vụ tiếp theo & Nút khám phá Soft Clay trực quan */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                       <button
                         type="button"
                         onClick={() =>
@@ -830,21 +833,39 @@ export function HomePage() {
                                 : OFFICIAL_SIX_ISLANDS[1]?.targetRoute || activeStation.route),
                           )
                         }
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-brand-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer shrink-0"
                       >
-                        <span>🚀 Tiến Vào Học Ngay</span>
+                        <Play className="w-4 h-4 fill-current ml-0.5" />
+                        <span>Khám phá trạm tiếp theo</span>
                       </button>
-                      <span className="text-xs font-bold text-slate-500">
-                        Trạm tiếp theo: <strong className="text-slate-800">{activeStation.stationLabel}: {activeStation.stationTitle}</strong>
-                      </span>
+
+                      <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/90 border border-amber-200/80 shadow-2xs min-w-0">
+                        <span className="text-base select-none shrink-0" aria-hidden="true">🎯</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
+                            {activeStation.islandTitle}
+                          </div>
+                          <div className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                            {activeStation.stationLabel}: {activeStation.stationTitle}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="relative shrink-0 flex items-center justify-center">
-                    <div className="w-28 sm:w-36 h-28 sm:h-36 rounded-3xl bg-gradient-to-tr from-emerald-100 to-amber-100 border-2 border-white shadow-soft flex items-center justify-center overflow-hidden">
+                  {/* 4. Mèo AIKI với Bong bóng thoại hoạt hình tương tác */}
+                  <div className="relative shrink-0 flex flex-col items-center justify-center">
+                    <div className="relative mb-2 px-3 py-1 bg-white rounded-2xl border border-amber-200/90 shadow-2xs text-center select-none">
+                      <span className="text-xs font-black text-amber-950">
+                        {activeStation.catDialogue || `Đi cùng Mee nào ${childDisplayName}!`}
+                      </span>
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-b border-r border-amber-200/90 rotate-45" />
+                    </div>
+
+                    <div className="w-28 sm:w-36 h-28 sm:h-36 rounded-3xl bg-gradient-to-tr from-amber-100 to-orange-100 border-2 border-white shadow-soft flex items-center justify-center overflow-hidden">
                       <img
                         src={designerAssets.catPoses.celebrate || designerAssets.catPoses.guide}
-                        alt="Mèo AIKI Chúc Mừng"
+                        alt="Mèo AIKI Đồng Hành"
                         className="w-24 sm:w-32 h-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>

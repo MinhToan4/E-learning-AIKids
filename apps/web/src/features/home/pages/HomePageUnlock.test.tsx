@@ -234,10 +234,9 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
     expect(document.body.textContent).not.toContain('Học miễn phí Đảo Tiên Quyết')
 
     // Celebratory Soft Clay Hero Card is rendered
-    expect(document.body.textContent).toContain('🎉 Chúc mừng bé! Toàn bộ 6 Đảo Sáng Tạo đã được mở khóa')
-    expect(document.body.textContent).toContain(
-      'Bé đã sẵn sàng khám phá trọn vẹn lộ trình 32 trạm học chuẩn Quốc tế và 50 lượt vẽ tranh sáng tạo mỗi tháng.',
-    )
+    expect(document.body.textContent).toContain('Sẵn sàng ra khơi cùng Mèo AIKI thôi nào')
+    expect(document.body.textContent).toContain('Hành Trình 6 Đảo Sáng Tạo')
+    expect(document.body.textContent).toContain('Khám phá trạm tiếp theo')
 
     // A household purchase cannot manufacture missing learner access in Home.
     const islandLinks = Array.from(container.querySelectorAll('a')).filter((link) =>
@@ -246,9 +245,9 @@ describe('HomePage & ConceptHomeScreen - Checkout Modal Popup Unlock Flow', () =
     expect(islandLinks).toHaveLength(6)
     expect(islandLinks.every((link) => link.getAttribute('href') === '#')).toBe(true)
 
-    // Button "🚀 Tiến Vào Học Ngay" is present and navigates on click
+    // Button "Khám phá trạm tiếp theo" is present and navigates on click
     const enterCourseBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>
-      btn.textContent?.includes('🚀 Tiến Vào Học Ngay'),
+      btn.textContent?.includes('Khám phá trạm tiếp theo'),
     )
     expect(enterCourseBtn).toBeDefined()
 
