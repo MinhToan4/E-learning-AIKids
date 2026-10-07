@@ -424,8 +424,14 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               question={{
                 id: block.id,
                 prompt: block.questionPrompt || block.title || '',
-                layoutMode: block.layoutMode || 'cards',
-                visualUrl: block.visualUrl || block.imageUrl || '',
+                layoutMode: block.layoutMode || (
+                  (Array.isArray(block.questionOptions) && block.questionOptions.some((o) => Boolean(o.imageUrl))) ||
+                  (Array.isArray(block.choiceItems) && block.choiceItems.some((ci) => Boolean(ci.imageUrl))) ||
+                  (Array.isArray(block.optionImages) && block.optionImages.some(Boolean))
+                    ? 'cards'
+                    : 'split'
+                ),
+                visualUrl: block.visualUrl || block.imageUrl || card?.imageUrl || '',
                 options: (Array.isArray(block.questionOptions) && block.questionOptions.length > 0)
                   ? block.questionOptions
                   : (Array.isArray(block.choiceItems) && block.choiceItems.length > 0)

@@ -1368,8 +1368,29 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
     (b) => !existingQuizBlocks.includes(b) && b.type !== 'voice'
   )
 
+  const fallbackQuizVisual =
+    journey.stage3_video?.posterUrl ||
+    journey.stage1_goal?.imageUrl ||
+    journey.stage2_confirmGoal?.visualUrl ||
+    '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+
   if (existingQuizBlocks.length > 0) {
-    return [...existingQuizBlocks, ...authoredExtras]
+    const patchedExisting = existingQuizBlocks.map((b) => {
+      const hasOptionImages = b.questionOptions?.some((o) => Boolean(o.imageUrl))
+      const visual = b.visualUrl || b.imageUrl || fallbackQuizVisual
+      // If layoutMode was 'cards' but there are no option images and no custom visual was set,
+      // adapt to 'split' so the teacher sees the situation image and layout matches frontend.
+      const layoutMode = (b.layoutMode === 'cards' && !hasOptionImages)
+        ? 'split'
+        : (b.layoutMode || (hasOptionImages ? 'cards' : 'split'))
+      return {
+        ...b,
+        visualUrl: visual,
+        imageUrl: visual,
+        layoutMode,
+      }
+    })
+    return [...patchedExisting, ...authoredExtras]
   }
 
   const questions = journey.stage4_quiz?.questions || []
@@ -1380,8 +1401,9 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
         type: 'quiz-question',
         title: 'Câu hỏi trắc nghiệm 1',
         questionPrompt: 'Bé hãy chọn câu trả lời đúng nhất nhé!',
-        layoutMode: 'cards',
-        visualUrl: '',
+        layoutMode: 'split',
+        visualUrl: fallbackQuizVisual,
+        imageUrl: fallbackQuizVisual,
         questionOptions: [
           { id: 'opt-1', text: 'Phương án A (Chính xác)', imageUrl: '' },
           { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
@@ -1393,26 +1415,35 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
     ]
   }
 
-  const hydratedBlocks: StageBlockItem[] = questions.map((q, idx) => ({
-    id: `${COURSE_QUIZ_BLOCK_PREFIX}${q.id || idx + 1}`,
-    type: 'quiz-question',
-    title: q.prompt ? (q.prompt.length > 40 ? q.prompt.slice(0, 40) + '...' : q.prompt) : `Câu hỏi ${idx + 1}`,
-    questionPrompt: q.prompt || '',
-    layoutMode: q.layoutMode || (q.visualUrl ? 'split' : 'cards'),
-    visualUrl: q.visualUrl || '',
-    questionOptions: (Array.isArray(q.options) && q.options.length > 0)
-      ? q.options.map((opt: any, oIdx: number) => ({
-          id: typeof opt === 'string' ? `opt-${oIdx + 1}` : (opt.id || `opt-${oIdx + 1}`),
-          text: typeof opt === 'string' ? opt : (opt.text || ''),
-          imageUrl: typeof opt === 'string' ? (q.optionImages?.[oIdx] || '') : (opt.imageUrl || q.optionImages?.[oIdx] || ''),
-        }))
-      : [
-          { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
-          { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
-        ],
-    correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-    explanation: q.explanation || '',
-  }))
+  const hydratedBlocks: StageBlockItem[] = questions.map((q, idx) => {
+    const hasOptionImages =
+      (Array.isArray(q.options) && q.options.some((opt: any) => typeof opt !== 'string' && Boolean(opt.imageUrl))) ||
+      Boolean(q.optionImages?.some(Boolean))
+    const visual = q.visualUrl || fallbackQuizVisual
+    const layoutMode = q.layoutMode || (hasOptionImages ? 'cards' : 'split')
+
+    return {
+      id: `${COURSE_QUIZ_BLOCK_PREFIX}${q.id || idx + 1}`,
+      type: 'quiz-question',
+      title: q.prompt ? (q.prompt.length > 40 ? q.prompt.slice(0, 40) + '...' : q.prompt) : `Câu hỏi ${idx + 1}`,
+      questionPrompt: q.prompt || '',
+      layoutMode,
+      visualUrl: visual,
+      imageUrl: visual,
+      questionOptions: (Array.isArray(q.options) && q.options.length > 0)
+        ? q.options.map((opt: any, oIdx: number) => ({
+            id: typeof opt === 'string' ? `opt-${oIdx + 1}` : (opt.id || `opt-${oIdx + 1}`),
+            text: typeof opt === 'string' ? opt : (opt.text || ''),
+            imageUrl: typeof opt === 'string' ? (q.optionImages?.[oIdx] || '') : (opt.imageUrl || q.optionImages?.[oIdx] || ''),
+          }))
+        : [
+            { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+            { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+          ],
+      correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+      explanation: q.explanation || '',
+    }
+  })
 
   return [...hydratedBlocks, ...authoredExtras]
 }

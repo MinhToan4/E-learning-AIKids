@@ -35,8 +35,8 @@ export function QuizBlockEditor({
       options: ['Phương án A (Đáp án đúng)', 'Phương án B'],
       optionImages: ['', ''],
       correctIndex: 0,
-      layoutMode: 'cards',
-      visualUrl: '',
+      layoutMode: 'split',
+      visualUrl: (quiz as any)?.posterUrl || '',
       explanation: 'Giải thích vì sao đáp án này chính xác...',
     })
     onChange({ questions: nextQs })
@@ -127,8 +127,8 @@ export function QuizBlockEditor({
             question={{
               id: q.id,
               prompt: q.prompt,
-              layoutMode: q.layoutMode || 'cards',
-              visualUrl: q.visualUrl || '',
+              layoutMode: q.layoutMode || (q.optionImages?.some(Boolean) ? 'cards' : 'split'),
+              visualUrl: q.visualUrl || (quiz as any)?.posterUrl || '',
               options: q.options.map((optText, optIdx) => ({
                 id: `opt-${optIdx}`,
                 text: optText,

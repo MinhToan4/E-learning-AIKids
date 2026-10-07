@@ -123,18 +123,26 @@ export function useLectureAuthoring({
               Boolean(b.questionPrompt)
           )
           if (quizBlocks.length > 0) {
-            const mappedQuestions = quizBlocks.map((b, qIdx) => ({
-              id: b.id.replace('course-quiz-', ''),
-              prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
-              options: (b.questionOptions && b.questionOptions.length > 0)
-                ? b.questionOptions.map((o) => o.text)
-                : (b.optionLabels || ['Phương án A', 'Phương án B']),
-              correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
-              explanation: b.explanation || b.tip || '',
-              visualUrl: b.visualUrl || b.imageUrl || '',
-              layoutMode: b.layoutMode || 'cards',
-              optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
-            }))
+            const fallbackQuizVisual =
+              nextSixStage.stage3_video?.posterUrl ||
+              nextSixStage.stage1_goal?.imageUrl ||
+              nextSixStage.stage2_confirmGoal?.visualUrl ||
+              '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+            const mappedQuestions = quizBlocks.map((b, qIdx) => {
+              const hasOptImages = b.questionOptions?.some((o) => Boolean(o.imageUrl))
+              return {
+                id: b.id.replace('course-quiz-', ''),
+                prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
+                options: (b.questionOptions && b.questionOptions.length > 0)
+                  ? b.questionOptions.map((o) => o.text)
+                  : (b.optionLabels || ['Phương án A', 'Phương án B']),
+                correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
+                explanation: b.explanation || b.tip || '',
+                visualUrl: b.visualUrl || b.imageUrl || fallbackQuizVisual,
+                layoutMode: b.layoutMode || (hasOptImages ? 'cards' : 'split'),
+                optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
+              }
+            })
             nextSixStage = {
               ...nextSixStage,
               stage4_quiz: {
@@ -268,13 +276,20 @@ export function useLectureAuthoring({
     } else if (blockId === 'layout-split') {
       newBlock = { id: `blk-split-${ts}`, type: 'layout-split', title: '2 Cột: Chữ + Ảnh', body: '' }
     } else if (blockId === 'layout-confirm-option' || blockId === 'quiz-question') {
+      const defaultVisual =
+        draft.sixStageJourney?.stage3_video?.posterUrl ||
+        draft.sixStageJourney?.stage1_goal?.imageUrl ||
+        draft.sixStageJourney?.stage2_confirmGoal?.visualUrl ||
+        draft.learnCards[0]?.imageUrl ||
+        '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
       newBlock = {
         id: `blk-quiz-${ts}`,
         type: 'layout-confirm-option',
         title: 'Câu hỏi trắc nghiệm mới',
         questionPrompt: 'Chọn đáp án chính xác nhất:',
-        layoutMode: 'cards',
-        visualUrl: '',
+        layoutMode: 'split',
+        visualUrl: defaultVisual,
+        imageUrl: defaultVisual,
         correctIndex: 0,
         explanation: 'Giải thích vì sao đáp án này chính xác...',
         questionOptions: [
