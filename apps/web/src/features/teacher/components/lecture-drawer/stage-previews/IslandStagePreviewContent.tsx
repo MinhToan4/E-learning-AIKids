@@ -185,36 +185,37 @@ export function IslandStagePreviewContent({
         </>
       )}
 
-      {(stageCard || card) &&
-        getStageBlocks(stageCard || card!, stageIndex).some(
-          (block) =>
-            !block.id.startsWith('course-goal-') &&
-            !block.id.startsWith('course-confirm-') &&
-            (!isRule3Steps || stageIndex !== 0 || block.type !== 'video'),
-        ) && (
+      {(() => {
+        const rawBlocks = (stageCard || card) ? getStageBlocks(stageCard || card!, stageIndex) : []
+        const extraBlocks = rawBlocks.filter((block) => {
+          if (block.id.startsWith('course-goal-')) return false
+          if (block.id.startsWith('course-confirm-')) return false
+          if (block.id.startsWith('course-video-')) return false
+          if (block.id.startsWith('course-quiz-')) return false
+          if (block.id.startsWith('course-practice-')) return false
+          if (block.id.startsWith('course-reward-')) return false
+          if (stageIndex === 1 && (block.type === 'layout-confirm-option' || block.type === 'quiz-question' || block.id.startsWith('blk-quiz-'))) return false
+          if (stageIndex === 2 && block.type === 'video') return false
+          if (stageIndex === 3 && (block.type === 'quiz-question' || block.type === 'layout-confirm-option' || block.id.startsWith('blk-quiz-'))) return false
+          if (stageIndex === 4 && block.type === 'practice') return false
+          if (stageIndex === 5 && block.type === 'reward') return false
+          if (isRule3Steps && stageIndex === 0 && block.type === 'video') return false
+          return true
+        })
+        if (extraBlocks.length === 0) return null
+        return (
           <div className="mt-4 border-t border-sky-100 pt-4">
             <StudentStageBlocksView
               card={{
                 ...(stageCard || card!),
-                contentBlocks: getStageBlocks(
-                  stageCard || card!,
-                  stageIndex,
-                ).filter((block) => {
-                  if (
-                    block.id.startsWith('course-goal-') ||
-                    block.id.startsWith('course-confirm-')
-                  )
-                    return false
-                  if (isRule3Steps && stageIndex === 0 && block.type === 'video')
-                    return false
-                  return true
-                }),
+                contentBlocks: extraBlocks,
               }}
               stageIndex={stageIndex}
               isMobile={isMobile}
             />
           </div>
-        )}
+        )
+      })()}
     </div>
   )
 }

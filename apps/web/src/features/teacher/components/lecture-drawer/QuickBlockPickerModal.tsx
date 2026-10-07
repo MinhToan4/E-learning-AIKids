@@ -12,6 +12,8 @@ import {
   Key,
   Scale,
   CheckCircle2,
+  Palette,
+  Trophy,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
@@ -119,6 +121,22 @@ export const QUICK_BLOCK_CATEGORIES: QuickBlockCategory[] = [
         badge: 'Trắc nghiệm',
         color: 'border-emerald-300 bg-emerald-50 text-emerald-950',
         icon: CheckCircle2,
+      },
+      {
+        id: 'practice',
+        name: 'Xưởng Thực Hành Sáng Tạo',
+        desc: 'Bộ công cụ 7 Creative Engines và quy trình 4 bước vẽ tranh cùng AIKI',
+        badge: 'Xưởng vẽ',
+        color: 'border-pink-300 bg-pink-50 text-pink-950',
+        icon: Palette,
+      },
+      {
+        id: 'reward',
+        name: 'Màn Trao Thưởng & Kết Thúc',
+        desc: 'Vinh danh hoàn thành, huy hiệu sao, điểm XP và dẫn sang bài tiếp theo',
+        badge: 'Về đích',
+        color: 'border-amber-400 bg-amber-50 text-amber-950',
+        icon: Trophy,
       },
     ],
   },

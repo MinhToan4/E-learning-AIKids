@@ -257,6 +257,34 @@ export function LectureDrawer({
       const baseJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
       let finalJourney = baseJourney ? { ...baseJourney, stageBlockEditorVersion: 3 } : undefined
       if (finalJourney) {
+        // Stage 0 Goal sync
+        const goalCard = draft.learnCards[0]
+        if (goalCard?.contentBlocks) {
+          const textBlock = goalCard.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-text') || b.type === 'text' || b.type === 'layout-text'
+          )
+          const fourKeysBlock = goalCard.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-four-keys') || b.type === 'layout-four-keys'
+          )
+          const imageBlock = goalCard.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-image') || b.type === 'images' || Boolean(b.imageUrl)
+          )
+          const voiceBlock = goalCard.contentBlocks.find(
+            (b) => b.type === 'voice' || Boolean(b.readText)
+          )
+          finalJourney.stage1_goal = {
+            ...finalJourney.stage1_goal,
+            title: textBlock?.title ?? finalJourney.stage1_goal?.title ?? '',
+            goalText: textBlock?.body ?? finalJourney.stage1_goal?.goalText ?? '',
+            imageUrl: imageBlock?.imageUrl || finalJourney.stage1_goal?.imageUrl || '',
+            speech: voiceBlock?.body || voiceBlock?.readText || finalJourney.stage1_goal?.speech || '',
+            keyPoints: fourKeysBlock?.visualItems?.length
+              ? fourKeysBlock.visualItems.map((v) => v.text || v.label).filter(Boolean)
+              : (finalJourney.stage1_goal?.keyPoints || []),
+          }
+        }
+
+        // Stage 1 Confirm sync
         const confirmBlock = draft.learnCards[1]?.contentBlocks?.find(
           (b) =>
             b.id === 'course-confirm-quiz' ||
@@ -283,6 +311,22 @@ export function LectureDrawer({
           }
         }
 
+        // Stage 2 Video sync
+        const videoBlock = draft.learnCards[2]?.contentBlocks?.find(
+          (b) => b.type === 'video' || b.id.startsWith('course-video-')
+        )
+        if (videoBlock) {
+          finalJourney.stage3_video = {
+            ...finalJourney.stage3_video,
+            title: videoBlock.title || finalJourney.stage3_video?.title || 'Video bài giảng',
+            videoUrl: videoBlock.videoUrl || draft.learnCards[2]?.videoUrl || finalJourney.stage3_video?.videoUrl || '',
+            posterUrl: videoBlock.posterUrl || finalJourney.stage3_video?.posterUrl || '',
+            durationSec: typeof videoBlock.durationSec === 'number' ? videoBlock.durationSec : (finalJourney.stage3_video?.durationSec || 180),
+            timestamps: videoBlock.timestamps || finalJourney.stage3_video?.timestamps || [],
+          }
+        }
+
+        // Stage 3 Quiz sync
         const quizBlocks = draft.learnCards[3]?.contentBlocks?.filter(
           (b) =>
             b.type === 'quiz-question' ||
@@ -305,6 +349,31 @@ export function LectureDrawer({
               layoutMode: b.layoutMode || 'cards',
               optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
             })),
+          }
+        }
+
+        // Stage 4 Practice sync
+        const practiceBlock = draft.learnCards[4]?.contentBlocks?.find(
+          (b) => b.type === 'practice' || b.id.startsWith('course-practice-')
+        )
+        if (practiceBlock) {
+          finalJourney.stage5_practice = {
+            ...finalJourney.stage5_practice,
+            ...(practiceBlock.practiceConfig || {}),
+            title: practiceBlock.title || practiceBlock.practiceConfig?.title || finalJourney.stage5_practice?.title || 'Thực hành',
+          }
+        }
+
+        // Stage 5 Reward sync
+        const rewardBlock = draft.learnCards[5]?.contentBlocks?.find(
+          (b) => b.type === 'reward' || b.id.startsWith('course-reward-')
+        )
+        if (rewardBlock) {
+          finalJourney.stage6_completion = {
+            ...finalJourney.stage6_completion,
+            ...(rewardBlock.rewardConfig || {}),
+            title: rewardBlock.title || rewardBlock.rewardConfig?.title || finalJourney.stage6_completion?.title || 'Chúc mừng hoàn thành bài học!',
+            congratsMessage: rewardBlock.body || rewardBlock.rewardConfig?.congratsMessage || finalJourney.stage6_completion?.congratsMessage || '',
           }
         }
 

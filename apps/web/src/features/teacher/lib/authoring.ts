@@ -110,6 +110,8 @@ export type ContentBlockType =
   | 'poster'            // Poster Quy Tắc Vàng
   | 'images'            // Album Ảnh Minh Họa
   | 'quiz-question'     // Câu Hỏi Trắc Nghiệm / Xác Nhận Kéo Thả (Quiz Block)
+  | 'practice'          // Kịch bản thực hành AI Studio (Chặng 5)
+  | 'reward'            // Màn kết thúc & Trao thưởng (Chặng 6)
 
 export interface StageBlockItem {
   id: string
@@ -121,6 +123,27 @@ export interface StageBlockItem {
   imageUrl?: string
   imageAlt?: string
   videoUrl?: string
+  posterUrl?: string
+  durationSec?: number
+  timestamps?: Array<{
+    label: string
+    startSec: number
+    endSec: number
+    speech?: string
+  }>
+  practiceConfig?: any
+  rewardConfig?: {
+    id?: string
+    title?: string
+    congratsMessage?: string
+    rewardBadge?: {
+      name: string
+      iconUrl?: string
+      stars: number
+      xp: number
+    }
+    nextLessonSlug?: string
+  }
   formula?: string
   visualItems?: LearnVisualItemDraft[]
   optionImages?: [string, string] | string[]
@@ -1159,7 +1182,10 @@ export const ISLAND_6_STAGE_NAMES = [
 
 export const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
 export const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
+export const COURSE_VIDEO_BLOCK_PREFIX = 'course-video-'
 export const COURSE_QUIZ_BLOCK_PREFIX = 'course-quiz-'
+export const COURSE_PRACTICE_BLOCK_PREFIX = 'course-practice-'
+export const COURSE_REWARD_BLOCK_PREFIX = 'course-reward-'
 
 export const FOUR_KEYS_METADATA = [
   { label: 'CÁI GÌ', sub: 'Ai, đồ vật gì', tone: 'sky' as const, keyImage: '/assets/aiki-keys/key_what_blue.jpg' },
@@ -1389,6 +1415,100 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
   }))
 
   return [...hydratedBlocks, ...authoredExtras]
+}
+
+export function buildCourseVideoBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  const existingVideo = existing.find((b) => b.type === 'video' || b.id.startsWith(COURSE_VIDEO_BLOCK_PREFIX))
+  const authoredExtras = existing.filter((b) => b !== existingVideo && b.type !== 'voice')
+
+  if (existingVideo) {
+    return [
+      {
+        ...existingVideo,
+        id: existingVideo.id || `${COURSE_VIDEO_BLOCK_PREFIX}main`,
+        type: 'video',
+        title: existingVideo.title || journey.stage3_video?.title || 'Video bài giảng',
+        videoUrl: existingVideo.videoUrl || journey.stage3_video?.videoUrl || '',
+        posterUrl: existingVideo.posterUrl || journey.stage3_video?.posterUrl || '',
+        durationSec: existingVideo.durationSec || journey.stage3_video?.durationSec || 180,
+        timestamps: (existingVideo.timestamps && existingVideo.timestamps.length > 0)
+          ? existingVideo.timestamps
+          : (journey.stage3_video?.timestamps || []),
+      },
+      ...authoredExtras,
+    ]
+  }
+
+  return [
+    {
+      id: `${COURSE_VIDEO_BLOCK_PREFIX}main`,
+      type: 'video',
+      title: journey.stage3_video?.title || 'Video bài giảng',
+      videoUrl: journey.stage3_video?.videoUrl || '',
+      posterUrl: journey.stage3_video?.posterUrl || '',
+      durationSec: journey.stage3_video?.durationSec || 180,
+      timestamps: journey.stage3_video?.timestamps || [],
+    },
+    ...authoredExtras,
+  ]
+}
+
+export function buildCoursePracticeBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  const existingPractice = existing.find((b) => b.type === 'practice' || b.id.startsWith(COURSE_PRACTICE_BLOCK_PREFIX))
+  const authoredExtras = existing.filter((b) => b !== existingPractice && b.type !== 'voice')
+
+  if (existingPractice) {
+    return [
+      {
+        ...existingPractice,
+        id: existingPractice.id || `${COURSE_PRACTICE_BLOCK_PREFIX}main`,
+        type: 'practice',
+        title: existingPractice.title || journey.stage5_practice?.title || 'Thực hành sáng tạo',
+        practiceConfig: existingPractice.practiceConfig || journey.stage5_practice,
+      },
+      ...authoredExtras,
+    ]
+  }
+
+  return [
+    {
+      id: `${COURSE_PRACTICE_BLOCK_PREFIX}main`,
+      type: 'practice',
+      title: journey.stage5_practice?.title || 'Thực hành sáng tạo',
+      practiceConfig: journey.stage5_practice,
+    },
+    ...authoredExtras,
+  ]
+}
+
+export function buildCourseRewardBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  const existingReward = existing.find((b) => b.type === 'reward' || b.id.startsWith(COURSE_REWARD_BLOCK_PREFIX))
+  const authoredExtras = existing.filter((b) => b !== existingReward && b.type !== 'voice')
+
+  if (existingReward) {
+    return [
+      {
+        ...existingReward,
+        id: existingReward.id || `${COURSE_REWARD_BLOCK_PREFIX}main`,
+        type: 'reward',
+        title: existingReward.title || journey.stage6_completion?.title || 'Chúc mừng hoàn thành bài học!',
+        body: existingReward.body || journey.stage6_completion?.congratsMessage || '',
+        rewardConfig: existingReward.rewardConfig || journey.stage6_completion,
+      },
+      ...authoredExtras,
+    ]
+  }
+
+  return [
+    {
+      id: `${COURSE_REWARD_BLOCK_PREFIX}main`,
+      type: 'reward',
+      title: journey.stage6_completion?.title || 'Chúc mừng hoàn thành bài học!',
+      body: journey.stage6_completion?.congratsMessage || '',
+      rewardConfig: journey.stage6_completion,
+    },
+    ...authoredExtras,
+  ]
 }
 
 
@@ -1795,11 +1915,17 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
           ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland && index === 1 && sixStageJourney
             ? buildCourseConfirmBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 2 && sixStageJourney
+            ? buildCourseVideoBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland && index === 3 && sixStageJourney
             ? buildCourseQuizBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 4 && sixStageJourney
+            ? buildCoursePracticeBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 5 && sixStageJourney
+            ? buildCourseRewardBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland
               ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
-              : encoded.contentBlocks ?? card.contentBlocks))),
+              : encoded.contentBlocks ?? card.contentBlocks)))))),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: isIsland && index === 0 && sixStageJourney
           ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }

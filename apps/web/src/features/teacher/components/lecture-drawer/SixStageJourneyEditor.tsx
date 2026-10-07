@@ -35,11 +35,8 @@ import {
 import { StudentStagePreview } from './StudentStagePreview'
 import { StageBlocksCanvas } from './StageBlocksCanvas'
 import {
-  GoalBlockEditor,
-  ConfirmBlockEditor,
   VideoBlockEditor,
   QuizBlockEditor,
-  PracticeBlockEditor,
   RewardBlockEditor,
 } from './stage-editors'
 
@@ -232,59 +229,7 @@ export function SixStageJourneyEditor({
             </div>
           </div>
 
-          {/* Form nội dung từng chặng */}
-          {stageIndex === 0 && (
-            <GoalBlockEditor
-              goal={currentJourney.stage1_goal}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage1_goal: { ...j.stage1_goal, ...patch } }))
-              }
-              readOnly={readOnly}
-              questId={draft.id}
-              previewAikiVoice={previewAikiVoice}
-              showToast={showToast}
-            />
-          )}
-
-          {/* Stage 1 (Xác nhận) & Stage 3 (Trắc nghiệm) được quản lý trực tiếp và trọn vẹn trong StageBlocksCanvas bên dưới */}
-          {stageIndex === 2 && (
-            <VideoBlockEditor
-              video={currentJourney.stage3_video}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage3_video: { ...j.stage3_video, ...patch } }))
-              }
-              readOnly={readOnly}
-              questId={draft.id}
-              showToast={showToast}
-            />
-          )}
-
-          {stageIndex === 4 && (
-            <PracticeBlockEditor
-              practice={currentJourney.stage5_practice}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage5_practice: { ...j.stage5_practice, ...patch } }))
-              }
-              readOnly={readOnly}
-              previewAikiVoice={previewAikiVoice}
-              showToast={showToast}
-            />
-          )}
-
-          {stageIndex === 5 && (
-            <RewardBlockEditor
-              completion={currentJourney.stage6_completion}
-              stage1ImageUrl={currentJourney.stage1_goal.imageUrl}
-              onChange={(patch) =>
-                updateSixStage((j) => ({ ...j, stage6_completion: { ...j.stage6_completion, ...patch } }))
-              }
-              readOnly={readOnly}
-              questId={draft.id}
-              showToast={showToast}
-            />
-          )}
-
-          {/* Canvas blocks kéo thả */}
+          {/* Toàn bộ 6 chặng được quản lý trực tiếp và trọn vẹn trong StageBlocksCanvas bên dưới */}
           <StageBlocksCanvas
             stageIndex={stageIndex}
             card={islandCard}

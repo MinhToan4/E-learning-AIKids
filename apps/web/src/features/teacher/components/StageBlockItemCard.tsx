@@ -20,6 +20,9 @@ import {
   ImagesBlockEditor,
   InteractiveQuestionBlockEditor,
 } from './stage-block-editors'
+import { VideoBlockEditor } from './lecture-drawer/stage-editors/VideoBlockEditor'
+import { PracticeBlockEditor } from './lecture-drawer/stage-editors/PracticeBlockEditor'
+import { RewardBlockEditor } from './lecture-drawer/stage-editors/RewardBlockEditor'
 
 export { LECTURE_GESTURES, KEY_COLOR_PRESETS }
 
@@ -47,6 +50,10 @@ export function getBlockIcon(type: ContentBlockType): string {
       return '🐱'
     case 'video':
       return '🎬'
+    case 'practice':
+      return '🎨'
+    case 'reward':
+      return '🏆'
     case 'versus-ab':
       return '🖼️'
     case 'dialogue':
@@ -61,6 +68,7 @@ export function getBlockIcon(type: ContentBlockType): string {
       return '📦'
   }
 }
+
 
 export function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
   switch (type) {
@@ -87,6 +95,10 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
       return 'GIỌNG ĐỌC & LỜI THOẠI HƯỚNG DẪN'
     case 'video':
       return 'VIDEO BÀI GIẢNG'
+    case 'practice':
+      return customTitle || 'KỊCH BẢN THỰC HÀNH AI STUDIO'
+    case 'reward':
+      return customTitle || 'MÀN KẾT THÚC & TRAO THƯỞNG'
     case 'versus-ab':
       return '2 TRANH ĐỐI ĐẦU A/B'
     case 'dialogue':
@@ -471,6 +483,77 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               customBadge={block.type === 'layout-confirm-option' ? 'XÁC NHẬN MỤC TIÊU' : 'CÂU HỎI TRẮC NGHIỆM'}
               customTitle={block.title || 'Câu hỏi trắc nghiệm'}
             />
+          ) : block.type === 'video' ? (
+            <VideoBlockEditor
+              video={{
+                id: block.id,
+                title: block.title || card.title,
+                videoUrl: block.videoUrl || card.videoUrl || '',
+                posterUrl: block.posterUrl || '',
+                durationSec: block.durationSec || 180,
+                timestamps: block.timestamps || [],
+              }}
+              onChange={(patch) => {
+                updateBlockItem(stageIndex, block.id, patch)
+                if (patch.videoUrl !== undefined) {
+                  updateLearnCard(stageIndex, { videoUrl: patch.videoUrl })
+                }
+              }}
+              readOnly={readOnly}
+              questId={courseId}
+              showToast={showToast}
+            />
+          ) : block.type === 'practice' ? (
+            <PracticeBlockEditor
+              practice={
+                block.practiceConfig || {
+                  id: block.id,
+                  title: block.title || 'Thực hành',
+                  subjectName: '',
+                  badge: '',
+                  illustrationType: '',
+                  lockedFeatures: [],
+                  akiMotto: '',
+                  maxAttempts: 3,
+                  workflowSteps: [],
+                }
+              }
+              onChange={(patch) => {
+                updateBlockItem(stageIndex, block.id, {
+                  practiceConfig: { ...(block.practiceConfig || {}), ...patch },
+                  title: patch.title ?? block.title,
+                })
+              }}
+              readOnly={readOnly}
+              previewAikiVoice={previewAikiVoice}
+              showToast={showToast}
+            />
+          ) : block.type === 'reward' ? (
+            <RewardBlockEditor
+              completion={{
+                id: block.rewardConfig?.id || block.id,
+                title: block.rewardConfig?.title || block.title || 'Chúc mừng hoàn thành bài học!',
+                congratsMessage: block.rewardConfig?.congratsMessage || block.body || '',
+                rewardBadge: block.rewardConfig?.rewardBadge || {
+                  name: 'Huy hiệu hoàn thành',
+                  iconUrl: '',
+                  stars: 3,
+                  xp: 50,
+                },
+                nextLessonSlug: block.rewardConfig?.nextLessonSlug || '',
+              }}
+              stage1ImageUrl={card.imageUrl}
+              onChange={(patch) => {
+                updateBlockItem(stageIndex, block.id, {
+                  rewardConfig: { ...(block.rewardConfig || {}), ...patch },
+                  title: patch.title ?? block.title,
+                  body: patch.congratsMessage ?? block.body,
+                })
+              }}
+              readOnly={readOnly}
+              questId={courseId}
+              showToast={showToast}
+            />
           ) : (
             <LayoutBlocksEditor
               block={block}
@@ -491,6 +574,7 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               optionLetter={optionLetter}
             />
           )}
+
 
           {block.type === 'voice' && (
             <VoiceBlockEditor

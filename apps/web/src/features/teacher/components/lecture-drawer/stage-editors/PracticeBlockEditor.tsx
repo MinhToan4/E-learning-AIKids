@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronUp, ChevronDown, Wand2, Volume2, Palette, Key, Stethoscope, Layers, Lock, Sparkles, BookOpen } from 'lucide-react'
+import { ChevronUp, ChevronDown, Volume2, Palette, Key, Stethoscope, Layers, Lock, Award, BookOpen, Pencil } from 'lucide-react'
 import type { LessonSixStageJourney, SixStagePractice } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { CREATIVE_ENGINES, ENGINE_DEFAULT_MOTTOS } from '../lecture-drawer-constants'
@@ -20,11 +20,11 @@ function renderCreativeEngineIcon(mode: string) {
     case 'identity-lock':
       return <Lock size={20} className="text-cyan-600" />
     case 'card-forge':
-      return <Sparkles size={20} className="text-amber-600" />
+      return <Award size={20} className="text-amber-600" />
     case 'creative-notebook':
       return <BookOpen size={20} className="text-amber-600" />
     default:
-      return <Sparkles size={20} className="text-slate-600" />
+      return <Palette size={20} className="text-slate-600" />
   }
 }
 
@@ -188,8 +188,8 @@ export function PracticeBlockEditor({
                 className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
                 title="Nạp lại lời dẫn chuẩn tương ứng với engine đang chọn"
               >
-                <Wand2 size={11} />
-                <span>🪄 Lời dẫn chuẩn</span>
+                <Pencil size={11} />
+                <span>✏️ Lời dẫn chuẩn</span>
               </button>
             )}
             {previewAikiVoice && (

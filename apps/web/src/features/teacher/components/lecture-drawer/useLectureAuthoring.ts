@@ -42,7 +42,33 @@ export function useLectureAuthoring({
 
       // Auto 2-Way Sync cho Six Stage Journey
       if (nextSixStage && patch.contentBlocks) {
-        if (index === 1) {
+        if (index === 0) {
+          const textBlock = patch.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-text') || b.type === 'text' || b.type === 'layout-text'
+          )
+          const fourKeysBlock = patch.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-four-keys') || b.type === 'layout-four-keys'
+          )
+          const imageBlock = patch.contentBlocks.find(
+            (b) => b.id.startsWith('course-goal-image') || b.type === 'images' || Boolean(b.imageUrl)
+          )
+          const voiceBlock = patch.contentBlocks.find(
+            (b) => b.type === 'voice' || Boolean(b.readText)
+          )
+          nextSixStage = {
+            ...nextSixStage,
+            stage1_goal: {
+              ...nextSixStage.stage1_goal,
+              title: textBlock?.title ?? nextSixStage.stage1_goal?.title ?? '',
+              goalText: textBlock?.body ?? nextSixStage.stage1_goal?.goalText ?? '',
+              imageUrl: imageBlock?.imageUrl || nextSixStage.stage1_goal?.imageUrl || '',
+              speech: voiceBlock?.body || voiceBlock?.readText || nextSixStage.stage1_goal?.speech || '',
+              keyPoints: fourKeysBlock?.visualItems?.length
+                ? fourKeysBlock.visualItems.map((v) => v.text || v.label).filter(Boolean)
+                : (nextSixStage.stage1_goal?.keyPoints || []),
+            },
+          }
+        } else if (index === 1) {
           const confirmBlock = patch.contentBlocks.find(
             (b) =>
               b.id === 'course-confirm-quiz' ||
@@ -68,6 +94,23 @@ export function useLectureAuthoring({
                 explanation: confirmBlock.explanation || confirmBlock.tip || nextSixStage.stage2_confirmGoal?.explanation || '',
                 visualUrl: confirmBlock.visualUrl || confirmBlock.imageUrl || nextSixStage.stage2_confirmGoal?.visualUrl || '',
                 layoutMode: confirmBlock.layoutMode || nextSixStage.stage2_confirmGoal?.layoutMode || 'cards',
+              },
+            }
+          }
+        } else if (index === 2) {
+          const videoBlock = patch.contentBlocks.find(
+            (b) => b.type === 'video' || b.id.startsWith('course-video-')
+          )
+          if (videoBlock) {
+            nextSixStage = {
+              ...nextSixStage,
+              stage3_video: {
+                ...nextSixStage.stage3_video,
+                title: videoBlock.title || nextSixStage.stage3_video?.title || 'Video bài giảng',
+                videoUrl: videoBlock.videoUrl || nextSixStage.stage3_video?.videoUrl || '',
+                posterUrl: videoBlock.posterUrl || nextSixStage.stage3_video?.posterUrl || '',
+                durationSec: typeof videoBlock.durationSec === 'number' ? videoBlock.durationSec : (nextSixStage.stage3_video?.durationSec || 180),
+                timestamps: videoBlock.timestamps || nextSixStage.stage3_video?.timestamps || [],
               },
             }
           }
@@ -97,6 +140,35 @@ export function useLectureAuthoring({
               stage4_quiz: {
                 ...nextSixStage.stage4_quiz,
                 questions: mappedQuestions,
+              },
+            }
+          }
+        } else if (index === 4) {
+          const practiceBlock = patch.contentBlocks.find(
+            (b) => b.type === 'practice' || b.id.startsWith('course-practice-')
+          )
+          if (practiceBlock) {
+            nextSixStage = {
+              ...nextSixStage,
+              stage5_practice: {
+                ...nextSixStage.stage5_practice,
+                ...(practiceBlock.practiceConfig || {}),
+                title: practiceBlock.title || practiceBlock.practiceConfig?.title || nextSixStage.stage5_practice?.title || 'Thực hành',
+              },
+            }
+          }
+        } else if (index === 5) {
+          const rewardBlock = patch.contentBlocks.find(
+            (b) => b.type === 'reward' || b.id.startsWith('course-reward-')
+          )
+          if (rewardBlock) {
+            nextSixStage = {
+              ...nextSixStage,
+              stage6_completion: {
+                ...nextSixStage.stage6_completion,
+                ...(rewardBlock.rewardConfig || {}),
+                title: rewardBlock.title || rewardBlock.rewardConfig?.title || nextSixStage.stage6_completion?.title || 'Chúc mừng hoàn thành bài học!',
+                congratsMessage: rewardBlock.body || rewardBlock.rewardConfig?.congratsMessage || nextSixStage.stage6_completion?.congratsMessage || '',
               },
             }
           }
@@ -217,6 +289,43 @@ export function useLectureAuthoring({
         optionImages: ['', ''],
         isCorrect: true,
       } as any
+    } else if (blockId === 'practice') {
+      newBlock = {
+        id: `blk-practice-${ts}`,
+        type: 'practice',
+        title: 'Thực hành sáng tạo',
+        practiceConfig: {
+          id: `practice-${ts}`,
+          title: 'Thực hành sáng tạo',
+          subjectName: 'Sáng tạo AIKI',
+          badge: 'Nghệ sĩ AI nhí',
+          illustrationType: 'drawing',
+          lockedFeatures: [],
+          akiMotto: 'Thỏa sức sáng tạo không giới hạn!',
+          maxAttempts: 3,
+          workflowSteps: [
+            { step: 1, title: 'Bước 1: Chọn chủ đề', akiSpeech: 'Bé hãy chọn một chủ đề mà bé yêu thích nhé!', quickPrompt: 'Vẽ một chú mèo phi hành gia', instruction: 'Chọn chủ đề và nhấn bắt đầu.' }
+          ],
+        },
+      }
+    } else if (blockId === 'reward') {
+      newBlock = {
+        id: `blk-reward-${ts}`,
+        type: 'reward',
+        title: 'Chúc mừng hoàn thành bài học!',
+        body: 'Bé đã hoàn thành xuất sắc các chặng thử thách!',
+        rewardConfig: {
+          id: `reward-${ts}`,
+          title: 'Chúc mừng hoàn thành bài học!',
+          congratsMessage: 'Bé đã hoàn thành xuất sắc các chặng thử thách!',
+          rewardBadge: {
+            name: 'Huy hiệu hoàn thành',
+            iconUrl: '',
+            stars: 3,
+            xp: 50,
+          },
+        },
+      }
     }
 
     const nextBlocks = [...stageBlocks]

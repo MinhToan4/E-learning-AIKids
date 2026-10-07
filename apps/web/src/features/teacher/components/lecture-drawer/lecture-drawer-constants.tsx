@@ -183,6 +183,9 @@ export const AVAILABLE_MODULES = [
   { id: 'compare', label: 'Bảng So Sánh 2 Cột', icon: '', desc: 'Bảng 2 cột tiêu đề, nội dung & 2 ảnh so sánh' },
   { id: 'poster', label: 'Poster Quy Tắc Vàng', icon: '', desc: 'Quy tắc to bản, ảnh poster riêng & bí kíp bỏ túi' },
   { id: 'images', label: 'Bộ Sưu Tập Ảnh Minh Họa', icon: '', desc: 'Danh sách ảnh kèm caption chú thích' },
+  { id: 'quiz-question', label: 'Câu Hỏi Trắc Nghiệm', icon: '', desc: 'Câu đố tương tác nhiều lựa chọn kèm giải thích và minh họa' },
+  { id: 'practice', label: 'Xưởng Thực Hành', icon: '', desc: 'Kịch bản 4 bước thực hành trên Xưởng Sáng Tạo AIKI' },
+  { id: 'reward', label: 'Màn Trao Thưởng & Kết Thúc', icon: '', desc: 'Vinh danh hoàn thành, huy hiệu, sao, XP và bài học tiếp' },
 ] as const
 
 export function speakTextPreview(text: string) {

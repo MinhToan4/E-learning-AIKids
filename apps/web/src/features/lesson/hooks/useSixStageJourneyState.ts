@@ -764,15 +764,20 @@ export function useSixStageJourneyState({
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
     const blocks = (journey?.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
-      ?.filter(
-        (block) =>
-          !block.id.startsWith('course-goal-') &&
-          !block.id.startsWith('course-confirm-') &&
-          !block.id.startsWith('course-quiz-') &&
-          !block.id.startsWith('blk-quiz-') &&
-          block.type !== 'quiz-question' &&
-          block.type !== 'layout-confirm-option'
-      )
+      ?.filter((block) => {
+        if (block.id.startsWith('course-goal-')) return false
+        if (block.id.startsWith('course-confirm-')) return false
+        if (block.id.startsWith('course-video-')) return false
+        if (block.id.startsWith('course-quiz-')) return false
+        if (block.id.startsWith('course-practice-')) return false
+        if (block.id.startsWith('course-reward-')) return false
+        if (currentStage === 1 && (block.type === 'layout-confirm-option' || block.type === 'quiz-question' || block.id.startsWith('blk-quiz-'))) return false
+        if (currentStage === 2 && block.type === 'video') return false
+        if (currentStage === 3 && (block.type === 'quiz-question' || block.type === 'layout-confirm-option' || block.id.startsWith('blk-quiz-'))) return false
+        if (currentStage === 4 && block.type === 'practice') return false
+        if (currentStage === 5 && block.type === 'reward') return false
+        return true
+      })
     if (!Array.isArray(blocks) || blocks.length === 0) return null
 
     return {
