@@ -242,18 +242,20 @@ export function ParentPlanTab({
               <p className="text-[11px] text-muted">Hồ sơ con trong gia đình</p>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-purple-600">Lượt tạo ảnh AI</p>
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-purple-600">Lượt sáng tạo</p>
               <p className="font-display text-base sm:text-lg font-black text-purple-700 mt-0.5">
                 Còn {aiCredits} lượt
               </p>
-              <p className="text-[11px] text-muted">Tạo ảnh AI</p>
+              <p className="text-[11px] text-muted">Vẽ tranh & sáng tạo</p>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
               <p className="text-[11px] font-extrabold uppercase tracking-wide text-brand-600">Hạn mức vùng học mỗi bé</p>
               <p className="font-display text-base sm:text-lg font-black text-brand-700 mt-0.5">
-                {sub?.maxOpenCoursesPerChild ?? 5} vùng học mở cùng lúc / con
+                {(sub?.maxOpenCoursesPerChild ?? 0) >= 99
+                  ? 'Mở trọn bộ 6 đảo sáng tạo'
+                  : `${sub?.maxOpenCoursesPerChild ?? 5} vùng học mở cùng lúc / con`}
               </p>
-              <p className="text-[11px] text-muted">vùng mở cùng lúc</p>
+              <p className="text-[11px] text-muted">Vùng mở cùng lúc</p>
             </div>
           </div>
         </section>
@@ -472,7 +474,12 @@ export function ParentPlanTab({
                         <strong>{p.maxChildren}</strong> hồ sơ con
                       </p>
                       <p>
-                        <strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con
+                        <strong>
+                          {p.maxOpenCoursesPerChild >= 99
+                            ? 'Mở trọn bộ 6 đảo'
+                            : `${p.maxOpenCoursesPerChild} vùng học`}
+                        </strong>{' '}
+                        {p.maxOpenCoursesPerChild >= 99 ? 'sáng tạo' : 'mở cùng lúc / con'}
                       </p>
                     </div>
                     <ul className="space-y-1.5 text-xs sm:text-sm text-muted mb-4">

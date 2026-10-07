@@ -1677,11 +1677,32 @@ function CourseSelectionSection({
 }
 
 function PathwaySection({ pathway, compact = false }: { pathway: Pathway; compact?: boolean }) {
+  const [showAll, setShowAll] = useState(false)
+  const prioritized = pathway.courses.filter(
+    (c) => c.status === 'active' || c.status === 'completed' || c.id === pathway.recommendedCourseId,
+  )
+  const displayCourses = showAll
+    ? pathway.courses
+    : prioritized.length > 0
+      ? prioritized
+      : pathway.courses.slice(0, 4)
+
   return (
     <section className="ui-card p-5">
-      <div>
-        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Lộ trình cá nhân</p>
-        <h2 className="font-display text-xl font-bold">Khóa đang học và bước tiếp theo</h2>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Lộ trình cá nhân</p>
+          <h2 className="font-display text-xl font-bold">Khóa đang học và bước tiếp theo</h2>
+        </div>
+        {pathway.courses.length > displayCourses.length && !showAll && (
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className="text-xs font-bold text-brand-600 hover:text-brand-800 transition"
+          >
+            Xem tất cả {pathway.courses.length} khóa
+          </button>
+        )}
       </div>
       {pathway.courses.length === 0 ? (
         <div className="mt-4 rounded-2xl bg-brand-50 p-4">
@@ -1689,54 +1710,67 @@ function PathwaySection({ pathway, compact = false }: { pathway: Pathway; compac
           <p className="mt-1 text-sm text-muted">Ba / Mẹ có thể chọn chương trình phù hợp ngay trong mục Lộ trình.</p>
         </div>
       ) : (
-        <div className={cn('mt-4 grid gap-3 sm:grid-cols-2', compact ? 'xl:grid-cols-3' : 'xl:grid-cols-3')}>
-          {pathway.courses.map((course) => (
-            <article
-              key={course.id}
-              className={cn(
-                'rounded-2xl border p-4',
-                course.id === pathway.recommendedCourseId ? 'border-brand-300 bg-brand-50' : 'border-border bg-page',
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold">{course.title}</h3>
-                {course.id === pathway.recommendedCourseId && (
-                  <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs font-bold text-white">
-                    Nên học tiếp
-                  </span>
+        <>
+          <div className={cn('mt-4 grid gap-3 sm:grid-cols-2', compact ? 'xl:grid-cols-3' : 'xl:grid-cols-3')}>
+            {displayCourses.map((course) => (
+              <article
+                key={course.id}
+                className={cn(
+                  'rounded-2xl border p-4 transition-all',
+                  course.id === pathway.recommendedCourseId ? 'border-brand-300 bg-brand-50' : 'border-border bg-page',
                 )}
-              </div>
-              <p className="mt-2 text-sm text-muted">
-                {course.status === 'completed'
-                  ? 'Đã hoàn thành'
-                  : course.status === 'active'
-                    ? 'Đang học'
-                    : course.status === 'available'
-                      ? 'Đã mở'
-                      : 'Đang khóa'}{' '}
-                · {course.completionPercent}%
-              </p>
-              <div
-                className="mt-3 h-2 overflow-hidden rounded-full bg-white"
-                aria-label={`Hoàn thành ${course.completionPercent}%`}
-                role="progressbar"
-                aria-valuenow={course.completionPercent}
-                aria-valuemin={0}
-                aria-valuemax={100}
               >
-                <div
-                  className="h-full rounded-full bg-brand-500"
-                  style={{ width: `${Math.min(100, Math.max(0, course.completionPercent))}%` }}
-                />
-              </div>
-              {course.status === 'locked' && course.missingPrerequisites.length > 0 && (
-                <p className="mt-2 text-xs text-warning">
-                  Cần hoàn thành: {course.missingPrerequisites.join(', ')}
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-bold">{course.title}</h3>
+                  {course.id === pathway.recommendedCourseId && (
+                    <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs font-bold text-white">
+                      Nên học tiếp
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-muted">
+                  {course.status === 'completed'
+                    ? 'Đã hoàn thành'
+                    : course.status === 'active'
+                      ? 'Đang học'
+                      : course.status === 'available'
+                        ? 'Đã mở'
+                        : 'Đang khóa'}{' '}
+                  · {course.completionPercent}%
                 </p>
-              )}
-            </article>
-          ))}
-        </div>
+                <div
+                  className="mt-3 h-2 overflow-hidden rounded-full bg-white"
+                  aria-label={`Hoàn thành ${course.completionPercent}%`}
+                  role="progressbar"
+                  aria-valuenow={course.completionPercent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full rounded-full bg-brand-500"
+                    style={{ width: `${Math.min(100, Math.max(0, course.completionPercent))}%` }}
+                  />
+                </div>
+                {course.status === 'locked' && course.missingPrerequisites.length > 0 && (
+                  <p className="mt-2 text-xs text-warning">
+                    Cần hoàn thành: {course.missingPrerequisites.join(', ')}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+          {pathway.courses.length > 4 && (
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => setShowAll((prev) => !prev)}
+                className="text-xs font-black text-brand-600 hover:text-brand-700 hover:underline cursor-pointer"
+              >
+                {showAll ? 'Thu gọn danh sách khóa' : `Xem thêm ${pathway.courses.length - displayCourses.length} khóa học khác`}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   )

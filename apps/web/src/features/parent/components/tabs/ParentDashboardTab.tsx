@@ -38,6 +38,7 @@ import {
   invalidateParentCache,
   setDashboardCache,
 } from '@/features/parent/lib/parent-cache'
+import { learningApi } from '@/shared/lib/learning-api'
 
 export function ParentDashboardTab({
   onOpenCheckout,
@@ -61,6 +62,7 @@ export function ParentDashboardTab({
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
   const [expandedSafety, setExpandedSafety] = useState<Record<string, boolean>>({})
+  const [childStatsMap, setChildStatsMap] = useState<Record<string, { totalStars: number; completedQuests: number }>>({})
 
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
@@ -104,6 +106,21 @@ export function ParentDashboardTab({
         approvals: fetchedApprovals,
         sub: fetchedSub,
       })
+
+      // Đồng bộ tiến trình thực tế của từng con từ LMS Pathway
+      fetchedKids.forEach((kid) => {
+        if (!kid.id) return
+        learningApi.getPathway(kid.id).then((pw) => {
+          if (Array.isArray(pw?.courses)) {
+            const totalStars = pw.courses.reduce((sum, c) => sum + (c.totalStars ?? 0), 0)
+            const completedQuests = pw.courses.reduce((sum, c) => sum + (c.completedCount ?? 0), 0)
+            setChildStatsMap((prev) => ({
+              ...prev,
+              [kid.id]: { totalStars, completedQuests },
+            }))
+          }
+        }).catch(() => null)
+      })
     } finally {
       setLoading(false)
     }
@@ -120,7 +137,10 @@ export function ParentDashboardTab({
   }, [load])
 
   const getDerivedStats = (k: Child) => {
-    return { totalStars: k.totalStars ?? 0, completedQuests: k.completedQuests ?? 0 }
+    const fromMap = childStatsMap[k.id]
+    const totalStars = k.totalStars ?? fromMap?.totalStars ?? 0
+    const completedQuests = k.completedQuests ?? fromMap?.completedQuests ?? 0
+    return { totalStars, completedQuests }
   }
 
   async function handleEnterChild(childId: string) {
@@ -352,9 +372,15 @@ export function ParentDashboardTab({
                             {k.ageBand ? `Nhóm ${k.ageBand}` : 'Nhóm 8-11 tuổi'}
                           </p>
                           <div className="flex items-center gap-1.5 mt-1 text-[11px] font-bold text-amber-700">
-                            <span>{childStars} sao</span>
-                            <span className="text-slate-300">·</span>
-                            <span className="text-emerald-700">{childQuests} trạm</span>
+                            {childStars > 0 || childQuests > 0 ? (
+                              <>
+                                <span className="font-bold text-amber-800">{childStars} sao</span>
+                                <span className="text-slate-300">·</span>
+                                <span className="font-bold text-emerald-700">{childQuests} trạm</span>
+                              </>
+                            ) : (
+                              <span className="text-slate-400 font-medium">Sẵn sàng vào học</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -451,18 +477,18 @@ export function ParentDashboardTab({
                 type="button"
                 onClick={() => setEditTarget(null)}
                 className={cn(
-                  'group flex w-full h-full min-h-[260px] flex-col items-center justify-center rounded-3xl border-3 border-dashed border-brand-200 bg-white/70 backdrop-blur-xs p-6 text-center transition-all duration-300',
-                  'hover:-translate-y-1 hover:border-brand-400 hover:bg-brand-50/70 hover:shadow-clay active:scale-95 shadow-xs cursor-pointer',
+                  'group flex w-full h-full min-h-[180px] sm:min-h-[220px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-brand-200 bg-white/60 hover:bg-brand-50/50 p-5 text-center transition-all duration-200',
+                  'hover:border-brand-400 active:scale-98 shadow-2xs cursor-pointer',
                 )}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100/80 text-brand-600 shadow-soft group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all duration-300">
-                  <Plus size={30} strokeWidth={2.5} />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 shadow-2xs group-hover:scale-105 group-hover:bg-brand-500 group-hover:text-white transition-all duration-200">
+                  <Plus size={22} strokeWidth={2.5} />
                 </div>
-                <span className="mt-3 font-display text-lg font-black text-slate-800 group-hover:text-brand-700 transition-colors">
+                <span className="mt-2.5 font-display text-base font-black text-slate-800 group-hover:text-brand-700 transition-colors">
                   + Thêm bé mới
                 </span>
-                <span className="mt-1 text-xs text-muted max-w-[200px]">
-                  Tạo thêm hồ sơ và cá nhân hóa trải nghiệm học tập
+                <span className="mt-0.5 text-[11px] text-muted max-w-[180px]">
+                  Tạo thêm hồ sơ học tập cho con
                 </span>
               </button>
             </li>

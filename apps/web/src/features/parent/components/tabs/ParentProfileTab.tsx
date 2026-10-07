@@ -151,9 +151,11 @@ export function ParentProfileTab() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-sky-50 px-3 py-2 text-sm">
-          Tối đa <strong>{profile.maxChildren}</strong> tài khoản con
-        </div>
+        {Boolean(profile.maxChildren && profile.maxChildren > 0) && (
+          <div className="rounded-xl bg-sky-50 px-3 py-2 text-sm">
+            Tối đa <strong>{profile.maxChildren}</strong> tài khoản con
+          </div>
+        )}
 
         <Button type="submit" disabled={saving}>
           {saving ? 'Đang lưu…' : 'Lưu hồ sơ'}
