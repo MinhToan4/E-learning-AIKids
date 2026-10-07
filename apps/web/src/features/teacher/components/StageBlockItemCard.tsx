@@ -70,7 +70,13 @@ export function getBlockIcon(type: ContentBlockType): string {
 }
 
 
-export function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
+export function getBlockTitle(type: ContentBlockType, customTitle?: string, stageIndex?: number, blockId?: string): string {
+  if (stageIndex === 0) {
+    if (type === 'images' || blockId?.startsWith('course-goal-image')) return customTitle || 'ẢNH MỤC TIÊU (CỘT TRÁI)'
+    if (type === 'text' || blockId?.startsWith('course-goal-text')) return customTitle || 'MỤC TIÊU CỐT LÕI (CỘT PHẢI)'
+    if (type === 'layout-four-keys' || blockId?.startsWith('course-goal-four-keys')) return customTitle || 'BỐN CHIẾC CHÌA KHÓA VÀNG (CỘT PHẢI)'
+  }
+
   switch (type) {
     case 'text':
     case 'layout-text':
@@ -102,7 +108,7 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
     case 'versus-ab':
       return '2 TRANH ĐỐI ĐẦU A/B'
     case 'dialogue':
-      return 'KỊCH BẢN PHÂN VAI COMIC'
+      return 'HỘI THOẠI TÌNH HUỐNG'
     case 'compare':
       return 'BẢNG SO SÁNH 2 CỘT'
     case 'poster':
@@ -145,6 +151,8 @@ export interface StageBlockItemCardProps {
   inputStyle: React.CSSProperties
   textareaStyle: React.CSSProperties
   showToast: (msg: string, type?: any) => void
+  stageStarAllocation?: number[]
+  onToggleStageStar?: (stageIndex: number) => void
 }
 
 export const StageBlockItemCard = React.memo(function StageBlockItemCard({
@@ -178,6 +186,8 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
   inputStyle,
   textareaStyle,
   showToast,
+  stageStarAllocation,
+  onToggleStageStar,
 }: StageBlockItemCardProps) {
   const isDraggingThis = draggingBlockIdx === bIdx
   const isDragOverThis = dragOverBlockIdx === bIdx
@@ -333,9 +343,9 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
                 </span>
                 <h4
                   className="text-xs font-black uppercase tracking-wider text-slate-900 truncate min-w-0 flex-1"
-                  title={getBlockTitle(block.type, block.title)}
+                  title={getBlockTitle(block.type, block.title, stageIndex, block.id)}
                 >
-                  {getBlockTitle(block.type, block.title)}
+                  {getBlockTitle(block.type, block.title, stageIndex, block.id)}
                 </h4>
               </div>
             </>
@@ -747,6 +757,8 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               readOnly={readOnly}
               questId={courseId}
               showToast={showToast}
+              stageStarAllocation={stageStarAllocation}
+              onToggleStage6Star={() => onToggleStageStar?.(5)}
             />
           ) : (
             <LayoutBlocksEditor

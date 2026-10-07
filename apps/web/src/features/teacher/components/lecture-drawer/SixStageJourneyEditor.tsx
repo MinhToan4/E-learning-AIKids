@@ -260,6 +260,24 @@ export function SixStageJourneyEditor({
             setDragOverBlockIdx={setDragOverBlockIdx}
             isTrashDragOver={isTrashDragOver}
             setIsTrashDragOver={setIsTrashDragOver}
+            stageStarAllocation={currentJourney.stageStarAllocation ?? [2, 3, 5]}
+            onToggleStageStar={(targetStageIdx) => {
+              const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 5]
+              const isAllocated = currentAllocation.includes(targetStageIdx)
+              if (isAllocated) {
+                const next = currentAllocation.filter((idx) => idx !== targetStageIdx)
+                updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                showToast(`Đã bỏ tặng sao ở Chặng ${targetStageIdx + 1}`, 'info')
+              } else {
+                if (currentAllocation.length >= 3) {
+                  showToast('Bài học tối đa chỉ có 3 Sao! Hãy bỏ chọn một chặng khác trước nhé.', 'error')
+                  return
+                }
+                const next = [...currentAllocation, targetStageIdx].sort((a, b) => a - b)
+                updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                showToast(`⭐ Chặng ${targetStageIdx + 1} sẽ tặng 1 Sao khi hoàn thành!`, 'success')
+              }
+            }}
           />
 
           {/* Nút Điều hướng Chặng */}

@@ -2,7 +2,7 @@ import React from 'react'
 import { Clapperboard, Trash2, Plus, Upload, Play, Clock } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
-import { LectureVideo } from '@/features/lesson/components/LectureVideo'
+import { resolveLectureVideo } from '@/features/lesson/lib/lecture-video'
 
 export interface VideoBlockEditorProps {
   video: LessonSixStageJourney['stage3_video']
@@ -24,6 +24,10 @@ export function VideoBlockEditor({
   showToast,
 }: VideoBlockEditorProps) {
   const timestamps = video.timestamps || []
+
+  const videoSource = React.useMemo(() => {
+    return video.videoUrl ? resolveLectureVideo(video.videoUrl) : null
+  }, [video.videoUrl])
 
   const handleAddTimestamp = () => {
     if (readOnly) return
@@ -64,9 +68,9 @@ export function VideoBlockEditor({
         </span>
       </div>
 
-      {/* Khung Xem Trước Video WYSIWYG Trực Quan (Interactive Video Preview) */}
+      {/* Khung Xem Trước Video WYSIWYG Trực Quan (Interactive Video Preview 16:9 Full-Width) */}
       <div className="rounded-2xl border-2 border-indigo-200 bg-slate-900 p-2 overflow-hidden shadow-sm">
-        {video.videoUrl ? (
+        {videoSource ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between px-2 pt-1 text-xs font-black text-indigo-300">
               <span className="flex items-center gap-1.5">
@@ -77,11 +81,38 @@ export function VideoBlockEditor({
                 {video.durationSec ? `${Math.floor(video.durationSec / 60)}p${video.durationSec % 60}s` : '180s'}
               </span>
             </div>
-            <div className="rounded-xl overflow-hidden aspect-video bg-black flex items-center justify-center">
-              <LectureVideo
-                url={video.videoUrl}
-                title={video.title || 'Video bài giảng'}
-              />
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-md">
+              {videoSource.kind === 'youtube' ? (
+                <iframe
+                  className="size-full border-0"
+                  src={videoSource.src}
+                  title={video.title || 'Video bài giảng'}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  className="size-full object-contain"
+                  controls
+                  playsInline
+                  src={videoSource.src}
+                >
+                  Trình duyệt không hỗ trợ video.
+                </video>
+              )}
+            </div>
+          </div>
+        ) : video.videoUrl ? (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-2 pt-1 text-xs font-black text-indigo-300">
+              <span className="flex items-center gap-1.5">
+                <Play size={13} className="text-emerald-400" />
+                <span>Xem Trước Video Trực Tiếp:</span>
+              </span>
+            </div>
+            <div className="aspect-video rounded-xl bg-slate-800 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+              <p className="text-xs font-bold text-amber-400">Đường dẫn video chưa hợp lệ hoặc không bảo mật (HTTPS)</p>
+              <p className="text-[11px] text-slate-400 mt-1 font-mono break-all max-w-md">{video.videoUrl}</p>
             </div>
           </div>
         ) : video.posterUrl ? (

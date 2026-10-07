@@ -145,6 +145,24 @@ export function DynamicStagesEditor({
         readOnly={readOnly}
         questId={questId}
         showToast={showToast}
+        stageStarAllocation={journey.stageStarAllocation}
+        onToggleStage6Star={() => {
+          const currentAllocation = journey.stageStarAllocation ?? [2, 3, 5]
+          const isAllocated = currentAllocation.includes(5)
+          if (isAllocated) {
+            const next = currentAllocation.filter((idx) => idx !== 5)
+            updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+            showToast?.('Đã bỏ tặng sao ở Chặng 6', 'info')
+          } else {
+            if (currentAllocation.length >= 3) {
+              showToast?.('Bài học tối đa chỉ có 3 Sao! Hãy bỏ chọn một chặng khác trước nhé.', 'error')
+              return
+            }
+            const next = [...currentAllocation, 5].sort((a, b) => a - b)
+            updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+            showToast?.('⭐ Chặng 6 sẽ tặng 1 Sao khi hoàn thành!', 'success')
+          }
+        }}
       />
     )
   }

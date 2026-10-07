@@ -40,6 +40,8 @@ export interface StageBlocksCanvasProps {
   setDragOverBlockIdx: (idx: number | null) => void
   isTrashDragOver: boolean
   setIsTrashDragOver: (over: boolean) => void
+  stageStarAllocation?: number[]
+  onToggleStageStar?: (stageIndex: number) => void
 }
 
 /**
@@ -76,6 +78,8 @@ export function StageBlocksCanvas({
   setDragOverBlockIdx,
   isTrashDragOver,
   setIsTrashDragOver,
+  stageStarAllocation,
+  onToggleStageStar,
 }: StageBlocksCanvasProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [targetInsertIdx, setTargetInsertIdx] = useState<number | undefined>(undefined)
@@ -173,33 +177,208 @@ export function StageBlocksCanvas({
           type RenderGroup =
             | { type: 'single'; block: StageBlockItem; index: number }
             | { type: 'confirm-options'; items: { block: StageBlockItem; index: number }[] }
+            | {
+                type: 'goal-layout'
+                imageItem?: { block: StageBlockItem; index: number }
+                textItem?: { block: StageBlockItem; index: number }
+                keysItem?: { block: StageBlockItem; index: number }
+              }
 
           const renderGroups: RenderGroup[] = []
-          for (let i = 0; i < stageBlocks.length; i++) {
-            const b = stageBlocks[i]
-            const isInteractiveBlock =
-              b.type === 'quiz-question' ||
-              Boolean(b.questionPrompt) ||
-              Boolean(b.layoutMode) ||
-              Boolean(b.questionOptions?.length) ||
-              b.id.startsWith('course-quiz-') ||
-              b.id.startsWith('blk-quiz-') ||
-              b.id === 'course-confirm-quiz'
 
-            const isOpt = !isInteractiveBlock && (b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-'))
-            if (isOpt) {
-              const lastGroup = renderGroups[renderGroups.length - 1]
-              if (lastGroup && lastGroup.type === 'confirm-options') {
-                lastGroup.items.push({ block: b, index: i })
-              } else {
-                renderGroups.push({ type: 'confirm-options', items: [{ block: b, index: i }] })
+          // Xử lý bố cục 2 cột cho Chặng 1 (Mục Tiêu) khớp 100% với giao diện màn hình học sinh: Cột trái Ảnh, Cột phải Box Mục đích + Chìa khóa
+          if (stageIndex === 0) {
+            const imageIdx = stageBlocks.findIndex((b) => b.type === 'images' || b.id.startsWith('course-goal-image'))
+            const textIdx = stageBlocks.findIndex((b) => b.type === 'text' || b.id.startsWith('course-goal-text'))
+            const keysIdx = stageBlocks.findIndex((b) => b.type === 'layout-four-keys' || b.id.startsWith('course-goal-four-keys'))
+
+            if (imageIdx !== -1 || textIdx !== -1) {
+              const consumedIndices = new Set<number>()
+              const imageItem = imageIdx !== -1 ? { block: stageBlocks[imageIdx], index: imageIdx } : undefined
+              const textItem = textIdx !== -1 ? { block: stageBlocks[textIdx], index: textIdx } : undefined
+              const keysItem = keysIdx !== -1 ? { block: stageBlocks[keysIdx], index: keysIdx } : undefined
+
+              if (imageIdx !== -1) consumedIndices.add(imageIdx)
+              if (textIdx !== -1) consumedIndices.add(textIdx)
+              if (keysIdx !== -1) consumedIndices.add(keysIdx)
+
+              renderGroups.push({
+                type: 'goal-layout',
+                imageItem,
+                textItem,
+                keysItem,
+              })
+
+              for (let i = 0; i < stageBlocks.length; i++) {
+                if (!consumedIndices.has(i)) {
+                  renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
+                }
               }
-            } else {
-              renderGroups.push({ type: 'single', block: b, index: i })
+            }
+          }
+
+          if (renderGroups.length === 0) {
+            for (let i = 0; i < stageBlocks.length; i++) {
+              const b = stageBlocks[i]
+              const isInteractiveBlock =
+                b.type === 'quiz-question' ||
+                Boolean(b.questionPrompt) ||
+                Boolean(b.layoutMode) ||
+                Boolean(b.questionOptions?.length) ||
+                b.id.startsWith('course-quiz-') ||
+                b.id.startsWith('blk-quiz-') ||
+                b.id === 'course-confirm-quiz'
+
+              const isOpt = !isInteractiveBlock && (b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-'))
+              if (isOpt) {
+                const lastGroup = renderGroups[renderGroups.length - 1]
+                if (lastGroup && lastGroup.type === 'confirm-options') {
+                  lastGroup.items.push({ block: b, index: i })
+                } else {
+                  renderGroups.push({ type: 'confirm-options', items: [{ block: b, index: i }] })
+                }
+              } else {
+                renderGroups.push({ type: 'single', block: b, index: i })
+              }
             }
           }
 
           return renderGroups.map((group, groupIndex) => {
+            if (group.type === 'goal-layout') {
+              return (
+                <div key="goal-2col-layout" className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                  {/* CỘT TRÁI (Ảnh Mục Tiêu) - 5 cột trên lg, tự co 1 cột trên màn hình nhỏ */}
+                  <div className="lg:col-span-5 min-w-0 space-y-3">
+                    <div className="flex items-center gap-1.5 px-1">
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-xl border border-emerald-300">
+                        🖼️ Cột Trái: Ảnh Mục Tiêu (Hero Image)
+                      </span>
+                    </div>
+                    {group.imageItem && (
+                      <StageBlockItemCard
+                        key={group.imageItem.block.id}
+                        block={group.imageItem.block}
+                        bIdx={group.imageItem.index}
+                        totalBlocks={stageBlocks.length}
+                        stageIndex={stageIndex}
+                        card={card}
+                        stageBlocks={stageBlocks}
+                        readOnly={readOnly}
+                        draggingBlockIdx={draggingBlockIdx}
+                        dragOverBlockIdx={dragOverBlockIdx}
+                        setDraggingBlockIdx={setDraggingBlockIdx}
+                        setDragOverBlockIdx={setDragOverBlockIdx}
+                        setIsTrashDragOver={setIsTrashDragOver}
+                        moveBlock={moveBlock}
+                        removeBlock={removeBlock}
+                        updateStageBlocks={updateStageBlocks}
+                        updateBlockItem={updateBlockItem}
+                        updateLearnCard={updateLearnCard}
+                        uploadingStageMedia={uploadingStageMedia}
+                        setUploadingStageMedia={setUploadingStageMedia}
+                        uploadLearnCardMedia={uploadLearnCardMedia}
+                        uploadAdditionalImageItem={uploadAdditionalImageItem}
+                        previewAikiVoice={previewAikiVoice}
+                        previewSpeakingIndex={previewSpeakingIndex}
+                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                        courseId={courseId}
+                        handleAddModule={handleAddModule}
+                        stageInfo={stageInfo}
+                        inputStyle={inputStyle}
+                        textareaStyle={textareaStyle}
+                        showToast={showToast}
+                        stageStarAllocation={stageStarAllocation}
+                        onToggleStageStar={onToggleStageStar}
+                      />
+                    )}
+                  </div>
+
+                  {/* CỘT PHẢI (Box Mục Đích & Box 4 Chìa Khóa Vàng) - 7 cột trên lg */}
+                  <div className="lg:col-span-7 min-w-0 space-y-4">
+                    <div className="flex items-center gap-1.5 px-1">
+                      <span className="text-xs font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2.5 py-1 rounded-xl border border-purple-300">
+                        🎯 Cột Phải: Mục Tiêu Cốt Lõi &amp; Chìa Khóa Vàng
+                      </span>
+                    </div>
+                    {group.textItem && (
+                      <StageBlockItemCard
+                        key={group.textItem.block.id}
+                        block={group.textItem.block}
+                        bIdx={group.textItem.index}
+                        totalBlocks={stageBlocks.length}
+                        stageIndex={stageIndex}
+                        card={card}
+                        stageBlocks={stageBlocks}
+                        readOnly={readOnly}
+                        draggingBlockIdx={draggingBlockIdx}
+                        dragOverBlockIdx={dragOverBlockIdx}
+                        setDraggingBlockIdx={setDraggingBlockIdx}
+                        setDragOverBlockIdx={setDragOverBlockIdx}
+                        setIsTrashDragOver={setIsTrashDragOver}
+                        moveBlock={moveBlock}
+                        removeBlock={removeBlock}
+                        updateStageBlocks={updateStageBlocks}
+                        updateBlockItem={updateBlockItem}
+                        updateLearnCard={updateLearnCard}
+                        uploadingStageMedia={uploadingStageMedia}
+                        setUploadingStageMedia={setUploadingStageMedia}
+                        uploadLearnCardMedia={uploadLearnCardMedia}
+                        uploadAdditionalImageItem={uploadAdditionalImageItem}
+                        previewAikiVoice={previewAikiVoice}
+                        previewSpeakingIndex={previewSpeakingIndex}
+                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                        courseId={courseId}
+                        handleAddModule={handleAddModule}
+                        stageInfo={stageInfo}
+                        inputStyle={inputStyle}
+                        textareaStyle={textareaStyle}
+                        showToast={showToast}
+                        stageStarAllocation={stageStarAllocation}
+                        onToggleStageStar={onToggleStageStar}
+                      />
+                    )}
+                    {group.keysItem && (
+                      <StageBlockItemCard
+                        key={group.keysItem.block.id}
+                        block={group.keysItem.block}
+                        bIdx={group.keysItem.index}
+                        totalBlocks={stageBlocks.length}
+                        stageIndex={stageIndex}
+                        card={card}
+                        stageBlocks={stageBlocks}
+                        readOnly={readOnly}
+                        draggingBlockIdx={draggingBlockIdx}
+                        dragOverBlockIdx={dragOverBlockIdx}
+                        setDraggingBlockIdx={setDraggingBlockIdx}
+                        setDragOverBlockIdx={setDragOverBlockIdx}
+                        setIsTrashDragOver={setIsTrashDragOver}
+                        moveBlock={moveBlock}
+                        removeBlock={removeBlock}
+                        updateStageBlocks={updateStageBlocks}
+                        updateBlockItem={updateBlockItem}
+                        updateLearnCard={updateLearnCard}
+                        uploadingStageMedia={uploadingStageMedia}
+                        setUploadingStageMedia={setUploadingStageMedia}
+                        uploadLearnCardMedia={uploadLearnCardMedia}
+                        uploadAdditionalImageItem={uploadAdditionalImageItem}
+                        previewAikiVoice={previewAikiVoice}
+                        previewSpeakingIndex={previewSpeakingIndex}
+                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                        courseId={courseId}
+                        handleAddModule={handleAddModule}
+                        stageInfo={stageInfo}
+                        inputStyle={inputStyle}
+                        textareaStyle={textareaStyle}
+                        showToast={showToast}
+                        stageStarAllocation={stageStarAllocation}
+                        onToggleStageStar={onToggleStageStar}
+                      />
+                    )}
+                  </div>
+                </div>
+              )
+            }
+
             if (group.type === 'single') {
               const { block, index: blockIndex } = group
               return (
@@ -250,6 +429,8 @@ export function StageBlocksCanvas({
                     inputStyle={inputStyle}
                     textareaStyle={textareaStyle}
                     showToast={showToast}
+                    stageStarAllocation={stageStarAllocation}
+                    onToggleStageStar={onToggleStageStar}
                   />
                 </React.Fragment>
               )
@@ -311,6 +492,8 @@ export function StageBlocksCanvas({
                       inputStyle={inputStyle}
                       textareaStyle={textareaStyle}
                       showToast={showToast}
+                      stageStarAllocation={stageStarAllocation}
+                      onToggleStageStar={onToggleStageStar}
                     />
                   ))}
 
