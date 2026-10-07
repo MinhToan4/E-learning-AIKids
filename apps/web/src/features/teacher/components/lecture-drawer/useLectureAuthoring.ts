@@ -43,6 +43,9 @@ export function useLectureAuthoring({
       // Auto 2-Way Sync cho Six Stage Journey
       if (nextSixStage && patch.contentBlocks) {
         if (index === 0) {
+          const mainGoalBlock = patch.contentBlocks.find(
+            (b) => b.id === 'course-goal-main' || b.type === 'layout-four-keys' || b.id.startsWith('course-goal-')
+          )
           const textBlock = patch.contentBlocks.find(
             (b) => b.id.startsWith('course-goal-text') || b.type === 'text' || b.type === 'layout-text'
           )
@@ -55,16 +58,17 @@ export function useLectureAuthoring({
           const voiceBlock = patch.contentBlocks.find(
             (b) => b.type === 'voice' || Boolean(b.readText)
           )
+          const resolvedKeys = (mainGoalBlock?.visualItems?.length ? mainGoalBlock.visualItems : fourKeysBlock?.visualItems) || []
           nextSixStage = {
             ...nextSixStage,
             stage1_goal: {
               ...nextSixStage.stage1_goal,
-              title: textBlock?.title ?? nextSixStage.stage1_goal?.title ?? '',
-              goalText: textBlock?.body ?? nextSixStage.stage1_goal?.goalText ?? '',
-              imageUrl: imageBlock?.imageUrl || nextSixStage.stage1_goal?.imageUrl || '',
+              title: mainGoalBlock?.title || textBlock?.title || nextSixStage.stage1_goal?.title || '',
+              goalText: mainGoalBlock?.body || textBlock?.body || nextSixStage.stage1_goal?.goalText || '',
+              imageUrl: mainGoalBlock?.imageUrl || imageBlock?.imageUrl || nextSixStage.stage1_goal?.imageUrl || '',
               speech: voiceBlock?.body || voiceBlock?.readText || nextSixStage.stage1_goal?.speech || '',
-              keyPoints: fourKeysBlock?.visualItems?.length
-                ? fourKeysBlock.visualItems.map((v) => v.text || v.label).filter(Boolean)
+              keyPoints: resolvedKeys.length
+                ? resolvedKeys.map((v: any) => v.text || v.label).filter(Boolean)
                 : (nextSixStage.stage1_goal?.keyPoints || []),
             },
           }

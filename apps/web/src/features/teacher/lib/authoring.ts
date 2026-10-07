@@ -1268,18 +1268,20 @@ export function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
 export function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
   if (journey.stageBlockEditorVersion === 2) return existing.filter((block) => block.type !== 'voice')
   const existingFourKeys = existing.find((block) => block.type === 'layout-four-keys')
+  const existingText = existing.find((block) => block.type === 'text' || block.id.startsWith(`${COURSE_GOAL_BLOCK_PREFIX}text`))
+  const existingImage = existing.find((block) => block.type === 'images' || block.id.startsWith(`${COURSE_GOAL_BLOCK_PREFIX}image`))
   const authoredExtras = existing.filter((block) =>
-    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys && block.type !== 'voice'
+    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys && block !== existingText && block !== existingImage && block.type !== 'voice'
   )
   return [
-    { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: journey.stage1_goal.title, body: journey.stage1_goal.goalText },
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: existingText?.title || journey.stage1_goal.title, body: existingText?.body || journey.stage1_goal.goalText },
     {
       ...createFourKeysBlock(`${COURSE_GOAL_BLOCK_PREFIX}four-keys`),
       ...(existingFourKeys || {}),
       id: `${COURSE_GOAL_BLOCK_PREFIX}four-keys`,
       visualItems: existingFourKeys?.visualItems?.length ? existingFourKeys.visualItems.slice(0, 4) : goalKeyItems(journey.stage1_goal.keyPoints),
     },
-    { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: existingImage?.imageUrl || journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
     ...authoredExtras,
   ]
 }
@@ -1311,15 +1313,19 @@ export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existin
   )
 
   if (existingUnified) {
+    const existingHasOptImgs = existingUnified.questionOptions?.some((o) => Boolean(o.imageUrl))
+    const isActuallyCards = existingUnified.layoutMode === 'cards' || (existingHasOptImgs && (!existingUnified.visualUrl || existingUnified.visualUrl === existingUnified.questionOptions?.[0]?.imageUrl))
+    const resolvedLayout = isActuallyCards ? 'cards' : (existingUnified.layoutMode || journey.stage2_confirmGoal?.layoutMode || 'cards')
+
     return [
       {
         ...existingUnified,
-        id: existingUnified.id || `${COURSE_CONFIRM_BLOCK_PREFIX}quiz`,
+        id: `${COURSE_CONFIRM_BLOCK_PREFIX}quiz`,
         type: 'layout-confirm-option',
         title: existingUnified.title || 'Câu hỏi xác nhận mục tiêu',
         questionPrompt: existingUnified.questionPrompt || existingUnified.title || journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
-        layoutMode: existingUnified.layoutMode || journey.stage2_confirmGoal?.layoutMode || 'cards',
-        visualUrl: existingUnified.visualUrl || journey.stage2_confirmGoal?.visualUrl || '',
+        layoutMode: resolvedLayout,
+        visualUrl: resolvedLayout === 'cards' ? '' : (existingUnified.visualUrl || journey.stage2_confirmGoal?.visualUrl || ''),
         questionOptions: (existingUnified.questionOptions && existingUnified.questionOptions.length > 0)
           ? existingUnified.questionOptions
           : (journey.stage2_confirmGoal?.options?.map((opt, idx) => ({
@@ -1351,13 +1357,14 @@ export function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existin
         { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
       ]
 
+  const hasOptImgs = defaultOptions.some((o) => Boolean(o.imageUrl))
   const unifiedConfirmBlock: StageBlockItem = {
     id: `${COURSE_CONFIRM_BLOCK_PREFIX}quiz`,
     type: 'layout-confirm-option',
     title: 'Câu hỏi xác nhận mục tiêu',
     questionPrompt: journey.stage2_confirmGoal?.question || 'Bé hãy chọn phương án chính xác nhất nhé!',
-    layoutMode: journey.stage2_confirmGoal?.layoutMode || (defaultOptions.some((o) => o.imageUrl) ? 'split' : 'cards'),
-    visualUrl: journey.stage2_confirmGoal?.visualUrl || defaultOptions.find((o) => o.imageUrl)?.imageUrl || '',
+    layoutMode: journey.stage2_confirmGoal?.layoutMode || (hasOptImgs ? 'cards' : (journey.stage2_confirmGoal?.visualUrl ? 'split' : 'cards')),
+    visualUrl: journey.stage2_confirmGoal?.visualUrl || '',
     questionOptions: defaultOptions,
     correctIndex: journey.stage2_confirmGoal?.correctIndex ?? 0,
     explanation: journey.stage2_confirmGoal?.explanation || 'Tuyệt vời! Bé đã nắm rất vững mục tiêu bài học.',

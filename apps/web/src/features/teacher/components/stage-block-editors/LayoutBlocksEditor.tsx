@@ -8,6 +8,7 @@ import {
   Image as ImageIcon,
   CheckCircle2,
   Lightbulb,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
@@ -439,18 +440,21 @@ export function LayoutBlocksEditor({
 
       {/* ── 5A. BLOCK: Bốn chiếc chìa khóa câu lệnh (layout-four-keys) ── */}
       {block.type === 'layout-four-keys' && !isConfirmOption && (
-        <div className="mt-3.5 rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50/70 via-sky-50/40 to-white p-3.5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <label className="text-xs font-extrabold text-text flex-1">
-              Tiêu đề:
+        <div className="mt-3.5 rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50/60 via-sky-50/30 to-white p-4 sm:p-5 shadow-clay-xs space-y-4">
+          {/* Header Tiêu đề & Nút thêm chìa khóa */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-amber-200/60 pb-3">
+            <div className="flex-1">
+              <label className="text-xs font-black uppercase text-amber-950 tracking-wider block mb-1">
+                Tiêu đề khối 4 chìa khóa *
+              </label>
               <input
                 readOnly={readOnly}
                 value={block.title ?? ''}
                 onChange={(e) => updateBlockItem(stageIndex, block.id, { title: e.target.value })}
-                style={{ ...inputStyle, marginTop: '0.2rem' }}
                 placeholder="VD: Bốn chiếc chìa khóa mở câu lệnh..."
+                className="w-full rounded-xl border border-amber-300 bg-white px-3.5 py-2 text-sm font-black text-slate-900 shadow-2xs outline-none focus:border-amber-500 transition"
               />
-            </label>
+            </div>
             {!readOnly && (
               <button
                 type="button"
@@ -470,172 +474,174 @@ export function LayoutBlocksEditor({
                   ]
                   updateBlockItem(stageIndex, block.id, { visualItems: nextItems })
                 }}
-                className="flex min-h-9 items-center gap-1 rounded-xl border border-sky-300 bg-white px-3 text-xs font-extrabold text-sky-700 cursor-pointer shadow-xs hover:bg-sky-50 shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-500 hover:bg-amber-600 px-3.5 py-2 text-xs font-black text-white cursor-pointer shadow-2xs transition shrink-0 self-start sm:self-end active:scale-95"
               >
-                <Plus size={14} className="shrink-0" /> Thêm chìa khóa
+                <Plus size={14} className="shrink-0" />
+                <span>Thêm chìa khóa</span>
               </button>
             )}
           </div>
 
-          <div className="grid gap-2.5">
-            {(block.visualItems || []).map((item, vIdx) => {
-              // Tự động làm sạch label nếu có chứa tên màu cũ trong ngoặc: (Xanh Sky), (Vàng Sun), v.v.
-              let activeTone = item.tone
-              let displayLabel = item.label
-              const colorMatch = displayLabel.match(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose)\)/i)
-              if (colorMatch) {
-                const colorStr = colorMatch[1].toLowerCase()
-                if (colorStr.includes('xanh') || colorStr === 'sky') activeTone = 'sky'
-                else if (colorStr.includes('vàng') || colorStr === 'sun') activeTone = 'sun'
-                else if (colorStr.includes('cam') || colorStr === 'coral') activeTone = 'coral'
-                else if (colorStr.includes('hồng') || colorStr === 'rose') activeTone = 'rose'
-                displayLabel = displayLabel.replace(/\s*\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose)\)/i, '').trim()
-              }
+          {/* Lưới Chìa Khóa Vàng */}
+          <div className="rounded-2xl border-2 border-amber-200 bg-white p-3.5 space-y-2.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
+                <span>🔑</span>
+                <span>Bốn Chiếc Chìa Khóa Vàng ({(block.visualItems || []).length})</span>
+              </span>
+            </div>
 
-              const activePreset = KEY_COLOR_PRESETS.find((p) => p.tone === activeTone) || KEY_COLOR_PRESETS[vIdx % KEY_COLOR_PRESETS.length]
-              const activeImage = item.keyImage || activePreset.image
+                <div className="grid gap-2">
+                  {(block.visualItems || []).map((item, vIdx) => {
+                    let activeTone = item.tone
+                    let displayLabel = item.label
+                    const colorMatch = displayLabel.match(/\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose)\)/i)
+                    if (colorMatch) {
+                      const colorStr = colorMatch[1].toLowerCase()
+                      if (colorStr.includes('xanh') || colorStr === 'sky') activeTone = 'sky'
+                      else if (colorStr.includes('vàng') || colorStr === 'sun') activeTone = 'sun'
+                      else if (colorStr.includes('cam') || colorStr === 'coral') activeTone = 'coral'
+                      else if (colorStr.includes('hồng') || colorStr === 'rose') activeTone = 'rose'
+                      displayLabel = displayLabel.replace(/\s*\((Xanh Sky|Vàng Sun|Cam Mango|Hồng Gum|sky|sun|coral|rose)\)/i, '').trim()
+                    }
 
-              return (
-                <div
-                  key={vIdx}
-                  className={cn(
-                    "p-3 rounded-2xl border-2 bg-white/95 shadow-clay-sm flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-all",
-                    activePreset.bg
-                  )}
-                >
-                  {/* Bên trái: Ảnh chìa khóa thực tế + Bộ nút chip màu mini */}
-                  <div className="flex flex-col items-center gap-1.5 shrink-0 self-center sm:self-start">
-                    <img
-                      src={activeImage}
-                      alt={activePreset.name}
-                      className="w-12 h-12 rounded-xl object-contain bg-white border-2 border-amber-200 p-1 shadow-xs"
-                    />
-                    {!readOnly && (
-                      <div className="flex items-center gap-1 bg-white/90 p-0.5 rounded-full border border-slate-200 shadow-xs">
-                        {KEY_COLOR_PRESETS.map((preset) => {
-                          const isSelected = (item.tone || activePreset.tone) === preset.tone
-                          return (
-                            <button
-                              key={preset.tone}
-                              type="button"
-                              onClick={() => {
+                    const activePreset = KEY_COLOR_PRESETS.find((p) => p.tone === activeTone) || KEY_COLOR_PRESETS[vIdx % KEY_COLOR_PRESETS.length]
+                    const activeImage = item.keyImage || activePreset.image
+
+                    return (
+                      <div
+                        key={vIdx}
+                        className={cn(
+                          "p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm flex flex-col sm:flex-row items-start sm:items-center gap-2.5 transition-all",
+                          activePreset.bg
+                        )}
+                      >
+                        {/* Bên trái: Ảnh chìa khóa + Nút đổi màu */}
+                        <div className="flex flex-col items-center gap-1 shrink-0 self-center sm:self-start">
+                          <img
+                            src={activeImage}
+                            alt={activePreset.name}
+                            className="w-10 h-10 rounded-xl object-contain bg-white border border-amber-200 p-0.5 shadow-2xs"
+                          />
+                          {!readOnly && (
+                            <div className="flex items-center gap-0.5 bg-white/90 p-0.5 rounded-full border border-slate-200 shadow-2xs">
+                              {KEY_COLOR_PRESETS.map((preset) => {
+                                const isSelected = (item.tone || activePreset.tone) === preset.tone
+                                return (
+                                  <button
+                                    key={preset.tone}
+                                    type="button"
+                                    onClick={() => {
+                                      const next = [...(block.visualItems || [])]
+                                      next[vIdx] = {
+                                        ...item,
+                                        label: displayLabel,
+                                        tone: preset.tone,
+                                        keyImage: preset.image,
+                                      }
+                                      updateBlockItem(stageIndex, block.id, { visualItems: next })
+                                    }}
+                                    className={cn(
+                                      "text-[10px] leading-none p-0.5 rounded-full cursor-pointer hover:scale-110 transition-transform",
+                                      isSelected && "ring-2 ring-brand-500 ring-offset-1 scale-110"
+                                    )}
+                                    title={preset.name}
+                                  >
+                                    {preset.icon}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Ở giữa: Tên chìa + Ví dụ */}
+                        <div className="flex-1 min-w-0 w-full flex flex-col gap-1.5">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+                            <span className={cn("px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 text-center", activePreset.badge)}>
+                              [{vIdx + 1}]
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <input
+                                readOnly={readOnly}
+                                value={displayLabel}
+                                onChange={(e) => {
+                                  const next = [...(block.visualItems || [])]
+                                  next[vIdx] = {
+                                    ...item,
+                                    label: e.target.value,
+                                    tone: item.tone || activePreset.tone,
+                                    keyImage: item.keyImage || activePreset.image,
+                                  }
+                                  updateBlockItem(stageIndex, block.id, { visualItems: next })
+                                }}
+                                placeholder="Tên chìa khóa (VD: CÁI GÌ)"
+                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-black text-slate-900 outline-none focus:border-brand-500"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <input
+                                readOnly={readOnly}
+                                value={item.sub ?? ''}
+                                onChange={(e) => {
+                                  const next = [...(block.visualItems || [])]
+                                  next[vIdx] = {
+                                    ...item,
+                                    label: displayLabel,
+                                    sub: e.target.value,
+                                    tone: item.tone || activePreset.tone,
+                                    keyImage: item.keyImage || activePreset.image,
+                                  }
+                                  updateBlockItem(stageIndex, block.id, { visualItems: next })
+                                }}
+                                placeholder="Phụ đề gợi ý (VD: Ai, đồ vật gì)"
+                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 outline-none focus:border-brand-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <input
+                              readOnly={readOnly}
+                              value={item.text}
+                              onChange={(e) => {
                                 const next = [...(block.visualItems || [])]
                                 next[vIdx] = {
                                   ...item,
                                   label: displayLabel,
-                                  tone: preset.tone,
-                                  keyImage: preset.image,
+                                  text: e.target.value,
+                                  tone: item.tone || activePreset.tone,
+                                  keyImage: item.keyImage || activePreset.image,
                                 }
                                 updateBlockItem(stageIndex, block.id, { visualItems: next })
                               }}
-                              className={cn(
-                                "text-xs leading-none p-0.5 rounded-full cursor-pointer hover:scale-110 transition-transform",
-                                isSelected && "ring-2 ring-brand-500 ring-offset-1 scale-110"
-                              )}
-                              title={preset.name}
-                            >
-                              {preset.icon}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
+                              placeholder="Ví dụ mẫu (VD: 'một cái cốc')"
+                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-brand-500"
+                            />
+                          </div>
+                        </div>
 
-                  {/* Ở giữa: 2 dòng input */}
-                  <div className="flex-1 min-w-0 w-full flex flex-col gap-2">
-                    {/* Dòng 1: Badge + Tên chìa khóa + Phụ đề gợi ý */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <span className={cn("px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider shrink-0 text-center", activePreset.badge)}>
-                        [{vIdx + 1}]
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <label className="text-[10px] font-black text-muted block sm:hidden">Tên chìa khóa</label>
-                        <input
-                          readOnly={readOnly}
-                          value={displayLabel}
-                          onChange={(e) => {
-                            const next = [...(block.visualItems || [])]
-                            next[vIdx] = {
-                              ...item,
-                              label: e.target.value,
-                              tone: item.tone || activePreset.tone,
-                              keyImage: item.keyImage || activePreset.image,
-                            }
-                            updateBlockItem(stageIndex, block.id, { visualItems: next })
-                          }}
-                          style={{ ...inputStyle, minHeight: '2.25rem', marginTop: 0 }}
-                          placeholder="Tên chìa khóa (VD: CÁI GÌ)"
-                          className="w-full font-black text-sm"
-                        />
+                        {/* Bên phải: Nút xóa */}
+                        {!readOnly && (block.visualItems || []).length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = (block.visualItems || []).filter((_, i) => i !== vIdx)
+                              updateBlockItem(stageIndex, block.id, { visualItems: next })
+                            }}
+                            className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition cursor-pointer self-center sm:self-start"
+                            title="Xóa chìa khóa này"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <label className="text-[10px] font-black text-muted block sm:hidden">Phụ đề gợi ý</label>
-                        <input
-                          readOnly={readOnly}
-                          value={item.sub ?? ''}
-                          onChange={(e) => {
-                            const next = [...(block.visualItems || [])]
-                            next[vIdx] = {
-                              ...item,
-                              label: displayLabel,
-                              sub: e.target.value,
-                              tone: item.tone || activePreset.tone,
-                              keyImage: item.keyImage || activePreset.image,
-                            }
-                            updateBlockItem(stageIndex, block.id, { visualItems: next })
-                          }}
-                          style={{ ...inputStyle, minHeight: '2.25rem', marginTop: 0 }}
-                          placeholder="Phụ đề gợi ý (VD: Ai, đồ vật gì)"
-                          className="w-full text-xs font-medium text-slate-600"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Dòng 2: Nội dung ví dụ mẫu */}
-                    <div>
-                      <label className="text-[10px] font-black text-muted block sm:hidden">Ví dụ mẫu</label>
-                      <input
-                        readOnly={readOnly}
-                        value={item.text}
-                        onChange={(e) => {
-                          const next = [...(block.visualItems || [])]
-                          next[vIdx] = {
-                            ...item,
-                            label: displayLabel,
-                            text: e.target.value,
-                            tone: item.tone || activePreset.tone,
-                            keyImage: item.keyImage || activePreset.image,
-                          }
-                          updateBlockItem(stageIndex, block.id, { visualItems: next })
-                        }}
-                        style={{ ...inputStyle, minHeight: '2.25rem', marginTop: 0 }}
-                        placeholder="Ví dụ mẫu (VD: 'một cái cốc')"
-                        className="w-full text-xs text-slate-800"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bên phải: Nút xóa */}
-                  {!readOnly && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const next = (block.visualItems || []).filter((_, i) => i !== vIdx)
-                        updateBlockItem(stageIndex, block.id, { visualItems: next })
-                      }}
-                      className="grid size-9 shrink-0 place-items-center rounded-xl border border-slate-200 text-danger cursor-pointer hover:bg-rose-50 self-center sm:self-start mt-1"
-                      title="Xóa ô này"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  )}
+                    )
+                  })}
                 </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+              </div>
+            </div>
+          )}
 
       {/* ── 5B. BLOCK: Lưới Ô Thẻ / Chuỗi Storyboard (layout-grid / layout-storyboard) ── */}
       {(block.type === 'layout-grid' || block.type === 'layout-storyboard') && (
