@@ -48,15 +48,10 @@ export function normalizeLearningGatewayRequest(
   }
 
   if (path === '/api/media/refs' || path === '/api/backpack' || path === '/api/backpack/overview') {
-    const activeIpId = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
-    const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
-    const joiner = ipSuffix ? '&' : '?'
-    return { path: `/api/v1/media/gallery${ipSuffix}${joiner}limit=50&includeTotal=0`, options }
+    return { path: '/api/v1/media/gallery?limit=50&includeTotal=0', options }
   }
   if (path === '/api/projects') {
-    const activeIpId = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
-    const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
-    return { path: `/api/v1/media/gallery${ipSuffix}`, options }
+    return { path: '/api/v1/media/gallery', options }
   }
   const projectShare = path.match(/^\/api\/projects\/([^/?]+)\/request-share$/)
   if (projectShare) {

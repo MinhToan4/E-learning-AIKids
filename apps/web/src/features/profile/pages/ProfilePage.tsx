@@ -545,12 +545,6 @@ export function ProfilePage() {
                 >
                   <span>🎨 Vào Xưởng Sáng Tạo vẽ tranh</span>
                 </Link>
-                <Link
-                  to="/backpack"
-                  className="flex min-h-11 items-center rounded-2xl bg-white border border-amber-200 px-4 py-2 text-xs sm:text-sm font-extrabold text-brand-600 hover:text-brand-700 shadow-2xs hover:bg-amber-50/50 transition-colors"
-                >
-                  Mở Ba Lô Của Con
-                </Link>
               </div>
             </div>
 
@@ -607,20 +601,14 @@ export function ProfilePage() {
                   Chưa có tác phẩm nào
                 </h3>
                 <p className="mt-1 text-sm font-bold text-muted max-w-md">
-                  Vào Xưởng Sáng Tạo hoặc hoàn thành Bài học để lưu bức tranh đầu tiên vào Ba lô nhé!
+                  Vào Xưởng Sáng Tạo hoặc hoàn thành Bài học để vẽ bức tranh đầu tiên nhé!
                 </p>
-                <div className="mt-4 flex items-center gap-3 flex-wrap justify-center">
+                <div className="mt-4 flex items-center justify-center">
                   <Link
                     to="/creative"
                     className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-2.5 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
                     <span>🎨 Vào Xưởng Sáng Tạo vẽ tranh</span>
-                  </Link>
-                  <Link
-                    to="/backpack"
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white border border-amber-200 px-4 py-2 text-xs sm:text-sm font-extrabold text-brand-600 shadow-2xs hover:bg-amber-50/50 transition-all cursor-pointer"
-                  >
-                    <span>Mở Ba Lô Của Con</span>
                   </Link>
                 </div>
               </div>
@@ -647,7 +635,7 @@ export function ProfilePage() {
                         {friendlyProjectTitle(project.title)}
                       </p>
                       <div className="mt-2 flex items-center justify-between text-xs font-bold text-muted">
-                        <span>Đã lưu vào Ba lô</span>
+                        <span>Kiệt tác của con</span>
                         <span className="text-brand-600 font-extrabold group-hover:underline">
                           Xem ảnh
                         </span>

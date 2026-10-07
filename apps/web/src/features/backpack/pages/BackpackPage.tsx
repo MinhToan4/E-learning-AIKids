@@ -528,6 +528,9 @@ export function BackpackPage() {
       setProjects(mergedProjects)
       loadedSections.current.add('creations')
     } catch {
+      if (typeof localStorage !== 'undefined') {
+        try { localStorage.removeItem('storymee_active_ip_id') } catch {}
+      }
       if (projects.length === 0) setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
     } finally {
       setLoading(false)

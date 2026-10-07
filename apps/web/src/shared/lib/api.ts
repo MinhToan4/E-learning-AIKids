@@ -498,6 +498,11 @@ async function executeApi<T>(
         }
       }
     }
+    if (res.status === 403 && typeof window !== 'undefined' && typeof localStorage !== 'undefined' && (path.includes('/media') || path.includes('/gallery'))) {
+      try {
+        localStorage.removeItem('storymee_active_ip_id')
+      } catch {}
+    }
     // 401 on /me during bootstrap is normal when logged out — still throw for callers
     const msg =
       typeof data === 'object' && data && 'error' in data
