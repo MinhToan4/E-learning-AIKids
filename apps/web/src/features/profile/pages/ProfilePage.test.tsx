@@ -140,6 +140,7 @@ describe('ProfilePage Component', () => {
         } as any
       }
       if (endpoint === '/api/backpack') return { assets: [] } as any
+      if (endpoint === '/api/backpack/overview') return { projects: [] } as any
       if (endpoint === '/api/gamification/profile') return { totalXp: 450, level: 3 } as any
       return {} as any
     })
@@ -770,6 +771,73 @@ describe('ProfilePage Component', () => {
     expect(levelLink).toBeNull()
     expect(container.textContent).not.toContain('Xem hành trình cấp độ')
     expect(container.textContent).not.toContain('Hành trình cấp độ')
+
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it('loads stories and comics from backpack overview, labels badges as Truyện chữ / Truyện tranh, and ensures zero cold outline SVG icons', async () => {
+    // Override apiSpy for /api/backpack/overview
+    apiSpy.mockImplementation(async (endpoint: string) => {
+      if (endpoint.startsWith('/api/v1/aikids/profile-overview?')) {
+        return {
+          streak: { current: 5 },
+          projects: { items: [] },
+          appearance: { slug: 'be-minh' },
+          pathway: await learningApiModule.learningApi.getPathway(),
+        } as any
+      }
+      if (endpoint === '/api/backpack/overview') {
+        return {
+          projects: [
+            {
+              id: 'story-1',
+              title: 'Người bạn bất ngờ xuất hiện',
+              kind: 'story',
+              thumbnail: '/assets/story-friend.jpg',
+            },
+            {
+              id: 'comic-1',
+              title: 'Tìm thấy một vật lạ của Vẹt',
+              kind: 'comic',
+              thumbnail: '/assets/parrot-comic.jpg',
+            },
+          ],
+        } as any
+      }
+      if (endpoint === '/api/gamification/streak') return { current: 5 } as any
+      if (endpoint === '/api/gamification/profile') return { totalXp: 450, level: 3 } as any
+      return {} as any
+    })
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Both story and comic from backpack overview appear in works
+    expect(container.textContent).toContain('Người bạn bất ngờ xuất hiện')
+    expect(container.textContent).toContain('Tìm thấy một vật lạ của Vẹt')
+
+    // Labels
+    expect(container.textContent).toContain('Truyện chữ')
+    expect(container.textContent).toContain('Truyện tranh')
+
+    // Comic filter count should include both story and comic (2)
+    const comicFilter = container.querySelector('#filter-works-comic')
+    expect(comicFilter?.textContent).toContain('Truyện tranh & chữ (2)')
+
+    // Zero cold Lucide SVG icons in tab navigation, empty state, and certificates
+    const lucideIcons = container.querySelectorAll('.lucide-image, .lucide-award, .lucide-graduation-cap, .lucide-star')
+    expect(lucideIcons.length).toBe(0)
 
     act(() => root.unmount())
     container.remove()
