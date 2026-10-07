@@ -1678,14 +1678,7 @@ function CourseSelectionSection({
 
 function PathwaySection({ pathway, compact = false }: { pathway: Pathway; compact?: boolean }) {
   const [showAll, setShowAll] = useState(false)
-  const prioritized = pathway.courses.filter(
-    (c) => c.status === 'active' || c.status === 'completed' || c.id === pathway.recommendedCourseId,
-  )
-  const displayCourses = showAll
-    ? pathway.courses
-    : prioritized.length > 0
-      ? prioritized
-      : pathway.courses.slice(0, 4)
+  const displayCourses = showAll ? pathway.courses : pathway.courses.slice(0, 4)
 
   return (
     <section className="ui-card p-5">
