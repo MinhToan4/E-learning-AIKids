@@ -218,6 +218,8 @@ export function LessonPage() {
               message: 'Con đã hoàn thành bài học này.',
               nextQuestId: null,
             })
+          } else if (opened.progress?.phase && ['game', 'practice', 'check'].includes(opened.progress.phase)) {
+            setPhase(opened.progress.phase)
           }
         } catch (progressError) {
           if (!cancelled) {
@@ -288,7 +290,7 @@ export function LessonPage() {
     return () => {
       cancelled = true
     }
-  }, [questId, resetLocal, routeCourseId, authoritativeLessonId, setAuthoritativeLessonId, setCheckResult, setError, setIsPaywallOpen, setLiveStars, setLoading, setOfflineManifest, setPhase, setQuest, setResumeStageIndex])
+  }, [questId, resetLocal, routeCourseId, setAuthoritativeLessonId, setCheckResult, setError, setIsPaywallOpen, setLiveStars, setLoading, setOfflineManifest, setPhase, setQuest, setResumeStageIndex])
 
   // Chuẩn hóa URL sang friendly slug nếu questId trên URL là raw UUID
   useEffect(() => {
