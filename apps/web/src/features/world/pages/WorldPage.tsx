@@ -127,8 +127,10 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
       setRefreshTick((prev) => prev + 1)
     }
     window.addEventListener('aikids:lesson-completed', handleLessonCompleted)
+    window.addEventListener('aikids:progression-updated', handleLessonCompleted)
     return () => {
       window.removeEventListener('aikids:lesson-completed', handleLessonCompleted)
+      window.removeEventListener('aikids:progression-updated', handleLessonCompleted)
     }
   }, [])
 

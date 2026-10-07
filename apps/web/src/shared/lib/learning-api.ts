@@ -244,7 +244,16 @@ export const learningApi = {
         advanceInflightRequests.delete(key)
       }
     }
-    void request.then(cleanup, cleanup)
+    void request.then(
+      () => {
+        cleanup()
+        clearSessionLearningCache()
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('aikids:progression-updated'))
+        }
+      },
+      cleanup,
+    )
     return request
   },
 
@@ -264,10 +273,17 @@ export const learningApi = {
   },
 
   savePractice<T = { result: unknown }>(lessonId: string, input: LessonPracticeInput) {
-    return api<T>(
+    const request = api<T>(
       `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonId)}/practice`,
       { method: 'POST', body: JSON.stringify(input) },
     )
+    void request.then(() => {
+      clearSessionLearningCache()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aikids:progression-updated'))
+      }
+    }).catch(() => null)
+    return request
   },
 
   submitCheck(lessonId: string, input: LessonCheckInput, idempotencyKey?: string) {
@@ -276,7 +292,7 @@ export const learningApi = {
       (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()
         : `idemp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`)
-    return api<{
+    const request = api<{
       passed?: boolean
       stars: number
       message: string
@@ -294,6 +310,16 @@ export const learningApi = {
       body: JSON.stringify(input),
       keepalive: true,
     })
+    void request.then((res) => {
+      clearSessionLearningCache()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aikids:progression-updated'))
+        if (res.passed !== false) {
+          window.dispatchEvent(new CustomEvent('aikids:lesson-completed'))
+        }
+      }
+    }).catch(() => null)
+    return request
   },
 
   checkAnswer(

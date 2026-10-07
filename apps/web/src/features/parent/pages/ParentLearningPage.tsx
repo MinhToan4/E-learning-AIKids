@@ -35,6 +35,7 @@ import { useAuth } from '@/shared/store/auth'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 import { designerAssets, programArtworkHint } from '@/shared/config/assets'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
+import { AIKID_CANONICAL_TITLE_HINTS } from '@/features/world/lib/world-pathway-mapper'
 
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
@@ -493,6 +494,20 @@ export function ParentLearningPage() {
     return () => { requestVersion.current += 1; activeController.current?.abort() }
   }, [load])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleUpdated = () => {
+      invalidateParentCache()
+      void load()
+    }
+    window.addEventListener('aikids:lesson-completed', handleUpdated)
+    window.addEventListener('aikids:progression-updated', handleUpdated)
+    return () => {
+      window.removeEventListener('aikids:lesson-completed', handleUpdated)
+      window.removeEventListener('aikids:progression-updated', handleUpdated)
+    }
+  }, [load])
+
   async function handleEnterChild(childId: string) {
     if (!childId) return
     setBusy(true)
@@ -564,7 +579,7 @@ export function ParentLearningPage() {
                 const isActive = studentId === child.id
                 const img = avatarImage(child.avatarId)
                 const av = getAvatar(child.avatarId)
-                const cStars = child.totalStars ?? 0
+                const cStars = isActive ? totalStars : (child.totalStars ?? 0)
 
                 return (
                   <button
@@ -754,7 +769,14 @@ function LearningOverview({
   onEnterChild: () => void
 }) {
   const completed = pathway.courses.filter((course) => course.status === 'completed').length
-  const isIsland0Done = completedQuests >= 10
+  const island0Course = pathway.courses.find(
+    (c) =>
+      c.id === 'muoi-quy-tac-xuong-sang-tao' ||
+      c.slug === 'muoi-quy-tac-xuong-sang-tao' ||
+      c.title?.toLowerCase().includes('quy tắc') ||
+      c.title?.toLowerCase().includes('quy tac'),
+  )
+  const isIsland0Done = Boolean(island0Course && (island0Course.status === 'completed' || (island0Course.completedCount ?? 0) >= (island0Course.questCount ?? 10))) || completedQuests >= 10
 
   return (
     <div className="grid gap-5">
@@ -839,11 +861,13 @@ function LearningOverview({
             let islandStars = 0
             let islandStatus: 'completed' | 'active' | 'locked' = 'locked'
 
-            const course = pathway?.courses?.find((c) =>
-              c.id === island.id ||
-              c.slug === island.id ||
-              c.slug?.includes(island.id)
-            )
+            const hints = AIKID_CANONICAL_TITLE_HINTS[island.id as keyof typeof AIKID_CANONICAL_TITLE_HINTS] ?? []
+            const course = pathway?.courses?.find((c) => {
+              if (c.id === island.id || c.slug === island.id) return true
+              if (c.slug && (island.id.startsWith(c.slug) || island.id.includes(c.slug))) return true
+              const search = `${c.title} ${c.shortTitle ?? ''} ${c.slug ?? ''}`.toLowerCase()
+              return hints.some((hint) => search.includes(hint))
+            })
 
             if (course) {
               islandCompleted = course.completedCount ?? (course.status === 'completed' ? island.totalStations : 0)
