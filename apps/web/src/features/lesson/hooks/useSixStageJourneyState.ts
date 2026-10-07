@@ -95,6 +95,32 @@ export function writeLessonStorage(key: string, value: unknown): void {
   }
 }
 
+export function parseQuizAnswersStorage(lessonId: string): Record<number, number> {
+  const raw = readLessonStorage<unknown>(`aikids_quiz_ans_${lessonId}`, {})
+  const map: Record<number, number> = {}
+  if (Array.isArray(raw)) {
+    raw.forEach((item, idx) => {
+      if (typeof item === 'number') {
+        map[idx] = item
+      } else if (item && typeof item === 'object' && typeof (item as any).optionIndex === 'number' && (item as any).optionIndex >= 0) {
+        map[idx] = (item as any).optionIndex
+      }
+    })
+    return map
+  }
+  if (raw && typeof raw === 'object') {
+    Object.entries(raw as Record<string, unknown>).forEach(([k, v]) => {
+      if (typeof v === 'number') {
+        map[Number(k)] = v
+      } else if (v && typeof v === 'object' && typeof (v as any).optionIndex === 'number') {
+        map[Number(k)] = (v as any).optionIndex
+      }
+    })
+    return map
+  }
+  return {}
+}
+
 export function clearLessonStageStorage(lessonId: string): void {
   try {
     if (typeof window === 'undefined') return
@@ -186,9 +212,11 @@ export function useSixStageJourneyState({
     if (curriculum) {
       const num = String(curriculum.lessonNumber || '1.1')
       const pureTitle = cleanCurriculumTitle(curriculum.title)
-      const stationLabel = pureTitle.startsWith('Bài') || pureTitle.startsWith('Trạm')
+      const parts = num.split('.')
+      const stationOrderNum = parts.length > 1 ? parts[1] : num
+      const stationLabel = pureTitle.startsWith('Trạm')
         ? pureTitle
-        : `Bài ${num} — ${pureTitle}`
+        : `Trạm ${stationOrderNum} — ${pureTitle}`
 
       return {
         stationLabel,
@@ -209,7 +237,7 @@ export function useSixStageJourneyState({
 
     const safeTitle = cleanCurriculumTitle(lessonTitle || 'Bài học')
     return {
-      stationLabel: safeTitle.startsWith('Trạm') ? safeTitle : `Trạm: ${safeTitle}`,
+      stationLabel: safeTitle.startsWith('Trạm') ? safeTitle : `Trạm — ${safeTitle}`,
       islandName: 'Đảo Sáng Tạo',
       lessonNumber: '1',
     }
@@ -378,7 +406,7 @@ export function useSixStageJourneyState({
 
   // Stage 3 (Quiz) state - khôi phục 100% khi thoát ra vào lại
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>(() =>
-    readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${lessonId}`, {}),
+    parseQuizAnswersStorage(lessonId),
   )
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(() =>
     readLessonStorage<boolean>(`aikids_quiz_sub_${lessonId}`, false),
@@ -612,7 +640,7 @@ export function useSixStageJourneyState({
       setIsConfirmCorrect(readLessonStorage<boolean | null>(`aikids_confirm_cor_${lessonId}`, null))
       setFailedOptionImages({})
       setVideoSeekSec(null)
-      setQuizAnswers(readLessonStorage<Record<number, number>>(`aikids_quiz_ans_${lessonId}`, {}))
+      setQuizAnswers(parseQuizAnswersStorage(lessonId))
       setQuizSubmitted(readLessonStorage<boolean>(`aikids_quiz_sub_${lessonId}`, false))
       setActiveQuizQuestionIdx(readLessonStorage<number>(`aikids_quiz_active_${lessonId}`, 0))
       setCheckedQuestions(readLessonStorage<Record<number, boolean>>(`aikids_quiz_chk_${lessonId}`, {}))
@@ -852,7 +880,7 @@ export function useSixStageJourneyState({
     } else {
       // Bài học có chặng thực hành: Hoàn thành Quiz đạt 2 sao -> Lưu local storage & gửi resume lên server
       writeLessonStorage(`aikids_lesson_stars_${lessonId}`, 2)
-      writeLessonStorage(`aikids_quiz_ans_${lessonId}`, submittedQuizAnswers)
+      writeLessonStorage(`aikids_quiz_ans_${lessonId}`, quizAnswers)
       writeLessonStorage(`aikids_quiz_sub_${lessonId}`, true)
 
       saveLocalLessonProgress(lessonId, 2, false, currentChildId)

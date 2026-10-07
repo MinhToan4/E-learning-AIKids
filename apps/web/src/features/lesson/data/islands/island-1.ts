@@ -6,7 +6,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-1-1-mot-tu-hay-nam-tu",
     "islandNumber": 1,
     "lessonNumber": "1.1",
-    "title": "Bài 1.1 — Một từ hay năm từ?",
+    "title": "Trạm 1 — Một từ hay năm từ?",
     "subtitle": "Tả càng rõ, AIKI vẽ càng đúng!",
     "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
     "objective": "Trẻ biết cách viết câu lệnh đầu tiên cho AI.",
@@ -15,7 +15,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 1.1 — Một từ hay năm từ?",
+        "title": "Mục tiêu bài học: Trạm 1 — Một từ hay năm từ?",
         "goalText": "Trẻ biết cách viết câu lệnh đầu tiên cho AI.",
         "skillLearned": "Biết thêm chi tiết để câu lệnh rõ ràng hơn.",
         "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
@@ -47,7 +47,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage3-video",
-        "title": "Video bài giảng: Bài 1.1 — Một từ hay năm từ?",
+        "title": "Video bài giảng: Trạm 1 — Một từ hay năm từ?",
         "videoUrl": "https://www.youtube.com/embed/sRpHRsErlw8",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
@@ -74,7 +74,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 1.1 — Một từ hay năm từ?",
+        "title": "Thử tài kiến thức: Trạm 1 — Một từ hay năm từ?",
         "questions": [
           {
             "id": "bai-1-1-q1",
@@ -117,9 +117,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 1.1 — Một từ hay năm từ?",
+        "title": "Xưởng Sáng Tạo AI: Trạm 1 — Một từ hay năm từ?",
         "subjectName": "Chú Mèo Mướp Béo",
-        "badge": "Bài 1.1",
+        "badge": "Trạm 1",
         "illustrationType": "cat-fat",
         "lockedFeatures": [
           "mèo mướp vàng béo tròn",
@@ -165,9 +165,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.1 — Một từ hay năm từ?\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 1 — Một từ hay năm từ?\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 1.1 — Một từ hay năm từ?",
+          "name": "Huy hiệu Trạm 1 — Một từ hay năm từ?",
           "iconUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
           "stars": 3,
           "xp": 50
@@ -181,7 +181,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-1-2-bon-chiec-chia-khoa",
     "islandNumber": 1,
     "lessonNumber": "1.2",
-    "title": "Bài 1.2 — Bốn chiếc chìa khoá",
+    "title": "Trạm 2 — Bốn chiếc chìa khoá",
     "subtitle": "Bộ khung 4 chìa khoá vạn năng để mở cánh cửa sáng tạo AI!",
     "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
     "objective": "Trẻ biết viết một câu lệnh rõ ràng với đủ bốn phần.",
@@ -190,7 +190,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 1.2 — Bốn chiếc chìa khoá",
+        "title": "Mục tiêu bài học: Trạm 2 — Bốn chiếc chìa khoá",
         "goalText": "Trẻ biết viết một câu lệnh rõ ràng với đủ bốn phần.",
         "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
         "speech": "Zico: Một con mèo rất đẹp, rất là đẹp, đẹp lắm luôn, tớ rất thích nó...\nAKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa! Viết dài toàn từ khen chưa chắc đã rõ đâu nhé các cậu!",
@@ -224,7 +224,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage3-video",
-        "title": "Video bài giảng: Bài 1.2 — Bốn chiếc chìa khoá",
+        "title": "Video bài giảng: Trạm 2 — Bốn chiếc chìa khoá",
         "videoUrl": "https://www.youtube.com/embed/NMdHhsLY5jc",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
@@ -269,7 +269,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 1.2 — Bốn chiếc chìa khoá",
+        "title": "Thử tài kiến thức: Trạm 2 — Bốn chiếc chìa khoá",
         "questions": [
           {
             "id": "bai-1-2-q1",
@@ -312,9 +312,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 1.2 — Bốn chiếc chìa khoá",
+        "title": "Xưởng Sáng Tạo AI: Trạm 2 — Bốn chiếc chìa khoá",
         "subjectName": "Cốc Sứ Trắng Mẻ Miệng Bốc Khói",
-        "badge": "Bài 1.2",
+        "badge": "Trạm 2",
         "illustrationType": "teacup",
         "lockedFeatures": [
           "cốc sứ trắng men bóng mẻ miệng",
@@ -375,9 +375,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.2 — Bốn chiếc chìa khoá\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 2 — Bốn chiếc chìa khoá\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 1.2 — Bốn chiếc chìa khoá",
+          "name": "Huy hiệu Trạm 2 — Bốn chiếc chìa khoá",
           "iconUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
           "stars": 3,
           "xp": 50
@@ -391,7 +391,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-1-3-um-ba-la-bien-hinh",
     "islandNumber": 1,
     "lessonNumber": "1.3",
-    "title": "Bài 1.3 — Úm ba la... Biến hình",
+    "title": "Trạm 3 — Úm ba la... Biến hình",
     "subtitle": "Khám phá 4 phong cách nghệ thuật biến hóa tranh thần kỳ!",
     "imageUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
     "objective": "Trẻ biết chọn kiểu vẽ phù hợp và nói được vì sao mình chọn.",
@@ -400,7 +400,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-1-3-um-ba-la-bien-hinh-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 1.3 — Úm ba la... Biến hình",
+        "title": "Mục tiêu bài học: Trạm 3 — Úm ba la... Biến hình",
         "goalText": "Trẻ biết chọn kiểu vẽ phù hợp và nói được vì sao mình chọn.",
         "imageUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
         "speech": "Sonet: AIKI ơi, tớ vẽ con trâu mà sao tranh nào cũng một màu chán ngắt thế này?\nAKI: Nhìn cái này đi Sonet! Tớ có bốn bức tranh con trâu. Tớ tả giống hệt nhau từng chữ một, thế mà bốn bức lại khác hẳn nhau!",
@@ -439,7 +439,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-1-3-um-ba-la-bien-hinh-stage3-video",
-        "title": "Video bài giảng: Bài 1.3 — Úm ba la... Biến hình",
+        "title": "Video bài giảng: Trạm 3 — Úm ba la... Biến hình",
         "videoUrl": "https://www.youtube.com/embed/GCtez_WirtU",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
@@ -466,7 +466,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-1-3-um-ba-la-bien-hinh-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 1.3 — Úm ba la... Biến hình",
+        "title": "Thử tài kiến thức: Trạm 3 — Úm ba la... Biến hình",
         "questions": [
           {
             "id": "bai-1-3-q1",
@@ -509,9 +509,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-1-3-um-ba-la-bien-hinh-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 1.3 — Úm ba la... Biến hình",
+        "title": "Xưởng Sáng Tạo AI: Trạm 3 — Úm ba la... Biến hình",
         "subjectName": "Bảng 4 Phong Cách Nghệ Thuật",
-        "badge": "Bài 1.3",
+        "badge": "Trạm 3",
         "illustrationType": "four-styles",
         "lockedFeatures": [
           "đất nặn Clay 3D tròn trịa",
@@ -573,9 +573,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-1-3-um-ba-la-bien-hinh-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.3 — Úm ba la... Biến hình\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 3 — Úm ba la... Biến hình\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 1.3 — Úm ba la... Biến hình",
+          "name": "Huy hiệu Trạm 3 — Úm ba la... Biến hình",
           "iconUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg",
           "stars": 3,
           "xp": 50
@@ -589,7 +589,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-1-4-ky-su-tai-ba",
     "islandNumber": 1,
     "lessonNumber": "1.4",
-    "title": "Bài 1.4 — Kỹ sư tài ba",
+    "title": "Trạm 4 — Kỹ sư tài ba",
     "subtitle": "Bác sĩ câu lệnh: Tranh sai thì sửa chữ chứ không bấm nút bừa!",
     "imageUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
     "objective": "Trẻ biết sửa câu lệnh khi hình chưa đúng, thay vì cứ bấm tạo lại.",
@@ -598,7 +598,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-1-4-ky-su-tai-ba-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 1.4 — Kỹ sư tài ba",
+        "title": "Mục tiêu bài học: Trạm 4 — Kỹ sư tài ba",
         "goalText": "Trẻ biết sửa câu lệnh khi hình chưa đúng, thay vì cứ bấm tạo lại.",
         "imageUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
         "speech": "Nabi: Bấm... vẫn sai! Bấm... lại sai! Bàn tay hiệp sĩ cứ ra sáu ngón hoài à AIKI ơi!\nAKI: Nabi bấm năm lần rồi đấy, hết cả lượt mà chả được gì! Nhìn bức tranh tay sáu ngón này xem, lỗi là do mình chưa sửa câu lệnh đấy!",
@@ -635,7 +635,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-1-4-ky-su-tai-ba-stage3-video",
-        "title": "Video bài giảng: Bài 1.4 — Kỹ sư tài ba",
+        "title": "Video bài giảng: Trạm 4 — Kỹ sư tài ba",
         "videoUrl": "https://www.youtube.com/embed/53OFMtjB0aM",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
@@ -662,7 +662,7 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-1-4-ky-su-tai-ba-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 1.4 — Kỹ sư tài ba",
+        "title": "Thử tài kiến thức: Trạm 4 — Kỹ sư tài ba",
         "questions": [
           {
             "id": "bai-1-4-q1",
@@ -705,9 +705,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-1-4-ky-su-tai-ba-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 1.4 — Kỹ sư tài ba",
+        "title": "Xưởng Sáng Tạo AI: Trạm 4 — Kỹ sư tài ba",
         "subjectName": "Bác Sĩ Câu Lệnh Sửa Tay Hiệp Sĩ",
-        "badge": "Bài 1.4",
+        "badge": "Trạm 4",
         "illustrationType": "engineer-fix",
         "lockedFeatures": [
           "bàn tay hiệp sĩ đeo găng giáp bạc đúng 5 ngón",
@@ -807,9 +807,9 @@ export const ISLAND_1_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-1-4-ky-su-tai-ba-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.4 — Kỹ sư tài ba\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 4 — Kỹ sư tài ba\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 1.4 — Kỹ sư tài ba",
+          "name": "Huy hiệu Trạm 4 — Kỹ sư tài ba",
           "iconUrl": "/assets/aiki-islands/island1_lesson4_engineer.jpg",
           "stars": 3,
           "xp": 50

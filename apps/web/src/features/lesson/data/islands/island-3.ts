@@ -6,7 +6,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-3-1-ho-so-biet-doi",
     "islandNumber": 3,
     "lessonNumber": "3.1",
-    "title": "Bài 3.1 — Hồ sơ biệt đội",
+    "title": "Trạm 1 — Hồ sơ biệt đội",
     "subtitle": "Bảng ADN 6 ô: Bí quyết để nhân vật có linh hồn!",
     "imageUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
     "objective": "Trẻ viết được hồ sơ tính cách trước khi có bất kỳ hình nào.",
@@ -15,7 +15,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-3-1-ho-so-biet-doi-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 3.1 — Hồ sơ biệt đội",
+        "title": "Mục tiêu bài học: Trạm 1 — Hồ sơ biệt đội",
         "goalText": "Trẻ viết được hồ sơ tính cách trước khi có bất kỳ hình nào.",
         "imageUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
         "speech": "Sonet: AIKI ơi vẽ cho tớ một siêu hiệp sĩ cực mạnh, bay nhanh hơn gió, đấm vỡ núi đá, không sợ cái gì hết!\nAKI: Ơ... nhân vật cái gì cũng giỏi, chẳng sợ gì thì chán lắm Sonet ơi! Một nhân vật hay phải có điểm yếu và tính cách riêng cơ!",
@@ -54,7 +54,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-3-1-ho-so-biet-doi-stage3-video",
-        "title": "Video bài giảng: Bài 3.1 — Hồ sơ biệt đội",
+        "title": "Video bài giảng: Trạm 1 — Hồ sơ biệt đội",
         "videoUrl": "https://www.youtube.com/embed/x2k-VyO-GTc",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
@@ -81,7 +81,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-3-1-ho-so-biet-doi-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 3.1 — Hồ sơ biệt đội",
+        "title": "Thử tài kiến thức: Trạm 1 — Hồ sơ biệt đội",
         "questions": [
           {
             "id": "bai-3-1-q1",
@@ -124,9 +124,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-3-1-ho-so-biet-doi-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 3.1 — Hồ sơ biệt đội",
+        "title": "Xưởng Sáng Tạo AI: Trạm 1 — Hồ sơ biệt đội",
         "subjectName": "Hồ Sơ ADN Hiệp Sĩ Cáo Lửa",
-        "badge": "Bài 3.1",
+        "badge": "Trạm 1",
         "illustrationType": "profile-dna",
         "lockedFeatures": [
           "Hiệp Sĩ Cáo Lửa Red lông đỏ cam rực rỡ",
@@ -261,9 +261,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-3-1-ho-so-biet-doi-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 3.1 — Hồ sơ biệt đội\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 1 — Hồ sơ biệt đội\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 3.1 — Hồ sơ biệt đội",
+          "name": "Huy hiệu Trạm 1 — Hồ sơ biệt đội",
           "iconUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg",
           "stars": 3,
           "xp": 50
@@ -277,7 +277,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-3-2-mat-ma-nhan-dien",
     "islandNumber": 3,
     "lessonNumber": "3.2",
-    "title": "Bài 3.2 — Mật mã nhận diện",
+    "title": "Trạm 2 — Mật mã nhận diện",
     "subtitle": "Khóa chặt 3 điểm nhận diện bất biến để nhân vật không bị trôi!",
     "imageUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
     "objective": "Trẻ chọn được ba đặc điểm nhận dạng cố định cho nhân vật.",
@@ -286,7 +286,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 3.2 — Mật mã nhận diện",
+        "title": "Mục tiêu bài học: Trạm 2 — Mật mã nhận diện",
         "goalText": "Trẻ chọn được ba đặc điểm nhận dạng cố định cho nhân vật.",
         "imageUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
         "speech": "Tina: Ối AIKI ơi! Bức một Sóc Bông của tớ đội mũ len đỏ đuôi to xù. Sang bức hai tự nhiên biến thành sóc đội nón lá đuôi chuột cống! Làm sao để giữ đúng một bạn bây giờ?\nAKI: Vì Tina chưa có Mật Mã Nhận Diện đấy! AI mà không được khóa đặc điểm thì mỗi lần bấm lại vẽ ra một người lạ hoắc!",
@@ -323,7 +323,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage3-video",
-        "title": "Video bài giảng: Bài 3.2 — Mật mã nhận diện",
+        "title": "Video bài giảng: Trạm 2 — Mật mã nhận diện",
         "videoUrl": "https://www.youtube.com/embed/LtRW4JX8HWE",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
@@ -350,7 +350,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 3.2 — Mật mã nhận diện",
+        "title": "Thử tài kiến thức: Trạm 2 — Mật mã nhận diện",
         "questions": [
           {
             "id": "bai-3-2-q1",
@@ -393,9 +393,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 3.2 — Mật mã nhận diện",
+        "title": "Xưởng Sáng Tạo AI: Trạm 2 — Mật mã nhận diện",
         "subjectName": "Sóc Bông Khóa 3 Điểm",
-        "badge": "Bài 3.2",
+        "badge": "Trạm 2",
         "illustrationType": "soc-bong",
         "lockedFeatures": [
           "mũ len đỏ quả bông trắng",
@@ -449,9 +449,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-3-2-mat-ma-nhan-dien-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 3.2 — Mật mã nhận diện\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 2 — Mật mã nhận diện\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 3.2 — Mật mã nhận diện",
+          "name": "Huy hiệu Trạm 2 — Mật mã nhận diện",
           "iconUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg",
           "stars": 3,
           "xp": 50
@@ -465,7 +465,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-3-3-bien-hoa-bieu-cam",
     "islandNumber": 3,
     "lessonNumber": "3.3",
-    "title": "Bài 3.3 — Biến hoá biểu cảm",
+    "title": "Trạm 3 — Biến hoá biểu cảm",
     "subtitle": "Đổi mặt, không đổi người! Giữ vững nhân vật qua 6 sắc thái cảm xúc!",
     "imageUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
     "objective": "Trẻ tạo được sáu biểu cảm mà nhân vật vẫn là một người.",
@@ -474,7 +474,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 3.3 — Biến hoá biểu cảm",
+        "title": "Mục tiêu bài học: Trạm 3 — Biến hoá biểu cảm",
         "goalText": "Trẻ tạo được sáu biểu cảm mà nhân vật vẫn là một người.",
         "imageUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
         "speech": "Tina: Hôm qua tớ làm bộ sáu biểu cảm cho Bông: vui, buồn, sợ, giận, ngạc nhiên, buồn ngủ. Làm xong nhìn lại... ơ? Hình thì Bông có chuông vàng, hình lại mất chuông, hình vòng cổ đỏ hình lại đổi màu! Cứ như sáu chú chó khác nhau ấy!\nAKI: Vì Tina chỉ bảo tớ 'Bông đang vui', 'Bông đang giận' mà quên gửi kèm ảnh mẫu và luật vẽ nhân vật đấy!",
@@ -511,7 +511,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage3-video",
-        "title": "Video bài giảng: Bài 3.3 — Biến hoá biểu cảm",
+        "title": "Video bài giảng: Trạm 3 — Biến hoá biểu cảm",
         "videoUrl": "https://www.youtube.com/embed/Crrd59K_C2M",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
@@ -538,7 +538,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 3.3 — Biến hoá biểu cảm",
+        "title": "Thử tài kiến thức: Trạm 3 — Biến hoá biểu cảm",
         "questions": [
           {
             "id": "bai-3-3-q1",
@@ -581,9 +581,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 3.3 — Biến hoá biểu cảm",
+        "title": "Xưởng Sáng Tạo AI: Trạm 3 — Biến hoá biểu cảm",
         "subjectName": "Lưới 6 Biểu Cảm Của Sóc Bông",
-        "badge": "Bài 3.3",
+        "badge": "Trạm 3",
         "illustrationType": "six-expressions",
         "lockedFeatures": [
           "mũ len đỏ quả bông trắng",
@@ -672,9 +672,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-3-3-bien-hoa-bieu-cam-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 3.3 — Biến hoá biểu cảm\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 3 — Biến hoá biểu cảm\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 3.3 — Biến hoá biểu cảm",
+          "name": "Huy hiệu Trạm 3 — Biến hoá biểu cảm",
           "iconUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg",
           "stars": 3,
           "xp": 50
@@ -688,7 +688,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-3-4-can-cu-bi-mat-cua-biet-doi",
     "islandNumber": 3,
     "lessonNumber": "3.4",
-    "title": "Bài 3.4 — Căn cứ bí mật của biệt đội",
+    "title": "Trạm 4 — Căn cứ bí mật của biệt đội",
     "subtitle": "Nơi ở phải kể được tính cách của nhân vật!",
     "imageUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
     "objective": "Trẻ dựng được nơi ở và đồ vật riêng cho nhân vật.",
@@ -697,7 +697,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 3.4 — Căn cứ bí mật của biệt đội",
+        "title": "Mục tiêu bài học: Trạm 4 — Căn cứ bí mật của biệt đội",
         "goalText": "Trẻ dựng được nơi ở và đồ vật riêng cho nhân vật.",
         "imageUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
         "speech": "Sonet: AIKI ơi xem phòng bí mật tớ dựng cho chú mèo Bum này: đèn chùm pha lê lung linh, ngai vàng dát bạc, tường đầy sách cổ... Đẹp mê ly luôn!\nAKI: Đẹp thật đấy Sonet... Nhưng Bum là chú mèo thích trèo cây đuổi bướm và sợ bóng tối. Ngồi trên ngai vàng nhìn Bum ngơ ngác như đi lạc vào nhà người khác ấy!",
@@ -734,7 +734,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage3-video",
-        "title": "Video bài giảng: Bài 3.4 — Căn cứ bí mật của biệt đội",
+        "title": "Video bài giảng: Trạm 4 — Căn cứ bí mật của biệt đội",
         "videoUrl": "https://www.youtube.com/embed/Hxk4NmtL3IY",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
@@ -761,7 +761,7 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 3.4 — Căn cứ bí mật của biệt đội",
+        "title": "Thử tài kiến thức: Trạm 4 — Căn cứ bí mật của biệt đội",
         "questions": [
           {
             "id": "bai-3-4-q1",
@@ -804,9 +804,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 3.4 — Căn cứ bí mật của biệt đội",
+        "title": "Xưởng Sáng Tạo AI: Trạm 4 — Căn cứ bí mật của biệt đội",
         "subjectName": "Căn Cứ Hốc Cây Của Sóc Bông",
-        "badge": "Bài 3.4",
+        "badge": "Trạm 4",
         "illustrationType": "tree-hollow-base",
         "lockedFeatures": [
           "hốc cây sồi già ấm cúng có kệ hạt dẻ",
@@ -861,9 +861,9 @@ export const ISLAND_3_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 3.4 — Căn cứ bí mật của biệt đội\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 4 — Căn cứ bí mật của biệt đội\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 3.4 — Căn cứ bí mật của biệt đội",
+          "name": "Huy hiệu Trạm 4 — Căn cứ bí mật của biệt đội",
           "iconUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg",
           "stars": 3,
           "xp": 50

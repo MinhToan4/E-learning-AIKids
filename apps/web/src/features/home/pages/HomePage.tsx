@@ -814,7 +814,7 @@ export function HomePage() {
                     {/* 2. Lời gọi phiêu lưu ấm áp & Mô tả khơi gợi trí tò mò */}
                     <div>
                       <h3 className="font-display text-xl sm:text-2xl font-black text-slate-900 leading-snug">
-                        Sẵn sàng ra khơi cùng Mèo AIKI thôi nào, {childDisplayName}! 🌊
+                        Sẵn sàng ra khơi cùng Mèo AIKI thôi nào, {childDisplayName}!
                       </h3>
                       <p className="mt-1.5 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-2xl">
                         Mỗi trạm học là một hòn đảo kỳ thú! Con sẽ cùng Mèo AIKI giải mã những bí mật thú vị, vẽ tranh thỏa thích và sáng tác nên những câu chuyện tuyệt vời của riêng mình.
@@ -839,34 +839,40 @@ export function HomePage() {
                         <span>Khám phá trạm tiếp theo</span>
                       </button>
 
-                      <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/90 border border-amber-200/80 shadow-2xs min-w-0">
+                      <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/95 border border-amber-200/90 shadow-2xs min-w-0">
                         <span className="text-base select-none shrink-0" aria-hidden="true">🎯</span>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
-                            {activeStation.islandTitle}
+                        <div className="min-w-0">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800 truncate">
+                            {(activeStation.islandTitle || '')
+                              .replace(/^Module\s+\d+\s*[-—:]\s*/i, '')
+                              .replace(/\s*AI!*$/i, '')
+                              .trim() || 'Đảo Sáng Tạo'}
                           </div>
                           <div className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
-                            {activeStation.stationLabel}: {activeStation.stationTitle}
+                            {activeStation.stationLabel} — {(activeStation.stationTitle || '')
+                              .replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '')
+                              .replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '')
+                              .trim()}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 4. Mèo AIKI với Bong bóng thoại hoạt hình tương tác */}
-                  <div className="relative shrink-0 flex flex-col items-center justify-center">
-                    <div className="relative mb-2 px-3 py-1 bg-white rounded-2xl border border-amber-200/90 shadow-2xs text-center select-none">
+                  {/* 4. Mèo AIKI đứng tự do trên nền card lớn kèm Bong bóng thoại */}
+                  <div className="relative shrink-0 flex flex-col items-center justify-end self-center sm:self-end">
+                    <div className="relative mb-1 px-3 py-1 bg-white/95 rounded-2xl border border-amber-200/90 shadow-2xs text-center select-none">
                       <span className="text-xs font-black text-amber-950">
                         {activeStation.catDialogue || `Đi cùng Mee nào ${childDisplayName}!`}
                       </span>
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-b border-r border-amber-200/90 rotate-45" />
                     </div>
 
-                    <div className="w-28 sm:w-36 h-28 sm:h-36 rounded-3xl bg-gradient-to-tr from-amber-100 to-orange-100 border-2 border-white shadow-soft flex items-center justify-center overflow-hidden">
+                    <div className="relative w-32 sm:w-40 h-32 sm:h-40 flex items-end justify-center select-none">
                       <img
                         src={designerAssets.catPoses.celebrate || designerAssets.catPoses.guide}
                         alt="Mèo AIKI Đồng Hành"
-                        className="w-24 sm:w-32 h-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                        className="w-28 sm:w-36 h-auto max-h-full object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 pointer-events-none"
                       />
                     </div>
                   </div>

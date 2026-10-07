@@ -181,7 +181,7 @@ describe('island-journey-resolver', () => {
 
       // Stage 5: Practice Studio Workspace
       expect(resolved.stage5_practice.subjectName).toBe('Chú Mèo Mướp Béo')
-      expect(resolved.stage5_practice.badge).toBe('Bài 1.1')
+      expect(resolved.stage5_practice.badge).toBe('Trạm 1')
       expect(resolved.stage5_practice.maxAttempts).toBe(6)
       expect(resolved.stage5_practice.workflowSteps.length).toBeGreaterThanOrEqual(2)
       expect(resolved.stage5_practice.workflowSteps[0].title).toBe('Thực hành 01 — Một từ')
@@ -202,7 +202,7 @@ describe('island-journey-resolver', () => {
 
       const resolved = resolveIslandSixStageJourney(uuidQuest)
       expect(resolved.stage5_practice.subjectName).toContain('Sóc Bông')
-      expect(resolved.stage5_practice.badge).toBe('Bài 3.2')
+      expect(resolved.stage5_practice.badge).toBe('Trạm 2')
       expect(resolved.stage2_confirmGoal.question).toContain('Để AKI vẽ đúng một nhân vật')
     })
 

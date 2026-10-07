@@ -6,7 +6,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-4-1-3-cong-cua-vuong-quoc",
     "islandNumber": 4,
     "lessonNumber": "4.1",
-    "title": "Bài 4.1 — 3 Cổng của Vương Quốc",
+    "title": "Trạm 1 — 3 Cổng của Vương Quốc",
     "subtitle": "Mọi câu chuyện cuốn hút đều đi qua 3 Cổng!",
     "imageUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
     "objective": "Trẻ kể miệng được một chuyện có đủ ba phần.",
@@ -15,7 +15,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 4.1 — 3 Cổng của Vương Quốc",
+        "title": "Mục tiêu bài học: Trạm 1 — 3 Cổng của Vương Quốc",
         "goalText": "Trẻ kể miệng được một chuyện có đủ ba phần.",
         "imageUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
         "speech": "Bona: Hôm qua tớ kể chuyện về Chíp cho AIKI nghe: 'Chíp thức dậy. Chíp ăn sáng. Chíp ra sân chơi. Chíp ăn trưa. Chíp về nhà ngủ. Hết!'\nAKI: Ơ... nghe xong tớ thấy thiếu thiếu Bona ơi! Mọi việc đều đúng, nhưng phẳng lì như tờ giấy vì chẳng có biến cố gì xảy ra cả!",
@@ -52,7 +52,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage3-video",
-        "title": "Video bài giảng: Bài 4.1 — 3 Cổng của Vương Quốc",
+        "title": "Video bài giảng: Trạm 1 — 3 Cổng của Vương Quốc",
         "videoUrl": "https://www.youtube.com/embed/OGS7gaPTcc4",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
@@ -79,7 +79,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 4.1 — 3 Cổng của Vương Quốc",
+        "title": "Thử tài kiến thức: Trạm 1 — 3 Cổng của Vương Quốc",
         "questions": [
           {
             "id": "bai-4-1-q1",
@@ -122,9 +122,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 4.1 — 3 Cổng của Vương Quốc",
+        "title": "Xưởng Sáng Tạo AI: Trạm 1 — 3 Cổng của Vương Quốc",
         "subjectName": "Cốt Truyện 3 Cổng Của Vương Quốc",
-        "badge": "Bài 4.1",
+        "badge": "Trạm 1",
         "illustrationType": "three-gates",
         "lockedFeatures": [
           "bộ 3 khung truyện nối tiếp",
@@ -222,9 +222,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-4-1-3-cong-cua-vuong-quoc-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 4.1 — 3 Cổng của Vương Quốc\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 1 — 3 Cổng của Vương Quốc\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 4.1 — 3 Cổng của Vương Quốc",
+          "name": "Huy hiệu Trạm 1 — 3 Cổng của Vương Quốc",
           "iconUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg",
           "stars": 3,
           "xp": 50
@@ -238,7 +238,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-4-2-04-chang-thu-thach",
     "islandNumber": 4,
     "lessonNumber": "4.2",
-    "title": "Bài 4.2 — 4 Chặng thử thách",
+    "title": "Trạm 2 — 4 Chặng thử thách",
     "subtitle": "Khung xương 4 Chặng: Muốn -> Cản -> Làm -> Kết!",
     "imageUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
     "objective": "Trẻ viết được khung xương truyện bốn dòng.",
@@ -247,7 +247,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-4-2-04-chang-thu-thach-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 4.2 — 4 Chặng thử thách",
+        "title": "Mục tiêu bài học: Trạm 2 — 4 Chặng thử thách",
         "goalText": "Trẻ viết được khung xương truyện bốn dòng.",
         "imageUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
         "speech": "Lala: Hôm qua tớ viết chuyện cho Bơ thế này: 'Bơ muốn tìm chiếc huy hiệu bị mất. Bơ đi tìm. Bơ tìm thấy ngay. Hết!'\nAKI: Ơ... nhanh quá Lala ơi! Tớ còn chưa kịp lo cho Bơ thì câu chuyện đã xong rồi! Tìm thấy ngay thì đâu còn là cuộc phiêu lưu nữa!",
@@ -285,7 +285,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-4-2-04-chang-thu-thach-stage3-video",
-        "title": "Video bài giảng: Bài 4.2 — 4 Chặng thử thách",
+        "title": "Video bài giảng: Trạm 2 — 4 Chặng thử thách",
         "videoUrl": "https://www.youtube.com/embed/35kC8Lw31C0",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
@@ -312,7 +312,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-4-2-04-chang-thu-thach-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 4.2 — 4 Chặng thử thách",
+        "title": "Thử tài kiến thức: Trạm 2 — 4 Chặng thử thách",
         "questions": [
           {
             "id": "bai-4-2-q1",
@@ -355,9 +355,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-4-2-04-chang-thu-thach-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 4.2 — 4 Chặng thử thách",
+        "title": "Xưởng Sáng Tạo AI: Trạm 2 — 4 Chặng thử thách",
         "subjectName": "Hành Trình 4 Chặng Thử Thách",
-        "badge": "Bài 4.2",
+        "badge": "Trạm 2",
         "illustrationType": "four-challenges",
         "lockedFeatures": [
           "4 chặng truyện: Muốn - Cản - Làm - Kết",
@@ -463,9 +463,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-4-2-04-chang-thu-thach-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 4.2 — 4 Chặng thử thách\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 2 — 4 Chặng thử thách\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 4.2 — 4 Chặng thử thách",
+          "name": "Huy hiệu Trạm 2 — 4 Chặng thử thách",
           "iconUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg",
           "stars": 3,
           "xp": 50
@@ -479,7 +479,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-4-3-ban-do-8-o-p1-mo",
     "islandNumber": 4,
     "lessonNumber": "4.3",
-    "title": "Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+    "title": "Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
     "subtitle": "Storyboard hình que: Bản vẽ xương sống của đạo diễn truyện tranh!",
     "imageUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
     "objective": "Trẻ chia được chuyện thành tám khung, mỗi khung một việc.",
@@ -488,7 +488,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+        "title": "Mục tiêu bài học: Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
         "goalText": "Trẻ chia được chuyện thành tám khung, mỗi khung một việc.",
         "imageUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
         "speech": "Nina: Hôm qua tớ sốt ruột quá nên tạo luôn tám bức cho chuyện của Mít. Bức nào cũng đẹp lung linh!\nAKI: Nhưng khi xếp tám bức cạnh nhau thì... ơ? Có hai bức Mít đang chạy giống hệt nhau, rồi tự nhiên từ đang tìm đồ nhảy vọt sang ăn mừng chiến thắng! Mất hẳn đoạn vượt khó rồi Nina ơi!",
@@ -525,7 +525,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage3-video",
-        "title": "Video bài giảng: Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+        "title": "Video bài giảng: Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
         "videoUrl": "https://www.youtube.com/embed/reY6-ZLR3eM",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
@@ -552,7 +552,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+        "title": "Thử tài kiến thức: Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
         "questions": [
           {
             "id": "bai-4-3-q1",
@@ -595,9 +595,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+        "title": "Xưởng Sáng Tạo AI: Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
         "subjectName": "Bản Đồ Storyboard 8 Ô - Phần 1: Mở",
-        "badge": "Bài 4.3",
+        "badge": "Trạm 3",
         "illustrationType": "storyboard-panels",
         "lockedFeatures": [
           "4 ô đầu phân cảnh storyboard hình que",
@@ -740,9 +740,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-4-3-ban-do-8-o-p1-mo-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 4.3 — Bản đồ 8 Ô - Phần 1: Mở",
+          "name": "Huy hiệu Trạm 3 — Bản đồ 8 Ô - Phần 1: Mở",
           "iconUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg",
           "stars": 3,
           "xp": 50
@@ -756,7 +756,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-4-4-ban-do-8-o-p2-khoa",
     "islandNumber": 4,
     "lessonNumber": "4.4",
-    "title": "Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+    "title": "Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
     "subtitle": "Khóa 3 yếu tố: Đúng nhân vật · Đúng việc · Đúng phong cách!",
     "imageUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
     "objective": "Trẻ tả được từng khung mà nhân vật vẫn giữ nguyên qua cả tám hình.",
@@ -765,7 +765,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+        "title": "Mục tiêu bài học: Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
         "goalText": "Trẻ tả được từng khung mà nhân vật vẫn giữ nguyên qua cả tám hình.",
         "imageUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
         "speech": "Nina: Tớ có Storyboard rồi nên bắt đầu tạo hình. Khung một, ổn. Khung hai, ổn. Đến khung năm thì... ơ? Mít tự nhiên đổi áo! Khung sáu đổi kiểu tóc! Khung bảy còn chuyển sang kiểu vẽ khác hẳn!\nAKI: Vì Nina mải nhìn vào từng bức mà quên đối chiếu với Storyboard và Luật vẽ nhân vật đấy!",
@@ -802,7 +802,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage3-video",
-        "title": "Video bài giảng: Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+        "title": "Video bài giảng: Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
         "videoUrl": "https://www.youtube.com/embed/UzvinFjseRE",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
@@ -829,7 +829,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+        "title": "Thử tài kiến thức: Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
         "questions": [
           {
             "id": "bai-4-4-q1",
@@ -872,9 +872,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+        "title": "Xưởng Sáng Tạo AI: Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
         "subjectName": "Bản Đồ Storyboard 8 Ô - Phần 2: Khóa",
-        "badge": "Bài 4.4",
+        "badge": "Trạm 4",
         "illustrationType": "storyboard-panels",
         "lockedFeatures": [
           "4 ô sau của storyboard cao trào và kết thúc",
@@ -977,9 +977,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-4-4-ban-do-8-o-p2-khoa-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 4.4 — Bản đồ 8 Ô - Phần 2: Khoá",
+          "name": "Huy hiệu Trạm 4 — Bản đồ 8 Ô - Phần 2: Khoá",
           "iconUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg",
           "stars": 3,
           "xp": 50
@@ -993,7 +993,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-4-5-vuong-mien-hoan-hao",
     "islandNumber": 4,
     "lessonNumber": "4.5",
-    "title": "Bài 4.5 — Vương miện hoàn hảo",
+    "title": "Trạm 5 — Vương miện hoàn hảo",
     "subtitle": "Tự viết lời thoại, đặt tên truyện và xuất bản cuốn Comic đầu tay!",
     "imageUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
     "objective": "Trẻ viết được toàn bộ lời thoại và hoàn thành cuốn truyện.",
@@ -1002,7 +1002,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 4.5 — Vương miện hoàn hảo",
+        "title": "Mục tiêu bài học: Trạm 5 — Vương miện hoàn hảo",
         "goalText": "Trẻ viết được toàn bộ lời thoại và hoàn thành cuốn truyện.",
         "imageUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
         "speech": "Mika: Hôm trước tớ xếp đủ tám khung rồi bảo: 'AIKI ơi, viết lời thoại hộ tớ nhé!' Thế là AIKI viết một loạt câu: lúc gặp quái vật nhân vật cũng 'Tuyệt quá!', lúc buồn cũng 'Tuyệt quá!'... Nghe giả tạo ghê luôn!\nAKI: Ha ha! Vì AI làm sao hiểu được cảm xúc thật của nhân vật bằng chính tác giả nhí là Mika chứ! Lời thoại là phần việc của các cậu mà!",
@@ -1040,7 +1040,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage3-video",
-        "title": "Video bài giảng: Bài 4.5 — Vương miện hoàn hảo",
+        "title": "Video bài giảng: Trạm 5 — Vương miện hoàn hảo",
         "videoUrl": "https://www.youtube.com/embed/V4OodQ9gGC8",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
@@ -1067,7 +1067,7 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 4.5 — Vương miện hoàn hảo",
+        "title": "Thử tài kiến thức: Trạm 5 — Vương miện hoàn hảo",
         "questions": [
           {
             "id": "bai-4-5-q1",
@@ -1110,9 +1110,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 4.5 — Vương miện hoàn hảo",
+        "title": "Xưởng Sáng Tạo AI: Trạm 5 — Vương miện hoàn hảo",
         "subjectName": "Vương Miện Hoàn Hảo - Bìa Comic Book",
-        "badge": "Bài 4.5",
+        "badge": "Trạm 5",
         "illustrationType": "comic-crown",
         "lockedFeatures": [
           "trang bìa comic rực rỡ có tiêu đề chữ nổi 3D",
@@ -1270,9 +1270,9 @@ export const ISLAND_4_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-4-5-vuong-mien-hoan-hao-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 4.5 — Vương miện hoàn hảo\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 5 — Vương miện hoàn hảo\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 4.5 — Vương miện hoàn hảo",
+          "name": "Huy hiệu Trạm 5 — Vương miện hoàn hảo",
           "iconUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg",
           "stars": 3,
           "xp": 50

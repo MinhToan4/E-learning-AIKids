@@ -6,7 +6,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-2-1-buc-tranh-biet-noi",
     "islandNumber": 2,
     "lessonNumber": "2.1",
-    "title": "Bài 2.1 — Bức tranh biết nói",
+    "title": "Trạm 1 — Bức tranh biết nói",
     "subtitle": "Bức tranh đẹp là bức tranh biết kể chuyện!",
     "imageUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
     "objective": "Trẻ kể được câu chuyện ẩn trong một bức tranh.",
@@ -15,7 +15,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 2.1 — Bức tranh biết nói",
+        "title": "Mục tiêu bài học: Trạm 1 — Bức tranh biết nói",
         "goalText": "Trẻ kể được câu chuyện ẩn trong một bức tranh.",
         "imageUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
         "speech": "Nabi: AIKI ơi xem này, tớ vẽ rất nhiều tranh đẹp lung linh luôn!\nAKI: Đẹp thật đấy Nabi! Nhưng xem xong một lúc tớ chẳng nhớ nổi bức nào. Vì các bức tranh này chỉ có hình đứng yên mà không có chuyện gì xảy ra cả!",
@@ -51,7 +51,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage3-video",
-        "title": "Video bài giảng: Bài 2.1 — Bức tranh biết nói",
+        "title": "Video bài giảng: Trạm 1 — Bức tranh biết nói",
         "videoUrl": "https://www.youtube.com/embed/XeIBZyKmoDo",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
@@ -78,7 +78,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 2.1 — Bức tranh biết nói",
+        "title": "Thử tài kiến thức: Trạm 1 — Bức tranh biết nói",
         "questions": [
           {
             "id": "bai-2-1-q1",
@@ -121,9 +121,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 2.1 — Bức tranh biết nói",
+        "title": "Xưởng Sáng Tạo AI: Trạm 1 — Bức tranh biết nói",
         "subjectName": "Bức Tranh Biết Nói",
-        "badge": "Bài 2.1",
+        "badge": "Trạm 1",
         "illustrationType": "storytelling",
         "lockedFeatures": [
           "chú cáo lông đỏ ngậm phong thư phát sáng",
@@ -225,9 +225,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-2-1-buc-tranh-biet-noi-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 2.1 — Bức tranh biết nói\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 1 — Bức tranh biết nói\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 2.1 — Bức tranh biết nói",
+          "name": "Huy hiệu Trạm 1 — Bức tranh biết nói",
           "iconUrl": "/assets/aiki-islands/island2_lesson1_story.jpg",
           "stars": 3,
           "xp": 50
@@ -241,7 +241,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-2-2-ai-la-ngoi-sao",
     "islandNumber": 2,
     "lessonNumber": "2.2",
-    "title": "Bài 2.2 — Ai là ngôi sao?",
+    "title": "Trạm 2 — Ai là ngôi sao?",
     "subtitle": "Bố cục 3 lớp và điểm vàng 1/3 để tôn vinh nhân vật chính!",
     "imageUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
     "objective": "Trẻ sắp xếp được nhân vật chính, nhân vật phụ và nền trong một bức.",
@@ -250,7 +250,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 2.2 — Ai là ngôi sao?",
+        "title": "Mục tiêu bài học: Trạm 2 — Ai là ngôi sao?",
         "goalText": "Trẻ sắp xếp được nhân vật chính, nhân vật phụ và nền trong một bức.",
         "imageUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
         "speech": "Mimi: AIKI ơi, tớ vẽ tranh sinh nhật cho em Bống mà tớ kể tận 20 thứ: bánh kem, bóng bay, gấu bông, quà, nến, pháo hoa... Tranh ra rối tinh mù chẳng thấy em Bống đâu cả!\nAKI: Mimi ơi, nhiều thứ quá thì chẳng ai biết ai là ngôi sao của bức tranh cả! Mình phải xếp chỗ cho từng bạn chứ!",
@@ -288,7 +288,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage3-video",
-        "title": "Video bài giảng: Bài 2.2 — Ai là ngôi sao?",
+        "title": "Video bài giảng: Trạm 2 — Ai là ngôi sao?",
         "videoUrl": "https://www.youtube.com/embed/wmn8pf6GUdo",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
@@ -315,7 +315,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 2.2 — Ai là ngôi sao?",
+        "title": "Thử tài kiến thức: Trạm 2 — Ai là ngôi sao?",
         "questions": [
           {
             "id": "bai-2-2-q1",
@@ -358,9 +358,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 2.2 — Ai là ngôi sao?",
+        "title": "Xưởng Sáng Tạo AI: Trạm 2 — Ai là ngôi sao?",
         "subjectName": "Thuyền Buồm Ánh Dương Ngôi Sao 1/3",
-        "badge": "Bài 2.2",
+        "badge": "Trạm 2",
         "illustrationType": "layer-composition",
         "lockedFeatures": [
           "tiền cảnh sóng biển ngọc bích tung bọt trắng",
@@ -414,9 +414,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-2-2-ai-la-ngoi-sao-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 2.2 — Ai là ngôi sao?\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 2 — Ai là ngôi sao?\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 2.2 — Ai là ngôi sao?",
+          "name": "Huy hiệu Trạm 2 — Ai là ngôi sao?",
           "iconUrl": "/assets/aiki-islands/island2_lesson2_star.jpg",
           "stars": 3,
           "xp": 50
@@ -430,7 +430,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-2-3-cam-xuc-cua-sac-mau",
     "islandNumber": 2,
     "lessonNumber": "2.3",
-    "title": "Bài 2.3 — Cảm xúc của Sắc màu",
+    "title": "Trạm 3 — Cảm xúc của Sắc màu",
     "subtitle": "Chọn cảm xúc trước -> Chọn 4 tông ánh sáng sau!",
     "imageUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
     "objective": "Trẻ chọn được ánh sáng theo đúng cảm xúc mình muốn truyền.",
@@ -439,7 +439,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 2.3 — Cảm xúc của Sắc màu",
+        "title": "Mục tiêu bài học: Trạm 3 — Cảm xúc của Sắc màu",
         "goalText": "Trẻ chọn được ánh sáng theo đúng cảm xúc mình muốn truyền.",
         "imageUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
         "speech": "Mimi: Lớp tớ đang làm phim kinh dị giật gân, tớ nhận làm poster và bảo AIKI vẽ ngôi nhà cũ màu xanh... Thế mà tranh ra trông như khu resort nghỉ dưỡng mùa hè ấy!\nAKI: Ha ha! Vì Mimi chưa chọn cảm xúc mà đã chọn màu rồi! Ánh sáng ban ngày chan hòa thì làm sao kinh dị được!",
@@ -477,7 +477,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage3-video",
-        "title": "Video bài giảng: Bài 2.3 — Cảm xúc của Sắc màu",
+        "title": "Video bài giảng: Trạm 3 — Cảm xúc của Sắc màu",
         "videoUrl": "https://www.youtube.com/embed/voAsCD7THtI",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
@@ -504,7 +504,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 2.3 — Cảm xúc của Sắc màu",
+        "title": "Thử tài kiến thức: Trạm 3 — Cảm xúc của Sắc màu",
         "questions": [
           {
             "id": "bai-2-3-q1",
@@ -547,9 +547,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 2.3 — Cảm xúc của Sắc màu",
+        "title": "Xưởng Sáng Tạo AI: Trạm 3 — Cảm xúc của Sắc màu",
         "subjectName": "Ngọn Hải Đăng Đêm Giông Tương Phản",
-        "badge": "Bài 2.3",
+        "badge": "Trạm 3",
         "illustrationType": "color-emotions",
         "lockedFeatures": [
           "Cảm xúc: Vui · Buồn · Nhớ · Sợ",
@@ -654,9 +654,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-2-3-cam-xuc-cua-sac-mau-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 2.3 — Cảm xúc của Sắc màu\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 3 — Cảm xúc của Sắc màu\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 2.3 — Cảm xúc của Sắc màu",
+          "name": "Huy hiệu Trạm 3 — Cảm xúc của Sắc màu",
           "iconUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg",
           "stars": 3,
           "xp": 50
@@ -670,7 +670,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-2-4-manh-ghep-hoan-hao",
     "islandNumber": 2,
     "lessonNumber": "2.4",
-    "title": "Bài 2.4 — Mảnh ghép hoàn hảo",
+    "title": "Trạm 4 — Mảnh ghép hoàn hảo",
     "subtitle": "Ghép đủ 4 mảnh, đặt tên tranh và xuất khung tranh A3!",
     "imageUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
     "objective": "Trẻ hoàn thành một bức tranh, đặt tên và kể được nội dung.",
@@ -679,7 +679,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 2.4 — Mảnh ghép hoàn hảo",
+        "title": "Mục tiêu bài học: Trạm 4 — Mảnh ghép hoàn hảo",
         "goalText": "Trẻ hoàn thành một bức tranh, đặt tên và kể được nội dung.",
         "imageUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
         "speech": "Zico: Tớ tạo xong bức tranh cậu bé thả diều trên sân thượng rồi, lưu về máy xong tắt luôn nhé AIKI!\nAKI: Ơ kìa Zico! Tranh đẹp thế này mà không có tên, không được lồng khung thì sao thành tác phẩm triển lãm được! Mình phải ghép đủ bốn mảnh chứ!",
@@ -716,7 +716,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage3-video",
-        "title": "Video bài giảng: Bài 2.4 — Mảnh ghép hoàn hảo",
+        "title": "Video bài giảng: Trạm 4 — Mảnh ghép hoàn hảo",
         "videoUrl": "https://www.youtube.com/embed/B_tbjS0Msnc",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
@@ -743,7 +743,7 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 2.4 — Mảnh ghép hoàn hảo",
+        "title": "Thử tài kiến thức: Trạm 4 — Mảnh ghép hoàn hảo",
         "questions": [
           {
             "id": "bai-2-4-q1",
@@ -786,9 +786,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 2.4 — Mảnh ghép hoàn hảo",
+        "title": "Xưởng Sáng Tạo AI: Trạm 4 — Mảnh ghép hoàn hảo",
         "subjectName": "Khung Tranh A3 Gia Đình Thú Hoàn Hảo",
-        "badge": "Bài 2.4",
+        "badge": "Trạm 4",
         "illustrationType": "gallery-frame",
         "lockedFeatures": [
           "bàn tiệc sinh nhật bánh kem 3 tầng rực rỡ",
@@ -868,9 +868,9 @@ export const ISLAND_2_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-2-4-manh-ghep-hoan-hao-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 2.4 — Mảnh ghép hoàn hảo\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 4 — Mảnh ghép hoàn hảo\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 2.4 — Mảnh ghép hoàn hảo",
+          "name": "Huy hiệu Trạm 4 — Mảnh ghép hoàn hảo",
           "iconUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg",
           "stars": 3,
           "xp": 50

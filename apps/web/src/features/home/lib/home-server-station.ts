@@ -9,11 +9,21 @@ export function resolveNextActiveStation(courses: CourseSummary[], userName = 'B
   const stations = course?.quests as Array<CourseSummary['quests'][number] & { status?: string; hook?: string; slug?: string }> | undefined
   const station = stations?.find((item) => item.status !== 'completed' && item.status !== 'locked')
   const slug = course?.courseKey || course?.id || ''
+  const rawStationTitle = station?.title || course?.shortTitle || 'Khám phá hành trình học'
+  const cleanTitle = rawStationTitle
+    .replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '')
+    .replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '')
+    .trim() || rawStationTitle
+  const cleanIsland = (course?.shortTitle || course?.title || 'Hành trình AIKid')
+    .replace(/^Module\s+\d+\s*[-—:]\s*/i, '')
+    .replace(/\s*AI!*$/i, '')
+    .trim() || 'Đảo Sáng Tạo'
+
   return {
     stationLabel: station ? `Trạm ${station.order}` : 'Hành trình',
-    stationTitle: station?.title || course?.shortTitle || 'Khám phá hành trình học',
+    stationTitle: cleanTitle,
     stationDesc: station?.hook || course?.description || 'Chọn hành trình để xem các trạm học của con.',
-    islandTitle: course?.shortTitle || course?.title || 'Hành trình AIKid',
+    islandTitle: cleanIsland,
     islandNumber: course ? getAikiCourseSortOrder(course) : 0,
     islandSlug: slug,
     lessonSlug: station?.slug || station?.id || '',

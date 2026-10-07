@@ -6,7 +6,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-5-1-san-lung-bo-suu-tap",
     "islandNumber": 5,
     "lessonNumber": "5.1",
-    "title": "Bài 5.1 — Săn lùng Bộ sưu tập",
+    "title": "Trạm 1 — Săn lùng Bộ sưu tập",
     "subtitle": "Săn lùng 12 món cùng một họ để khởi đầu bộ thẻ huyền thoại!",
     "imageUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
     "objective": "Trẻ chọn được chủ đề và liệt kê đủ mười hai thứ.",
@@ -15,7 +15,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 5.1 — Săn lùng Bộ sưu tập",
+        "title": "Mục tiêu bài học: Trạm 1 — Săn lùng Bộ sưu tập",
         "goalText": "Trẻ chọn được chủ đề và liệt kê đủ mười hai thứ.",
         "imageUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
         "speech": "Nami: AIKI ơi tớ muốn làm một bộ thẻ game bài nhưng nghĩ mãi chẳng biết chọn gì. Bạn bảo AI gợi ý chủ đề cho tớ với!\nAKI: Không được đâu Nami ơi! Ý tưởng phải là của cậu cơ! Đi hỏi, đi nhìn thế giới quanh mình chứ đừng hỏi AI. Bộ thẻ hay nhất là bộ thẻ về những thứ cậu yêu thích nhất!",
@@ -52,7 +52,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage3-video",
-        "title": "Video bài giảng: Bài 5.1 — Săn lùng Bộ sưu tập",
+        "title": "Video bài giảng: Trạm 1 — Săn lùng Bộ sưu tập",
         "videoUrl": "https://www.youtube.com/embed/CC8qli9iBD0",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
@@ -79,7 +79,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 5.1 — Săn lùng Bộ sưu tập",
+        "title": "Thử tài kiến thức: Trạm 1 — Săn lùng Bộ sưu tập",
         "questions": [
           {
             "id": "bai-5-1-q1",
@@ -122,9 +122,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 5.1 — Săn lùng Bộ sưu tập",
+        "title": "Xưởng Sáng Tạo AI: Trạm 1 — Săn lùng Bộ sưu tập",
         "subjectName": "Bộ Sưu Tập 12 Thẻ Bài Nguyên Tố",
-        "badge": "Bài 5.1",
+        "badge": "Trạm 1",
         "illustrationType": "dragon-card",
         "lockedFeatures": [
           "lá bài 01 Rồng Băng Tinh Thể vảy pha lê lam",
@@ -231,9 +231,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-5-1-san-lung-bo-suu-tap-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 5.1 — Săn lùng Bộ sưu tập\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 1 — Săn lùng Bộ sưu tập\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 5.1 — Săn lùng Bộ sưu tập",
+          "name": "Huy hiệu Trạm 1 — Săn lùng Bộ sưu tập",
           "iconUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg",
           "stars": 3,
           "xp": 50
@@ -247,7 +247,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-5-2-phu-phep-mat-the",
     "islandNumber": 5,
     "lessonNumber": "5.2",
-    "title": "Bài 5.2 — Phù phép Mặt thẻ",
+    "title": "Trạm 2 — Phù phép Mặt thẻ",
     "subtitle": "Luật ngân sách 20 điểm: Bí quyết cân bằng trò chơi công bằng!",
     "imageUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
     "objective": "Trẻ thiết kế mặt thẻ và cho điểm sao cho công bằng.",
@@ -256,7 +256,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-5-2-phu-phep-mat-the-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 5.2 — Phù phép Mặt thẻ",
+        "title": "Mục tiêu bài học: Trạm 2 — Phù phép Mặt thẻ",
         "goalText": "Trẻ thiết kế mặt thẻ và cho điểm sao cho công bằng.",
         "imageUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
         "speech": "Kora: Hôm trước tớ làm bộ thẻ rồi rủ bạn chơi. Lá Rồng Thần của tớ có Sức 10 – Nhanh 10 – Khéo 10! Ra trận là đè bẹp tất cả!\nAKI: Kết quả là chơi được hai ván bạn bè bỏ về hết đúng không? Vì chưa lật bài đã biết ai thắng rồi! Trò chơi mà không công bằng thì chẳng ai muốn chơi cả!",
@@ -293,7 +293,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-5-2-phu-phep-mat-the-stage3-video",
-        "title": "Video bài giảng: Bài 5.2 — Phù phép Mặt thẻ",
+        "title": "Video bài giảng: Trạm 2 — Phù phép Mặt thẻ",
         "videoUrl": "https://www.youtube.com/embed/PijX4EBOmkU",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
@@ -320,7 +320,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-5-2-phu-phep-mat-the-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 5.2 — Phù phép Mặt thẻ",
+        "title": "Thử tài kiến thức: Trạm 2 — Phù phép Mặt thẻ",
         "questions": [
           {
             "id": "bai-5-2-q1",
@@ -363,9 +363,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-5-2-phu-phep-mat-the-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 5.2 — Phù phép Mặt thẻ",
+        "title": "Xưởng Sáng Tạo AI: Trạm 2 — Phù phép Mặt thẻ",
         "subjectName": "Phù Phép Mặt Thẻ Ngân Sách 20 Điểm",
-        "badge": "Bài 5.2",
+        "badge": "Trạm 2",
         "illustrationType": "stat-budget",
         "lockedFeatures": [
           "luật ngân sách 20 điểm: Sức + Nhanh + Khéo <= 20",
@@ -469,9 +469,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-5-2-phu-phep-mat-the-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 5.2 — Phù phép Mặt thẻ\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 2 — Phù phép Mặt thẻ\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 5.2 — Phù phép Mặt thẻ",
+          "name": "Huy hiệu Trạm 2 — Phù phép Mặt thẻ",
           "iconUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg",
           "stars": 3,
           "xp": 50
@@ -485,7 +485,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-5-3-khoa-the",
     "islandNumber": 5,
     "lessonNumber": "5.3",
-    "title": "Bài 5.3 — Khoá thẻ",
+    "title": "Trạm 3 — Khoá thẻ",
     "subtitle": "Khóa công thức nền và mặt lưng ma thuật đồng nhất 100%!",
     "imageUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
     "objective": "Trẻ tạo được mười hai hình cùng một phong cách.",
@@ -494,7 +494,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-5-3-khoa-the-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 5.3 — Khoá thẻ",
+        "title": "Mục tiêu bài học: Trạm 3 — Khoá thẻ",
         "goalText": "Trẻ tạo được mười hai hình cùng một phong cách.",
         "imageUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
         "speech": "Riko: Hôm trước tớ tạo liền mười hai hình thẻ bài, hình nào cũng đẹp mê li! Nhưng xếp cạnh nhau thì... ơ? Lá này giống tranh màu nước, lá kia lại giống hoạt hình 3D, lá nền đen lá nền trắng!\nAKI: 12 hình đẹp nhưng cứ như thuộc 12 bộ bài khác nhau ấy Riko ơi! Thẻ bài chuyên nghiệp là nhìn lướt qua phải biết ngay cùng một bộ chứ!",
@@ -532,7 +532,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-5-3-khoa-the-stage3-video",
-        "title": "Video bài giảng: Bài 5.3 — Khoá thẻ",
+        "title": "Video bài giảng: Trạm 3 — Khoá thẻ",
         "videoUrl": "https://www.youtube.com/embed/StQ4ICE15No",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
@@ -559,7 +559,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-5-3-khoa-the-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 5.3 — Khoá thẻ",
+        "title": "Thử tài kiến thức: Trạm 3 — Khoá thẻ",
         "questions": [
           {
             "id": "bai-5-3-q1",
@@ -602,9 +602,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-5-3-khoa-the-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 5.3 — Khoá thẻ",
+        "title": "Xưởng Sáng Tạo AI: Trạm 3 — Khoá thẻ",
         "subjectName": "Khóa Lưng Thẻ Bánh Răng Ma Thuật",
-        "badge": "Bài 5.3",
+        "badge": "Trạm 3",
         "illustrationType": "magic-gear-back",
         "lockedFeatures": [
           "Bộ sưu tập: Bếp nhà tớ (12 món) · Ngăn kéo của bà (12 món) · Hàng tạp hoá đầu ngõ (12 món)",
@@ -751,9 +751,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-5-3-khoa-the-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 5.3 — Khoá thẻ\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 3 — Khoá thẻ\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 5.3 — Khoá thẻ",
+          "name": "Huy hiệu Trạm 3 — Khoá thẻ",
           "iconUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg",
           "stars": 3,
           "xp": 50
@@ -767,7 +767,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-5-4-luat-choi",
     "islandNumber": 5,
     "lessonNumber": "5.4",
-    "title": "Bài 5.4 — Luật chơi",
+    "title": "Trạm 4 — Luật chơi",
     "subtitle": "Bộ đôi tương khắc và 5 phần cốt lõi của một bộ luật rõ ràng!",
     "imageUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
     "objective": "Trẻ viết được bộ luật rõ ràng và biết sửa nó sau khi chơi thử.",
@@ -776,7 +776,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-5-4-luat-choi-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 5.4 — Luật chơi",
+        "title": "Mục tiêu bài học: Trạm 4 — Luật chơi",
         "goalText": "Trẻ viết được bộ luật rõ ràng và biết sửa nó sau khi chơi thử.",
         "imageUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
         "speech": "Tomi: Hôm trước tớ mang bộ thẻ bài ra rủ cả nhà chơi. Bố hỏi: 'Mấy người chơi được?' Mẹ hỏi: 'Ai đi trước?' Em lại hỏi: 'Hai lá bằng điểm thì sao hả anh?' Tớ cứ ấp úng chẳng biết trả lời thế nào, thế là cãi nhau to!\nAKI: Thẻ đẹp đến mấy mà không có luật rõ ràng thì cũng không chơi được Tomi ơi! Luật chơi chính là linh hồn của trò chơi đấy!",
@@ -815,7 +815,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-5-4-luat-choi-stage3-video",
-        "title": "Video bài giảng: Bài 5.4 — Luật chơi",
+        "title": "Video bài giảng: Trạm 4 — Luật chơi",
         "videoUrl": "https://www.youtube.com/embed/VIGcrhPzr5Q",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
@@ -842,7 +842,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-5-4-luat-choi-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 5.4 — Luật chơi",
+        "title": "Thử tài kiến thức: Trạm 4 — Luật chơi",
         "questions": [
           {
             "id": "bai-5-4-q1",
@@ -885,9 +885,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-5-4-luat-choi-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 5.4 — Luật chơi",
+        "title": "Xưởng Sáng Tạo AI: Trạm 4 — Luật chơi",
         "subjectName": "Bộ Đôi Thẻ Tương Khắc & Bộ Luật 5 Phần",
-        "badge": "Bài 5.4",
+        "badge": "Trạm 4",
         "illustrationType": "elemental-duo",
         "lockedFeatures": [
           "bộ đôi thẻ bài tương khắc Lửa và Nước",
@@ -1008,9 +1008,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-5-4-luat-choi-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 5.4 — Luật chơi\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 4 — Luật chơi\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 5.4 — Luật chơi",
+          "name": "Huy hiệu Trạm 4 — Luật chơi",
           "iconUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg",
           "stars": 3,
           "xp": 50
@@ -1024,7 +1024,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "slug": "bai-5-5-dau-truong-khai-mo",
     "islandNumber": 5,
     "lessonNumber": "5.5",
-    "title": "Bài 5.5 — Đấu trường khai mở",
+    "title": "Trạm 5 — Đấu trường khai mở",
     "subtitle": "Bàn cờ 4 thành phần, vỏ hộp game và khai mạc giải đấu gia đình!",
     "imageUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
     "objective": "Trẻ hoàn thiện bộ game và chơi thật với gia đình.",
@@ -1032,7 +1032,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
     "journey": {
       "stage1_goal": {
         "id": "bai-5-5-dau-truong-khai-mo-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 5.5 — Đấu trường khai mở",
+        "title": "Mục tiêu bài học: Trạm 5 — Đấu trường khai mở",
         "goalText": "Trẻ hoàn thiện bộ game và chơi thật với gia đình.",
         "imageUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
         "speech": "Dori: AIKI ơi xem bàn cờ tớ vẽ này: có đường đi ngoằn ngoèo, có ô số vẽ đẹp lắm! Cả nhà chơi được một lúc thì bố hỏi: 'Ơ thế đi đến đâu thì thắng hả con?' Tớ nhìn lại... quên mất ô Đích!\nAKI: Ha ha! Giống như chạy thi mà không có vạch đích thì chạy vòng quanh mãi sao được! Trước khi làm, tớ dẫn các cậu đến Kho Trò Chơi Ngủ Quên nhé!",
@@ -1070,7 +1070,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage3_video": {
         "id": "bai-5-5-dau-truong-khai-mo-stage3-video",
-        "title": "Video bài giảng: Bài 5.5 — Đấu trường khai mở",
+        "title": "Video bài giảng: Trạm 5 — Đấu trường khai mở",
         "videoUrl": "https://www.youtube.com/embed/6A1l9ybJu-Q",
         "durationSec": 180,
         "posterUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
@@ -1097,7 +1097,7 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage4_quiz": {
         "id": "bai-5-5-dau-truong-khai-mo-stage4-quiz",
-        "title": "Thử tài kiến thức: Bài 5.5 — Đấu trường khai mở",
+        "title": "Thử tài kiến thức: Trạm 5 — Đấu trường khai mở",
         "questions": [
           {
             "id": "bai-5-5-q1",
@@ -1140,9 +1140,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       },
       "stage5_practice": {
         "id": "bai-5-5-dau-truong-khai-mo-stage5-practice",
-        "title": "Xưởng Sáng Tạo AI: Bài 5.5 — Đấu trường khai mở",
+        "title": "Xưởng Sáng Tạo AI: Trạm 5 — Đấu trường khai mở",
         "subjectName": "Đấu Trường Bàn Cờ Thần Thoại & Cúp Vô Địch",
-        "badge": "Bài 5.5",
+        "badge": "Trạm 5",
         "illustrationType": "board-game-arena",
         "lockedFeatures": [
           "bàn cờ A3 đủ 4 thành phần: Xuất phát - Đường đi - Ô đặc biệt - Đích",
@@ -1258,9 +1258,9 @@ export const ISLAND_5_LESSONS: IslandCurriculumLesson[] = [
       "stage6_completion": {
         "id": "bai-5-5-dau-truong-khai-mo-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 5.5 — Đấu trường khai mở\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Trạm 5 — Đấu trường khai mở\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
-          "name": "Huy hiệu Bài 5.5 — Đấu trường khai mở",
+          "name": "Huy hiệu Trạm 5 — Đấu trường khai mở",
           "iconUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg",
           "stars": 3,
           "xp": 50
