@@ -246,7 +246,7 @@ export function ParentSubscriptionCheckoutModal({
   }, [open, productMode, refreshKey])
 
   const activePaymentCode = initialPaymentCode || serverPaymentCode || generatedCode
-  const activePublicId = initialPublicId || serverPublicId || `pi_${activePaymentCode.toLowerCase()}`
+  const activePublicId = initialPublicId || serverPublicId || (initialPaymentCode ? `pi_${initialPaymentCode.toLowerCase()}` : null)
 
   const handleOpenSepayCheckout = useCallback(() => {
     const sepayUrl = `https://checkout.sepay.vn/pay?merchant=SP-TEST-LQ79A795&amount=${effectiveAmount}&orderCode=${encodeURIComponent(activePaymentCode)}&description=${encodeURIComponent('AIKids ' + activePaymentCode)}`
@@ -298,8 +298,9 @@ export function ParentSubscriptionCheckoutModal({
             }),
           })
           if (!isMounted) return
-          const pubId = res?.checkout?.publicId || res?.data?.publicId
-          const code = res?.checkout?.paymentCode || res?.data?.metadata?.paymentCode
+          const resObj = res as Record<string, any>
+          const pubId = resObj?.publicId || resObj?.checkout?.publicId || resObj?.data?.publicId
+          const code = resObj?.metadata?.paymentCode || resObj?.checkout?.paymentCode || resObj?.data?.metadata?.paymentCode
           if (pubId) setServerPublicId(pubId)
           if (code) setServerPaymentCode(code)
         } else if (productMode === 'credits') {
@@ -315,7 +316,8 @@ export function ParentSubscriptionCheckoutModal({
             }),
           })
           if (!isMounted) return
-          const pubId = res?.checkout?.publicId || res?.data?.paymentIntent?.publicId
+          const resObj = res as Record<string, any>
+          const pubId = resObj?.publicId || resObj?.checkout?.publicId || resObj?.data?.paymentIntent?.publicId || resObj?.paymentIntent?.publicId
           if (pubId) setServerPublicId(pubId)
         }
       } catch {
@@ -472,7 +474,8 @@ export function ParentSubscriptionCheckoutModal({
             paymentCode: activePaymentCode,
           }),
         })
-        targetPublicId = res?.checkout?.publicId || res?.data?.publicId || null
+        const resObj = res as Record<string, any>
+        targetPublicId = resObj?.publicId || resObj?.checkout?.publicId || resObj?.data?.publicId || null
         if (targetPublicId) setServerPublicId(targetPublicId)
       } catch (err) {
         console.warn('init checkout fallback on confirm error:', err)
