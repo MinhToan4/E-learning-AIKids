@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  GripVertical, ArrowUp, ArrowDown, Trash2, ChevronDown, ChevronRight,
+  GripVertical, ArrowUp, ArrowDown, Trash2, ChevronDown, ChevronRight, Plus,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type {
@@ -401,9 +401,11 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold text-slate-800">
+            <p className="truncate text-xs font-black text-slate-900">
               {isInteractiveQuestionBlock
-                ? `${block.questionPrompt || block.title || 'Câu hỏi trắc nghiệm'} (${(block.questionOptions || block.choiceItems || block.optionLabels || []).length || 2} phương án)`
+                ? (Array.isArray(block.quizQuestions) && block.quizQuestions.length > 0
+                    ? `${block.title || 'Thử tài trắc nghiệm'} (${block.quizQuestions.length} câu hỏi)`
+                    : `${block.questionPrompt || block.title || 'Câu hỏi trắc nghiệm'} (${(block.questionOptions || block.choiceItems || block.optionLabels || []).length || 2} phương án)`)
                 : isConfirmOption
                   ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}`
                   : block.title || getBlockTitle(block.type)}
@@ -420,75 +422,242 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
       {expanded && (
         <>
           {isInteractiveQuestionBlock ? (
-            <InteractiveQuestionBlockEditor
-              question={{
-                id: block.id,
-                prompt: block.questionPrompt || block.title || '',
-                layoutMode: block.layoutMode || (
-                  (Array.isArray(block.questionOptions) && block.questionOptions.some((o) => Boolean(o.imageUrl))) ||
-                  (Array.isArray(block.choiceItems) && block.choiceItems.some((ci) => Boolean(ci.imageUrl))) ||
-                  (Array.isArray(block.optionImages) && block.optionImages.some(Boolean))
-                    ? 'cards'
-                    : 'split'
-                ),
-                visualUrl: block.visualUrl || block.imageUrl || card?.imageUrl || '',
-                options: (Array.isArray(block.questionOptions) && block.questionOptions.length > 0)
-                  ? block.questionOptions
-                  : (Array.isArray(block.choiceItems) && block.choiceItems.length > 0)
-                    ? block.choiceItems.map((ci) => ({ id: ci.id, text: ci.title || ci.description || '', imageUrl: ci.imageUrl }))
-                    : (Array.isArray(block.optionLabels) && block.optionLabels.length > 0)
-                      ? block.optionLabels.map((l, i) => ({ id: `opt-${i}`, text: l, imageUrl: block.optionImages?.[i] || '' }))
-                      : [
-                          { id: 'opt-a', text: block.body || 'Phương án A (Đáp án đúng)', imageUrl: block.imageUrl || '' },
-                          { id: 'opt-b', text: 'Phương án B', imageUrl: '' },
-                        ],
-                correctIndex: typeof block.correctIndex === 'number'
-                  ? block.correctIndex
-                  : (Array.isArray(block.choiceItems) && block.choiceItems.findIndex((ci) => ci.isCorrect) >= 0)
-                    ? block.choiceItems.findIndex((ci) => ci.isCorrect)
-                    : 0,
-                explanation: block.explanation || block.tip || block.correctFeedback || '',
-              }}
-              onChange={(patch) => {
-                const blockPatch: any = {}
-                if (patch.prompt !== undefined) {
-                  blockPatch.title = patch.prompt
-                  blockPatch.questionPrompt = patch.prompt
+            (() => {
+              const hasMulti = Array.isArray(block.quizQuestions) && block.quizQuestions.length > 0
+              const questions = hasMulti
+                ? block.quizQuestions!
+                : [
+                    {
+                      id: block.id,
+                      prompt: block.questionPrompt || block.title || '',
+                      layoutMode: block.layoutMode || (
+                        (Array.isArray(block.questionOptions) && block.questionOptions.some((o) => Boolean(o.imageUrl))) ||
+                        (Array.isArray(block.choiceItems) && block.choiceItems.some((ci) => Boolean(ci.imageUrl))) ||
+                        (Array.isArray(block.optionImages) && block.optionImages.some(Boolean))
+                          ? 'cards'
+                          : 'split'
+                      ),
+                      visualUrl: block.visualUrl || block.imageUrl || card?.imageUrl || '',
+                      options: (Array.isArray(block.questionOptions) && block.questionOptions.length > 0)
+                        ? block.questionOptions.map((o) => o.text)
+                        : (Array.isArray(block.optionLabels) && block.optionLabels.length > 0)
+                          ? block.optionLabels
+                          : ['Phương án A (Đáp án đúng)', 'Phương án B'],
+                      correctIndex: typeof block.correctIndex === 'number' ? block.correctIndex : 0,
+                      explanation: block.explanation || block.tip || '',
+                      optionImages: block.questionOptions?.map((o) => o.imageUrl || '') || block.optionImages || ['', ''],
+                    },
+                  ]
+
+              const activeIdx = Math.min(block.activeQuizQuestionIdx ?? 0, questions.length - 1)
+              const currentQ = questions[activeIdx] || questions[0]
+
+              const handleSwitchQuestion = (targetIdx: number) => {
+                const targetQ = questions[targetIdx]
+                if (!targetQ) return
+                updateBlockItem(stageIndex, block.id, {
+                  activeQuizQuestionIdx: targetIdx,
+                  questionPrompt: targetQ.prompt,
+                  layoutMode: targetQ.layoutMode,
+                  visualUrl: targetQ.visualUrl,
+                  imageUrl: targetQ.visualUrl,
+                  correctIndex: targetQ.correctIndex,
+                  explanation: targetQ.explanation,
+                  questionOptions: (Array.isArray(targetQ.options) ? targetQ.options : []).map((text: any, oIdx: number) => ({
+                    id: `opt-${oIdx + 1}`,
+                    text: typeof text === 'string' ? text : text?.text || '',
+                    imageUrl: targetQ.optionImages?.[oIdx] || '',
+                  })),
+                })
+              }
+
+              const handleAddQuestion = () => {
+                const nextQs = [...questions]
+                const newNum = nextQs.length + 1
+                const newQ = {
+                  id: `q-${Date.now()}-${newNum}`,
+                  prompt: `Câu hỏi ${newNum}?`,
+                  layoutMode: 'split' as const,
+                  visualUrl: card?.imageUrl || '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2',
+                  options: ['Phương án A (Đáp án đúng)', 'Phương án B'],
+                  correctIndex: 0,
+                  explanation: 'Giải thích vì sao đáp án này chính xác...',
+                  optionImages: ['', ''],
                 }
-                if (patch.layoutMode !== undefined) {
-                  blockPatch.layoutMode = patch.layoutMode
-                }
-                if (patch.visualUrl !== undefined) {
-                  blockPatch.visualUrl = patch.visualUrl
-                  blockPatch.imageUrl = patch.visualUrl
-                }
-                if (patch.explanation !== undefined) {
-                  blockPatch.explanation = patch.explanation
-                  blockPatch.tip = patch.explanation
-                  blockPatch.correctFeedback = patch.explanation
-                }
-                if (patch.correctIndex !== undefined) {
-                  blockPatch.correctIndex = patch.correctIndex
-                }
-                if (patch.options !== undefined) {
-                  blockPatch.questionOptions = patch.options
-                  blockPatch.optionLabels = patch.options.map((o) => o.text)
-                  blockPatch.optionImages = patch.options.map((o) => o.imageUrl || '')
-                  blockPatch.choiceItems = patch.options.map((o, idx) => ({
-                    id: o.id || `opt-${idx}`,
-                    title: o.text,
-                    imageUrl: o.imageUrl,
-                    isCorrect: idx === (patch.correctIndex ?? block.correctIndex ?? 0),
-                  }))
-                }
-                updateBlockItem(stageIndex, block.id, blockPatch)
-              }}
-              readOnly={readOnly}
-              questId={courseId}
-              showToast={showToast}
-              customBadge={block.type === 'layout-confirm-option' ? 'XÁC NHẬN MỤC TIÊU' : 'CÂU HỎI TRẮC NGHIỆM'}
-              customTitle={block.title || 'Câu hỏi trắc nghiệm'}
-            />
+                nextQs.push(newQ)
+                updateBlockItem(stageIndex, block.id, {
+                  quizQuestions: nextQs,
+                  activeQuizQuestionIdx: nextQs.length - 1,
+                  questionPrompt: newQ.prompt,
+                  layoutMode: newQ.layoutMode,
+                  visualUrl: newQ.visualUrl,
+                  imageUrl: newQ.visualUrl,
+                  correctIndex: newQ.correctIndex,
+                  explanation: newQ.explanation,
+                  questionOptions: newQ.options.map((text, oIdx) => ({
+                    id: `opt-${oIdx + 1}`,
+                    text,
+                    imageUrl: '',
+                  })),
+                })
+                showToast?.(`Đã thêm Câu hỏi ${newNum}!`, 'success')
+              }
+
+              const handleRemoveQuestion = (delIdx: number) => {
+                if (questions.length <= 1) return
+                const nextQs = questions.filter((_, i) => i !== delIdx)
+                const nextActiveIdx = Math.max(0, delIdx > 0 ? delIdx - 1 : 0)
+                const nextActiveQ = nextQs[nextActiveIdx]
+                updateBlockItem(stageIndex, block.id, {
+                  quizQuestions: nextQs,
+                  activeQuizQuestionIdx: nextActiveIdx,
+                  questionPrompt: nextActiveQ?.prompt,
+                  layoutMode: nextActiveQ?.layoutMode,
+                  visualUrl: nextActiveQ?.visualUrl,
+                  imageUrl: nextActiveQ?.visualUrl,
+                  correctIndex: nextActiveQ?.correctIndex,
+                  explanation: nextActiveQ?.explanation,
+                  questionOptions: (nextActiveQ?.options || []).map((text: any, oIdx: number) => ({
+                    id: `opt-${oIdx + 1}`,
+                    text: typeof text === 'string' ? text : text?.text || '',
+                    imageUrl: nextActiveQ?.optionImages?.[oIdx] || '',
+                  })),
+                })
+                showToast?.('Đã xóa câu hỏi!', 'info')
+              }
+
+              return (
+                <div className="space-y-3">
+                  {/* Dãy nút số câu hỏi (Stepper 1 2 3 4 ... [+]) nếu có >= 1 câu hỏi */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-sky-50/80 border border-sky-200">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-black text-sky-950 uppercase tracking-wider">
+                        Dãy câu hỏi ({questions.length}):
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {questions.map((q, qIdx) => {
+                          const isCurrent = qIdx === activeIdx
+                          return (
+                            <button
+                              key={q.id || qIdx}
+                              type="button"
+                              onClick={() => handleSwitchQuestion(qIdx)}
+                              className={cn(
+                                'size-8 sm:size-9 rounded-xl font-black text-xs transition-all flex items-center justify-center cursor-pointer shadow-2xs',
+                                isCurrent
+                                  ? 'bg-sky-600 text-white scale-105 shadow-xs ring-2 ring-sky-300'
+                                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-sky-100 hover:text-sky-800'
+                              )}
+                              title={`Chuyển đến Câu ${qIdx + 1}: ${q.prompt || 'Chưa đặt câu hỏi'}`}
+                            >
+                              {qIdx + 1}
+                            </button>
+                          )
+                        })}
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={handleAddQuestion}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-sky-300 bg-white text-sky-700 hover:bg-sky-100 text-xs font-black transition cursor-pointer shadow-2xs active:scale-95"
+                            title="Thêm câu hỏi mới vào khối này"
+                          >
+                            <Plus size={14} />
+                            <span>Thêm câu</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-900 text-[11px] font-black">
+                        Đang sửa: Câu {activeIdx + 1} / {questions.length}
+                      </span>
+                      {questions.length > 1 && !readOnly && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveQuestion(activeIdx)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer text-xs font-bold"
+                          title="Xóa câu hỏi đang chọn"
+                        >
+                          <Trash2 size={13} />
+                          <span>Xóa câu này</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Form soạn thảo câu hỏi đang chọn */}
+                  <InteractiveQuestionBlockEditor
+                    key={currentQ.id || `q-${activeIdx}`}
+                    question={{
+                      id: currentQ.id,
+                      prompt: currentQ.prompt,
+                      layoutMode: currentQ.layoutMode || (
+                        (Array.isArray(currentQ.options) && currentQ.options.some((o: any) => typeof o !== 'string' && Boolean(o.imageUrl))) ||
+                        (Array.isArray(currentQ.optionImages) && currentQ.optionImages.some(Boolean))
+                          ? 'cards'
+                          : 'split'
+                      ),
+                      visualUrl: currentQ.visualUrl || (currentQ.layoutMode === 'split' ? (card?.imageUrl || '') : ''),
+                      options: (Array.isArray(currentQ.options) && currentQ.options.length > 0)
+                        ? currentQ.options.map((opt: any, oIdx: number) => ({
+                            id: typeof opt === 'string' ? `opt-${oIdx + 1}` : (opt.id || `opt-${oIdx + 1}`),
+                            text: typeof opt === 'string' ? opt : (opt.text || ''),
+                            imageUrl: typeof opt === 'string' ? (currentQ.optionImages?.[oIdx] || '') : (opt.imageUrl || currentQ.optionImages?.[oIdx] || ''),
+                          }))
+                        : [
+                            { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+                            { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+                          ],
+                      correctIndex: typeof currentQ.correctIndex === 'number' ? currentQ.correctIndex : 0,
+                      explanation: currentQ.explanation || '',
+                    }}
+                    onChange={(patch) => {
+                      const nextQs = [...questions]
+                      const cur = nextQs[activeIdx] || { ...currentQ }
+                      const updated: any = { ...cur }
+                      if (patch.prompt !== undefined) updated.prompt = patch.prompt
+                      if (patch.layoutMode !== undefined) updated.layoutMode = patch.layoutMode
+                      if (patch.visualUrl !== undefined) updated.visualUrl = patch.visualUrl
+                      if (patch.explanation !== undefined) updated.explanation = patch.explanation
+                      if (patch.correctIndex !== undefined) updated.correctIndex = patch.correctIndex
+                      if (patch.options !== undefined) {
+                        updated.options = patch.options.map((o) => o.text)
+                        updated.optionImages = patch.options.map((o) => o.imageUrl || '')
+                      }
+                      nextQs[activeIdx] = updated
+
+                      const activeOptions = updated.options.map((text: string, oIdx: number) => ({
+                        id: `opt-${oIdx + 1}`,
+                        text,
+                        imageUrl: updated.optionImages?.[oIdx] || '',
+                      }))
+
+                      const blockPatch: any = {
+                        quizQuestions: nextQs,
+                        activeQuizQuestionIdx: activeIdx,
+                        questionPrompt: updated.prompt,
+                        layoutMode: updated.layoutMode,
+                        visualUrl: updated.visualUrl,
+                        imageUrl: updated.visualUrl,
+                        correctIndex: updated.correctIndex,
+                        explanation: updated.explanation,
+                        questionOptions: activeOptions,
+                        optionLabels: updated.options,
+                        optionImages: updated.optionImages,
+                      }
+                      updateBlockItem(stageIndex, block.id, blockPatch)
+                    }}
+                    readOnly={readOnly}
+                    questId={courseId}
+                    showToast={showToast}
+                    questionNumber={activeIdx + 1}
+                    customBadge={block.type === 'layout-confirm-option' ? `XÁC NHẬN MỤC TIÊU (CÂU ${activeIdx + 1}/${questions.length})` : `CÂU HỎI ${activeIdx + 1}/${questions.length}`}
+                    customTitle={`Nội dung câu hỏi ${activeIdx + 1} *`}
+                  />
+                </div>
+              )
+            })()
           ) : block.type === 'video' ? (
             <VideoBlockEditor
               video={{

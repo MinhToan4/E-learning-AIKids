@@ -191,6 +191,17 @@ export interface StageBlockItem {
     text: string
     imageUrl?: string
   }>
+  quizQuestions?: Array<{
+    id: string
+    prompt: string
+    layoutMode?: 'cards' | 'split' | 'list'
+    visualUrl?: string
+    options: string[]
+    correctIndex: number
+    explanation?: string
+    optionImages?: string[]
+  }>
+  activeQuizQuestionIdx?: number
   additionalImages?: StageImageItem[]
   posterText?: string
   posterRuleNumber?: number
@@ -1362,6 +1373,7 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
       b.type === 'quiz-question' ||
       b.id.startsWith(COURSE_QUIZ_BLOCK_PREFIX) ||
       b.id.startsWith('blk-quiz-') ||
+      Boolean(b.quizQuestions?.length) ||
       Boolean(b.questionPrompt)
   )
   const authoredExtras = existing.filter(
@@ -1374,78 +1386,128 @@ export function buildCourseQuizBlocks(journey: LessonSixStageJourney, existing: 
     journey.stage2_confirmGoal?.visualUrl ||
     '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
 
-  if (existingQuizBlocks.length > 0) {
-    const patchedExisting = existingQuizBlocks.map((b) => {
+  let combinedQuestions: Array<{
+    id: string
+    prompt: string
+    layoutMode?: 'cards' | 'split' | 'list'
+    visualUrl?: string
+    options: string[]
+    correctIndex: number
+    explanation?: string
+    optionImages?: string[]
+  }> = []
+
+  const existingUnified = existingQuizBlocks.find((b) => Array.isArray(b.quizQuestions) && b.quizQuestions.length > 0)
+
+  if (existingUnified && existingUnified.quizQuestions) {
+    combinedQuestions = existingUnified.quizQuestions.map((q, idx) => {
+      const hasOptionImages =
+        (Array.isArray(q.options) && q.options.some((opt: any) => typeof opt !== 'string' && Boolean(opt.imageUrl))) ||
+        Boolean(q.optionImages?.some(Boolean))
+      return {
+        id: q.id || `q-${idx + 1}`,
+        prompt: q.prompt || '',
+        layoutMode: q.layoutMode || (hasOptionImages ? 'cards' : 'split'),
+        visualUrl: q.visualUrl || fallbackQuizVisual,
+        options: Array.isArray(q.options)
+          ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || ''))
+          : ['Phương án A', 'Phương án B'],
+        correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || '',
+        optionImages: Array.isArray(q.optionImages)
+          ? q.optionImages
+          : (Array.isArray(q.options) ? q.options.map((opt: any) => typeof opt !== 'string' ? (opt.imageUrl || '') : '') : []),
+      }
+    })
+  } else if (existingQuizBlocks.length > 0) {
+    combinedQuestions = existingQuizBlocks.map((b, idx) => {
       const hasOptionImages = b.questionOptions?.some((o) => Boolean(o.imageUrl))
       const visual = b.visualUrl || b.imageUrl || fallbackQuizVisual
-      // If layoutMode was 'cards' but there are no option images and no custom visual was set,
-      // adapt to 'split' so the teacher sees the situation image and layout matches frontend.
       const layoutMode = (b.layoutMode === 'cards' && !hasOptionImages)
         ? 'split'
         : (b.layoutMode || (hasOptionImages ? 'cards' : 'split'))
       return {
-        ...b,
-        visualUrl: visual,
-        imageUrl: visual,
+        id: b.id.replace(COURSE_QUIZ_BLOCK_PREFIX, '').replace('blk-quiz-', '') || `q-${idx + 1}`,
+        prompt: b.questionPrompt || b.title || `Câu hỏi ${idx + 1}`,
         layoutMode,
+        visualUrl: visual,
+        options: (Array.isArray(b.questionOptions) && b.questionOptions.length > 0)
+          ? b.questionOptions.map((o) => o.text)
+          : (b.optionLabels || ['Phương án A', 'Phương án B']),
+        correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
+        explanation: b.explanation || b.tip || '',
+        optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages || [],
       }
     })
-    return [...patchedExisting, ...authoredExtras]
-  }
+  } else {
+    const questions = journey.stage4_quiz?.questions || []
+    if (questions.length === 0) {
+      combinedQuestions = [
+        {
+          id: 'q-1',
+          prompt: 'Bé hãy chọn câu trả lời đúng nhất nhé!',
+          layoutMode: 'split',
+          visualUrl: fallbackQuizVisual,
+          options: ['Phương án A (Chính xác)', 'Phương án B'],
+          correctIndex: 0,
+          explanation: 'Chúc mừng bé đã trả lời đúng!',
+          optionImages: ['', ''],
+        },
+      ]
+    } else {
+      combinedQuestions = questions.map((q, idx) => {
+        const hasOptionImages =
+          (Array.isArray(q.options) && q.options.some((opt: any) => typeof opt !== 'string' && Boolean(opt.imageUrl))) ||
+          Boolean(q.optionImages?.some(Boolean))
+        const visual = q.visualUrl || fallbackQuizVisual
+        const layoutMode = q.layoutMode || (hasOptionImages ? 'cards' : 'split')
 
-  const questions = journey.stage4_quiz?.questions || []
-  if (questions.length === 0) {
-    return [
-      {
-        id: `${COURSE_QUIZ_BLOCK_PREFIX}1`,
-        type: 'quiz-question',
-        title: 'Câu hỏi trắc nghiệm 1',
-        questionPrompt: 'Bé hãy chọn câu trả lời đúng nhất nhé!',
-        layoutMode: 'split',
-        visualUrl: fallbackQuizVisual,
-        imageUrl: fallbackQuizVisual,
-        questionOptions: [
-          { id: 'opt-1', text: 'Phương án A (Chính xác)', imageUrl: '' },
-          { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
-        ],
-        correctIndex: 0,
-        explanation: 'Chúc mừng bé đã trả lời đúng!',
-      },
-      ...authoredExtras,
-    ]
-  }
-
-  const hydratedBlocks: StageBlockItem[] = questions.map((q, idx) => {
-    const hasOptionImages =
-      (Array.isArray(q.options) && q.options.some((opt: any) => typeof opt !== 'string' && Boolean(opt.imageUrl))) ||
-      Boolean(q.optionImages?.some(Boolean))
-    const visual = q.visualUrl || fallbackQuizVisual
-    const layoutMode = q.layoutMode || (hasOptionImages ? 'cards' : 'split')
-
-    return {
-      id: `${COURSE_QUIZ_BLOCK_PREFIX}${q.id || idx + 1}`,
-      type: 'quiz-question',
-      title: q.prompt ? (q.prompt.length > 40 ? q.prompt.slice(0, 40) + '...' : q.prompt) : `Câu hỏi ${idx + 1}`,
-      questionPrompt: q.prompt || '',
-      layoutMode,
-      visualUrl: visual,
-      imageUrl: visual,
-      questionOptions: (Array.isArray(q.options) && q.options.length > 0)
-        ? q.options.map((opt: any, oIdx: number) => ({
-            id: typeof opt === 'string' ? `opt-${oIdx + 1}` : (opt.id || `opt-${oIdx + 1}`),
-            text: typeof opt === 'string' ? opt : (opt.text || ''),
-            imageUrl: typeof opt === 'string' ? (q.optionImages?.[oIdx] || '') : (opt.imageUrl || q.optionImages?.[oIdx] || ''),
-          }))
-        : [
-            { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
-            { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
-          ],
-      correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-      explanation: q.explanation || '',
+        return {
+          id: q.id || `q-${idx + 1}`,
+          prompt: q.prompt || '',
+          layoutMode,
+          visualUrl: visual,
+          options: (Array.isArray(q.options) && q.options.length > 0)
+            ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || ''))
+            : ['Phương án A (Đáp án đúng)', 'Phương án B'],
+          correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+          explanation: q.explanation || '',
+          optionImages: (Array.isArray(q.options) && q.options.length > 0)
+            ? q.options.map((opt: any, oIdx: number) => typeof opt === 'string' ? (q.optionImages?.[oIdx] || '') : (opt.imageUrl || q.optionImages?.[oIdx] || ''))
+            : ['', ''],
+        }
+      })
     }
-  })
+  }
 
-  return [...hydratedBlocks, ...authoredExtras]
+  const activeIdx = (existingUnified?.activeQuizQuestionIdx && existingUnified.activeQuizQuestionIdx < combinedQuestions.length)
+    ? existingUnified.activeQuizQuestionIdx
+    : 0
+  const activeQ = combinedQuestions[activeIdx] || combinedQuestions[0]
+
+  const unifiedQuizBlock: StageBlockItem = {
+    id: `${COURSE_QUIZ_BLOCK_PREFIX}main`,
+    type: 'quiz-question',
+    title: journey.stage4_quiz?.title || 'Thử tài kiến thức trắc nghiệm',
+    quizQuestions: combinedQuestions,
+    activeQuizQuestionIdx: activeIdx,
+    questionPrompt: activeQ?.prompt || '',
+    layoutMode: activeQ?.layoutMode || 'split',
+    visualUrl: activeQ?.visualUrl || fallbackQuizVisual,
+    imageUrl: activeQ?.visualUrl || fallbackQuizVisual,
+    correctIndex: activeQ?.correctIndex ?? 0,
+    explanation: activeQ?.explanation || '',
+    questionOptions: activeQ?.options?.map((text: string, oIdx: number) => ({
+      id: `opt-${oIdx + 1}`,
+      text,
+      imageUrl: activeQ?.optionImages?.[oIdx] || '',
+    })) || [
+      { id: 'opt-1', text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+      { id: 'opt-2', text: 'Phương án B', imageUrl: '' },
+    ],
+  }
+
+  return [unifiedQuizBlock, ...authoredExtras]
 }
 
 export function buildCourseVideoBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {

@@ -128,21 +128,41 @@ export function useLectureAuthoring({
               nextSixStage.stage1_goal?.imageUrl ||
               nextSixStage.stage2_confirmGoal?.visualUrl ||
               '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-            const mappedQuestions = quizBlocks.map((b, qIdx) => {
-              const hasOptImages = b.questionOptions?.some((o) => Boolean(o.imageUrl))
-              return {
-                id: b.id.replace('course-quiz-', ''),
-                prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
-                options: (b.questionOptions && b.questionOptions.length > 0)
-                  ? b.questionOptions.map((o) => o.text)
-                  : (b.optionLabels || ['Phương án A', 'Phương án B']),
-                correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
-                explanation: b.explanation || b.tip || '',
-                visualUrl: b.visualUrl || b.imageUrl || fallbackQuizVisual,
-                layoutMode: b.layoutMode || (hasOptImages ? 'cards' : 'split'),
-                optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
-              }
-            })
+            const primaryQuizBlock = quizBlocks.find((b) => Array.isArray(b.quizQuestions) && b.quizQuestions.length > 0) || quizBlocks[0]
+            let mappedQuestions = []
+            if (primaryQuizBlock && Array.isArray(primaryQuizBlock.quizQuestions) && primaryQuizBlock.quizQuestions.length > 0) {
+              mappedQuestions = primaryQuizBlock.quizQuestions.map((q, qIdx) => {
+                const hasOptImages = (Array.isArray(q.options) && q.options.some((o: any) => typeof o !== 'string' && Boolean(o.imageUrl))) || Boolean(q.optionImages?.some(Boolean))
+                return {
+                  id: q.id || `q-${qIdx + 1}`,
+                  prompt: q.prompt || '',
+                  options: Array.isArray(q.options) ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || '')) : ['Phương án A', 'Phương án B'],
+                  correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+                  explanation: q.explanation || '',
+                  visualUrl: q.visualUrl || fallbackQuizVisual,
+                  layoutMode: q.layoutMode || (hasOptImages ? 'cards' : 'split'),
+                  optionImages: Array.isArray(q.optionImages)
+                    ? q.optionImages
+                    : (Array.isArray(q.options) ? q.options.map((opt: any) => typeof opt !== 'string' ? (opt.imageUrl || '') : '') : []),
+                }
+              })
+            } else {
+              mappedQuestions = quizBlocks.map((b, qIdx) => {
+                const hasOptImages = b.questionOptions?.some((o) => Boolean(o.imageUrl))
+                return {
+                  id: b.id.replace('course-quiz-', ''),
+                  prompt: b.questionPrompt || b.title || `Câu hỏi ${qIdx + 1}`,
+                  options: (b.questionOptions && b.questionOptions.length > 0)
+                    ? b.questionOptions.map((o) => o.text)
+                    : (b.optionLabels || ['Phương án A', 'Phương án B']),
+                  correctIndex: typeof b.correctIndex === 'number' ? b.correctIndex : 0,
+                  explanation: b.explanation || b.tip || '',
+                  visualUrl: b.visualUrl || b.imageUrl || fallbackQuizVisual,
+                  layoutMode: b.layoutMode || (hasOptImages ? 'cards' : 'split'),
+                  optionImages: b.questionOptions?.map((o) => o.imageUrl || '') || b.optionImages,
+                }
+              })
+            }
             nextSixStage = {
               ...nextSixStage,
               stage4_quiz: {
