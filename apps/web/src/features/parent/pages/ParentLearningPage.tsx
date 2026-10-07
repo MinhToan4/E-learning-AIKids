@@ -896,19 +896,19 @@ function LearningOverview({
               <div
                 key={island.id}
                 className={cn(
-                  'relative flex flex-col justify-between rounded-3xl border-2 p-5 transition-all duration-300 shadow-clay',
+                  'relative flex flex-col justify-between rounded-2xl border p-4 transition-all duration-200 shadow-2xs',
                   islandStatus === 'completed'
-                    ? 'border-emerald-300 bg-gradient-to-b from-emerald-50/50 via-white to-white'
+                    ? 'border-emerald-200 bg-emerald-50/20'
                     : islandStatus === 'active'
-                      ? 'border-brand-300 bg-gradient-to-b from-brand-50/60 via-white to-white ring-2 ring-brand-200'
-                      : 'border-slate-200 bg-slate-50/70 opacity-80',
+                      ? 'border-brand-300 bg-brand-50/30 ring-1 ring-brand-200'
+                      : 'border-slate-200/80 bg-slate-50/50 opacity-75',
                 )}
               >
                 <div>
                   {/* Sticker + Status */}
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2.5">
                     <div className="relative">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-100 shadow-soft p-1 overflow-hidden">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-100 shadow-2xs p-1 overflow-hidden">
                         <img
                           src={island.sticker}
                           alt={island.title}
@@ -916,7 +916,7 @@ function LearningOverview({
                         />
                       </div>
                       {islandStatus === 'completed' && (
-                        <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white shadow-2xs text-xs font-black">
+                        <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white shadow-2xs text-[10px] font-black">
                           ✓
                         </span>
                       )}
@@ -924,7 +924,7 @@ function LearningOverview({
 
                     <span
                       className={cn(
-                        'rounded-full px-2.5 py-1 text-xs font-black shadow-2xs',
+                        'rounded-full px-2 py-0.5 text-[11px] font-bold shadow-2xs',
                         islandStatus === 'completed'
                           ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
                           : islandStatus === 'active'
@@ -941,27 +941,27 @@ function LearningOverview({
                   </div>
 
                   {/* Title & Subtitle */}
-                  <h3 className="font-display text-base sm:text-lg font-black text-slate-900 mt-3">
+                  <h3 className="font-display text-sm sm:text-base font-black text-slate-900 mt-2.5">
                     {island.title}
                   </h3>
-                  <p className="text-xs text-muted font-bold mt-0.5">
+                  <p className="text-xs text-muted font-medium mt-0.5 line-clamp-1">
                     {island.subtitle}
                   </p>
 
                   {/* Progress bar */}
-                  <div className="mt-3.5">
-                    <div className="flex items-center justify-between text-xs font-black mb-1">
+                  <div className="mt-2.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold mb-1">
                       <span className="text-slate-600">
-                        🎯 {islandCompleted} / {island.totalStations} trạm
+                        {islandCompleted} / {island.totalStations} trạm
                       </span>
                       <span className="text-amber-800">
-                        ⭐ {islandStars} sao
+                        {islandStars} sao
                       </span>
                     </div>
-                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200/60">
                       <div
                         className={cn(
-                          'h-full rounded-full transition-all duration-700',
+                          'h-full rounded-full transition-all duration-500',
                           islandStatus === 'completed' ? 'bg-emerald-500' : 'bg-brand-500',
                         )}
                         style={{ width: `${pct}%` }}
@@ -971,21 +971,21 @@ function LearningOverview({
                 </div>
 
                 {/* Action Footer */}
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
                   {islandStatus === 'completed' ? (
-                    <span className="text-xs font-bold text-slate-600">
+                    <span className="text-[11px] font-bold text-slate-600">
                       Đã đạt chuẩn an toàn AI
                     </span>
                   ) : islandStatus === 'active' ? (
                     <button
                       type="button"
                       onClick={onEnterChild}
-                      className="inline-flex items-center gap-1.5 text-xs font-black text-brand-700 hover:text-brand-900 transition"
+                      className="inline-flex items-center gap-1 text-xs font-black text-brand-700 hover:text-brand-900 transition"
                     >
                       <span>Vào học</span>
                     </button>
                   ) : (
-                    <span className="text-xs font-bold text-slate-400">
+                    <span className="text-[11px] font-bold text-slate-400">
                       Mở khi hoàn thành đảo trước
                     </span>
                   )}
@@ -995,9 +995,6 @@ function LearningOverview({
           })}
         </div>
       </section>
-
-      {/* Pathway compact snapshot */}
-      <PathwaySection pathway={pathway} compact />
     </div>
   )
 }
