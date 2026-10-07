@@ -18,6 +18,7 @@ import {
   CompareBlockEditor,
   PosterBlockEditor,
   ImagesBlockEditor,
+  InteractiveQuestionBlockEditor,
 } from './stage-block-editors'
 
 export { LECTURE_GESTURES, KEY_COLOR_PRESETS }
@@ -38,7 +39,8 @@ export function getBlockIcon(type: ContentBlockType): string {
     case 'layout-four-keys':
       return '🔑'
     case 'layout-confirm-option':
-      return '🔘'
+    case 'quiz-question':
+      return '❓'
     case 'layout-storyboard':
       return '🎬'
     case 'voice':
@@ -76,7 +78,9 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
     case 'layout-four-keys':
       return customTitle || 'BỐ CỤC 4 CHÌA KHÓA'
     case 'layout-confirm-option':
-      return customTitle || 'PHƯƠNG ÁN XÁC NHẬN MỤC TIÊU'
+      return customTitle || 'CÂU HỎI TRẮC NGHIỆM / XÁC NHẬN'
+    case 'quiz-question':
+      return customTitle || 'CÂU HỎI TRẮC NGHIỆM'
     case 'layout-storyboard':
       return customTitle || 'CHUỖI STORYBOARD'
     case 'voice':
@@ -167,10 +171,18 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
   const isDragOverThis = dragOverBlockIdx === bIdx
   const [expanded, setExpanded] = React.useState(true)
 
-  const isConfirmOption = block.type === 'layout-confirm-option' || block.id.startsWith('course-confirm-option-')
+  const isInteractiveQuestionBlock =
+    block.type === 'quiz-question' ||
+    Boolean(block.questionPrompt) ||
+    Boolean(block.layoutMode) ||
+    Boolean(block.questionOptions?.length) ||
+    block.id.startsWith('blk-quiz-') ||
+    (block.type === 'layout-confirm-option' && !block.id.startsWith('course-confirm-option-'))
+
+  const isConfirmOption = !isInteractiveQuestionBlock && (block.type === 'layout-confirm-option' || block.id.startsWith('course-confirm-option-'))
   const confirmOptionIndex = isConfirmOption
     ? stageBlocks
-        .filter((b) => b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-'))
+        .filter((b) => !isInteractiveQuestionBlock && (b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-')))
         .findIndex((b) => b.id === block.id)
     : -1
   const optionLetter = confirmOptionIndex >= 0 ? String.fromCharCode(65 + confirmOptionIndex) : ''
@@ -220,11 +232,13 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
       }}
       className={cn(
         "rounded-3xl border-2 p-4 sm:p-5 shadow-clay-xs transition-all duration-150",
-        isConfirmOption
-          ? block.isCorrect
-            ? "border-emerald-500 bg-emerald-50/25 ring-2 ring-emerald-300"
-            : "border-slate-200 bg-white hover:border-emerald-300"
-          : "border-slate-200 bg-white hover:border-brand-300",
+        isInteractiveQuestionBlock
+          ? "border-sky-300 bg-sky-50/15 hover:border-sky-400"
+          : isConfirmOption
+            ? block.isCorrect
+              ? "border-emerald-500 bg-emerald-50/25 ring-2 ring-emerald-300"
+              : "border-slate-200 bg-white hover:border-emerald-300"
+            : "border-slate-200 bg-white hover:border-brand-300",
         isDragOverThis ? "border-brand-500 ring-4 ring-brand-200/60 scale-[1.01]" : "",
         isDraggingThis ? "opacity-40 scale-[0.99]" : "opacity-100"
       )}
@@ -240,7 +254,24 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               <GripVertical size={18} />
             </span>
           )}
-          {isConfirmOption ? (
+          {isInteractiveQuestionBlock ? (
+            <>
+              <span className="rounded-xl bg-sky-600 text-white px-2.5 py-1 text-xs font-black shrink-0 whitespace-nowrap shadow-xs">
+                Khối {bIdx + 1}
+              </span>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="grid size-7 place-items-center rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-sm shrink-0 shadow-2xs">
+                  ❓
+                </span>
+                <h4
+                  className="text-xs font-black uppercase tracking-wider text-slate-900 truncate min-w-0 flex-1"
+                  title={block.questionPrompt || block.title || 'CÂU HỎI TRẮC NGHIỆM'}
+                >
+                  {block.questionPrompt || block.title || 'CÂU HỎI TRẮC NGHIỆM / XÁC NHẬN'}
+                </h4>
+              </div>
+            </>
+          ) : isConfirmOption ? (
             <>
               <span className="rounded-xl bg-emerald-600 text-white px-3 py-1 text-xs font-black shrink-0 whitespace-nowrap shadow-xs">
                 Phương án {optionLetter || bIdx + 1}
@@ -345,9 +376,9 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
 
       {!expanded && (
         <div className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-2.5">
-          {block.imageUrl ? (
+          {block.visualUrl || block.imageUrl ? (
             <img
-              src={block.imageUrl}
+              src={block.visualUrl || block.imageUrl}
               alt={block.title || 'Preview'}
               className="size-12 rounded-xl object-cover border border-slate-200 shrink-0"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
@@ -359,12 +390,16 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-slate-800">
-              {isConfirmOption
-                ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}`
-                : block.title || getBlockTitle(block.type)}
+              {isInteractiveQuestionBlock
+                ? `${block.questionPrompt || block.title || 'Câu hỏi trắc nghiệm'} (${(block.questionOptions || block.choiceItems || block.optionLabels || []).length || 2} phương án)`
+                : isConfirmOption
+                  ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}`
+                  : block.title || getBlockTitle(block.type)}
             </p>
             <p className="truncate text-[11px] font-medium text-slate-500">
-              {block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
+              {isInteractiveQuestionBlock
+                ? `Bố cục: ${block.layoutMode === 'split' ? 'Ảnh trái - Câu hỏi phải' : block.layoutMode === 'list' ? 'Dọc' : 'Thẻ Card'} • ${block.explanation || 'Chưa có giải thích'}`
+                : block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
             </p>
           </div>
         </div>
@@ -372,24 +407,90 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
 
       {expanded && (
         <>
-          <LayoutBlocksEditor
-            block={block}
-            stageIndex={stageIndex}
-            card={card}
-            readOnly={readOnly}
-            updateBlockItem={updateBlockItem}
-            updateLearnCard={updateLearnCard}
-            uploadingStageMedia={uploadingStageMedia}
-            setUploadingStageMedia={setUploadingStageMedia}
-            uploadLearnCardMedia={uploadLearnCardMedia}
-            courseId={courseId}
-            stageInfo={stageInfo}
-            inputStyle={inputStyle}
-            textareaStyle={textareaStyle}
-            showToast={showToast}
-            isConfirmOption={isConfirmOption}
-            optionLetter={optionLetter}
-          />
+          {isInteractiveQuestionBlock ? (
+            <InteractiveQuestionBlockEditor
+              question={{
+                id: block.id,
+                prompt: block.questionPrompt || block.title || '',
+                layoutMode: block.layoutMode || 'cards',
+                visualUrl: block.visualUrl || block.imageUrl || '',
+                options: (Array.isArray(block.questionOptions) && block.questionOptions.length > 0)
+                  ? block.questionOptions
+                  : (Array.isArray(block.choiceItems) && block.choiceItems.length > 0)
+                    ? block.choiceItems.map((ci) => ({ id: ci.id, text: ci.title || ci.description || '', imageUrl: ci.imageUrl }))
+                    : (Array.isArray(block.optionLabels) && block.optionLabels.length > 0)
+                      ? block.optionLabels.map((l, i) => ({ id: `opt-${i}`, text: l, imageUrl: block.optionImages?.[i] || '' }))
+                      : [
+                          { id: 'opt-a', text: block.body || 'Phương án A (Đáp án đúng)', imageUrl: block.imageUrl || '' },
+                          { id: 'opt-b', text: 'Phương án B', imageUrl: '' },
+                        ],
+                correctIndex: typeof block.correctIndex === 'number'
+                  ? block.correctIndex
+                  : (Array.isArray(block.choiceItems) && block.choiceItems.findIndex((ci) => ci.isCorrect) >= 0)
+                    ? block.choiceItems.findIndex((ci) => ci.isCorrect)
+                    : 0,
+                explanation: block.explanation || block.tip || block.correctFeedback || '',
+              }}
+              onChange={(patch) => {
+                const blockPatch: any = {}
+                if (patch.prompt !== undefined) {
+                  blockPatch.title = patch.prompt
+                  blockPatch.questionPrompt = patch.prompt
+                }
+                if (patch.layoutMode !== undefined) {
+                  blockPatch.layoutMode = patch.layoutMode
+                }
+                if (patch.visualUrl !== undefined) {
+                  blockPatch.visualUrl = patch.visualUrl
+                  blockPatch.imageUrl = patch.visualUrl
+                }
+                if (patch.explanation !== undefined) {
+                  blockPatch.explanation = patch.explanation
+                  blockPatch.tip = patch.explanation
+                  blockPatch.correctFeedback = patch.explanation
+                }
+                if (patch.correctIndex !== undefined) {
+                  blockPatch.correctIndex = patch.correctIndex
+                }
+                if (patch.options !== undefined) {
+                  blockPatch.questionOptions = patch.options
+                  blockPatch.optionLabels = patch.options.map((o) => o.text)
+                  blockPatch.optionImages = patch.options.map((o) => o.imageUrl || '')
+                  blockPatch.choiceItems = patch.options.map((o, idx) => ({
+                    id: o.id || `opt-${idx}`,
+                    title: o.text,
+                    imageUrl: o.imageUrl,
+                    isCorrect: idx === (patch.correctIndex ?? block.correctIndex ?? 0),
+                  }))
+                }
+                updateBlockItem(stageIndex, block.id, blockPatch)
+              }}
+              readOnly={readOnly}
+              questId={courseId}
+              showToast={showToast}
+              customBadge={block.type === 'layout-confirm-option' ? 'XÁC NHẬN MỤC TIÊU' : 'CÂU HỎI TRẮC NGHIỆM'}
+              customTitle={block.title || 'Câu hỏi trắc nghiệm'}
+            />
+          ) : (
+            <LayoutBlocksEditor
+              block={block}
+              stageIndex={stageIndex}
+              card={card}
+              readOnly={readOnly}
+              updateBlockItem={updateBlockItem}
+              updateLearnCard={updateLearnCard}
+              uploadingStageMedia={uploadingStageMedia}
+              setUploadingStageMedia={setUploadingStageMedia}
+              uploadLearnCardMedia={uploadLearnCardMedia}
+              courseId={courseId}
+              stageInfo={stageInfo}
+              inputStyle={inputStyle}
+              textareaStyle={textareaStyle}
+              showToast={showToast}
+              isConfirmOption={isConfirmOption}
+              optionLetter={optionLetter}
+            />
+          )}
 
           {block.type === 'voice' && (
             <VoiceBlockEditor

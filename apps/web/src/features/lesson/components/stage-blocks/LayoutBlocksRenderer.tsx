@@ -4,9 +4,12 @@ import {
   MoveRight,
   Volume2,
   ZoomIn,
+  CheckCircle2,
+  Lightbulb,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { playInstantSound } from '@/features/lesson/lib/lesson-sound'
 import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
 
 function readableFormula(value: string): string {
@@ -230,8 +233,25 @@ export function LayoutBlocksRenderer({
     )
   }
 
-  // ── BLOCK: LAYOUT-CONFIRM-OPTION ──────────────────────────
-  if (block.type === 'layout-confirm-option') {
+  // ── BLOCK: LAYOUT-CONFIRM-OPTION & QUIZ-QUESTION ─────────
+  if (block.type === 'layout-confirm-option' || block.type === 'quiz-question') {
+    const isFullInteractiveQuestion =
+      Boolean(block.questionPrompt) ||
+      Boolean(block.layoutMode) ||
+      Boolean(block.questionOptions?.length) ||
+      Boolean(block.choiceItems?.length) ||
+      block.type === 'quiz-question'
+
+    if (isFullInteractiveQuestion) {
+      return (
+        <InteractiveQuestionStudentBlock
+          block={block}
+          isMobile={isMobile}
+          onZoomImage={onZoomImage}
+        />
+      )
+    }
+
     return (
       <div
         key={block.id}
@@ -333,4 +353,286 @@ export function LayoutBlocksRenderer({
   }
 
   return null
+}
+
+interface StudentQuestionOption {
+  id: string
+  text: string
+  imageUrl?: string
+}
+
+function InteractiveQuestionStudentBlock({
+  block,
+  isMobile,
+  onZoomImage,
+}: {
+  block: StageBlockItem
+  isMobile: boolean
+  onZoomImage?: (data: { title: string; subtitle?: string; url?: string; description?: string }) => void
+}) {
+  const [selectedIdx, setSelectedIdx] = React.useState<number | null>(null)
+
+  const options: StudentQuestionOption[] = React.useMemo(() => {
+    if (Array.isArray(block.questionOptions) && block.questionOptions.length > 0) {
+      return block.questionOptions.map((opt, i) => ({
+        id: opt.id || `opt-${i}`,
+        text: opt.text,
+        imageUrl: opt.imageUrl,
+      }))
+    }
+    if (Array.isArray(block.choiceItems) && block.choiceItems.length > 0) {
+      return block.choiceItems.map((ci, i) => ({
+        id: ci.id || `opt-${i}`,
+        text: ci.title || ci.description || '',
+        imageUrl: ci.imageUrl,
+      }))
+    }
+    if (Array.isArray(block.optionLabels) && block.optionLabels.length > 0) {
+      return block.optionLabels.map((lbl, i) => ({
+        id: `opt-${i}`,
+        text: lbl,
+        imageUrl: block.optionImages?.[i] || '',
+      }))
+    }
+    return [
+      { id: 'opt-a', text: block.body || 'Phương án A', imageUrl: block.imageUrl || '' },
+      { id: 'opt-b', text: 'Phương án B', imageUrl: '' },
+    ]
+  }, [block])
+
+  const correctIndex = typeof block.correctIndex === 'number'
+    ? block.correctIndex
+    : (Array.isArray(block.choiceItems) && block.choiceItems.findIndex((ci) => ci.isCorrect) >= 0)
+      ? block.choiceItems.findIndex((ci) => ci.isCorrect)
+      : 0
+
+  const layoutMode = block.layoutMode || 'cards'
+  const visualUrl = block.visualUrl || block.imageUrl
+  const prompt = block.questionPrompt || block.title || 'Câu hỏi thử tài:'
+  const explanation = block.explanation || block.tip || block.correctFeedback
+
+  const handleSelect = (idx: number) => {
+    setSelectedIdx(idx)
+    const isCorrect = idx === correctIndex
+    try {
+      playInstantSound(isCorrect ? 'correct' : 'wrong')
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div
+      key={block.id}
+      data-testid="block-interactive-question"
+      className="rounded-3xl border-2 border-sky-200 bg-white p-4 sm:p-6 shadow-clay-xs text-left space-y-4"
+    >
+      {/* Header câu hỏi */}
+      <div className="flex items-start gap-2.5">
+        <span className="grid size-9 place-items-center rounded-2xl bg-sky-500 text-white font-black text-sm shrink-0 shadow-2xs mt-0.5">
+          ❓
+        </span>
+        <div className="min-w-0 flex-1">
+          <span className="text-xs font-black uppercase tracking-wider text-sky-800">
+            Thử tài trắc nghiệm
+          </span>
+          <h3 className="text-base sm:text-lg font-black text-slate-800 leading-snug mt-0.5">
+            {prompt}
+          </h3>
+        </div>
+      </div>
+
+      {/* ── BỐ CỤC 1: SPLIT (Ảnh tình huống 50% bên trái, phương án 50% bên phải) ── */}
+      {layoutMode === 'split' && (
+        <div className={cn("grid gap-4 items-start", isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
+          {visualUrl && (
+            <div
+              onClick={() => onZoomImage?.({ title: prompt, url: visualUrl })}
+              className="relative overflow-hidden rounded-2xl border-2 border-sky-200 bg-sky-50/50 aspect-[4/3] flex items-center justify-center cursor-pointer group shadow-2xs"
+            >
+              <img
+                src={visualUrl}
+                alt={prompt}
+                className="size-full object-contain p-2 group-hover:scale-105 transition-transform duration-200"
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
+              />
+              <span className="absolute bottom-2 right-2 rounded-lg bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ZoomIn size={12} /> Phóng to
+              </span>
+            </div>
+          )}
+
+          <div className="space-y-2.5">
+            {options.map((opt, idx) => {
+              const letter = String.fromCharCode(65 + idx)
+              const isSelected = selectedIdx === idx
+              const isCorrectAnswer = idx === correctIndex
+              const showResult = selectedIdx !== null
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => handleSelect(idx)}
+                  className={cn(
+                    "w-full text-left p-3.5 rounded-2xl border-2 font-bold text-sm transition-all duration-150 flex items-center gap-3 cursor-pointer shadow-2xs active:scale-[0.99]",
+                    !showResult && "border-slate-200 bg-slate-50/70 hover:border-sky-400 hover:bg-sky-50/60 text-slate-800",
+                    showResult && isSelected && isCorrectAnswer && "border-emerald-500 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-200",
+                    showResult && isSelected && !isCorrectAnswer && "border-rose-400 bg-rose-50 text-rose-950 ring-2 ring-rose-200",
+                    showResult && !isSelected && isCorrectAnswer && "border-emerald-400 bg-emerald-50/50 text-emerald-900 border-dashed",
+                    showResult && !isSelected && !isCorrectAnswer && "border-slate-200 bg-white/60 text-slate-400 opacity-60"
+                  )}
+                >
+                  <span className={cn(
+                    "size-7 rounded-xl font-black text-xs grid place-items-center shrink-0 shadow-2xs",
+                    showResult && isSelected && isCorrectAnswer ? "bg-emerald-600 text-white" :
+                    showResult && isSelected && !isCorrectAnswer ? "bg-rose-600 text-white" :
+                    "bg-white border border-slate-300 text-slate-700"
+                  )}>
+                    {letter}
+                  </span>
+                  <span className="min-w-0 flex-1 leading-snug">{opt.text}</span>
+                  {showResult && isCorrectAnswer && (
+                    <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── BỐ CỤC 2: LIST (Danh sách dọc) ── */}
+      {layoutMode === 'list' && (
+        <div className="space-y-3">
+          {visualUrl && (
+            <div
+              onClick={() => onZoomImage?.({ title: prompt, url: visualUrl })}
+              className="relative overflow-hidden rounded-2xl border-2 border-sky-200 bg-sky-50/50 max-h-[220px] aspect-[16/9] flex items-center justify-center cursor-pointer group shadow-2xs mx-auto"
+            >
+              <img
+                src={visualUrl}
+                alt={prompt}
+                className="size-full object-contain p-2 group-hover:scale-105 transition-transform duration-200"
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
+              />
+            </div>
+          )}
+
+          <div className="space-y-2.5">
+            {options.map((opt, idx) => {
+              const letter = String.fromCharCode(65 + idx)
+              const isSelected = selectedIdx === idx
+              const isCorrectAnswer = idx === correctIndex
+              const showResult = selectedIdx !== null
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => handleSelect(idx)}
+                  className={cn(
+                    "w-full text-left p-3.5 rounded-2xl border-2 font-bold text-sm transition-all duration-150 flex items-center gap-3 cursor-pointer shadow-2xs active:scale-[0.99]",
+                    !showResult && "border-slate-200 bg-slate-50/70 hover:border-sky-400 hover:bg-sky-50/60 text-slate-800",
+                    showResult && isSelected && isCorrectAnswer && "border-emerald-500 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-200",
+                    showResult && isSelected && !isCorrectAnswer && "border-rose-400 bg-rose-50 text-rose-950 ring-2 ring-rose-200",
+                    showResult && !isSelected && isCorrectAnswer && "border-emerald-400 bg-emerald-50/50 text-emerald-900 border-dashed",
+                    showResult && !isSelected && !isCorrectAnswer && "border-slate-200 bg-white/60 text-slate-400 opacity-60"
+                  )}
+                >
+                  <span className={cn(
+                    "size-7 rounded-xl font-black text-xs grid place-items-center shrink-0 shadow-2xs",
+                    showResult && isSelected && isCorrectAnswer ? "bg-emerald-600 text-white" :
+                    showResult && isSelected && !isCorrectAnswer ? "bg-rose-600 text-white" :
+                    "bg-white border border-slate-300 text-slate-700"
+                  )}>
+                    {letter}
+                  </span>
+                  <span className="min-w-0 flex-1 leading-snug">{opt.text}</span>
+                  {showResult && isCorrectAnswer && (
+                    <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── BỐ CỤC 3: CARDS (Lưới thẻ card có ảnh riêng) ── */}
+      {layoutMode === 'cards' && (
+        <div className={cn(
+          "grid gap-3.5",
+          options.length === 2 ? "grid-cols-1 sm:grid-cols-2" :
+          options.length === 3 ? "grid-cols-1 sm:grid-cols-3" :
+          "grid-cols-1 sm:grid-cols-2 md:grid-cols-4"
+        )}>
+          {options.map((opt, idx) => {
+            const letter = String.fromCharCode(65 + idx)
+            const isSelected = selectedIdx === idx
+            const isCorrectAnswer = idx === correctIndex
+            const showResult = selectedIdx !== null
+
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => handleSelect(idx)}
+                className={cn(
+                  "flex flex-col p-3 rounded-2xl border-2 text-left font-bold text-sm transition-all duration-150 cursor-pointer shadow-2xs active:scale-[0.98]",
+                  !showResult && "border-slate-200 bg-slate-50/60 hover:border-sky-400 hover:bg-sky-50/50 text-slate-800",
+                  showResult && isSelected && isCorrectAnswer && "border-emerald-500 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-300",
+                  showResult && isSelected && !isCorrectAnswer && "border-rose-400 bg-rose-50 text-rose-950 ring-2 ring-rose-200",
+                  showResult && !isSelected && isCorrectAnswer && "border-emerald-400 bg-emerald-50/50 text-emerald-900 border-dashed",
+                  showResult && !isSelected && !isCorrectAnswer && "border-slate-200 bg-white/60 text-slate-400 opacity-60"
+                )}
+              >
+                {opt.imageUrl ? (
+                  <div className="aspect-[4/3] w-full rounded-xl overflow-hidden mb-2.5 bg-slate-100 flex items-center justify-center border border-slate-200/80">
+                    <img
+                      src={opt.imageUrl}
+                      alt={opt.text}
+                      className="size-full object-contain p-1.5"
+                      onError={(e) => { e.currentTarget.style.display = 'none' }}
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-[16/10] w-full rounded-xl mb-2.5 bg-sky-50 flex items-center justify-center text-sky-600 font-black text-xl border border-sky-100">
+                    {letter}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 mt-auto">
+                  <span className={cn(
+                    "size-6 rounded-lg font-black text-[11px] grid place-items-center shrink-0 shadow-2xs",
+                    showResult && isSelected && isCorrectAnswer ? "bg-emerald-600 text-white" :
+                    showResult && isSelected && !isCorrectAnswer ? "bg-rose-600 text-white" :
+                    "bg-white border border-slate-300 text-slate-700"
+                  )}>
+                    {letter}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-xs leading-snug">{opt.text}</span>
+                  {showResult && isCorrectAnswer && (
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Lời giải thích khi đã chọn */}
+      {selectedIdx !== null && explanation && (
+        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/90 p-4 space-y-1 animate-fade-up">
+          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-900">
+            <Lightbulb size={16} className="text-amber-600 shrink-0" />
+            <span>{selectedIdx === correctIndex ? '🎉 Chính xác! Giải thích:' : '💡 Hãy chú ý: Gợi ý giải thích:'}</span>
+          </div>
+          <p className="text-xs sm:text-sm font-semibold text-amber-950 leading-relaxed">
+            {explanation}
+          </p>
+        </div>
+      )}
+    </div>
+  )
 }

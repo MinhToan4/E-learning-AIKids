@@ -128,8 +128,28 @@ export function useLectureAuthoring({
       newBlock = { id: `blk-voice-${ts}`, type: 'voice', title: 'Giọng đọc & lời thoại' }
     } else if (blockId === 'layout-split') {
       newBlock = { id: `blk-split-${ts}`, type: 'layout-split', title: '2 Cột: Chữ + Ảnh', body: '' }
-    } else if (blockId === 'layout-confirm-option') {
-      newBlock = { id: `course-confirm-option-${ts}`, type: 'layout-confirm-option', title: 'Phương án lựa chọn', isCorrect: false }
+    } else if (blockId === 'layout-confirm-option' || blockId === 'quiz-question') {
+      newBlock = {
+        id: `blk-quiz-${ts}`,
+        type: 'layout-confirm-option',
+        title: 'Câu hỏi trắc nghiệm mới',
+        questionPrompt: 'Chọn đáp án chính xác nhất:',
+        layoutMode: 'cards',
+        visualUrl: '',
+        correctIndex: 0,
+        explanation: 'Giải thích vì sao đáp án này chính xác...',
+        questionOptions: [
+          { id: `opt-${ts}-1`, text: 'Phương án A (Đáp án đúng)', imageUrl: '' },
+          { id: `opt-${ts}-2`, text: 'Phương án B', imageUrl: '' },
+        ],
+        choiceItems: [
+          { id: `opt-${ts}-1`, title: 'Phương án A (Đáp án đúng)', isCorrect: true },
+          { id: `opt-${ts}-2`, title: 'Phương án B', isCorrect: false },
+        ],
+        optionLabels: ['Phương án A (Đáp án đúng)', 'Phương án B'],
+        optionImages: ['', ''],
+        isCorrect: true,
+      } as any
     }
 
     const nextBlocks = [...stageBlocks]

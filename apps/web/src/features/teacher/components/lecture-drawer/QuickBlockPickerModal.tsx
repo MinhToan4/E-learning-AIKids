@@ -114,9 +114,9 @@ export const QUICK_BLOCK_CATEGORIES: QuickBlockCategory[] = [
       },
       {
         id: 'layout-confirm-option',
-        name: 'Thẻ Phương Án Trả Lời (A/B/C)',
-        desc: 'Tùy chọn câu đố tương tác mở khóa trạm kế tiếp',
-        badge: 'Câu hỏi',
+        name: 'Câu Hỏi Trắc Nghiệm / Xác Nhận',
+        desc: 'Trắc nghiệm chọn đáp án: Thẻ Card, Split ảnh/câu hỏi hoặc Danh sách dọc',
+        badge: 'Trắc nghiệm',
         color: 'border-emerald-300 bg-emerald-50 text-emerald-950',
         icon: CheckCircle2,
       },

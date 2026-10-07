@@ -118,7 +118,7 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
       { id: 'dialogue', name: 'Kịch Bản Phân Vai', icon: '', desc: 'Hội thoại bong bóng giữa các nhân vật', badge: 'Mới', color: 'border-sky-200 bg-sky-50/80 text-sky-950' },
       { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '', desc: 'Toán học & tư duy công thức trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
       { id: 'poster', name: 'Poster Quy Tắc Vàng', icon: '', desc: 'Banner quy tắc to bản phong cách cuộn giấy', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
-      { id: 'layout-confirm-option', name: 'Thẻ Phương Án Trả Lời (A/B/C)', icon: '', desc: 'Phương án trả lời câu hỏi: Ảnh đơn hoặc Text + Ảnh', badge: 'Khóa học', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
+      { id: 'layout-confirm-option', name: 'Câu Hỏi Trắc Nghiệm / Xác Nhận', icon: '', desc: 'Trắc nghiệm chọn đáp án: Thẻ Card, Split ảnh/câu hỏi hoặc Danh sách dọc', badge: 'Trắc nghiệm', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
     ],
   },
 ]

@@ -109,6 +109,7 @@ export type ContentBlockType =
   | 'compare'           // Bảng So Sánh 2 Cột
   | 'poster'            // Poster Quy Tắc Vàng
   | 'images'            // Album Ảnh Minh Họa
+  | 'quiz-question'     // Câu Hỏi Trắc Nghiệm / Xác Nhận Kéo Thả (Quiz Block)
 
 export interface StageBlockItem {
   id: string
@@ -158,6 +159,15 @@ export interface StageBlockItem {
     imageUrl?: string
     isCorrect?: boolean
   }[]
+  layoutMode?: 'cards' | 'split' | 'list'
+  visualUrl?: string
+  correctIndex?: number
+  explanation?: string
+  questionOptions?: Array<{
+    id?: string
+    text: string
+    imageUrl?: string
+  }>
   additionalImages?: StageImageItem[]
   posterText?: string
   posterRuleNumber?: number
