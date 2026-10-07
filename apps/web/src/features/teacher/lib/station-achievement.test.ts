@@ -232,8 +232,8 @@ describe('station achievement & reward synchronization', () => {
 
       const normalized = normalizeLectureDraft(draft)
 
-      expect(normalized.reward).toBe('Huy hiệu Bài 1.1 — Một từ hay năm từ?')
-      expect(normalized.sixStageJourney?.stage6_completion?.rewardBadge?.name).toBe('Huy hiệu Bài 1.1 — Một từ hay năm từ?')
+      expect(normalized.reward).toBe('Huy hiệu Trạm 1 — Một từ hay năm từ?')
+      expect(normalized.sixStageJourney?.stage6_completion?.rewardBadge?.name).toBe('Huy hiệu Trạm 1 — Một từ hay năm từ?')
     })
   })
 
@@ -304,7 +304,7 @@ describe('station achievement & reward synchronization', () => {
       const generated = generateStationAchievements()
       expect(generated).toHaveLength(32)
       expect(generated[0].code).toBe('station-bai-1-1-mot-tu-hay-nam-tu')
-      expect(generated[0].name).toBe('Huy hiệu Bài 1.1 — Một từ hay năm từ?')
+      expect(generated[0].name).toBe('Huy hiệu Trạm 1 — Một từ hay năm từ?')
       expect(generated[22].code).toBe('station-rule-1')
       expect(generated[22].name).toBe('Huy hiệu Quy tắc 1 — Nghĩ ý tưởng trước khi hỏi AI')
     })

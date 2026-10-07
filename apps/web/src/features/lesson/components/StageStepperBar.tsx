@@ -4,7 +4,8 @@ import {
   ChevronRight,
   CheckCircle2,
   Lock,
-  Sparkles,
+  Award,
+  Compass,
   Star,
   Loader2,
 } from 'lucide-react'
@@ -160,7 +161,7 @@ export function StageStepperBar({
               className="min-h-[38px] px-3 py-1.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs border border-slate-200/80 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
               title="Quay lại bản đồ"
             >
-              <ChevronLeft size={16} aria-hidden="true" className="shrink-0" />
+              <Compass size={17} aria-hidden="true" className="text-amber-600 shrink-0" />
               <span className="hidden sm:inline">Quay lại Bản đồ</span>
               <span className="sm:hidden">Bản đồ</span>
             </button>
@@ -196,7 +197,7 @@ export function StageStepperBar({
           >
             {/* Pill XP */}
             <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300/80 text-amber-950 font-black text-[11px] sm:text-xs shadow-clay-xs">
-              <Sparkles size={13} className="text-amber-500 fill-amber-400 shrink-0" />
+              <Award size={13} className="text-amber-600 shrink-0" />
               <span>+{effectiveRewardXp} XP</span>
             </div>
 

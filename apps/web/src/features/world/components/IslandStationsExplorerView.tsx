@@ -10,7 +10,7 @@ import {
   Compass,
   Trophy,
   Star,
-  Sparkles,
+  Home,
 } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
@@ -536,13 +536,13 @@ export function IslandStationsExplorerView({
           type="button"
           onClick={() => {
             if (onBackToMap) onBackToMap()
-            else navigate('/world/program/aikid_official')
+            else navigate('/home')
           }}
-          aria-label="Quay lại Bản đồ Đảo"
+          aria-label="Về Trang Chủ"
           className="whitespace-nowrap px-3.5 py-2 text-xs sm:text-sm font-black rounded-full bg-white shadow-xs border border-slate-200/80 flex items-center gap-1.5 text-zinc-700 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer shrink-0"
         >
-          <ChevronLeft className="w-4 h-4 text-zinc-700 shrink-0" />
-          <span>Quay lại Bản đồ Đảo</span>
+          <Home className="w-4 h-4 text-zinc-700 shrink-0" />
+          <span>Về Trang Chủ</span>
         </button>
 
         {/* Current Island Badge + Stars & XP Chip */}
@@ -611,7 +611,7 @@ export function IslandStationsExplorerView({
           >
             <div className="relative mb-0.5 px-3 py-1 rounded-full bg-white/95 text-zinc-800 text-[11px] sm:text-xs font-black shadow-xs flex items-center gap-1 animate-bounce-subtle whitespace-nowrap border border-amber-200">
               <span>{isVoyaging ? `Tiến đến ${currentIsland.title}!` : 'Mee chào con!'}</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
             </div>
             <img
               src={designerAssets.catPoses.welcome}
@@ -849,7 +849,7 @@ export function IslandStationsExplorerView({
                   Con đã hoàn thành toàn bộ hành trình tại {currentIsland.title}!
                 </p>
                 <div className="mt-3.5 flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-200/90 text-amber-950 font-black text-xs border border-amber-300 shadow-2xs">
-                  <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
+                  <Star className="w-4 h-4 text-amber-700 fill-amber-500 shrink-0" />
                   <span>Rương Báu Đã Mở • Vinh Danh Thám Hiểm Xuất Sắc</span>
                 </div>
 
@@ -860,7 +860,7 @@ export function IslandStationsExplorerView({
                     onClick={goToNextIsland}
                     className="mt-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white font-display font-black text-sm sm:text-base shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2 animate-bounce-subtle"
                   >
-                    <Sparkles className="w-4 h-4 text-yellow-200" />
+                    <Compass className="w-4 h-4 text-yellow-200" />
                     <span>Tiến Lên Đảo Tiếp Theo</span>
                   </button>
                 ) : (
@@ -871,7 +871,7 @@ export function IslandStationsExplorerView({
                   >
                     <FlatClayTrophy size={20} className="shrink-0" />
                     <span>Nhận Giấy Chứng Nhận Tốt Nghiệp</span>
-                    <Sparkles className="w-5 h-5 text-amber-900" />
+                    <Star className="w-5 h-5 text-amber-900 fill-amber-800" />
                   </button>
                 )}
               </div>

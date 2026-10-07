@@ -846,8 +846,8 @@ export function HomePage() {
                       </p>
                     </div>
 
-                    {/* 3. Nhiệm vụ tiếp theo & Nút khám phá Soft Clay trực quan (KHÔNG BỊ CẮT CỤT) */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                    {/* 3. Nút khám phá trạm tiếp theo duy nhất - Thiết kế Soft Clay trực quan (gộp 2 nút thành 1) */}
+                    <div className="pt-1">
                       <button
                         type="button"
                         onClick={() =>
@@ -859,40 +859,26 @@ export function HomePage() {
                           )
                         }
                         className={cn(
-                          "inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer shrink-0 bg-gradient-to-r",
+                          "group inline-flex items-center gap-3.5 px-5 py-3 sm:py-3.5 rounded-2xl text-white font-black shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer text-left max-w-full bg-gradient-to-r",
                           islandTheme.buttonGradient,
                         )}
+                        title={`Khám phá trạm tiếp theo: ${activeStation.stationLabel} — ${(activeStation.stationTitle || '').replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '').replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '').trim()}`}
                       >
-                        <Play className="w-4 h-4 fill-current ml-0.5" />
-                        <span>Khám phá trạm tiếp theo</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate(
-                            (activeStation as any).url ||
-                              (activeStation.islandSlug
-                                ? activeStation.route
-                                : OFFICIAL_SIX_ISLANDS[1]?.targetRoute || activeStation.route),
-                          )
-                        }
-                        className={cn(
-                          "inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 hover:bg-white backdrop-blur-xs border shadow-2xs hover:shadow-soft transition-all text-left cursor-pointer group/pill max-w-full",
-                          islandTheme.pillBorder,
-                        )}
-                        title={`Vào học ${activeStation.stationLabel} — ${(activeStation.stationTitle || '').replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '').replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '').trim()}`}
-                      >
-                        <span className="text-xl select-none shrink-0 group-hover/pill:scale-110 transition-transform" aria-hidden="true">🎯</span>
-                        <div className="min-w-0">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
-                            {(activeStation.islandTitle || '')
+                        {/* Biểu tượng Play Soft Clay */}
+                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 border border-white/30 group-hover:scale-105 transition-transform shadow-inner">
+                          <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                        </div>
+                        <div className="min-w-0 pr-1">
+                          <div className="text-[11px] font-black uppercase tracking-wider text-white/90 flex items-center gap-1.5">
+                            <span>Khám phá trạm tiếp theo</span>
+                            <span className="text-white/60">•</span>
+                            <span className="text-amber-200">{activeStation.stationLabel}</span>
+                          </div>
+                          <div className="text-xs sm:text-sm md:text-base font-black text-white leading-snug whitespace-normal">
+                            {((activeStation.islandTitle || '')
                               .replace(/^Module\s+\d+\s*[-—:]\s*/i, '')
                               .replace(/\s*AI!*$/i, '')
-                              .trim() || islandTheme.shortName}
-                          </div>
-                          <div className="text-xs sm:text-sm font-black text-slate-900 leading-snug whitespace-normal">
-                            {activeStation.stationLabel} — {(activeStation.stationTitle || '')
+                              .trim() || islandTheme.shortName)} — {(activeStation.stationTitle || '')
                               .replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '')
                               .replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '')
                               .trim()}

@@ -515,11 +515,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
             isCurrentCourseRule={isCurrentCourseRule}
             getStationSlugFn={getStationSlug}
             onBackToMap={() => {
-              if (isOfficialProgramView || programId === 'aikid_official') {
-                navigate('/home')
-              } else {
-                navigate('/world/program/aikid_official')
-              }
+              navigate('/home')
             }}
             onSelectIsland={(islandSlug) => {
               if (isOfficialProgramView || programId === 'aikid_official') {

@@ -48,7 +48,12 @@ export default function LessonJourneyRenderer({ mode, quest, ruleId, effectiveCo
         }
         isCompleted={isCompleted || liveStars >= 3}
         previousStars={liveStars}
-        onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
+        onBackToMap={() => {
+          const targetSlug = matchedCurriculum?.islandNumber
+            ? (matchedCurriculum.islandNumber === 0 ? 'muoi-quy-tac-xuong-sang-tao' : `dao-${matchedCurriculum.islandNumber}`)
+            : (effectiveCourseId || 'dao-1')
+          navigate(`/world/program/aikid_official?island=${encodeURIComponent(targetSlug)}`)
+        }}
         onNavigateNextLesson={(nextSlug) => {
           const fallbackNext =
             nextSlug ||

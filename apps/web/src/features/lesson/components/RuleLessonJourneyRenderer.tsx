@@ -159,7 +159,7 @@ export default function RuleLessonJourneyRenderer({
         initialStageIndex={initialStageIndex}
         isCompleted={isCompleted || liveStars >= 3}
         previousStars={liveStars}
-        onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
+        onBackToMap={() => navigate('/world/program/aikid_official?island=muoi-quy-tac-xuong-sang-tao')}
         onNavigateNextLesson={(nextSlug) => {
           if (nextSlug === 'bai-1-1') {
             if (hasActivePlan) {

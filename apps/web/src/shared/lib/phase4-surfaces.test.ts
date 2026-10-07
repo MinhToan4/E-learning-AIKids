@@ -135,8 +135,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).not.toContain("{ to: '/level'")
     expect(level).toContain('Hành trình cấp độ')
     expect(level).not.toContain('Con muốn làm gì?')
-    expect(profile).toContain('to="/level"')
-    expect(profile).toContain('Xem quà sắp mở và các mốc cấp tiếp theo.')
+    expect(profile).not.toContain('to="/level"')
+    expect(profile).not.toContain('Xem quà sắp mở và các mốc cấp tiếp theo.')
   })
 
   it('role shells share icon navigation on desktop and mobile', () => {

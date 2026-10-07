@@ -132,7 +132,7 @@ describe('IslandStationsExplorerView', () => {
     )
 
     // Khối 1: Header điều hướng
-    expect(html).toContain('Quay lại Bản đồ Đảo')
+    expect(html).toContain('Về Trang Chủ')
     expect(html).toContain('ĐẢO 1')
     expect(html).toContain('3/12 Sao')
 
