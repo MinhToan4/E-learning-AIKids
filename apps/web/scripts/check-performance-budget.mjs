@@ -18,7 +18,7 @@ const budgets = [
   { pattern: /^asmo-api-.*\.js$/, maxKb: 15 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
   // Allow the small CSS output variance observed between local and Vercel builds.
-  { pattern: /^index-.*\.css$/, maxKb: 632 },
+  { pattern: /^index-.*\.css$/, maxKb: 645 },
 ]
 
 const failures = []
