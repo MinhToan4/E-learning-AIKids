@@ -543,7 +543,7 @@ export function ProfilePage() {
                   to="/creative"
                   className="flex min-h-11 items-center gap-1.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-4 py-2 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-102 active:scale-95 transition-all"
                 >
-                  <span>🎨 Vào AI Studio vẽ tranh mới</span>
+                  <span>🎨 Vào Xưởng Sáng Tạo vẽ tranh</span>
                 </Link>
                 <Link
                   to="/backpack"
@@ -614,7 +614,7 @@ export function ProfilePage() {
                     to="/creative"
                     className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-2.5 text-xs sm:text-sm font-black text-white shadow-soft hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <span>🎨 Vào AI Studio vẽ tranh mới</span>
+                    <span>🎨 Vào Xưởng Sáng Tạo vẽ tranh</span>
                   </Link>
                   <Link
                     to="/backpack"

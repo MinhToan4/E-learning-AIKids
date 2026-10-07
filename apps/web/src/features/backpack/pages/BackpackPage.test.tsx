@@ -67,7 +67,7 @@ describe('BackpackPage filtering helpers', () => {
   })
 
   it('friendlyProjectTitle cleans up raw technical names', () => {
-    expect(friendlyProjectTitle('storyPlot-comic-1234')).toBe('Truyện tranh AI')
+    expect(friendlyProjectTitle('storyPlot-comic-1234')).toBe('Truyện tranh')
     expect(friendlyProjectTitle('prompt-schema-99')).toBe('Ý tưởng sáng tạo')
     expect(friendlyProjectTitle('chu_cun_nho.png')).toBe('chu cun nho')
     expect(friendlyProjectTitle('')).toBe('Tác phẩm của con')

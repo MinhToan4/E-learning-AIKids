@@ -233,7 +233,7 @@ function filterFormat(kind: string): Exclude<ProjectFormat, 'all'> {
 
 function kindLabel(kind: string) {
   const format = filterFormat(kind)
-  return format === 'comic' ? 'Truyện tranh' : format === 'story' ? 'Truyện chữ' : 'Ảnh AI & tranh vẽ'
+  return format === 'comic' ? 'Truyện tranh' : format === 'story' ? 'Truyện chữ' : 'Tranh vẽ'
 }
 
 function shareStatusLabel(status: string) {
@@ -251,7 +251,7 @@ export function friendlyProjectTitle(title: string): string {
   if (!title) return 'Tác phẩm của con'
   const clean = title
     .replace(/\.(json|png|jpe?g|webp|gif|mp4)$/i, '')
-    .replace(/^storyPlot[-_\s]?comic[-_\s]?\d*/i, 'Truyện tranh AI')
+    .replace(/^storyPlot[-_\s]?comic[-_\s]?\d*/i, 'Truyện tranh')
     .replace(/^prompt[-_\s]?schema[-_\s]?\d*/i, 'Ý tưởng sáng tạo')
     .replace(/[-_]+/g, ' ')
     .replace(/\s+/g, ' ')
@@ -805,42 +805,63 @@ export function BackpackPage() {
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-xs font-black text-muted uppercase tracking-wider mr-1">Nguồn:</span>
+            {/* Thanh Lọc Tác Phẩm Tinh Gọn (Soft Clay Filter Pills) */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100">
               {[
-                { id: 'all' as const, label: 'Tất cả' },
-                { id: 'lesson' as const, label: '🏫 Từ Bài học AI' },
-                { id: 'workshop' as const, label: '🎨 Từ Xưởng Tự Do / Play AIKid' },
+                {
+                  id: 'all',
+                  label: `Tất cả (${projects.length})`,
+                  onClick: () => {
+                    setSourceFilter('all')
+                    setFormatFilter('all')
+                  },
+                  active: sourceFilter === 'all' && formatFilter === 'all',
+                },
+                {
+                  id: 'drawing',
+                  label: '🖼️ Tranh vẽ',
+                  onClick: () => {
+                    setFormatFilter('image')
+                    setSourceFilter('all')
+                  },
+                  active: formatFilter === 'image' && sourceFilter === 'all',
+                },
+                {
+                  id: 'comic',
+                  label: '📚 Truyện tranh',
+                  onClick: () => {
+                    setFormatFilter('comic')
+                    setSourceFilter('all')
+                  },
+                  active: formatFilter === 'comic' && sourceFilter === 'all',
+                },
+                {
+                  id: 'lesson',
+                  label: '🏫 Từ Bài học',
+                  onClick: () => {
+                    setSourceFilter('lesson')
+                    setFormatFilter('all')
+                  },
+                  active: sourceFilter === 'lesson',
+                },
+                {
+                  id: 'workshop',
+                  label: '🎨 Xưởng Sáng Tạo',
+                  onClick: () => {
+                    setSourceFilter('workshop')
+                    setFormatFilter('all')
+                  },
+                  active: sourceFilter === 'workshop',
+                },
               ].map((f) => (
                 <button
                   key={f.id}
-                  onClick={() => setSourceFilter(f.id)}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition-all active:scale-95 ${
-                    sourceFilter === f.id
-                      ? 'bg-brand-500 text-white shadow-soft scale-[1.02]'
-                      : 'bg-white text-muted hover:text-text border border-border'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-black text-muted uppercase tracking-wider mr-1">Loại:</span>
-              {[
-                { id: 'all' as const, label: 'Tất cả' },
-                { id: 'image' as const, label: '🖼️ Tranh ảnh AI' },
-                { id: 'comic' as const, label: '📚 Truyện tranh' },
-                { id: 'story' as const, label: '✍️ Truyện chữ' },
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setFormatFilter(f.id)}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm transition-all active:scale-95 ${
-                    formatFilter === f.id
-                      ? 'bg-indigo-600 text-white shadow-soft scale-[1.02]'
-                      : 'bg-white text-muted hover:text-text border border-border'
+                  type="button"
+                  onClick={f.onClick}
+                  className={`min-h-9 px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer ${
+                    f.active
+                      ? 'bg-amber-500 text-white shadow-2xs'
+                      : 'bg-white text-slate-600 hover:bg-amber-50 border border-slate-200/80'
                   }`}
                 >
                   {f.label}
@@ -873,9 +894,9 @@ export function BackpackPage() {
                     <div className="h-40 bg-brand-50 relative overflow-hidden">
                       <MediaThumbnail src={p.thumbnail} kind={p.kind} className="w-full h-full object-cover" />
                       <span className={`absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm ${
-                        isLessonProject(p) ? 'bg-emerald-500 text-white' : 'bg-brand-500 text-white'
+                        isLessonProject(p) ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
                       }`}>
-                        {isLessonProject(p) ? '🏫 Bài học AI' : '🎨 Play AIKid'}
+                        {isLessonProject(p) ? '🏫 Bài học' : '🎨 Sáng tạo'}
                       </span>
                     </div>
                     <div className="p-4 flex-1 flex flex-col">
@@ -907,9 +928,9 @@ export function BackpackPage() {
                   <button
                     type="button"
                     onClick={() => setVisibleLimit((prev) => prev + PAGE_SIZE)}
-                    className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-200 bg-brand-50 px-6 py-3 font-display text-sm font-black text-brand-700 shadow-soft transition-all hover:border-brand-300 hover:bg-brand-100 hover:shadow-clay active:scale-95"
+                    className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-200 bg-brand-50 px-6 py-3 font-display text-sm font-black text-brand-700 shadow-soft transition-all hover:border-brand-300 hover:bg-brand-100 hover:shadow-clay active:scale-95 cursor-pointer"
                   >
-                    <span>✨</span> Xem thêm tác phẩm (+{Math.min(PAGE_SIZE, visibleProjects.length - visibleLimit)})
+                    <span className="text-base font-black">+</span> Xem thêm tác phẩm (+{Math.min(PAGE_SIZE, visibleProjects.length - visibleLimit)})
                   </button>
                 </div>
               )}
