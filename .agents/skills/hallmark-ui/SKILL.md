@@ -24,8 +24,15 @@ Hệ thống AI Kids hướng tới trẻ em từ 6–12 tuổi và học sinh t
   - Cảm giác cắt dán thủ công, tạo chiều sâu thị giác phân tầng rõ ràng nhưng không gây rối mắt.
 * **Warm Tone & Nhân Văn**:
   - Ưu tiên các dải màu ấm áp (Pastel Warm Palettes), tạo không gian học tập an toàn tâm lý (Psychological Safety) cho trẻ.
-* **Anti-Slop AI**:
+* **Anti-Slop AI & Cấm Biểu Tượng AI Sáo Rỗng**:
   - **TUYỆT ĐỐI CẤM** phong cách 3D CG Blender bóng bẩy kim loại thô cứng, viền neon cyberpunk rực rỡ độc hại, glassmorphism đục ngầu tối tăm hoặc các hình robot vô hồn.
+  - **TUYỆT ĐỐI CẤM** các icon/SVG mang dấu hiệu AI sáo rỗng: `Sparkles` (✨), `Wand2` (đũa phép), `Bot` (robot), `Cpu` (vi mạch), `CircuitBoard`.
+  - **Quy chuẩn thay thế nhân văn (Human & Montessori Craft)**:
+    * Chặng học / Trạm / Vào học: Dùng `Play` ▶, `Compass` 🧭, `BookOpen` 📖, `CheckCircle2`.
+    * Sáng tạo / Nghệ thuật: Dùng `Palette` 🎨, `Pencil` ✏️, `Folder` 📁, `Image` 🖼️.
+    * Thành tích / Khen thưởng: Dùng `Star` ⭐, `Award` 🏅, `Trophy` 🏆.
+    * Nhân vật đồng hành: Mèo AIKI (linh vật Mèo vẽ tay thân thiện), tuyệt đối không vẽ robot vô cảm.
+    * Thuật ngữ: Dùng "lượt sáng tạo", "vẽ tranh", không dùng "lượt tạo ảnh AI".
 
 ---
 

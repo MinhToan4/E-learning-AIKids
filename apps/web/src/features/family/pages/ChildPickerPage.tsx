@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowLeft, LogOut, Plus, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, GraduationCap, LogOut, Plus, Users } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'
@@ -188,7 +188,7 @@ export function ChildPickerPage() {
                     {/* Top Status Indicators */}
                     <div className="flex w-full items-center justify-between">
                       <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-black text-brand-700">
-                        <Sparkles size={11} className="text-brand-500" />
+                        <GraduationCap size={11} className="text-brand-500" />
                         <span>Học sinh</span>
                       </span>
                       <span className="text-[11px] font-bold text-slate-400">Vào học</span>

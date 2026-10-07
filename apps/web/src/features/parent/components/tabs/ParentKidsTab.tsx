@@ -5,9 +5,9 @@ import {
   Baby,
   BookOpen,
   Pencil,
+  Play,
   Plus,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Users,
 } from 'lucide-react'
@@ -399,7 +399,7 @@ export function ParentKidsTab() {
                   onClick={() => void handleEnterAsChild(k.id)}
                   className="w-full flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 via-purple-600 to-brand-600 hover:opacity-95 text-white font-extrabold text-sm sm:text-base shadow-clay active:scale-95 transition cursor-pointer"
                 >
-                  <Sparkles size={18} className="text-amber-300 animate-pulse" />
+                  <Play size={18} className="fill-white text-white" />
                   <span>Vào học ngay</span>
                 </button>
 

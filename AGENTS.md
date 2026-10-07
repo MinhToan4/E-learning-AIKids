@@ -52,3 +52,14 @@ authorization.
 
 For end-to-end Hub/core/DB inspection, follow the ecosystem SSOT at
 `../../infra/00-Ecosystem-Docs/03-ops/AIKIDS_END_TO_END_AUDIT_RUNBOOK.md`.
+
+## Anti-AI-Slop & Human-Craft Icon Policy (Bắt Buộc)
+
+- **TUYỆT ĐỐI CẤM** import hoặc render các icon/SVG mang dấu hiệu AI sáo rỗng: `Sparkles`, `Wand2`, `Bot`, `Cpu`, `CircuitBoard` trong toàn bộ UI học sinh, phụ huynh và giáo viên.
+- **Quy tắc thay thế chuẩn Montessori / Hallmark Craft**:
+  - Học tập / Trạm / Vào học: `Play` ▶, `Compass` 🧭, `BookOpen` 📖, `CheckCircle2`
+  - Nghệ thuật / Sáng tạo: `Palette` 🎨, `Pencil` ✏️, `Folder` 📁, `Image` 🖼️
+  - Thành tích / Sao: `Star` ⭐, `Award` 🏅, `Trophy` 🏆
+  - Nhân vật đồng hành: Mèo AIKI (linh vật Mèo vẽ tay hoạt hình), không vẽ robot kim loại hay vi mạch công nghệ.
+  - Ngôn từ: Dùng "lượt sáng tạo" hoặc "vẽ tranh", không dùng "lượt tạo ảnh AI" hay từ ngữ công nghệ khô khan với trẻ em và phụ huynh.
+

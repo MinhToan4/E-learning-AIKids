@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Palette } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 
 export interface MeeLandscapeHeaderProps {
@@ -78,8 +78,8 @@ export const MeeLandscapeHeader: React.FC<MeeLandscapeHeaderProps> = ({
       {/* TOP: Floating Center Info Card (Zero-Overlap với nhà vòm & biển chỉ đường bên dưới) */}
       <div className="relative z-20 w-full flex justify-center pt-1">
         <div className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur-md p-3 sm:p-3.5 shadow-sm border border-emerald-100/60 text-center space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-black">
-            <Sparkles className="w-3 h-3 text-[#FD7D2E]" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-800 text-[10px] font-black">
+            <Palette className="w-3 h-3 text-brand-600" />
             <span>Xưởng Sáng Tạo Mèo Mee</span>
           </div>
 

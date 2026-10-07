@@ -183,92 +183,55 @@ export function ParentDashboardTab({
 
   const pendingCount = approvals.length
   const aiCredits = sub?.aiCreditsRemaining ?? sub?.monthlyCreateCredits ?? 50
+  const isOfficialSub = sub?.planCode === 'aikids_official_129k' || sub?.planCode === 'aikids_pro'
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── 1. Household Status Banner & Cockpit Header ──────── */}
-      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/70 via-white to-white p-5 sm:p-6 shadow-xs">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
-              <ShieldCheck size={14} className="text-brand-600" /> Quản lý danh tính, quyền an toàn và hồ sơ học của con
-            </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
-              Tổng quan gia đình
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              className="gap-2 !text-xs font-bold rounded-xl whitespace-nowrap h-11 px-4 cursor-pointer"
-              onClick={() => navigate('/parent/kids')}
-            >
-              <ParentKidsIcon size={18} /> Quản lý con
-            </Button>
-            <Button
-              variant="ghost"
-              className="gap-2 !text-xs font-bold whitespace-nowrap h-11 px-3 cursor-pointer"
-              onClick={() => void load()}
-            >
-              <RefreshCw size={13} /> Làm mới
-            </Button>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {/* ── 1. Header Tinh Gọn: Lời chào + Gói Học Siêu Gọn (Pill) ──────── */}
+      <header className="rounded-3xl border border-brand-100/90 bg-gradient-to-b from-brand-50/50 via-white to-white p-4 sm:p-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-2xl font-black text-slate-900 sm:text-3xl">
+            <h1 className="font-display text-xl sm:text-2xl font-black text-slate-900">
               Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}!
             </h1>
-            <p className="text-xs sm:text-sm text-muted mt-1 max-w-2xl leading-relaxed">
-              Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Chạm vào bé để thiết bị chuyển sang không gian học tập riêng, hoặc quản lý phân quyền bảo vệ con.
             </p>
           </div>
 
-          {/* Subscription Cockpit Capsule */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/80 to-purple-50/80 p-3.5 shadow-2xs w-full lg:w-auto">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-lg">
-                <Award size={20} className="text-white" />
-              </span>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] font-black uppercase tracking-wide text-brand-700">
-                    Gói học hiện tại
-                  </span>
-                  <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-black text-brand-800">
-                    {sub?.planCode === 'aikids_pro' || sub?.planCode === 'aikids_official_129k'
-                      ? 'AI Kid Chính Thức'
-                      : (sub?.planName || 'Khởi Đầu')}
-                  </span>
-                </div>
-                <p className="text-xs font-bold text-slate-700 truncate">
-                  {kids.length}/{sub?.maxChildren || 2} hồ sơ con · {sub?.maxOpenCoursesPerChild || 5} vùng mở cùng lúc
-                </p>
-                <p className="text-[11px] font-bold text-purple-700 mt-0.5 truncate">
-                  Còn {aiCredits} lượt tạo ảnh AI
-                </p>
+          {/* Khối Gói Học Thu Gọn & Thêm Bé Nhanh */}
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0">
+            <p className="sr-only">Quản lý danh tính, quyền an toàn và hồ sơ học của con</p>
+            <span className="sr-only">Lộ trình, hoạt động và năng lực học tập của con</span>
+            {isOfficialSub ? (
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-brand-200/90 bg-brand-50/80 px-3.5 py-2 text-xs font-bold text-brand-900 shadow-2xs">
+                <span className="flex items-center gap-1.5 font-black text-brand-700">
+                  <Award size={15} className="text-brand-600" />
+                  {sub?.planName || 'Gói AI Kid Chính Thức'}
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="text-purple-700 font-bold">Còn {aiCredits} lượt sáng tạo</span>
               </div>
-            </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onOpenCheckout('sub', 'aikids_official_129k', 129000, 'Gói AI Kid Chính Thức')}
+                className="inline-flex items-center gap-1.5 rounded-2xl border border-amber-300 bg-amber-50 hover:bg-amber-100 px-3.5 py-2 text-xs font-black text-amber-900 shadow-soft transition cursor-pointer"
+              >
+                <Award size={15} className="text-amber-600" />
+                <span>Gói Khởi Đầu · Nâng Gói ⭐</span>
+              </button>
+            )}
 
-            <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
-              <Button
-                variant="primary"
-                className="flex-1 sm:flex-none gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-11 px-4 cursor-pointer"
-                onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
-              >
-                Nâng cấp gói
-              </Button>
-              <Button
-                variant="secondary"
-                className="flex-1 sm:flex-none gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 whitespace-nowrap h-11 px-4 cursor-pointer"
-                onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
-              >
-                Nạp lượt AI
-              </Button>
-            </div>
+            <Button
+              variant="primary"
+              className="gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap h-10 px-4 cursor-pointer"
+              onClick={() => setEditTarget(null)}
+            >
+              <Plus size={15} /> + Thêm bé mới
+            </Button>
           </div>
         </div>
       </header>
@@ -276,29 +239,13 @@ export function ParentDashboardTab({
       {/* ── 2. KHỐI DUY NHẤT: HỒ SƠ CỦA CÁC CON ───────────────────────── */}
       <section
         aria-label="Hồ sơ của các con"
-        className="rounded-3xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-50/70 via-white to-purple-50/30 p-5 sm:p-6 shadow-clay"
+        className="flex flex-col gap-3"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-100/70 pb-4 mb-5">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft">
-              <Users size={22} className="text-white" />
-            </span>
-            <div>
-              <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900">
-                Hồ sơ của các con
-              </h2>
-              <p className="text-xs sm:text-sm text-muted mt-0.5">
-                Chạm vào bé để thiết bị chuyển sang không gian học tập riêng, hoặc quản lý phân quyền bảo vệ con.
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="primary"
-            className="gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl whitespace-nowrap self-start sm:self-auto h-11 px-4 cursor-pointer"
-            onClick={() => setEditTarget(null)}
-          >
-            <Plus size={15} /> + Thêm bé mới
-          </Button>
+        <div className="flex items-center justify-between px-1">
+          <h2 className="font-display text-lg font-black text-slate-800 flex items-center gap-2">
+            <Users size={18} className="text-brand-500" />
+            Hồ sơ của các con
+          </h2>
         </div>
 
         {kids.length === 0 ? (
@@ -523,8 +470,8 @@ export function ParentDashboardTab({
         )}
       </section>
 
-      {/* ── 3. Creative Approvals Widget (Duyệt tác phẩm AI) ──── */}
-      {pendingCount > 0 ? (
+      {/* ── 3. Creative Approvals Widget (Chỉ hiển thị khi thực sự có tác phẩm con gửi chờ duyệt) ──── */}
+      {pendingCount > 0 && (
         <section aria-label="Trung tâm phê duyệt tác phẩm" className="ui-card overflow-hidden shadow-soft">
           <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/50 px-5 py-3.5">
             <div className="flex items-center gap-2.5">
@@ -534,7 +481,7 @@ export function ParentDashboardTab({
                   Duyệt chia sẻ tác phẩm của con
                 </h3>
                 <p className="text-xs text-muted">
-                  Bảo vệ an toàn và quyền riêng tư cho các tác phẩm AI do con sáng tạo
+                  Bảo vệ an toàn và quyền riêng tư cho các tác phẩm do con sáng tạo
                 </p>
               </div>
             </div>
@@ -567,7 +514,7 @@ export function ParentDashboardTab({
                   )}
                   <div>
                     <p className="font-display text-sm font-bold text-text">
-                      {appr.project.title || 'Tác phẩm sáng tạo AI'}
+                      {appr.project.title || 'Tác phẩm sáng tạo'}
                     </p>
                     <p className="text-xs text-muted">
                       Tác giả: <strong>{appr.child.nickname || 'Bé'}</strong> · Loại: {appr.project.kind || 'Truyện tranh'}
@@ -586,47 +533,7 @@ export function ParentDashboardTab({
             ))}
           </div>
         </section>
-      ) : (
-        <div className="flex items-center justify-between rounded-2xl border border-emerald-200/70 bg-emerald-50/60 px-4 py-3 text-xs text-emerald-900 shadow-2xs">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-            <span className="font-bold">Tất cả tác phẩm của con đã an toàn</span>
-            <span className="hidden sm:inline text-emerald-700/80">· Không có yêu cầu chia sẻ nào đang chờ duyệt.</span>
-          </div>
-          <Button
-            variant="ghost"
-            className="!text-xs font-bold text-emerald-700 hover:text-emerald-800 !py-1 !px-2.5 cursor-pointer"
-            onClick={() => navigate('/parent/approvals')}
-          >
-            Lịch sử duyệt
-          </Button>
-        </div>
       )}
-
-      {/* ── 4. Chuyển tiếp sang Tab Học Tập ────────────────────── */}
-      <section className="rounded-3xl border border-brand-200/80 bg-gradient-to-r from-amber-50/70 via-cream-50 to-brand-50/60 p-5 sm:p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-100 text-2xl shadow-soft">
-              🧭
-            </span>
-            <div>
-              <h3 className="font-display text-base sm:text-lg font-black text-slate-900">
-                Lộ trình, hoạt động và năng lực học tập của con
-              </h3>
-              <p className="text-xs sm:text-sm text-muted mt-0.5 max-w-xl leading-relaxed">
-                Để xem tiến độ Hải Trình 6 Đảo Sáng Tạo, chứng nhận tốt nghiệp và nhận xét năng lực của từng con, Ba / Mẹ vui lòng chuyển sang tab <strong>Học tập</strong>.
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/parent/learning"
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs sm:text-sm px-5 py-2.5 shadow-clay transition whitespace-nowrap self-start sm:self-auto"
-          >
-            <span>Khám phá Trung tâm học tập</span>
-          </Link>
-        </div>
-      </section>
 
       {/* ── Modals: Edit Child & Student QR Card ──────────────── */}
       {editTarget !== undefined && (

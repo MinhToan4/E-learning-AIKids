@@ -246,7 +246,7 @@ export function ParentSubscriptionCheckoutModal({
   }, [open, productMode, refreshKey])
 
   const activePaymentCode = initialPaymentCode || serverPaymentCode || generatedCode
-  const activePublicId = initialPublicId || serverPublicId || (initialPaymentCode ? `pi_${initialPaymentCode.toLowerCase()}` : null)
+  const activePublicId = initialPublicId || serverPublicId || (activePaymentCode ? `pi_${activePaymentCode.toLowerCase()}` : null)
 
   const handleOpenSepayCheckout = useCallback(() => {
     const sepayUrl = `https://checkout.sepay.vn/pay?merchant=SP-TEST-LQ79A795&amount=${effectiveAmount}&orderCode=${encodeURIComponent(activePaymentCode)}&description=${encodeURIComponent('AIKids ' + activePaymentCode)}`

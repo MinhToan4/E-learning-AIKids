@@ -279,7 +279,7 @@ export function ParentPlanTab({
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                vùng học mở cùng lúc / con: trọn bộ 5 đảo · Nâng cấp để mở khóa đầy đủ hành trình cho các con.
+                Trọn bộ 5 Đảo Sáng Tạo (30 trạm học chuẩn Olympic) · Nâng cấp để mở khóa đầy đủ hành trình cho các con.
               </p>
             </div>
 
