@@ -27,7 +27,7 @@ export interface CourseCertificateModalProps {
  * Hàm sinh chuỗi SVG vector độc lập cho Bằng Khen chứa đầy đủ họ tên học sinh,
  * ngày cấp, tên chương trình và triện đỏ xác thực để tải về máy hoặc in ấn chất lượng cao.
  */
-function generateDynamicCertificateSvg({
+export function generateDynamicCertificateSvg({
   studentName,
   courseTitle,
   formattedDate,

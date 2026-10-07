@@ -40,6 +40,7 @@ import { AIKID_CANONICAL_TITLE_HINTS } from '@/features/world/lib/world-pathway-
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 import { ParentSubscriptionCheckoutModal } from '../components/ParentSubscriptionCheckoutModal'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
+import { generateDynamicCertificateSvg } from '@/features/lesson/components/CourseCertificateModal'
 import { parentFriendlyError } from '../lib/parent-error'
 import {
   getChildLearningCache,
@@ -1040,7 +1041,7 @@ function OverviewStat({
 }
 
 // ── Tab 2: Bằng Khen & Chứng Nhận (SVG Thật Khung Men Gốm Vàng) ──
-function CredentialsShowcase({
+export function CredentialsShowcase({
   child,
   credentials,
   totalStars,
@@ -1058,6 +1059,20 @@ function CredentialsShowcase({
   const childName = child?.nickname ?? 'Con'
   const isGraduated = completedQuests >= 32
   const progressPercent = Math.min(100, Math.round((completedQuests / 32) * 100))
+  const dynamicCertUrl = useMemo(() => {
+    return generateDynamicCertificateSvg({
+      studentName: childName,
+      courseTitle: 'Khóa học Sáng Tạo Cùng AIKids (32 Trạm)',
+      formattedDate: new Intl.DateTimeFormat('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).format(new Date()),
+      stars: totalStars,
+      xp: totalStars * 50,
+      courseId: 'aikid-official',
+    })
+  }, [childName, totalStars])
 
   return (
     <div className="grid gap-6">
@@ -1117,7 +1132,7 @@ function CredentialsShowcase({
               </div>
             )}
             <img
-              src={designerAssets.certificates.graduation}
+              src={dynamicCertUrl}
               alt="Giấy Chứng Nhận Tốt Nghiệp Khóa Học AIKid"
               className={cn(
                 'w-full h-auto object-contain rounded-xl drop-shadow-md transition-all duration-300',
@@ -1159,7 +1174,7 @@ function CredentialsShowcase({
           <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
             {isGraduated ? (
               <a
-                href={designerAssets.certificates.graduation}
+                href={dynamicCertUrl}
                 download={`Chung-Nhan-Tot-Nghiep-${childName}.svg`}
                 className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-sm px-7 py-3 shadow-clay transition cursor-pointer active:scale-95"
                 title="Tải Giấy Chứng Nhận về máy để in ấn hoặc đóng khung kỷ niệm"
