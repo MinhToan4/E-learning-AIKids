@@ -147,7 +147,7 @@ export function DynamicStagesEditor({
         showToast={showToast}
         stageStarAllocation={journey.stageStarAllocation}
         onToggleStage6Star={() => {
-          const currentAllocation = journey.stageStarAllocation ?? [2, 3, 5]
+          const currentAllocation = journey.stageStarAllocation ?? [2, 3, 4]
           const isAllocated = currentAllocation.includes(5)
           if (isAllocated) {
             const next = currentAllocation.filter((idx) => idx !== 5)
@@ -155,7 +155,10 @@ export function DynamicStagesEditor({
             showToast?.('Đã bỏ tặng sao ở Chặng 6', 'info')
           } else {
             if (currentAllocation.length >= 3) {
-              showToast?.('Bài học tối đa chỉ có 3 Sao! Hãy bỏ chọn một chặng khác trước nhé.', 'error')
+              showToast?.(
+                `Bài học tối đa 3 Sao. Đang chọn ở Chặng ${currentAllocation.map((s) => s + 1).join(', ')}. Hãy bỏ bớt 1 chặng trước nhé!`,
+                'error'
+              )
               return
             }
             const next = [...currentAllocation, 5].sort((a, b) => a - b)

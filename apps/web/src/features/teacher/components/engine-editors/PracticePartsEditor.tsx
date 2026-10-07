@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Plus, Trash2, ImagePlus } from 'lucide-react'
 import type { SixStagePracticePartDef } from '../../../../shared/lib/api'
+import { CmsImageUploader } from '../stage-block-editors/CmsImageUploader'
 import {
   getDefaultPartsForMode,
   getEngineConfigMeta,
@@ -139,24 +140,27 @@ export function PracticePartsEditor({
               </div>
 
               {isEditingImg && (
-                <div className="pt-1.5 space-y-1 bg-amber-50/70 p-2 rounded-xl border border-amber-200">
-                  <span className="text-[10px] font-bold text-amber-900 block">Đường dẫn ảnh (URL):</span>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="text"
-                      value={part.iconImage || ''}
-                      onChange={(e) => handleUpdatePart(pIdx, { iconImage: e.target.value })}
-                      placeholder="/assets/aiki-..."
-                      className="flex-1 min-w-0 rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800"
-                    />
+                <div className="pt-2 bg-amber-50/80 p-2.5 rounded-xl border border-amber-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black text-amber-950 uppercase tracking-wider">
+                      Tải ảnh món đồ #{part.partNumber || pIdx + 1}:
+                    </span>
                     <button
                       type="button"
                       onClick={() => setEditingImageIndex(null)}
-                      className="rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold px-2 py-1 text-[11px] cursor-pointer shrink-0"
+                      className="rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold px-2 py-0.5 text-[10px] cursor-pointer"
                     >
                       Đóng
                     </button>
                   </div>
+                  <CmsImageUploader
+                    imageUrl={part.iconImage || ''}
+                    compact={true}
+                    onImageChange={(url) => handleUpdatePart(pIdx, { iconImage: url })}
+                    urlPlaceholder="Chọn file ảnh hoặc dán link URL..."
+                    showToast={showToast}
+                    uploadPurpose="island_practice_part"
+                  />
                 </div>
               )}
 

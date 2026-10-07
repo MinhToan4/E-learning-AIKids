@@ -39,9 +39,10 @@ export function RewardBlockEditor({
     xp: 50,
   }
 
-  const allocatedStages = stageStarAllocation ?? [2, 3, 5]
+  const allocatedStages = stageStarAllocation ?? [2, 3, 4]
   const hasStage6Star = allocatedStages.includes(5)
-  const otherStarsCount = allocatedStages.filter((idx) => idx !== 5).length
+  const otherStagesList = allocatedStages.filter((idx) => idx !== 5)
+  const otherStarsCount = otherStagesList.length
   const totalStationStars = Math.max(1, otherStarsCount + (hasStage6Star ? 1 : 0))
 
   // Giữ đồng bộ số sao trong rewardBadge bằng tổng số sao của trạm
@@ -215,7 +216,7 @@ export function RewardBlockEditor({
                     Tổng số sao của trạm:
                   </span>
                   <span className="text-[11px] font-semibold text-amber-800">
-                    Gồm {otherStarsCount} sao từ các chặng trước {hasStage6Star ? '+ 1 sao về đích' : ''}
+                    Gồm {otherStarsCount} sao từ các chặng trước ({otherStagesList.map((s) => `Chặng ${s + 1}`).join(', ') || 'Chưa chọn'}) {hasStage6Star ? '+ 1 sao về đích' : ''}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 bg-amber-400 border border-amber-500 px-2.5 py-1 rounded-lg shadow-clay-xs shrink-0">

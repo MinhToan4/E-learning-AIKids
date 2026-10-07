@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles, Eye, Palette } from 'lucide-react'
+import { Sparkles, Eye, Palette, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type {
   SixStagePractice,
@@ -41,6 +41,7 @@ export function Stage5CreativeEngineEditor({
   const meta = getEngineConfigMeta(currentMode)
   const defaultParts = getDefaultPartsForMode(currentMode)
   const [previewPartIndex, setPreviewPartIndex] = useState(0)
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false)
 
   if (currentMode === 'creative-notebook') {
     return (
@@ -204,28 +205,41 @@ export function Stage5CreativeEngineEditor({
       )}
 
       {/* ── 4. LIVE STUDIO PREVIEW (GIAO DIỆN HỌC SINH NHÌN THẤY) ────── */}
-      <div className="rounded-2xl border-2 border-amber-300/80 bg-[#FFFDF8] p-4 sm:p-5 space-y-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/80 pb-3">
-          <div className="flex items-center gap-2">
+      <div className="rounded-2xl border-2 border-amber-200/80 bg-[#FFFDF8] p-3.5 sm:p-4 shadow-2xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5">
             <div className="size-8 rounded-xl bg-gradient-to-br from-[#FD7D2E] to-[#F97316] text-white flex items-center justify-center shadow-xs">
               <Eye size={16} />
             </div>
             <div>
-              <h4 className="text-xs font-black uppercase text-slate-900 tracking-wide">
-                Live Studio Preview (Giao Diện Học Sinh Nhìn Thấy)
+              <h4 className="text-xs font-black uppercase text-slate-900 tracking-wide flex items-center gap-2">
+                <span>Mô phỏng Xưởng Vẽ AIKI Studio của học sinh</span>
+                <span className="rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 text-[10px] font-bold">
+                  {currentMode}
+                </span>
               </h4>
-              <p className="text-[11px] font-medium text-slate-600">
-                Mô phỏng chuẩn kích thước và bố cục màn hình xưởng vẽ AIKI Studio của học sinh.
+              <p className="text-[11px] font-medium text-slate-500">
+                {isPreviewExpanded
+                  ? 'Mô phỏng bàn phím và khung tranh thực tế của bé'
+                  : 'Bấm nút bên phải để mở xem mô phỏng giao diện học sinh'}
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-[10px] font-black">
-            Chế độ: {currentMode}
-          </span>
+
+          <button
+            type="button"
+            onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+            className="inline-flex items-center gap-1.5 rounded-xl border-2 border-amber-300 bg-white hover:bg-amber-50 text-amber-950 font-black px-3.5 py-1.5 text-xs shadow-2xs transition cursor-pointer active:scale-95"
+          >
+            <span>{isPreviewExpanded ? 'Thu gọn mô phỏng' : '👁️ Xem mô phỏng xưởng vẽ'}</span>
+            {isPreviewExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
         </div>
 
-        {/* Khung mô phỏng Workspace học sinh */}
-        <div className="rounded-2xl border-2 border-amber-200/70 bg-stone-50/80 p-3 sm:p-4 space-y-3.5 max-w-[960px] mx-auto">
+        {isPreviewExpanded && (
+          <div className="pt-3 border-t border-amber-200/70 space-y-3.5 animate-in fade-in duration-200">
+            {/* Khung mô phỏng Workspace học sinh */}
+            <div className="rounded-2xl border-2 border-amber-200/70 bg-stone-50/80 p-3 sm:p-4 space-y-3.5 max-w-[960px] mx-auto">
           {/* A. Dải Mini-Cards Ngang Trên Cùng */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-black text-amber-950">
@@ -490,7 +504,9 @@ export function Stage5CreativeEngineEditor({
           </div>
         </div>
       </div>
-    </div>
+    )}
+  </div>
+</div>
   )
 }
 

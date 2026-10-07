@@ -188,43 +188,62 @@ export function SixStageJourneyEditor({
             </div>
 
             {/* Bộ chọn tặng sao cho chặng */}
-            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-brand-200/60">
-              <button
-                type="button"
-                disabled={readOnly}
-                onClick={() => {
-                  const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 5]
-                  const isAllocated = currentAllocation.includes(stageIndex)
-                  if (isAllocated) {
-                    // Hủy chọn
-                    const next = currentAllocation.filter((idx) => idx !== stageIndex)
-                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
-                    showToast(`Đã bỏ tặng sao ở Chặng ${stageIndex + 1}`, 'info')
-                  } else {
-                    // Chọn thêm: kiểm tra tối đa 3 sao
-                    if (currentAllocation.length >= 3) {
-                      showToast('Bài học tối đa chỉ có 3 Sao! Con hãy bỏ chọn một chặng khác trước nhé.', 'error')
-                      return
+            <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2.5 border-t border-brand-200/60">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  disabled={readOnly}
+                  onClick={() => {
+                    const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 4]
+                    const isAllocated = currentAllocation.includes(stageIndex)
+                    if (isAllocated) {
+                      // Hủy chọn
+                      const next = currentAllocation.filter((idx) => idx !== stageIndex)
+                      updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                      showToast(`Đã bỏ tặng sao ở Chặng ${stageIndex + 1}`, 'info')
+                    } else {
+                      // Chọn thêm: tối đa 3 sao
+                      if (currentAllocation.length >= 3) {
+                        showToast(
+                          `Bài học tối đa 3 Sao. Đang chọn ở Chặng ${currentAllocation.map((s) => s + 1).join(', ')}. Hãy bỏ bớt 1 chặng trước nhé!`,
+                          'error'
+                        )
+                        return
+                      }
+                      const next = [...currentAllocation, stageIndex].sort((a, b) => a - b)
+                      updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
+                      showToast(`⭐ Chặng ${stageIndex + 1} sẽ trao 1 Sao cho bé khi hoàn thành!`, 'success')
                     }
-                    const next = [...currentAllocation, stageIndex].sort((a, b) => a - b)
-                    updateSixStage((j) => ({ ...j, stageStarAllocation: next }))
-                    showToast(`⭐ Chặng ${stageIndex + 1} sẽ tặng 1 Sao khi hoàn thành!`, 'success')
-                  }
-                }}
-                className={cn(
-                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 shadow-2xs',
-                  (currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex)
-                    ? 'bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-clay-xs'
-                    : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50/50'
-                )}
-              >
-                <Star size={14} className={cn((currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? 'fill-amber-950 text-amber-950' : 'text-slate-400')} />
-                <span>
-                  {(currentJourney.stageStarAllocation ?? [2, 3, 5]).includes(stageIndex) ? 'Chặng này được tặng 1 Sao' : 'Chưa tặng sao ở chặng này'}
+                  }}
+                  className={cn(
+                    'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 shadow-2xs',
+                    (currentJourney.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                      ? 'bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-clay-xs font-black'
+                      : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-amber-300 hover:bg-amber-50/60'
+                  )}
+                >
+                  <Star
+                    size={14}
+                    className={cn(
+                      (currentJourney.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                        ? 'fill-amber-950 text-amber-950'
+                        : 'text-slate-400'
+                    )}
+                  />
+                  <span>
+                    {(currentJourney.stageStarAllocation ?? [2, 3, 4]).includes(stageIndex)
+                      ? '⭐ Chặng này được tặng 1 Sao (+1)'
+                      : '+ Bấm để tặng 1 Sao ở chặng này'}
+                  </span>
+                </button>
+
+                <span className="text-[11px] font-bold text-brand-900 bg-brand-100/70 border border-brand-200 px-2.5 py-1 rounded-lg">
+                  (Đã chọn {(currentJourney.stageStarAllocation ?? [2, 3, 4]).length}/3 Sao: Chặng {(currentJourney.stageStarAllocation ?? [2, 3, 4]).map((s) => s + 1).join(', ')})
                 </span>
-              </button>
-              <span className="text-[11px] font-bold text-brand-800">
-                (Đã chọn {(currentJourney.stageStarAllocation ?? [2, 3, 5]).length}/3 Sao)
+              </div>
+
+              <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline">
+                Học sinh nhận tối đa 3 Sao cho toàn bài học
               </span>
             </div>
           </div>
@@ -260,9 +279,9 @@ export function SixStageJourneyEditor({
             setDragOverBlockIdx={setDragOverBlockIdx}
             isTrashDragOver={isTrashDragOver}
             setIsTrashDragOver={setIsTrashDragOver}
-            stageStarAllocation={currentJourney.stageStarAllocation ?? [2, 3, 5]}
+            stageStarAllocation={currentJourney.stageStarAllocation ?? [2, 3, 4]}
             onToggleStageStar={(targetStageIdx) => {
-              const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 5]
+              const currentAllocation = currentJourney.stageStarAllocation ?? [2, 3, 4]
               const isAllocated = currentAllocation.includes(targetStageIdx)
               if (isAllocated) {
                 const next = currentAllocation.filter((idx) => idx !== targetStageIdx)
@@ -270,7 +289,10 @@ export function SixStageJourneyEditor({
                 showToast(`Đã bỏ tặng sao ở Chặng ${targetStageIdx + 1}`, 'info')
               } else {
                 if (currentAllocation.length >= 3) {
-                  showToast('Bài học tối đa chỉ có 3 Sao! Hãy bỏ chọn một chặng khác trước nhé.', 'error')
+                  showToast(
+                    `Bài học tối đa 3 Sao. Đang chọn ở Chặng ${currentAllocation.map((s) => s + 1).join(', ')}. Hãy bỏ bớt 1 chặng trước nhé!`,
+                    'error'
+                  )
                   return
                 }
                 const next = [...currentAllocation, targetStageIdx].sort((a, b) => a - b)

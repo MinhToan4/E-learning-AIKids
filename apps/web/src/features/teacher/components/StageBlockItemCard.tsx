@@ -731,6 +731,8 @@ export const StageBlockItemCard = React.memo(function StageBlockItemCard({
               readOnly={readOnly}
               previewAikiVoice={previewAikiVoice}
               showToast={showToast}
+              stageStarAllocation={stageStarAllocation}
+              onToggleStageStar={() => onToggleStageStar?.(4)}
             />
           ) : block.type === 'reward' ? (
             <RewardBlockEditor

@@ -473,9 +473,22 @@ export function LectureDrawerHeader({
           </button>
         </div>
 
-        {/* Bên phải: Nhãn gợi ý chuẩn sư phạm */}
-        <div className="hidden md:flex items-center gap-2 text-[11px] font-bold text-slate-500 shrink-0">
-          <span>Hải trình 6 chặng chuẩn sư phạm AIKids</span>
+        {/* Bên phải: Tổng quan phân bổ sao & Nhãn chuẩn sư phạm */}
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-600 shrink-0">
+          <div
+            className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3 py-1 text-xs font-black text-amber-900 shadow-2xs"
+            title={`Phân bổ sao: Chặng ${(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).map((idx) => idx + 1).join(', ')}`}
+          >
+            <span>⭐ Tổng sao:</span>
+            <span className="text-amber-800 font-extrabold">
+              {(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).length}/3 Sao
+            </span>
+            <span className="text-[10px] text-amber-700/80 font-semibold hidden sm:inline">
+              (Chặng {(draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).map((idx) => idx + 1).join(', ')})
+            </span>
+          </div>
+          <span className="hidden md:inline text-slate-300">|</span>
+          <span className="hidden md:inline text-slate-500">Hải trình 6 chặng chuẩn sư phạm AIKids</span>
         </div>
       </div>
 
@@ -522,6 +535,8 @@ export function LectureDrawerHeader({
                 const isActive = activeSection === section.id
                 const complete = sectionStatus(section.id)
                 const missing = sectionMissing(section.id)
+                const stageIdx = section.id.startsWith('stage-') ? parseInt(section.id.replace('stage-', ''), 10) : -1
+                const isStarAwarded = stageIdx >= 0 && (draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIdx)
                 return (
                   <button
                     key={section.id}
@@ -540,6 +555,11 @@ export function LectureDrawerHeader({
                       <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
+                    {isStarAwarded && (
+                      <span className="inline-flex items-center text-amber-500 font-black text-xs shrink-0 select-none" title="Chặng này trao 1 Sao cho bé">
+                        ⭐
+                      </span>
+                    )}
                     {!complete && missing.length > 0 && (
                       <span
                         title={`Thiếu: ${missing.join(', ')}`}
@@ -559,6 +579,8 @@ export function LectureDrawerHeader({
                 const isActive = activeSection === section.id
                 const complete = sectionStatus(section.id)
                 const missing = sectionMissing(section.id)
+                const stageIdx = section.id.startsWith('stage-') ? parseInt(section.id.replace('stage-', ''), 10) : -1
+                const isStarAwarded = stageIdx >= 0 && (draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIdx)
                 return (
                   <button
                     key={section.id}
@@ -577,6 +599,11 @@ export function LectureDrawerHeader({
                       <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
+                    {isStarAwarded && (
+                      <span className="inline-flex items-center text-amber-500 font-black text-xs shrink-0 select-none" title="Chặng này trao 1 Sao cho bé">
+                        ⭐
+                      </span>
+                    )}
                     {!complete && missing.length > 0 && (
                       <span
                         title={`Thiếu: ${missing.join(', ')}`}
@@ -604,6 +631,8 @@ export function LectureDrawerHeader({
                 const isActive = activeSection === section.id
                 const complete = sectionStatus(section.id)
                 const missing = sectionMissing(section.id)
+                const stageIdx = section.id.startsWith('stage-') ? parseInt(section.id.replace('stage-', ''), 10) : -1
+                const isStarAwarded = stageIdx >= 0 && (draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]).includes(stageIdx)
                 return (
                   <button
                     key={section.id}
@@ -622,6 +651,11 @@ export function LectureDrawerHeader({
                       <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                     )}
                     <span className="truncate">{section.label}</span>
+                    {isStarAwarded && (
+                      <span className="inline-flex items-center text-amber-500 font-black text-xs shrink-0 select-none" title="Chặng này trao 1 Sao cho bé">
+                        ⭐
+                      </span>
+                    )}
                     {!complete && missing.length > 0 && (
                       <span
                         title={`Thiếu: ${missing.join(', ')}`}

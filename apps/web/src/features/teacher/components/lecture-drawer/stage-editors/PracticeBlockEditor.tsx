@@ -34,6 +34,8 @@ export interface PracticeBlockEditorProps {
   readOnly?: boolean
   previewAikiVoice?: (index: number, text: string) => void
   showToast?: (message: string, tone?: 'success' | 'error' | 'info') => void
+  stageStarAllocation?: number[]
+  onToggleStageStar?: () => void
 }
 
 /**
@@ -46,15 +48,47 @@ export function PracticeBlockEditor({
   readOnly = false,
   previewAikiVoice,
   showToast,
+  stageStarAllocation,
+  onToggleStageStar,
 }: PracticeBlockEditorProps) {
   const [isEngineSelectorExpanded, setIsEngineSelectorExpanded] = useState<boolean>(false)
 
   const selectedEngineMode = practice.creativeEngineMode || 'magic-keys'
   const currentEngine =
     CREATIVE_ENGINES.find((e) => e.mode === selectedEngineMode) || CREATIVE_ENGINES[0]
+  const isStage5StarAllocated = (stageStarAllocation ?? [2, 3, 4]).includes(4)
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
+      {/* Khối Thưởng Sao Hoàn Thành Thực Hành */}
+      <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 p-3.5 flex items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-9 place-items-center rounded-xl bg-amber-400 text-amber-950 font-black text-sm shadow-xs shrink-0">
+            ⭐
+          </span>
+          <div>
+            <h5 className="text-xs font-black uppercase text-amber-950 tracking-wide">
+              Phần thưởng hoàn thành Xưởng vẽ: +1 Sao cho học sinh
+            </h5>
+            <p className="text-[11px] font-semibold text-amber-900/80">
+              Học sinh sáng tạo câu lệnh, vẽ tranh và nộp bài vào Balo để tích lũy Sao danh giá!
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={readOnly}
+          onClick={() => onToggleStageStar?.()}
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-black shrink-0 shadow-2xs border transition cursor-pointer active:scale-95",
+            isStage5StarAllocated
+              ? "bg-amber-400 text-amber-950 border-amber-500 shadow-clay-xs"
+              : "bg-white text-slate-600 border-slate-300 hover:bg-amber-50"
+          )}
+        >
+          {isStage5StarAllocated ? "⭐ Chặng 5 đang tặng 1 Sao" : "+ Bật tặng 1 Sao cho Chặng 5"}
+        </button>
+      </div>
       {/* BỘ CHUYỂN ĐỔI GAME ENGINE THỰC HÀNH SÁNG TẠO (CREATIVE ENGINE SELECTOR) */}
       <div className="rounded-2xl border-2 border-brand-200 bg-gradient-to-r from-brand-50/90 via-purple-50/50 to-amber-50/60 p-4 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
