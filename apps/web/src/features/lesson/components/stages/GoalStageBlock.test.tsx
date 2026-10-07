@@ -167,4 +167,42 @@ describe('GoalStageBlock', () => {
 
     expect(heroImg.src).toContain('/assets/aiki-rules/rule1_superhero_dad.webp')
   })
+
+  it('renders 1-column stacked layout when layoutMode is 1-column', () => {
+    const root = createRoot(container)
+    activeRoots.push(root)
+    const stage1Col: JourneyStageDefinition<GoalStageConfig> = {
+      ...mockGoalStage,
+      config: {
+        ...mockGoalStage.config,
+        layoutMode: '1-column',
+      },
+    }
+
+    act(() => {
+      root.render(<GoalStageBlock stage={stage1Col} />)
+    })
+
+    const stackedContainer = container.querySelector('.max-w-4xl')
+    expect(stackedContainer).not.toBeNull()
+  })
+
+  it('renders 3-column grid layout when layoutMode is 3-column', () => {
+    const root = createRoot(container)
+    activeRoots.push(root)
+    const stage3Col: JourneyStageDefinition<GoalStageConfig> = {
+      ...mockGoalStage,
+      config: {
+        ...mockGoalStage.config,
+        layoutMode: '3-column',
+      },
+    }
+
+    act(() => {
+      root.render(<GoalStageBlock stage={stage3Col} />)
+    })
+
+    const grid3Col = container.querySelector('.lg\\:grid-cols-3')
+    expect(grid3Col).not.toBeNull()
+  })
 })

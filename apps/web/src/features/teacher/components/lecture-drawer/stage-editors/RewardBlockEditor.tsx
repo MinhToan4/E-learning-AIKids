@@ -1,8 +1,8 @@
 import React from 'react'
-import { Trophy, Star, Award, Compass, Upload, Image as ImageIcon } from 'lucide-react'
+import { Trophy, Star, Award, Compass, Image as ImageIcon } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
-import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { cn } from '@/shared/lib/cn'
+import { CmsImageUploader } from '../../stage-block-editors/CmsImageUploader'
 
 export interface RewardBlockEditorProps {
   completion: LessonSixStageJourney['stage6_completion']
@@ -135,24 +135,9 @@ export function RewardBlockEditor({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           {/* Cột Trái: Ảnh huy hiệu với preview trực quan */}
-          <div className="flex items-center gap-3 bg-white p-3.5 rounded-2xl border-2 border-emerald-200 shadow-2xs">
-            <div className="relative size-18 rounded-2xl border-2 border-amber-300 bg-amber-50 flex items-center justify-center shrink-0 overflow-hidden shadow-clay-xs">
-              {effectiveBadgeImage ? (
-                <img
-                  src={effectiveBadgeImage}
-                  alt="Ảnh huy hiệu"
-                  className="size-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none'
-                  }}
-                />
-              ) : (
-                <Trophy size={28} className="text-amber-500" />
-              )}
-            </div>
-
-            <div className="flex-1 min-w-0 space-y-1">
-              <label className="block text-[11px] font-black uppercase text-slate-700">Tên huy hiệu</label>
+          <div className="bg-white p-3.5 rounded-2xl border-2 border-emerald-200 shadow-2xs space-y-2">
+            <div>
+              <label className="block text-[11px] font-black uppercase text-slate-700 mb-1">Tên huy hiệu</label>
               <input
                 type="text"
                 value={badge.name || ''}
@@ -165,48 +150,19 @@ export function RewardBlockEditor({
                 placeholder="VD: Bút Vẽ Thần Kỳ"
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-900 outline-none focus:border-brand-500"
               />
-
-              <div className="flex items-center gap-2 pt-1">
-                {!readOnly && (
-                  <label className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-300 px-2.5 py-1 text-[11px] font-bold text-emerald-800 hover:bg-emerald-100 cursor-pointer shadow-2xs">
-                    <Upload size={12} />
-                    <span>{uploadingBadge ? 'Đang tải…' : 'Đổi ảnh huy hiệu'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingBadge}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        setUploadingBadge(true)
-                        try {
-                          const res = await uploadCmsCourseMedia({ file, purpose: 'island_stage6_badge', questId })
-                          if (res?.url) {
-                            onChange({ rewardBadge: { ...badge, iconUrl: res.url } })
-                            showToast?.('Đã tải ảnh huy hiệu mới!', 'success')
-                          }
-                        } finally {
-                          setUploadingBadge(false)
-                        }
-                      }}
-                    />
-                  </label>
-                )}
-                {badge.iconUrl && !readOnly && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChange({ rewardBadge: { ...badge, iconUrl: '' } })
-                      showToast?.('Đã dùng lại ảnh Chặng 1 làm huy hiệu', 'info')
-                    }}
-                    className="text-[11px] font-bold text-slate-400 hover:text-rose-600 cursor-pointer"
-                  >
-                    Dùng ảnh Chặng 1
-                  </button>
-                )}
-              </div>
             </div>
+
+            <CmsImageUploader
+              label="Ảnh huy hiệu"
+              imageUrl={badge.iconUrl || stage1ImageUrl || ''}
+              readOnly={readOnly}
+              compact={true}
+              onImageChange={(url: string) => onChange({ rewardBadge: { ...badge, iconUrl: url } })}
+              urlPlaceholder="URL ảnh hoặc chọn file..."
+              showToast={showToast}
+              uploadPurpose="island_stage6_badge"
+              questId={questId}
+            />
           </div>
 
           {/* Cột Phải: Tổng Sao Gom Lại & Điểm XP */}

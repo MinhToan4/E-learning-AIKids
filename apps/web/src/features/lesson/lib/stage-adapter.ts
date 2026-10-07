@@ -147,6 +147,7 @@ export function adaptSixStageJourneyToStages(
       (journey.stage1_goal as any)?.skillLearned ||
       (info.matchedCurriculum as any)?.skillLearned ||
       (isLesson1_1 ? 'Biết thêm chi tiết để câu lệnh rõ ràng hơn.' : ''),
+    layoutMode: journey.stage1_goal?.layoutMode || '2-column',
   }
 
   // Stage 1: Confirm Goal

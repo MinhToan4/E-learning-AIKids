@@ -179,6 +179,7 @@ export function StageBlocksCanvas({
             | { type: 'confirm-options'; items: { block: StageBlockItem; index: number }[] }
             | {
                 type: 'goal-layout'
+                layoutMode: '2-column' | '3-column'
                 imageItem?: { block: StageBlockItem; index: number }
                 textItem?: { block: StageBlockItem; index: number }
                 keysItem?: { block: StageBlockItem; index: number }
@@ -186,32 +187,43 @@ export function StageBlocksCanvas({
 
           const renderGroups: RenderGroup[] = []
 
-          // Xử lý bố cục 2 cột cho Chặng 1 (Mục Tiêu) khớp 100% với giao diện màn hình học sinh: Cột trái Ảnh, Cột phải Box Mục đích + Chìa khóa
+          // Xử lý bố cục linh hoạt cho Chặng 1 (Mục Tiêu): 1 cột (Dọc), 2 cột (Song song) hoặc 3 cột (Lưới 3)
+          const goalLayoutMode: '1-column' | '2-column' | '3-column' = card?.layoutMode || '2-column'
+
           if (stageIndex === 0) {
-            const imageIdx = stageBlocks.findIndex((b) => b.type === 'images' || b.id.startsWith('course-goal-image'))
-            const textIdx = stageBlocks.findIndex((b) => b.type === 'text' || b.id.startsWith('course-goal-text'))
-            const keysIdx = stageBlocks.findIndex((b) => b.type === 'layout-four-keys' || b.id.startsWith('course-goal-four-keys'))
-
-            if (imageIdx !== -1 || textIdx !== -1) {
-              const consumedIndices = new Set<number>()
-              const imageItem = imageIdx !== -1 ? { block: stageBlocks[imageIdx], index: imageIdx } : undefined
-              const textItem = textIdx !== -1 ? { block: stageBlocks[textIdx], index: textIdx } : undefined
-              const keysItem = keysIdx !== -1 ? { block: stageBlocks[keysIdx], index: keysIdx } : undefined
-
-              if (imageIdx !== -1) consumedIndices.add(imageIdx)
-              if (textIdx !== -1) consumedIndices.add(textIdx)
-              if (keysIdx !== -1) consumedIndices.add(keysIdx)
-
-              renderGroups.push({
-                type: 'goal-layout',
-                imageItem,
-                textItem,
-                keysItem,
-              })
-
+            if (goalLayoutMode === '1-column') {
+              // 1 Cột: Xếp dọc toàn chiều rộng tuần tự, không nhóm vào lưới
               for (let i = 0; i < stageBlocks.length; i++) {
-                if (!consumedIndices.has(i)) {
-                  renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
+                renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
+              }
+            } else {
+              // 2 Cột hoặc 3 Cột: Nhóm ảnh, mục tiêu và chìa khóa vào lưới
+              const imageIdx = stageBlocks.findIndex((b) => b.type === 'images' || b.id.startsWith('course-goal-image'))
+              const textIdx = stageBlocks.findIndex((b) => b.type === 'text' || b.id.startsWith('course-goal-text'))
+              const keysIdx = stageBlocks.findIndex((b) => b.type === 'layout-four-keys' || b.id.startsWith('course-goal-four-keys'))
+
+              if (imageIdx !== -1 || textIdx !== -1) {
+                const consumedIndices = new Set<number>()
+                const imageItem = imageIdx !== -1 ? { block: stageBlocks[imageIdx], index: imageIdx } : undefined
+                const textItem = textIdx !== -1 ? { block: stageBlocks[textIdx], index: textIdx } : undefined
+                const keysItem = keysIdx !== -1 ? { block: stageBlocks[keysIdx], index: keysIdx } : undefined
+
+                if (imageIdx !== -1) consumedIndices.add(imageIdx)
+                if (textIdx !== -1) consumedIndices.add(textIdx)
+                if (keysIdx !== -1) consumedIndices.add(keysIdx)
+
+                renderGroups.push({
+                  type: 'goal-layout',
+                  layoutMode: goalLayoutMode,
+                  imageItem,
+                  textItem,
+                  keysItem,
+                })
+
+                for (let i = 0; i < stageBlocks.length; i++) {
+                  if (!consumedIndices.has(i)) {
+                    renderGroups.push({ type: 'single', block: stageBlocks[i], index: i })
+                  }
                 }
               }
             }
@@ -244,7 +256,82 @@ export function StageBlocksCanvas({
           }
 
           return renderGroups.map((group, groupIndex) => {
+            const renderItemCard = (item: { block: StageBlockItem; index: number }) => (
+              <StageBlockItemCard
+                key={item.block.id}
+                block={item.block}
+                bIdx={item.index}
+                totalBlocks={stageBlocks.length}
+                stageIndex={stageIndex}
+                card={card}
+                stageBlocks={stageBlocks}
+                readOnly={readOnly}
+                draggingBlockIdx={draggingBlockIdx}
+                dragOverBlockIdx={dragOverBlockIdx}
+                setDraggingBlockIdx={setDraggingBlockIdx}
+                setDragOverBlockIdx={setDragOverBlockIdx}
+                setIsTrashDragOver={setIsTrashDragOver}
+                moveBlock={moveBlock}
+                removeBlock={removeBlock}
+                updateStageBlocks={updateStageBlocks}
+                updateBlockItem={updateBlockItem}
+                updateLearnCard={updateLearnCard}
+                uploadingStageMedia={uploadingStageMedia}
+                setUploadingStageMedia={setUploadingStageMedia}
+                uploadLearnCardMedia={uploadLearnCardMedia}
+                uploadAdditionalImageItem={uploadAdditionalImageItem}
+                previewAikiVoice={previewAikiVoice}
+                previewSpeakingIndex={previewSpeakingIndex}
+                speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
+                courseId={courseId}
+                handleAddModule={handleAddModule}
+                stageInfo={stageInfo}
+                inputStyle={inputStyle}
+                textareaStyle={textareaStyle}
+                showToast={showToast}
+                stageStarAllocation={stageStarAllocation}
+                onToggleStageStar={onToggleStageStar}
+              />
+            )
+
             if (group.type === 'goal-layout') {
+              if (group.layoutMode === '3-column') {
+                return (
+                  <div key="goal-3col-layout" className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+                    {/* CỘT 1 (Ảnh Mục Tiêu) */}
+                    <div className="min-w-0 space-y-3">
+                      <div className="flex items-center gap-1.5 px-1">
+                        <span className="text-xs font-black uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-xl border border-emerald-300">
+                          🖼️ Cột 1: Ảnh Mục Tiêu
+                        </span>
+                      </div>
+                      {group.imageItem && renderItemCard(group.imageItem)}
+                    </div>
+
+                    {/* CỘT 2 (Mục Tiêu Cốt Lõi) */}
+                    <div className="min-w-0 space-y-3">
+                      <div className="flex items-center gap-1.5 px-1">
+                        <span className="text-xs font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2.5 py-1 rounded-xl border border-purple-300">
+                          🎯 Cột 2: Mục Tiêu Cốt Lõi
+                        </span>
+                      </div>
+                      {group.textItem && renderItemCard(group.textItem)}
+                    </div>
+
+                    {/* CỘT 3 (Chìa Khóa Vàng & Thẻ Trọng Tâm) */}
+                    <div className="min-w-0 space-y-3">
+                      <div className="flex items-center gap-1.5 px-1">
+                        <span className="text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl border border-amber-300">
+                          🔑 Cột 3: Chìa Khóa &amp; Ghi Nhớ
+                        </span>
+                      </div>
+                      {group.keysItem && renderItemCard(group.keysItem)}
+                    </div>
+                  </div>
+                )
+              }
+
+              // group.layoutMode === '2-column'
               return (
                 <div key="goal-2col-layout" className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                   {/* CỘT TRÁI (Ảnh Mục Tiêu) - 5 cột trên lg, tự co 1 cột trên màn hình nhỏ */}
@@ -254,43 +341,7 @@ export function StageBlocksCanvas({
                         🖼️ Cột Trái: Ảnh Mục Tiêu (Hero Image)
                       </span>
                     </div>
-                    {group.imageItem && (
-                      <StageBlockItemCard
-                        key={group.imageItem.block.id}
-                        block={group.imageItem.block}
-                        bIdx={group.imageItem.index}
-                        totalBlocks={stageBlocks.length}
-                        stageIndex={stageIndex}
-                        card={card}
-                        stageBlocks={stageBlocks}
-                        readOnly={readOnly}
-                        draggingBlockIdx={draggingBlockIdx}
-                        dragOverBlockIdx={dragOverBlockIdx}
-                        setDraggingBlockIdx={setDraggingBlockIdx}
-                        setDragOverBlockIdx={setDragOverBlockIdx}
-                        setIsTrashDragOver={setIsTrashDragOver}
-                        moveBlock={moveBlock}
-                        removeBlock={removeBlock}
-                        updateStageBlocks={updateStageBlocks}
-                        updateBlockItem={updateBlockItem}
-                        updateLearnCard={updateLearnCard}
-                        uploadingStageMedia={uploadingStageMedia}
-                        setUploadingStageMedia={setUploadingStageMedia}
-                        uploadLearnCardMedia={uploadLearnCardMedia}
-                        uploadAdditionalImageItem={uploadAdditionalImageItem}
-                        previewAikiVoice={previewAikiVoice}
-                        previewSpeakingIndex={previewSpeakingIndex}
-                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
-                        courseId={courseId}
-                        handleAddModule={handleAddModule}
-                        stageInfo={stageInfo}
-                        inputStyle={inputStyle}
-                        textareaStyle={textareaStyle}
-                        showToast={showToast}
-                        stageStarAllocation={stageStarAllocation}
-                        onToggleStageStar={onToggleStageStar}
-                      />
-                    )}
+                    {group.imageItem && renderItemCard(group.imageItem)}
                   </div>
 
                   {/* CỘT PHẢI (Box Mục Đích & Box 4 Chìa Khóa Vàng) - 7 cột trên lg */}
@@ -300,80 +351,8 @@ export function StageBlocksCanvas({
                         🎯 Cột Phải: Mục Tiêu Cốt Lõi &amp; Chìa Khóa Vàng
                       </span>
                     </div>
-                    {group.textItem && (
-                      <StageBlockItemCard
-                        key={group.textItem.block.id}
-                        block={group.textItem.block}
-                        bIdx={group.textItem.index}
-                        totalBlocks={stageBlocks.length}
-                        stageIndex={stageIndex}
-                        card={card}
-                        stageBlocks={stageBlocks}
-                        readOnly={readOnly}
-                        draggingBlockIdx={draggingBlockIdx}
-                        dragOverBlockIdx={dragOverBlockIdx}
-                        setDraggingBlockIdx={setDraggingBlockIdx}
-                        setDragOverBlockIdx={setDragOverBlockIdx}
-                        setIsTrashDragOver={setIsTrashDragOver}
-                        moveBlock={moveBlock}
-                        removeBlock={removeBlock}
-                        updateStageBlocks={updateStageBlocks}
-                        updateBlockItem={updateBlockItem}
-                        updateLearnCard={updateLearnCard}
-                        uploadingStageMedia={uploadingStageMedia}
-                        setUploadingStageMedia={setUploadingStageMedia}
-                        uploadLearnCardMedia={uploadLearnCardMedia}
-                        uploadAdditionalImageItem={uploadAdditionalImageItem}
-                        previewAikiVoice={previewAikiVoice}
-                        previewSpeakingIndex={previewSpeakingIndex}
-                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
-                        courseId={courseId}
-                        handleAddModule={handleAddModule}
-                        stageInfo={stageInfo}
-                        inputStyle={inputStyle}
-                        textareaStyle={textareaStyle}
-                        showToast={showToast}
-                        stageStarAllocation={stageStarAllocation}
-                        onToggleStageStar={onToggleStageStar}
-                      />
-                    )}
-                    {group.keysItem && (
-                      <StageBlockItemCard
-                        key={group.keysItem.block.id}
-                        block={group.keysItem.block}
-                        bIdx={group.keysItem.index}
-                        totalBlocks={stageBlocks.length}
-                        stageIndex={stageIndex}
-                        card={card}
-                        stageBlocks={stageBlocks}
-                        readOnly={readOnly}
-                        draggingBlockIdx={draggingBlockIdx}
-                        dragOverBlockIdx={dragOverBlockIdx}
-                        setDraggingBlockIdx={setDraggingBlockIdx}
-                        setDragOverBlockIdx={setDragOverBlockIdx}
-                        setIsTrashDragOver={setIsTrashDragOver}
-                        moveBlock={moveBlock}
-                        removeBlock={removeBlock}
-                        updateStageBlocks={updateStageBlocks}
-                        updateBlockItem={updateBlockItem}
-                        updateLearnCard={updateLearnCard}
-                        uploadingStageMedia={uploadingStageMedia}
-                        setUploadingStageMedia={setUploadingStageMedia}
-                        uploadLearnCardMedia={uploadLearnCardMedia}
-                        uploadAdditionalImageItem={uploadAdditionalImageItem}
-                        previewAikiVoice={previewAikiVoice}
-                        previewSpeakingIndex={previewSpeakingIndex}
-                        speakTextPreview={speakTextPreview ? (text) => speakTextPreview(text) : () => {}}
-                        courseId={courseId}
-                        handleAddModule={handleAddModule}
-                        stageInfo={stageInfo}
-                        inputStyle={inputStyle}
-                        textareaStyle={textareaStyle}
-                        showToast={showToast}
-                        stageStarAllocation={stageStarAllocation}
-                        onToggleStageStar={onToggleStageStar}
-                      />
-                    )}
+                    {group.textItem && renderItemCard(group.textItem)}
+                    {group.keysItem && renderItemCard(group.keysItem)}
                   </div>
                 </div>
               )

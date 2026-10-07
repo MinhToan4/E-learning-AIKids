@@ -767,6 +767,7 @@ export interface SixStageGoal {
   imageUrl: string
   speech: string
   keyPoints: string[]
+  layoutMode?: '1-column' | '2-column' | '3-column'
 }
 
 export interface SixStageConfirmOption {

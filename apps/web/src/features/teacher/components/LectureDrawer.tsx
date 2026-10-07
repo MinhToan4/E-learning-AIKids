@@ -278,6 +278,7 @@ export function LectureDrawer({
             goalText: textBlock?.body ?? finalJourney.stage1_goal?.goalText ?? '',
             imageUrl: imageBlock?.imageUrl || finalJourney.stage1_goal?.imageUrl || '',
             speech: voiceBlock?.body || voiceBlock?.readText || finalJourney.stage1_goal?.speech || '',
+            layoutMode: goalCard.layoutMode || finalJourney.stage1_goal?.layoutMode || '2-column',
             keyPoints: fourKeysBlock?.visualItems?.length
               ? fourKeysBlock.visualItems.map((v) => v.text || v.label).filter(Boolean)
               : (finalJourney.stage1_goal?.keyPoints || []),

@@ -220,6 +220,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
     keyPoints: quest.goals && quest.goals.length > 0
       ? quest.goals
       : ['Quan sát kỹ', 'Làm chủ câu lệnh', 'Tự tin sáng tạo'],
+    layoutMode: (quest as any)?.sixStageJourney?.stage1_goal?.layoutMode || (quest.learnCards?.[0] as any)?.layoutMode || '2-column',
   }
 
   // ── Chặng 2: stage2_confirmGoal ──

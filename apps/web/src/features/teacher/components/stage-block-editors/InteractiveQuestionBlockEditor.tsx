@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { cn } from '@/shared/lib/cn'
+import { CmsImageUploader } from './CmsImageUploader'
 
 export interface InteractiveQuestionOption {
   id?: string
@@ -179,79 +180,33 @@ export function InteractiveQuestionBlockEditor({
               )}
             </div>
 
-            {question.visualUrl ? (
-              <div className="relative group overflow-hidden rounded-2xl border-2 border-sky-300 bg-white shadow-2xs">
-                <div className="aspect-[4/3] sm:aspect-[16/10] w-full max-h-[260px] bg-slate-100 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={question.visualUrl}
-                    alt="Ảnh minh họa câu hỏi"
-                    className="size-full object-contain p-2"
-                  />
-                </div>
-                {!readOnly && (
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <label className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-slate-800 shadow-md cursor-pointer hover:bg-slate-50">
-                      <Upload size={13} />
-                      <span>Đổi ảnh</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        disabled={uploadingVisual}
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0]
-                          if (!file) return
-                          setUploadingVisual(true)
-                          try {
-                            const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_visual', questId })
-                            if (res?.url) {
-                              onChange({ visualUrl: res.url })
-                              showToast?.('Đổi ảnh câu hỏi thành công!', 'success')
-                            }
-                          } finally {
-                            setUploadingVisual(false)
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-7 px-4 text-center rounded-2xl bg-white border-2 border-dashed border-sky-300">
-                <div className="grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-700 mb-2 shadow-2xs">
-                  <Upload size={22} />
-                </div>
-                <p className="text-xs font-black text-slate-800 mb-0.5">Tải ảnh tình huống bên trái</p>
-                <p className="text-[11px] font-semibold text-slate-500 mb-3">Hình minh họa hoặc sơ đồ để học sinh quan sát</p>
-                {!readOnly && (
-                  <label className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 text-xs font-black shadow-xs cursor-pointer active:scale-95 transition">
-                    <Upload size={14} />
-                    <span>{uploadingVisual ? 'Đang tải lên…' : 'Chọn ảnh từ máy'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingVisual}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        setUploadingVisual(true)
-                        try {
-                          const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_visual', questId })
-                          if (res?.url) {
-                            onChange({ visualUrl: res.url })
-                            showToast?.('Tải ảnh câu hỏi thành công!', 'success')
-                          }
-                        } finally {
-                          setUploadingVisual(false)
-                        }
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-            )}
+            <CmsImageUploader
+              label="Ảnh Tình Huống / Minh Họa (Cột Trái)"
+              sublabel="Hình ảnh hoặc sơ đồ để học sinh quan sát trả lời"
+              icon="🖼️"
+              imageUrl={question.visualUrl}
+              imageAlt="Ảnh minh họa câu hỏi"
+              readOnly={readOnly}
+              isUploading={uploadingVisual}
+              tone="sky"
+              aspectRatio="16/10"
+              maxHeight="260px"
+              showUrlInput={true}
+              onImageChange={(url) => onChange({ visualUrl: url })}
+              onUploadFile={async (file) => {
+                setUploadingVisual(true)
+                try {
+                  const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_visual', questId })
+                  if (res?.url) {
+                    onChange({ visualUrl: res.url })
+                    showToast?.('Tải ảnh câu hỏi thành công!', 'success')
+                  }
+                } finally {
+                  setUploadingVisual(false)
+                }
+              }}
+              urlPlaceholder="https://... hoặc /assets/..."
+            />
           </div>
 
           {/* Cột phải: Đề bài & Danh sách phương án */}
@@ -447,90 +402,33 @@ export function InteractiveQuestionBlockEditor({
                       </div>
 
                       {/* Vùng hình ảnh của phương án (WYSIWYG preview nếu có ảnh, hoặc nút gắn ảnh tùy chọn) */}
-                      {opt.imageUrl ? (
-                        <div className="relative mb-2.5 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 min-h-[110px] max-h-[140px] flex items-center justify-center">
-                          <img
-                            src={opt.imageUrl}
-                            alt={`Minh họa ${optLetter}`}
-                            className="size-full object-contain p-2"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                            }}
-                          />
-                          {!readOnly && (
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                              <label className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold text-slate-800 shadow-sm cursor-pointer hover:bg-slate-50">
-                                <Upload size={12} />
-                                <span>Đổi ảnh</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  disabled={uploadingOptIdx !== null}
-                                  onChange={async (e) => {
-                                    const file = e.target.files?.[0]
-                                    if (!file) return
-                                    setUploadingOptIdx(optIdx)
-                                    try {
-                                      const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_option_image', questId })
-                                      if (res?.url) {
-                                        const nextOpts = [...options]
-                                        nextOpts[optIdx] = { ...opt, imageUrl: res.url }
-                                        onChange({ options: nextOpts })
-                                        showToast?.('Đổi ảnh thành công!', 'success')
-                                      }
-                                    } finally {
-                                      setUploadingOptIdx(null)
-                                    }
-                                  }}
-                                />
-                              </label>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const nextOpts = [...options]
-                                  nextOpts[optIdx] = { ...opt, imageUrl: '' }
-                                  onChange({ options: nextOpts })
-                                }}
-                                className="rounded-lg bg-rose-600 px-2 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-rose-700 cursor-pointer"
-                              >
-                                Xóa ảnh
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        !readOnly && (
-                          <div className="mb-2">
-                            <label className="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl border border-dashed border-slate-300 hover:border-brand-400 bg-slate-50/60 hover:bg-brand-50/40 text-[11px] font-bold text-slate-500 hover:text-brand-700 transition cursor-pointer">
-                              <Upload size={12} />
-                              <span>+ Thêm ảnh thẻ (tùy chọn)</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                disabled={uploadingOptIdx !== null}
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0]
-                                  if (!file) return
-                                  setUploadingOptIdx(optIdx)
-                                  try {
-                                    const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_option_image', questId })
-                                    if (res?.url) {
-                                      const nextOpts = [...options]
-                                      nextOpts[optIdx] = { ...opt, imageUrl: res.url }
-                                      onChange({ options: nextOpts })
-                                      showToast?.('Đã tải ảnh lên!', 'success')
-                                    }
-                                  } finally {
-                                    setUploadingOptIdx(null)
-                                  }
-                                }}
-                              />
-                            </label>
-                          </div>
-                        )
-                      )}
+                      <CmsImageUploader
+                        compact={true}
+                        imageUrl={opt.imageUrl}
+                        imageAlt={`Minh họa ${optLetter}`}
+                        readOnly={readOnly}
+                        isUploading={uploadingOptIdx === optIdx}
+                        tone="sky"
+                        onImageChange={(url) => {
+                          const nextOpts = [...options]
+                          nextOpts[optIdx] = { ...opt, imageUrl: url }
+                          onChange({ options: nextOpts })
+                        }}
+                        onUploadFile={async (file) => {
+                          setUploadingOptIdx(optIdx)
+                          try {
+                            const res = await uploadCmsCourseMedia({ file, purpose: 'quiz_option_image', questId })
+                            if (res?.url) {
+                              const nextOpts = [...options]
+                              nextOpts[optIdx] = { ...opt, imageUrl: res.url }
+                              onChange({ options: nextOpts })
+                              showToast?.('Đã tải ảnh thẻ lên!', 'success')
+                            }
+                          } finally {
+                            setUploadingOptIdx(null)
+                          }
+                        }}
+                      />
 
                       {/* Nội dung chữ của phương án */}
                       <input

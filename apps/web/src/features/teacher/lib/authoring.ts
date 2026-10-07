@@ -248,6 +248,7 @@ export type LearnCardDraft = {
   compareImages?: { left: string; right: string }
   enabledModules?: string[] // ['versus-ab', 'images', 'dialogue', 'compare', 'poster', 'video']
   contentBlocks?: StageBlockItem[]
+  layoutMode?: '1-column' | '2-column' | '3-column'
   mee?: {
     readText: string
     /** URL audio đã được Vertex tạo qua StoryMee Hub; FE không gọi Vertex trực tiếp. */

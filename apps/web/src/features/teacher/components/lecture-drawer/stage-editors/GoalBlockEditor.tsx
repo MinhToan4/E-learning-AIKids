@@ -1,7 +1,7 @@
 import React from 'react'
 import { Volume2, Target } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
-import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
+import { CmsImageUploader } from '../../stage-block-editors/CmsImageUploader'
 
 export interface GoalBlockEditorProps {
   goal: LessonSixStageJourney['stage1_goal']
@@ -54,69 +54,16 @@ export function GoalBlockEditor({
             </span>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-black uppercase text-slate-700">
-              URL hoặc Tải ảnh lên
-            </label>
-            <div className="mt-1.5 flex gap-2">
-              <input
-                type="text"
-                value={goal.imageUrl || ''}
-                disabled={readOnly}
-                onChange={(e) => onChange({ imageUrl: e.target.value })}
-                placeholder="/assets/aiki-islands/island1_lesson1_cat.jpg hoặc URL ảnh..."
-                className="flex-1 rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text font-mono"
-              />
-              {!readOnly && (
-                <label className="flex items-center gap-1 rounded-xl bg-brand-50 border border-brand-200 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-100 cursor-pointer shrink-0">
-                  <span>📤 Tải ảnh</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-                      try {
-                        const res = await uploadCmsCourseMedia({
-                          file,
-                          purpose: 'island_stage1_image',
-                          questId,
-                        })
-                        if (res?.url) {
-                          onChange({ imageUrl: res.url })
-                          showToast?.('Đã tải ảnh lên thành công!', 'success')
-                        }
-                      } catch (err) {
-                        showToast?.(
-                          `Lỗi tải ảnh: ${err instanceof Error ? err.message : 'Không xác định'}`,
-                          'error'
-                        )
-                      }
-                    }}
-                  />
-                </label>
-              )}
-            </div>
-            {goal.imageUrl ? (
-              <div className="mt-3 relative w-full aspect-16/10 rounded-2xl overflow-hidden border-2 border-emerald-200 shadow-clay-xs bg-slate-100 flex items-center justify-center">
-                <img
-                  src={goal.imageUrl}
-                  alt="Mục tiêu"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.display = 'none'
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="mt-3 w-full aspect-16/10 rounded-2xl border-2 border-dashed border-emerald-300 bg-white/70 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-                <span className="text-2xl mb-1">🖼️</span>
-                <p className="text-xs font-bold text-slate-600">Chưa có ảnh mục tiêu</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">Dán URL ảnh hoặc bấm "Tải ảnh" ở trên</p>
-              </div>
-            )}
-          </div>
+          <CmsImageUploader
+            label="Ảnh Mục Tiêu"
+            imageUrl={goal.imageUrl || ''}
+            readOnly={readOnly}
+            onImageChange={(url: string) => onChange({ imageUrl: url })}
+            urlPlaceholder="/assets/aiki-islands/island1_lesson1_cat.jpg hoặc URL ảnh..."
+            showToast={showToast}
+            uploadPurpose="island_stage1_image"
+            questId={questId}
+          />
         </div>
 
         {/* CỘT PHẢI: Box Mục Đích (Tiêu đề + Mục tiêu cốt lõi) + Box 4 Chìa Khóa Vàng - Chiếm 7 cột trên lg */}

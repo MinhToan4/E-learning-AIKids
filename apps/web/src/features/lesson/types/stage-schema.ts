@@ -55,6 +55,7 @@ export interface GoalStageConfig {
   parsedCards?: ParsedGoalCard[]
   keyPoints?: string[]
   skillLearned?: string
+  layoutMode?: '1-column' | '2-column' | '3-column'
 }
 
 export interface ConfirmOptionItem {

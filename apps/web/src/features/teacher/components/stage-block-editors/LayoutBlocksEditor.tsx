@@ -15,6 +15,7 @@ import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import type { LearnVisualItemDraft } from '../../lib/authoring'
 import { KEY_COLOR_PRESETS, type StageBlockEditorBaseProps } from './types'
+import { CmsImageUploader } from './CmsImageUploader'
 
 export interface LayoutBlocksEditorProps extends StageBlockEditorBaseProps {
   stageInfo: { title: string; icon: any; desc: string }
@@ -199,53 +200,34 @@ export function LayoutBlocksEditor({
                 )}
               </div>
             ) : (
-              <>
-                <label className="block text-xs font-extrabold text-text">URL Hình ảnh / Media
-                  <input
-                    type="url"
-                    readOnly={readOnly}
-                    value={block.imageUrl ?? ''}
-                    onChange={(e) => updateBlockItem(stageIndex, block.id, { imageUrl: e.target.value })}
-                    style={{ ...inputStyle, marginTop: '0.25rem' }}
-                    placeholder="https://cdn.example.com/image.webp"
-                  />
-                </label>
-                {!readOnly && (
-                  <span className="mt-2 flex min-h-10 cursor-pointer items-center justify-center rounded-xl border border-sky-300 bg-sky-50 px-3 text-xs font-extrabold text-sky-800 hover:bg-sky-100">
-                    <Eye size={15} className="mr-1.5" />
-                    {uploadingStageMedia === `${stageIndex}:block:${block.id}` ? 'Đang tải…' : 'Tải file ảnh lên'}
-                    <input
-                      className="sr-only"
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      disabled={uploadingStageMedia !== null}
-                      onChange={async (event) => {
-                        const file = event.target.files?.[0]
-                        if (file) {
-                          setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
-                          try {
-                            const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
-                            if (res.url) {
-                              updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
-                              showToast('Tải ảnh thành công!', 'success')
-                            }
-                          } catch {
-                            showToast('Tải ảnh thất bại', 'danger')
-                          } finally {
-                            setUploadingStageMedia(null)
-                          }
-                        }
-                        event.currentTarget.value = ''
-                      }}
-                    />
-                  </span>
-                )}
-                {block.imageUrl && (
-                  <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 aspect-video">
-                    <img src={block.imageUrl} alt={block.imageAlt || 'Media'} className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
-                  </div>
-                )}
-              </>
+              <CmsImageUploader
+                label="Hình ảnh minh họa"
+                sublabel="Ảnh hiển thị ở cột minh họa cho bài học"
+                imageUrl={block.imageUrl}
+                imageAlt={block.imageAlt || 'Media'}
+                readOnly={readOnly}
+                isUploading={uploadingStageMedia === `${stageIndex}:block:${block.id}`}
+                tone="sky"
+                aspectRatio="video"
+                maxHeight="240px"
+                inputStyle={inputStyle}
+                onImageChange={(url) => updateBlockItem(stageIndex, block.id, { imageUrl: url })}
+                onUploadFile={async (file) => {
+                  setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
+                  try {
+                    const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
+                    if (res?.url) {
+                      updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
+                      showToast('Tải ảnh thành công!', 'success')
+                    }
+                  } catch {
+                    showToast('Tải ảnh thất bại', 'danger')
+                  } finally {
+                    setUploadingStageMedia(null)
+                  }
+                }}
+                urlPlaceholder="https://cdn.example.com/image.webp"
+              />
             )}
           </div>
         </div>
@@ -290,112 +272,33 @@ export function LayoutBlocksEditor({
               )}
             </div>
 
-            {block.imageUrl ? (
-              <div className="relative group overflow-hidden rounded-2xl border-2 border-sky-300 bg-white shadow-2xs">
-                <div className="aspect-[16/10] sm:aspect-[2/1] w-full max-h-[260px] bg-slate-100 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={block.imageUrl}
-                    alt={block.title || `Phương án ${optionLetter}`}
-                    className="size-full object-contain p-2"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                </div>
-                {!readOnly && (
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-xs">
-                    <label className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-black text-slate-800 shadow-md hover:bg-slate-50 cursor-pointer shrink-0 whitespace-nowrap">
-                      <Upload size={14} className="shrink-0" />
-                      <span>Đổi ảnh</span>
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp,image/gif"
-                        className="sr-only"
-                        disabled={uploadingStageMedia !== null}
-                        onChange={async (event) => {
-                          const file = event.target.files?.[0]
-                          if (file) {
-                            setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
-                            try {
-                              const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
-                              if (res?.url) {
-                                updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
-                                showToast('Đổi ảnh thành công!', 'success')
-                              } else {
-                                throw new Error('No URL returned')
-                              }
-                            } catch {
-                              const reader = new FileReader()
-                              reader.onload = () => {
-                                updateBlockItem(stageIndex, block.id, { imageUrl: reader.result as string })
-                                showToast('Đã tải ảnh preview thành công!', 'success')
-                              }
-                              reader.readAsDataURL(file)
-                            } finally {
-                              setUploadingStageMedia(null)
-                            }
-                          }
-                          event.currentTarget.value = ''
-                        }}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => updateBlockItem(stageIndex, block.id, { imageUrl: '' })}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-black text-white shadow-md hover:bg-rose-700 cursor-pointer shrink-0 whitespace-nowrap"
-                    >
-                      <Trash2 size={14} className="shrink-0" />
-                      <span>Xóa ảnh</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-6 px-4 text-center rounded-2xl bg-white border-2 border-dashed border-sky-300">
-                <div className="grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-700 mb-2 shadow-2xs">
-                  <Upload size={22} />
-                </div>
-                <p className="text-xs font-black text-slate-800 mb-0.5">Tải ảnh minh họa phương án</p>
-                <p className="text-[11px] font-semibold text-slate-500 mb-3">Hỗ trợ PNG, JPG, WEBP</p>
-                {!readOnly && (
-                  <label className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 text-xs font-black shadow-xs cursor-pointer active:scale-95 transition shrink-0 whitespace-nowrap">
-                    <Upload size={14} className="shrink-0" />
-                    <span>{uploadingStageMedia === `${stageIndex}:block:${block.id}` ? 'Đang tải lên…' : 'Tải ảnh từ máy tính lên'}</span>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp,image/gif"
-                      className="sr-only"
-                      disabled={uploadingStageMedia !== null}
-                      onChange={async (event) => {
-                        const file = event.target.files?.[0]
-                        if (file) {
-                          setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
-                          try {
-                            const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
-                            if (res?.url) {
-                              updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
-                              showToast('Tải ảnh thành công!', 'success')
-                            } else {
-                              throw new Error('No URL returned')
-                            }
-                          } catch {
-                            const reader = new FileReader()
-                            reader.onload = () => {
-                              updateBlockItem(stageIndex, block.id, { imageUrl: reader.result as string })
-                              showToast('Đã tải ảnh preview thành công!', 'success')
-                            }
-                            reader.readAsDataURL(file)
-                          } finally {
-                            setUploadingStageMedia(null)
-                          }
-                        }
-                        event.currentTarget.value = ''
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-            )}
+            <CmsImageUploader
+              label={`Ảnh Minh Họa (Phương án ${optionLetter})`}
+              imageUrl={block.imageUrl}
+              imageAlt={block.title || `Phương án ${optionLetter}`}
+              readOnly={readOnly}
+              isUploading={uploadingStageMedia === `${stageIndex}:block:${block.id}`}
+              tone="sky"
+              aspectRatio="16/10"
+              maxHeight="220px"
+              showUrlInput={false}
+              inputStyle={inputStyle}
+              onImageChange={(url) => updateBlockItem(stageIndex, block.id, { imageUrl: url })}
+              onUploadFile={async (file) => {
+                setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
+                try {
+                  const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
+                  if (res?.url) {
+                    updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
+                    showToast('Tải ảnh thành công!', 'success')
+                  }
+                } catch {
+                  showToast('Tải ảnh thất bại', 'danger')
+                } finally {
+                  setUploadingStageMedia(null)
+                }
+              }}
+            />
           </div>
 
           {/* Ô nhập nội dung phương án */}

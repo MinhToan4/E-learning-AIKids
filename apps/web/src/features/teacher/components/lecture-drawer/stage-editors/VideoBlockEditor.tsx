@@ -3,6 +3,7 @@ import { Clapperboard, Trash2, Plus, Upload, Play, Clock } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { resolveLectureVideo } from '@/features/lesson/lib/lecture-video'
+import { CmsImageUploader } from '../../stage-block-editors/CmsImageUploader'
 
 export interface VideoBlockEditorProps {
   video: LessonSixStageJourney['stage3_video']
@@ -221,51 +222,16 @@ export function VideoBlockEditor({
             </span>
           </div>
         </div>
-        <div>
-          <label className="block text-xs font-black uppercase text-slate-700">
-            Ảnh bìa video (Poster URL)
-          </label>
-          <div className="mt-1.5 flex gap-2">
-            <input
-              type="text"
-              value={video.posterUrl || ''}
-              disabled={readOnly}
-              onChange={(e) => onChange({ posterUrl: e.target.value })}
-              placeholder="https://... hoặc tải ảnh"
-              className="flex-1 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-900 font-mono shadow-2xs outline-none focus:border-indigo-500 transition"
-            />
-            {!readOnly && (
-              <label className="flex items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-800 cursor-pointer shrink-0 transition active:scale-95 shadow-2xs">
-                <span>🖼️ Ảnh</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0]
-                    if (!file) return
-                    try {
-                      const res = await uploadCmsCourseMedia({
-                        file,
-                        purpose: 'island_stage3_poster',
-                        questId,
-                      })
-                      if (res?.url) {
-                        onChange({ posterUrl: res.url })
-                        showToast?.('Đã tải ảnh poster lên thành công!', 'success')
-                      }
-                    } catch (err) {
-                      showToast?.(
-                        `Lỗi tải poster: ${err instanceof Error ? err.message : 'Không xác định'}`,
-                        'error'
-                      )
-                    }
-                  }}
-                />
-              </label>
-            )}
-          </div>
-        </div>
+        <CmsImageUploader
+          label="Ảnh bìa video (Poster)"
+          imageUrl={video.posterUrl || ''}
+          readOnly={readOnly}
+          onImageChange={(url: string) => onChange({ posterUrl: url })}
+          urlPlaceholder="https://... hoặc tải ảnh"
+          showToast={showToast}
+          uploadPurpose="island_stage3_poster"
+          questId={questId}
+        />
       </div>
 
       {/* Mốc phân đoạn video (Timestamps) */}

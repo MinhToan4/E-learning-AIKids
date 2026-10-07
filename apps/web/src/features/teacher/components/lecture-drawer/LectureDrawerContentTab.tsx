@@ -6,7 +6,7 @@ import {
   ChevronUp,
   ChevronDown,
   Trash2,
-  Eye,
+  Upload,
   BrainCircuit,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
@@ -266,7 +266,7 @@ export function LectureDrawerContentTab({
                 />
                 {!readOnly && (
                   <span className="mt-2 flex min-h-11 cursor-pointer items-center justify-center rounded-xl border-2 border-brand-200 bg-white px-3 text-xs font-extrabold text-brand-700">
-                    <Eye size={16} className="mr-2" aria-hidden="true" />
+                    <Upload size={16} className="mr-2" aria-hidden="true" />
                     {uploadingStageMedia === `${index}:imageUrl` ? 'Đang tải ảnh…' : 'Tải ảnh lên'}
                     <input
                       className="sr-only"

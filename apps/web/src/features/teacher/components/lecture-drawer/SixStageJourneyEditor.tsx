@@ -12,6 +12,7 @@ import {
   ScanSearch,
   Star,
   Eye,
+  LayoutTemplate,
 } from 'lucide-react'
 import type { LessonSixStageJourney } from '@/shared/lib/api'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
@@ -227,6 +228,69 @@ export function SixStageJourneyEditor({
                 (Đã chọn {(currentJourney.stageStarAllocation ?? [2, 3, 5]).length}/3 Sao)
               </span>
             </div>
+
+            {/* Bộ chọn bố cục linh hoạt cho Chặng 1 (Mục Tiêu) */}
+            {stageIndex === 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-brand-200/60">
+                <div className="flex items-center gap-1.5 text-xs font-black text-brand-950">
+                  <LayoutTemplate size={14} className="text-brand-700" />
+                  <span>Bố cục Chặng 1:</span>
+                </div>
+                <div className="inline-flex rounded-xl bg-white p-1 border border-brand-200 shadow-2xs gap-1">
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      updateSixStage((j) => ({ ...j, stage1_goal: { ...j.stage1_goal, layoutMode: '1-column' } }))
+                      updateLearnCard(0, { layoutMode: '1-column' })
+                      showToast('Đã chuyển Chặng 1 sang bố cục 1 Cột (Xếp dọc)', 'info')
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer',
+                      (islandCard?.layoutMode === '1-column' || currentJourney.stage1_goal?.layoutMode === '1-column')
+                        ? 'bg-brand-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    )}
+                  >
+                    <span>📱 1 Cột (Dọc)</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      updateSixStage((j) => ({ ...j, stage1_goal: { ...j.stage1_goal, layoutMode: '2-column' } }))
+                      updateLearnCard(0, { layoutMode: '2-column' })
+                      showToast('Đã chuyển Chặng 1 sang bố cục 2 Cột (Song song)', 'info')
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer',
+                      (!islandCard?.layoutMode || islandCard?.layoutMode === '2-column' || (!currentJourney.stage1_goal?.layoutMode && islandCard?.layoutMode !== '1-column' && islandCard?.layoutMode !== '3-column') || currentJourney.stage1_goal?.layoutMode === '2-column')
+                        ? 'bg-brand-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    )}
+                  >
+                    <span>📐 2 Cột (Song song)</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      updateSixStage((j) => ({ ...j, stage1_goal: { ...j.stage1_goal, layoutMode: '3-column' } }))
+                      updateLearnCard(0, { layoutMode: '3-column' })
+                      showToast('Đã chuyển Chặng 1 sang bố cục 3 Cột (Lưới 3)', 'info')
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer',
+                      (islandCard?.layoutMode === '3-column' || currentJourney.stage1_goal?.layoutMode === '3-column')
+                        ? 'bg-brand-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    )}
+                  >
+                    <span>🔲 3 Cột (Lưới 3)</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Toàn bộ 6 chặng được quản lý trực tiếp và trọn vẹn trong StageBlocksCanvas bên dưới */}

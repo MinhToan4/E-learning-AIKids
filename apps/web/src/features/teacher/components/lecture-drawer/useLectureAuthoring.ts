@@ -41,6 +41,18 @@ export function useLectureAuthoring({
       let nextSixStage = prev.sixStageJourney
 
       // Auto 2-Way Sync cho Six Stage Journey
+      if (nextSixStage) {
+        if (index === 0 && patch.layoutMode) {
+          nextSixStage = {
+            ...nextSixStage,
+            stage1_goal: {
+              ...nextSixStage.stage1_goal,
+              layoutMode: patch.layoutMode,
+            },
+          }
+        }
+      }
+
       if (nextSixStage && patch.contentBlocks) {
         if (index === 0) {
           const mainGoalBlock = patch.contentBlocks.find(
@@ -67,6 +79,7 @@ export function useLectureAuthoring({
               goalText: mainGoalBlock?.body || textBlock?.body || nextSixStage.stage1_goal?.goalText || '',
               imageUrl: mainGoalBlock?.imageUrl || imageBlock?.imageUrl || nextSixStage.stage1_goal?.imageUrl || '',
               speech: voiceBlock?.body || voiceBlock?.readText || nextSixStage.stage1_goal?.speech || '',
+              layoutMode: patch.layoutMode || nextCards[0]?.layoutMode || nextSixStage.stage1_goal?.layoutMode || '2-column',
               keyPoints: resolvedKeys.length
                 ? resolvedKeys.map((v: any) => v.text || v.label).filter(Boolean)
                 : (nextSixStage.stage1_goal?.keyPoints || []),
