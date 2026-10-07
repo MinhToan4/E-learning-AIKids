@@ -80,9 +80,9 @@ export function CustomStagesManagerModal({
               type: idx === 0 ? 'GOAL' : idx === 1 ? 'CONFIRM' : idx === 2 ? 'VIDEO' : idx === 3 ? 'QUIZ' : idx === 4 ? 'PRACTICE' : 'REWARD',
             }))
       setStages(initialStages)
-      setStars(starAllocation ?? [2, 3, 4])
+      setStars(Array.isArray(starAllocation) && starAllocation.length > 0 ? [...starAllocation] : [2, 3, 4])
     }
-  }, [isOpen, currentStages, starAllocation])
+  }, [isOpen])
 
   if (!isOpen) return null
 

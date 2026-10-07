@@ -64,6 +64,8 @@ export {
 }
 export { ISLAND_6_STAGE_SECTIONS } from './lecture-drawer'
 
+const DEFAULT_STAR_ALLOCATION: number[] = [2, 3, 4]
+
 type Props = {
   courseId: string; lecture: LectureDraft | null; onSaved: () => void; onClose: () => void
   inline?: boolean; archived?: boolean; onArchive?: () => void; onRestore?: () => void
@@ -559,7 +561,7 @@ export function LectureDrawer({
         isOpen={showCustomStagesModal}
         onClose={() => setShowCustomStagesModal(false)}
         currentStages={draft.customJourneyStages && draft.customJourneyStages.length >= 3 ? draft.customJourneyStages : (draft.sixStageJourney?.customStages && draft.sixStageJourney.customStages.length >= 3 ? draft.sixStageJourney.customStages : STANDARD_ISLAND_6_STAGES)}
-        starAllocation={draft.sixStageJourney?.stageStarAllocation ?? [2, 3, 4]}
+        starAllocation={draft.sixStageJourney?.stageStarAllocation ?? DEFAULT_STAR_ALLOCATION}
         onApply={handleApplyCustomStages}
         readOnly={readOnly}
         showToast={showToast}
