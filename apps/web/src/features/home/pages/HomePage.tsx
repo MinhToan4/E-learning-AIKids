@@ -29,8 +29,10 @@ import {
 } from '@/features/home/components'
 import { mapCourse } from '@/shared/lib/normalizers/common'
 import { sessionGeneration } from '@/shared/lib/session-scope'
+import { cn } from '@/shared/lib/cn'
 const flushPendingSyncQueue = (ownerId?: string) => import('@/shared/lib/learning-sync-store').then((module) => module.flushPendingSyncQueue(ownerId))
 import { resolveNextActiveStation } from '../lib/home-server-station'
+import { getHomeIslandTheme } from '../lib/home-island-theme'
 
 type EnrollmentSummary = {
   courseId: string
@@ -496,6 +498,7 @@ export function HomePage() {
 
   const streakDays = (user as any)?.currentStreak ?? 0
   const activeStation = resolveNextActiveStation(courses, childDisplayName, user?.id)
+  const islandTheme = getHomeIslandTheme(activeStation.islandNumber)
   const hasLearningActivity = courses.some((course) => {
     const stations = (course.quests ?? (course as any).stations ?? []) as Array<{
       status?: string
@@ -797,11 +800,33 @@ export function HomePage() {
                   </div>
                 </>
               ) : (
-                <div className="col-span-12 relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 p-5 sm:p-7 shadow-clay flex flex-col md:flex-row items-center justify-between gap-6 group">
-                  <div className="flex-1 min-w-0 space-y-3.5">
+                <div className={cn(
+                  "col-span-12 relative overflow-hidden rounded-3xl border-2 p-5 sm:p-7 shadow-clay flex flex-col md:flex-row items-center justify-between gap-6 group transition-all duration-300",
+                  islandTheme.cardBg,
+                  islandTheme.borderColor,
+                )}>
+                  {/* Sân Khấu Nền Phong Cảnh Đảo Chứa Trạm Học (Đảo 2: Hoạ sĩ, Đảo 1: Khám phá,...) */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl select-none" aria-hidden="true">
+                    {/* Ảnh phong cảnh hòn đảo chứa trạm đang học đặt tự nhiên ở mảng phải */}
+                    <img
+                      src={islandTheme.scene}
+                      alt=""
+                      className="absolute right-0 top-1/2 -translate-y-1/2 h-[135%] w-auto max-w-[65%] sm:max-w-[50%] md:max-w-[46%] object-contain object-right opacity-35 sm:opacity-45 mix-blend-multiply transition-all duration-700 pointer-events-none"
+                    />
+                    {/* Gradient lớp phủ từ trái sang để thông tin bên trái luôn tương phản cao, dễ đọc */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-transparent sm:via-white/75" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/30" />
+                  </div>
+
+                  <div className="relative z-10 flex-1 min-w-0 space-y-3.5">
                     {/* 1. Badges: Phiêu lưu & Tiến độ thực tế */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-black shadow-2xs flex items-center gap-1.5 select-none">
+                      <span className={cn(
+                        "px-3 py-1 rounded-full border text-xs font-black shadow-2xs flex items-center gap-1.5 select-none",
+                        islandTheme.badgeBg,
+                        islandTheme.badgeText,
+                        islandTheme.badgeBorder,
+                      )}>
                         <FlatClayCompass size={14} className="shrink-0" />
                         <span>Hành Trình 6 Đảo Sáng Tạo</span>
                       </span>
@@ -821,8 +846,8 @@ export function HomePage() {
                       </p>
                     </div>
 
-                    {/* 3. Nhiệm vụ tiếp theo & Nút khám phá Soft Clay trực quan */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                    {/* 3. Nhiệm vụ tiếp theo & Nút khám phá Soft Clay trực quan (KHÔNG BỊ CẮT CỤT) */}
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
                       <button
                         type="button"
                         onClick={() =>
@@ -833,35 +858,53 @@ export function HomePage() {
                                 : OFFICIAL_SIX_ISLANDS[1]?.targetRoute || activeStation.route),
                           )
                         }
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer shrink-0"
+                        className={cn(
+                          "inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white font-black text-sm sm:text-base shadow-clay hover:scale-102 active:scale-95 transition-all cursor-pointer shrink-0 bg-gradient-to-r",
+                          islandTheme.buttonGradient,
+                        )}
                       >
                         <Play className="w-4 h-4 fill-current ml-0.5" />
                         <span>Khám phá trạm tiếp theo</span>
                       </button>
 
-                      <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/95 border border-amber-200/90 shadow-2xs min-w-0">
-                        <span className="text-base select-none shrink-0" aria-hidden="true">🎯</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate(
+                            (activeStation as any).url ||
+                              (activeStation.islandSlug
+                                ? activeStation.route
+                                : OFFICIAL_SIX_ISLANDS[1]?.targetRoute || activeStation.route),
+                          )
+                        }
+                        className={cn(
+                          "inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/95 hover:bg-white backdrop-blur-xs border shadow-2xs hover:shadow-soft transition-all text-left cursor-pointer group/pill max-w-full",
+                          islandTheme.pillBorder,
+                        )}
+                        title={`Vào học ${activeStation.stationLabel} — ${(activeStation.stationTitle || '').replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '').replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '').trim()}`}
+                      >
+                        <span className="text-xl select-none shrink-0 group-hover/pill:scale-110 transition-transform" aria-hidden="true">🎯</span>
                         <div className="min-w-0">
-                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800 truncate">
+                          <div className="text-[10px] font-black uppercase tracking-wider text-amber-800">
                             {(activeStation.islandTitle || '')
                               .replace(/^Module\s+\d+\s*[-—:]\s*/i, '')
                               .replace(/\s*AI!*$/i, '')
-                              .trim() || 'Đảo Sáng Tạo'}
+                              .trim() || islandTheme.shortName}
                           </div>
-                          <div className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                          <div className="text-xs sm:text-sm font-black text-slate-900 leading-snug whitespace-normal">
                             {activeStation.stationLabel} — {(activeStation.stationTitle || '')
                               .replace(/^Bài\s+[\d.]+\s*[-—:]\s*/i, '')
                               .replace(/^Trạm\s+[\d.]+\s*[-—:]\s*/i, '')
                               .trim()}
                           </div>
                         </div>
-                      </div>
+                      </button>
                     </div>
                   </div>
 
-                  {/* 4. Mèo AIKI đứng tự do trên nền card lớn kèm Bong bóng thoại */}
-                  <div className="relative shrink-0 flex flex-col items-center justify-end self-center sm:self-end">
-                    <div className="relative mb-1 px-3 py-1 bg-white/95 rounded-2xl border border-amber-200/90 shadow-2xs text-center select-none">
+                  {/* 4. Mèo AIKI đứng tự do trên nền phong cảnh đảo kèm Bong bóng thoại */}
+                  <div className="relative z-10 shrink-0 flex flex-col items-center justify-end self-center sm:self-end">
+                    <div className="relative mb-1 px-3 py-1 bg-white/95 rounded-2xl border border-amber-200/90 shadow-2xs text-center select-none backdrop-blur-xs">
                       <span className="text-xs font-black text-amber-950">
                         {activeStation.catDialogue || `Đi cùng Mee nào ${childDisplayName}!`}
                       </span>

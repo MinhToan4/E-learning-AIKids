@@ -100,7 +100,7 @@ export const AIKID_SIX_ISLAND_PRESETS: IslandPresetConfig[] = [
     index: 2,
     badge: 'ĐẢO 2',
     title: 'Đảo Họa Sĩ',
-    subtitle: 'Hoạ Sĩ AI',
+    subtitle: 'Tớ là hoạ sĩ',
     desc: 'Sắc Màu & Kể Chuyện',
     pedagogicalDesc: 'Sắc Màu & Kể Chuyện — Bố cục ngôi sao 3 lớp, ánh sáng cảm xúc và tạo ra bức tranh biết nói',
     scene: designerAssets.worldScenes.creativeMountain,
@@ -645,7 +645,11 @@ export function IslandStationsExplorerView({
             const isSelected = idx === currentIslandIndex
             const islandCourse = courses[idx]
             const isIslandLocked = islandCourse?.status === 'locked'
-            const islandShortName = islandCourse?.shortTitle || islandCourse?.title || preset.title
+            const rawShortName = islandCourse?.shortTitle || islandCourse?.title || preset.title
+            const islandShortName = rawShortName
+              .replace(/^Module\s+\d+\s*[-—:]\s*/i, '')
+              .replace(/\s*AI!*$/i, '')
+              .trim() || rawShortName
 
             if (isSelected) {
               return (

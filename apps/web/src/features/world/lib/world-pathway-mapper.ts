@@ -117,7 +117,7 @@ export function createFallbackPathway(): Pathway {
       {
         id: 'dao-2-hoa-si-ai',
         slug: 'dao-2-hoa-si-ai',
-        title: 'Tớ là hoạ sĩ AI!',
+        title: 'Tớ là hoạ sĩ',
         shortTitle: 'Sắc màu & Kể chuyện',
         status: 'locked',
         reasonCode: 'backend_unavailable',
