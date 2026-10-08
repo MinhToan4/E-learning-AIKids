@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { buildCheckAnswersPayload } from '../lib/check-answers-payload'
 import type { Location } from 'react-router'
 import {
   isAikiRuleJourney as checkIsAikiRule,
@@ -529,22 +530,12 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
     const nextRuleTarget = (isAikiRuleJourney && ruleId < 10) ? `rule-${ruleId + 1}` : null
     const currentRuleData = isAikiRuleJourney ? (AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]) : null
 
-    const answersPayload = isAikiRuleJourney && currentRuleData?.questions?.length
-      ? currentRuleData.questions.map((q) => ({
-          questionId: q.id,
-          optionIndex: q.correctIndex ?? 0,
-        }))
-      : customSummary?.answers?.length
-      ? customSummary.answers.map((a, idx) => ({
-          questionId: a.questionId,
-          optionIndex: a.optionIndex >= 0 ? a.optionIndex : ((quest?.check?.[idx] as any)?.correctIndex ?? 0),
-        }))
-      : (quest.check && quest.check.length > 0)
-        ? quest.check.map((q) => ({
-            questionId: q.id,
-            optionIndex: (answers && typeof answers[q.id] === 'number') ? answers[q.id] : ((q as any).correctIndex ?? 0),
-          }))
-        : []
+    const answersPayload = buildCheckAnswersPayload({
+      summaryAnswers: customSummary?.answers,
+      ruleQuestions: isAikiRuleJourney ? currentRuleData?.questions : null,
+      checkQuestions: quest.check,
+      checkAnswers: answers,
+    })
     const finishPromise = (async () => {
       setBusy(true)
       try {
@@ -568,13 +559,18 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
         const serverPassed = checkRes?.passed !== false
         const serverStars = typeof checkRes?.stars === 'number' ? checkRes.stars : undefined
         if (!serverPassed) {
+          const alreadyCompleted = quest.status === 'completed'
           const stars = Math.min(serverStars ?? 2, 2)
-          setLiveStars(stars)
           setError(checkRes?.message || 'Con hãy xem lại những câu chưa đúng rồi thử lại nhé!')
-          try {
-            saveLocalLessonProgress(authoritativeLessonId || quest.id || questId, stars, false, user?.id)
-          } catch {
-            // ignore storage failure
+          // A replay that misses questions must not downgrade a lesson the
+          // server already recorded as completed.
+          if (!alreadyCompleted) {
+            setLiveStars(stars)
+            try {
+              saveLocalLessonProgress(authoritativeLessonId || quest.id || questId, stars, false, user?.id)
+            } catch {
+              // ignore storage failure
+            }
           }
           void queryClient.invalidateQueries({ queryKey: ['pathway'] })
           return false
