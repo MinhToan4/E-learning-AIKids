@@ -13,6 +13,10 @@ COPY apps/web/package.json apps/web/
 RUN npm ci --workspace=@aikids/web --include-workspace-root
 COPY apps/web apps/web
 RUN npm run build -w @aikids/web
+# Pre-compress text assets once at build time; nginx serves the .gz with
+# gzip_static (best ratio, no per-request CPU on the 0.x-core container).
+RUN find apps/web/dist -type f \( -name '*.js' -o -name '*.css' -o -name '*.svg' -o -name '*.json' -o -name '*.html' \) \
+      -size +1k -exec gzip -9 -k {} \;
 
 FROM nginx:1.27-alpine
 # envsubst is included in nginx:alpine via gettext package
