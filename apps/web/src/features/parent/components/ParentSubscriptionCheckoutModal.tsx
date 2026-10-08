@@ -294,7 +294,6 @@ export function ParentSubscriptionCheckoutModal({
             body: JSON.stringify({
               plan: defaultPlanId || 'aikids_official_129k',
               provider: 'manual',
-              paymentCode: generatedCode,
             }),
           })
           if (!isMounted) return
@@ -318,7 +317,10 @@ export function ParentSubscriptionCheckoutModal({
           if (!isMounted) return
           const resObj = res as Record<string, any>
           const pubId = resObj?.publicId || resObj?.checkout?.publicId || resObj?.data?.paymentIntent?.publicId || resObj?.paymentIntent?.publicId
+          // Mã chuyển khoản phải là mã server sinh để admin/SePay khớp đúng đơn.
+          const code = resObj?.checkout?.paymentCode || resObj?.data?.paymentIntent?.metadata?.paymentCode || resObj?.paymentIntent?.metadata?.paymentCode
           if (pubId) setServerPublicId(pubId)
+          if (code) setServerPaymentCode(code)
         }
       } catch {
         // Safe try/catch: fallback to generatedCode to avoid disrupting UI
@@ -471,7 +473,6 @@ export function ParentSubscriptionCheckoutModal({
           body: JSON.stringify({
             plan: defaultPlanId || 'aikids_official_129k',
             provider: 'manual',
-            paymentCode: activePaymentCode,
           }),
         })
         const resObj = res as Record<string, any>
