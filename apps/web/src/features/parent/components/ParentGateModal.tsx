@@ -136,29 +136,17 @@ export function ParentGateModal({
       const credential = await signInWithPopup(auth, provider)
       const idToken = await credential.user.getIdToken()
 
-      let authedUser: User
-      let token: string | undefined
-      try {
-        const res = await api<{ status: string; user: User; token?: string }>(
-          '/api/parent/gate/verify-google',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              idToken,
-              parentId: user?.parentId || undefined,
-            }),
-          },
-        )
-        authedUser = res.user
-        token = res.token
-      } catch (err: unknown) {
-        if (err instanceof ApiError && err.status === 401) {
-          throw err
-        }
-        authedUser = await completeFirebaseSignIn(idToken, { role: 'parent' })
-      }
-
-      onAuthSuccess(authedUser, token)
+      // Only the Google account linked to the parent who owns this child
+      // session may unlock the gate. Never fall back to a general Google
+      // sign-in: that let a child exit kid mode with any Google account.
+      const res = await api<{ status: string; user: User; token?: string }>(
+        '/api/parent/gate/verify-google',
+        {
+          method: 'POST',
+          body: JSON.stringify({ idToken }),
+        },
+      )
+      onAuthSuccess(res.user, res.token)
     } catch (e: unknown) {
       const code =
         e && typeof e === 'object' && 'code' in e
@@ -178,7 +166,7 @@ export function ParentGateModal({
     } finally {
       setLoadingGoogle(false)
     }
-  }, [completeFirebaseSignIn, onAuthSuccess])
+  }, [onAuthSuccess])
 
   const handleEmergencyLogout = useCallback(async () => {
     if (

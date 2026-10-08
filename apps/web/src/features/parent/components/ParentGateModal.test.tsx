@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client'
 import { ParentGateModal } from './ParentGateModal'
 import { api, ApiError } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
-import { signInWithFirebasePassword } from '@/shared/lib/firebase-client'
+import { firebaseApp, signInWithFirebasePassword } from '@/shared/lib/firebase-client'
 
 vi.mock('@/shared/lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/shared/lib/api')>()
@@ -17,6 +17,14 @@ vi.mock('@/shared/lib/api', async (importOriginal) => {
     setAccessToken: vi.fn(),
   }
 })
+
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({})),
+  GoogleAuthProvider: class {
+    setCustomParameters() {}
+  },
+  signInWithPopup: vi.fn(async () => ({ user: { getIdToken: async () => 'google-id-token' } })),
+}))
 
 vi.mock('@/shared/lib/firebase-client', () => ({
   firebaseApp: vi.fn(),
@@ -169,5 +177,42 @@ describe('ParentGateModal', () => {
     expect(dialog?.textContent).toContain('Mở khóa nhanh bằng Google')
     expect(dialog?.textContent).toContain('Nhập mật khẩu tài khoản Ba / Mẹ')
     expect(dialog?.textContent).toContain('Quay lại nhập mật khẩu Ba / Mẹ')
+  })
+
+  it('never falls back to a general Google sign-in when the gate rejects the account', async () => {
+    const completeFirebaseSignIn = vi.fn()
+    useAuth.setState({ completeFirebaseSignIn } as any)
+    vi.mocked(firebaseApp).mockResolvedValue({} as any)
+    vi.mocked(api).mockRejectedValue(
+      new ApiError(403, 'Tài khoản Google này không phải của ba / mẹ quản lý bé', {}),
+    )
+
+    await act(async () => {
+      root?.render(<ParentGateModal open={true} onClose={() => {}} />)
+    })
+    const dialog = document.querySelector('[role="dialog"]')
+    const forgotBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) =>
+      b.textContent?.includes('Quên mật khẩu hoặc muốn dùng Google?'),
+    )
+    await act(async () => {
+      forgotBtn?.click()
+    })
+    const googleBtn = Array.from(dialog?.querySelectorAll('button') ?? []).find((b) =>
+      b.textContent?.includes('Mở khóa nhanh bằng Google'),
+    )
+    await act(async () => {
+      googleBtn?.click()
+    })
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    expect(api).toHaveBeenCalledWith(
+      '/api/parent/gate/verify-google',
+      expect.objectContaining({ body: JSON.stringify({ idToken: 'google-id-token' }) }),
+    )
+    expect(completeFirebaseSignIn).not.toHaveBeenCalled()
+    expect(window.location.replace).not.toHaveBeenCalled()
+    expect(dialog?.textContent).toContain('không phải của ba / mẹ')
   })
 })
