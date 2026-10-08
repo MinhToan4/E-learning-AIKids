@@ -17,6 +17,7 @@ services:
         # Leave empty for Docker-proxy mode (FE calls relative /api/).
         # Set to https://hub.storymee.com for cross-domain prod builds.
         VITE_API_URL: ${VITE_API_URL:-}
+    image: ${AIKIDS_WEB_IMAGE:-e-learning-aikids-web:latest}
     container_name: aikids-web
     restart: unless-stopped
     ports:
