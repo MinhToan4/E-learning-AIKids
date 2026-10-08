@@ -821,7 +821,7 @@ export function AikiStudioSoftClayWorkspace({
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 w-full">
             {parts.map((part, idx) => {
               const isSelected = activeIdx === idx
               const isDone = completedParts.includes(idx)
@@ -837,35 +837,56 @@ export function AikiStudioSoftClayWorkspace({
                   type="button"
                   onClick={() => handleSelectPart(idx)}
                   className={cn(
-                    'p-2 rounded-2xl transition-all flex items-center gap-2 cursor-pointer text-left select-none',
+                    'relative p-2.5 sm:p-3 rounded-2xl transition-all flex flex-col justify-between cursor-pointer select-none text-left group',
                     isSelected
-                      ? 'border-2 border-[#FD7D2E] bg-gradient-to-r from-[#FFF4EC] to-[#FFE8D6] shadow-sm'
+                      ? 'border-2 border-[#FD7D2E] bg-gradient-to-b from-[#FFFDF9] to-[#FFF3E8] shadow-md shadow-orange-500/10 ring-2 ring-orange-200/80 scale-[1.01]'
                       : isDone
-                      ? 'border border-emerald-300/80 bg-emerald-50/50 hover:border-emerald-400'
-                      : 'border border-slate-200/90 bg-white hover:border-amber-300'
+                      ? 'border-2 border-emerald-300 bg-emerald-50/50 hover:border-emerald-400'
+                      : 'border-2 border-amber-200/80 bg-white hover:border-[#FD7D2E]/70 hover:bg-amber-50/30'
                   )}
                 >
-                  <img
-                    src={part.thumb}
-                    alt={part.title}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain bg-amber-50 p-1 shrink-0 border border-amber-200/60"
-                  />
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <div className="text-xs sm:text-sm font-black text-slate-800 truncate">
-                      {part.title}
-                    </div>
-                    <div
+                  {/* Header thẻ: Huy hiệu số thứ tự + Trạng thái */}
+                  <div className="flex items-center justify-between gap-1.5 w-full mb-1.5">
+                    <span
                       className={cn(
-                        'text-[10px] sm:text-[11px] truncate',
+                        'size-5 sm:size-6 rounded-lg font-black text-[10px] sm:text-xs grid place-items-center shadow-2xs shrink-0',
+                        isSelected
+                          ? 'bg-[#FD7D2E] text-white'
+                          : isDone
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-amber-100 text-amber-900 border border-amber-300'
+                      )}
+                    >
+                      {part.partNumber || idx + 1}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 border',
                         isDone
-                          ? 'text-emerald-700 font-bold'
+                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                           : isSelected
-                          ? 'text-[#FD7D2E] font-black'
-                          : 'text-slate-400 font-semibold'
+                          ? 'bg-orange-100 text-[#FD7D2E] border-orange-200 font-black'
+                          : 'bg-slate-100 text-slate-500 border-slate-200'
                       )}
                     >
                       {statusLabel}
-                    </div>
+                    </span>
+                  </div>
+
+                  {/* Khung ảnh to rõ nét — To gấp 3 lần cũ, hiển thị trọn vẹn chủ thể bé vẽ */}
+                  <div className="w-full h-24 sm:h-28 md:h-32 rounded-xl bg-amber-50/70 p-1.5 flex items-center justify-center overflow-hidden border border-amber-200/60 shadow-2xs group-hover:bg-white transition-colors">
+                    <img
+                      src={part.thumb}
+                      alt={part.title}
+                      className="max-h-full max-w-full object-contain drop-shadow-2xs group-hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+
+                  {/* Tên món đồ nằm bên dưới ảnh — Text hiển thị đầy đủ, không che ép ảnh và KHÔNG BỊ CẮT '...' */}
+                  <div className="w-full mt-2 min-h-[2rem] flex items-center justify-center text-center">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 leading-snug break-words line-clamp-2">
+                      {part.title}
+                    </span>
                   </div>
                 </button>
               )

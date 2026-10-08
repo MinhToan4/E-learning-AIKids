@@ -250,14 +250,14 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                 ) : null}
               </div>
 
-              {/* Tầng 2: Center Body - Tên từ vựng / Món đồ to rõ, bỏ hoàn toàn vòng tròn tick xanh to */}
+              {/* Tầng 2: Center Body - Tên từ vựng / Món đồ to rõ kèm ảnh chủ thể trực quan */}
               {isFixedSubjectSlot ? (
-                <div className="flex min-w-0 flex-1 items-center justify-center py-2 text-center">
+                <div className="flex min-w-0 flex-1 flex-col items-center justify-center py-1 px-1 text-center gap-1.5">
                   {slot.subjectImage && (
                     <img
                       src={slot.subjectImage}
                       alt={slot.currentBlock?.label || 'Món đồ'}
-                      className="sr-only"
+                      className="size-11 sm:size-12 rounded-xl object-contain bg-amber-50/90 p-1 border border-amber-200/70 shadow-2xs shrink-0"
                     />
                   )}
                   {slot.currentBlock?.icon && (
@@ -271,10 +271,10 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                   )}
 
                   <div className="min-w-0">
-                    <span className="block text-sm font-black leading-snug text-slate-900 sm:text-base">
+                    <span className="block text-xs sm:text-sm font-black leading-snug text-slate-900 line-clamp-2 break-words">
                       {slot.currentBlock?.label || slot.hint || 'Món đồ'}
                     </span>
-                    <span className="mt-1 inline-flex rounded-full border border-slate-200/60 bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 sm:text-[11px]">
+                    <span className="mt-0.5 inline-flex rounded-full border border-slate-200/60 bg-slate-100 px-2 py-0.2 text-[9px] sm:text-[10px] font-bold text-slate-500">
                       Món đồ bài học
                     </span>
                   </div>

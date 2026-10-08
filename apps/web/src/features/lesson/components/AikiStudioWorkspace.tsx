@@ -1193,21 +1193,29 @@ export function AikiStudioWorkspace({
                 {isPartFullyDone && <span className="text-emerald-600 text-xs font-black">✓</span>}
               </div>
 
-              {/* Hàng 2: Chỉ báo icon + Tên món đồ */}
-              <div className="flex items-center gap-1.5 sm:gap-2 w-full min-w-0">
-                <div
-                  className={cn(
-                    'size-5 sm:size-6 rounded-full flex items-center justify-center shrink-0 border shadow-2xs font-black text-[10px] sm:text-xs',
-                    isSelected
-                      ? 'bg-amber-400 border-amber-500 text-amber-950'
-                      : isPartFullyDone
-                      ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
-                      : 'bg-slate-100 border-slate-200 text-slate-500'
-                  )}
-                >
-                  {isPartFullyDone ? '✓' : isSelected ? '✏️' : `0${pIdx + 1}`}
-                </div>
-                <div className="font-black text-xs sm:text-[13px] text-slate-900 leading-tight truncate flex-1 min-w-0">
+              {/* Hàng 2: Ảnh minh họa món đồ + Tên món đồ to rõ không bị cắt ... */}
+              <div className="flex items-center gap-2 w-full min-w-0">
+                {(part.iconImage || (part as any).thumb) ? (
+                  <img
+                    src={part.iconImage || (part as any).thumb}
+                    alt={part.title}
+                    className="size-9 sm:size-10 rounded-xl object-contain bg-amber-50/90 p-0.5 border border-amber-200/80 shrink-0 shadow-2xs"
+                  />
+                ) : (
+                  <div
+                    className={cn(
+                      'size-6 sm:size-7 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs font-black text-xs',
+                      isSelected
+                        ? 'bg-amber-400 border-amber-500 text-amber-950'
+                        : isPartFullyDone
+                        ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                        : 'bg-slate-100 border-slate-200 text-slate-500'
+                    )}
+                  >
+                    {isPartFullyDone ? '✓' : isSelected ? '✏️' : `0${pIdx + 1}`}
+                  </div>
+                )}
+                <div className="font-black text-xs sm:text-[13px] text-slate-900 leading-snug line-clamp-2 break-words flex-1 min-w-0">
                   {part.title}
                 </div>
               </div>
