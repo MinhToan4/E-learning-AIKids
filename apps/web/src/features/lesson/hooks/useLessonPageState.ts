@@ -563,7 +563,25 @@ export function useLessonPageState({ questId, routeCourseId, location }: UseLess
           await learningApi.advanceLesson(lessonIdForSubmit, { fromPhase: 'practice' }).catch(() => null)
         }
         const checkRes = await learningApi.submitCheck(lessonIdForSubmit, { answers: answersPayload })
-        const confirmedStars = customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3
+        // Server là nguồn sự thật: nếu backend chấm chưa đạt (passed === false) thì
+        // KHÔNG đánh dấu hoàn thành / 3 sao ở client — bài kế trên server vẫn khóa.
+        const serverPassed = checkRes?.passed !== false
+        const serverStars = typeof checkRes?.stars === 'number' ? checkRes.stars : undefined
+        if (!serverPassed) {
+          const stars = Math.min(serverStars ?? 2, 2)
+          setLiveStars(stars)
+          setError(checkRes?.message || 'Con hãy xem lại những câu chưa đúng rồi thử lại nhé!')
+          try {
+            saveLocalLessonProgress(authoritativeLessonId || quest.id || questId, stars, false, user?.id)
+          } catch {
+            // ignore storage failure
+          }
+          void queryClient.invalidateQueries({ queryKey: ['pathway'] })
+          return false
+        }
+        const confirmedStars = serverStars && serverStars >= 1
+          ? serverStars
+          : (customSummary?.stars && customSummary.stars >= 1 ? customSummary.stars : 3)
         const celebrationMsg = isIslandJourney
           ? `Xuất sắc! Con đã hoàn thành ${quest.title} và được hệ thống ghi nhận ${confirmedStars} Sao!`
           : (confirmedStars >= 3 ? 'Xuất sắc! Con đạt trọn 3 Sao. Chào mừng Hiệp Sĩ Sáng Tạo AIKI!' : `Xuất sắc! Con đạt ${confirmedStars} Sao.`)
